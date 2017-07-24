@@ -2,9 +2,7 @@
  * Copyright (c) 2012, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
-
-#include <core/TIFFModel.h>
-
+#include <core/AbstractWindowModel.h>
 #include <proc/TIFFSourceStage.h>
 #include <proc/ProcessStage.h>
 #include <proc/FinalStage.h>
@@ -13,11 +11,6 @@
 
 #include <QDateTime>
 #include <QDebug>
-
-using dstar::TIFFFile;
-using dstar::AbstractObject;
-using dstar::AbstractGroup;
-using dstar::AbstractData;
 
 using gstar::Array;
 
@@ -53,29 +46,20 @@ TIFFSourceStage::TIFFSourceStage(AbstractWindowModel* tiffModel)
    m_imageWidth  = m_tiffModel->getImageDims(m_widthDimIndex);
 
 
-   int type = m_tiffModel->getDataType();
+   int pixelByteSize = m_tiffModel->getPixelByteSize() / 8;
    Array::DataType arrayType = Array::INVALID;
 
-   switch (type)
+   switch (pixelByteSize)
    {
-   case dstar::Char:
+   case 1:
       m_imageLenBytes = m_imageWidth * m_imageHeight;
       arrayType = Array::UINT8;
       break;
-   case dstar::UnsignedChar:
-      m_imageLenBytes = m_imageWidth * m_imageHeight;
-      arrayType = Array::UINT8;
-      break;
-   case dstar::Short:
+   case 2:
       arrayType = Array::UINT16;
       m_imageLenBytes = m_imageWidth * m_imageHeight * 2;
       break;
-   case dstar::UnsignedShort:
-      arrayType = Array::UINT16;
-      m_imageLenBytes = m_imageWidth * m_imageHeight * 2;
-      break;
-   case dstar::Int:
-   case dstar::UnsignedInt:
+   case 4:
       arrayType = Array::BGRA32;
       m_imageLenBytes = m_imageWidth * m_imageHeight * 4;
       break;
@@ -172,15 +156,15 @@ void TIFFSourceStage::execute()
    computeImageDims();
 
    if (m_imageIndex > m_imageCount) return;
-
+/*
    shared_array<char> arr = m_tiffModel->getReorderedImageData(m_imageIndex,
                                                               m_imageDimIndex,
                                                               m_heightDimIndex,
                                                               m_widthDimIndex);
-
+*/
    uchar* dst = m_data->getBuffer();
 
-   char* src = arr.get();
+   uchar* src = m_tiffModel->getBytes();
 
    memcpy(dst, src, m_imageLenBytes);
 
@@ -233,15 +217,6 @@ int TIFFSourceStage::getHeightDimension()
 {
 
    return m_heightDimIndex;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-gstar::Array* TIFFSourceStage::getOutputBuffer()
-{
-
-   return m_data;
 
 }
 

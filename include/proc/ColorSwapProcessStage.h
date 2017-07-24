@@ -59,11 +59,6 @@ public:
    void setInputBuffer(gstar::Array* input);
 
    /**
-    * Get output buffer.
-    */
-   gstar::Array* getOutputBuffer();
-
-   /**
     * Set the sequence of RGB color in the image.
     */
    void setRGBSequence(int first, int second, int third);

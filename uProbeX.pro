@@ -30,12 +30,9 @@ GSTAR_INCLUDE = "${GSTAR_BASE}/include"
 GSTAR_LIBS = "${GSTAR_BASE}/lib"
 SSTAR_INCLUDE = "${SSTAR_BASE}/include"
 SSTAR_LIBS = "${SSTAR_BASE}/bin/shared"
-DSTAR_INCLUDE="${DSTAR_BASE}/include"
-DSTAR_LIBS="${DSTAR_BASE}/lib/shared"
 HDF5_INCLUDE="${HDF5_BASE}/include"
 HDF5_LIBS="${HDF5_BASE}/lib"
-TIFF_INCLUDE="${TIFF_BASE}/include"
-TIFF_LIBS="${TIFF_BASE}/lib"
+
 
 win32 {
 BOOST_INCLUDE = "$$(BOOST_BASE)"
@@ -47,12 +44,8 @@ GSTAR_INCLUDE = "$$(GSTAR_BASE)\\include"
 GSTAR_LIBS = "$$(GSTAR_BASE)\\lib"
 SSTAR_INCLUDE = "$$(SSTAR_BASE)\\include"
 SSTAR_LIBS = "$$(SSTAR_BASE)\\bin\\static"
-DSTAR_INCLUDE="$$(DSTAR_BASE)\\include"
-DSTAR_LIBS="$$(DSTAR_BASE)\\lib\\static"
 HDF5_INCLUDE="$$(HDF5_BASE)\\include"
 HDF5_LIBS="$$(HDF5_BASE)\\lib"
-TIFF_INCLUDE="$$(TIFF_BASE)\\include"
-TIFF_LIBS="$$(TIFF_BASE)\\lib"
 BOOST_VER="$$(BOOST_VER)"
 }
 
@@ -62,8 +55,8 @@ BOOST_VER="$$(BOOST_VER)"
 DESTDIR = ./bin
 
 # Release or Debug
-CONFIG += release
-#CONFIG += debug
+#CONFIG += release
+CONFIG += debug
 CONFIG += ordered
 CONFIG += console 
 DEFINES += WITH_DOM
@@ -76,9 +69,7 @@ INCLUDEPATH += $${EPICS_BASE}/include
 INCLUDEPATH += $${EPICS_BASE}/include/os/$${EPICS_TARGET_OS}
 INCLUDEPATH += $${GSTAR_INCLUDE}
 INCLUDEPATH += $${SSTAR_INCLUDE}
-INCLUDEPATH += $${DSTAR_INCLUDE}
 INCLUDEPATH += $${HDF5_INCLUDE}
-INCLUDEPATH += $${TIFF_INCLUDE}
 
 # System dependent library paths
 macx {
@@ -114,7 +105,6 @@ QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
 
 
 LIBS += -L$${EPICS_BASE}/lib/$${EPICS_HOST_ARCH} -lca
-LIBS += -L$${DSTAR_LIBS} -ldstar
 LIBS += -L$${GSTAR_LIBS} -lGStar
 LIBS += -L$${SSTAR_LIBS} -lsstar
 LIBS += -L$${HDF5_LIBS}  -lhdf5

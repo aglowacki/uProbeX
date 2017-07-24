@@ -18,7 +18,6 @@
 #include <QMessageBox>
 
 class AbstractWindowModel;
-class TIFFModel;
 class TIFFWidget;
 class TIFFSourceStage;
 

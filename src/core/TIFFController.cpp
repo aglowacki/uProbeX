@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <core/TIFFController.h>
-#include <core/TIFFModel.h>
 #include <core/TIFFWidget.h>
 #include <core/AbstractWindowModel.h>
 
@@ -196,24 +195,15 @@ void TIFFController::openPipeline()
    // Initialize the histogram object
    //double bins =
    //      (m_preferences->readValueKey(Preferences::HISTBins)).toDouble();
-   int arrayType = m_tiffModel->getDataType();
+   int pixelByteSize = m_tiffModel->getPixelByteSize();
 
-   switch (arrayType)
+   switch (pixelByteSize)
    {
-   case dstar::Char:
+   case 1:
       m_histogram = new Histogram(255 , 255);
       break;
-   case dstar::UnsignedChar:
-      m_histogram = new Histogram(255 , 255);
-      break;
-   case dstar::Short:
+   case 2:
       m_histogram = new Histogram(255, 65535);
-      break;
-   case dstar::UnsignedShort:
-      m_histogram = new Histogram(255, 65535);
-      break;
-   case dstar::Short12:
-      m_histogram = new Histogram(255, 4095);
       break;
    }
 
@@ -251,8 +241,10 @@ void TIFFController::openPipeline()
            this,
            SLOT(newFrameAvailable(const gstar::Array*)));
 
-   m_tiffSourceStage->setNextStage(m_processStage);
-   m_processStage->setNextStage(m_displayStage);
+
+   m_tiffSourceStage->setNextStage(m_displayStage);
+   //m_tiffSourceStage->setNextStage(m_processStage);
+   //m_processStage->setNextStage(m_displayStage);
 
    // Start area detector thread.
    m_tiffSourceStage->start();

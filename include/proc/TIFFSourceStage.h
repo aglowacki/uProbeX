@@ -11,8 +11,6 @@
 #include <proc/Thread.h>
 #include <proc/SourceStage.h>
 
-#include <DStar.h>
-
 #include <QObject>
 
 #include <boost/shared_ptr.hpp>
@@ -67,11 +65,6 @@ public:
    int getHeightDimension();
 
    /**
-    * Get the output buffer.
-    */
-   gstar::Array* getOutputBuffer();
-
-   /**
     * Get the dimension index for image width.
     */
    int getWidthDimension();
@@ -120,10 +113,8 @@ private:
    gstar::Array* m_data;
 
    /**
-    * tiff file.
+    * @brief m_tiffModel
     */
-   boost::shared_ptr<dstar::TIFFFile> m_tiffFile;
-
    AbstractWindowModel* m_tiffModel;
 
    /**

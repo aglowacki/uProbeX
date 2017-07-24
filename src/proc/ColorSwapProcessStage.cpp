@@ -159,15 +159,6 @@ void ColorSwapProcessStage::getColorImage(unsigned char* origImage,
 
 /*---------------------------------------------------------------------------*/
 
-Array* ColorSwapProcessStage::getOutputBuffer()
-{
-
-   return m_outputBuffer;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void ColorSwapProcessStage::setInputBuffer(Array* buffer)
 {
 

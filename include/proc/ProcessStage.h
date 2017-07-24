@@ -41,11 +41,6 @@ public:
    /**
     * Get the output buffer
     */
-   virtual gstar::Array* getOutputBuffer() = 0;
-
-   /**
-    * Get the output buffer
-    */
    virtual void setRGBSequence(int first, int second, int third) = 0;
 
 };

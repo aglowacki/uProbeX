@@ -17,7 +17,6 @@
 #include <QImageReader>
 #include <QApplication>
 
-using dstar::Selection;
 using gstar::LinearTransformer;
 
 const char NUM_SAMPLES_STR[] = {"Mosaic/Count"};
@@ -112,12 +111,12 @@ gstar::CoordinateModel* SWSModel::getCoordModel()
 
 /*---------------------------------------------------------------------------*/
 
-int SWSModel::getDataType()
+int SWSModel::getPixelByteSize()
 {
 
    if(m_tiffModel != NULL)
-      return m_tiffModel->getDataType();
-   return 3;
+      return m_tiffModel->getPixelByteSize();
+   return 1;
 
 }
 
@@ -142,7 +141,7 @@ int SWSModel::getImageDims(int imageIndex)
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 Selection SWSModel::getImageSelection()
 {
 
@@ -152,7 +151,7 @@ Selection SWSModel::getImageSelection()
    return s;
 
 }
-
+*/
 /*---------------------------------------------------------------------------*/
 
 int SWSModel::getNumberOfImages()
@@ -161,17 +160,6 @@ int SWSModel::getNumberOfImages()
    if(m_tiffModel != NULL)
       return m_tiffModel->getNumberOfImages();
    return 0;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-gstar::Array* SWSModel::getOutputBuffer()
-{
-
-   if(m_tiffModel != NULL)
-      return m_tiffModel->getOutputBuffer();
-   return NULL;
 
 }
 
@@ -669,12 +657,12 @@ bool SWSModel::loadTiff()
 
       if(file1.exists() == true)
       {
-         m_tiffModel = new TIFFModel(m_datasetPath+".tiff");
+         m_tiffModel = new TIFFModel(m_datasetPath+".tiff", "");
          m_tiffLoaded = true;
       }
       else if(file2.exists() == true)
       {
-         m_tiffModel = new TIFFModel(m_datasetPath+".tif");
+         m_tiffModel = new TIFFModel(m_datasetPath+".tif", "");
          m_tiffLoaded = true;
       }
       else
@@ -724,13 +712,7 @@ bool SWSModel::loadTiles()
 
 
       //m_samples[i].m_tiffModel = new TIFFModel(fileName);
-      /*
-      TIFFModel* tModel = new TIFFModel(fileName);
-      gstar::Array* ar = tModel->getOutputBuffer();
-      unsigned long long dims[2];
-      ar->getDims(dims, 2);
-      QImage *tiffImage = new QImage(ar->getBuffer(), dims[1], dims[0], QImage::Format_RGB888);
-      */
+
       QImage *tiffImage = new QImage();
       if (tiffImage->load(fileName, "tif"))
       {

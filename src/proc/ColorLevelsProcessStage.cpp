@@ -250,15 +250,6 @@ double ColorLevelsProcessStage::getRangeMax()
 
 /*---------------------------------------------------------------------------*/
 
-Array* ColorLevelsProcessStage::getOutputBuffer()
-{
-
-   return m_outputBuffer;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void ColorLevelsProcessStage::setRangeMinMax(Array::DataType type)
 {
 

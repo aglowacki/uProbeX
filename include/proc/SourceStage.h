@@ -36,11 +36,6 @@ public:
 
 protected:
 
-   /**
-    * The source stage generates the output buffer and makes it available
-    * for the next stage in the pipeline.
-    */
-   virtual gstar::Array* getOutputBuffer() = 0;
 
 };
 

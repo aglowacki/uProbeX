@@ -9,7 +9,6 @@
 #include <core/SubWindow.h>
 #include <core/SWSModel.h>
 #include <core/TIFFWidget.h>
-#include <core/TIFFModel.h>
 #include <core/TIFFController.h>
 #include <core/SWSWidget.h>
 #include <preferences/PreferencesDialog.h>

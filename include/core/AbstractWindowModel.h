@@ -39,7 +39,7 @@ public:
    /**
     * Get the data type from the image read in
     */
-   virtual int getDataType() = 0;
+   virtual int getPixelByteSize() = 0;
 
    /**
     * @brief getNumberOfImages
@@ -65,6 +65,8 @@ public:
     * @return
     */
    virtual int getImageDims(int imageDim) = 0;
+
+   virtual uchar* getBytes() = 0;
 
    virtual boost::shared_array<char> getReorderedImageData(int imageNum,
       int imageIndex,
