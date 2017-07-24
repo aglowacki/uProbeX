@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/cursor.png</file>
+        <file>images/enter.png</file>
+        <file>images/fill.png</file>
+        <file>images/next.png</file>
+        <file>images/previous.png</file>
+        <file>images/list-add.png</file>
+        <file>images/list-remove.png</file>
+        <file>images/down.png</file>
+        <file>images/zoomin.png</file>
+        <file>images/zoomoriginal.png</file>
+        <file>images/zoomout.png</file>
+        <file>images/start.png</file>
+        <file>images/stop.png</file>
+        <file>images/record.png</file>
+        <file>images/first.png</file>
+        <file>images/last.png</file>
+        <file>images/title.png</file>
+        <file>images/list-copy.png</file>
+        <file>images/ruler.png</file>
+        <file>images/marker.png</file>
+        <file>images/up.png</file>
+        <file>images/down2.png</file>
+        <file>images/uprobe.png</file>
+    </qresource>
+</RCC>

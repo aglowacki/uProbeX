@@ -1,0 +1,61 @@
+/*-----------------------------------------------------------------------------
+ * Copyright (c) 2012, UChicago Argonne, LLC
+ * See LICENSE file.
+ *---------------------------------------------------------------------------*/
+
+#include <core/TIFFWidget.h>
+
+#include <ImageViewWidget.h>
+
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+
+#include <QDebug>
+
+using gstar::AbstractImageWidget;
+using gstar::ImageViewWidget;
+
+/*---------------------------------------------------------------------------*/
+
+TIFFWidget::TIFFWidget(QWidget* parent)
+: AbstractImageWidget(parent)
+{
+
+   createLayout();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+TIFFWidget::~TIFFWidget()
+{
+
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void TIFFWidget::createLayout()
+{
+
+   QLayout* layout = generateDefaultLayout();
+   appendAnnotationTab();
+   setLayout(layout);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void TIFFWidget::windowChanged(Qt::WindowStates oldState,
+                               Qt::WindowStates newState)
+{
+   Q_UNUSED(oldState);
+
+   if(Qt::WindowMaximized || Qt::WindowActive == newState)
+   {
+      m_imageViewWidget->resizeEvent(NULL);
+   }
+
+}
+
+/*---------------------------------------------------------------------------*/

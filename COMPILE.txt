@@ -1,0 +1,5 @@
+To compile:
+1 Edit the setEnv.sh file so that the BASE directories point to the proper folder for each library.
+2 Run the script so your enviroment variables are properly set up. 
+3 Run qmake
+4 Run make
