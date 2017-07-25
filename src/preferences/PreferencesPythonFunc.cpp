@@ -248,15 +248,11 @@ void PreferencesPythonFunc::createComponents()
    m_tree->setModel(m_model);
 
    // Setup table
-#if QT_VERSION >= 0x050000
+
    m_tree->header()->setSectionResizeMode(1, QHeaderView::Stretch);
    m_tree->header()->setSectionResizeMode(2, QHeaderView::Fixed);
    m_tree->header()->setSectionsMovable(false);
-#else
-   m_tree->header()->setResizeMode(1, QHeaderView::Stretch);
-   m_tree->header()->setResizeMode(2, QHeaderView::Fixed);
-   m_tree->header()->setMovable(false);
-#endif
+
    //m_tree->header()->setResizeMode(0, QHeaderView::Stretch);
 
    m_tree->setSelectionBehavior(QAbstractItemView::SelectItems);

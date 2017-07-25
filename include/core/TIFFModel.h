@@ -13,10 +13,6 @@
 #include <QString>
 #include <QImageReader>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_array.hpp>
-
 //GStar
 #include <Array.h>
 
@@ -70,19 +66,16 @@ public:
     virtual int getRank();
 
     /**
-    * @brief Get recorded image data
-    * @param imageNum
-    * @param imageIndex
-    * @param heightIndex
-    * @param widthIndex
-    */
-
-    virtual boost::shared_array<char> getReorderedImageData(int imageNum,
-                                                            int imageIndex,
-                                                            int heightIndex,
-                                                            int widthIndex);
-
+     * @brief getBytes
+     * @return
+     */
     virtual uchar* getBytes() { return _img.bits(); }
+
+    /**
+     * @brief getImage
+     * @return
+     */
+    virtual QImage* getImage() { return &_img; }
 
 private:
 

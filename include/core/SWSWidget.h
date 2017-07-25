@@ -20,7 +20,7 @@
 #include <QGraphicsView>
 
 #include <preferences/SolverParameterParse.h>
-#include <SStar.h>
+//#include <SStar.h>
 
 
 class QAbstractTableModel;
@@ -113,12 +113,12 @@ public:
    /**
     * @brief saveScreenShot
     */
-   void saveScreenShot();  
+   void saveScreenShot();
 
    /**
     * @brief get the coordinate info from the widget
     */
-   void saveXMLCoordinateInfo();  
+   void saveXMLCoordinateInfo();
 
    /**
     * @brief Save temp file of the current coordinate info.
@@ -413,7 +413,7 @@ private:
    /**
     * @brief m_addCalibrationAction
     */
-   QAction* m_addCalibrationAction;      
+   QAction* m_addCalibrationAction;
 
    /**
     * @brief m_grabMicroProbePVAction
@@ -485,26 +485,18 @@ private:
     */
    bool m_microProbePvSet;
 
-   /**
-    * @brief m_pvXHandler
-    */
+   /*
    CAEventHandler* m_pvXHandler;
 
-   /**
-    * @brief m_pvYHandler
-    */
+
    CAEventHandler* m_pvYHandler;
 
-   /**
-    * @brief pvX
-    */
+
    boost::shared_ptr<PV> m_pvX;
 
-   /**
-    * @brief pvY
-    */
-   boost::shared_ptr<PV> m_pvY;
 
+   boost::shared_ptr<PV> m_pvY;
+    */
    /**
     * @brief m_pxValue
     */
@@ -643,7 +635,7 @@ private:
    /**
     * @brief m_actionMap
     */
-   QMap<QAction*, RegionCaller*> m_actionMap;  
+   QMap<QAction*, RegionCaller*> m_actionMap;
 
 };
 

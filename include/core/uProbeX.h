@@ -12,7 +12,6 @@
 
 #include <preferences/Preferences.h>
 #include <preferences/SolverParameterParse.h>
-#include <boost/shared_ptr.hpp>
 #include <CoordinateModel.h>
 #include <QDesktopWidget>
 #include <QApplication>
@@ -60,11 +59,7 @@ public:
    /**
     * Constructor. See Qt documentation for QMainWindow.
     */
-#if QT_VERSION >= 0x050000
     uProbeX(QWidget* parent, Qt::WindowFlags flags = 0);
-#else
-    uProbeX(QWidget* parent = 0, Qt::WFlags flags = 0);
-#endif
 
    /**
     * Destructor

@@ -8,15 +8,11 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <ColorTransferFunction.h>
 #include <preferences/Preferences.h>
 
 #include <QObject>
 
 class AbstractWindowModel;
-class ProcessStage;
-class DisplayStage;
-class Histogram;
 
 namespace gstar
 {
@@ -60,18 +56,7 @@ public:
     */
    virtual gstar::AbstractImageWidget* getWidget() = 0;
 
-   /**
-    * @brief getHistogram
-    * @return
-    */
-   Histogram* getHistogram();
-
 public slots:
-
-   /**
-    * Update CTF.
-    */
-   virtual void updateCTF(gstar::ColorTransferFunction) = 0;
 
 signals:
 
@@ -91,21 +76,6 @@ protected:
     * Preferences
     */
    Preferences* m_preferences;
-
-   /**
-    * For configuring histogram plot;
-    */
-   Histogram* m_histogram;
-
-   /**
-    * Display stage
-    */
-   DisplayStage* m_displayStage;
-
-   /**
-    * Process stage either swap or changing to RGB
-    */
-   ProcessStage* m_processStage;
 
 };
 

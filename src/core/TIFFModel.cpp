@@ -9,14 +9,6 @@
 #include <queue>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-
-using boost::shared_array;
-using boost::const_pointer_cast;
-using boost::dynamic_pointer_cast;
-using boost::lexical_cast;
-
 using gstar::Array;
 
 using std::vector;
@@ -107,22 +99,6 @@ int TIFFModel::getRank()
 {
 
     return 2;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-shared_array<char> TIFFModel::getReorderedImageData(
-        int imageNum,
-        int imageIndex,
-        int heightIndex,
-        int widthIndex)
-{
-
-
-    shared_array<char> arr;// = m_tiffData->getData();
-
-    return arr;
 
 }
 

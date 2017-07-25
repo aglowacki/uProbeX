@@ -19,7 +19,6 @@
 
 class AbstractWindowModel;
 class TIFFWidget;
-class TIFFSourceStage;
 
 namespace gstar
 {
@@ -81,22 +80,9 @@ public slots:
    void imageHeightDimUpdated(int h);
 
    /**
-    * @brief Update the current image loaded in the pipeline.
-    *
-    * @param index - current index selected by user in range widget.
-    * @param id - optional id parameters, currently ignored.
-    */
-   void imageIndexChanged(int index, int id);
-
-   /**
     * @brief Update the width of dim
     */
    void imageWidthDimUpdated(int w);
-
-   /**
-    * @brief Upate the ctf function
-    */
-   void updateCTF(gstar::ColorTransferFunction ctf);
 
 private:
 
@@ -108,12 +94,12 @@ private:
    /**
     * @brief Close TIFF pipeline
     */
-   void closePipeline();
+   //void closePipeline();
 
    /**
     * @brief Create TIFF pipeline
     */
-   void openPipeline();
+   //void openPipeline();
 
 
 private slots:
@@ -134,11 +120,6 @@ private:
     * @brief Create HDF5 model;
     */
    AbstractWindowModel* m_tiffModel;
-
-   /**
-    * @brief HDF5 source stage;
-    */
-   TIFFSourceStage* m_tiffSourceStage;
 
 };
 

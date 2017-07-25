@@ -176,24 +176,6 @@ int SWSModel::getRank()
 
 /*---------------------------------------------------------------------------*/
 
-boost::shared_array<char> SWSModel::getReorderedImageData(int imageNum,
-   int imageIndex,
-   int heightIndex,
-   int widthIndex)
-{
-
-   boost::shared_array<char> s;
-   if(m_tiffModel != NULL)
-      return m_tiffModel->getReorderedImageData(imageNum,
-                                                imageIndex,
-                                                heightIndex,
-                                                widthIndex);
-   return s;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void SWSModel::initializeCoordModel()
 {
 

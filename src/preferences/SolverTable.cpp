@@ -123,17 +123,12 @@ void SolverTable::createComponents()
 
    // Setup table
    m_solverTable->setModel(m_solverModel);
-#if QT_VERSION >= 0x050000
+
    m_solverTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
    m_solverTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
    m_solverTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
    m_solverTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-#else
-   m_solverTable->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-   m_solverTable->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
-   m_solverTable->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
-   m_solverTable->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
-#endif
+
    m_solverTable->hideColumn(2);
 
    m_solverTable->verticalHeader()->hide();

@@ -40,7 +40,7 @@
 
 #include <core/PythonRegionCaller.h>
 #include <core/ShellRegionCaller.h>
-#include <core/CAEmitDataChangeHandler.h>
+//#include <core/CAEmitDataChangeHandler.h>
 
 #include <mvc/SolverWidget.h>
 
@@ -66,8 +66,8 @@ SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
 {
 
    m_microProbePvSet = false;
-   m_pvXHandler = NULL;
-   m_pvYHandler = NULL;
+//   m_pvXHandler = NULL;
+//   m_pvYHandler = NULL;
    m_solverWidget = NULL;
    m_coordinateModel = NULL;
    m_calSelectionModel = NULL;
@@ -103,7 +103,7 @@ SWSWidget::~SWSWidget()
       delete m_solverWidget;
    }
    m_solverWidget = NULL;
-
+/*
    if (m_pvXHandler != NULL)
       delete m_pvXHandler;
    m_pvXHandler = NULL;
@@ -111,7 +111,7 @@ SWSWidget::~SWSWidget()
    if (m_pvYHandler != NULL)
       delete m_pvYHandler;
    m_pvYHandler = NULL;
-
+*/
    //if(m_lightToMicroCoordWidget != NULL)
    //   delete m_lightToMicroCoordWidget;
    //m_lightToMicroCoordWidget = NULL;
@@ -1191,7 +1191,7 @@ void SWSWidget::displayContextMenu(QWidget* parent,
 
 void SWSWidget::checkMicroProbePVs()
 {
-
+/*
    try
    {
 
@@ -1203,13 +1203,9 @@ void SWSWidget::checkMicroProbePVs()
 
          ChannelAccess* ca = ChannelAccess::getInstance();
 
-#if QT_VERSION >= 0x050000 
+
          m_pvX = ca->getPV(microX.toLatin1().data(), 1, 1);
          m_pvY = ca->getPV(microY.toLatin1().data(), 1, 1);
-#else 
-         m_pvX = ca->getPV(microX.toAscii().data(), 1, 1);
-         m_pvY = ca->getPV(microY.toAscii().data(), 1, 1);
-#endif
 
          switch(m_pvX->getType())
          {
@@ -1252,6 +1248,7 @@ void SWSWidget::checkMicroProbePVs()
    {
       qDebug()<<"Failed to initialize PV's";
    }
+   */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1557,7 +1554,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
 
 void SWSWidget::grabMicroProbePV()
 {
-
+/*
    try
    {
       //set mouse to wait
@@ -1571,6 +1568,7 @@ void SWSWidget::grabMicroProbePV()
    {
       qDebug()<<"Error calling caget for PV's";
    }
+   */
 }
 
 /*---------------------------------------------------------------------------*/

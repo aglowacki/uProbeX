@@ -9,7 +9,6 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QList>
-#include <boost/shared_array.hpp>
 
 /*---------------------------------------------------------------------------*/
 
@@ -68,15 +67,16 @@ public:
 
    virtual uchar* getBytes() = 0;
 
-   virtual boost::shared_array<char> getReorderedImageData(int imageNum,
-      int imageIndex,
-      int heightIndex,
-      int widthIndex) = 0;
-
    /**
     * Set the list of the points of the histogram
     */
    void setHistogram(QList<int> hist);
+
+   /**
+    * @brief getImage
+    * @return
+    */
+   virtual QImage* getImage() = 0;
 
 protected:
 

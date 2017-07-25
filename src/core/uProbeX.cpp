@@ -52,12 +52,7 @@ static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
 /*---------------------------------------------------------------------------*/
 
-#if QT_VERSION >= 0x050000
-    uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags)
-#else
-    uProbeX::uProbeX(QWidget* parent, Qt::WFlags flags)
-#endif
-: QMainWindow(parent, flags)
+uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
    m_lightToMicroCoordModel = NULL;
    m_solver = NULL;
@@ -584,9 +579,11 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
       SWSModel* swsModel = new SWSModel(path);
       if(swsModel->tiffLoaded())
       {
+
          tiffController = new TIFFController(swsWidget,
                                              swsModel,
                                              &m_preferences);
+
          swsWidget->setCoordinateModel(swsModel->getCoordModel());
          swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
          swsWidget->setMarker(path);
@@ -601,7 +598,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
    catch(std::string& s)
    {
       delete swsWidget;
-      delete tiffController;
+      //delete tiffController;
 
       // Restore cursor
       QApplication::restoreOverrideCursor();

@@ -10,12 +10,6 @@
 #include <preferences/Preferences.h>
 //#include <preferences/PVAttributesGroup.h>
 
-#include <proc/ColorSwapProcessStage.h>
-#include <proc/TIFFSourceStage.h>
-#include <proc/DisplayStage.h>
-#include <proc/Histogram.h>
-
-
 #include <Array.h>
 #include <QDateTime>
 
@@ -33,12 +27,8 @@ TIFFController::TIFFController(gstar::AbstractImageWidget* tiffWidget,
    m_tiffModel = tiffModel;
    m_preferences = preferences;
 
-   m_tiffSourceStage = NULL;
-   m_processStage = NULL;
-   m_displayStage = NULL;
-   m_histogram = NULL;
-
-   openPipeline();
+   m_tiffWidget->updateFrame(m_tiffModel->getImage());
+   //openPipeline();
 
 }
 
@@ -47,7 +37,7 @@ TIFFController::TIFFController(gstar::AbstractImageWidget* tiffWidget,
 TIFFController::~TIFFController()
 {
 
-   closePipeline();
+   //closePipeline();
 
    if (m_tiffModel != NULL) delete m_tiffModel;
    // the widget is deleted by the qt.
@@ -55,7 +45,7 @@ TIFFController::~TIFFController()
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void TIFFController::closePipeline()
 {
 
@@ -102,7 +92,7 @@ void TIFFController::closePipeline()
    }
 
 }
-
+*/
 /*---------------------------------------------------------------------------*/
 
 AbstractWindowModel* TIFFController::getModel()
@@ -125,24 +115,11 @@ gstar::AbstractImageWidget* TIFFController::getWidget()
 void TIFFController::imageHeightDimUpdated(int h)
 {
 
-   if (m_tiffSourceStage == NULL) return;
+   //if (m_tiffSourceStage == NULL) return;
 
-   m_tiffSourceStage->setHeightDimension(h);
-   m_tiffWidget->setWidthDims(m_tiffSourceStage->getWidthDimension());
+   //m_tiffSourceStage->setHeightDimension(h);
+   //m_tiffWidget->setWidthDims(m_tiffSourceStage->getWidthDimension());
    m_tiffWidget->setNumberOfImages(m_tiffModel->getNumberOfImages());
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void TIFFController::imageIndexChanged(int index, int id)
-{
-
-   Q_UNUSED(id);
-
-   if (m_tiffSourceStage == NULL) return;
-
-   m_tiffSourceStage->setImageIndex(index);
 
 }
 
@@ -151,10 +128,10 @@ void TIFFController::imageIndexChanged(int index, int id)
 void TIFFController::imageWidthDimUpdated(int w)
 {
 
-   if (m_tiffSourceStage == NULL) return;
+   //if (m_tiffSourceStage == NULL) return;
 
-   m_tiffSourceStage->setWidthDimension(w);
-   m_tiffWidget->setHeightDims(m_tiffSourceStage->getHeightDimension());
+   //m_tiffSourceStage->setWidthDimension(w);
+   //m_tiffWidget->setHeightDims(m_tiffSourceStage->getHeightDimension());
    m_tiffWidget->setNumberOfImages(m_tiffModel->getNumberOfImages());
 
 }
@@ -165,18 +142,13 @@ void TIFFController::newFrameAvailable(const gstar::Array* image)
 {
 
    m_tiffWidget->updateFrame(image);
-   if (m_histogram != NULL)
-   {
-      emitHistogram(m_histogram->getCounts());
-      m_tiffModel->setHistogram(m_histogram->getCounts());
-   }
 
    QApplication::restoreOverrideCursor();
 
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void TIFFController::openPipeline()
 {
 
@@ -250,20 +222,6 @@ void TIFFController::openPipeline()
    m_tiffSourceStage->start();
 
 }
-
-/*---------------------------------------------------------------------------*/
-
-void TIFFController::updateCTF(gstar::ColorTransferFunction ctf)
-{
-
-   Q_UNUSED(ctf);
-
-   if (m_processStage == NULL) return;
-
-   // Re-load the current image
-   m_tiffSourceStage->setImageIndex(m_tiffSourceStage->getCurrentImageIndex());
-
-}
-
+*/
 /*---------------------------------------------------------------------------*/
 

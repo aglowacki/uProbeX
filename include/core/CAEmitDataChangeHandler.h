@@ -165,22 +165,13 @@ void CAEmitDataChangeHandler<QString, K>::onSuccess()
 {
 
    char* val = (char*) m_args.dbr;
-#if QT_VERSION >= 0x050000 
+
    if (m_args.count < strlen(val)){ 
       (m_model->*m_funcPtr)(QString::fromLatin1(val, m_args.count)); 
    } 
    else { 
       (m_model->*m_funcPtr)(QString::fromLatin1(val, strlen(val))); 
    } 
-#else 
- 
-   if (m_args.count < strlen(val)){ 
-      (m_model->*m_funcPtr)(QString::fromAscii(val, m_args.count)); 
-   } 
-   else { 
-      (m_model->*m_funcPtr)(QString::fromAscii(val, strlen(val))); 
-   } 
-#endif
 
 }
 

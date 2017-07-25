@@ -26,8 +26,6 @@
 #include <core/SWSWidget.h>
 #include <mvc/SolverWidget.h>
 #include <solver/CoordinateTransformer.h>
-#include <boost/shared_ptr.hpp>
-
 
 
 class QSpinBox;

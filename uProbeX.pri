@@ -1,15 +1,5 @@
 # Copyright (c) 2014, UChicago Argonne, LLC
 SOURCES +=  src/mvc/DeselectableTreeView.cpp \
-    src/proc/DisplayStage.cpp \
-    src/proc/FinalStage.cpp \
-    src/proc/ProcessStage.cpp \
-    src/proc/Stage.cpp \
-    src/proc/Thread.cpp \
-    src/proc/Histogram.cpp \
-    src/proc/SourceStage.cpp \
-    src/proc/ColorLevelsProcessStage.cpp \
-    src/proc/ColorSwapProcessStage.cpp \ 
-    src/proc/TIFFSourceStage.cpp \
     src/solver/asa047.cpp \
     src/solver/AbstractSolver.cpp \
     src/solver/Solver.cpp \
@@ -52,17 +42,6 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/preferences/PreferencesAutoSave.cpp \
     src/preferences/PreferencesExport.cpp
 HEADERS = include/mvc/DeselectableTreeView.h \
-    include/proc/TIFFSourceStage.h \
-    include/proc/Histogram.h \
-    include/proc/ColorLevelsProcessStage.h \
-    include/proc/CircularBuffer.h \
-    include/proc/DisplayStage.h \
-    include/proc/FinalStage.h \
-    include/proc/ProcessStage.h \
-    include/proc/SourceStage.h \
-    include/proc/Stage.h \
-    include/proc/Thread.h \
-    include/proc/ColorSwapProcessStage.h \ 
     include/solver/asa047.hpp \
     include/solver/AbstractSolver.h \
     include/solver/Solver.h \
@@ -71,7 +50,6 @@ HEADERS = include/mvc/DeselectableTreeView.h \
     include/solver/NelderMeadSolver.h \
     include/solver/PythonSolver.h \
     include/mvc/SolverWidget.h \
-    include/core/CAEmitDataChangeHandler.h \
     include/core/PythonLoader.h \
     include/core/RegionCaller.h \
     include/core/ShellRegionCaller.h \

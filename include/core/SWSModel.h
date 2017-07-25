@@ -68,21 +68,9 @@ public:
     */
     int getRank();
 
-    /**
-    * @brief Get recorded image data
-    * @param imageNum
-    * @param imageIndex
-    * @param heightIndex
-    * @param widthIndex
-    * @return the image data
-    */
-    boost::shared_array<char> getReorderedImageData(int imageNum,
-                                                    int imageIndex,
-                                                    int heightIndex,
-                                                    int widthIndex);
-
     virtual uchar* getBytes() { return m_tiffModel->getBytes(); }
 
+    virtual QImage* getImage() { return m_tiffModel->getImage(); }
     /**
     * @brief tiffLoaded
     * @return whether the tiff is loaded
@@ -234,11 +222,6 @@ private:
     * Tiff model
     */
     TIFFModel *m_tiffModel;
-
-    /**
-    * Mutex.
-    */
-    boost::mutex m_mutex;
 
     /**
     * @brief m_tiffLoaded
