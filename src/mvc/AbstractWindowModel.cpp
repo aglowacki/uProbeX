@@ -3,24 +3,11 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/AbstractWindowController.h>
-
-using gstar::ImageViewWidget;
-using gstar::Array;
+#include <mvc/AbstractWindowModel.h>
 
 /*---------------------------------------------------------------------------*/
 
-AbstractWindowController::AbstractWindowController()
-{
-
-   m_widget = NULL;
-   m_preferences = NULL;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-AbstractWindowController::~AbstractWindowController()
+AbstractWindowModel::AbstractWindowModel()
 {
 
 
@@ -28,3 +15,29 @@ AbstractWindowController::~AbstractWindowController()
 
 /*---------------------------------------------------------------------------*/
 
+AbstractWindowModel::~AbstractWindowModel()
+{
+
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+QList<int> AbstractWindowModel::getHistogram()
+{
+
+   return m_histogram;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractWindowModel::setHistogram(QList<int> hist)
+{
+
+   m_histogram = hist;
+
+}
+
+/*---------------------------------------------------------------------------*/

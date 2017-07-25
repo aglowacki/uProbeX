@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/SWSModel.h>
+#include <mvc/SWSModel.h>
 #include <QStringList>
 #include <QDir>
 #include <QFileInfo>
@@ -22,7 +22,7 @@ using gstar::LinearTransformer;
 const char NUM_SAMPLES_STR[] = {"Mosaic/Count"};
 const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\n"};
 
-/*---------------------------------------------------------------------------*/
+/*----------------src/mvc/SWSModel.cpp \-----------------------------------------------------------*/
 
 SWSModel::SWSModel(QString filepath)
 {
@@ -91,13 +91,12 @@ SWSModel::~SWSModel()
       m_model = NULL;
    }
 
-   /*
    if(m_tiffModel != NULL)
    {
       delete m_tiffModel;
       m_tiffModel = NULL;
    }
-   */
+
 }
 
 /*---------------------------------------------------------------------------*/

@@ -3,9 +3,9 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/TIFFController.h>
-#include <core/TIFFWidget.h>
-#include <core/AbstractWindowModel.h>
+#include <mvc/TIFFController.h>
+#include <mvc/TIFFWidget.h>
+#include <mvc/AbstractWindowModel.h>
 
 #include <preferences/Preferences.h>
 //#include <preferences/PVAttributesGroup.h>

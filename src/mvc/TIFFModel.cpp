@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/TIFFModel.h>
+#include <mvc/TIFFModel.h>
 
 #include <string>
 #include <queue>

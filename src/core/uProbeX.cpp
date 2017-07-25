@@ -5,12 +5,11 @@
 
 #include <core/uProbeX.h>
 
-#include <core/AbstractWindowController.h>
+#include <mvc/AbstractWindowController.h>
 #include <core/SubWindow.h>
-#include <core/SWSModel.h>
-#include <core/TIFFWidget.h>
-#include <core/TIFFController.h>
-#include <core/SWSWidget.h>
+#include <mvc/SWSModel.h>
+#include <mvc/TIFFController.h>
+#include <mvc/SWSWidget.h>
 #include <preferences/PreferencesDialog.h>
 #include <QFileDialog>
 #include <solver/CoordinateTransformer.h>

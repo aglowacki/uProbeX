@@ -8,8 +8,8 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <core/AbstractWindowModel.h>
-#include <core/TIFFModel.h>
+#include <mvc/AbstractWindowModel.h>
+#include <mvc/TIFFModel.h>
 
 #include <QSettings>
 #include <QString>

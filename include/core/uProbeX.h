@@ -19,12 +19,7 @@
 #include <QUuid>
 
 class SubWindow;
-class HDF5Controller;
 class AbstractWindowController;
-
-class TIFFModel;
-class TIFFController;
-class TIFFSourceStage;
 
 class QAction;
 class QActionGroup;

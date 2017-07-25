@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <core/AbstractWindowModel.h>
+#include <mvc/AbstractWindowModel.h>
 
 #include <QString>
 #include <QImageReader>

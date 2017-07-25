@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/SWSWidget.h>
+#include <mvc/SWSWidget.h>
 
 #include <ImageViewWidget.h>
 

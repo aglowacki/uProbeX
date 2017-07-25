@@ -8,18 +8,13 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/solver/NelderMeadSolver.cpp \
     src/solver/PythonSolver.cpp \
     src/mvc/SolverWidget.cpp \
-    src/core/PythonLoader.cpp \
-    src/core/RegionCaller.cpp \
-    src/core/ShellRegionCaller.cpp \
-    src/core/PythonRegionCaller.cpp \
-    src/core/AbstractWindowModel.cpp \
-    src/core/AbstractWindowController.cpp \
-    src/core/SubWindow.cpp \
-    src/core/SWSModel.cpp \
-    src/core/TIFFModel.cpp \
-    src/core/TIFFWidget.cpp \
-    src/core/TIFFController.cpp \
-    src/core/SWSWidget.cpp \
+    src/mvc/AbstractWindowModel.cpp \
+    src/mvc/AbstractWindowController.cpp \
+    src/mvc/TIFFModel.cpp \
+    src/mvc/TIFFWidget.cpp \
+    src/mvc/TIFFController.cpp \
+    src/mvc/SWSWidget.cpp \
+    src/mvc/SWSModel.cpp \
     src/preferences/Preferences.cpp \
     src/preferences/Attribute.cpp \
     src/preferences/AttributeGroup.cpp \
@@ -33,14 +28,19 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/preferences/SolverParameterWidget.cpp \
     src/preferences/PreferencesSolverOption.cpp \
     src/preferences/SolverParameterParse.cpp \
-    src/core/uProbeX.cpp \
-    src/main.cpp \ 
     src/preferences/ProfileTable.cpp \
     src/preferences/AttributeTableModel.cpp \
     src/preferences/PythonSolverProfileWidget.cpp \
     src/preferences/Profile.cpp \
     src/preferences/PreferencesAutoSave.cpp \
-    src/preferences/PreferencesExport.cpp
+    src/preferences/PreferencesExport.cpp \
+    src/core/PythonLoader.cpp \
+    src/core/RegionCaller.cpp \
+    src/core/ShellRegionCaller.cpp \
+    src/core/PythonRegionCaller.cpp \
+    src/core/SubWindow.cpp \
+    src/core/uProbeX.cpp \
+    src/main.cpp
 HEADERS = include/mvc/DeselectableTreeView.h \
     include/solver/asa047.hpp \
     include/solver/AbstractSolver.h \
@@ -50,18 +50,13 @@ HEADERS = include/mvc/DeselectableTreeView.h \
     include/solver/NelderMeadSolver.h \
     include/solver/PythonSolver.h \
     include/mvc/SolverWidget.h \
-    include/core/PythonLoader.h \
-    include/core/RegionCaller.h \
-    include/core/ShellRegionCaller.h \
-    include/core/PythonRegionCaller.h \
-    include/core/AbstractWindowModel.h \
-    include/core/AbstractWindowController.h \
-    include/core/SubWindow.h \
-    include/core/SWSModel.h \
-    include/core/TIFFModel.h \
-    include/core/TIFFWidget.h \
-    include/core/TIFFController.h \
-    include/core/SWSWidget.h \
+    include/mvc/AbstractWindowModel.h \
+    include/mvc/AbstractWindowController.h \
+    include/mvc/SWSModel.h \
+    include/mvc/TIFFModel.h \
+    include/mvc/TIFFWidget.h \
+    include/mvc/TIFFController.h \
+    include/mvc/SWSWidget.h \
     include/preferences/Preferences.h \
     include/preferences/PreferencesDisplay.h \
     include/preferences/PreferencesMicroPv.h \
@@ -75,11 +70,17 @@ HEADERS = include/mvc/DeselectableTreeView.h \
     include/preferences/PreferencesSolverOption.h \
     include/preferences/CoordinateTransformGlobals.h \
     include/preferences/SolverParameterParse.h \
-    include/core/uProbeX.h \ 
     include/preferences/ProfileTable.h \
     include/preferences/AttributeTableModel.h \
     include/preferences/PythonSolverProfileWidget.h \
     include/preferences/Profile.h \
     include/preferences/PreferencesAutoSave.h \
-    include/preferences/PreferencesExport.h
+    include/preferences/PreferencesExport.h \
+    include/core/PythonLoader.h \
+    include/core/RegionCaller.h \
+    include/core/ShellRegionCaller.h \
+    include/core/PythonRegionCaller.h \
+    include/core/SubWindow.h \
+    include/core/uProbeX.h
+
 

@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <core/AbstractWindowController.h>
+#include <mvc/AbstractWindowController.h>
 #include <preferences/Preferences.h>
 
 

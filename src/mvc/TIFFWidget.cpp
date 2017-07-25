@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/TIFFWidget.h>
+#include <mvc/TIFFWidget.h>
 
 #include <ImageViewWidget.h>
 
