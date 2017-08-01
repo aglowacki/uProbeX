@@ -23,15 +23,25 @@ QMAKE_EXT_CPP += .c
 
 GSTAR_INCLUDE = "${GSTAR_BASE}/include"
 GSTAR_LIBS = "${GSTAR_BASE}/lib"
+EIGEN_INCLUDE = "${EIGEN3_BASE}"
+XRF_MAPS_INCLUDE = "${XRF_MAPS_BASE}/src/"
+XRF_MAPS_LIBS = "${XRF_MAPS_BASE}/bin"
 HDF5_INCLUDE="${HDF5_BASE}/include"
 HDF5_LIBS="${HDF5_BASE}/lib"
+NETCDF_INCLUDE="${NETCDF_BASE}/include"
+NETCDF_LIBS="${NETCDF_BASE}/lib"
 
 
 win32 {
 GSTAR_INCLUDE = "$$(GSTAR_BASE)\\include"
 GSTAR_LIBS = "$$(GSTAR_BASE)\\lib"
+EIGEN_INCLUDE = "${EIGEN3_BASE}"
+XRF_MAPS_INCLUDE = "${XRF_MAPS_BASE\\src\\"
+XRF_MAPS_LIBS = "${XRF_MAPS_BASE}\\bin"
 HDF5_INCLUDE="$$(HDF5_BASE)\\include"
 HDF5_LIBS="$$(HDF5_BASE)\\lib"
+NETCDF_INCLUDE="${NETCDF_BASE}\\include"
+NETCDF_LIBS="${NETCDF_BASE}\\lib"
 }
 
 #######################################################
@@ -44,13 +54,18 @@ DESTDIR = ./bin
 CONFIG += debug
 CONFIG += ordered
 CONFIG += console 
+CONFIG += c++14
 DEFINES += WITH_DOM
+DEFINES += _REAL_FLOAT
 QMAKE_CXXFLAGS_WARN_OFF -= -Wunused-parameter
 
 # Include paths
 INCLUDEPATH += include
+INCLUDEPATH += $${EIGEN_INCLUDE}
+INCLUDEPATH += $${XRF_MAPS_INCLUDE}
 INCLUDEPATH += $${GSTAR_INCLUDE}
 INCLUDEPATH += $${HDF5_INCLUDE}
+INCLUDEPATH += $${NETCDF_INCLUDE}
 
 # System dependent library paths
 macx {
@@ -68,14 +83,15 @@ QMAKE_LFLAGS -= /NXCOMPAT
 QMAKE_LFLAGS += /NXCOMPAT:NO
 
 #debug
-#QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
+QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
 #release
-QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
+#QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
 }
 
-
+LIBS += -L$${XRF_MAPS_LIBS} -lxrf_io -lxrf_fit
 LIBS += -L$${GSTAR_LIBS} -lGStar
 LIBS += -L$${HDF5_LIBS}  -lhdf5
+LIBS += -L$${NETCDF_LIBS}  -lnetcdf
 
 
 # Location for intermediate files

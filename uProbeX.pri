@@ -15,6 +15,7 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/TIFFController.cpp \
     src/mvc/SWSWidget.cpp \
     src/mvc/SWSModel.cpp \
+    src/mvc/MapsModel.cpp \
     src/preferences/Preferences.cpp \
     src/preferences/Attribute.cpp \
     src/preferences/AttributeGroup.cpp \
@@ -57,6 +58,7 @@ HEADERS = include/mvc/DeselectableTreeView.h \
     include/mvc/TIFFWidget.h \
     include/mvc/TIFFController.h \
     include/mvc/SWSWidget.h \
+    include/mvc/MapsModel.h \
     include/preferences/Preferences.h \
     include/preferences/PreferencesDisplay.h \
     include/preferences/PreferencesMicroPv.h \
