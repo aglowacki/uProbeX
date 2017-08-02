@@ -87,6 +87,13 @@ private slots:
    void makeSWSWindow(QString path, bool newWindow = false);
 
    /**
+    * @brief makeHDFWindow
+    * @param path
+    * @param newWindow
+    */
+   void makeHDFWindow(QString path);
+
+   /**
     * @brief Open the data file at the given path. Triggered by acquisition controller
     *
     * @param path - Path to the data file, can be empty. 
@@ -97,6 +104,11 @@ private slots:
     * @brief Open the SWS workspace. Triggered from the menu.
     */
    void openSWSFile();
+
+   /**
+    * @brief openHDFFile
+    */
+   void openHDFFile();
 
    /**
     * @brief Save the screen shot. Triggered from the menu.
@@ -278,6 +290,11 @@ private:
     * @brief Open sws workspace action
     */
    QAction* m_openSWSAction;
+
+   /**
+    * @brief m_openHDFAction
+    */
+   QAction* m_openHDFAction;
 
    /**
     * @brief Open sws workspace action

@@ -8,22 +8,10 @@
 
 /*----------------src/mvc/MapsModel.cpp \-----------------------------------------------------------*/
 
-MapsModel::MapsModel(QString filepath)
+MapsModel::MapsModel()
 {
 
-   try
-   {
-
-
-   }
-   catch (std::string& s)
-   {
-      throw s;
-   }
-   catch (...)
-   {
-      throw std::string("Failed to open Maps Analyzed dataset!");
-   }
+    _is_loaded = false;
 
 }
 
@@ -35,3 +23,21 @@ MapsModel::~MapsModel()
 }
 
 /*---------------------------------------------------------------------------*/
+
+bool MapsModel::load(QString filepath)
+{
+    try
+    {
+        //io::file::hdf5_io::inst()->load_analyzed(
+    }
+    catch (std::string& s)
+    {
+        throw s;
+    }
+    catch (...)
+    {
+        throw std::string("Failed to open Maps Analyzed dataset!");
+    }
+
+    return _is_loaded;
+}
