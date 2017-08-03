@@ -87,6 +87,12 @@ private slots:
    void makeSWSWindow(QString path, bool newWindow = false);
 
    /**
+    * @brief makeMAPSWindow
+    * @param path
+    */
+   void makeMapsWindow(QString path);
+
+   /**
     * @brief makeHDFWindow
     * @param path
     * @param newWindow
@@ -104,6 +110,11 @@ private slots:
     * @brief Open the SWS workspace. Triggered from the menu.
     */
    void openSWSFile();
+
+   /**
+    * @brief openMAPSWorkspace
+    */
+   void openMapsWorkspace();
 
    /**
     * @brief openHDFFile
@@ -267,14 +278,21 @@ private:
     */
    void saveAllXML(bool verifyWithUser);
 
-private:
-
-   gstar::CoordinateModel* m_lightToMicroCoordModel;
+   /**
+    * @brief saveAllXMLRequired
+    * @return
+    */
+   bool saveAllXMLRequired();
 
    /**
-    * @brief Show live acquisition window.
+    * @brief saveActiveXmlRequired
+    * @return
     */
-   QAction* m_newAcquisitionAction;
+   bool saveActivatedXmlRequired();
+
+private:   
+
+   gstar::CoordinateModel* m_lightToMicroCoordModel;
 
    /**
     * @brief Show preferences dialog action
@@ -282,14 +300,14 @@ private:
    QAction* m_preferencesAction;
 
    /**
-    * @brief Open image action
-    */
-   QAction* m_openImageAction;
-
-   /**
     * @brief Open sws workspace action
     */
    QAction* m_openSWSAction;
+
+   /**
+    * @brief m_openMAPSAction
+    */
+   QAction* m_openMapsAction;
 
    /**
     * @brief m_openHDFAction
@@ -322,18 +340,6 @@ private:
    QAction* m_saveAllXMLAction;
 
    /**
-    * @brief saveAllXMLRequired
-    * @return
-    */
-   bool saveAllXMLRequired();
-
-   /**
-    * @brief saveActiveXmlRequired
-    * @return
-    */
-   bool saveActivatedXmlRequired();
-
-   /**
     * @brief Exit action
     */
    QAction* m_exitAction;
@@ -342,41 +348,6 @@ private:
     * @brief About action
     */
    QAction* m_aboutAction;
-
-   /**
-    * @brief Active mode action
-    */
-   QAction* m_activeAction;
-
-   /**
-    * @brief Action group for actions related to active mode and passive mode
-    */
-   QActionGroup* m_modeGroup;
-
-   /**
-    * @brief Dock widget for area detector controls
-    */
-   QDockWidget* m_dockAreaDetector;
-
-   /**
-    * @brief Dock widget for area detector writer controls
-    */
-   QDockWidget* m_dockAreaDetectorWriter;
-
-   /**
-    * @brief Dock widget for CA status
-    */
-   QDockWidget* m_dockCAStatus;
-
-   /**
-    * @brief Dock widget for color controls
-    */
-   QDockWidget* m_dockColor;
-
-   /**
-    * @brief Dock widget for scan controls
-    */
-   QDockWidget* m_dockScan;
 
    /**
     * @brief Menu bar
@@ -394,11 +365,6 @@ private:
    QMenu* m_menuHelp;
 
    /**
-    * @brief View menu
-    */
-   QMenu* m_menuView;
-
-   /**
     * @brief Preferences
     */
    Preferences m_preferences;
@@ -407,11 +373,6 @@ private:
     * @brief Splash screen
     */
    gstar::Splash* m_splashAbout;
-
-   /**
-    * @brief Tool bar
-    */
-   QToolBar* m_toolbar;
 
    /**
     * @brief MDI area that serves as a central widget
@@ -429,11 +390,6 @@ private:
    SolverParameterParse* m_solverParameterParse;
 
    /**
-    * @brief Keeps track of current acquisition window.
-    */
-   SubWindow* m_acquisitionWindow;
-
-   /**
     * @brief Maintains connection between ctf widget and current mdi window
     */
    AbstractWindowController* m_abstractController;
@@ -442,11 +398,6 @@ private:
     * @brief Keeps track of all open MDI child windows for hdf5 play-back.
     */
    QMap<QUuid, AbstractWindowController*> m_subWindows;
-
-   /**
-    * @brief PV condition widget dockwidget.
-    */
-   QDockWidget* m_dockPVConditionWidget;
 
    /**
     * @brief timer used to execute autosafe.

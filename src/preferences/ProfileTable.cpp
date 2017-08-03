@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <preferences/ProfileTable.h>
-#include <CheckBoxDelegate.h>
 #include <QHeaderView>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
@@ -12,7 +11,6 @@
 #include <QVBoxLayout>
 #include <QDebug>
 
-using gstar::CheckBoxDelegate;
 /*---------------------------------------------------------------------------*/
 
 ProfileTable::ProfileTable(QWidget* parent) : QWidget(parent)
@@ -108,10 +106,6 @@ void ProfileTable::createComponents()
    m_solverModel = new AttributeTableModel();
 
    m_selectionModel = new QItemSelectionModel(m_solverModel);
-
-   // Check box delegate
-   CheckBoxDelegate* m_delegate = new CheckBoxDelegate();
-//   m_solverTable->setItemDelegateForColumn(2, m_delegate);
 
    // Setup table
    m_solverTable->setModel(m_solverModel);

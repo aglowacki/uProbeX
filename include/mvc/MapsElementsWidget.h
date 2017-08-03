@@ -10,7 +10,7 @@
 
 #include <AbstractImageWidget.h>
 
-#include <mvc/MapsModel.h>
+#include <mvc/MapsH5Model.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -40,7 +40,7 @@ public:
     */
    ~MapsElementsWidget();
 
-   void setModel(MapsModel* model);
+   void setModel(MapsH5Model* model);
 
 public slots:
 
@@ -58,7 +58,7 @@ protected:
     */
    void createLayout();
 
-   MapsModel *_model;
+   MapsH5Model *_model;
 
 };
 

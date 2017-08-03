@@ -9,8 +9,6 @@
 #include <queue>
 #include <vector>
 
-using gstar::Array;
-
 using std::vector;
 using std::pair;
 using std::string;

@@ -14,7 +14,7 @@
 #include <QFileDialog>
 #include <solver/CoordinateTransformer.h>
 #include <solver/PythonTransformer.h>
-#include <mvc/MapsModel.h>
+#include <mvc/MapsH5Model.h>
 #include <mvc/MapsElementsWidget.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
@@ -65,13 +65,13 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     PythonLoader::inst()->safeCheck();
 
     initialize();
-
+/*
     // Splash screen
     Splash splash(this, Qt::Popup, tr("uProbeX"), false);
     splash.show();
     splash.appendMessage(tr("Initializing..."));
     splash.appendMessageAndProcess(tr("Creating GUI..."));
-
+*/
     // Create all actions
     createActions();
 
@@ -222,6 +222,12 @@ void uProbeX::createActions()
             SIGNAL(triggered()),
             this,
             SLOT(openSWSFile()));
+
+    m_openMapsAction = new QAction(tr("Open Maps Workspace"), this);
+    connect(m_openMapsAction,
+            SIGNAL(triggered()),
+            this,
+            SLOT(openMapsWorkspace()));
 
     m_openHDFAction = new QAction(tr("Open HDF5 Analyzed"), this);
     connect(m_openHDFAction,
@@ -386,6 +392,7 @@ void uProbeX::createMenuBar()
     // File menu
     m_menuFile = new QMenu(tr("File"));
     m_menuFile->addAction(m_openSWSAction);
+    m_menuFile->addAction(m_openMapsAction);
     m_menuFile->addAction(m_openHDFAction);
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_preferencesAction);
@@ -402,10 +409,6 @@ void uProbeX::createMenuBar()
     m_menu->addMenu(m_menuFile);
 
     connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
-
-    // View menu
-    //m_menuView = new QMenu(tr("View"));
-    //m_menu->addMenu(m_menuView);
 
     // Help menu
     m_menuHelp = new QMenu(tr("Help"));
@@ -504,10 +507,6 @@ void uProbeX::exitApplication()
 void uProbeX::initialize()
 {
 
-    m_acquisitionWindow = NULL;
-
-    m_abstractController = NULL;
-
     m_splashAbout = NULL;
     m_mdiArea = NULL;
 
@@ -573,12 +572,10 @@ void uProbeX::adjustAutoSaveSettings()
 void uProbeX::makeSWSWindow(QString path, bool newWindow)
 {
 
-    if (newWindow == false && m_acquisitionWindow == NULL) return;
+    if (newWindow == false) return;
     // Create general window view widget and image model
     SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
     swsWidget->resize(800, 600);
-
-    TIFFController* tiffController = NULL;
 
     try
     {
@@ -587,10 +584,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
         if(swsModel->tiffLoaded())
         {
 
-            tiffController = new TIFFController(swsWidget,
-                                                swsModel,
-                                                &m_preferences);
-
+            swsWidget->updateFrame(swsModel->getImage());
             swsWidget->setCoordinateModel(swsModel->getCoordModel());
             swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
             swsWidget->setMarker(path);
@@ -646,9 +640,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
     }
     else
     {
-        // Mark the acquisition window as tiff window and save its id
-        w = m_acquisitionWindow;
-        m_acquisitionWindow = NULL;
+
     }
 
     connect(w,
@@ -664,7 +656,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
     w->setWindowTitle(path);
     w->show();
 
-    m_subWindows[w->getUuid()] = tiffController;
+    //m_subWindows[w->getUuid()] = tiffController;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -675,10 +667,17 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
 /*---------------------------------------------------------------------------*/
 
+void uProbeX::makeMapsWindow(QString path)
+{
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void uProbeX::makeHDFWindow(QString path)
 {
 
-    MapsModel* model = new MapsModel();
+    MapsH5Model* model = new MapsH5Model();
     try
     {
         model->load(path);
@@ -780,6 +779,20 @@ void uProbeX::openSWSFile()
         makeSWSWindow(filePath, true);
 
     }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::openMapsWorkspace()
+{
+
+    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
+
+    // Dialog returns a null string if user press cancel.
+    if (dirName.isNull() || dirName.isEmpty()) return;
+
+    makeMapsWindow(dirName);
 
 }
 

@@ -3,20 +3,19 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef MAPS_MODEL_H
-#define MAPS_MODEL_H
+#ifndef MAPS_H5_MODEL_H
+#define MAPS_H5_MODEL_H
 
 /*---------------------------------------------------------------------------*/
 
 #include <QString>
-#include "io/file/hdf5_io.h"
 
 /*---------------------------------------------------------------------------*/
 
 /**
  * @brief Model for Maps analyzed hdf5 files
  */
-class MapsModel
+class MapsH5Model
 {
 
 public:
@@ -24,12 +23,12 @@ public:
     /**
     * Constructor
     */
-    MapsModel();
+    MapsH5Model();
 
     /**
     * Destructor
     */
-    ~MapsModel();
+    ~MapsH5Model();
 
     bool load(QString filepath);
 
@@ -47,6 +46,6 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* MapsModel_H_ */
+#endif /* MapsH5Model_H_ */
 
 /*---------------------------------------------------------------------------*/

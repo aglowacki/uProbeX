@@ -52,7 +52,7 @@ void MapsElementsWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::setModel(MapsModel* model)
+void MapsElementsWidget::setModel(MapsH5Model* model)
 {
 
 }

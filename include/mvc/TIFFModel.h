@@ -13,9 +13,6 @@
 #include <QString>
 #include <QImageReader>
 
-//GStar
-#include <Array.h>
-
 /*---------------------------------------------------------------------------*/
 
 /**
