@@ -390,11 +390,6 @@ private:
    SolverParameterParse* m_solverParameterParse;
 
    /**
-    * @brief Maintains connection between ctf widget and current mdi window
-    */
-   AbstractWindowController* m_abstractController;
-
-   /**
     * @brief Keeps track of all open MDI child windows for hdf5 play-back.
     */
    QMap<QUuid, AbstractWindowController*> m_subWindows;

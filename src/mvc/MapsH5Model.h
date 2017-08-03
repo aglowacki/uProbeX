@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QString>
+#include <hdf5.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -36,6 +37,9 @@ public:
 
 protected:
 
+    bool _load_version_9(hid_t maps_grp_id);
+
+    bool _load_version_10(hid_t maps_grp_id);
 
 private:
 
