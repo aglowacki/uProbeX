@@ -391,11 +391,10 @@ void uProbeX::createMenuBar()
 
     // File menu
     m_menuFile = new QMenu(tr("File"));
-    m_menuFile->addAction(m_openSWSAction);
     m_menuFile->addAction(m_openMapsAction);
-    m_menuFile->addAction(m_openHDFAction);
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_preferencesAction);
+    m_menuFile->addAction(m_openSWSAction);
+    m_menuFile->addAction(m_openHDFAction);
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_saveScreenShotAction);
     m_menuFile->addSeparator();
@@ -404,6 +403,8 @@ void uProbeX::createMenuBar()
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_saveEnviornmentXMLAction);
     m_menuFile->addAction(m_loadEnviornmentXMLAction);
+    m_menuFile->addSeparator();
+    m_menuFile->addAction(m_preferencesAction);
     m_menuFile->addSeparator();
     m_menuFile->addAction(m_exitAction);
     m_menu->addMenu(m_menuFile);

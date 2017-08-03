@@ -16,6 +16,8 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/SWSWidget.cpp \
     src/mvc/SWSModel.cpp \
     src/mvc/MapsH5Model.cpp \
+    src/mvc/XrfMapsH5Model.cpp \
+    src/mvc/MapsH5Modelv9.cpp \
     src/mvc/MapsElementsWidget.cpp \
     src/mvc/MapsWorkspaceModel.cpp \
     src/preferences/Preferences.cpp \
@@ -44,49 +46,51 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/core/SubWindow.cpp \
     src/core/uProbeX.cpp \
     src/main.cpp
-HEADERS = include/mvc/DeselectableTreeView.h \
-    include/solver/asa047.hpp \
-    include/solver/AbstractSolver.h \
-    include/solver/Solver.h \
-    include/solver/CoordinateTransformer.h \
-    include/solver/PythonTransformer.h \
-    include/solver/NelderMeadSolver.h \
-    include/solver/PythonSolver.h \
-    include/mvc/SolverWidget.h \
-    include/mvc/AbstractWindowModel.h \
-    include/mvc/AbstractWindowController.h \
-    include/mvc/SWSModel.h \
-    include/mvc/TIFFModel.h \
-    include/mvc/TIFFWidget.h \
-    include/mvc/TIFFController.h \
-    include/mvc/SWSWidget.h \
-    include/mvc/MapsH5Model.h \
-    include/mvc/MapsElementsWidget.h \
-    include/mvc/MapsWorkspaceModel.h \
-    include/preferences/Preferences.h \
-    include/preferences/PreferencesDisplay.h \
-    include/preferences/PreferencesMicroPv.h \
-    include/preferences/PreferencesDialog.h \
-    include/preferences/Attribute.h \
-    include/preferences/AttributeGroup.h \
-    include/preferences/AttributeGroupModel.h \
-    include/preferences/PreferencesPythonFunc.h \
-    include/preferences/SolverTable.h \
-    include/preferences/SolverParameterWidget.h \
-    include/preferences/PreferencesSolverOption.h \
-    include/preferences/CoordinateTransformGlobals.h \
-    include/preferences/SolverParameterParse.h \
-    include/preferences/ProfileTable.h \
-    include/preferences/AttributeTableModel.h \
-    include/preferences/PythonSolverProfileWidget.h \
-    include/preferences/Profile.h \
-    include/preferences/PreferencesAutoSave.h \
-    include/preferences/PreferencesExport.h \
-    include/core/PythonLoader.h \
-    include/core/RegionCaller.h \
-    include/core/ShellRegionCaller.h \
-    include/core/PythonRegionCaller.h \
-    include/core/SubWindow.h \
-    include/core/uProbeX.h
+HEADERS = src/mvc/DeselectableTreeView.h \
+    src/solver/asa047.hpp \
+    src/solver/AbstractSolver.h \
+    src/solver/Solver.h \
+    src/solver/CoordinateTransformer.h \
+    src/solver/PythonTransformer.h \
+    src/solver/NelderMeadSolver.h \
+    src/solver/PythonSolver.h \
+    src/mvc/SolverWidget.h \
+    src/mvc/AbstractWindowModel.h \
+    src/mvc/AbstractWindowController.h \
+    src/mvc/SWSModel.h \
+    src/mvc/TIFFModel.h \
+    src/mvc/TIFFWidget.h \
+    src/mvc/TIFFController.h \
+    src/mvc/SWSWidget.h \
+    src/mvc/MapsH5Model.h \
+    src/mvc/XrfMapsH5Model.h \
+    src/mvc/MapsH5Modelv9.h \
+    src/mvc/MapsElementsWidget.h \
+    src/mvc/MapsWorkspaceModel.h \
+    src/preferences/Preferences.h \
+    src/preferences/PreferencesDisplay.h \
+    src/preferences/PreferencesMicroPv.h \
+    src/preferences/PreferencesDialog.h \
+    src/preferences/Attribute.h \
+    src/preferences/AttributeGroup.h \
+    src/preferences/AttributeGroupModel.h \
+    src/preferences/PreferencesPythonFunc.h \
+    src/preferences/SolverTable.h \
+    src/preferences/SolverParameterWidget.h \
+    src/preferences/PreferencesSolverOption.h \
+    src/preferences/CoordinateTransformGlobals.h \
+    src/preferences/SolverParameterParse.h \
+    src/preferences/ProfileTable.h \
+    src/preferences/AttributeTableModel.h \
+    src/preferences/PythonSolverProfileWidget.h \
+    src/preferences/Profile.h \
+    src/preferences/PreferencesAutoSave.h \
+    src/preferences/PreferencesExport.h \
+    src/core/PythonLoader.h \
+    src/core/RegionCaller.h \
+    src/core/ShellRegionCaller.h \
+    src/core/PythonRegionCaller.h \
+    src/core/SubWindow.h \
+    src/core/uProbeX.h
 
 
