@@ -697,6 +697,7 @@ void uProbeX::makeHDFWindow(QString path)
     }
 
     MapsElementsWidget* widget = new MapsElementsWidget();
+    widget->setModel(model);
     //widget->resize(800, 600);
 
 
