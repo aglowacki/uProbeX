@@ -98,7 +98,7 @@ bool MapsH5Model::load(QString filepath)
         }
         else
         {
-            _is_loaded = _load_version_10(maps_grp_id);
+            _is_loaded = _load_version_10(file_id, maps_grp_id);
         }
 
         H5Sclose(memoryspace_id);
@@ -134,9 +134,9 @@ bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
     return true;
 }
 
-bool MapsH5Model::_load_version_10(hid_t maps_grp_id)
+bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 {
-    /*
+
     if (!_load_quantification_10(maps_grp_id))
         return false;
 
@@ -145,8 +145,8 @@ bool MapsH5Model::_load_version_10(hid_t maps_grp_id)
 
     if (!_load_scan_10(maps_grp_id))
         return false;
-*/
-    if (!_load_integrated_spectra_10(maps_grp_id))
+
+    if (!_load_integrated_spectra_10(file_id))
         return false;
 
     if (!_load_counts_10(maps_grp_id))
@@ -156,6 +156,33 @@ bool MapsH5Model::_load_version_10(hid_t maps_grp_id)
 
 }
 
+
+bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+
+bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+
+bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
+{
+
+    return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(file_id, &_integrated_spectra);
+
+}
 
 bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
 {
@@ -181,11 +208,6 @@ bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
     return true;
 }
 
-bool MapsH5Model::_load_integrated_spectra_10(hid_t maps_grp_id)
-{
-
-    return true;
-}
 
 bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name)
 {

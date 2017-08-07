@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 #include "XrfAnalyzedCounts.h"
+#include "io/file/hdf5_io.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -41,11 +42,19 @@ public:
 
     XrfAnalyzedCounts* getAnalyzedCounts(std::string analysis_type);
 
+    const data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+
 protected:
 
     bool _load_version_9(hid_t maps_grp_id);
 
-    bool _load_version_10(hid_t maps_grp_id);
+    bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
+
+    bool _load_quantification_10(hid_t maps_grp_id);
+
+    bool _load_scalers_10(hid_t maps_grp_id);
+
+    bool _load_scan_10(hid_t maps_grp_id);
 
     bool _load_integrated_spectra_10(hid_t maps_grp_id);
 
@@ -55,6 +64,8 @@ protected:
 
 
     std::unordered_map<std::string, XrfAnalyzedCounts*> _analyzed_counts;
+
+    data_struct::xrf::Spectra _integrated_spectra;
 
 private:
 

@@ -16,6 +16,7 @@
 #include <solver/PythonTransformer.h>
 #include <mvc/MapsH5Model.h>
 #include <mvc/MapsElementsWidget.h>
+#include <mvc/MapsWorkspaceModel.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
 #include <Splash.h>
@@ -59,13 +60,18 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_autosaveTimer = NULL;
     m_solverParameterParse = new SolverParameterParse();
 
+
+    //////// HENKE and ELEMENT INFO /////////////
+    std::string element_csv_filename = "../reference/xrf_library.csv";
+    std::string element_henke_filename = "../reference/henke.xdr";
+
     // Use resources from GStar
     Q_INIT_RESOURCE(GStar);
 
     PythonLoader::inst()->safeCheck();
 
     initialize();
-/*
+    /*
     // Splash screen
     Splash splash(this, Qt::Popup, tr("uProbeX"), false);
     splash.show();
@@ -100,6 +106,13 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
     // Update preferences; also creates solver
     processPreferencesUpdate();
+
+
+    if (false == io::load_element_info(element_henke_filename, element_csv_filename, data_struct::xrf::Element_Info_Map::inst()) )
+    {
+        qDebug()<<"Error loading "<< element_henke_filename.c_str() <<" and "<< element_csv_filename.c_str();
+    }
+
 
     show();
 }
@@ -670,6 +683,24 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
 void uProbeX::makeMapsWindow(QString path)
 {
+    MapsWorkspaceModel* model = new MapsWorkspaceModel();
+    bool loaded = false;
+    try
+    {
+        loaded = model->load(path);
+    }
+    catch(std::string& s)
+    {
+        // Restore cursor
+        //QApplication::restoreOverrideCursor();
+
+        // Display error to user
+        QMessageBox::critical(this, tr("uProbeX"),
+                              tr("Failed to open maps workspace.\n\n") + tr("Error:  ") +
+                              QString(s.c_str()));
+
+        return;
+    }
 
 }
 
@@ -679,9 +710,10 @@ void uProbeX::makeHDFWindow(QString path)
 {
 
     MapsH5Model* model = new MapsH5Model();
+    bool loaded = false;
     try
     {
-        model->load(path);
+        loaded = model->load(path);
     }
     catch(std::string& s)
     {
@@ -696,32 +728,40 @@ void uProbeX::makeHDFWindow(QString path)
         return;
     }
 
-    MapsElementsWidget* widget = new MapsElementsWidget();
-    widget->setModel(model);
-    //widget->resize(800, 600);
+    if(loaded)
+    {
+        MapsElementsWidget* widget = new MapsElementsWidget();
+        widget->setModel(model);
+        //widget->resize(800, 600);
 
 
-    SubWindow* w = NULL;
-    w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
+        SubWindow* w = NULL;
+        w = new SubWindow(m_mdiArea);
+        connect(w,
+                SIGNAL(windowClosing(SubWindow*)),
+                this,
+                SLOT(subWindowClosed(SubWindow*)));
 
 
-    w->setWidget(widget);
-    //w->resize(950, 700);
-    w->setIsAcquisitionWindow(false);
-    w->setWindowTitle(path);
-    w->show();
+        w->setWidget(widget);
+        //w->resize(950, 700);
+        w->setIsAcquisitionWindow(false);
+        w->setWindowTitle(path);
+        w->show();
 
-//    m_subWindows[w->getUuid()] = tiffController;
+        //    m_subWindows[w->getUuid()] = tiffController;
 
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
-
+        connect(w,
+                SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+                widget,
+                SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+    }
+    else
+    {
+        QMessageBox::critical(this, tr("uProbeX"),
+                              tr("Failed to load HDF5 file.\n\n") + tr("Error:  ") +
+                              QString(path.toStdString().c_str()));
+    }
 }
 
 /*---------------------------------------------------------------------------*/

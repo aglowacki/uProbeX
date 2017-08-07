@@ -10,11 +10,14 @@
 
 #include <QString>
 #include "MapsH5Model.h"
+#include "io/hl_file_io.h"
+#include <map>
+#include <QDir>
 
 /*---------------------------------------------------------------------------*/
 
 /**
- * @brief Model for Maps analyzed hdf5 files
+ * @brief Model
  */
 class MapsWorkspaceModel
 {
@@ -37,8 +40,18 @@ public:
 
 protected:
 
+    bool _load_fit_params();
+
+    bool _load_img_dat();
+
+
+    std::map<QString, MapsH5Model*> _h5_models;
+
+    std::map<int, data_struct::xrf::Params_Override> _fit_params_override_dict;
 
 private:
+
+    QDir* _dir;
 
     bool _is_loaded;
 
