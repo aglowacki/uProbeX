@@ -269,7 +269,7 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 
     count[0] = 1;
 
-    XrfAnalyzedCounts* xrf_counts = new XrfAnalyzedCounts(group_name, count[1], count[2]);
+    XrfAnalyzedCounts* xrf_counts = new XrfAnalyzedCounts(group_name, count[2], count[1]);
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, NULL);

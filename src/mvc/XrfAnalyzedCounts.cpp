@@ -29,9 +29,11 @@ XrfAnalyzedCounts::~XrfAnalyzedCounts()
 
 void XrfAnalyzedCounts::add_element(std::string name)
 {
-    _counts.insert( {name, std::vector<float>()} );
+    _counts.insert( {name, std::valarray<float>()} );
     _counts[name].resize( _width * _height );
 }
+
+/*---------------------------------------------------------------------------*/
 
 float* XrfAnalyzedCounts::get_counts_ptr(std::string name)
 {
@@ -40,3 +42,22 @@ float* XrfAnalyzedCounts::get_counts_ptr(std::string name)
     return nullptr;
 }
 
+/*---------------------------------------------------------------------------*/
+
+float XrfAnalyzedCounts::get_counts_max(std::string name)
+{
+    if (_counts.count(name) > 0)
+        return _counts[name].max();
+    return 0.0f;
+}
+
+/*---------------------------------------------------------------------------*/
+
+float XrfAnalyzedCounts::get_counts_min(std::string name)
+{
+    if (_counts.count(name) > 0)
+        return _counts[name].min();
+    return 0.0f;
+}
+
+/*---------------------------------------------------------------------------*/

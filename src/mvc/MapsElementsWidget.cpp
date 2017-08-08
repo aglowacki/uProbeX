@@ -73,9 +73,12 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         QByteArray data(length, 0);
 
         float *counts = nnls->get_counts_ptr("Num_Iter");
+        float counts_max = nnls->get_counts_max("Num_Iter");
+        float counts_min = nnls->get_counts_min("Num_Iter");
+        float max_min = counts_max - counts_min;
         for (int i = 0; i < length; ++i)
         {
-            data[i] = (unsigned char)(counts[i] * 255);
+            data[i] = (unsigned char)( ((counts[i] - counts_min) / max_min) * 255);
         }
 
         QVector<QRgb> grayscale;

@@ -10,7 +10,7 @@
 
 #include <QString>
 #include <unordered_map>
-#include <vector>
+#include <valarray>
 
 /*---------------------------------------------------------------------------*/
 
@@ -30,10 +30,14 @@ public:
 
     float* get_counts_ptr(std::string name);
 
+    float get_counts_max(std::string name);
+
+    float get_counts_min(std::string name);
+
 protected:
 
     std::string _analysis_name;
-    std::unordered_map<std::string, std::vector<float>> _counts;
+    std::unordered_map<std::string, std::valarray<float>> _counts;
     int _width;
     int _height;
 };
