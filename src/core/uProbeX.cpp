@@ -735,6 +735,8 @@ void uProbeX::makeHDFWindow(QString path)
         //widget->resize(800, 600);
 
 
+
+
         SubWindow* w = NULL;
         w = new SubWindow(m_mdiArea);
         connect(w,
@@ -1190,7 +1192,6 @@ void uProbeX::showAbout()
     m_splashAbout -> appendMessage(tr("Ke Yue"));
     m_splashAbout -> appendMessage(tr("Arthur Glowacki"));
     m_splashAbout -> appendMessage(tr("Dariusz Jarosz"));
-
 }
 
 /*---------------------------------------------------------------------------*/

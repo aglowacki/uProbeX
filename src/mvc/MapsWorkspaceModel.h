@@ -34,7 +34,7 @@ public:
     */
     ~MapsWorkspaceModel();
 
-    bool load(QString filepath);
+    bool load(QString filepath, bool all=false);
 
     bool is_loaded() {return _is_loaded;}
 
@@ -42,7 +42,9 @@ protected:
 
     bool _load_fit_params();
 
-    bool _load_img_dat();
+    bool _load_all_img_dat();
+
+    bool _load_avg_img_dat();
 
 
     std::map<QString, MapsH5Model*> _h5_models;

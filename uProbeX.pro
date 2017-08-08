@@ -11,7 +11,8 @@ TARGET = uProbeX
 QT += core \
     gui \
     xml \
-    widgets
+    widgets \
+    charts
 
 QMAKE_EXT_CPP += .c
 

@@ -3,18 +3,15 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef MAPS_ELEMENTS_WIDGET_H
-#define MAPS_ELEMENTS_WIDGET_H
+#ifndef SPECTRA_WIDGET_H
+#define SPECTRA_WIDGET_H
 
 /*---------------------------------------------------------------------------*/
 
-#include <AbstractImageWidget.h>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 
-#include <mvc/MapsH5Model.h>
-#include <mvc/SpectraWidget.h>
-
-class HDF5PropertyWidget;
-class QAbstractTableModel;
+#include "data_struct/xrf/spectra.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -23,8 +20,7 @@ class QAbstractTableModel;
  * the image from the area detector writer, the window will also be updated to
  * show the image.
  */
-class MapsElementsWidget
-: public gstar::AbstractImageWidget
+class SpectraWidget : public QWidget
 {
 
    Q_OBJECT
@@ -34,15 +30,14 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(QWidget* parent = NULL);
+   SpectraWidget(QWidget* parent = NULL);
 
    /**
     * Destructor.
     */
-   ~MapsElementsWidget();
+   ~SpectraWidget();
 
-   void setModel(MapsH5Model* model);
-
+   void set_spectra(data_struct::xrf::Spectra* spectra);
 public slots:
 
    /**
@@ -59,15 +54,14 @@ protected:
     */
    void createLayout();
 
-   MapsH5Model *_model;
+   QtCharts::QChart *_chart;
 
-   SpectraWidget* _spectra_widget;
-
+   QtCharts::QChartView *_chartView;
 };
 
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* MapsElementsWidget_H_ */
+#endif /* SpectraWidget_H_ */
 
 /*---------------------------------------------------------------------------*/

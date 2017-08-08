@@ -42,7 +42,7 @@ public:
 
     XrfAnalyzedCounts* getAnalyzedCounts(std::string analysis_type);
 
-    const data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
 
 protected:
 

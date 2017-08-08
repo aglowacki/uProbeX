@@ -15,6 +15,7 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/TIFFController.cpp \
     src/mvc/SWSWidget.cpp \
     src/mvc/SWSModel.cpp \
+    src/mvc/SpectraWidget.cpp \
     src/mvc/XrfAnalyzedCounts.cpp \
     src/mvc/MapsH5Model.cpp \
     src/mvc/MapsElementsWidget.cpp \
@@ -61,6 +62,7 @@ HEADERS = src/mvc/DeselectableTreeView.h \
     src/mvc/TIFFWidget.h \
     src/mvc/TIFFController.h \
     src/mvc/SWSWidget.h \
+    src/mvc/SpectraWidget.h \
     src/mvc/XrfAnalyzedCounts.h \
     src/mvc/MapsH5Model.h \
     src/mvc/MapsElementsWidget.h \

@@ -23,6 +23,7 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
 {
 
     _model = nullptr;
+    _spectra_widget = new SpectraWidget();
     createLayout();
 
 }
@@ -38,6 +39,12 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 
+    if(_spectra_widget != nullptr)
+    {
+        delete _spectra_widget;
+    }
+    _spectra_widget = nullptr;
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -46,6 +53,7 @@ void MapsElementsWidget::createLayout()
 {
 
     QLayout* layout = generateDefaultLayout();
+    layout->addWidget(_spectra_widget);
     //appendAnnotationTab();
     setLayout(layout);
 
@@ -64,7 +72,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         // Build a colour table of grayscale
         QByteArray data(length, 0);
 
-        float *counts = nnls->get_counts_ptr("Si");
+        float *counts = nnls->get_counts_ptr("Num_Iter");
         for (int i = 0; i < length; ++i)
         {
             data[i] = (unsigned char)(counts[i] * 255);
@@ -83,6 +91,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
         this->updateFrame(&image);
     }
+    _spectra_widget->set_spectra(_model->getIntegratedSpectra());
 }
 
 /*---------------------------------------------------------------------------*/

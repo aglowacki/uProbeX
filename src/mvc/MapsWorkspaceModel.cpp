@@ -29,7 +29,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::load(QString filepath)
+bool MapsWorkspaceModel::load(QString filepath, bool all)
 {
     try
     {
@@ -43,7 +43,14 @@ bool MapsWorkspaceModel::load(QString filepath)
 
         _is_loaded &= _load_fit_params();
 
-        _is_loaded &= _load_img_dat();
+        if (all)
+        {
+            _is_loaded &= _load_all_img_dat();
+        }
+        else
+        {
+            _is_loaded &= _load_avg_img_dat();
+        }
     }
     catch (std::string& s)
     {
@@ -81,7 +88,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 }
 
-bool MapsWorkspaceModel::_load_img_dat()
+bool MapsWorkspaceModel::_load_avg_img_dat()
 {
     if (!_dir->cd("img.dat"))
     {
@@ -97,6 +104,45 @@ bool MapsWorkspaceModel::_load_img_dat()
     {
         QFileInfo fileInfo = list.at(i);
         if (fileInfo.suffix() == "h5")
+        {
+            MapsH5Model * model = new MapsH5Model();
+            model->load(fileInfo.absoluteFilePath());
+            if(model->is_loaded() )
+            {
+                _h5_models.insert( {fileInfo.fileName(), model} );
+            }
+            else
+            {
+                delete model;
+            }
+        }
+        //std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
+        //std::cout << std::endl;
+    }
+
+    _dir->cd("..");
+    return true;
+}
+
+bool MapsWorkspaceModel::_load_all_img_dat()
+{
+    if (!_dir->cd("img.dat"))
+    {
+        qWarning("Cannot find the \"/tmp\" directory");
+        return false;
+    }
+    _dir->setFilter(QDir::Files | QDir::NoSymLinks);
+    //_dir->setSorting(QDir::Size | QDir::Reversed);
+
+    QFileInfoList list = _dir->entryInfoList();
+    //std::cout << "     Bytes Filename" << std::endl;
+    for (int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.suffix() == "h5" ||
+            fileInfo.suffix() == "h51" ||
+            fileInfo.suffix() == "h52" ||
+            fileInfo.suffix() == "h53")
         {
             MapsH5Model * model = new MapsH5Model();
             model->load(fileInfo.absoluteFilePath());
