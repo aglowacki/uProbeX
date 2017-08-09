@@ -13,6 +13,7 @@
 #include <preferences/Preferences.h>
 #include <preferences/SolverParameterParse.h>
 #include <CoordinateModel.h>
+#include <mvc/MapsH5Model.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
@@ -98,6 +99,12 @@ private slots:
     * @param newWindow
     */
    void makeHDFWindow(QString path);
+
+   /**
+    * @brief makeHDFWindow
+    * @param model
+    */
+   void makeHDFWindow(MapsH5Model* model);
 
    /**
     * @brief Open the data file at the given path. Triggered by acquisition controller

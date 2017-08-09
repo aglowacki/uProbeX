@@ -11,7 +11,14 @@
 MapsH5Model::MapsH5Model()
 {
 
-    _is_loaded = false;
+    _filepath = "";
+    _is_fully_loaded = false;
+
+    _loaded_scalers = false;
+    _loaded_quantification = false;
+    _loaded_scan = false;
+    _loaded_integrated_spectra = false;
+    _loaded_counts = false;
 
 }
 
@@ -46,6 +53,7 @@ bool MapsH5Model::load(QString filepath)
 {
     try
     {
+        _filepath = filepath;
         //_is_loaded = ERROR_LOADING;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
@@ -94,11 +102,11 @@ bool MapsH5Model::load(QString filepath)
 
         if(version < 10.0)
         {
-            _is_loaded = _load_version_9(maps_grp_id);
+            _is_fully_loaded = _load_version_9(maps_grp_id);
         }
         else
         {
-            _is_loaded = _load_version_10(file_id, maps_grp_id);
+            _is_fully_loaded = _load_version_10(file_id, maps_grp_id);
         }
 
         H5Sclose(memoryspace_id);
@@ -123,7 +131,7 @@ bool MapsH5Model::load(QString filepath)
         throw std::string("Failed to open Maps Analyzed dataset!");
     }
 
-    return _is_loaded;
+    return _is_fully_loaded;
 }
 
 
@@ -137,22 +145,17 @@ bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 {
 
-    if (!_load_quantification_10(maps_grp_id))
-        return false;
+    _loaded_quantification = _load_quantification_10(maps_grp_id);
 
-    if (!_load_scalers_10(maps_grp_id))
-        return false;
+    _loaded_scalers = _load_scalers_10(maps_grp_id);
 
-    if (!_load_scan_10(maps_grp_id))
-        return false;
+    _loaded_scan = _load_scan_10(maps_grp_id);
 
-    if (!_load_integrated_spectra_10(file_id))
-        return false;
+    _loaded_integrated_spectra = _load_integrated_spectra_10(file_id);
 
-    if (!_load_counts_10(maps_grp_id))
-        return false;
+    _loaded_counts = _load_counts_10(maps_grp_id);
 
-    return true;
+    return (_loaded_quantification && _loaded_scalers && _loaded_scan && _loaded_integrated_spectra &&_loaded_counts);
 
 }
 
@@ -303,3 +306,35 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 
     return true;
 }
+
+
+/*
+void fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_struct::xrf::Fit_Element_Map_Dict elements_to_fit)
+{
+    //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
+    fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
+    fitting::models::Gaussian_Model model;
+
+    data_struct::xrf::Fit_Parameters out_fit_params;
+
+    //Range of energy in spectra to fit
+    fitting::models::Range energy_range;
+    energy_range.min = 0;
+    energy_range.max = _integrated_spectra.size() -1;
+
+    //Fitting routines
+    fitting::routines::Param_Optimized_Fit_Routine fit_routine;
+    fit_routine.set_optimizer(&mpfit_optimizer);
+
+    //reset model fit parameters to defaults
+    model.reset_to_default_fit_params();
+    //Update fit parameters by override values
+    model.update_fit_params_values(fit_params);
+    //model.set_fit_params_preset(fitting::models::BATCH_FIT_NO_TAILS);
+    //Initialize the fit routine
+    fit_routine.initialize(&model, &ret_struct.elements_to_fit, energy_range);
+    //Fit the spectra saving the element counts in element_fit_count_dict
+    out_fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, &elements_to_fit);
+    data_struct::xrf::Spectra model_spectra = model.model_spectrum(&out_fit_params, &elements_to_fit, energy_range);
+}
+*/

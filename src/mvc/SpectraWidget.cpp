@@ -11,6 +11,8 @@
 
 #include <QDebug>
 
+#include <math.h>
+
 /*---------------------------------------------------------------------------*/
 
 SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
@@ -38,23 +40,23 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 SpectraWidget::~SpectraWidget()
 {
 
-
 }
 
 /*---------------------------------------------------------------------------*/
 
 void SpectraWidget::createLayout()
 {
-    _series = new QtCharts::QLineSeries();
+    QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
 
-    _series->append(0, 0);
-    _series->append(2048, 100);
+    series->append(0, 0);
+    series->append(2048, 100);
 
     _chart = new QtCharts::QChart();
-    _chart->legend()->hide();
-    _chart->addSeries(_series);
+    //_chart->legend()->hide();
+
+    _chart->addSeries(series);
     _chart->createDefaultAxes();
-    _chart->setTitle("Integrated Spectra");
+    //_chart->setTitle("Integrated Spectra");
 
     _chartView = new QtCharts::QChartView(_chart);
     //_chartView->setRenderHint(QPainter::Antialiasing);
@@ -64,14 +66,25 @@ void SpectraWidget::createLayout()
     setLayout(layout);
 }
 
-void SpectraWidget::set_spectra(data_struct::xrf::Spectra* spectra)
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spectra)
 {
     if (spectra == nullptr)
         return;
 
     if(_display_log10)
-        _spectra = std::log10((std::valarray<float>)*spectra);
+        _spectra_map[name] = std::log10((std::valarray<float>)*spectra);
+    else
+        _spectra_map[name] = (std::valarray<float>)*spectra;
 
+    _update_series();
+}
+
+void SpectraWidget::remove_spectra(QString name)
+{
+    if(_spectra_map.count(name) > 0)
+        _spectra_map.erase(name);
     _update_series();
 }
 
@@ -86,15 +99,18 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 
 void SpectraWidget::_check_log10()
 {
+    for(auto itr : _spectra_map)
+    {
+        if(_display_log10)
+        {
+            itr.second = std::pow(10.0f, itr.second);
+        }
+        else
+        {
+            itr.second = std::log10(itr.second);
+        }
+    }
 
-    if(_display_log10)
-    {
-        _spectra = std::pow(10.0f, _spectra);
-    }
-    else
-    {
-        _spectra = std::log10(_spectra);
-    }
     _display_log10 = !_display_log10;
     _action_check_log10->setChecked(_display_log10);
     _update_series();
@@ -105,14 +121,23 @@ void SpectraWidget::_check_log10()
 void SpectraWidget::_update_series()
 {
     _chart->removeAllSeries();
-    _series = new QtCharts::QLineSeries();
-
-    for(int i =0; i < _spectra.size(); i++)
+    for(auto itr : _spectra_map)
     {
-        _series->append(i, _spectra[i]);
+        QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+        series->setName(itr.first);
+        for(unsigned int i =0; i < itr.second.size(); i++)
+        {
+            if(std::isnan(itr.second[i]) || std::isinf(itr.second[i]))
+            {
+                itr.second[i] = 0.0f;
+            }
+            series->append(i, itr.second[i]);
+
+        }
+        _chart->addSeries(series);
     }
-    _chart->addSeries(_series);
     _chart->createDefaultAxes();
+
 }
 
 /*---------------------------------------------------------------------------*/

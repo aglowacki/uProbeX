@@ -32,13 +32,13 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
 
 MapsElementsWidget::~MapsElementsWidget()
 {
-
+/*
     if(_model != nullptr)
     {
         delete _model;
     }
     _model = nullptr;
-
+*/
     if(_spectra_widget != nullptr)
     {
         delete _spectra_widget;
@@ -94,7 +94,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
         this->updateFrame(&image);
     }
-    _spectra_widget->set_spectra(_model->getIntegratedSpectra());
+    _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
 }
 
 /*---------------------------------------------------------------------------*/

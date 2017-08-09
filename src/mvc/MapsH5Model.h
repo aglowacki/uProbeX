@@ -38,11 +38,13 @@ public:
 
     bool load(QString filepath);
 
-    bool is_loaded() {return _is_loaded;}
+    bool is_fully_loaded() {return _is_fully_loaded;}
 
     XrfAnalyzedCounts* getAnalyzedCounts(std::string analysis_type);
 
     data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+
+    QString getFilePath() { return _filepath; }
 
 protected:
 
@@ -62,14 +64,21 @@ protected:
 
     bool _load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name);
 
-
     std::unordered_map<std::string, XrfAnalyzedCounts*> _analyzed_counts;
 
     data_struct::xrf::Spectra _integrated_spectra;
 
 private:
 
-    bool _is_loaded;
+    QString _filepath;
+
+    bool _loaded_scalers;
+    bool _loaded_quantification;
+    bool _loaded_scan;
+    bool _loaded_integrated_spectra;
+    bool _loaded_counts;
+
+    bool _is_fully_loaded;
 
 };
 

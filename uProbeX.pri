@@ -20,6 +20,7 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/MapsH5Model.cpp \
     src/mvc/MapsElementsWidget.cpp \
     src/mvc/MapsWorkspaceModel.cpp \
+    src/mvc/MapsWorkspaceWidget.cpp \
     src/preferences/Preferences.cpp \
     src/preferences/Attribute.cpp \
     src/preferences/AttributeGroup.cpp \
@@ -67,6 +68,7 @@ HEADERS = src/mvc/DeselectableTreeView.h \
     src/mvc/MapsH5Model.h \
     src/mvc/MapsElementsWidget.h \
     src/mvc/MapsWorkspaceModel.h \
+    src/mvc/MapsWorkspaceWidget.h \
     src/preferences/Preferences.h \
     src/preferences/PreferencesDisplay.h \
     src/preferences/PreferencesMicroPv.h \

@@ -14,8 +14,8 @@
 #include <QFileDialog>
 #include <solver/CoordinateTransformer.h>
 #include <solver/PythonTransformer.h>
-#include <mvc/MapsH5Model.h>
 #include <mvc/MapsElementsWidget.h>
+#include <mvc/MapsWorkspaceWidget.h>
 #include <mvc/MapsWorkspaceModel.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
@@ -685,11 +685,41 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
 void uProbeX::makeMapsWindow(QString path)
 {
+
     MapsWorkspaceModel* model = new MapsWorkspaceModel();
-    bool loaded = false;
+    MapsWorkspaceWidget *widget = new MapsWorkspaceWidget();
+    widget->setLabelWorkspacePath(path);
+
+    widget->setModel(model);
+    //widget->resize(800, 600);
+
+    connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
+            this, SLOT(makeHDFWindow(MapsH5Model*)));
+
+    SubWindow* w = NULL;
+    w = new SubWindow(m_mdiArea);
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
+
+
+    m_mdiArea->addSubWindow(w);
+
+    w->setWidget(widget);
+    w->resize(950, 700);
+    w->setIsAcquisitionWindow(false);
+    w->setWindowTitle(path);
+    w->show();
+
+    connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+            widget,
+            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+
     try
     {
-        loaded = model->load(path);
+        model->load(path);
     }
     catch(std::string& s)
     {
@@ -712,10 +742,9 @@ void uProbeX::makeHDFWindow(QString path)
 {
 
     MapsH5Model* model = new MapsH5Model();
-    bool loaded = false;
     try
     {
-        loaded = model->load(path);
+        model->load(path);
     }
     catch(std::string& s)
     {
@@ -729,45 +758,40 @@ void uProbeX::makeHDFWindow(QString path)
 
         return;
     }
+    makeHDFWindow(model);
+}
 
-    if(loaded)
-    {
-        MapsElementsWidget* widget = new MapsElementsWidget();
-        widget->setModel(model);
-        //widget->resize(800, 600);
-
-
-
-
-        SubWindow* w = NULL;
-        w = new SubWindow(m_mdiArea);
-        connect(w,
-                SIGNAL(windowClosing(SubWindow*)),
-                this,
-                SLOT(subWindowClosed(SubWindow*)));
+void uProbeX::makeHDFWindow(MapsH5Model* model)
+{
+    MapsElementsWidget* widget = new MapsElementsWidget();
+    widget->setModel(model);
+    //widget->resize(800, 600);
 
 
-        m_mdiArea->addSubWindow(w);
+    SubWindow* w = NULL;
+    w = new SubWindow(m_mdiArea);
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
 
-        w->setWidget(widget);
-        w->resize(950, 700);
-        w->setIsAcquisitionWindow(false);
-        w->setWindowTitle(path);
-        w->show();
 
-        //    m_subWindows[w->getUuid()] = tiffController;
+    m_mdiArea->addSubWindow(w);
 
-        connect(w,
-                SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-                widget,
-                SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
-    }
-    else
-    {
-        QMessageBox::critical(this, tr("uProbeX"),
-                              tr("Failed to load HDF5 file.\n\n") + tr("Error:  ") +
-                              QString(path.toStdString().c_str()));
-    }
+    w->setWidget(widget);
+    w->resize(950, 700);
+    w->setIsAcquisitionWindow(false);
+    w->setWindowTitle(model->getFilePath());
+    w->show();
+
+    //    m_subWindows[w->getUuid()] = tiffController;
+
+    connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+            widget,
+            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -995,6 +1019,7 @@ void uProbeX::saveAllXML()
 
 void uProbeX::saveAllXML(bool verifyWithUser)
 {
+    return;
     int ret;
 
     if (saveAllXMLRequired() == false) {
@@ -1033,7 +1058,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
 
 bool uProbeX::saveAllXMLRequired()
 {
-
+return false;
     SWSWidget* widget = NULL;
 
     foreach(AbstractWindowController* con, m_subWindows.values())
@@ -1057,6 +1082,7 @@ bool uProbeX::saveAllXMLRequired()
 
 bool uProbeX::saveActivatedXmlRequired()
 {
+    return false;
     SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
     if (w != NULL) {
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());

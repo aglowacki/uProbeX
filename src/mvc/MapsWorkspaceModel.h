@@ -19,8 +19,10 @@
 /**
  * @brief Model
  */
-class MapsWorkspaceModel
+class MapsWorkspaceModel : public QObject
 {
+
+    Q_OBJECT
 
 public:
 
@@ -36,15 +38,20 @@ public:
 
     bool load(QString filepath, bool all=false);
 
-    bool is_loaded() {return _is_loaded;}
+    //bool is_loaded() {return _is_loaded;}
+
+    QString get_directory_name();
+
+    MapsH5Model* getMapsH5Model(QString name);
+
+signals:
+    void newFileLoaded(QString);
 
 protected:
 
     bool _load_fit_params();
 
-    bool _load_all_img_dat();
-
-    bool _load_avg_img_dat();
+    bool _load_img_dat(QList <QString> suffex);
 
 
     std::map<QString, MapsH5Model*> _h5_models;
@@ -53,10 +60,13 @@ protected:
 
 private:
 
+    QList <QString> _all_h5_suffex;
+    QList <QString> _avg_h5_suffex;
+
     QDir* _dir;
 
-    bool _is_loaded;
-
+    bool _is_fit_params_loaded;
+    bool _is_imgdat_loaded;
 };
 
 

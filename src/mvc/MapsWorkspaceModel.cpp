@@ -9,12 +9,20 @@
 
 /*----------------src/mvc/MapsWorkspaceModel.cpp \-----------------------------------------------------------*/
 
-MapsWorkspaceModel::MapsWorkspaceModel()
+MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 {
 
-    _is_loaded = false;
+    _is_fit_params_loaded = false;
+    _is_imgdat_loaded = false;
     _dir = nullptr;
 
+    _all_h5_suffex.append("h5");
+    _all_h5_suffex.append("h50");
+    _all_h5_suffex.append("h51");
+    _all_h5_suffex.append("h52");
+    _all_h5_suffex.append("h53");
+
+    _avg_h5_suffex.append("h5");;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -41,16 +49,18 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
             return false;
         }
 
-        _is_loaded &= _load_fit_params();
+        _is_fit_params_loaded &= _load_fit_params();
+
 
         if (all)
         {
-            _is_loaded &= _load_all_img_dat();
+            _is_imgdat_loaded &= _load_img_dat(_all_h5_suffex);
         }
         else
         {
-            _is_loaded &= _load_avg_img_dat();
+            _is_imgdat_loaded &= _load_img_dat(_avg_h5_suffex);
         }
+
     }
     catch (std::string& s)
     {
@@ -61,9 +71,30 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
         throw std::string("Failed to open Maps Analyzed dataset!");
     }
 
-    return _is_loaded;
+    return _is_fit_params_loaded && _is_imgdat_loaded;
 }
 
+/*---------------------------------------------------------------------------*/
+
+MapsH5Model* MapsWorkspaceModel::getMapsH5Model(QString name)
+{
+    if(_h5_models.count(name) > 0)
+    {
+        return _h5_models[name];
+    }
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+QString MapsWorkspaceModel::get_directory_name()
+{
+    if( _dir != nullptr)
+        return _dir->path();
+    return "";
+}
+
+/*---------------------------------------------------------------------------*/
 
 bool MapsWorkspaceModel::_load_fit_params()
 {
@@ -88,7 +119,9 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 }
 
-bool MapsWorkspaceModel::_load_avg_img_dat()
+/*---------------------------------------------------------------------------*/
+
+bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
 {
     if (!_dir->cd("img.dat"))
     {
@@ -103,62 +136,24 @@ bool MapsWorkspaceModel::_load_avg_img_dat()
     for (int i = 0; i < list.size(); ++i)
     {
         QFileInfo fileInfo = list.at(i);
-        if (fileInfo.suffix() == "h5")
+        if (suffex.contains(fileInfo.suffix()))
         {
             MapsH5Model * model = new MapsH5Model();
             model->load(fileInfo.absoluteFilePath());
-            if(model->is_loaded() )
+            //if(model->is_loaded() )
             {
                 _h5_models.insert( {fileInfo.fileName(), model} );
+                newFileLoaded(fileInfo.fileName());
             }
-            else
-            {
-                delete model;
-            }
+//            else
+//            {
+//                delete model;
+//            }
         }
-        //std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
-        //std::cout << std::endl;
     }
 
     _dir->cd("..");
     return true;
 }
 
-bool MapsWorkspaceModel::_load_all_img_dat()
-{
-    if (!_dir->cd("img.dat"))
-    {
-        qWarning("Cannot find the \"/tmp\" directory");
-        return false;
-    }
-    _dir->setFilter(QDir::Files | QDir::NoSymLinks);
-    //_dir->setSorting(QDir::Size | QDir::Reversed);
-
-    QFileInfoList list = _dir->entryInfoList();
-    //std::cout << "     Bytes Filename" << std::endl;
-    for (int i = 0; i < list.size(); ++i)
-    {
-        QFileInfo fileInfo = list.at(i);
-        if (fileInfo.suffix() == "h5" ||
-            fileInfo.suffix() == "h51" ||
-            fileInfo.suffix() == "h52" ||
-            fileInfo.suffix() == "h53")
-        {
-            MapsH5Model * model = new MapsH5Model();
-            model->load(fileInfo.absoluteFilePath());
-            if(model->is_loaded() )
-            {
-                _h5_models.insert( {fileInfo.fileName(), model} );
-            }
-            else
-            {
-                delete model;
-            }
-        }
-        //std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName()));
-        //std::cout << std::endl;
-    }
-
-    _dir->cd("..");
-    return true;
-}
+/*---------------------------------------------------------------------------*/

@@ -40,7 +40,9 @@ public:
     */
    ~SpectraWidget();
 
-   void set_spectra(data_struct::xrf::Spectra* spectra);
+   void append_spectra(QString name, data_struct::xrf::Spectra* spectra);
+
+   void remove_spectra(QString name);
 
 public slots:
    void ShowContextMenu(const QPoint &);
@@ -54,8 +56,6 @@ protected:
 
    bool _display_log10;
 
-   QtCharts::QLineSeries *_series;
-
    QtCharts::QChart *_chart;
 
    QtCharts::QChartView *_chartView;
@@ -68,7 +68,8 @@ private slots:
    void _update_series();
 
 private:
-   std::valarray<float> _spectra;
+
+   std::map<QString, std::valarray<float>> _spectra_map;
 
    QAction *_action_check_log10;
 
@@ -81,3 +82,4 @@ private:
 #endif /* SpectraWidget_H_ */
 
 /*---------------------------------------------------------------------------*/
+
