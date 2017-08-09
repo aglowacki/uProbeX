@@ -16,8 +16,21 @@
 SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 {
 
+    _display_log10 = true;
     createLayout();
 
+    _action_check_log10 = new QAction("Toggle Log10", this);
+    _action_check_log10->setCheckable(true);
+    _action_check_log10->setChecked(_display_log10);
+    connect(_action_check_log10, SIGNAL(triggered()), this, SLOT(_check_log10()));
+
+    _contextMenu = new QMenu(("Context menu"), this);
+    _contextMenu->addAction(_action_check_log10);
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(ShowContextMenu(const QPoint &)));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -32,16 +45,14 @@ SpectraWidget::~SpectraWidget()
 
 void SpectraWidget::createLayout()
 {
+    _series = new QtCharts::QLineSeries();
 
-
-    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
-
-    series->append(0, 0);
-    series->append(2048, 100);
+    _series->append(0, 0);
+    _series->append(2048, 100);
 
     _chart = new QtCharts::QChart();
     _chart->legend()->hide();
-    _chart->addSeries(series);
+    _chart->addSeries(_series);
     _chart->createDefaultAxes();
     _chart->setTitle("Integrated Spectra");
 
@@ -51,7 +62,6 @@ void SpectraWidget::createLayout()
     QLayout* layout = new QHBoxLayout();
     layout->addWidget(_chartView);
     setLayout(layout);
-
 }
 
 void SpectraWidget::set_spectra(data_struct::xrf::Spectra* spectra)
@@ -59,32 +69,50 @@ void SpectraWidget::set_spectra(data_struct::xrf::Spectra* spectra)
     if (spectra == nullptr)
         return;
 
-    _chart->removeAllSeries();
+    if(_display_log10)
+        _spectra = std::log10((std::valarray<float>)*spectra);
 
-    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
-
-    for(int i =0; i < spectra->size(); i++)
-    {
-        series->append(i, std::log10((*spectra)[i]));
-    }
-    _chart->addSeries(series);
-    _chart->createDefaultAxes();
-    //_chartView->repaint();
+    _update_series();
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::windowChanged(Qt::WindowStates oldState,
-                                  Qt::WindowStates newState)
+void SpectraWidget::ShowContextMenu(const QPoint &pos)
 {
-    /*
-   Q_UNUSED(oldState);
+    _contextMenu->exec(mapToGlobal(pos));
+}
 
-   if(Qt::WindowMaximized || Qt::WindowActive == newState)
-   {
+/*---------------------------------------------------------------------------*/
 
-   }
-*/
+void SpectraWidget::_check_log10()
+{
+
+    if(_display_log10)
+    {
+        _spectra = std::pow(10.0f, _spectra);
+    }
+    else
+    {
+        _spectra = std::log10(_spectra);
+    }
+    _display_log10 = !_display_log10;
+    _action_check_log10->setChecked(_display_log10);
+    _update_series();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::_update_series()
+{
+    _chart->removeAllSeries();
+    _series = new QtCharts::QLineSeries();
+
+    for(int i =0; i < _spectra.size(); i++)
+    {
+        _series->append(i, _spectra[i]);
+    }
+    _chart->addSeries(_series);
+    _chart->createDefaultAxes();
 }
 
 /*---------------------------------------------------------------------------*/

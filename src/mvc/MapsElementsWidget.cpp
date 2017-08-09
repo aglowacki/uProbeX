@@ -70,7 +70,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
     {
         int length = nnls->width() * nnls->height();
         // Build a colour table of grayscale
-        QByteArray data(length, 0);
+        QByteArray data(length, (char)0);
 
         float *counts = nnls->get_counts_ptr("Num_Iter");
         float counts_max = nnls->get_counts_max("Num_Iter");
@@ -88,7 +88,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             grayscale.append(qRgb(i, i, i));
         }
 
-        QImage image((const uchar *)data.constData(), nnls->width(), nnls->height(), QImage::Format_Indexed8);
+        QImage image((const uchar *)data.constData(), nnls->width(), nnls->height(), nnls->width(), QImage::Format_Indexed8);
         image.setColorTable(grayscale);
 
 

@@ -84,13 +84,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     // Create menu
     createMenuBar();
 
-    // Creat MDI window
-    m_mdiArea = new QMdiArea();
-    m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    setCentralWidget(m_mdiArea);
-
     int w = m_preferences.readValueKey(Preferences::MainWindowSavedWidth).toInt();
     int h = m_preferences.readValueKey(Preferences::MainWindowSavedHeight).toInt();
 
@@ -112,6 +105,15 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     {
         qDebug()<<"Error loading "<< element_henke_filename.c_str() <<" and "<< element_csv_filename.c_str();
     }
+
+
+    // Creat MDI window
+    m_mdiArea = new QMdiArea();
+
+    m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_mdiArea->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    setCentralWidget(m_mdiArea);
 
 
     show();
@@ -663,10 +665,10 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
             SLOT(subWindowClosed(SubWindow*)));
 
 
-
+    m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
     w->resize(950, 700);
-    w->setIsAcquisitionWindow(false);
+    //w->setIsAcquisitionWindow(false);
     w->setWindowTitle(path);
     w->show();
 
@@ -745,8 +747,10 @@ void uProbeX::makeHDFWindow(QString path)
                 SLOT(subWindowClosed(SubWindow*)));
 
 
+        m_mdiArea->addSubWindow(w);
+
         w->setWidget(widget);
-        //w->resize(950, 700);
+        w->resize(950, 700);
         w->setIsAcquisitionWindow(false);
         w->setWindowTitle(path);
         w->show();

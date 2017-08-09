@@ -10,6 +10,9 @@
 
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
+#include <QAction>
+#include <QMenu>
+#include <QWidget>
 
 #include "data_struct/xrf/spectra.h"
 
@@ -38,14 +41,9 @@ public:
    ~SpectraWidget();
 
    void set_spectra(data_struct::xrf::Spectra* spectra);
-public slots:
 
-   /**
-    * @brief Accept the window change state
-    * @param oldState
-    * @param newState
-    */
-   void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
+public slots:
+   void ShowContextMenu(const QPoint &);
 
 protected:
 
@@ -54,9 +52,27 @@ protected:
     */
    void createLayout();
 
+   bool _display_log10;
+
+   QtCharts::QLineSeries *_series;
+
    QtCharts::QChart *_chart;
 
    QtCharts::QChartView *_chartView;
+
+
+private slots:
+
+   void _check_log10();
+
+   void _update_series();
+
+private:
+   std::valarray<float> _spectra;
+
+   QAction *_action_check_log10;
+
+   QMenu *_contextMenu;
 };
 
 
