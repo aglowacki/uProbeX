@@ -44,8 +44,14 @@ public:
 
     MapsH5Model* getMapsH5Model(QString name);
 
+    data_struct::xrf::Fit_Parameters* getFitParameters(int idx);
+
 signals:
-    void newFileLoaded(QString);
+    void newAnalyzedH5FileLoaded(QString);
+
+    void doneLoading();
+
+    void newFitParamsFileLoaded(int);
 
 protected:
 

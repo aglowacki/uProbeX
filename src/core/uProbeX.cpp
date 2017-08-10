@@ -1220,10 +1220,11 @@ void uProbeX::showAbout()
     m_splashAbout -> appendMessage(tr("UChicago Argonne, LLC"));
     m_splashAbout -> appendMessage(tr(""));
     m_splashAbout -> appendMessage(tr("Credits"));
-    m_splashAbout -> appendMessage(tr("Nicholas Schwarz"));
-    m_splashAbout -> appendMessage(tr("Ke Yue"));
     m_splashAbout -> appendMessage(tr("Arthur Glowacki"));
     m_splashAbout -> appendMessage(tr("Dariusz Jarosz"));
+    m_splashAbout -> appendMessage(tr("Nicholas Schwarz"));
+    m_splashAbout -> appendMessage(tr("Ke Yue"));
+
 }
 
 /*---------------------------------------------------------------------------*/

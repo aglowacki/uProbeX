@@ -49,18 +49,18 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
             return false;
         }
 
-        _is_fit_params_loaded &= _load_fit_params();
+        _is_fit_params_loaded = _load_fit_params();
 
-        _is_sws_loaded &= _load_sws_workspaces();
+        _is_sws_loaded = _load_sws_workspaces();
 
 
         if (all)
         {
-            _is_imgdat_loaded &= _load_img_dat(_all_h5_suffex);
+            _is_imgdat_loaded = _load_img_dat(_all_h5_suffex);
         }
         else
         {
-            _is_imgdat_loaded &= _load_img_dat(_avg_h5_suffex);
+            _is_imgdat_loaded = _load_img_dat(_avg_h5_suffex);
         }
 
     }
@@ -72,6 +72,8 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
     {
         throw std::string("Failed to open Maps Analyzed dataset!");
     }
+
+    emit doneLoading();
 
     return _is_fit_params_loaded && _is_imgdat_loaded;
 }
@@ -108,12 +110,14 @@ bool MapsWorkspaceModel::_load_fit_params()
         if( io::load_override_params(dataset_dir, detector_num, &params_override) )
         {
             _fit_params_override_dict[detector_num] = params_override;
+            emit newFitParamsFileLoaded(detector_num);
         }
     }
     data_struct::xrf::Params_Override params(dataset_dir, -1);
     if( io::load_override_params(dataset_dir, -1, &params) )
     {
         _fit_params_override_dict[-1] = params;
+        emit newFitParamsFileLoaded(-1);
     }
 
 
@@ -145,7 +149,7 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
             if(model->is_counts_loaded())
             {
                 _h5_models.insert( {fileInfo.fileName(), model} );
-                emit newFileLoaded(fileInfo.fileName());
+                emit newAnalyzedH5FileLoaded(fileInfo.fileName());
             }
 //            else
 //            {
@@ -163,6 +167,16 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
 bool MapsWorkspaceModel::_load_sws_workspaces()
 {
     return false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+data_struct::xrf::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
+{
+    if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
+    {
+        return &(_fit_params_override_dict[idx].fit_params);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
