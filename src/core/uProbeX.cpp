@@ -59,7 +59,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solver = NULL;
     m_autosaveTimer = NULL;
     m_solverParameterParse = new SolverParameterParse();
-
+    _load_maps_workspace_thread = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -707,7 +707,7 @@ void uProbeX::makeMapsWindow(QString path)
     m_mdiArea->addSubWindow(w);
 
     w->setWidget(widget);
-    w->resize(950, 700);
+    w->resize(300, 800);
     w->setIsAcquisitionWindow(false);
     w->setWindowTitle(path);
     w->show();
@@ -717,22 +717,24 @@ void uProbeX::makeMapsWindow(QString path)
             widget,
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 
-    try
+    // TODO: this should be changed. will cause the first not to load
+    // if loading 2 workspaces right after another
+    if(_load_maps_workspace_thread != nullptr)
     {
-        model->load(path);
+        _load_maps_workspace_thread->join();
+        delete _load_maps_workspace_thread;
     }
-    catch(std::string& s)
+    _load_maps_workspace_thread = new std::thread( [model, path]()
     {
-        // Restore cursor
-        //QApplication::restoreOverrideCursor();
-
-        // Display error to user
-        QMessageBox::critical(this, tr("uProbeX"),
-                              tr("Failed to open maps workspace.\n\n") + tr("Error:  ") +
-                              QString(s.c_str()));
-
-        return;
-    }
+        try
+        {
+            model->load(path);
+        }
+        catch(std::string& s)
+        {
+            qDebug()<<"Failed to open maps workspace.\n\n"<<QString(s.c_str());
+        }
+    });
 
 }
 

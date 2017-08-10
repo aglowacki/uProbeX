@@ -53,6 +53,7 @@ protected:
 
     bool _load_img_dat(QList <QString> suffex);
 
+    bool _load_sws_workspaces();
 
     std::map<QString, MapsH5Model*> _h5_models;
 
@@ -65,6 +66,7 @@ private:
 
     QDir* _dir;
 
+    bool _is_sws_loaded;
     bool _is_fit_params_loaded;
     bool _is_imgdat_loaded;
 };

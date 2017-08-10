@@ -45,6 +45,7 @@ public:
    void remove_spectra(QString name);
 
 public slots:
+
    void ShowContextMenu(const QPoint &);
 
 protected:

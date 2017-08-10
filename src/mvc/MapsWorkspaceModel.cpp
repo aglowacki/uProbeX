@@ -51,6 +51,8 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
 
         _is_fit_params_loaded &= _load_fit_params();
 
+        _is_sws_loaded &= _load_sws_workspaces();
+
 
         if (all)
         {
@@ -140,10 +142,10 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
         {
             MapsH5Model * model = new MapsH5Model();
             model->load(fileInfo.absoluteFilePath());
-            //if(model->is_loaded() )
+            if(model->is_counts_loaded())
             {
                 _h5_models.insert( {fileInfo.fileName(), model} );
-                newFileLoaded(fileInfo.fileName());
+                emit newFileLoaded(fileInfo.fileName());
             }
 //            else
 //            {
@@ -154,6 +156,13 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
 
     _dir->cd("..");
     return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsWorkspaceModel::_load_sws_workspaces()
+{
+    return false;
 }
 
 /*---------------------------------------------------------------------------*/

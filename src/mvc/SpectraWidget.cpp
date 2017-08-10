@@ -53,7 +53,6 @@ void SpectraWidget::createLayout()
 
     _chart = new QtCharts::QChart();
     //_chart->legend()->hide();
-
     _chart->addSeries(series);
     _chart->createDefaultAxes();
     //_chart->setTitle("Integrated Spectra");
@@ -99,7 +98,7 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 
 void SpectraWidget::_check_log10()
 {
-    for(auto itr : _spectra_map)
+    for(auto& itr : _spectra_map)
     {
         if(_display_log10)
         {
@@ -121,7 +120,7 @@ void SpectraWidget::_check_log10()
 void SpectraWidget::_update_series()
 {
     _chart->removeAllSeries();
-    for(auto itr : _spectra_map)
+    for(auto& itr : _spectra_map)
     {
         QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
         series->setName(itr.first);
@@ -129,7 +128,7 @@ void SpectraWidget::_update_series()
         {
             if(std::isnan(itr.second[i]) || std::isinf(itr.second[i]))
             {
-                itr.second[i] = 0.0f;
+                itr.second[i] = 0.00000001f;
             }
             series->append(i, itr.second[i]);
 
@@ -137,7 +136,6 @@ void SpectraWidget::_update_series()
         _chart->addSeries(series);
     }
     _chart->createDefaultAxes();
-
 }
 
 /*---------------------------------------------------------------------------*/

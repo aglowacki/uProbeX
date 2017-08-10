@@ -18,6 +18,7 @@
 #include <QApplication>
 #include <QMap>
 #include <QUuid>
+#include <thread>
 
 class SubWindow;
 class AbstractWindowController;
@@ -400,6 +401,8 @@ private:
     * @brief Keeps track of all open MDI child windows for hdf5 play-back.
     */
    QMap<QUuid, AbstractWindowController*> m_subWindows;
+
+   std::thread* _load_maps_workspace_thread;
 
    /**
     * @brief timer used to execute autosafe.

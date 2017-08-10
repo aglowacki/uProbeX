@@ -46,6 +46,16 @@ public:
 
     QString getFilePath() { return _filepath; }
 
+    bool is_scalers_loaded() { return _loaded_scalers; }
+
+    bool is_quantification_loaded() { return _loaded_quantification; }
+
+    bool is_scan_loaded() { return _loaded_scan; }
+
+    bool is_integrated_spectra_loaded() { return _loaded_integrated_spectra; }
+
+    bool is_counts_loaded() { return _loaded_counts; }
+
 protected:
 
     bool _load_version_9(hid_t maps_grp_id);
