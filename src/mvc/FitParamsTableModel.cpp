@@ -5,6 +5,7 @@
 
 #include "FitParamsTableModel.h"
 #include <QDebug>
+#include "fitting/models/gaussian_model.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -19,6 +20,11 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     m_headers[STEP_SIZE] = tr("Step Size");
     m_headers[BOUND_TYPE] = tr("Is Fixed");
 
+    fitting::models::Gaussian_Model g_model;
+    _fit_parameters = g_model.fit_parameters();
+    _row_indicies = _fit_parameters.names_to_array();
+    std::sort(_row_indicies.begin(), _row_indicies.end());
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -27,13 +33,16 @@ void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters* fit_par
 {
     if(fit_params != nullptr)
     {
-        _fit_parameters = fit_params;
+        _fit_parameters.update_values(*fit_params);
         _row_indicies.clear();
-        _row_indicies = _fit_parameters->names_to_array();
+        _row_indicies = _fit_parameters.names_to_array();
+
+        std::sort(_row_indicies.begin(), _row_indicies.end());
 
         QModelIndex topLeft = index(0, 0);
         QModelIndex bottomRight = index(_row_indicies.size()-1, NUM_PROPS-1);
         emit dataChanged(topLeft, bottomRight);
+        emit layoutChanged();
 
     }
 }
@@ -66,7 +75,7 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
     }
 
     // Check valid index
-    if (index.row() >= _row_indicies.size() || index.row() < 0 || _fit_parameters == nullptr)
+    if (index.row() >= _row_indicies.size() || index.row() < 0)
     {
         return QVariant();
     }
@@ -76,11 +85,14 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
     // Return values for display and edit roles
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        data_struct::xrf::Fit_Param fitp = (*_fit_parameters)[_row_indicies[row]];
+        data_struct::xrf::Fit_Param fitp = _fit_parameters.at(_row_indicies[row]);
         // Insert data
         if (index.column() == NAME) return QString(fitp.name.c_str());
         else if (index.column() == VALUE) return fitp.value;
         else if (index.column() == MIN_VAL) return fitp.min_val;
+        else if (index.column() == MAX_VAL) return fitp.max_val;
+        else if (index.column() == STEP_SIZE) return fitp.step_size;
+        else if (index.column() == BOUND_TYPE) return QString(fitp.bound_type_str().c_str());
     }
 
 
@@ -176,7 +188,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
 
 
     // Check for valid index
-    if (index.isValid() == false || _fit_parameters == nullptr)
+    if (index.isValid() == false)
     {
         return false;
     }
@@ -187,28 +199,36 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
     std::string fitp_name = _row_indicies[row];
 
 
+    bool ok = false;
+    double dval = value.toFloat(&ok);
+
     if (column == VALUE)
     {
-        bool ok = false;
-        double dval = value.toFloat(&ok);
         if(ok)
-        {
-           (*_fit_parameters)[fitp_name].value = dval;
-        }
+           _fit_parameters[fitp_name].value = dval;
         else
-        {
             return false;
-        }
-
     }
     else if (column == MIN_VAL)
     {
-        qDebug()<<value.toString();
-        //m_solverAttrs[row].setDescription(value.toString());
+        if(ok)
+           _fit_parameters[fitp_name].min_val = dval;
+        else
+            return false;
     }
     else if (column == MAX_VAL)
     {
-        //m_solverAttrs[row].setIsEnable(value.toBool());
+        if(ok)
+           _fit_parameters[fitp_name].max_val = dval;
+        else
+            return false;
+    }
+    else if (column == MAX_VAL)
+    {
+        if(ok)
+           _fit_parameters[fitp_name].step_size = dval;
+        else
+            return false;
     }
     else
     {

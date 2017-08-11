@@ -66,6 +66,7 @@ void MapsWorkspaceWidget::createLayout()
 
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
+    _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
 
     QLayout* vlayout = new QVBoxLayout();
 

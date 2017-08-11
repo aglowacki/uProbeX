@@ -6,11 +6,13 @@
 #ifndef FitParamsTableModel_H_
 #define FitParamsTableModel_H_
 
+#include <algorithm>
 #include <QAbstractTableModel>
 #include <QList>
 #include <QModelIndex>
 #include <QVariant>
 #include "data_struct/xrf/fit_parameters.h"
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -128,7 +130,7 @@ private:
     */
    QString m_headers[NUM_PROPS];
 
-   data_struct::xrf::Fit_Parameters* _fit_parameters;
+   data_struct::xrf::Fit_Parameters _fit_parameters;
 
    std::vector<std::string> _row_indicies;
 
