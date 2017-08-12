@@ -42,6 +42,8 @@ HDF5_INCLUDE = $(HDF5_BASE)\\include
 HDF5_LIBS = $(HDF5_BASE)\\lib
 NETCDF_INCLUDE = $(NETCDF_BASE)\\include
 NETCDF_LIBS = $(NETCDF_BASE)\\lib
+WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
+WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
 }
 
 #######################################################
@@ -57,6 +59,7 @@ CONFIG += console
 CONFIG += c++14
 DEFINES += WITH_DOM
 DEFINES += _REAL_FLOAT
+DEFINES += H5_BUILT_AS_DYNAMIC_LIB
 QMAKE_CXXFLAGS_WARN_OFF -= -Wunused-parameter
 
 # Include paths
@@ -81,6 +84,13 @@ win32 {
 #flag for qlibrary
 #QMAKE_LFLAGS -= /NXCOMPAT
 #QMAKE_LFLAGS += /NXCOMPAT:NO
+
+INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\shared
+INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\um
+INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\winrt
+INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\ucrt
+
+LIBS += -L$${WINDOWS_DEV_KIT_LIBS}\\ucrt\\x64
 
 #debug
 QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
