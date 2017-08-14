@@ -180,3 +180,10 @@ data_struct::xrf::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
 }
 
 /*---------------------------------------------------------------------------*/
+data_struct::xrf::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
+{
+    if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
+    {
+        return &(_fit_params_override_dict[idx].elements_to_fit);
+    }
+}

@@ -18,13 +18,18 @@ MapsWorkspaceWidget::MapsWorkspaceWidget(QWidget* parent) : QWidget(parent)
 
     createLayout();
 
-    _action_view_analyzed_h5 = new QAction("View", this);
-    //_action_check_log10->setCheckable(true);
-    //_action_check_log10->setChecked(false);
-    connect(_action_view_analyzed_h5, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
-
     _contextMenu = new QMenu(("Context menu"), this);
+
+    _action_view_analyzed_h5 = new QAction("View", this);
+    connect(_action_view_analyzed_h5, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
     _contextMenu->addAction(_action_view_analyzed_h5);
+
+    _action_fit_integrated_spectra = new QAction("Fit Integrated Spec", this);
+    connect(_action_fit_integrated_spectra, SIGNAL(triggered()), this, SLOT(fitIntegratedSpectra()));
+    _contextMenu->addAction(_action_fit_integrated_spectra);
+
+
+
 
     /*
     this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -139,6 +144,28 @@ void MapsWorkspaceWidget::viewAnalyzedH5()
     for(int i =0; i<list.length(); i++)
     {
         onListItemClicked(list.at(i));
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceWidget::fitIntegratedSpectra()
+{
+
+    QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
+    for(int i =0; i<list.length(); i++)
+    {
+        QModelIndex idx = list.at(i);
+        QVariant data = idx.data(0);
+        if(_model != nullptr)
+        {
+            MapsH5Model* h5Model = _model->getMapsH5Model(data.toString());
+            if(h5Model != nullptr)
+            {
+                showFitSpecWindow(_model->getFitParameters(-1), _model->getElementToFit(-1), h5Model);
+            }
+        }
     }
 
 }

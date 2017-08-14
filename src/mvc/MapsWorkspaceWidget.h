@@ -52,6 +52,10 @@ signals:
 
    void selectedAnalyzedH5(MapsH5Model* model);
 
+   void showFitSpecWindow(data_struct::xrf::Fit_Parameters* fit_params,
+                          data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
+                          MapsH5Model* h5_model);
+
 public slots:
 
    void ShowContextMenu(const QPoint &);
@@ -61,6 +65,8 @@ public slots:
    void loadedFitParams(int idx);
 
    void viewAnalyzedH5();
+
+   void fitIntegratedSpectra();
 
    void onListItemClicked(const QModelIndex);
 
@@ -84,6 +90,8 @@ private:
    MapsWorkspaceModel* _model;
 
    QAction *_action_view_analyzed_h5;
+
+   QAction *_action_fit_integrated_spectra;
 
    QMenu *_contextMenu;
 

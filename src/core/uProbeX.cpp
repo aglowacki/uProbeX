@@ -17,6 +17,7 @@
 #include <mvc/MapsElementsWidget.h>
 #include <mvc/MapsWorkspaceWidget.h>
 #include <mvc/MapsWorkspaceModel.h>
+#include <mvc/FitSpectraWidget.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
 #include <Splash.h>
@@ -696,6 +697,13 @@ void uProbeX::makeMapsWindow(QString path)
     connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
             this, SLOT(makeHDFWindow(MapsH5Model*)));
 
+    connect(widget, SIGNAL(showFitSpecWindow(data_struct::xrf::Fit_Parameters*,
+                                              data_struct::xrf::Fit_Element_Map_Dict*,
+                                              MapsH5Model*)),
+            this, SLOT(makeFitSpectraWindow(data_struct::xrf::Fit_Parameters*,
+                                            data_struct::xrf::Fit_Element_Map_Dict*,
+                                            MapsH5Model*)));
+
     SubWindow* w = NULL;
     w = new SubWindow(m_mdiArea);
     connect(w,
@@ -763,10 +771,49 @@ void uProbeX::makeHDFWindow(QString path)
     makeHDFWindow(model);
 }
 
+/*---------------------------------------------------------------------------*/
+
 void uProbeX::makeHDFWindow(MapsH5Model* model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
     widget->setModel(model);
+    //widget->resize(800, 600);
+
+
+    SubWindow* w = NULL;
+    w = new SubWindow(m_mdiArea);
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
+
+
+    m_mdiArea->addSubWindow(w);
+
+    w->setWidget(widget);
+    w->resize(950, 700);
+    w->setIsAcquisitionWindow(false);
+    w->setWindowTitle(model->getFilePath());
+    w->show();
+
+    //    m_subWindows[w->getUuid()] = tiffController;
+
+    connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+            widget,
+            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::makeFitSpectraWindow(data_struct::xrf::Fit_Parameters* fit_params,
+                                   data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
+                                    MapsH5Model* model)
+{
+    FitSpectraWidget* widget = new FitSpectraWidget();
+    widget->setModels(fit_params, elements_to_fit, model);
     //widget->resize(800, 600);
 
 
