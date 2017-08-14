@@ -14,6 +14,9 @@
 #include <vector>
 #include "XrfAnalyzedCounts.h"
 #include "io/file/hdf5_io.h"
+#include "fitting/routines/param_optimized_fit_routine.h"
+#include "fitting/optimizers/mpfit_optimizer.h"
+#include "fitting/models/gaussian_model.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -55,6 +58,8 @@ public:
     bool is_integrated_spectra_loaded() { return _loaded_integrated_spectra; }
 
     bool is_counts_loaded() { return _loaded_counts; }
+
+    data_struct::xrf::Spectra fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
 
 protected:
 

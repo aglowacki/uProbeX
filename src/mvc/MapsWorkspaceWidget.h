@@ -18,6 +18,7 @@
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include "FitParamsTableModel.h"
+#include "mvc/ComboBoxDelegate.h"
 
 /*---------------------------------------------------------------------------*/
 

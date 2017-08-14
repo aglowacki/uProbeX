@@ -8,6 +8,7 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/solver/NelderMeadSolver.cpp \
     src/solver/PythonSolver.cpp \
     src/mvc/SolverWidget.cpp \
+    src/mvc/ComboBoxDelegate.cpp \
     src/mvc/AbstractWindowModel.cpp \
     src/mvc/AbstractWindowController.cpp \
     src/mvc/TIFFModel.cpp \
@@ -57,6 +58,7 @@ HEADERS = src/mvc/DeselectableTreeView.h \
     src/solver/NelderMeadSolver.h \
     src/solver/PythonSolver.h \
     src/mvc/SolverWidget.h \
+    src/mvc/ComboBoxDelegate.h \
     src/mvc/AbstractWindowModel.h \
     src/mvc/AbstractWindowController.h \
     src/mvc/SWSModel.h \

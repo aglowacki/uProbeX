@@ -308,8 +308,8 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 }
 
 
-/*
-void fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_struct::xrf::Fit_Element_Map_Dict elements_to_fit)
+
+data_struct::xrf::Spectra MapsH5Model::fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
 {
     //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
     fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
@@ -332,9 +332,9 @@ void fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_st
     model.update_fit_params_values(fit_params);
     //model.set_fit_params_preset(fitting::models::BATCH_FIT_NO_TAILS);
     //Initialize the fit routine
-    fit_routine.initialize(&model, &ret_struct.elements_to_fit, energy_range);
+    fit_routine.initialize(&model, elements_to_fit, energy_range);
     //Fit the spectra saving the element counts in element_fit_count_dict
-    out_fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, &elements_to_fit);
-    data_struct::xrf::Spectra model_spectra = model.model_spectrum(&out_fit_params, &elements_to_fit, energy_range);
+    out_fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, elements_to_fit);
+    return model.model_spectrum(&out_fit_params, elements_to_fit, energy_range);
 }
-*/
+

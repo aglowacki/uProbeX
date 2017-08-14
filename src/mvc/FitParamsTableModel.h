@@ -39,17 +39,6 @@ public:
       BOUND_TYPE,
        NUM_PROPS
    };
-/*
-    std::string name;
-    real_t min_val;
-    real_t max_val;
-    real_t value;
-    real_t step_size;
-    std::string bound_type_str();
-    //E_Bound_Type bound_type;
-    //int opt_array_index;
- */
-
 
    /**
     * Constructor

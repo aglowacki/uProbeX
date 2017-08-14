@@ -92,7 +92,7 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
         else if (index.column() == MIN_VAL) return fitp.min_val;
         else if (index.column() == MAX_VAL) return fitp.max_val;
         else if (index.column() == STEP_SIZE) return fitp.step_size;
-        else if (index.column() == BOUND_TYPE) return QString(fitp.bound_type_str().c_str());
+        else if (index.column() == BOUND_TYPE) return fitp.bound_type; //QString(fitp.bound_type_str().c_str());
     }
 
 
@@ -223,12 +223,16 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
         else
             return false;
     }
-    else if (column == MAX_VAL)
+    else if (column == STEP_SIZE)
     {
         if(ok)
            _fit_parameters[fitp_name].step_size = dval;
         else
             return false;
+    }
+    else if (column == BOUND_TYPE)
+    {
+        _fit_parameters[fitp_name].bound_type = (data_struct::xrf::E_Bound_Type)value.toInt();
     }
     else
     {
