@@ -90,6 +90,11 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
         if(_fit_params != nullptr && _elements_to_fit != nullptr)
         {
             data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
+            for(int i=0; i<fit_spec.size(); i++)
+            {
+             if(fit_spec[i] <= 0.0)
+                 fit_spec[i] = 0.1;
+            }
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
         }
    // });

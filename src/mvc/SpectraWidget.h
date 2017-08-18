@@ -13,7 +13,8 @@
 #include <QAction>
 #include <QMenu>
 #include <QWidget>
-
+#include <QLogValueAxis>
+#include <QValueAxis>
 #include "data_struct/xrf/spectra.h"
 
 /*---------------------------------------------------------------------------*/
@@ -26,55 +27,74 @@
 class SpectraWidget : public QWidget
 {
 
-   Q_OBJECT
+    Q_OBJECT
 
 public:
 
-   /**
+    /**
     * Constructor.
     */
-   SpectraWidget(QWidget* parent = NULL);
+    SpectraWidget(QWidget* parent = NULL);
 
-   /**
+    /**
     * Destructor.
     */
-   ~SpectraWidget();
+    ~SpectraWidget();
 
-   void append_spectra(QString name, data_struct::xrf::Spectra* spectra);
+    void append_spectra(QString name, data_struct::xrf::Spectra* spectra);
 
-   void remove_spectra(QString name);
+    //void remove_spectra(QString name);
 
 public slots:
 
-   void ShowContextMenu(const QPoint &);
+    void ShowContextMenu(const QPoint &);
 
 protected:
 
-   /**
+    /**
     * @brief Create layout
     */
-   void createLayout();
+    void createLayout();
 
-   bool _display_log10;
+    //bool viewportEvent(QEvent *event);
 
-   QtCharts::QChart *_chart;
+    void mousePressEvent(QMouseEvent *event);
 
-   QtCharts::QChartView *_chartView;
+    void mouseMoveEvent(QMouseEvent *event);
 
+    void mouseReleaseEvent(QMouseEvent *event);
+
+    void keyPressEvent(QKeyEvent *event);
+
+    bool _display_log10;
+
+    QtCharts::QChart *_chart;
+
+    QtCharts::QChartView *_chartView;
 
 private slots:
 
-   void _check_log10();
+    void _check_log10();
 
-   void _update_series();
+    //void _update_series();
 
 private:
 
-   std::map<QString, std::valarray<float>> _spectra_map;
+    float _max_log_range;
 
-   QAction *_action_check_log10;
+    QtCharts::QLogValueAxis *_axisYLog10;
 
-   QMenu *_contextMenu;
+    QtCharts::QValueAxis * _axisX;
+
+    QtCharts::QValueAxis * _axisY;
+
+    bool m_isTouching;
+
+    std::map<QString, std::valarray<float>> _spectra_map;
+
+    QAction *_action_check_log10;
+
+    QMenu *_contextMenu;
 };
 
 

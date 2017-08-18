@@ -18,6 +18,8 @@
 SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 {
 
+    _max_log_range = 1.0;
+    m_isTouching = false;
     _display_log10 = true;
     createLayout();
 
@@ -46,18 +48,40 @@ SpectraWidget::~SpectraWidget()
 
 void SpectraWidget::createLayout()
 {
-    QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
+    _axisYLog10 = new QtCharts::QLogValueAxis();
+    _axisYLog10->setTitleText("Counts Log10");
+    _axisYLog10->setLabelFormat("%.1e");
+    _axisYLog10->setRange(1.0, 10000.0);
+    _axisYLog10->setBase(10.0);
 
-    series->append(0, 0);
-    series->append(2048, 100);
+
+    _axisX = new QtCharts::QValueAxis();
+    _axisX->setTitleText("Energy");
+    _axisX->setLabelFormat("%i");
+    //_axisX->setTickCount(series->count());
+    _axisX->setTickCount(20);
+
+    _axisY = new QtCharts::QValueAxis();
+    _axisY->setTitleText("Counts");
+    _axisY->setLabelFormat("%i");
+    //_axisY->setTickCount(series->count());
+
 
     _chart = new QtCharts::QChart();
-    //_chart->legend()->hide();
-    _chart->addSeries(series);
-    _chart->createDefaultAxes();
-    //_chart->setTitle("Integrated Spectra");
+    _chart->addAxis(_axisX, Qt::AlignBottom);
+
+    if(_display_log10)
+    {
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+    }
+    else
+    {
+        _chart->addAxis(_axisY, Qt::AlignLeft);
+    }
+
 
     _chartView = new QtCharts::QChartView(_chart);
+    _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
     //_chartView->setRenderHint(QPainter::Antialiasing);
 
     QLayout* layout = new QHBoxLayout();
@@ -72,21 +96,39 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
     if (spectra == nullptr)
         return;
 
+    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+
+    float new_max = spectra->max();
+    _max_log_range = std::max(_max_log_range, new_max);
+
+    series->setName(name);
+    for(unsigned int i =0; i < spectra->size(); i++)
+    {
+        float val = (*spectra)[i];
+        if(std::isnan(val) || std::isinf(val) || val <= 0.0)
+        {
+            val = 0.0001f;
+        }
+        series->append(i, val);
+
+    }
+    _chart->addSeries(series);
+    series->attachAxis(_axisX);
+    _axisYLog10->setRange(1.0, _max_log_range);
+
     if(_display_log10)
-        _spectra_map[name] = std::log10((std::valarray<float>)*spectra);
+        series->attachAxis(_axisYLog10);
     else
-        _spectra_map[name] = (std::valarray<float>)*spectra;
-
-    _update_series();
+        series->attachAxis(_axisY);
 }
-
+/*
 void SpectraWidget::remove_spectra(QString name)
 {
     if(_spectra_map.count(name) > 0)
         _spectra_map.erase(name);
     _update_series();
 }
-
+*/
 /*---------------------------------------------------------------------------*/
 
 void SpectraWidget::ShowContextMenu(const QPoint &pos)
@@ -98,6 +140,33 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 
 void SpectraWidget::_check_log10()
 {
+
+    if(_display_log10)
+    {
+        _chart->removeAxis(_axisYLog10);
+        _chart->addAxis(_axisY, Qt::AlignLeft);
+        QList<QtCharts::QAbstractSeries*> series = _chart->series();
+        foreach(QtCharts::QAbstractSeries* ser, series)
+        {
+            ser->detachAxis(_axisYLog10);
+            ser->attachAxis(_axisY);
+        }
+    }
+    else
+    {
+        _chart->removeAxis(_axisY);
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+        QList<QtCharts::QAbstractSeries*> series = _chart->series();
+        foreach(QtCharts::QAbstractSeries* ser, series)
+        {
+            ser->detachAxis(_axisY);
+            ser->attachAxis(_axisYLog10);
+        }
+
+    }
+
+
+    /*
     for(auto& itr : _spectra_map)
     {
         if(_display_log10)
@@ -109,24 +178,26 @@ void SpectraWidget::_check_log10()
             itr.second = std::log10(itr.second);
         }
     }
-
+*/
     _display_log10 = !_display_log10;
     _action_check_log10->setChecked(_display_log10);
-    _update_series();
+ //   _update_series();
+
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void SpectraWidget::_update_series()
 {
     _chart->removeAllSeries();
     for(auto& itr : _spectra_map)
     {
         QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+
         series->setName(itr.first);
         for(unsigned int i =0; i < itr.second.size(); i++)
         {
-            if(std::isnan(itr.second[i]) || std::isinf(itr.second[i]))
+            if(std::isnan(itr.second[i]) || std::isinf(itr.second[i]) || itr.second[i] <= 0.0)
             {
                 itr.second[i] = 0.00000001f;
             }
@@ -134,8 +205,89 @@ void SpectraWidget::_update_series()
 
         }
         _chart->addSeries(series);
+        series->attachAxis(_axisX);
+        series->attachAxis(_axisYLog10);
     }
-    _chart->createDefaultAxes();
+    //_chart->createDefaultAxes();
+}
+*/
+/*---------------------------------------------------------------------------*/
+/*
+bool SpectraWidget::viewportEvent(QEvent *event)
+{
+    if (event->type() == QEvent::TouchBegin) {
+        // By default touch events are converted to mouse events. So
+        // after this event we will get a mouse event also but we want
+        // to handle touch events as gestures only. So we need this safeguard
+        // to block mouse events that are actually generated from touch.
+        m_isTouching = true;
+
+        // Turn off animations when handling gestures they
+        // will only slow us down.
+        _chart->setAnimationOptions(QtCharts::QChart::NoAnimation);
+    }
+    return QWidget::viewportEvent(event);
+}
+*/
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (m_isTouching)
+        return;
+    QWidget::mousePressEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_isTouching)
+        return;
+    QWidget::mouseMoveEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_isTouching)
+        m_isTouching = false;
+
+    // Because we disabled animations when touch event was detected
+    // we must put them back on.
+    _chart->setAnimationOptions(QtCharts::QChart::SeriesAnimations);
+
+    QWidget::mouseReleaseEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Plus:
+        _chart->zoomIn();
+        break;
+    case Qt::Key_Minus:
+        _chart->zoomOut();
+        break;
+    case Qt::Key_Left:
+        _chart->scroll(-10, 0);
+        break;
+    case Qt::Key_Right:
+        _chart->scroll(10, 0);
+        break;
+    case Qt::Key_Up:
+        _chart->scroll(0, 10);
+        break;
+    case Qt::Key_Down:
+        _chart->scroll(0, -10);
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+        break;
+    }
 }
 
 /*---------------------------------------------------------------------------*/
