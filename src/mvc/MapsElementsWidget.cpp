@@ -95,7 +95,10 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         this->updateFrame(&image);
     }
 
-    _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
+    if(_model->is_integrated_spectra_loaded())
+    {
+        _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
+    }
     /*
     if(_fit_params != nullptr && _elements_to_fit != nullptr)
     {

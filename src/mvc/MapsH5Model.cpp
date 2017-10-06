@@ -139,7 +139,7 @@ bool MapsH5Model::load(QString filepath)
 bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 {
 
-    return true;
+    return false;
 }
 
 bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)

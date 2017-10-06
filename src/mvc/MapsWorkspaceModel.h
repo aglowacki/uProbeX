@@ -10,7 +10,7 @@
 
 #include <QString>
 #include "MapsH5Model.h"
-#include "io/hl_file_io.h"
+#include "io/file/hl_file_io.h"
 #include <map>
 #include <QDir>
 
