@@ -31,6 +31,9 @@ HDF5_INCLUDE = "${HDF5_BASE}/include"
 HDF5_LIBS = "${HDF5_BASE}/lib"
 NETCDF_INCLUDE = "${NETCDF_BASE}/include"
 NETCDF_LIBS = "${NETCDF_BASE}/lib"
+ZMQ_INCLUDE = "${ZMQ_BASE}/include"
+ZMQ_LIBS = "${ZMQ_BASE}/lib/libzmq.a"
+
 
 win32 {
 GSTAR_INCLUDE = "$(GSTAR_BASE)\\include"
@@ -42,6 +45,8 @@ HDF5_INCLUDE = $(HDF5_BASE)\\include
 HDF5_LIBS = $(HDF5_BASE)\\lib
 NETCDF_INCLUDE = $(NETCDF_BASE)\\include
 NETCDF_LIBS = $(NETCDF_BASE)\\lib
+ZMQ_INCLUDE = ${ZMQ_BASE}\\include
+ZMQ_LIBS = ${ZMQ_BASE}\\lib\\libzmq.a
 WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
 WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
 }
@@ -69,6 +74,7 @@ INCLUDEPATH += $${XRF_MAPS_INCLUDE}
 INCLUDEPATH += $${GSTAR_INCLUDE}
 INCLUDEPATH += $${HDF5_INCLUDE}
 INCLUDEPATH += $${NETCDF_INCLUDE}
+INCLUDEPATH += $${ZMQ_INCLUDE}
 
 # System dependent library paths
 macx {
@@ -104,7 +110,7 @@ LIBS += -L$${XRF_MAPS_LIBS} -llibxrf_io -llibxrf_fit
 LIBS += -L$${GSTAR_LIBS} -lGStar
 LIBS += -L$${HDF5_LIBS}  -lhdf5
 LIBS += -L$${NETCDF_LIBS}  -lnetcdf
-
+LIBS += $${ZMQ_LIBS}
 
 # Location for intermediate files
 MOC_DIR += ./generated
