@@ -19,9 +19,11 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/SpectraWidget.cpp \
     src/mvc/FitParamsTableModel.cpp \
     src/mvc/XrfAnalyzedCounts.cpp \
+    src/mvc/NetStreamWorker.cpp \
     src/mvc/MapsH5Model.cpp \
     src/mvc/FitSpectraWidget.cpp \
     src/mvc/MapsElementsWidget.cpp \
+    src/mvc/LiveMapsElementsWidget.cpp \
     src/mvc/MapsWorkspaceModel.cpp \
     src/mvc/MapsWorkspaceWidget.cpp \
     src/preferences/Preferences.cpp \
@@ -70,9 +72,11 @@ HEADERS = src/mvc/DeselectableTreeView.h \
     src/mvc/SpectraWidget.h \
     src/mvc/FitParamsTableModel.h \
     src/mvc/XrfAnalyzedCounts.h \
+    src/mvc/NetStreamWorker.h \
     src/mvc/MapsH5Model.h \
     src/mvc/FitSpectraWidget.h \
     src/mvc/MapsElementsWidget.h \
+    src/mvc/LiveMapsElementsWidget.h \
     src/mvc/MapsWorkspaceModel.h \
     src/mvc/MapsWorkspaceWidget.h \
     src/preferences/Preferences.h \
