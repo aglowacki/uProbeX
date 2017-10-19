@@ -9,7 +9,8 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QThread>
-#include "io/net/zmq_subscriber.h"
+#include "support/zmq/zmq.hpp"
+#include "io/net/basic_serializer.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -34,11 +35,20 @@ public:
 public slots:
     void run() override
     {
+        std::string conn_str = "tcp://127.0.0.1:43434";
+        _context = new zmq::context_t(1);
+        _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
+        _zmq_socket->connect(conn_str);
+        _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
+
         _running = true;
         data_struct::xrf::Stream_Block *new_packet;
+        zmq::message_t token, message;
         while(_running)
         {
-            _subscriber->get_counts(new_packet);
+            _zmq_socket->recv(&token);
+            _zmq_socket->recv(&message);
+            new_packet = _serializer.decode_counts((char*)message.data(), message.size());
             emit newData(new_packet);
         }
     }
@@ -51,7 +61,11 @@ protected:
 
     bool _running;
 
-    io::net::Zmq_Subscriber* _subscriber;
+    zmq::context_t *_context;
+
+    zmq::socket_t *_zmq_socket;
+
+    io::net::Basic_Serializer _serializer;
 
 };
 

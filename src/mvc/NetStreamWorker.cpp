@@ -12,7 +12,8 @@
 NetStreamWorker::NetStreamWorker(QObject* parent) : QThread(parent)
 {
 
-    _subscriber = new io::net::Zmq_Subscriber("tcp://127.0.0.1:43434");
+    _context = nullptr;
+    _zmq_socket = nullptr;
 
 }
 
@@ -20,11 +21,18 @@ NetStreamWorker::NetStreamWorker(QObject* parent) : QThread(parent)
 
 NetStreamWorker::~NetStreamWorker()
 {
-    if(_subscriber != nullptr)
+    if(_zmq_socket != nullptr)
     {
-        delete _subscriber;
-        _subscriber = nullptr;
+        _zmq_socket->close();
+        delete _zmq_socket;
     }
+    if (_context != nullptr)
+    {
+        _context->close();
+        delete _context;
+    }
+    _zmq_socket = nullptr;
+    _context = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/

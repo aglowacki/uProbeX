@@ -59,8 +59,8 @@ void LiveMapsElementsWidget::createLayout()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
-    QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + "\n\r";
-
+    QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) ;
+    delete new_packet;
     _textEdit->append(str);
 }
 

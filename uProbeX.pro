@@ -41,14 +41,18 @@ GSTAR_LIBS = "$(GSTAR_BASE)\\lib"
 EIGEN_INCLUDE = "$(EIGEN3_BASE)"
 XRF_MAPS_INCLUDE = "$(XRF_MAPS_BASE)\\src"
 XRF_MAPS_LIBS = "$(XRF_MAPS_BASE)\\build\\Debug"
-HDF5_INCLUDE = $(HDF5_BASE)\\include
-HDF5_LIBS = $(HDF5_BASE)\\lib
-NETCDF_INCLUDE = $(NETCDF_BASE)\\include
-NETCDF_LIBS = $(NETCDF_BASE)\\lib
-ZMQ_INCLUDE = ${ZMQ_BASE}\\include
-ZMQ_LIBS = ${ZMQ_BASE}\\lib\\libzmq.a
+HDF5_INCLUDE = "$(HDF5_BASE)\\include"
+HDF5_LIBS = "$(HDF5_BASE)\\lib"
+NETCDF_INCLUDE = "$(NETCDF_BASE)\\include"
+NETCDF_LIBS = "$(NETCDF_BASE)\\lib"
+ZMQ_INCLUDE = "$(ZMQ_BASE)\\include"
+ZMQ_LIBS = "$(ZMQ_BASE)\\build\\lib\\Debug\\libzmq-v140-mt-gd-4_2_3.lib"
 WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
 WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
+DEFINES += NOMINMAX
+DEFINES += WIN32_LEAN_AND_MEAN
+#DEFINES += ZMQ_STATIC
+LIBS += ws2_32.lib rpcrt4.lib iphlpapi.lib
 }
 
 #######################################################
