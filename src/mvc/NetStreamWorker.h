@@ -35,12 +35,6 @@ public:
 public slots:
     void run() override
     {
-        std::string conn_str = "tcp://127.0.0.1:43434";
-        _context = new zmq::context_t(1);
-        _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
-        _zmq_socket->connect(conn_str);
-        _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
-
         _running = true;
         data_struct::xrf::Stream_Block *new_packet;
         zmq::message_t token, message;

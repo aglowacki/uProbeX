@@ -12,8 +12,12 @@
 NetStreamWorker::NetStreamWorker(QObject* parent) : QThread(parent)
 {
 
-    _context = nullptr;
-    _zmq_socket = nullptr;
+    //std::string conn_str = "tcp://127.0.0.1:43434";
+    std::string conn_str = "tcp://192.168.0.254:43434";
+    _context = new zmq::context_t(1);
+    _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
+    _zmq_socket->connect(conn_str);
+    _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
 
 }
 

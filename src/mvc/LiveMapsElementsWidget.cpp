@@ -59,9 +59,18 @@ void LiveMapsElementsWidget::createLayout()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
+    static int cntr = 0;
     QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) ;
     delete new_packet;
     _textEdit->append(str);
+
+    cntr ++;
+
+    if(cntr > 100)
+    {
+        _textEdit->clear();
+        cntr = 0;
+    }
 }
 
 /*---------------------------------------------------------------------------*/
