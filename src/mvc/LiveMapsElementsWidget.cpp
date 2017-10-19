@@ -15,6 +15,7 @@
 LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent)
 {
 
+    _streamWorker = nullptr;
     createLayout();
 
 }
@@ -24,8 +25,14 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 LiveMapsElementsWidget::~LiveMapsElementsWidget()
 {
 
-    _thread.quit();
-    _thread.wait();
+    if(_streamWorker != nullptr)
+    {
+        _streamWorker->stop();
+        _streamWorker->quit();
+        _streamWorker->wait();
+        delete _streamWorker;
+    }
+    _streamWorker = nullptr;
 
 }
 
@@ -34,16 +41,17 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 void LiveMapsElementsWidget::createLayout()
 {
 
-    //QLayout* layout = generateDefaultLayout();
-    //layout->addWidget(_spectra_widget);
-    //setLayout(layout);
+    QVBoxLayout* layout = new QVBoxLayout();
+    _textEdit = new QTextEdit(this);
+    _textEdit->resize(1024, 800);
+    _textEdit->scrollBarWidgets(Qt::AlignRight);
+    layout->addWidget(_textEdit);
+    setLayout(layout);
 
     _streamWorker = new NetStreamWorker(this);
-    _streamWorker->moveToThread(&_thread);
-    connect(&_thread, &QThread::finished, _streamWorker, &QObject::deleteLater);
-    connect(this, &LiveMapsElementsWidget::start_listening, _streamWorker, &NetStreamWorker::doWork);
+    connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
-    _thread.start();
+    _streamWorker->start();
 
 }
 
@@ -51,7 +59,9 @@ void LiveMapsElementsWidget::createLayout()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
+    QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + "\n\r";
 
+    _textEdit->append(str);
 }
 
 /*---------------------------------------------------------------------------*/

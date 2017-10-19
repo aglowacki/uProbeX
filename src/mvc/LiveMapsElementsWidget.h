@@ -10,6 +10,7 @@
 
 #include <QWidget>
 #include <QThread>
+#include <QTextEdit>
 #include "NetStreamWorker.h"
 
 /*---------------------------------------------------------------------------*/
@@ -32,9 +33,6 @@ public:
     */
    ~LiveMapsElementsWidget();
 
-signals:
-   void start_listening();
-
 public slots:
    void newDataArrived(data_struct::xrf::Stream_Block *new_packet);
 
@@ -45,7 +43,7 @@ protected:
     */
    void createLayout();
 
-   QThread _thread;
+   QTextEdit *_textEdit;
 
    NetStreamWorker* _streamWorker;
 

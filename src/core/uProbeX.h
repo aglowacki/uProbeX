@@ -14,6 +14,7 @@
 #include <preferences/SolverParameterParse.h>
 #include <CoordinateModel.h>
 #include <mvc/MapsH5Model.h>
+#include <mvc/LiveMapsElementsWidget.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
@@ -80,6 +81,11 @@ private slots:
     * @brief Handle application closing task. Triggered from the exit menu as well.
     */
    void exitApplication();
+
+   /**
+    * @brief openLiveStreamViewer
+    */
+   void openLiveStreamViewer();
 
    /**
     * @brief makeSWSWindow
@@ -357,6 +363,12 @@ private:
    QAction* m_exitAction;
 
    /**
+    * @brief m_openStreamAction
+    */
+   QAction* m_openStreamAction;
+
+
+   /**
     * @brief About action
     */
    QAction* m_aboutAction;
@@ -370,6 +382,12 @@ private:
     * @brief File menu
     */
    QMenu* m_menuFile;
+
+   /**
+    * @brief Stream menu
+    */
+   QMenu* m_menuStream;
+
 
    /**
     * @brief Help menu
@@ -412,6 +430,8 @@ private:
     * @brief timer used to execute autosafe.
     */
    QTimer* m_autosaveTimer;
+
+   LiveMapsElementsWidget*  _liveMapsViewer;
 
 };
 

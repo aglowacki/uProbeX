@@ -9,10 +9,10 @@
 
 /*---------------------------------------------------------------------------*/
 
-NetStreamWorker::NetStreamWorker(QObject* parent) : QObject(parent)
+NetStreamWorker::NetStreamWorker(QObject* parent) : QThread(parent)
 {
 
-    _subscriber = new io::net::Zmq_Subscriber("tcp://127.0.0.1:5556");
+    _subscriber = new io::net::Zmq_Subscriber("tcp://127.0.0.1:43434");
 
 }
 
@@ -24,18 +24,6 @@ NetStreamWorker::~NetStreamWorker()
     {
         delete _subscriber;
         _subscriber = nullptr;
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-void NetStreamWorker::doWork()
-{
-    data_struct::xrf::Stream_Block *new_packet;
-    while(_running)
-    {
-        _subscriber->get_counts(new_packet);
-        emit newData(new_packet);
     }
 }
 

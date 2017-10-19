@@ -61,6 +61,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_autosaveTimer = NULL;
     m_solverParameterParse = new SolverParameterParse();
     _load_maps_workspace_thread = nullptr;
+    _liveMapsViewer = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -284,6 +285,13 @@ void uProbeX::createActions()
     m_exitAction = new QAction(tr("Exit"), this);
     connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exitApplication()));
 
+
+    m_openStreamAction = new QAction(tr("Open Live Stream Viewer"), this);
+    connect(m_openStreamAction,
+            SIGNAL(triggered()),
+            this,
+            SLOT(openLiveStreamViewer()));
+
     m_aboutAction = new QAction(tr("About..."), this);
     connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAbout()));
 
@@ -427,6 +435,11 @@ void uProbeX::createMenuBar()
 
     connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
 
+    // Stream menu
+    m_menuStream = new QMenu(tr("Live Stream"));
+    m_menuStream->addAction(m_openStreamAction);
+    m_menu->addMenu(m_menuStream);
+
     // Help menu
     m_menuHelp = new QMenu(tr("Help"));
     m_menuHelp->addAction(m_aboutAction);
@@ -507,6 +520,17 @@ void uProbeX::createSolver()
     m_solver->setOptions(dict_options);
     m_solver->setTransformer(trans);
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::openLiveStreamViewer()
+{
+    if (_liveMapsViewer == nullptr)
+    {
+        _liveMapsViewer = new LiveMapsElementsWidget();
+    }
+    _liveMapsViewer->show();
 }
 
 /*---------------------------------------------------------------------------*/

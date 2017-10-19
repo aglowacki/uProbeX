@@ -8,13 +8,13 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <QObject>
+#include <QThread>
 #include "io/net/zmq_subscriber.h"
 
 /*---------------------------------------------------------------------------*/
 
 
-class NetStreamWorker : public QObject
+class NetStreamWorker : public QThread
 {
 
    Q_OBJECT
@@ -32,8 +32,16 @@ public:
    ~NetStreamWorker();
 
 public slots:
-    void doWork();
-
+    void run() override
+    {
+        _running = true;
+        data_struct::xrf::Stream_Block *new_packet;
+        while(_running)
+        {
+            _subscriber->get_counts(new_packet);
+            emit newData(new_packet);
+        }
+    }
     void stop() {_running = false;}
 
 signals:
