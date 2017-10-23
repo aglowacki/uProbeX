@@ -46,6 +46,9 @@ void LiveMapsElementsWidget::createLayout()
     _textEdit->resize(1024, 800);
     _textEdit->scrollBarWidgets(Qt::AlignRight);
     layout->addWidget(_textEdit);
+
+    _progressBar = new QProgressBar(this);
+    layout->addWidget(_progressBar);
     setLayout(layout);
 
     _streamWorker = new NetStreamWorker(this);
@@ -60,16 +63,30 @@ void LiveMapsElementsWidget::createLayout()
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
     static int cntr = 0;
-    QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) ;
+    static bool first = true;
+    //QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) ;
     delete new_packet;
-    _textEdit->append(str);
+    //_textEdit->append(str);
+
+    if(first || new_packet->row() == 0 && new_packet->col() == 0)
+    {
+        _progressBar->setRange(0, new_packet->height());
+        first = !first;
+    }
+
+    _progressBar->setValue(new_packet->row());
 
     cntr ++;
 
     if(cntr > 100)
     {
         _textEdit->clear();
+        _progressBar->update();
         cntr = 0;
+    }
+    if(new_packet->row() == new_packet->height())
+    {
+        _progressBar->update();
     }
 }
 

@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QThread>
 #include <QTextEdit>
+#include <QProgressBar>
 #include "NetStreamWorker.h"
 
 /*---------------------------------------------------------------------------*/
@@ -44,6 +45,8 @@ protected:
    void createLayout();
 
    QTextEdit *_textEdit;
+
+   QProgressBar *_progressBar;
 
    NetStreamWorker* _streamWorker;
 
