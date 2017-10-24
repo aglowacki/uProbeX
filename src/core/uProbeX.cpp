@@ -190,7 +190,7 @@ void uProbeX::cancelSolverVariableUpdate()
 bool uProbeX::checkSameFileWindow(QString& filePath)
 {
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         AbstractWindowModel* windowModel = con->getModel();
         QString modelPath = windowModel->getDataPath();
@@ -1115,7 +1115,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
     {
         SWSWidget* widget = NULL;
 
-        foreach(AbstractWindowController* con, m_subWindows.values())
+        for(AbstractWindowController* con : m_subWindows.values())
         {
             gstar::AbstractImageWidget* w = con->getWidget();
             if(typeid(*w) == typeid(SWSWidget))
@@ -1134,7 +1134,7 @@ bool uProbeX::saveAllXMLRequired()
 return false;
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1241,7 +1241,7 @@ void uProbeX::performAutoSave()
 {
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1257,7 +1257,7 @@ void uProbeX::performAutoSave()
 void uProbeX::cleanUpAutoSafeData() {
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1304,7 +1304,7 @@ void uProbeX::showPreferences()
 {
 
     QList<gstar::AbstractImageWidget*> widgetList;
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1361,7 +1361,7 @@ void uProbeX::solverStart()
 
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1380,7 +1380,7 @@ void uProbeX::solverEnd()
 
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1456,7 +1456,7 @@ void uProbeX::updatePreference()
 
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
@@ -1475,7 +1475,7 @@ void uProbeX::updateContextMenus()
 
     SWSWidget* widget = NULL;
 
-    foreach(AbstractWindowController* con, m_subWindows.values())
+    for(AbstractWindowController* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))

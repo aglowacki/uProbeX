@@ -376,7 +376,7 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
          }
       }
 
-      foreach(QModelIndex index, selectedIndexes)
+      for(const QModelIndex &index : selectedIndexes)
       {
          if (index.isValid()){
             AbstractGraphicsItem* abstractItem = static_cast<AbstractGraphicsItem*>(index.internalPointer());
@@ -933,7 +933,7 @@ void SWSWidget::createMicroProbeMenu()
    QStringList rList = m_preferences->readValueKey(Preferences::RegionMenuList)
          .toStringList();
 
-   foreach(QString str, rList)
+   for(const QString &str : rList)
    {
       AttributeGroup grp;
       if(grp.fromString(str))
@@ -1125,11 +1125,11 @@ void SWSWidget::displayContextMenu(QWidget* parent,
          if (selectedIndexes.count() == 1)
          {
             QMap<QString, QAction*> actionNameMap;
-            foreach(QAction* key, m_actionMap.keys())
+            for(QAction* key : m_actionMap.keys())
             {
                actionNameMap[m_actionMap[key]->getFuncName()] = key;
             }
-            foreach(QString key, actionNameMap.keys())
+            for(const QString &key : actionNameMap.keys())
             {
                menu.addAction(actionNameMap[key]);
             }
@@ -1326,7 +1326,7 @@ void SWSWidget::duplicateItem()
       QModelIndexList selectedIndexes = selectionModel->selectedRows();
 
       selectionModel->clearSelection();
-      foreach(QModelIndex index, selectedIndexes)
+      for(const QModelIndex &index : selectedIndexes)
       {
          QModelIndex duplicateIndex = treeModel->duplicateNode(index);
          selectionModel->select(duplicateIndex, QItemSelectionModel::Select);
@@ -1347,7 +1347,7 @@ void SWSWidget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
       return;
    QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
-   foreach (gstar::AbstractGraphicsItem* child, clist)
+   for (gstar::AbstractGraphicsItem* child : clist)
    {
       if (child != NULL)
       {
@@ -1404,7 +1404,7 @@ void SWSWidget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
       return;
    QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
-   foreach (gstar::AbstractGraphicsItem* child, clist)
+   for (gstar::AbstractGraphicsItem* child : clist)
    {
       if (child != NULL)
       {
@@ -1477,7 +1477,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
 
    QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
-   foreach (gstar::AbstractGraphicsItem* child, clist)
+   for (gstar::AbstractGraphicsItem* child : clist)
    {
       QMap<QString,double> cPoint;
       if (child != NULL)
@@ -2385,7 +2385,7 @@ void SWSWidget::updateTreeView()
 void SWSWidget::updateContextMenus()
 {
 
-   foreach(RegionCaller *prc, m_actionMap.values())
+   for(RegionCaller *prc : m_actionMap.values())
    {
       delete prc;
    }

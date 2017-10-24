@@ -34,7 +34,7 @@ double TotalErrorFunction(double vars[], void *p)
    double totalError = 0.0;
    double Px, Py, tempZ;
 
-   foreach(QString key, varIndexes.keys())
+   for(const QString &key : varIndexes.keys())
    {
       transformer->setVariable(key, vars[varIndexes[key]]);
    }
@@ -259,7 +259,7 @@ bool NelderMeadSolver::run()
    int ifault = 0;
 
    int i = 0;
-   foreach (QString key, m_dict_min_coef.keys())
+   for (const QString &key : m_dict_min_coef.keys())
    {
       m_varIndexMap.insert(key, i);
       start[i] = m_dict_min_coef[key];
@@ -274,7 +274,7 @@ bool NelderMeadSolver::run()
           reqmin, step, konvge, kcount, &icount, &numres, &ifault,
           (void*)this);
 
-   foreach(QString key, m_dict_min_coef.keys())
+   for(const QString &key : m_dict_min_coef.keys())
    {
       m_dict_min_coef[key] = xmin[m_varIndexMap[key]];
       //(*vars)[key].minVal = xmin[m_varIndexMap[key]];

@@ -120,7 +120,7 @@ bool CoordinateTransformer::Init(QMap<QString, double> globalVars)
 
    m_hasAllNeededGlobals = false;
 
-   foreach(QString name, globalVars.keys())
+   for(const QString &name : globalVars.keys())
    {
 
       if(name == CoordinateTransformGlobals::keyToString(

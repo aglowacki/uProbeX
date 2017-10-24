@@ -146,7 +146,7 @@ void SpectraWidget::_check_log10()
         _chart->removeAxis(_axisYLog10);
         _chart->addAxis(_axisY, Qt::AlignLeft);
         QList<QtCharts::QAbstractSeries*> series = _chart->series();
-        foreach(QtCharts::QAbstractSeries* ser, series)
+        for(QtCharts::QAbstractSeries* ser : series)
         {
             ser->detachAxis(_axisYLog10);
             ser->attachAxis(_axisY);
@@ -157,7 +157,7 @@ void SpectraWidget::_check_log10()
         _chart->removeAxis(_axisY);
         _chart->addAxis(_axisYLog10, Qt::AlignLeft);
         QList<QtCharts::QAbstractSeries*> series = _chart->series();
-        foreach(QtCharts::QAbstractSeries* ser, series)
+        for(QtCharts::QAbstractSeries* ser : series)
         {
             ser->detachAxis(_axisY);
             ser->attachAxis(_axisYLog10);

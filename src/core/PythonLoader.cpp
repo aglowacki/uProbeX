@@ -44,7 +44,7 @@ PythonLoader::~PythonLoader()
 
     if(m_foundFuncs)
     {
-       foreach(QString key, m_functionMap.keys())
+       for(const QString &key : m_functionMap.keys())
        {
           pyFunc *pf = m_functionMap[key];
           if(pf->pFunc)
@@ -630,7 +630,7 @@ bool PythonLoader::getRetDict(QString module,
    {
       pyFunc* pf = m_functionMap[pfKey];
 
-      foreach(QString key, pf->retDict.keys())
+      for(QString key : pf->retDict.keys())
       {
          val->insert(key, pf->retDict[key]);
       }
@@ -683,7 +683,7 @@ bool PythonLoader::setArgDict(QString module,
       PyObject * tempDict =PyDict_New();
       if(pf->argCnt > idx)
       {
-         foreach(QString key, globalVars.keys())
+         for(const QString &key : globalVars.keys())
          {
              pKey = PyString_FromString(key.toStdString().c_str());
              pValue = PyFloat_FromDouble(globalVars[key]);

@@ -54,7 +54,7 @@ void AttributeGroup::append(Attribute *motorPV)
 void AttributeGroup::clearAndDeleteAttributes()
 {
 
-   foreach(Attribute* attr, m_attrs)
+   for(Attribute* attr : m_attrs)
    {
       delete attr;
       attr = NULL;
@@ -207,7 +207,7 @@ void AttributeGroup::setEnabled(bool state)
 {
 
    m_enabled = state;
-   foreach(Attribute* attr, m_attrs)
+   for(Attribute* attr : m_attrs)
    {
       attr->setIsEnable(state);
    }

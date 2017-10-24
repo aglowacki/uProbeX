@@ -153,8 +153,7 @@ void PythonSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 {
 
    m_list_coord_points.clear();
-   QMap<QString, double> point;
-   foreach(point, vars)
+   for(auto &point : vars)
    {
       QList<double> cPoint;
       cPoint.append(point["Lx"]);

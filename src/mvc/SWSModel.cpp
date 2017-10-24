@@ -53,7 +53,7 @@ SWSModel::SWSModel(QString filepath)
 
       //save all settings to QMap
       QStringList sl = swsData.allKeys();
-      foreach(QString s, sl)
+      for(QString s : sl)
       {
          m_mapValueKey.insert(s, swsData.value(s));
       }

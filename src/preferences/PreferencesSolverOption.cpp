@@ -604,7 +604,7 @@ void PreferencesSolverOption::useUpdatedSolverVariables(const QMap<QString, doub
                                 options);
 
 
-   foreach(QString key, allCoefs.keys())
+   for(const QString &key : allCoefs.keys())
    {
       Attribute atr(key, QString::number(allCoefs[key]), key, false);
       if(vals.contains(key))

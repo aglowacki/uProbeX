@@ -11,7 +11,7 @@
 #include <QThread>
 #include "support/zmq/zmq.hpp"
 #include "io/net/basic_serializer.h"
-
+#include <string>
 /*---------------------------------------------------------------------------*/
 
 
@@ -41,9 +41,13 @@ public slots:
         while(_running)
         {
             _zmq_socket->recv(&token);
-            _zmq_socket->recv(&message);
-            new_packet = _serializer.decode_counts((char*)message.data(), message.size());
-            emit newData(new_packet);
+            std::string s1 ((char*)token.data(), token.size());
+            if(s1 == "XRF-Counts")
+            {
+                _zmq_socket->recv(&message);
+                new_packet = _serializer.decode_counts((char*)message.data(), message.size());
+                emit newData(new_packet);
+            }
         }
     }
     void stop() {_running = false;}

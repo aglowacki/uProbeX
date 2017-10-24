@@ -89,7 +89,7 @@ void PreferencesPythonFunc::addGroupItem()
 
       if(functionList.count() > 0)
       {
-         foreach(QString funcName, functionList)
+         for(QString funcName : functionList)
          {
             Attribute* attr = new Attribute(funcName, funcName, "", false);
             if(suffix == "py")
@@ -397,7 +397,7 @@ Attribute PreferencesPythonFunc::getAttribute(QString grpName,
 
    Attribute attr;
 
-   foreach (AttributeGroup* grp, m_model->getGroups())
+   for(AttributeGroup* grp : m_model->getGroups())
    {
       if(grp->getGroupName() == grpName)
       {
@@ -426,7 +426,7 @@ QStringList PreferencesPythonFunc::getGroupStringList()
    QStringList sList;
    QList<AttributeGroup*> gList = m_model->getGroups();
 
-   foreach (AttributeGroup* grp, gList)
+   for (AttributeGroup* grp : gList)
    {
       sList.append(grp->toString());
    }
@@ -442,7 +442,7 @@ QString PreferencesPythonFunc::getPVString(QString grpName, QString attrName)
 
    QString pvStr = "";
 
-   foreach (AttributeGroup* grp, m_model->getGroups())
+   for (AttributeGroup* grp : m_model->getGroups())
    {
       if(grp->getGroupName() == grpName)
       {
@@ -604,7 +604,7 @@ void PreferencesPythonFunc::parseGroupStringList(QStringList attrStrList)
 
    if (m_model != NULL)
    {
-      foreach(QString str, attrStrList)
+      for(const QString &str : attrStrList)
       {
          AttributeGroup* grp = new AttributeGroup();
          if(grp->fromString(str))

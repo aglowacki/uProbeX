@@ -139,7 +139,7 @@ void SolverWidget::setCoefs(QMap<QString, double> oldVals, QMap<QString, double>
       return;
    }
    int i=0;
-   foreach(QString key, oldVals.keys())
+   for(const QString &key : oldVals.keys())
    {
       if(false == newVals.contains(key))
       {
