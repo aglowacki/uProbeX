@@ -64,8 +64,8 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     _liveMapsViewer = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
-    std::string element_csv_filename = "../reference/xrf_library.csv";
-    std::string element_henke_filename = "../reference/henke.xdr";
+    std::string element_csv_filename = "../../reference/xrf_library.csv";
+    std::string element_henke_filename = "../../reference/henke.xdr";
 
     // Use resources from GStar
     Q_INIT_RESOURCE(GStar);
@@ -73,15 +73,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     PythonLoader::inst()->safeCheck();
 
     initialize();
-    /*
-    // Splash screen
-    Splash splash(this, Qt::Popup, tr("uProbeX"), false);
-    splash.show();
-    splash.appendMessage(tr("Initializing..."));
-    splash.appendMessageAndProcess(tr("Creating GUI..."));
-*/
-    // Create all actions
-    createActions();
 
     // Create menu
     createMenuBar();
@@ -225,80 +216,6 @@ void uProbeX::closeEvent(QCloseEvent* event)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::createActions()
-{
-
-    m_preferencesAction = new QAction(tr("Preferences..."), this);
-    connect(m_preferencesAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(showPreferences()));
-
-    m_openSWSAction = new QAction(tr("Open SWS Workspace"), this);
-    connect(m_openSWSAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(openSWSFile()));
-
-    m_openMapsAction = new QAction(tr("Open Maps Workspace"), this);
-    connect(m_openMapsAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(openMapsWorkspace()));
-
-    m_openHDFAction = new QAction(tr("Open HDF5 Analyzed"), this);
-    connect(m_openHDFAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(openHDFFile()));
-
-    m_saveScreenShotAction = new QAction(tr("Save Screen Shot"), this);
-    connect(m_saveScreenShotAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(saveScreenShot()));
-
-    m_saveActivatedXMLAction = new QAction(tr("Save Activated SWS DATA"), this);
-    connect(m_saveActivatedXMLAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(saveActivatedXML()));
-
-    m_saveEnviornmentXMLAction = new QAction(tr("Save preferences"), this);
-    connect(m_saveEnviornmentXMLAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(savePreferencesXMLData()));
-
-    m_loadEnviornmentXMLAction = new QAction(tr("Load preferences"), this);
-    connect(m_loadEnviornmentXMLAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(loadPreferencesXMLData()));
-
-    m_saveAllXMLAction = new QAction(tr("Save All SWS DATA"), this);
-    connect(m_saveAllXMLAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(saveAllXML()));
-
-    m_exitAction = new QAction(tr("Exit"), this);
-    connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exitApplication()));
-
-
-    m_openStreamAction = new QAction(tr("Open Live Stream Viewer"), this);
-    connect(m_openStreamAction,
-            SIGNAL(triggered()),
-            this,
-            SLOT(openLiveStreamViewer()));
-
-    m_aboutAction = new QAction(tr("About..."), this);
-    connect(m_aboutAction, SIGNAL(triggered()), this, SLOT(showAbout()));
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void uProbeX::createLightToMicroCoords(int id)
 {
 
@@ -409,40 +326,53 @@ void uProbeX::createLightToMicroCoords(int id)
 void uProbeX::createMenuBar()
 {
 
+    QAction * action;
     // Menu bar
     m_menu = new QMenuBar(this);
     setMenuBar(m_menu);
 
     // File menu
     m_menuFile = new QMenu(tr("File"));
-    m_menuFile->addAction(m_openMapsAction);
+    action = m_menuFile->addAction("Open Maps Workspace");
+    connect(action, SIGNAL(triggered()), this, SLOT(openMapsWorkspace()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_openSWSAction);
-    m_menuFile->addAction(m_openHDFAction);
+    action = m_menuFile->addAction("Open SWS Workspace");
+    connect(action, SIGNAL(triggered()), this, SLOT(openSWSFile()));
+    action = m_menuFile->addAction("Open HDF5 Analyzed");
+    connect(action, SIGNAL(triggered()), this, SLOT(openHDFFile()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_saveScreenShotAction);
+    action = m_menuFile->addAction("Save Screen Shot");
+    connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_saveActivatedXMLAction);
-    m_menuFile->addAction(m_saveAllXMLAction);
+    action = m_menuFile->addAction("Save Activated SWS DATA");
+    connect(action, SIGNAL(triggered()), this, SLOT(saveActivatedXML()));
+    action = m_menuFile->addAction("Save All SWS DATA");
+    connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_saveEnviornmentXMLAction);
-    m_menuFile->addAction(m_loadEnviornmentXMLAction);
+    action = m_menuFile->addAction("Save preferences");
+    connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
+    action = m_menuFile->addAction("Load preferences");
+    connect(action, SIGNAL(triggered()), this, SLOT(loadPreferencesXMLData()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_preferencesAction);
+    action = m_menuFile->addAction("Preferences");
+    connect(action, SIGNAL(triggered()), this, SLOT(showPreferences()));
     m_menuFile->addSeparator();
-    m_menuFile->addAction(m_exitAction);
+    action = m_menuFile->addAction("Exit");
+    connect(action, SIGNAL(triggered()), this, SLOT(exitApplication()));
     m_menu->addMenu(m_menuFile);
 
     connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
 
     // Stream menu
     m_menuStream = new QMenu(tr("Live Stream"));
-    m_menuStream->addAction(m_openStreamAction);
+    action = m_menuStream->addAction("Open Live Stream Viewer");
+    connect(action, SIGNAL(triggered()), this, SLOT(openLiveStreamViewer()));
     m_menu->addMenu(m_menuStream);
 
     // Help menu
     m_menuHelp = new QMenu(tr("Help"));
-    m_menuHelp->addAction(m_aboutAction);
+    action = m_menuHelp->addAction("About");
+    connect(action, SIGNAL(triggered()), this, SLOT(showAbout()));
     m_menu->addMenu(m_menuHelp);
 
 }
@@ -872,20 +802,20 @@ void uProbeX::makeFitSpectraWindow(data_struct::xrf::Fit_Parameters* fit_params,
 void uProbeX::menuBarEnable()
 {
 
-    if(m_mdiArea->activeSubWindow() != 0)
-    {
+//    if(m_mdiArea->activeSubWindow() != 0)
+//    {
 
-        m_saveActivatedXMLAction->setEnabled(saveActivatedXmlRequired());
-        m_saveAllXMLAction->setEnabled(saveAllXMLRequired());
+//        m_saveActivatedXMLAction->setEnabled(saveActivatedXmlRequired());
+//        m_saveAllXMLAction->setEnabled(saveAllXMLRequired());
 
-        m_saveScreenShotAction->setEnabled(true);
-    }
-    else
-    {
-        m_saveScreenShotAction->setEnabled(false);
-        m_saveActivatedXMLAction->setEnabled(false);
-        m_saveAllXMLAction->setEnabled(false);
-    }
+//        m_saveScreenShotAction->setEnabled(true);
+//    }
+//    else
+//    {
+//        m_saveScreenShotAction->setEnabled(false);
+//        m_saveActivatedXMLAction->setEnabled(false);
+//        m_saveAllXMLAction->setEnabled(false);
+//    }
 
 }
 

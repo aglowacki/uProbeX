@@ -78,15 +78,15 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
     _fit_params_table_model->setFitParams(_fit_params);
 
     _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra());
-/*
-    if(_fit_thread != nullptr)
-    {
-        _fit_thread->join();
-        delete _fit_thread;
-    }
-    _fit_thread = new std::thread( [this]()
-    {
-    */
+
+//    if(_fit_thread != nullptr)
+//    {
+//        _fit_thread->join();
+//        delete _fit_thread;
+//    }
+//    _fit_thread = new std::thread( [this]()
+//    {
+
         if(_fit_params != nullptr && _elements_to_fit != nullptr)
         {
             data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
@@ -97,6 +97,6 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
             }
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
         }
-   // });
+//    });
 
 }

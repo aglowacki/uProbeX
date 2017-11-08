@@ -89,10 +89,6 @@ private:
 
    MapsWorkspaceModel* _model;
 
-   QAction *_action_view_analyzed_h5;
-
-   QAction *_action_fit_integrated_spectra;
-
    QMenu *_contextMenu;
 
    QTableView* _fit_params_table;

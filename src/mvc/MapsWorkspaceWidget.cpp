@@ -16,20 +16,17 @@
 MapsWorkspaceWidget::MapsWorkspaceWidget(QWidget* parent) : QWidget(parent)
 {
 
+    QAction* action;
     createLayout();
 
     _contextMenu = new QMenu(("Context menu"), this);
 
-    _action_view_analyzed_h5 = new QAction("View", this);
-    connect(_action_view_analyzed_h5, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
-    _contextMenu->addAction(_action_view_analyzed_h5);
-
-    _action_fit_integrated_spectra = new QAction("Fit Integrated Spec", this);
-    connect(_action_fit_integrated_spectra, SIGNAL(triggered()), this, SLOT(fitIntegratedSpectra()));
-    _contextMenu->addAction(_action_fit_integrated_spectra);
+    action = _contextMenu->addAction("View");
+    connect(action, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
 
 
-
+    action = _contextMenu->addAction("Fit Integrated Spec");
+    connect(action, SIGNAL(triggered()), this, SLOT(fitIntegratedSpectra()));
 
     /*
     this->setContextMenuPolicy(Qt::CustomContextMenu);

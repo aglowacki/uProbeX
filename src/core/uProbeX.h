@@ -113,6 +113,12 @@ private slots:
     */
    void makeHDFWindow(MapsH5Model* model);
 
+   /**
+    * @brief makeFitSpectraWindow
+    * @param fit_params
+    * @param elements_to_fit
+    * @param model
+    */
    void makeFitSpectraWindow(data_struct::xrf::Fit_Parameters* fit_params,
                              data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
                              MapsH5Model* model);
@@ -244,11 +250,6 @@ private:
    bool checkSameFileWindow(QString& filePath);
 
    /**
-    * @brief Create menu actions
-    */
-   void createActions();
-
-   /**
     * @brief createLightToMicroCoords
     * @param id
     */
@@ -308,70 +309,12 @@ private:
     */
    bool saveActivatedXmlRequired();
 
-private:   
+private:
 
+   /**
+    * @brief m_lightToMicroCoordModel
+    */
    gstar::CoordinateModel* m_lightToMicroCoordModel;
-
-   /**
-    * @brief Show preferences dialog action
-    */
-   QAction* m_preferencesAction;
-
-   /**
-    * @brief Open sws workspace action
-    */
-   QAction* m_openSWSAction;
-
-   /**
-    * @brief m_openMAPSAction
-    */
-   QAction* m_openMapsAction;
-
-   /**
-    * @brief m_openHDFAction
-    */
-   QAction* m_openHDFAction;
-
-   /**
-    * @brief Open sws workspace action
-    */
-   QAction* m_saveScreenShotAction;
-
-   /**
-    * @brief m_saveActivatedXMLAction
-    */
-   QAction* m_saveActivatedXMLAction;
-
-   /**
-    * @brief m_saveEnviornmentXMLAction
-    */
-   QAction* m_saveEnviornmentXMLAction;
-
-   /**
-    * @brief m_loadEnviornmentXMLAction
-    */
-   QAction* m_loadEnviornmentXMLAction;
-
-   /**
-    * @brief Om_saveXMLAction
-    */
-   QAction* m_saveAllXMLAction;
-
-   /**
-    * @brief Exit action
-    */
-   QAction* m_exitAction;
-
-   /**
-    * @brief m_openStreamAction
-    */
-   QAction* m_openStreamAction;
-
-
-   /**
-    * @brief About action
-    */
-   QAction* m_aboutAction;
 
    /**
     * @brief Menu bar
@@ -387,7 +330,6 @@ private:
     * @brief Stream menu
     */
    QMenu* m_menuStream;
-
 
    /**
     * @brief Help menu
@@ -424,6 +366,9 @@ private:
     */
    QMap<QUuid, AbstractWindowController*> m_subWindows;
 
+   /**
+    * @brief _load_maps_workspace_thread
+    */
    std::thread* _load_maps_workspace_thread;
 
    /**
@@ -431,6 +376,9 @@ private:
     */
    QTimer* m_autosaveTimer;
 
+   /**
+    * @brief _liveMapsViewer
+    */
    LiveMapsElementsWidget*  _liveMapsViewer;
 
 };

@@ -99,13 +99,13 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
     {
         _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
     }
-    /*
-    if(_fit_params != nullptr && _elements_to_fit != nullptr)
-    {
-        data_struct::xrf::Spectra fit_spec = _model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
-        _spectra_widget->append_spectra("Fit Spectra", fit_spec);
-    }
-    */
+
+//    if(_fit_params != nullptr && _elements_to_fit != nullptr)
+//    {
+//        data_struct::xrf::Spectra fit_spec = _model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
+//        _spectra_widget->append_spectra("Fit Spectra", fit_spec);
+//    }
+
 }
 
 /*---------------------------------------------------------------------------*/

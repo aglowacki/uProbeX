@@ -321,20 +321,35 @@ data_struct::xrf::Spectra MapsH5Model::fit_integrated_spectra(data_struct::xrf::
     fitting::models::Range energy_range;
     energy_range.min = 0;
     energy_range.max = _integrated_spectra.size() -1;
+    //energy_range.max = 1200;
+
+    //data_struct::xrf::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
     //Fitting routines
     fitting::routines::Param_Optimized_Fit_Routine fit_routine;
     fit_routine.set_optimizer(&mpfit_optimizer);
 
+
+    if(elements_to_fit->count(data_struct::xrf::STR_COMPTON_AMPLITUDE) == 0)
+    {
+        elements_to_fit->insert({data_struct::xrf::STR_COMPTON_AMPLITUDE, new data_struct::xrf::Fit_Element_Map(data_struct::xrf::STR_COMPTON_AMPLITUDE, nullptr)} );
+    }
+    if(elements_to_fit->count(data_struct::xrf::STR_COHERENT_SCT_AMPLITUDE) == 0)
+    {
+        elements_to_fit->insert({data_struct::xrf::STR_COHERENT_SCT_AMPLITUDE, new data_struct::xrf::Fit_Element_Map(data_struct::xrf::STR_COHERENT_SCT_AMPLITUDE, nullptr)} );
+    }
+
+
     //reset model fit parameters to defaults
     model.reset_to_default_fit_params();
     //Update fit parameters by override values
     model.update_fit_params_values(fit_params);
-    //model.set_fit_params_preset(fitting::models::BATCH_FIT_NO_TAILS);
+    //model.set_fit_params_preset(fitting::models::BATCH_FIT_WITH_TAILS);
     //Initialize the fit routine
     fit_routine.initialize(&model, elements_to_fit, energy_range);
     //Fit the spectra saving the element counts in element_fit_count_dict
     out_fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, elements_to_fit);
+    //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, elements_to_fit);
     return model.model_spectrum(&out_fit_params, elements_to_fit, energy_range);
 }
 
