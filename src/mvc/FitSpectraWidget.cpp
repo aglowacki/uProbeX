@@ -22,6 +22,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
     _fit_thread = nullptr;
     createLayout();
+
+    connect(this, SIGNAL(signal_finished_fit()), this, SLOT(finished_fitting()));
 /*
     _action_check_log10 = new QAction("Toggle Log10", this);
     _action_check_log10->setCheckable(true);
@@ -99,8 +101,13 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
         }
-        _btn_fit_spectra->setEnabled(true);
+        emit signal_finished_fit();
     });
+}
+
+void FitSpectraWidget::finished_fitting()
+{
+    _btn_fit_spectra->setEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/

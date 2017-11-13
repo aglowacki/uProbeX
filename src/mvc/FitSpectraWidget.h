@@ -48,9 +48,15 @@ public:
                   data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
                   MapsH5Model* h5_model);
 
+signals:
+
+   void signal_finished_fit();
+
 public slots:
 
    void Fit_Spectra_Click();
+
+   void finished_fitting();
 
 protected:
 
