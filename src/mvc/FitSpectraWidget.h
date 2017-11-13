@@ -14,11 +14,11 @@
 #include <thread>
 #include <QWidget>
 #include <QTableView>
+#include <QPushButton>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
-
 
 /*---------------------------------------------------------------------------*/
 
@@ -50,6 +50,7 @@ public:
 
 public slots:
 
+   void Fit_Spectra_Click();
 
 protected:
 
@@ -76,6 +77,7 @@ private:
 
    std::thread* _fit_thread;
 
+   QPushButton* _btn_fit_spectra;
    //QAction *_action_check_log10;
 
    //QMenu *_contextMenu;

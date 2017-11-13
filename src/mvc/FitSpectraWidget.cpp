@@ -13,6 +13,8 @@
 
 #include <math.h>
 
+using namespace data_struct::xrf;
+
 /*---------------------------------------------------------------------------*/
 
 FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
@@ -40,7 +42,11 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
-
+    if(_fit_thread != nullptr)
+    {
+        _fit_thread->join();
+        delete _fit_thread;
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -59,10 +65,42 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(5, cbDelegate);
 
+    _btn_fit_spectra = new QPushButton("Fit Spectra");
+    connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
+
     QLayout* layout = new QVBoxLayout();
     layout->addWidget(_spectra_widget);
     layout->addWidget(_fit_params_table);
+    layout->addWidget(_btn_fit_spectra);
     setLayout(layout);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::Fit_Spectra_Click()
+{
+    _btn_fit_spectra->setEnabled(false);
+    _spectra_widget->remove_spectra("Fit Spectra");
+    if(_fit_thread != nullptr)
+    {
+        _fit_thread->join();
+        delete _fit_thread;
+    }
+    _fit_thread = new std::thread( [this]()
+    {
+
+        if(_fit_params != nullptr && _elements_to_fit != nullptr)
+        {
+            data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
+            for(int i=0; i<fit_spec.size(); i++)
+            {
+             if(fit_spec[i] <= 0.0)
+                 fit_spec[i] = 0.1;
+            }
+            _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
+        }
+        _btn_fit_spectra->setEnabled(true);
+    });
 }
 
 /*---------------------------------------------------------------------------*/
@@ -79,24 +117,15 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
 
     _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra());
 
-//    if(_fit_thread != nullptr)
-//    {
-//        _fit_thread->join();
-//        delete _fit_thread;
-//    }
-//    _fit_thread = new std::thread( [this]()
-//    {
+    Spectra background = snip_background(_h5_model->getIntegratedSpectra(),
+                                         fit_params->at(fitting::models::STR_ENERGY_OFFSET).value,
+                                         fit_params->at(fitting::models::STR_ENERGY_SLOPE).value,
+                                         fit_params->at(fitting::models::STR_ENERGY_QUADRATIC).value,
+                                         0, //spectral binning
+                                         fit_params->at(STR_SNIP_WIDTH).value,
+                                         0, //spectra energy start range
+                                         _h5_model->getIntegratedSpectra()->size());
 
-        if(_fit_params != nullptr && _elements_to_fit != nullptr)
-        {
-            data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
-            for(int i=0; i<fit_spec.size(); i++)
-            {
-             if(fit_spec[i] <= 0.0)
-                 fit_spec[i] = 0.1;
-            }
-            _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
-        }
-//    });
+    _spectra_widget->append_spectra("Background", &background);
 
 }

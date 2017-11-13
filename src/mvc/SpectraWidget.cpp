@@ -8,10 +8,12 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QtCharts/QLegendMarker>
 
 #include <QDebug>
 
 #include <math.h>
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -35,6 +37,10 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(ShowContextMenu(const QPoint &)));
+
+    connect(this, SIGNAL(trigger_connect_markers()),
+            this, SLOT(connectMarkers()));
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -120,15 +126,29 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
         series->attachAxis(_axisYLog10);
     else
         series->attachAxis(_axisY);
+
+
+    emit trigger_connect_markers();
 }
-/*
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::remove_spectra(QString name)
 {
-    if(_spectra_map.count(name) > 0)
-        _spectra_map.erase(name);
-    _update_series();
+
+    QList<QtCharts::QAbstractSeries*> series = _chart->series();
+    for(QtCharts::QAbstractSeries* spec : series)
+    {
+        if(spec->name() == name)
+        {
+            _chart->removeSeries(spec);
+            delete spec;
+            break;
+        }
+    }
+
 }
-*/
+
 /*---------------------------------------------------------------------------*/
 
 void SpectraWidget::ShowContextMenu(const QPoint &pos)
@@ -284,6 +304,9 @@ void SpectraWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Down:
         _chart->scroll(0, -10);
         break;
+    case Qt::Key_R:
+        _chart->resetMatrix();
+        break;
     default:
         QWidget::keyPressEvent(event);
         break;
@@ -291,3 +314,79 @@ void SpectraWidget::keyPressEvent(QKeyEvent *event)
 }
 
 /*---------------------------------------------------------------------------*/
+
+void SpectraWidget::connectMarkers()
+{
+    // Connect all markers to handler
+    const auto markers = _chart->legend()->markers();
+    for (QtCharts::QLegendMarker *marker : markers)
+    {
+        // Disconnect possible existing connection to avoid multiple connections
+        QObject::disconnect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+        QObject::connect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::disconnectMarkers()
+{
+    const auto markers = _chart->legend()->markers();
+    for (QtCharts::QLegendMarker *marker : markers)
+    {
+        QObject::disconnect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::handleMarkerClicked()
+{
+    QtCharts::QLegendMarker* marker = qobject_cast<QtCharts::QLegendMarker*> (sender());
+    Q_ASSERT(marker);
+
+    switch (marker->type())
+    {
+        case QtCharts::QLegendMarker::LegendMarkerTypeXY:
+        {
+        // Toggle visibility of series
+        marker->series()->setVisible(!marker->series()->isVisible());
+
+        // Turn legend marker back to visible, since hiding series also hides the marker
+        // and we don't want it to happen now.
+        marker->setVisible(true);
+
+        // Dim the marker, if series is not visible
+        qreal alpha = 1.0;
+
+        if (!marker->series()->isVisible())
+            alpha = 0.5;
+
+        QColor color;
+        QBrush brush = marker->labelBrush();
+        color = brush.color();
+        color.setAlphaF(alpha);
+        brush.setColor(color);
+        marker->setLabelBrush(brush);
+
+        brush = marker->brush();
+        color = brush.color();
+        color.setAlphaF(alpha);
+        brush.setColor(color);
+        marker->setBrush(brush);
+
+        QPen pen = marker->pen();
+        color = pen.color();
+        color.setAlphaF(alpha);
+        pen.setColor(color);
+        marker->setPen(pen);
+
+        break;
+        }
+    default:
+        {
+        qDebug() << "Unknown marker type";
+        break;
+        }
+    }
+}

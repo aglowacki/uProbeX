@@ -64,8 +64,8 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     _liveMapsViewer = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
-    std::string element_csv_filename = "../../reference/xrf_library.csv";
-    std::string element_henke_filename = "../../reference/henke.xdr";
+    std::string element_csv_filename = "../reference/xrf_library.csv";
+    std::string element_henke_filename = "../reference/henke.xdr";
 
     // Use resources from GStar
     Q_INIT_RESOURCE(GStar);

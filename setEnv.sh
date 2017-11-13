@@ -11,6 +11,4 @@ export GSTAR_BASE=/local/aglowacki/src/gstar14
 export XRF_MAPS_BASE=/local/aglowacki/src/XRF-Maps
 export EIGEN3_BASE=/local/aglowacki/libs/eigen3/include/eigen3
 export ZMQ_BASE=/local/aglowacki/libs/zmq
-#export SSTAR_BASE=/local/user/src/sstar
-#export LD_LIBRARY_PATH=$HDF5_BASE/lib:$QT_BASE/lib:$EPICS_FOLDER/lib/$EPICS_HOST_ARCH:$GSTAR_BASE/lib:$SSTAR_BASE/bin/shared
 export LD_LIBRARY_PATH=$HDF5_BASE/lib:$NETCDF_BASE/lib:$QT_BASE/lib:$GSTAR_BASE/lib:$XRF_MAPS_BASE/bin:$LD_LIBRARY_PATH:$ZMQ_BASE/lib

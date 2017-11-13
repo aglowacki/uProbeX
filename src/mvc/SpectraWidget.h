@@ -45,9 +45,21 @@ public:
 
     //void remove_spectra(QString name);
 
+signals:
+
+    void trigger_connect_markers();
+
 public slots:
 
     void ShowContextMenu(const QPoint &);
+
+    void remove_spectra(QString name);
+
+    void connectMarkers();
+
+    void disconnectMarkers();
+
+    void handleMarkerClicked();
 
 protected:
 
