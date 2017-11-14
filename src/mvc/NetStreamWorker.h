@@ -25,7 +25,7 @@ public:
    /**
     * Constructor.
     */
-   NetStreamWorker(QObject* parent = NULL);
+   NetStreamWorker(QString str_ip, QObject* parent = NULL);
 
    /**
     * Destructor.

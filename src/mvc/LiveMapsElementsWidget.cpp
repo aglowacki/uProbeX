@@ -42,20 +42,42 @@ void LiveMapsElementsWidget::createLayout()
 {
 
     QVBoxLayout* layout = new QVBoxLayout();
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    _qline_ip_addr = new QLineEdit("127.0.0.1");
+    _btn_update = new QPushButton("Update");
+    connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
+
+    hlayout->addWidget(_qline_ip_addr);
+    hlayout->addWidget(_btn_update);
+
     _textEdit = new QTextEdit(this);
     _textEdit->resize(1024, 800);
     _textEdit->scrollBarWidgets(Qt::AlignRight);
     layout->addWidget(_textEdit);
 
     _progressBar = new QProgressBar(this);
+    layout->addLayout(hlayout);
     layout->addWidget(_progressBar);
     setLayout(layout);
 
-    _streamWorker = new NetStreamWorker(this);
-    connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
+}
+
+void LiveMapsElementsWidget::updateIp()
+{
+
+    if(_streamWorker != nullptr)
+    {
+        //disconnect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
+        disconnect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
+        _streamWorker->stop();
+        _streamWorker->quit();
+        _streamWorker->wait();
+        delete _streamWorker;
+    }
+    _streamWorker = new NetStreamWorker(_qline_ip_addr->text(), this);
+    //connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
     _streamWorker->start();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -63,27 +85,31 @@ void LiveMapsElementsWidget::createLayout()
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
     static int cntr = 0;
-    static bool first = true;
-    //QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) ;
-    delete new_packet;
-    //_textEdit->append(str);
+    static int last_row = -1;
 
-    if(first || new_packet->row() == 0 && new_packet->col() == 0)
+    if(last_row != new_packet->row())
+    {
+        QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col())+ " : " + QString::number(new_packet->height()) ;
+        _textEdit->append(str);
+
+        //_textEdit->clear();
+        _progressBar->update();
+        //cntr = 0;
+    }
+    last_row = new_packet->row();
+
+    delete new_packet;
+
+    if(new_packet->row() == 0 && new_packet->col() == 0)
     {
         _progressBar->setRange(0, new_packet->height());
-        first = !first;
     }
 
     _progressBar->setValue(new_packet->row());
 
     cntr ++;
 
-    if(cntr > 100)
-    {
-        _textEdit->clear();
-        _progressBar->update();
-        cntr = 0;
-    }
+
     if(new_packet->row() == new_packet->height())
     {
         _progressBar->update();

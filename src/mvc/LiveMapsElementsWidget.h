@@ -12,6 +12,8 @@
 #include <QThread>
 #include <QTextEdit>
 #include <QProgressBar>
+#include <QPushButton>
+#include <QLineEdit>
 #include "NetStreamWorker.h"
 
 /*---------------------------------------------------------------------------*/
@@ -37,6 +39,8 @@ public:
 public slots:
    void newDataArrived(data_struct::xrf::Stream_Block *new_packet);
 
+   void updateIp();
+
 protected:
 
    /**
@@ -50,6 +54,9 @@ protected:
 
    NetStreamWorker* _streamWorker;
 
+   QLineEdit *_qline_ip_addr;
+
+   QPushButton *_btn_update;
 };
 
 
