@@ -18,6 +18,7 @@ NetStreamWorker::NetStreamWorker(QString str_ip, QObject* parent) : QThread(pare
     _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
     _zmq_socket->connect(conn_str);
     _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
+    _zmq_socket->setsockopt(ZMQ_RCVTIMEO, 1000); //set timeout to 1000ms
 
 }
 

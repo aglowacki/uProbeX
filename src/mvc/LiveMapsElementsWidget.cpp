@@ -84,36 +84,26 @@ void LiveMapsElementsWidget::updateIp()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
 {
-    static int cntr = 0;
     static int last_row = -1;
+
+    if(new_packet->row() == 0 && new_packet->col() == 0)
+    {
+        _progressBar->setRange(0, new_packet->height()-1);
+    }
 
     if(last_row != new_packet->row())
     {
-        QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col())+ " : " + QString::number(new_packet->height()) ;
+        QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
         _textEdit->append(str);
 
+        _progressBar->setValue(new_packet->row());
         //_textEdit->clear();
         _progressBar->update();
         //cntr = 0;
     }
     last_row = new_packet->row();
-
     delete new_packet;
 
-    if(new_packet->row() == 0 && new_packet->col() == 0)
-    {
-        _progressBar->setRange(0, new_packet->height());
-    }
-
-    _progressBar->setValue(new_packet->row());
-
-    cntr ++;
-
-
-    if(new_packet->row() == new_packet->height())
-    {
-        _progressBar->update();
-    }
 }
 
 /*---------------------------------------------------------------------------*/

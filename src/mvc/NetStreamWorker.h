@@ -44,11 +44,14 @@ public slots:
             std::string s1 ((char*)token.data(), token.size());
             if(s1 == "XRF-Counts")
             {
-                _zmq_socket->recv(&message);
-                new_packet = _serializer.decode_counts((char*)message.data(), message.size());
-                emit newData(new_packet);
+                if(_zmq_socket->recv(&message))
+                {
+                    new_packet = _serializer.decode_counts((char*)message.data(), message.size());
+                    emit newData(new_packet);
+                }
             }
         }
+        _zmq_socket->close();
     }
     void stop() {_running = false;}
 
