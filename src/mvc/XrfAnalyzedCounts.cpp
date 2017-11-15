@@ -44,6 +44,18 @@ float* XrfAnalyzedCounts::get_counts_ptr(std::string name)
 
 /*---------------------------------------------------------------------------*/
 
+std::vector<std::string> XrfAnalyzedCounts::get_count_names()
+{
+    std::vector<std::string> keys;
+    for(auto& itr : _counts)
+    {
+        keys.push_back(itr.first);
+    }
+    return keys;
+}
+
+/*---------------------------------------------------------------------------*/
+
 float XrfAnalyzedCounts::get_counts_max(std::string name)
 {
     if (_counts.count(name) > 0)

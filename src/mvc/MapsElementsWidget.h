@@ -12,6 +12,7 @@
 
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
+#include <QComboBox>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -52,6 +53,12 @@ public slots:
     */
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
+   void displayCounts(std::string analysis_type, std::string element);
+
+   void onAnalysisSelect(QString name);
+
+   void onElementSelect(QString name);
+
 protected:
 
    /**
@@ -62,6 +69,9 @@ protected:
    MapsH5Model *_model;
 
    SpectraWidget* _spectra_widget;
+
+   QComboBox *_cb_analysis;
+   QComboBox *_cb_element;
 
 };
 

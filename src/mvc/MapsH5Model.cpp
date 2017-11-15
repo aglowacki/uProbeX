@@ -49,6 +49,18 @@ XrfAnalyzedCounts* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
 
 /*---------------------------------------------------------------------------*/
 
+std::vector<std::string> MapsH5Model::getAnalyzedTypes()
+{
+    std::vector<std::string> keys;
+    for(auto &itr : _analyzed_counts)
+    {
+        keys.push_back(itr.first);
+    }
+    return keys;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool MapsH5Model::load(QString filepath)
 {
     try

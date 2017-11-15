@@ -11,6 +11,8 @@
 #include <QString>
 #include <unordered_map>
 #include <valarray>
+#include <vector>
+#include <string>
 
 /*---------------------------------------------------------------------------*/
 
@@ -33,6 +35,8 @@ public:
     float get_counts_max(std::string name);
 
     float get_counts_min(std::string name);
+
+    std::vector<std::string> get_count_names();
 
 protected:
 
