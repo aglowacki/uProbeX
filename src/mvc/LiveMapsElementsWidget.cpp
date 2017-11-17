@@ -62,6 +62,8 @@ void LiveMapsElementsWidget::createLayout()
 
 }
 
+/*---------------------------------------------------------------------------*/
+
 void LiveMapsElementsWidget::updateIp()
 {
 

@@ -13,6 +13,7 @@
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include <QComboBox>
+#include <unordered_map>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -65,6 +66,8 @@ protected:
     * @brief Create layout
     */
    void createLayout();
+
+   std::unordered_map<std::string, std::unordered_map<std::string, gstar::ImageViewWidget*> > _imagesWidgets;
 
    MapsH5Model *_model;
 

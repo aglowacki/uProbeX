@@ -9,7 +9,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
+#include <QSplitter>
 
 #include <QDebug>
 
@@ -61,7 +61,17 @@ void MapsElementsWidget::createLayout()
 
     QHBoxLayout* hbox = new QHBoxLayout();
 
-    QLayout* layout = generateDefaultLayout();
+
+    QVBoxLayout* layout = new QVBoxLayout();
+
+    QSplitter* splitter = new QSplitter();
+    splitter->setOrientation(Qt::Horizontal);
+    splitter->addWidget(m_imageViewWidget);
+    splitter->setStretchFactor(0, 1);
+    splitter->addWidget(m_tabWidget);
+    createToolBar(m_imageViewWidget);
+    layout->addWidget(m_toolbar);
+    layout->addWidget(splitter);
     layout->addWidget(_spectra_widget);
 
 
@@ -124,19 +134,23 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 {
     _model = model;
 
+    //disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
+
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
+    //m_imageWidgetToolBar->clearImageViewWidget();
     for(auto& itr: analysis_types)
     {
         _cb_analysis->addItem(QString(itr.c_str()));
+        //m_imageWidgetToolBar->appendImageViewWidget(imageViewWidget);
     }
-
-    displayCounts("NNLS", "Num_Iter");
 
     if(_model->is_integrated_spectra_loaded())
     {
         _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
     }
+
+    //connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
 
 }
 
@@ -171,7 +185,7 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
         image.setColorTable(grayscale);
 
 
-        this->updateFrame(&image);
+        m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
     }
 }
 

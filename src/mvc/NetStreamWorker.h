@@ -25,12 +25,37 @@ public:
    /**
     * Constructor.
     */
-   NetStreamWorker(QString str_ip, QObject* parent = NULL);
+   NetStreamWorker(QString str_ip, QObject* parent = NULL) : QThread(parent)
+   {
+
+       std::string conn_str = "tcp://"+str_ip.toStdString()+":43434";
+       //std::string conn_str = "tcp://192.168.0.254:43434";
+       _context = new zmq::context_t(1);
+       _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
+       _zmq_socket->connect(conn_str);
+       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
+       _zmq_socket->setsockopt(ZMQ_RCVTIMEO, 1000); //set timeout to 1000ms
+
+   }
 
    /**
     * Destructor.
     */
-   ~NetStreamWorker();
+   ~NetStreamWorker()
+   {
+       if(_zmq_socket != nullptr)
+       {
+           _zmq_socket->close();
+           delete _zmq_socket;
+       }
+       if (_context != nullptr)
+       {
+           _context->close();
+           delete _context;
+       }
+       _zmq_socket = nullptr;
+       _context = nullptr;
+   }
 
 public slots:
     void run() override
