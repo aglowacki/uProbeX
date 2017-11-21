@@ -44,6 +44,17 @@ float* XrfAnalyzedCounts::get_counts_ptr(std::string name)
 
 /*---------------------------------------------------------------------------*/
 
+void XrfAnalyzedCounts::nan_to_num(float val)
+{
+    for(auto& itr : _counts)
+    {
+        std::valarray<bool> nans = (itr.second != itr.second || itr.second == std::numeric_limits<float>::infinity());
+        itr.second[nans] = val;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 std::vector<std::string> XrfAnalyzedCounts::get_count_names()
 {
     std::vector<std::string> keys;

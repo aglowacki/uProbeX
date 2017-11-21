@@ -36,6 +36,8 @@ public:
 
     float get_counts_min(std::string name);
 
+    void nan_to_num(float val);
+
     std::vector<std::string> get_count_names();
 
 protected:

@@ -316,6 +316,8 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
     H5Dclose(counts_dset_id);
     H5Gclose(sub_grp_id);
 
+    xrf_counts->nan_to_num(0.0f);
+
     return true;
 }
 
