@@ -16,6 +16,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 {
 
     _streamWorker = nullptr;
+    _mapsElementsWidget = nullptr;
     createLayout();
 
 }
@@ -34,6 +35,12 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
     }
     _streamWorker = nullptr;
 
+    if(_mapsElementsWidget != nullptr)
+    {
+        delete _mapsElementsWidget;
+        _mapsElementsWidget = nullptr;
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -49,14 +56,16 @@ void LiveMapsElementsWidget::createLayout()
 
     hlayout->addWidget(_qline_ip_addr);
     hlayout->addWidget(_btn_update);
+    layout->addLayout(hlayout);
 
     _textEdit = new QTextEdit(this);
     _textEdit->resize(1024, 800);
     _textEdit->scrollBarWidgets(Qt::AlignRight);
-    layout->addWidget(_textEdit);
+    _mapsElementsWidget = new MapsElementsWidget(this);
+    _mapsElementsWidget->appendTab(_textEdit, "Log");
+    layout->addWidget(_mapsElementsWidget);
 
     _progressBar = new QProgressBar(this);
-    layout->addLayout(hlayout);
     layout->addWidget(_progressBar);
     setLayout(layout);
 
@@ -91,10 +100,11 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_
     if(new_packet->row() == 0 && new_packet->col() == 0)
     {
         _progressBar->setRange(0, new_packet->height()-1);
+        //_mapsElementsWidget
     }
 
     if(last_row != new_packet->row())
-    {
+    {   
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
         _textEdit->append(str);
 

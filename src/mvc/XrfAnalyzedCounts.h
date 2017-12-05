@@ -43,8 +43,11 @@ public:
 protected:
 
     std::string _analysis_name;
+
     std::unordered_map<std::string, std::valarray<float>> _counts;
+
     int _width;
+
     int _height;
 };
 

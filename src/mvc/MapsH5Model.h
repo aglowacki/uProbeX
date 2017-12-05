@@ -12,14 +12,16 @@
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
-#include "XrfAnalyzedCounts.h"
+//#include "XrfAnalyzedCounts.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/optimizers/mpfit_optimizer.h"
 #include "fitting/models/gaussian_model.h"
+#include "data_struct/xrf/stream_block.h"
 
 /*---------------------------------------------------------------------------*/
 
+typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
 /**
  * @brief Model for Maps analyzed hdf5 files
@@ -39,15 +41,19 @@ public:
     */
     ~MapsH5Model();
 
+    void clear_analyzed_counts();
+
     bool load(QString filepath);
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
-    XrfAnalyzedCounts* getAnalyzedCounts(std::string analysis_type);
+    data_struct::xrf::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
 
     data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
 
     QString getFilePath() { return _filepath; }
+
+    void initialize_from_stream_block(data_struct::xrf::Stream_Block* block);
 
     bool is_scalers_loaded() { return _loaded_scalers; }
 
@@ -81,7 +87,7 @@ protected:
 
     bool _load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name);
 
-    std::unordered_map<std::string, XrfAnalyzedCounts*> _analyzed_counts;
+    std::unordered_map<std::string, data_struct::xrf::Fit_Count_Dict*> _analyzed_counts;
 
     data_struct::xrf::Spectra _integrated_spectra;
 

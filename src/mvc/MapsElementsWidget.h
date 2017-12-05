@@ -74,6 +74,7 @@ protected:
    SpectraWidget* _spectra_widget;
 
    QComboBox *_cb_analysis;
+
    QComboBox *_cb_element;
 
 };

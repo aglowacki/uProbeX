@@ -37,7 +37,7 @@ ZMQ_LIBS = "${ZMQ_BASE}/lib/libzmq.a"
 
 win32 {
 GSTAR_INCLUDE = "$(GSTAR_BASE)\\include"
-GSTAR_LIBS = "$(GSTAR_BASE)\\lib"
+GSTAR_LIBS = "$(GSTAR_BASE)\\Debug\\lib"
 EIGEN_INCLUDE = "$(EIGEN3_BASE)"
 XRF_MAPS_INCLUDE = "$(XRF_MAPS_BASE)\\src"
 XRF_MAPS_LIBS = "$(XRF_MAPS_BASE)\\build\\Debug"

@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include "NetStreamWorker.h"
+#include "mvc/MapsElementsWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -37,6 +38,7 @@ public:
    ~LiveMapsElementsWidget();
 
 public slots:
+
    void newDataArrived(data_struct::xrf::Stream_Block *new_packet);
 
    void updateIp();
@@ -48,6 +50,8 @@ protected:
     */
    void createLayout();
 
+   MapsElementsWidget *_mapsElementsWidget;
+
    QTextEdit *_textEdit;
 
    QProgressBar *_progressBar;
@@ -57,6 +61,8 @@ protected:
    QLineEdit *_qline_ip_addr;
 
    QPushButton *_btn_update;
+
+   MapsH5Model _currentModel;
 };
 
 

@@ -90,20 +90,21 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
     QString elementName = _cb_element->currentText();
     bool found_element = false;
 
-    XrfAnalyzedCounts* analysis_type = _model->getAnalyzedCounts(name.toStdString());
+    data_struct::xrf::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
     if (analysis_type != nullptr)
     {
         _cb_element->clear();
-        std::vector<std::string> elements = analysis_type->get_count_names();
-
-        for(auto& itr: elements)
+        //std::vector<std::string> elements = analysis_type->get_count_names();
+        std::string lastName;
+        for(auto& itr: *analysis_type)
         {
-            QString val = QString(itr.c_str());
+            QString val = QString(itr.first.c_str());
             _cb_element->addItem(val);
             if(elementName == val)
             {
                 found_element = true;
             }
+            lastName = itr.first;
         }
         if(found_element)
         {
@@ -112,7 +113,7 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
         }
         else
         {
-            displayCounts(name.toStdString(), elements[0]);
+            displayCounts(name.toStdString(), lastName);
         }
     }
 }
@@ -158,34 +159,48 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 void MapsElementsWidget::displayCounts(std::string analysis_type, std::string element)
 {
-    XrfAnalyzedCounts* nnls = _model->getAnalyzedCounts(analysis_type);
-    if (nnls != nullptr)
+    data_struct::xrf::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+    if (fit_counts != nullptr)
     {
-        int length = nnls->width() * nnls->height();
-        // Build a colour table of grayscale
-        QByteArray data(length, (char)0);
-
-        float *counts = nnls->get_counts_ptr(element);
-        float counts_max = nnls->get_counts_max(element);
-        float counts_min = nnls->get_counts_min(element);
-        float max_min = counts_max - counts_min;
-        for (int i = 0; i < length; ++i)
+        if(fit_counts->count(element) > 0)
         {
-            data[i] = (unsigned char)( ((counts[i] - counts_min) / max_min) * 255);
+            int height = fit_counts->at(element).rows();
+            int width = fit_counts->at(element).cols();
+            unsigned long length = height * width;
+            // Build a colour table of grayscale
+            QByteArray data(length, (char)0);
+
+            float *counts = fit_counts->at(element).data();
+            float counts_max = fit_counts->at(element).maxCoeff();
+            float counts_min = fit_counts->at(element).minCoeff();
+            float max_min = counts_max - counts_min;
+//            for (int i = 0; i < length; ++i)
+//            {
+//                data[i] = (unsigned char)( ((counts[i] - counts_min) / max_min) * 255);
+//            }
+            int i=0;
+            for(int row = 0; row < height; row++)
+            {
+                for(int col = 0; col < width; col++)
+                {
+                    data[i] = (unsigned char)( ((fit_counts->at(element)(row,col) - counts_min) / max_min) * 255);
+                    i++;
+                }
+            }
+            QVector<QRgb> grayscale;
+
+            for (int i = 0; i < 256; ++i)
+            {
+                grayscale.append(qRgb(i, i, i));
+            }
+
+            //QImage image((const uchar *)data.constData(), width, height, width, QImage::Format_Indexed8);
+            QImage image((const uchar *)data.constData(), width, height, QImage::Format_Indexed8);
+            image.setColorTable(grayscale);
+
+
+            m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
-
-        QVector<QRgb> grayscale;
-
-        for (int i = 0; i < 256; ++i)
-        {
-            grayscale.append(qRgb(i, i, i));
-        }
-
-        QImage image((const uchar *)data.constData(), nnls->width(), nnls->height(), nnls->width(), QImage::Format_Indexed8);
-        image.setColorTable(grayscale);
-
-
-        m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
     }
 }
 

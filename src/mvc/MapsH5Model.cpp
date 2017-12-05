@@ -27,6 +27,15 @@ MapsH5Model::MapsH5Model()
 MapsH5Model::~MapsH5Model()
 {
 
+    clear_analyzed_counts();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::clear_analyzed_counts()
+{
+
     for (auto itr : _analyzed_counts)
     {
         delete itr.second;
@@ -35,10 +44,9 @@ MapsH5Model::~MapsH5Model()
 
 }
 
-
 /*---------------------------------------------------------------------------*/
 
-XrfAnalyzedCounts* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
+data_struct::xrf::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
 {
     if(_analyzed_counts.count(analysis_type) > 0)
     {
@@ -57,6 +65,47 @@ std::vector<std::string> MapsH5Model::getAnalyzedTypes()
         keys.push_back(itr.first);
     }
     return keys;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* block)
+{
+    clear_analyzed_counts();
+    std::string group_name = "N/A";
+    for(auto& itr : block->fitting_blocks)
+    {
+        if(itr.first == data_struct::xrf::ROI)
+        {
+            group_name = "ROI";
+        }
+        else if(itr.first == data_struct::xrf::GAUSS_TAILS)
+        {
+            group_name = "Parameter Fitting";
+        }
+        else if(itr.first == data_struct::xrf::GAUSS_MATRIX)
+        {
+            group_name = "Matrix Fitting";
+        }
+        else if(itr.first == data_struct::xrf::SVD)
+        {
+            group_name = "SVD";
+        }
+        else if(itr.first == data_struct::xrf::NNLS)
+        {
+            group_name = "NNLS";
+        }
+
+        data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
+        _analyzed_counts.insert( {group_name, xrf_counts} );
+
+        for(auto& itr2 : itr.second.fit_counts)
+        {
+            xrf_counts->emplace(std::pair<std::string,EMatrixF>(itr2.first, EMatrixF() ));
+            xrf_counts->at(itr2.first).resize(block->height(), block->width());
+        }
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -284,7 +333,8 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 
     count[0] = 1;
 
-    XrfAnalyzedCounts* xrf_counts = new XrfAnalyzedCounts(group_name, count[2], count[1]);
+    data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
+    //XrfAnalyzedCounts* xrf_counts = new XrfAnalyzedCounts(group_name, count[2], count[1]);
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, NULL);
@@ -300,10 +350,14 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
         H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
         error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
-        xrf_counts->add_element(el_name);
+        //xrf_counts->add_element(el_name);
+        xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
+        //xrf_counts->at(el_name).resize(count[2], count[1]);
+        xrf_counts->at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
-        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->get_counts_ptr(el_name)));
+        //error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->get_counts_ptr(el_name)));
+        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 
     delete []dims_out;
@@ -316,7 +370,11 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
     H5Dclose(counts_dset_id);
     H5Gclose(sub_grp_id);
 
-    xrf_counts->nan_to_num(0.0f);
+    //nan to 0.f
+    for(auto& itr : *xrf_counts)
+    {
+        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v)? v : 0.0f; });
+    }
 
     return true;
 }
