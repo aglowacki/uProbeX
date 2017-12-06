@@ -20,6 +20,8 @@ MapsH5Model::MapsH5Model()
     _loaded_integrated_spectra = false;
     _loaded_counts = false;
 
+    _initialized_by_stream_block = false;
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -69,32 +71,40 @@ std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 
 /*---------------------------------------------------------------------------*/
 
+std::string MapsH5Model::_analysis_enum_to_str(int val)
+{
+    if(val == data_struct::xrf::ROI)
+    {
+        return "ROI";
+    }
+    else if(val == data_struct::xrf::GAUSS_TAILS)
+    {
+        return "Parameter Fitting";
+    }
+    else if(val == data_struct::xrf::GAUSS_MATRIX)
+    {
+        return "Matrix Fitting";
+    }
+    else if(val == data_struct::xrf::SVD)
+    {
+        return "SVD";
+    }
+    else if(val == data_struct::xrf::NNLS)
+    {
+        return "NNLS";
+    }
+    return "";
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* block)
 {
     clear_analyzed_counts();
-    std::string group_name = "N/A";
+
     for(auto& itr : block->fitting_blocks)
     {
-        if(itr.first == data_struct::xrf::ROI)
-        {
-            group_name = "ROI";
-        }
-        else if(itr.first == data_struct::xrf::GAUSS_TAILS)
-        {
-            group_name = "Parameter Fitting";
-        }
-        else if(itr.first == data_struct::xrf::GAUSS_MATRIX)
-        {
-            group_name = "Matrix Fitting";
-        }
-        else if(itr.first == data_struct::xrf::SVD)
-        {
-            group_name = "SVD";
-        }
-        else if(itr.first == data_struct::xrf::NNLS)
-        {
-            group_name = "NNLS";
-        }
+        std::string group_name = _analysis_enum_to_str(itr.first);
 
         data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
         _analyzed_counts.insert( {group_name, xrf_counts} );
@@ -103,9 +113,27 @@ void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* b
         {
             xrf_counts->emplace(std::pair<std::string,EMatrixF>(itr2.first, EMatrixF() ));
             xrf_counts->at(itr2.first).resize(block->height(), block->width());
+            xrf_counts->at(itr2.first).setZero(block->height(), block->width());
         }
     }
+}
 
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::update_from_stream_block(data_struct::xrf::Stream_Block* block)
+{
+    for(auto& itr : block->fitting_blocks)
+    {
+        std::string group_name = _analysis_enum_to_str(itr.first);
+        if(_analyzed_counts.count(group_name) > 0)
+        {
+            data_struct::xrf::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
+            for(auto& itr2 : itr.second.fit_counts)
+            {
+                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+            }
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -334,7 +362,6 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
     count[0] = 1;
 
     data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
-    //XrfAnalyzedCounts* xrf_counts = new XrfAnalyzedCounts(group_name, count[2], count[1]);
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, NULL);
@@ -350,13 +377,10 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
         H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
         error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
-        //xrf_counts->add_element(el_name);
         xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
-        //xrf_counts->at(el_name).resize(count[2], count[1]);
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
-        //error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->get_counts_ptr(el_name)));
         error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 

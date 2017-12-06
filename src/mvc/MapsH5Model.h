@@ -55,6 +55,8 @@ public:
 
     void initialize_from_stream_block(data_struct::xrf::Stream_Block* block);
 
+    void update_from_stream_block(data_struct::xrf::Stream_Block* block);
+
     bool is_scalers_loaded() { return _loaded_scalers; }
 
     bool is_quantification_loaded() { return _loaded_quantification; }
@@ -87,6 +89,8 @@ protected:
 
     bool _load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name);
 
+    std::string _analysis_enum_to_str(int val);
+
     std::unordered_map<std::string, data_struct::xrf::Fit_Count_Dict*> _analyzed_counts;
 
     data_struct::xrf::Spectra _integrated_spectra;
@@ -94,6 +98,8 @@ protected:
 private:
 
     QString _filepath;
+
+    bool _initialized_by_stream_block;
 
     bool _loaded_scalers;
     bool _loaded_quantification;

@@ -45,6 +45,8 @@ public:
 
    void setModel(MapsH5Model* model);
 
+   void redrawCounts();
+
 public slots:
 
    /**

@@ -157,6 +157,13 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
+void MapsElementsWidget::redrawCounts()
+{
+    displayCounts(_cb_analysis->currentText().toStdString(), _cb_element->currentText().toStdString());
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsElementsWidget::displayCounts(std::string analysis_type, std::string element)
 {
     data_struct::xrf::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
@@ -170,14 +177,9 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
             // Build a colour table of grayscale
             QByteArray data(length, (char)0);
 
-            float *counts = fit_counts->at(element).data();
             float counts_max = fit_counts->at(element).maxCoeff();
             float counts_min = fit_counts->at(element).minCoeff();
             float max_min = counts_max - counts_min;
-//            for (int i = 0; i < length; ++i)
-//            {
-//                data[i] = (unsigned char)( ((counts[i] - counts_min) / max_min) * 255);
-//            }
             int i=0;
             for(int row = 0; row < height; row++)
             {
@@ -194,7 +196,6 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
                 grayscale.append(qRgb(i, i, i));
             }
 
-            //QImage image((const uchar *)data.constData(), width, height, width, QImage::Format_Indexed8);
             QImage image((const uchar *)data.constData(), width, height, QImage::Format_Indexed8);
             image.setColorTable(grayscale);
 
