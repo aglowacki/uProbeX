@@ -191,12 +191,12 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
             }
             QVector<QRgb> grayscale;
 
-            for (int i = 0; i < 256; ++i)
+            for (int i = 0; i < 255; ++i)
             {
                 grayscale.append(qRgb(i, i, i));
             }
 
-            QImage image((const uchar *)data.constData(), width, height, QImage::Format_Indexed8);
+            QImage image((const uchar *)data.constData(), width, height, width, QImage::Format_Indexed8);
             image.setColorTable(grayscale);
 
 
