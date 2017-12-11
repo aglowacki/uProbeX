@@ -94,6 +94,10 @@ void FitSpectraWidget::Fit_Spectra_Click()
         if(_fit_params != nullptr && _elements_to_fit != nullptr)
         {
             data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(*_fit_params, _elements_to_fit);
+            if(fit_spec.size() == _spectra_background.size())
+            {
+                fit_spec += _spectra_background;
+            }
             for(int i=0; i<fit_spec.size(); i++)
             {
              if(fit_spec[i] <= 0.0)
@@ -124,7 +128,7 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
 
     _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra());
 
-    Spectra background = snip_background(_h5_model->getIntegratedSpectra(),
+    _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
                                          fit_params->at(fitting::models::STR_ENERGY_OFFSET).value,
                                          fit_params->at(fitting::models::STR_ENERGY_SLOPE).value,
                                          fit_params->at(fitting::models::STR_ENERGY_QUADRATIC).value,
@@ -133,6 +137,6 @@ void FitSpectraWidget::setModels(data_struct::xrf::Fit_Parameters* fit_params,
                                          0, //spectra energy start range
                                          _h5_model->getIntegratedSpectra()->size());
 
-    _spectra_widget->append_spectra("Background", &background);
+    _spectra_widget->append_spectra("Background", &_spectra_background);
 
 }

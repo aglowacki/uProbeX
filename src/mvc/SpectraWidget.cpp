@@ -102,6 +102,10 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
     if (spectra == nullptr)
         return;
 
+
+    if (spectra->size() == 0)
+        return;
+
     QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
 
     float new_max = spectra->max();

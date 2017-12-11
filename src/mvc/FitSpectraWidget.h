@@ -19,6 +19,7 @@
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
+#include "data_struct/xrf/spectra.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -85,6 +86,8 @@ private:
 
    QPushButton* _btn_fit_spectra;
    //QAction *_action_check_log10;
+
+   data_struct::xrf::Spectra _spectra_background;
 
    //QMenu *_contextMenu;
 };
