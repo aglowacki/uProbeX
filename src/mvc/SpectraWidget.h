@@ -102,7 +102,7 @@ private:
 
     bool m_isTouching;
 
-    std::map<QString, std::valarray<float>> _spectra_map;
+    std::map<QString, data_struct::xrf::Spectra> _spectra_map;
 
     QAction *_action_check_log10;
 

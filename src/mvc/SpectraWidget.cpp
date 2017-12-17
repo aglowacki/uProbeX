@@ -108,7 +108,7 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
 
     QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
 
-    float new_max = spectra->max();
+    float new_max = spectra->maxCoeff();
     _max_log_range = std::max(_max_log_range, new_max);
 
     series->setName(name);
