@@ -47,7 +47,11 @@ public:
     */
    FitParamsTableModel(QObject* parent = 0);
 
-   void setFitParams(data_struct::xrf::Fit_Parameters* fit_params);
+   void setFitParams(data_struct::xrf::Fit_Parameters fit_params);
+
+   void updateFitParams(data_struct::xrf::Fit_Parameters* fit_params);
+
+   data_struct::xrf::Fit_Parameters getFitParams() { return _fit_parameters; }
 
    /**
     * @brief Clear all

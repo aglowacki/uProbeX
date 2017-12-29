@@ -405,25 +405,25 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 
 
 
-data_struct::xrf::Spectra MapsH5Model::fit_integrated_spectra(data_struct::xrf::Fit_Parameters fit_params, data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
+data_struct::xrf::Spectra MapsH5Model::fit_integrated_spectra(data_struct::xrf::Fit_Parameters *fit_params, data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
 {
-    //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
+    fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
     fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
     fitting::models::Gaussian_Model model;
 
-    data_struct::xrf::Fit_Parameters out_fit_params;
+    //data_struct::xrf::Fit_Parameters out_fit_params;
 
     //Range of energy in spectra to fit
     fitting::models::Range energy_range;
     energy_range.min = 0;
     energy_range.max = _integrated_spectra.size() -1;
-    //energy_range.max = 1200;
 
     //data_struct::xrf::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
     //Fitting routines
     fitting::routines::Param_Optimized_Fit_Routine fit_routine;
-    fit_routine.set_optimizer(&mpfit_optimizer);
+    fit_routine.set_optimizer(&lmfit_optimizer);
+    //fit_routine.set_optimizer(&mpfit_optimizer);
 
 
     if(elements_to_fit->count(data_struct::xrf::STR_COMPTON_AMPLITUDE) == 0)
@@ -444,8 +444,8 @@ data_struct::xrf::Spectra MapsH5Model::fit_integrated_spectra(data_struct::xrf::
     //Initialize the fit routine
     fit_routine.initialize(&model, elements_to_fit, energy_range);
     //Fit the spectra saving the element counts in element_fit_count_dict
-    out_fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, elements_to_fit);
+    *fit_params = fit_routine.fit_spectra_parameters(&model, &_integrated_spectra, elements_to_fit);
     //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, elements_to_fit);
-    return model.model_spectrum(&out_fit_params, elements_to_fit, energy_range);
+    return model.model_spectrum(fit_params, elements_to_fit, energy_range);
 }
 

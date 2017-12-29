@@ -20,20 +20,31 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     m_headers[STEP_SIZE] = tr("Step Size");
     m_headers[BOUND_TYPE] = tr("Is Fixed");
 
-    fitting::models::Gaussian_Model g_model;
-    _fit_parameters = g_model.fit_parameters();
-    _row_indicies = _fit_parameters.names_to_array();
-    std::sort(_row_indicies.begin(), _row_indicies.end());
-
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters* fit_params)
+void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters fit_params)
+{
+
+    _fit_parameters = fit_params;
+    _row_indicies.clear();
+    _row_indicies = _fit_parameters.names_to_array();
+
+    std::sort(_row_indicies.begin(), _row_indicies.end());
+
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size()-1, NUM_PROPS-1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
+
+}
+
+void FitParamsTableModel::updateFitParams(data_struct::xrf::Fit_Parameters* fit_params)
 {
     if(fit_params != nullptr)
     {
-        _fit_parameters.update_values(*fit_params);
+        _fit_parameters.update_values(fit_params);
         _row_indicies.clear();
         _row_indicies = _fit_parameters.names_to_array();
 

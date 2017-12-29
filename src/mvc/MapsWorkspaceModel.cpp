@@ -177,6 +177,18 @@ data_struct::xrf::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
     {
         return &(_fit_params_override_dict[idx].fit_params);
     }
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+data_struct::xrf::Params_Override* MapsWorkspaceModel::getParamOverride(int idx)
+{
+    if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
+    {
+        return &(_fit_params_override_dict[idx]);
+    }
+    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -57,6 +57,8 @@ public slots:
 
    void Fit_Spectra_Click();
 
+   void Model_Spectra_Click();
+
    void finished_fitting();
 
 protected:
@@ -65,13 +67,15 @@ protected:
 
    FitParamsTableModel* _fit_params_table_model;
 
-   data_struct::xrf::Fit_Parameters* _fit_params;
+   FitParamsTableModel* _fit_elements_table_model;
 
    data_struct::xrf::Fit_Element_Map_Dict *_elements_to_fit;
 
    MapsH5Model* _h5_model;
 
    QTableView* _fit_params_table;
+
+   QTableView* _fit_elements_table;
 
    /**
     * @brief Create layout
@@ -82,9 +86,12 @@ private slots:
 
 private:
 
+   QTabWidget *_fit_params_tab_widget;
+
    std::thread* _fit_thread;
 
    QPushButton* _btn_fit_spectra;
+   QPushButton* _btn_model_spectra;
    //QAction *_action_check_log10;
 
    data_struct::xrf::Spectra _spectra_background;
