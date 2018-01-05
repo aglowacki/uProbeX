@@ -101,7 +101,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_
     {
         _currentModel.initialize_from_stream_block(new_packet);
         _currentModel.update_from_stream_block(new_packet);
-        _mapsElementsWidget->setModel(&_currentModel);
+        _mapsElementsWidget->setModel(&_currentModel, nullptr, nullptr);
         _progressBar->setRange(0, new_packet->height()-1);
         //_mapsElementsWidget
     }

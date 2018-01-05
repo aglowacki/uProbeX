@@ -12,7 +12,6 @@
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
-//#include "XrfAnalyzedCounts.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/optimizers/mpfit_optimizer.h"
@@ -44,6 +43,8 @@ public:
     void clear_analyzed_counts();
 
     bool load(QString filepath);
+
+    std::vector<std::string> count_names();
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
@@ -108,7 +109,6 @@ private:
     bool _loaded_counts;
 
     bool _is_fully_loaded;
-
 };
 
 

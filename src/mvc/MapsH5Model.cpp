@@ -59,6 +59,24 @@ data_struct::xrf::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string ana
 
 /*---------------------------------------------------------------------------*/
 
+std::vector<std::string> MapsH5Model::count_names()
+{
+    std::vector<std::string> count_names;
+
+    for(auto& itr1 : _analyzed_counts)
+    {
+        for(auto& itr2 : *(itr1.second)) //fit counts
+        {
+            count_names.push_back(itr2.first);
+        }
+        break;//we only want one iteration
+    }
+
+    return count_names;
+}
+
+/*---------------------------------------------------------------------------*/
+
 std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 {
     std::vector<std::string> keys;

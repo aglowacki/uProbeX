@@ -114,14 +114,14 @@ private slots:
    void makeHDFWindow(MapsH5Model* model);
 
    /**
-    * @brief makeFitSpectraWindow
+    * @brief makeHDFWindow
+    * @param model
     * @param fit_params
     * @param elements_to_fit
-    * @param model
     */
-   void makeFitSpectraWindow(data_struct::xrf::Fit_Parameters* fit_params,
-                             data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
-                             MapsH5Model* model);
+   void makeHDFWindow(MapsH5Model* model,
+                      data_struct::xrf::Fit_Parameters* fit_params,
+                      data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
 
    /**
     * @brief Open the data file at the given path. Triggered by acquisition controller

@@ -21,11 +21,11 @@ MapsWorkspaceWidget::MapsWorkspaceWidget(QWidget* parent) : QWidget(parent)
 
     _contextMenu = new QMenu(("Context menu"), this);
 
-    action = _contextMenu->addAction("View");
-    connect(action, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
+    //action = _contextMenu->addAction("View");
+    //connect(action, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
 
 
-    action = _contextMenu->addAction("Fit Integrated Spec");
+    action = _contextMenu->addAction("Open");
     connect(action, SIGNAL(triggered()), this, SLOT(fitIntegratedSpectra()));
 
     /*
@@ -165,7 +165,7 @@ void MapsWorkspaceWidget::fitIntegratedSpectra()
             MapsH5Model* h5Model = _model->getMapsH5Model(data.toString());
             if(h5Model != nullptr)
             {
-                showFitSpecWindow(_model->getFitParameters(-1), _model->getElementToFit(-1), h5Model);
+                showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
             }
         }
     }
@@ -182,7 +182,8 @@ void MapsWorkspaceWidget::onListItemClicked(const QModelIndex idx)
         MapsH5Model* h5Model = _model->getMapsH5Model(data.toString());
         if(h5Model != nullptr)
         {
-            selectedAnalyzedH5(h5Model);
+            //selectedAnalyzedH5(h5Model);
+            showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
         }
     }
 }

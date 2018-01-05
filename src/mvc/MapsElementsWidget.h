@@ -11,7 +11,7 @@
 #include <AbstractImageWidget.h>
 
 #include <mvc/MapsH5Model.h>
-#include <mvc/SpectraWidget.h>
+#include <mvc/FitSpectraWidget.h>
 #include <QComboBox>
 #include <unordered_map>
 
@@ -43,7 +43,10 @@ public:
     */
    ~MapsElementsWidget();
 
-   void setModel(MapsH5Model* model);
+   //void setModel(MapsH5Model* model);
+   void setModel(MapsH5Model* h5_model,
+                 data_struct::xrf::Fit_Parameters* fit_params,
+                 data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
 
    void redrawCounts();
 
@@ -73,12 +76,13 @@ protected:
 
    MapsH5Model *_model;
 
-   SpectraWidget* _spectra_widget;
+   FitSpectraWidget* _spectra_widget;
 
    QComboBox *_cb_analysis;
 
    QComboBox *_cb_element;
 
+   QTabWidget *_tab_widget;
 };
 
 

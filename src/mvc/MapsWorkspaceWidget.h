@@ -52,9 +52,9 @@ signals:
 
    void selectedAnalyzedH5(MapsH5Model* model);
 
-   void showFitSpecWindow(data_struct::xrf::Fit_Parameters* fit_params,
-                          data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
-                          MapsH5Model* h5_model);
+   void showFitSpecWindow(MapsH5Model* h5_model,
+                          data_struct::xrf::Fit_Parameters* fit_params,
+                          data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
 
 public slots:
 

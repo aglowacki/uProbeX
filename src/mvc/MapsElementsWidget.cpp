@@ -24,7 +24,6 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
 {
 
     _model = nullptr;
-    _spectra_widget = new SpectraWidget();
     createLayout();
 
 }
@@ -53,15 +52,16 @@ MapsElementsWidget::~MapsElementsWidget()
 void MapsElementsWidget::createLayout()
 {
 
+    _tab_widget = new QTabWidget();
+    _spectra_widget = new FitSpectraWidget();
+
     _cb_analysis = new QComboBox(this);
     _cb_element = new QComboBox(this);
-
     connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
     connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
 
     QHBoxLayout* hbox = new QHBoxLayout();
-
-
+    QVBoxLayout* counts_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
 
     QSplitter* splitter = new QSplitter();
@@ -70,15 +70,22 @@ void MapsElementsWidget::createLayout()
     splitter->setStretchFactor(0, 1);
     splitter->addWidget(m_tabWidget);
     createToolBar(m_imageViewWidget);
-    layout->addWidget(m_toolbar);
-    layout->addWidget(splitter);
-    layout->addWidget(_spectra_widget);
+    counts_layout->addWidget(m_toolbar);
+    counts_layout->addWidget(splitter);
 
 
     hbox->addWidget(_cb_analysis);
     hbox->addWidget(_cb_element);
-    layout->addItem(hbox);
-    //appendAnnotationTab();
+    counts_layout->addItem(hbox);
+
+    QWidget *window = new QWidget();
+    window->setLayout(counts_layout);
+
+    _tab_widget->addTab(window, "Counts");
+    _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
+
+    layout->addWidget(_tab_widget);
+
     setLayout(layout);
 
 }
@@ -131,7 +138,9 @@ void MapsElementsWidget::onElementSelect(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::setModel(MapsH5Model* model)
+void MapsElementsWidget::setModel(MapsH5Model* model,
+                                  data_struct::xrf::Fit_Parameters* fit_params,
+                                  data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
 {
     _model = model;
 
@@ -148,7 +157,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
     if(_model->is_integrated_spectra_loaded())
     {
-        _spectra_widget->append_spectra("Integrated Spectra", _model->getIntegratedSpectra());
+        //_spectra_widget->setModels(fit_params, elements_to_fit, model);
+        _spectra_widget->setModels(model, fit_params, elements_to_fit);
     }
 
     //connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));

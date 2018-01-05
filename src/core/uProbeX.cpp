@@ -648,15 +648,15 @@ void uProbeX::makeMapsWindow(QString path)
     widget->setModel(model);
     //widget->resize(800, 600);
 
-    connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
-            this, SLOT(makeHDFWindow(MapsH5Model*)));
+    //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
+    //        this, SLOT(makeHDFWindow(MapsH5Model*)));
 
-    connect(widget, SIGNAL(showFitSpecWindow(data_struct::xrf::Fit_Parameters*,
-                                              data_struct::xrf::Fit_Element_Map_Dict*,
-                                              MapsH5Model*)),
-            this, SLOT(makeFitSpectraWindow(data_struct::xrf::Fit_Parameters*,
-                                            data_struct::xrf::Fit_Element_Map_Dict*,
-                                            MapsH5Model*)));
+    connect(widget, SIGNAL(showFitSpecWindow(MapsH5Model*,
+                                             data_struct::xrf::Fit_Parameters*,
+                                             data_struct::xrf::Fit_Element_Map_Dict*)),
+            this, SLOT(makeHDFWindow(MapsH5Model*,
+                                     data_struct::xrf::Fit_Parameters*,
+                                     data_struct::xrf::Fit_Element_Map_Dict*)));
 
     SubWindow* w = NULL;
     w = new SubWindow(m_mdiArea);
@@ -730,7 +730,7 @@ void uProbeX::makeHDFWindow(QString path)
 void uProbeX::makeHDFWindow(MapsH5Model* model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
-    widget->setModel(model);
+    widget->setModel(model, nullptr, nullptr);
     //widget->resize(800, 600);
 
 
@@ -762,12 +762,12 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeFitSpectraWindow(data_struct::xrf::Fit_Parameters* fit_params,
-                                   data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
-                                    MapsH5Model* model)
+void uProbeX::makeHDFWindow(MapsH5Model* model,
+                            data_struct::xrf::Fit_Parameters* fit_params,
+                            data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
 {
-    FitSpectraWidget* widget = new FitSpectraWidget();
-    widget->setModels(fit_params, elements_to_fit, model);
+    MapsElementsWidget* widget = new MapsElementsWidget();
+    widget->setModel(model, fit_params, elements_to_fit);
     //widget->resize(800, 600);
 
 

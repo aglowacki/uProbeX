@@ -20,6 +20,7 @@
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 #include "data_struct/xrf/spectra.h"
+#include "data_struct/xrf/fit_element_map.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -45,9 +46,9 @@ public:
     */
    ~FitSpectraWidget();
 
-   void setModels(data_struct::xrf::Fit_Parameters* fit_params,
-                  data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit,
-                  MapsH5Model* h5_model);
+   void setModels(MapsH5Model* h5_model,
+                  data_struct::xrf::Fit_Parameters* fit_params,
+                  data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
 
 signals:
 
