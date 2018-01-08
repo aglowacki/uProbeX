@@ -33,11 +33,11 @@ public:
    enum Properties {
       NAME,
       VALUE,
+      BOUND_TYPE,
       MIN_VAL,
       MAX_VAL,
       STEP_SIZE,
-      BOUND_TYPE,
-       NUM_PROPS
+      NUM_PROPS
    };
 
    /**
@@ -46,6 +46,8 @@ public:
     * @param parent - parent Qt widget
     */
    FitParamsTableModel(QObject* parent = 0);
+
+   void setDisplayHeaderMinMax(bool val);
 
    void setFitParams(data_struct::xrf::Fit_Parameters fit_params);
 

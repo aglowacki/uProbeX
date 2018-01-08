@@ -71,7 +71,7 @@ void FitSpectraWidget::createLayout()
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_params_table->setItemDelegateForColumn(5, cbDelegate);
+    _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     _fit_elements_table_model = new FitParamsTableModel();
@@ -79,7 +79,7 @@ void FitSpectraWidget::createLayout()
     _fit_elements_table = new QTableView();
     _fit_elements_table->setModel(_fit_elements_table_model);
  //   _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_elements_table->setItemDelegateForColumn(5, cbDelegate);
+    _fit_elements_table->setItemDelegateForColumn(2, cbDelegate);
     _fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     _btn_fit_spectra = new QPushButton("Fit Spectra");

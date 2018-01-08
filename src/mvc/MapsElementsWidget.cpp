@@ -142,8 +142,12 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
                                   data_struct::xrf::Fit_Parameters* fit_params,
                                   data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
 {
+    if(_model == model)
+    {
+        return;
+    }
     _model = model;
-
+    _cb_analysis->clear();
     //disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
 
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();

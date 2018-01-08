@@ -15,10 +15,10 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     // Initialize header data
     m_headers[NAME] = tr("Name");
     m_headers[VALUE] = tr("Value");
+    m_headers[BOUND_TYPE] = tr("Is Fixed");
     m_headers[MIN_VAL] = tr("Min Value");
     m_headers[MAX_VAL] = tr("Max Value");
     m_headers[STEP_SIZE] = tr("Step Size");
-    m_headers[BOUND_TYPE] = tr("Is Fixed");
 
 }
 
@@ -38,6 +38,18 @@ void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters fit_para
     emit dataChanged(topLeft, bottomRight);
     emit layoutChanged();
 
+}
+
+void FitParamsTableModel::setDisplayHeaderMinMax(bool val)
+{
+    if(val)
+    {
+
+    }
+    else
+    {
+
+    }
 }
 
 void FitParamsTableModel::updateFitParams(data_struct::xrf::Fit_Parameters* fit_params)

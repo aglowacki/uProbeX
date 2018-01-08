@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QItemSelectionModel>
 #include <QDebug>
 
 /*---------------------------------------------------------------------------*/
@@ -71,7 +72,7 @@ void MapsWorkspaceWidget::createLayout()
     //_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //_fit_params_table->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_params_table->setItemDelegateForColumn(5, cbDelegate);
+    _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
 
     QLayout* vlayout = new QVBoxLayout();
 
@@ -82,7 +83,7 @@ void MapsWorkspaceWidget::createLayout()
 
     vlayout->addItem(hlayout);
     vlayout->addWidget(_analyzed_h5_list_view);
-    vlayout->addWidget(_fit_params_table);
+    //vlayout->addWidget(_fit_params_table);
     setLayout(vlayout);
 }
 
@@ -120,8 +121,13 @@ void MapsWorkspaceWidget::ShowContextMenu(const QPoint &pos)
 
 void MapsWorkspaceWidget::loadedAnalysedH5(QString filename)
 {
+    QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
     _analyzed_h5_list.append(filename);
     _analyzed_h5_list_model->setStringList(_analyzed_h5_list);
+    if(list.size() > 0)
+    {
+        _analyzed_h5_list_view->selectionModel()->select(list.at(0), QItemSelectionModel::Select);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

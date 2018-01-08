@@ -48,7 +48,7 @@ public:
 
     data_struct::xrf::Fit_Element_Map_Dict *getElementToFit(int idx);
 
-    data_struct::xrf::Params_Override* MapsWorkspaceModel::getParamOverride(int idx);
+    data_struct::xrf::Params_Override* getParamOverride(int idx);
 
 signals:
     void newAnalyzedH5FileLoaded(QString);
