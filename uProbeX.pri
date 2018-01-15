@@ -18,6 +18,7 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/mvc/SWSModel.cpp \
     src/mvc/SpectraWidget.cpp \
     src/mvc/FitParamsTableModel.cpp \
+    src/mvc/FitElementsTableModel.cpp \
     src/mvc/NetStreamWorker.cpp \
     src/mvc/MapsH5Model.cpp \
     src/mvc/FitSpectraWidget.cpp \
@@ -70,6 +71,7 @@ HEADERS = src/mvc/DeselectableTreeView.h \
     src/mvc/SWSWidget.h \
     src/mvc/SpectraWidget.h \
     src/mvc/FitParamsTableModel.h \
+    src/mvc/FitElementsTableModel.h \
     src/mvc/NetStreamWorker.h \
     src/mvc/MapsH5Model.h \
     src/mvc/FitSpectraWidget.h \

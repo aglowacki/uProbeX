@@ -14,10 +14,12 @@
 #include <thread>
 #include <QWidget>
 #include <QTableView>
+#include <QTreeView>
 #include <QPushButton>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
+#include "mvc/FitElementsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 #include <QComboBox>
 #include <QCheckBox>
@@ -68,6 +70,8 @@ public slots:
 
    void optimizer_changed(QString val);
 
+   void element_clicked(QModelIndex index);
+
    void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
 
 protected:
@@ -76,7 +80,7 @@ protected:
 
    FitParamsTableModel* _fit_params_table_model;
 
-   FitParamsTableModel* _fit_elements_table_model;
+   FitElementsTableModel* _fit_elements_table_model;
 
    data_struct::xrf::Fit_Element_Map_Dict *_elements_to_fit;
 
@@ -84,7 +88,7 @@ protected:
 
    QTableView* _fit_params_table;
 
-   QTableView* _fit_elements_table;
+   QTreeView* _fit_elements_table;
 
    /**
     * @brief Create layout
