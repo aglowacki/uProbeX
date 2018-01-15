@@ -68,8 +68,6 @@ public:
 
     bool is_counts_loaded() { return _loaded_counts; }
 
-    data_struct::xrf::Spectra fit_integrated_spectra(data_struct::xrf::Fit_Parameters *fit_params, data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
-
     std::vector<std::string> getAnalyzedTypes();
 
 protected:

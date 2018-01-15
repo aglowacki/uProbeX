@@ -9,12 +9,15 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-
+#include <QGridLayout>
 #include <QDebug>
 
 #include <math.h>
 
 using namespace data_struct::xrf;
+
+QString STR_LM_FIT = "Levenberg-Marquardt Fit";
+QString STR_MP_FIT = "MP Fit";
 
 /*---------------------------------------------------------------------------*/
 
@@ -86,19 +89,47 @@ void FitSpectraWidget::createLayout()
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
 
     _btn_model_spectra = new QPushButton("Model Spectra");
+    //_btn_model_spectra->setEnabled(false);
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
     _fit_params_tab_widget->addTab(_fit_params_table, "Fit Parameters");
     _fit_params_tab_widget->addTab(_fit_elements_table, "Fit Elements");
 
-    QLayout* button_layout = new QHBoxLayout();
-    button_layout->addWidget(_btn_fit_spectra);
-    button_layout->addWidget(_btn_model_spectra);
+    _cb_opttimizer = new QComboBox();
+    _cb_opttimizer->addItem(STR_LM_FIT);
+    _cb_opttimizer->addItem(STR_MP_FIT);
+    connect(_cb_opttimizer,
+            SIGNAL(currentIndexChanged(QString)),
+            this,
+            SLOT(optimizer_changed(QString)));
 
+    _chk_auto_model = new QCheckBox("Auto Update Model Spectra on Data Change");
+    _chk_auto_model->setChecked(false);
+    connect(_chk_auto_model,
+            SIGNAL(stateChanged(int)),
+            this,
+            SLOT(check_auto_model(int)));
+
+    QGridLayout *grid_layout = new QGridLayout();
+    grid_layout->addWidget(_cb_opttimizer, 0, 0);
+    grid_layout->addWidget(_btn_fit_spectra, 0, 1);
+
+    grid_layout->addWidget(_chk_auto_model, 1, 0);
+    grid_layout->addWidget(_btn_model_spectra, 1, 1);
+
+    //QLayout* button_layout = new QHBoxLayout();
+    //button_layout->addWidget(_btn_fit_spectra);
+    //button_layout->addWidget(_btn_model_spectra);
+/*
+    connect(_fit_params_table_model,
+            SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this,
+            SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+*/
     QLayout* layout = new QVBoxLayout();
     layout->addWidget(_spectra_widget);
     layout->addWidget(_fit_params_tab_widget);
-    layout->addItem(button_layout);
+    layout->addItem(grid_layout);
     setLayout(layout);
 }
 
@@ -119,11 +150,64 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
         if(_elements_to_fit != nullptr)
         {
+            fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
+            fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
+            fitting::models::Gaussian_Model model;
+
+
             data_struct::xrf::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
 
-            data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(&out_fit_params, _elements_to_fit);
+            data_struct::xrf::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
+
+            //Range of energy in spectra to fit
+            fitting::models::Range energy_range;
+            energy_range.min = 0;
+            energy_range.max = int_spectra->rows() -1;
+
+            //data_struct::xrf::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
+
+            //Fitting routines
+            fitting::routines::Param_Optimized_Fit_Routine fit_routine;
+            if(_cb_opttimizer->currentText() == STR_LM_FIT)
+            {
+                fit_routine.set_optimizer(&lmfit_optimizer);
+            }
+            else if(_cb_opttimizer->currentText() == STR_MP_FIT)
+            {
+                fit_routine.set_optimizer(&mpfit_optimizer);
+            }
+
+            //reset model fit parameters to defaults
+            model.reset_to_default_fit_params();
+            //Update fit parameters by override values
+            model.update_fit_params_values(&out_fit_params);
+
+            //model.set_fit_params_preset(fitting::models::BATCH_FIT_WITH_TAILS);
+
+            //Initialize the fit routine
+            fit_routine.initialize(&model, _elements_to_fit, energy_range);
+            //Fit the spectra saving the element counts in element_fit_count_dict
+            out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
+            //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
+
+            data_struct::xrf::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
+
+            disconnect(_fit_params_table_model,
+                       SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                       this,
+                       SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
             _fit_params_table_model->updateFitParams(&out_fit_params);
             _fit_elements_table_model->updateFitParams(&out_fit_params);
+
+            if(_chk_auto_model->checkState() == Qt::Checked)
+            {
+                connect(_fit_params_table_model,
+                        SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                        this,
+                        SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+            }
+
             if(fit_spec.size() == _spectra_background.size())
             {
                 fit_spec += _spectra_background;
@@ -137,6 +221,13 @@ void FitSpectraWidget::Fit_Spectra_Click()
         }
         emit signal_finished_fit();
     });
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)
+{
+    Model_Spectra_Click();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -178,8 +269,8 @@ void FitSpectraWidget::Model_Spectra_Click()
 
             data_struct::xrf::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
-            _fit_params_table_model->updateFitParams(&fit_params);
-            _fit_elements_table_model->updateFitParams(&fit_params);
+            //_fit_params_table_model->updateFitParams(&fit_params);
+            //_fit_elements_table_model->updateFitParams(&fit_params);
 
             if(fit_spec.size() == _spectra_background.size())
             {
@@ -201,7 +292,45 @@ void FitSpectraWidget::Model_Spectra_Click()
 void FitSpectraWidget::finished_fitting()
 {
     _btn_fit_spectra->setEnabled(true);
-    _btn_model_spectra->setEnabled(true);
+    if(_chk_auto_model->checkState() == Qt::Checked)
+        _btn_model_spectra->setEnabled(false);
+    else
+        _btn_model_spectra->setEnabled(true);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::check_auto_model(int state)
+{
+    if(state == Qt::Checked)
+    {
+        _btn_model_spectra->setEnabled(false);
+        connect(_fit_params_table_model,
+                SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                this,
+                SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+    }
+    else
+    {
+        _btn_model_spectra->setEnabled(true);
+        disconnect(_fit_params_table_model,
+                   SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                   this,
+                   SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::optimizer_changed(QString val)
+{
+    if(val == STR_LM_FIT)
+        _fit_params_table_model->setOptimizerSupportsMinMax(false);
+    else if(val == STR_MP_FIT)
+        _fit_params_table_model->setOptimizerSupportsMinMax(true);
+
+    _fit_params_table->resizeColumnToContents(0);
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -216,6 +345,16 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
 
     if(_elements_to_fit != nullptr)
     {
+        if(_elements_to_fit->count(data_struct::xrf::STR_COMPTON_AMPLITUDE) > 0)
+        {
+            _elements_to_fit->erase(data_struct::xrf::STR_COMPTON_AMPLITUDE);
+
+        }
+        if(_elements_to_fit->count(data_struct::xrf::STR_COHERENT_SCT_AMPLITUDE) == 0)
+        {
+            _elements_to_fit->erase(data_struct::xrf::STR_COHERENT_SCT_AMPLITUDE);
+        }
+
         for(auto &itr : *_elements_to_fit)
         {
             element_fit_params.add_parameter(itr.first, data_struct::xrf::Fit_Param(itr.first, 0.00001, data_struct::xrf::E_Bound_Type::FIT));

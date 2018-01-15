@@ -19,6 +19,8 @@
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
+#include <QComboBox>
+#include <QCheckBox>
 #include "data_struct/xrf/spectra.h"
 #include "data_struct/xrf/fit_element_map.h"
 
@@ -62,6 +64,12 @@ public slots:
 
    void finished_fitting();
 
+   void check_auto_model(int state);
+
+   void optimizer_changed(QString val);
+
+   void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
+
 protected:
 
    SpectraWidget* _spectra_widget;
@@ -87,12 +95,18 @@ private slots:
 
 private:
 
+    QCheckBox *_chk_auto_model;
+
+    QComboBox *_cb_opttimizer;
+
    QTabWidget *_fit_params_tab_widget;
 
    std::thread* _fit_thread;
 
    QPushButton* _btn_fit_spectra;
+
    QPushButton* _btn_model_spectra;
+
    //QAction *_action_check_log10;
 
    data_struct::xrf::Spectra _spectra_background;

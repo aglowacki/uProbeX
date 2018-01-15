@@ -47,7 +47,7 @@ public:
     */
    FitParamsTableModel(QObject* parent = 0);
 
-   void setDisplayHeaderMinMax(bool val);
+   void setOptimizerSupportsMinMax(bool val);
 
    void setFitParams(data_struct::xrf::Fit_Parameters fit_params);
 
@@ -63,7 +63,7 @@ public:
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   int columnCount(const QModelIndex &parent) const {return NUM_PROPS;}
+   int columnCount(const QModelIndex &parent) const;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
@@ -128,6 +128,8 @@ private:
    data_struct::xrf::Fit_Parameters _fit_parameters;
 
    std::vector<std::string> _row_indicies;
+
+   bool _optimizer_supports_min_max;
 
 };
 

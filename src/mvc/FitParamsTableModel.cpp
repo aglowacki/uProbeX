@@ -20,6 +20,8 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     m_headers[MAX_VAL] = tr("Max Value");
     m_headers[STEP_SIZE] = tr("Step Size");
 
+    _optimizer_supports_min_max = false;
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -40,16 +42,21 @@ void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters fit_para
 
 }
 
-void FitParamsTableModel::setDisplayHeaderMinMax(bool val)
+int FitParamsTableModel::columnCount(const QModelIndex &parent) const
 {
-    if(val)
-    {
-
-    }
+    if(_optimizer_supports_min_max)
+        return NUM_PROPS;
     else
-    {
+        return NUM_PROPS - 3;
+}
 
-    }
+void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
+{
+    _optimizer_supports_min_max = val;
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size()-1, NUM_PROPS-1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
 }
 
 void FitParamsTableModel::updateFitParams(data_struct::xrf::Fit_Parameters* fit_params)
