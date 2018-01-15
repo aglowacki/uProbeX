@@ -14,10 +14,12 @@
 #include <thread>
 #include <QWidget>
 #include <QTableView>
+#include <QTreeView>
 #include <QPushButton>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
+#include "mvc/FitElementsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 #include "data_struct/xrf/spectra.h"
 #include "data_struct/xrf/fit_element_map.h"
@@ -68,7 +70,7 @@ protected:
 
    FitParamsTableModel* _fit_params_table_model;
 
-   FitParamsTableModel* _fit_elements_table_model;
+   FitElementsTableModel* _fit_elements_table_model;
 
    data_struct::xrf::Fit_Element_Map_Dict *_elements_to_fit;
 
@@ -76,7 +78,7 @@ protected:
 
    QTableView* _fit_params_table;
 
-   QTableView* _fit_elements_table;
+   QTreeView* _fit_elements_table;
 
    /**
     * @brief Create layout

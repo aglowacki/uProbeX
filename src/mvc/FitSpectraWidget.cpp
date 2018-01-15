@@ -9,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-
 #include <QDebug>
 
 #include <math.h>
@@ -74,13 +73,14 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    _fit_elements_table_model = new FitParamsTableModel();
+    _fit_elements_table_model = new FitElementsTableModel();
 
-    _fit_elements_table = new QTableView();
+    _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
  //   _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_elements_table->setItemDelegateForColumn(2, cbDelegate);
-    _fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    _fit_elements_table->setItemDelegateForColumn(3, cbDelegate);
+    _fit_elements_table->sortByColumn(0);
+    //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     _btn_fit_spectra = new QPushButton("Fit Spectra");
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
@@ -123,7 +123,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
             data_struct::xrf::Spectra fit_spec = _h5_model->fit_integrated_spectra(&out_fit_params, _elements_to_fit);
             _fit_params_table_model->updateFitParams(&out_fit_params);
-            _fit_elements_table_model->updateFitParams(&out_fit_params);
+            _fit_elements_table_model->updateElementValues(&out_fit_params);
             if(fit_spec.size() == _spectra_background.size())
             {
                 fit_spec += _spectra_background;
@@ -161,7 +161,7 @@ void FitSpectraWidget::Model_Spectra_Click()
 
             data_struct::xrf::Fit_Parameters fit_params;
             data_struct::xrf::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-            data_struct::xrf::Fit_Parameters element_fit_params = _fit_elements_table_model->getFitParams();
+            data_struct::xrf::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
             fit_params.append_and_update(&model_fit_params);
             fit_params.append_and_update(&element_fit_params);
 /*
@@ -179,7 +179,7 @@ void FitSpectraWidget::Model_Spectra_Click()
             data_struct::xrf::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
             _fit_params_table_model->updateFitParams(&fit_params);
-            _fit_elements_table_model->updateFitParams(&fit_params);
+            _fit_elements_table_model->updateElementValues(&fit_params);
 
             if(fit_spec.size() == _spectra_background.size())
             {
@@ -236,7 +236,7 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
         }
     }
 
-    _fit_elements_table_model->setFitParams(element_fit_params);
+    _fit_elements_table_model->updateFitElements(elements_to_fit);
 
     _fit_params_table_model->updateFitParams(fit_params);
 
