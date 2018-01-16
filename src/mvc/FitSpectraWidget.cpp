@@ -82,7 +82,7 @@ void FitSpectraWidget::createLayout()
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
  //   _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_elements_table->setItemDelegateForColumn(3, cbDelegate);
+    //_fit_elements_table->setItemDelegateForColumn(3, cbDelegate);
     _fit_elements_table->sortByColumn(0);
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 

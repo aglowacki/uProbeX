@@ -11,9 +11,23 @@
 FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractTableModel(parent)
 {
     // Initialize header data
-    m_headers[HEADERS::Z] = tr("Z");
-    m_headers[HEADERS::NAME] = tr("Name");
-    m_headers[HEADERS::VALUE] = tr("Value");
+    m_headers[HEADERS::SYMBOL] = tr("Symbol");
+   // m_headers[HEADERS::CENTER] = tr("Center");
+    //m_headers[HEADERS::WIDTH] = tr("Width");
+    //m_headers[HEADERS::WIDTH_MULTI] = tr("Width Multiplier");
+    m_headers[HEADERS::COUNTS] = tr("Counts");
+}
+
+FitElementsTableModel::~FitElementsTableModel()
+{
+
+    for(auto& itr : _nodes)
+    {
+        delete itr.second;
+    }
+    _nodes.clear();
+    _row_indicies.clear();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -50,10 +64,11 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 data_struct::xrf::Fit_Parameters FitElementsTableModel::getAsFitParams()
 {
     data_struct::xrf::Fit_Parameters fit_params;
-    for(auto& itr : _elements)
+    for(auto& itr : _nodes)
     {
-        data_struct::xrf::Fit_Element_Map *element = itr.second;
-        fit_params.add_parameter(element->full_name(), data_struct::xrf::Fit_Param(element->full_name(), 0.0001, data_struct::xrf::E_Bound_Type::FIT));
+        TreeItem* node = itr.second;
+        data_struct::xrf::Fit_Element_Map *element = node->element_data;
+        fit_params.add_parameter(element->full_name(), data_struct::xrf::Fit_Param(element->full_name(), node->itemData[1].toFloat(), data_struct::xrf::E_Bound_Type::FIT));
     }
     return fit_params;
 }
@@ -61,18 +76,24 @@ data_struct::xrf::Fit_Parameters FitElementsTableModel::getAsFitParams()
 void FitElementsTableModel::updateElementValues(data_struct::xrf::Fit_Parameters *fit_params)
 {
 
-    for(auto& itr : _elements)
+    for(auto& itr : _nodes)
     {
-        //if( fit_params->contains(itr.first) )
-
+        TreeItem* node = itr.second;
+        data_struct::xrf::Fit_Element_Map *element = node->element_data;
+        if(fit_params->contains(element->full_name()))
+        {
+            node->itemData[1] = QVariant(fit_params->at(element->full_name()).value);
+        }
     }
+
 }
 
 int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 {
     if(parent.isValid())
     {
-        return 1;
+        TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
+        return node->itemData.count();
     }
 
     return NUM_PROPS;
@@ -86,10 +107,11 @@ void FitElementsTableModel::updateFitElements(data_struct::xrf::Fit_Element_Map_
         _row_indicies.clear();
         for(auto& itr : *elements_to_fit)
         {
-            if(data_struct::xrf::Element_Info_Map::inst()->contains(itr.first))
+            data_struct::xrf::Fit_Element_Map* element = itr.second;
+            if(data_struct::xrf::Element_Info_Map::inst()->contains(element->symbol()))
             {
-                data_struct::xrf::Fit_Element_Map* element = itr.second;
-                _elements[element->Z()] = element;
+                _nodes[element->Z()] = new TreeItem();
+                _nodes[element->Z()]->set_root(element);
                 _row_indicies.push_back(element->Z());
             }
         }
@@ -131,6 +153,17 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    {
+        TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
+        if(node)
+        {
+            if(node->itemData.count() > index.column())
+                return node->itemData.at(index.column());
+        }
+    }
+
+    /*
     // Check valid index
     if (index.row() >= _row_indicies.size() || index.row() < 0)
     {
@@ -142,21 +175,26 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
     // Return values for display and edit roles
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-
-        int Z = _row_indicies[row];
-        data_struct::xrf::Fit_Element_Map *childItem = _elements.at(Z);
-        // Insert data
-        if (index.column() == HEADERS::Z) return QVariant(Z);
-        else if (index.column() == HEADERS::NAME) return QString(childItem->full_name().c_str());
-        //else if (index.column() == VALUE) return fitp.value;
-        //else if (index.column() == MIN_VAL) return fitp.min_val;
-        //else if (index.column() == MAX_VAL) return fitp.max_val;
-        //else if (index.column() == STEP_SIZE) return fitp.step_size;
-        //else if (index.column() == BOUND_TYPE) return fitp.bound_type; //QString(fitp.bound_type_str().c_str());
-        else return QVariant();
-
+        if(index.parent().isValid())
+        {
+            int Z = _row_indicies[index.parent().row()];
+            data_struct::xrf::Fit_Element_Map *parentItem = _nodes.at(Z)->element_data;
+            return QVariant(parentItem->energy_ratios().at(index.column()).energy );
+        }
+        else
+        {
+            int Z = _row_indicies[row];
+            data_struct::xrf::Fit_Element_Map *childItem = _nodes.at(Z)->element_data;
+            // Insert data
+            if (index.column() == HEADERS::SYMBOL) return QString(childItem->full_name().c_str());
+            else if (index.column() == HEADERS::CENTER) return QVariant(childItem->center());
+            else if (index.column() == HEADERS::WIDTH) return QVariant(childItem->width());
+            else if (index.column() == HEADERS::WIDTH_MULTI) return QVariant(childItem->width_multi());
+            else if (index.column() == HEADERS::COUNTS) return QVariant(-10.0);
+            else return QVariant();
+        }
     }
-
+*/
 
     // Return empty data
     return QVariant();
@@ -173,15 +211,19 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
     {
         return Qt::ItemIsSelectable;
     }
-
-    if (index.column() > 1)
+/*
+    if(index.parent().isValid())
     {
         return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
-    else
+
+    if (index.column() >= WIDTH_MULTI)
     {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
+  */
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
 
 }
 
@@ -231,7 +273,11 @@ int FitElementsTableModel::rowCount(const QModelIndex &parent) const
 {
 
     // Mark unused
-    Q_UNUSED(parent);
+    if(parent.isValid())
+    {
+        TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
+        return node->childItems.count();
+    }
 
     // Return number of rows
     return _row_indicies.size();
@@ -248,15 +294,21 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
     if (!parent.isValid())
     {
         int Z = _row_indicies[row];
-        data_struct::xrf::Fit_Element_Map *childItem = _elements.at(Z);
+        TreeItem *childItem = _nodes.at(Z);
         return createIndex(row, column, childItem);
     }
-    /*
     else
     {
-        data_struct::xrf::Fit_Element_Map *childItem = static_cast<data_struct::xrf::Fit_Element_Map *>(parent);
+        TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
+        if(node && node->childItems.count() > row)
+        {
+            TreeItem* childNode = node->childItems.at(row);
+            if(childNode)
+            {
+                return createIndex(row, column, childNode);
+            }
+        }
     }
-    */
 
     return QModelIndex();
 }
@@ -267,17 +319,13 @@ data_struct::xrf::Fit_Element_Map* FitElementsTableModel::getElementByIndex(QMod
 {
     if (index.isValid())
     {
-        QModelIndex parent = index.parent();
-        if (parent.isValid() )
+        TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+        while(childItem->parentItem != nullptr)
         {
-            int Z = _row_indicies[parent.row()];
-            return _elements.at(Z);
+            childItem = childItem->parentItem;
+
         }
-        else
-        {
-            int Z = _row_indicies[index.row()];
-            return _elements.at(Z);
-        }
+        return childItem->element_data;
     }
     return nullptr;
 }
@@ -289,13 +337,14 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    //TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
-    //TreeItem *parentItem = childItem->parentItem();
 
-    //if (parentItem == rootItem)
+    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    TreeItem *parentItem = childItem->parentItem;
+
+    if (parentItem == nullptr)
         return QModelIndex();
 
-    //return createIndex(parentItem->row(), 0, parentItem);
+    return createIndex(parentItem->childNumber(), 0, parentItem);
 }
 
 /*---------------------------------------------------------------------------*/
