@@ -63,6 +63,11 @@ void FitSpectraWidget::createLayout()
 
     _spectra_widget = new SpectraWidget();
 
+    connect(this,
+            SIGNAL(vertical_element_line_changed(qreal,QString)),
+            _spectra_widget,
+            SLOT(set_vertical_line(qreal,QString)));
+
     _fit_params_tab_widget = new QTabWidget();
 
     fitting::models::Gaussian_Model g_model;
@@ -342,6 +347,8 @@ void FitSpectraWidget::element_clicked(QModelIndex index)
         int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
         int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
         int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+
+        //emit(vertical_element_line_changed(x_val, name));
         _spectra_widget->set_vertical_line(x_val, name);
     }
 }

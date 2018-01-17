@@ -58,6 +58,8 @@ signals:
 
    void signal_finished_fit();
 
+   void vertical_element_line_changed(qreal, QString);
+
 public slots:
 
    void Fit_Spectra_Click();

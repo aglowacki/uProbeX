@@ -65,6 +65,7 @@ void SpectraWidget::createLayout()
     _axisX->setTitleText("Energy");
     _axisX->setLabelFormat("%i");
     //_axisX->setTickCount(series->count());
+    //_axisX->setRange(0, 2048);
     _axisX->setTickCount(20);
 
     _axisY = new QtCharts::QValueAxis();
@@ -85,10 +86,7 @@ void SpectraWidget::createLayout()
         _chart->addAxis(_axisY, Qt::AlignLeft);
     }
 
-
-    _line_series.append(-1.0, 0.001);
-    _line_series.append(-1.0, 100000.0);
-    _chart->addSeries(&_line_series);
+    _line_series = nullptr;
 
     _chartView = new QtCharts::QChartView(_chart);
     _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
@@ -118,17 +116,23 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
     series->setName(name);
     for(unsigned int i =0; i < spectra->size(); i++)
     {
+
         float val = (*spectra)[i];
-        if(std::isnan(val) || std::isinf(val) || val <= 0.0)
+        bool isFine = std::isfinite(val);
+        if (false == isFine)
         {
-            val = 0.0001f;
+            val = 0.1;
+        }
+        if(val < 0.0f)
+        {
+            val = 0.1;
         }
         series->append(i, val);
-
     }
     _chart->addSeries(series);
     series->attachAxis(_axisX);
-    _axisYLog10->setRange(1.0, _max_log_range);
+    //_axisYLog10->setRange(1.0, _max_log_range);
+    //_axisY->setRange(0.0, new_max);
 
     if(_display_log10)
         series->attachAxis(_axisYLog10);
@@ -141,25 +145,34 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::set_vertical_line(int center, QString label)
+void SpectraWidget::set_vertical_line(qreal center, QString label)
 {
-    _chart->removeSeries(&_line_series);
-    _line_series.detachAxis(_axisYLog10);
-    _line_series.detachAxis(_axisY);
+    if(_line_series == nullptr)
+    {
+        _line_series = new QtCharts::QLineSeries();
+        _line_series->append(center, 0.1f);
+        _line_series->append(center, 100000.0f);
 
-    _line_series.clear();
-    _line_series.append(center, 0.001);
-    _line_series.append(center, 100000.0);
-    _line_series.setName(label);
+        _chart->addSeries(_line_series);
 
-    _chart->addSeries(&_line_series);
+        _line_series->attachAxis(_axisX);
 
-    if(_display_log10)
-        _line_series.attachAxis(_axisYLog10);
+        if(_display_log10)
+            _line_series->attachAxis(_axisYLog10);
+        else
+            _line_series->attachAxis(_axisY);
+
+        _line_series->setName(label);
+        emit trigger_connect_markers();
+    }
     else
-        _line_series.attachAxis(_axisY);
+    {
+        _line_series->replace(0, center, 0.1f);
+        _line_series->replace(1, center, 100000.0f);
+        _line_series->setName(label);
+    }
 
-    emit trigger_connect_markers();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -194,45 +207,40 @@ void SpectraWidget::_check_log10()
 
     if(_display_log10)
     {
-        _chart->removeAxis(_axisYLog10);
-        _chart->addAxis(_axisY, Qt::AlignLeft);
         QList<QtCharts::QAbstractSeries*> series = _chart->series();
         for(QtCharts::QAbstractSeries* ser : series)
         {
             ser->detachAxis(_axisYLog10);
+            //ser->attachAxis(_axisY);
+        }
+        _chart->removeAxis(_axisYLog10);
+        _chart->addAxis(_axisY, Qt::AlignLeft);
+        for(QtCharts::QAbstractSeries* ser : series)
+        {
+
             ser->attachAxis(_axisY);
         }
     }
     else
     {
-        _chart->removeAxis(_axisY);
-        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+
         QList<QtCharts::QAbstractSeries*> series = _chart->series();
         for(QtCharts::QAbstractSeries* ser : series)
         {
             ser->detachAxis(_axisY);
+            //ser->attachAxis(_axisYLog10);
+        }
+        _chart->removeAxis(_axisY);
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+        for(QtCharts::QAbstractSeries* ser : series)
+        {
             ser->attachAxis(_axisYLog10);
         }
 
     }
 
-
-    /*
-    for(auto& itr : _spectra_map)
-    {
-        if(_display_log10)
-        {
-            itr.second = std::pow(10.0f, itr.second);
-        }
-        else
-        {
-            itr.second = std::log10(itr.second);
-        }
-    }
-*/
     _display_log10 = !_display_log10;
     _action_check_log10->setChecked(_display_log10);
- //   _update_series();
 
 }
 
@@ -336,9 +344,9 @@ void SpectraWidget::keyPressEvent(QKeyEvent *event)
         _chart->scroll(0, -10);
         break;
     case Qt::Key_R:
-        _chart->resetMatrix();
-        _chart->resetTransform();
-        //_chart->zoomReset();
+        //_chart->resetMatrix();
+        //_chart->resetTransform();
+        _chart->zoomReset();
 
         break;
     default:
