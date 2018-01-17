@@ -86,6 +86,10 @@ void SpectraWidget::createLayout()
     }
 
 
+    _line_series.append(-1.0, 0.001);
+    _line_series.append(-1.0, 100000.0);
+    _chart->addSeries(&_line_series);
+
     _chartView = new QtCharts::QChartView(_chart);
     _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
     //_chartView->setRenderHint(QPainter::Antialiasing);
@@ -131,6 +135,29 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
     else
         series->attachAxis(_axisY);
 
+
+    emit trigger_connect_markers();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::set_vertical_line(int center, QString label)
+{
+    _chart->removeSeries(&_line_series);
+    _line_series.detachAxis(_axisYLog10);
+    _line_series.detachAxis(_axisY);
+
+    _line_series.clear();
+    _line_series.append(center, 0.001);
+    _line_series.append(center, 100000.0);
+    _line_series.setName(label);
+
+    _chart->addSeries(&_line_series);
+
+    if(_display_log10)
+        _line_series.attachAxis(_axisYLog10);
+    else
+        _line_series.attachAxis(_axisY);
 
     emit trigger_connect_markers();
 }
@@ -310,6 +337,9 @@ void SpectraWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_R:
         _chart->resetMatrix();
+        _chart->resetTransform();
+        //_chart->zoomReset();
+
         break;
     default:
         QWidget::keyPressEvent(event);

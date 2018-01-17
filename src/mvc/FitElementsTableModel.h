@@ -130,10 +130,11 @@ private:
    class TreeItem
    {
    public:
-       explicit TreeItem(TreeItem *parent = nullptr)
+       explicit TreeItem(TreeItem *parent = nullptr, bool editable = false)
        {
            element_data = nullptr;
            parentItem = parent;
+           props_editable = editable;
        }
        ~TreeItem()
        {
@@ -165,7 +166,7 @@ private:
            child->itemData.push_back(QVariant(element->width()));
            childItems.append(child);
 
-           child = new TreeItem(this);
+           child = new TreeItem(this, true);
            child->itemData.push_back(QVariant("Width Multiplier"));
            child->itemData.push_back(QVariant(element->width_multi()));
            childItems.append(child);
@@ -173,7 +174,7 @@ private:
            std::vector<float> multi_vec = element->energy_ratio_multipliers();
            for(auto& itr : element->energy_ratios())
            {
-               child = new TreeItem(this);
+               child = new TreeItem(this, true);
                 switch(itr.ptype)
                 {
                     case  data_struct::xrf::Element_Param_Type::Ka_Line:
@@ -263,7 +264,7 @@ private:
        QList<TreeItem*> childItems;
        QVector<QVariant> itemData;
        TreeItem *parentItem;
-
+       bool props_editable;
    };
 
 

@@ -335,7 +335,14 @@ void FitSpectraWidget::element_clicked(QModelIndex index)
     data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(index);
     if(element != nullptr)
     {
-        int center = element->center();
+        QString name = QString(element->full_name().c_str());
+        float energy_offset = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_OFFSET);
+        float energy_slope = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_SLOPE);
+        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+        _spectra_widget->set_vertical_line(x_val, name);
     }
 }
 

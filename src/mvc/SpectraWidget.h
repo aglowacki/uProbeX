@@ -43,6 +43,7 @@ public:
 
     void append_spectra(QString name, data_struct::xrf::Spectra* spectra);
 
+    void set_vertical_line(int x_center, QString label="Element");
     //void remove_spectra(QString name);
 
 signals:
@@ -83,6 +84,8 @@ protected:
     QtCharts::QChart *_chart;
 
     QtCharts::QChartView *_chartView;
+
+    QtCharts::QLineSeries _line_series;
 
 private slots:
 

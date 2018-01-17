@@ -18,6 +18,8 @@ FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractTableMo
     m_headers[HEADERS::COUNTS] = tr("Counts");
 }
 
+/*---------------------------------------------------------------------------*/
+
 FitElementsTableModel::~FitElementsTableModel()
 {
 
@@ -61,6 +63,8 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 }
 */
 
+/*---------------------------------------------------------------------------*/
+
 data_struct::xrf::Fit_Parameters FitElementsTableModel::getAsFitParams()
 {
     data_struct::xrf::Fit_Parameters fit_params;
@@ -72,6 +76,8 @@ data_struct::xrf::Fit_Parameters FitElementsTableModel::getAsFitParams()
     }
     return fit_params;
 }
+
+/*---------------------------------------------------------------------------*/
 
 void FitElementsTableModel::updateElementValues(data_struct::xrf::Fit_Parameters *fit_params)
 {
@@ -88,6 +94,8 @@ void FitElementsTableModel::updateElementValues(data_struct::xrf::Fit_Parameters
 
 }
 
+/*---------------------------------------------------------------------------*/
+
 int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 {
     if(parent.isValid())
@@ -98,6 +106,8 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 
     return NUM_PROPS;
 }
+
+/*---------------------------------------------------------------------------*/
 
 void FitElementsTableModel::updateFitElements(data_struct::xrf::Fit_Element_Map_Dict * elements_to_fit)
 {
@@ -211,20 +221,20 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
     {
         return Qt::ItemIsSelectable;
     }
-/*
-    if(index.parent().isValid())
+
+    TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
+    if(node->parentItem == nullptr)
     {
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+        if(index.column() == NUM_PROPS-1)
+            return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+    }
+    else
+    {
+        if(index.column() > 0 && node->props_editable)
+            return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
 
-    if (index.column() >= WIDTH_MULTI)
-    {
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
-    }
-  */
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -364,11 +374,27 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
         return false;
     }
 
-    // Get column and row
-    int column = index.column();
-    int row = index.row();
-    int Z = _row_indicies[row];
+    TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
+    if(node->parentItem == nullptr)
+    {
+        if(index.column() == HEADERS::COUNTS)
+        {
+            node->itemData[1] = value;
+            return true;
+        }
+    }
+    else
+    {
+        if(index.column() > 0 && node->props_editable)
+        {
+            if(node->itemData.count() > index.column())
+            {
+                node->itemData[index.column()] = value;
+                return true;
+            }
+        }
 
+    }
 /*
     bool ok = false;
     double dval = value.toFloat(&ok);

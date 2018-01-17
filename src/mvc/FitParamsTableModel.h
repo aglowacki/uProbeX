@@ -55,6 +55,9 @@ public:
 
    data_struct::xrf::Fit_Parameters getFitParams() { return _fit_parameters; }
 
+   float getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
+
+
    /**
     * @brief Clear all
     */
