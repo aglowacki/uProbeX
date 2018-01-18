@@ -72,9 +72,11 @@ public slots:
 
    void optimizer_changed(QString val);
 
-   void element_clicked(QModelIndex index);
+//   void element_clicked(QModelIndex index);
 
    void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
+
+   void element_selection_changed(QModelIndex,QModelIndex);
 
 protected:
 

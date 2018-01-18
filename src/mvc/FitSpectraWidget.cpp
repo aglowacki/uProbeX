@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QGridLayout>
+#include <QItemSelectionModel>
 #include <QDebug>
 
 #include <math.h>
@@ -63,11 +64,6 @@ void FitSpectraWidget::createLayout()
 
     _spectra_widget = new SpectraWidget();
 
-    connect(this,
-            SIGNAL(vertical_element_line_changed(qreal,QString)),
-            _spectra_widget,
-            SLOT(set_vertical_line(qreal,QString)));
-
     _fit_params_tab_widget = new QTabWidget();
 
     fitting::models::Gaussian_Model g_model;
@@ -86,21 +82,19 @@ void FitSpectraWidget::createLayout()
 
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
- //   _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
-    //_fit_elements_table->setItemDelegateForColumn(3, cbDelegate);
     _fit_elements_table->sortByColumn(0);
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    connect(_fit_elements_table,
-            SIGNAL(clicked(QModelIndex)),
+    QItemSelectionModel* mod = _fit_elements_table->selectionModel();
+    connect(mod,
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,
-            SLOT(element_clicked(QModelIndex)));
+            SLOT(element_selection_changed(QModelIndex,QModelIndex)));
 
     _btn_fit_spectra = new QPushButton("Fit Spectra");
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
 
     _btn_model_spectra = new QPushButton("Model Spectra");
-    //_btn_model_spectra->setEnabled(false);
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
     _fit_params_tab_widget->addTab(_fit_params_table, "Fit Parameters");
@@ -128,15 +122,6 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_chk_auto_model, 1, 0);
     grid_layout->addWidget(_btn_model_spectra, 1, 1);
 
-    //QLayout* button_layout = new QHBoxLayout();
-    //button_layout->addWidget(_btn_fit_spectra);
-    //button_layout->addWidget(_btn_model_spectra);
-/*
-    connect(_fit_params_table_model,
-            SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-            this,
-            SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-*/
     QLayout* layout = new QVBoxLayout();
     layout->addWidget(_spectra_widget);
     layout->addWidget(_fit_params_tab_widget);
@@ -150,7 +135,6 @@ void FitSpectraWidget::Fit_Spectra_Click()
 {
     _btn_fit_spectra->setEnabled(false);
     _btn_model_spectra->setEnabled(false);
-    _spectra_widget->remove_spectra("Fit Spectra");
     if(_fit_thread != nullptr)
     {
         _fit_thread->join();
@@ -208,7 +192,14 @@ void FitSpectraWidget::Fit_Spectra_Click()
                        this,
                        SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
 
+            disconnect(_fit_elements_table_model,
+                       SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                       this,
+                       SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
             _fit_params_table_model->updateFitParams(&out_fit_params);
+
+            _fit_elements_table_model->updateElementValues(&out_fit_params);
 
             if(_chk_auto_model->checkState() == Qt::Checked)
             {
@@ -216,9 +207,11 @@ void FitSpectraWidget::Fit_Spectra_Click()
                         SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                         this,
                         SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+                connect(_fit_elements_table_model,
+                        SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                        this,
+                        SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
             }
-
-            _fit_elements_table_model->updateElementValues(&out_fit_params);
 
             if(fit_spec.size() == _spectra_background.size())
             {
@@ -248,7 +241,6 @@ void FitSpectraWidget::Model_Spectra_Click()
 {
     _btn_fit_spectra->setEnabled(false);
     _btn_model_spectra->setEnabled(false);
-    _spectra_widget->remove_spectra("Model Spectra");
     if(_fit_thread != nullptr)
     {
         _fit_thread->join();
@@ -322,6 +314,11 @@ void FitSpectraWidget::check_auto_model(int state)
                 SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                 this,
                 SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+        connect(_fit_elements_table_model,
+                SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                this,
+                SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
     }
     else
     {
@@ -330,14 +327,39 @@ void FitSpectraWidget::check_auto_model(int state)
                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                    this,
                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+        disconnect(_fit_elements_table_model,
+                   SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                   this,
+                   SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::element_clicked(QModelIndex index)
+//void FitSpectraWidget::element_clicked(QModelIndex index)
+//{
+//    data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(index);
+//    if(element != nullptr)
+//    {
+//        QString name = QString(element->full_name().c_str());
+//        float energy_offset = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_OFFSET);
+//        float energy_slope = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_SLOPE);
+//        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+
+//        //emit(vertical_element_line_changed(x_val, name));
+//        _spectra_widget->set_vertical_line(x_val, name);
+//    }
+//}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::element_selection_changed(QModelIndex current, QModelIndex previous)
 {
-    data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(index);
+    data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(current);
     if(element != nullptr)
     {
         QString name = QString(element->full_name().c_str());

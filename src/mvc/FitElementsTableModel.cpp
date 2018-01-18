@@ -101,7 +101,12 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
     if(parent.isValid())
     {
         TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
-        return node->itemData.count();
+        if(node->childItems.count() > 0)
+        {
+            return node->childItems[0]->itemData.count();
+        }
+        else
+            return node->itemData.count();
     }
 
     return NUM_PROPS;
@@ -380,7 +385,6 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
         if(index.column() == HEADERS::COUNTS)
         {
             node->itemData[1] = value;
-            return true;
         }
     }
     else
@@ -390,55 +394,13 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
             if(node->itemData.count() > index.column())
             {
                 node->itemData[index.column()] = value;
-                return true;
             }
         }
 
     }
-/*
-    bool ok = false;
-    double dval = value.toFloat(&ok);
-
-    if (column == VALUE)
-    {
-        if(ok)
-           _fit_parameters[fitp_name].value = dval;
-        else
-            return false;
-    }
-    else if (column == MIN_VAL)
-    {
-        if(ok)
-           _fit_parameters[fitp_name].min_val = dval;
-        else
-            return false;
-    }
-    else if (column == MAX_VAL)
-    {
-        if(ok)
-           _fit_parameters[fitp_name].max_val = dval;
-        else
-            return false;
-    }
-    else if (column == STEP_SIZE)
-    {
-        if(ok)
-           _fit_parameters[fitp_name].step_size = dval;
-        else
-            return false;
-    }
-    else if (column == BOUND_TYPE)
-    {
-        _fit_parameters[fitp_name].bound_type = (data_struct::xrf::E_Bound_Type)value.toInt();
-    }
-    else
-    {
-        return false;
-    }
-
     // Emit dataChanged signal
     emit(dataChanged(index, index));
-*/
+
     // Return true
     return true;
 
