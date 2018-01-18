@@ -29,20 +29,19 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     createLayout();
 
     connect(this, SIGNAL(signal_finished_fit()), this, SLOT(finished_fitting()));
-/*
-    _action_check_log10 = new QAction("Toggle Log10", this);
-    _action_check_log10->setCheckable(true);
-    _action_check_log10->setChecked(_display_log10);
-    connect(_action_check_log10, SIGNAL(triggered()), this, SLOT(_check_log10()));
 
-    _contextMenu = new QMenu(("Context menu"), this);
-    _contextMenu->addAction(_action_check_log10);
 
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    _set_fit_params_bounds_menu = new QMenu("Set Bounds");
+    QAction* action_bounds = _set_fit_params_bounds_menu->addAction("FIXED");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_fixed(bool)));
 
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
-            */
+    action_bounds = _set_fit_params_bounds_menu->addAction("FIT");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_fit(bool)));
+
+ //FIXED=1, LIMITED_LO_HI=2, LIMITED_LO=3, LIMITED_HI=4, FIT=5};
+    _fit_param_contextMenu = new QMenu(("Context menu"), this);
+    _fit_param_contextMenu->addMenu(_set_fit_params_bounds_menu);
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -77,6 +76,11 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_fit_params_table,
+            SIGNAL(customContextMenuRequested(QPoint)),
+            this,
+            SLOT(fit_params_customMenuRequested(QPoint)));
 
     _fit_elements_table_model = new FitElementsTableModel();
 
@@ -301,6 +305,24 @@ void FitSpectraWidget::finished_fitting()
         _btn_model_spectra->setEnabled(false);
     else
         _btn_model_spectra->setEnabled(true);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::fit_params_customMenuRequested(QPoint pos)
+{
+    _fit_param_contextMenu->exec(_fit_params_table->mapToGlobal(pos));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::set_fit_params_bounds(data_struct::xrf::E_Bound_Type e_type)
+{
+    QModelIndexList selected_rows = _fit_params_table->selectionModel()->selectedIndexes();
+    for(QModelIndex index : selected_rows)
+    {
+        _fit_params_table_model->setDataFitBounds(index, e_type);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

@@ -164,14 +164,16 @@ private:
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Width"));
            child->itemData.push_back(QVariant(element->width()));
-           childItems.append(child);
-
-           child = new TreeItem(this, true);
-           child->itemData.push_back(QVariant("Width Multiplier"));
            child->itemData.push_back(QVariant(element->width_multi()));
            childItems.append(child);
 
+           //child = new TreeItem(this, true);
+           //child->itemData.push_back(QVariant("Width Multiplier"));
+           //child->itemData.push_back(QVariant(element->width_multi()));
+           //childItems.append(child);
+
            std::vector<float> multi_vec = element->energy_ratio_multipliers();
+           int i =0;
            for(auto& itr : element->energy_ratios())
            {
                child = new TreeItem(this, true);
@@ -191,15 +193,17 @@ private:
                     break;
                 }
                 child->itemData.push_back(QVariant(itr.energy));
-                child->itemData.push_back(QVariant(itr.mu_fraction));
-                child->itemData.push_back(QVariant(itr.ratio));
+                child->itemData.push_back(QVariant(multi_vec[i]));
+                //child->itemData.push_back(QVariant(itr.mu_fraction));
+                //child->itemData.push_back(QVariant(itr.ratio));
                 childItems.append(child);
+                i++;
            }
        }
-       TreeItem *child(int number){ return childItems.value(number); }
+//       TreeItem *child(int number){ return childItems.value(number); }
 //       int childCount() const {return childItems.count();}
 //       int columnCount() const {return itemData.count();}
-       QVariant data(int column) const{return itemData.value(column);}
+//       QVariant data(int column) const{return itemData.value(column);}
 //       bool insertChildren(int position, int count, int columns)
 //       {
 //           if (position < 0 || position > childItems.size())

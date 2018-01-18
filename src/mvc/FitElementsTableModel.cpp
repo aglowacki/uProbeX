@@ -100,16 +100,10 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 {
     if(parent.isValid())
     {
-        TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
-        if(node->childItems.count() > 0)
-        {
-            return node->childItems[0]->itemData.count();
-        }
-        else
-            return node->itemData.count();
+        return static_cast<TreeItem*>(parent.internalPointer())->itemData.count();
     }
 
-    return NUM_PROPS;
+    return NUM_PROPS+1;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -359,7 +353,8 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
     if (parentItem == nullptr)
         return QModelIndex();
 
-    return createIndex(parentItem->childNumber(), 0, parentItem);
+    int row = childItem->childNumber();
+    return createIndex(row, 0, parentItem);
 }
 
 /*---------------------------------------------------------------------------*/

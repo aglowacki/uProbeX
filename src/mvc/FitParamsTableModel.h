@@ -112,6 +112,9 @@ public:
                 const QVariant &value,
                 int role = Qt::EditRole);
 
+   bool setDataFitBounds(const QModelIndex &index,
+                         const QVariant &value);
+
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */

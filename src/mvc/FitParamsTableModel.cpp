@@ -208,6 +208,29 @@ int FitParamsTableModel::rowCount(const QModelIndex &parent) const
 
 /*---------------------------------------------------------------------------*/
 
+bool FitParamsTableModel::setDataFitBounds(const QModelIndex &index,
+                                           const QVariant &value)
+{
+    // Check for valid index
+    if (index.isValid() == false)
+    {
+        return false;
+    }
+
+    int row = index.row();
+    std::string fitp_name = _row_indicies[row];
+
+    _fit_parameters[fitp_name].bound_type = (data_struct::xrf::E_Bound_Type)value.toInt();
+
+    // Emit dataChanged signal
+    emit(dataChanged(index, index));
+
+    // Return true
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool FitParamsTableModel::setData(const QModelIndex &index,
                                   const QVariant &value,
                                   int role)

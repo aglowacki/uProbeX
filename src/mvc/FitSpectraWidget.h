@@ -25,6 +25,7 @@
 #include <QCheckBox>
 #include "data_struct/xrf/spectra.h"
 #include "data_struct/xrf/fit_element_map.h"
+#include "data_struct/xrf/fit_parameters.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -101,6 +102,14 @@ protected:
 
 private slots:
 
+   void fit_params_customMenuRequested(QPoint);
+
+   void set_fit_params_bounds_fixed(bool v) {set_fit_params_bounds(data_struct::xrf::E_Bound_Type::FIXED);}
+
+   void set_fit_params_bounds_fit(bool v) {set_fit_params_bounds(data_struct::xrf::E_Bound_Type::FIT);}
+
+   void set_fit_params_bounds(data_struct::xrf::E_Bound_Type e_type);
+
 private:
 
     QCheckBox *_chk_auto_model;
@@ -115,11 +124,11 @@ private:
 
    QPushButton* _btn_model_spectra;
 
-   //QAction *_action_check_log10;
-
    data_struct::xrf::Spectra _spectra_background;
 
-   //QMenu *_contextMenu;
+   QMenu *_fit_param_contextMenu;
+
+   QMenu *_set_fit_params_bounds_menu;
 };
 
 
