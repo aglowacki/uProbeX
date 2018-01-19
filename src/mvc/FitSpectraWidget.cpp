@@ -144,7 +144,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
         _fit_thread->join();
         delete _fit_thread;
     }
-    _fit_thread = new std::thread( [this]()
+    //_fit_thread = new std::thread( [this]()
     {
 
         if(_elements_to_fit != nullptr)
@@ -189,8 +189,6 @@ void FitSpectraWidget::Fit_Spectra_Click()
             out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
             //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
 
-            data_struct::xrf::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
-
             disconnect(_fit_params_table_model,
                        SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                        this,
@@ -215,7 +213,25 @@ void FitSpectraWidget::Fit_Spectra_Click()
                         SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                         this,
                         SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+                Model_Spectra_Click();
             }
+
+            _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
+                                                 out_fit_params.at(fitting::models::STR_ENERGY_OFFSET).value,
+                                                 out_fit_params.at(fitting::models::STR_ENERGY_SLOPE).value,
+                                                 out_fit_params.at(fitting::models::STR_ENERGY_QUADRATIC).value,
+                                                 0, //spectral binning
+                                                 out_fit_params.at(STR_SNIP_WIDTH).value,
+                                                 0, //spectra energy start range
+                                                 _h5_model->getIntegratedSpectra()->rows());
+
+            data_struct::xrf::ArrayXr energy = data_struct::xrf::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+            data_struct::xrf::ArrayXr ev = out_fit_params.at(fitting::models::STR_ENERGY_OFFSET).value + energy * out_fit_params.at(fitting::models::STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * out_fit_params.at(fitting::models::STR_ENERGY_QUADRATIC).value;
+
+            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::xrf::Spectra*)&ev);
+
+            data_struct::xrf::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
 
             if(fit_spec.size() == _spectra_background.size())
             {
@@ -226,10 +242,12 @@ void FitSpectraWidget::Fit_Spectra_Click()
              if(fit_spec[i] <= 0.0)
                  fit_spec[i] = 0.1;
             }
-            _spectra_widget->append_spectra("Fit Spectra", &fit_spec);
+
+            _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::xrf::Spectra*)&ev);
         }
         emit signal_finished_fit();
-    });
+    }
+    //);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -250,7 +268,7 @@ void FitSpectraWidget::Model_Spectra_Click()
         _fit_thread->join();
         delete _fit_thread;
     }
-    _fit_thread = new std::thread( [this]()
+//    _fit_thread = new std::thread( [this]()
     {
 
         if(_elements_to_fit != nullptr)
@@ -278,6 +296,21 @@ void FitSpectraWidget::Model_Spectra_Click()
             data_struct::xrf::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
 
+            _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
+                                                 fit_params.at(fitting::models::STR_ENERGY_OFFSET).value,
+                                                 fit_params.at(fitting::models::STR_ENERGY_SLOPE).value,
+                                                 fit_params.at(fitting::models::STR_ENERGY_QUADRATIC).value,
+                                                 0, //spectral binning
+                                                 fit_params.at(STR_SNIP_WIDTH).value,
+                                                 0, //spectra energy start range
+                                                 _h5_model->getIntegratedSpectra()->size());
+
+            data_struct::xrf::ArrayXr energy = data_struct::xrf::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+            data_struct::xrf::ArrayXr ev = fit_params.at(fitting::models::STR_ENERGY_OFFSET).value + energy * fit_params.at(fitting::models::STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(fitting::models::STR_ENERGY_QUADRATIC).value;
+
+            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::xrf::Spectra*)&ev);
+
+
 //            _fit_params_table_model->updateFitParams(&fit_params);
 //            _fit_elements_table_model->updateElementValues(&fit_params);
 
@@ -290,10 +323,11 @@ void FitSpectraWidget::Model_Spectra_Click()
              if(fit_spec[i] <= 0.0)
                  fit_spec[i] = 0.1;
             }
-            _spectra_widget->append_spectra("Model Spectra", &fit_spec);
+            _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::xrf::Spectra*)&ev);
         }
         emit signal_finished_fit();
-    });
+    }
+    //);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -381,20 +415,21 @@ void FitSpectraWidget::check_auto_model(int state)
 
 void FitSpectraWidget::element_selection_changed(QModelIndex current, QModelIndex previous)
 {
-    data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(current);
-    if(element != nullptr)
-    {
-        QString name = QString(element->full_name().c_str());
-        float energy_offset = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_OFFSET);
-        float energy_slope = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_SLOPE);
-        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+    _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
 
-        //emit(vertical_element_line_changed(x_val, name));
-        _spectra_widget->set_vertical_line(x_val, name);
-    }
+//    data_struct::xrf::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(current);
+//    if(element != nullptr)
+//    {
+//        QString name = QString(element->full_name().c_str());
+//        float energy_offset = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_OFFSET);
+//        float energy_slope = _fit_params_table_model->getFitParamValue(fitting::models::STR_ENERGY_SLOPE);
+//        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
+//        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+
+//        _spectra_widget->set_vertical_line(x_val, name);
+//    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -448,7 +483,15 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
 
     if(_h5_model != nullptr)
     {
-        _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra());
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = _h5_model->getIntegratedSpectra()->size() -1;
+
+        data_struct::xrf::ArrayXr energy = data_struct::xrf::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+        data_struct::xrf::ArrayXr ev = fit_params->at(fitting::models::STR_ENERGY_OFFSET).value + energy * fit_params->at(fitting::models::STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(fitting::models::STR_ENERGY_QUADRATIC).value;
+
+
+        _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::xrf::Spectra*)&ev);
         if(fit_params != nullptr)
         {
             _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
@@ -460,7 +503,7 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
                                                  0, //spectra energy start range
                                                  _h5_model->getIntegratedSpectra()->size());
 
-            _spectra_widget->append_spectra("Background", &_spectra_background);
+            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::xrf::Spectra*)&ev);
         }
     }
 }

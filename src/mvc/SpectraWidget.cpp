@@ -62,8 +62,8 @@ void SpectraWidget::createLayout()
 
 
     _axisX = new QtCharts::QValueAxis();
-    _axisX->setTitleText("Energy");
-    _axisX->setLabelFormat("%i");
+    _axisX->setTitleText("Energy (keV)");
+    _axisX->setLabelFormat("%.3f");
     //_axisX->setTickCount(series->count());
     //_axisX->setRange(0, 2048);
     _axisX->setTickCount(20);
@@ -99,7 +99,7 @@ void SpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spectra)
+void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spectra, data_struct::xrf::Spectra *energy)
 {
     if (spectra == nullptr)
         return;
@@ -136,7 +136,14 @@ void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spec
             {
                 val = 1.0;
             }
-            series->append(i, val);
+            if(energy !=nullptr)
+            {
+                series->append((*energy)[i], val);
+            }
+            else
+            {
+                series->append(i, val);
+            }
         }
         _chart->addSeries(series);
         series->attachAxis(_axisX);
@@ -204,6 +211,66 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 
 /*---------------------------------------------------------------------------*/
 
+void SpectraWidget::set_element_lines(data_struct::xrf::Fit_Element_Map * element)
+{
+    if(element != nullptr)
+    {
+        for(QtCharts::QLineSeries* itr : _element_lines)
+        {
+           itr->detachAxis(_axisX);
+           itr->detachAxis(_axisY);
+           _chart->removeSeries(itr);
+           delete itr;
+        }
+        _element_lines.clear();
+
+        const std::vector<data_struct::xrf::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
+
+        int ka_cnt = 0;
+        int kb_cnt = 0;
+        int l_cnt = 0;
+        int m_cnt = 0;
+
+        for(auto& itr : energy_ratios)
+        {
+            QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
+            line->append(itr.energy, 1.0f);
+            line->append(itr.energy, 10000.0f);
+            QString eName = QString(element->full_name().c_str());
+            switch(itr.ptype)
+            {
+                case data_struct::xrf::Element_Param_Type::Ka_Line:
+                ka_cnt ++;
+                eName += " Ka"+QString::number(ka_cnt);
+                break;
+
+                case data_struct::xrf::Element_Param_Type::Kb_Line:
+                kb_cnt ++;
+                eName += " Kb"+QString::number(kb_cnt);
+                break;
+
+                case data_struct::xrf::Element_Param_Type::L_Line:
+                l_cnt ++;
+                eName += " L"+QString::number(l_cnt);
+                break;
+
+                case data_struct::xrf::Element_Param_Type::M_Line:
+                m_cnt ++;
+                eName += " L"+QString::number(m_cnt);
+                break;
+            }
+            line->setName(eName);
+            _chart->addSeries(line);
+            line->attachAxis(_axisX);
+            line->attachAxis(_axisY);
+            _element_lines.push_back(line);
+        }
+        emit trigger_connect_markers();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::remove_spectra(QString name)
 {
 
@@ -232,47 +299,40 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 void SpectraWidget::_check_log10()
 {
 
+    QList<QtCharts::QAbstractSeries*> series = _chart->series();
+
+    for(QtCharts::QAbstractSeries* ser : _element_lines)
+    {
+        series.removeOne(ser);
+    }
+
+    QtCharts::QAbstractAxis* remove_axis;
+    QtCharts::QAbstractAxis* add_axis;
+
     if(_display_log10)
     {
-        QList<QtCharts::QAbstractSeries*> series = _chart->series();
-        for(QtCharts::QAbstractSeries* ser : series)
-        {
-            if(ser != _line_series)
-                ser->detachAxis(_axisYLog10);
-            //ser->attachAxis(_axisY);
-        }
-        _chart->removeAxis(_axisYLog10);
-        _chart->addAxis(_axisY, Qt::AlignLeft);
-        for(QtCharts::QAbstractSeries* ser : series)
-        {
-            if(ser != _line_series)
-                ser->attachAxis(_axisY);
-        }
+        remove_axis = _axisYLog10;
+        add_axis = _axisY;
     }
     else
     {
-
-        QList<QtCharts::QAbstractSeries*> series = _chart->series();
-        for(QtCharts::QAbstractSeries* ser : series)
-        {
-            if(ser != _line_series)
-                ser->detachAxis(_axisY);
-            //ser->attachAxis(_axisYLog10);
-        }
-        _chart->removeAxis(_axisY);
-        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
-        for(QtCharts::QAbstractSeries* ser : series)
-        {
-            if(ser != _line_series)
-                ser->attachAxis(_axisYLog10);
-        }
-
+        remove_axis = _axisY;
+        add_axis = _axisYLog10;
     }
-/*
-    _line_series->detachAxis(_axisY);
-    _line_series->detachAxis(_axisYLog10);
-    _line_series->attachAxis(_axisY);
-*/
+
+    for(QtCharts::QAbstractSeries* ser : series)
+    {
+        ser->detachAxis(remove_axis);
+    }
+    _chart->removeAxis(remove_axis);
+    _chart->addAxis(add_axis, Qt::AlignLeft);
+
+    for(QtCharts::QAbstractSeries* ser : series)
+    {
+        ser->attachAxis(add_axis);
+    }
+
+
     _display_log10 = !_display_log10;
     _action_check_log10->setChecked(_display_log10);
 

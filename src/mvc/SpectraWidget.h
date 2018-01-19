@@ -16,6 +16,7 @@
 #include <QLogValueAxis>
 #include <QValueAxis>
 #include "data_struct/xrf/spectra.h"
+#include "data_struct/xrf/fit_element_map.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -41,7 +42,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, data_struct::xrf::Spectra* spectra);
+    void append_spectra(QString name, data_struct::xrf::Spectra* spectra, data_struct::xrf::Spectra *energy=nullptr);
 
     //void remove_spectra(QString name);
 
@@ -62,6 +63,8 @@ public slots:
     void handleMarkerClicked();
 
     void set_vertical_line(qreal x_center, QString label="Element");
+
+    void set_element_lines(data_struct::xrf::Fit_Element_Map * element);
 
 protected:
 
@@ -111,6 +114,8 @@ private:
     QAction *_action_check_log10;
 
     QMenu *_contextMenu;
+
+    std::vector<QtCharts::QLineSeries*> _element_lines;
 };
 
 
