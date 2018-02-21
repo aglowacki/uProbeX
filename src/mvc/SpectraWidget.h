@@ -15,8 +15,8 @@
 #include <QWidget>
 #include <QLogValueAxis>
 #include <QValueAxis>
-#include "data_struct/xrf/spectra.h"
-#include "data_struct/xrf/fit_element_map.h"
+#include "data_struct/spectra.h"
+#include "data_struct/fit_element_map.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -42,7 +42,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, data_struct::xrf::Spectra* spectra, data_struct::xrf::Spectra *energy=nullptr);
+    void append_spectra(QString name, data_struct::Spectra* spectra, data_struct::Spectra *energy=nullptr);
 
     //void remove_spectra(QString name);
 
@@ -64,7 +64,7 @@ public slots:
 
     void set_vertical_line(qreal x_center, QString label="Element");
 
-    void set_element_lines(data_struct::xrf::Fit_Element_Map * element);
+    void set_element_lines(data_struct::Fit_Element_Map * element);
 
 protected:
 
@@ -109,7 +109,7 @@ private:
 
     bool m_isTouching;
 
-    std::map<QString, data_struct::xrf::Spectra> _spectra_map;
+    std::map<QString, data_struct::Spectra> _spectra_map;
 
     QAction *_action_check_log10;
 

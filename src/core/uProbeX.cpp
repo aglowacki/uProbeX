@@ -94,7 +94,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     processPreferencesUpdate();
 
 
-    if (false == io::load_element_info(element_henke_filename, element_csv_filename, data_struct::xrf::Element_Info_Map::inst()) )
+    if (false == io::load_element_info(element_henke_filename, element_csv_filename, data_struct::Element_Info_Map::inst()) )
     {
         qDebug()<<"Error loading "<< element_henke_filename.c_str() <<" and "<< element_csv_filename.c_str();
     }
@@ -652,11 +652,11 @@ void uProbeX::makeMapsWindow(QString path)
     //        this, SLOT(makeHDFWindow(MapsH5Model*)));
 
     connect(widget, SIGNAL(showFitSpecWindow(MapsH5Model*,
-                                             data_struct::xrf::Fit_Parameters*,
-                                             data_struct::xrf::Fit_Element_Map_Dict*)),
+                                             data_struct::Fit_Parameters*,
+                                             data_struct::Fit_Element_Map_Dict*)),
             this, SLOT(makeHDFWindow(MapsH5Model*,
-                                     data_struct::xrf::Fit_Parameters*,
-                                     data_struct::xrf::Fit_Element_Map_Dict*)));
+                                     data_struct::Fit_Parameters*,
+                                     data_struct::Fit_Element_Map_Dict*)));
 
     SubWindow* w = NULL;
     w = new SubWindow(m_mdiArea);
@@ -763,8 +763,8 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::makeHDFWindow(MapsH5Model* model,
-                            data_struct::xrf::Fit_Parameters* fit_params,
-                            data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
+                            data_struct::Fit_Parameters* fit_params,
+                            data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
     widget->setModel(model, fit_params, elements_to_fit);

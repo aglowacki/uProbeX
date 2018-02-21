@@ -61,7 +61,7 @@ public slots:
     void run() override
     {
         _running = true;
-        data_struct::xrf::Stream_Block *new_packet;
+        data_struct::Stream_Block *new_packet;
         zmq::message_t token, message;
         while(_running)
         {
@@ -81,7 +81,7 @@ public slots:
     void stop() {_running = false;}
 
 signals:
-    void newData(data_struct::xrf::Stream_Block *new_packet);
+    void newData(data_struct::Stream_Block *new_packet);
 
 protected:
 

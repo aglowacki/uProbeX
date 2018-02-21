@@ -44,11 +44,11 @@ public:
 
     MapsH5Model* getMapsH5Model(QString name);
 
-    data_struct::xrf::Fit_Parameters* getFitParameters(int idx);
+    data_struct::Fit_Parameters* getFitParameters(int idx);
 
-    data_struct::xrf::Fit_Element_Map_Dict *getElementToFit(int idx);
+    data_struct::Fit_Element_Map_Dict *getElementToFit(int idx);
 
-    data_struct::xrf::Params_Override* getParamOverride(int idx);
+    data_struct::Params_Override* getParamOverride(int idx);
 
 signals:
     void newAnalyzedH5FileLoaded(QString);
@@ -67,7 +67,7 @@ protected:
 
     std::map<QString, MapsH5Model*> _h5_models;
 
-    std::map<int, data_struct::xrf::Params_Override> _fit_params_override_dict;
+    std::map<int, data_struct::Params_Override> _fit_params_override_dict;
 
 private:
 

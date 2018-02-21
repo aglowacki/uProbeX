@@ -48,7 +48,7 @@ void MapsH5Model::clear_analyzed_counts()
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::xrf::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
+data_struct::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
 {
     if(_analyzed_counts.count(analysis_type) > 0)
     {
@@ -91,23 +91,23 @@ std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 
 std::string MapsH5Model::_analysis_enum_to_str(int val)
 {
-    if(val == data_struct::xrf::ROI)
+    if(val == data_struct::ROI)
     {
         return "ROI";
     }
-    else if(val == data_struct::xrf::GAUSS_TAILS)
+    else if(val == data_struct::GAUSS_TAILS)
     {
         return "Parameter Fitting";
     }
-    else if(val == data_struct::xrf::GAUSS_MATRIX)
+    else if(val == data_struct::GAUSS_MATRIX)
     {
         return "Matrix Fitting";
     }
-    else if(val == data_struct::xrf::SVD)
+    else if(val == data_struct::SVD)
     {
         return "SVD";
     }
-    else if(val == data_struct::xrf::NNLS)
+    else if(val == data_struct::NNLS)
     {
         return "NNLS";
     }
@@ -116,7 +116,7 @@ std::string MapsH5Model::_analysis_enum_to_str(int val)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* block)
+void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 {
     clear_analyzed_counts();
 
@@ -124,7 +124,7 @@ void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* b
     {
         std::string group_name = _analysis_enum_to_str(itr.first);
 
-        data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
+        data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
         _analyzed_counts.insert( {group_name, xrf_counts} );
 
         for(auto& itr2 : itr.second.fit_counts)
@@ -138,14 +138,14 @@ void MapsH5Model::initialize_from_stream_block(data_struct::xrf::Stream_Block* b
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::update_from_stream_block(data_struct::xrf::Stream_Block* block)
+void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
     for(auto& itr : block->fitting_blocks)
     {
         std::string group_name = _analysis_enum_to_str(itr.first);
         if(_analyzed_counts.count(group_name) > 0)
         {
-            data_struct::xrf::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
+            data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
             for(auto& itr2 : itr.second.fit_counts)
             {
                 xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
@@ -225,9 +225,6 @@ bool MapsH5Model::load(QString filepath)
         //end = std::chrono::system_clock::now();
         //std::chrono::duration<double> elapsed_seconds = end-start;
         //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-        //logit << "elapsed time: " << elapsed_seconds.count() << "s"<<std::endl;
-
     }
     catch (std::string& s)
     {
@@ -379,7 +376,7 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
 
     count[0] = 1;
 
-    data_struct::xrf::Fit_Count_Dict* xrf_counts = new data_struct::xrf::Fit_Count_Dict();
+    data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, NULL);

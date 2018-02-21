@@ -106,14 +106,14 @@ bool MapsWorkspaceModel::_load_fit_params()
     std::string dataset_dir = _dir->absolutePath().toStdString() + "/";
     for(size_t detector_num = 0; detector_num <= 3; detector_num++)
     {
-        data_struct::xrf::Params_Override params_override(dataset_dir, detector_num);
+        data_struct::Params_Override params_override(dataset_dir, detector_num);
         if( io::load_override_params(dataset_dir, detector_num, &params_override) )
         {
             _fit_params_override_dict[detector_num] = params_override;
             emit newFitParamsFileLoaded(detector_num);
         }
     }
-    data_struct::xrf::Params_Override params(dataset_dir, -1);
+    data_struct::Params_Override params(dataset_dir, -1);
     if( io::load_override_params(dataset_dir, -1, &params) )
     {
         _fit_params_override_dict[-1] = params;
@@ -138,7 +138,7 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
     //_dir->setSorting(QDir::Size | QDir::Reversed);
 
     QFileInfoList list = _dir->entryInfoList();
-    //std::cout << "     Bytes Filename" << std::endl;
+
     for (int i = 0; i < list.size(); ++i)
     {
         QFileInfo fileInfo = list.at(i);
@@ -171,7 +171,7 @@ bool MapsWorkspaceModel::_load_sws_workspaces()
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::xrf::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
+data_struct::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {
@@ -182,7 +182,7 @@ data_struct::xrf::Fit_Parameters* MapsWorkspaceModel::getFitParameters(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::xrf::Params_Override* MapsWorkspaceModel::getParamOverride(int idx)
+data_struct::Params_Override* MapsWorkspaceModel::getParamOverride(int idx)
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {
@@ -192,7 +192,7 @@ data_struct::xrf::Params_Override* MapsWorkspaceModel::getParamOverride(int idx)
 }
 
 /*---------------------------------------------------------------------------*/
-data_struct::xrf::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
+data_struct::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {

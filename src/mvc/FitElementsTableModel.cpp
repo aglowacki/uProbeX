@@ -34,7 +34,7 @@ FitElementsTableModel::~FitElementsTableModel()
 
 /*---------------------------------------------------------------------------*/
 /*
-void FitElementsTableModel::setFitParams(data_struct::xrf::Fit_Parameters fit_params)
+void FitElementsTableModel::setFitParams(data_struct::Fit_Parameters fit_params)
 {
 
     _fit_parameters = fit_params;
@@ -65,27 +65,27 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::xrf::Fit_Parameters FitElementsTableModel::getAsFitParams()
+data_struct::Fit_Parameters FitElementsTableModel::getAsFitParams()
 {
-    data_struct::xrf::Fit_Parameters fit_params;
+    data_struct::Fit_Parameters fit_params;
     for(auto& itr : _nodes)
     {
         TreeItem* node = itr.second;
-        data_struct::xrf::Fit_Element_Map *element = node->element_data;
-        fit_params.add_parameter(element->full_name(), data_struct::xrf::Fit_Param(element->full_name(), node->itemData[1].toFloat(), data_struct::xrf::E_Bound_Type::FIT));
+        data_struct::Fit_Element_Map *element = node->element_data;
+        fit_params.add_parameter(data_struct::Fit_Param(element->full_name(), node->itemData[1].toFloat(), data_struct::E_Bound_Type::FIT));
     }
     return fit_params;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::updateElementValues(data_struct::xrf::Fit_Parameters *fit_params)
+void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters *fit_params)
 {
 
     for(auto& itr : _nodes)
     {
         TreeItem* node = itr.second;
-        data_struct::xrf::Fit_Element_Map *element = node->element_data;
+        data_struct::Fit_Element_Map *element = node->element_data;
         if(fit_params->contains(element->full_name()))
         {
             node->itemData[1] = QVariant(fit_params->at(element->full_name()).value);
@@ -108,7 +108,7 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::updateFitElements(data_struct::xrf::Fit_Element_Map_Dict * elements_to_fit)
+void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict * elements_to_fit)
 {
     if(elements_to_fit != nullptr)
     {
@@ -116,8 +116,8 @@ void FitElementsTableModel::updateFitElements(data_struct::xrf::Fit_Element_Map_
         _row_indicies.clear();
         for(auto& itr : *elements_to_fit)
         {
-            data_struct::xrf::Fit_Element_Map* element = itr.second;
-            if(data_struct::xrf::Element_Info_Map::inst()->contains(element->symbol()))
+            data_struct::Fit_Element_Map* element = itr.second;
+            if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
             {
                 _nodes[element->Z()] = new TreeItem();
                 _nodes[element->Z()]->set_root(element);
@@ -187,13 +187,13 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
         if(index.parent().isValid())
         {
             int Z = _row_indicies[index.parent().row()];
-            data_struct::xrf::Fit_Element_Map *parentItem = _nodes.at(Z)->element_data;
+            data_struct::Fit_Element_Map *parentItem = _nodes.at(Z)->element_data;
             return QVariant(parentItem->energy_ratios().at(index.column()).energy );
         }
         else
         {
             int Z = _row_indicies[row];
-            data_struct::xrf::Fit_Element_Map *childItem = _nodes.at(Z)->element_data;
+            data_struct::Fit_Element_Map *childItem = _nodes.at(Z)->element_data;
             // Insert data
             if (index.column() == HEADERS::SYMBOL) return QString(childItem->full_name().c_str());
             else if (index.column() == HEADERS::CENTER) return QVariant(childItem->center());
@@ -324,7 +324,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::xrf::Fit_Element_Map* FitElementsTableModel::getElementByIndex(QModelIndex index) const
+data_struct::Fit_Element_Map* FitElementsTableModel::getElementByIndex(QModelIndex index) const
 {
     if (index.isValid())
     {

@@ -93,7 +93,7 @@ void LiveMapsElementsWidget::updateIp()
 
 /*---------------------------------------------------------------------------*/
 
-void LiveMapsElementsWidget::newDataArrived(data_struct::xrf::Stream_Block *new_packet)
+void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
 {
     static int last_row = -1;
 

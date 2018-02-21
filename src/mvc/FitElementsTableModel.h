@@ -11,7 +11,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QVariant>
-#include "data_struct/xrf/fit_element_map.h"
+#include "data_struct/fit_element_map.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -49,13 +49,13 @@ public:
 
    void setDisplayHeaderMinMax(bool val);
 
-   data_struct::xrf::Fit_Parameters getAsFitParams();
+   data_struct::Fit_Parameters getAsFitParams();
 
-   void updateFitElements(data_struct::xrf::Fit_Element_Map_Dict * elements_to_fit);
+   void updateFitElements(data_struct::Fit_Element_Map_Dict * elements_to_fit);
 
-   void updateElementValues(data_struct::xrf::Fit_Parameters *fit_params);
+   void updateElementValues(data_struct::Fit_Parameters *fit_params);
 
-   data_struct::xrf::Fit_Element_Map *getElementByIndex(QModelIndex index) const;
+   data_struct::Fit_Element_Map *getElementByIndex(QModelIndex index) const;
 
    /**
     * @brief Clear all
@@ -141,7 +141,7 @@ private:
            qDeleteAll(childItems);
        }
 
-       void set_root(data_struct::xrf::Fit_Element_Map* element)
+       void set_root(data_struct::Fit_Element_Map* element)
        {
            element_data = element;
            parentItem = nullptr;
@@ -179,16 +179,16 @@ private:
                child = new TreeItem(this, true);
                 switch(itr.ptype)
                 {
-                    case  data_struct::xrf::Element_Param_Type::Ka_Line:
+                    case  data_struct::Element_Param_Type::Ka_Line:
                         child->itemData.push_back(QVariant("Ka"));
                     break;
-                    case  data_struct::xrf::Element_Param_Type::Kb_Line:
+                    case  data_struct::Element_Param_Type::Kb_Line:
                         child->itemData.push_back(QVariant("Kb"));
                     break;
-                    case  data_struct::xrf::Element_Param_Type::L_Line:
+                    case  data_struct::Element_Param_Type::L_Line:
                         child->itemData.push_back(QVariant("L"));
                     break;
-                    case  data_struct::xrf::Element_Param_Type::M_Line:
+                    case  data_struct::Element_Param_Type::M_Line:
                         child->itemData.push_back(QVariant("M"));
                     break;
                 }
@@ -264,7 +264,7 @@ private:
            return true;
        }
 
-       data_struct::xrf::Fit_Element_Map* element_data;
+       data_struct::Fit_Element_Map* element_data;
        QList<TreeItem*> childItems;
        QVector<QVariant> itemData;
        TreeItem *parentItem;

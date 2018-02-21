@@ -431,7 +431,7 @@ bool PythonLoader::loadFunction(QString path,
      sys_path = PySys_GetObject("path");
      if (sys_path == NULL)
          return false;
-     qDebug()<<"Python path: ."<<endl;
+     qDebug()<<"Python path: .\r\n";
 
     int pyPathSize = PyList_Size(sys_path);
     for (int ia=0; ia<pyPathSize; ia++)

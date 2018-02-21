@@ -120,8 +120,8 @@ private slots:
     * @param elements_to_fit
     */
    void makeHDFWindow(MapsH5Model* model,
-                      data_struct::xrf::Fit_Parameters* fit_params,
-                      data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
+                      data_struct::Fit_Parameters* fit_params,
+                      data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
    /**
     * @brief Open the data file at the given path. Triggered by acquisition controller

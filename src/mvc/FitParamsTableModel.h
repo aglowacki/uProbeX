@@ -11,7 +11,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QVariant>
-#include "data_struct/xrf/fit_parameters.h"
+#include "data_struct/fit_parameters.h"
 
 
 /*---------------------------------------------------------------------------*/
@@ -49,11 +49,11 @@ public:
 
    void setOptimizerSupportsMinMax(bool val);
 
-   void setFitParams(data_struct::xrf::Fit_Parameters fit_params);
+   void setFitParams(data_struct::Fit_Parameters fit_params);
 
-   void updateFitParams(data_struct::xrf::Fit_Parameters* fit_params);
+   void updateFitParams(data_struct::Fit_Parameters* fit_params);
 
-   data_struct::xrf::Fit_Parameters getFitParams() { return _fit_parameters; }
+   data_struct::Fit_Parameters getFitParams() { return _fit_parameters; }
 
    float getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
 
@@ -113,7 +113,7 @@ public:
                 int role = Qt::EditRole);
 
    bool setDataFitBounds(const QModelIndex &index,
-                         const QVariant &value);
+                         const data_struct::E_Bound_Type &value);
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
@@ -131,7 +131,7 @@ private:
     */
    QString m_headers[NUM_PROPS];
 
-   data_struct::xrf::Fit_Parameters _fit_parameters;
+   data_struct::Fit_Parameters _fit_parameters;
 
    std::vector<std::string> _row_indicies;
 

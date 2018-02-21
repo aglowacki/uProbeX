@@ -16,7 +16,7 @@
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/optimizers/mpfit_optimizer.h"
 #include "fitting/models/gaussian_model.h"
-#include "data_struct/xrf/stream_block.h"
+#include "data_struct/stream_block.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -48,15 +48,15 @@ public:
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
-    data_struct::xrf::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
+    data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
 
-    data_struct::xrf::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
 
     QString getFilePath() { return _filepath; }
 
-    void initialize_from_stream_block(data_struct::xrf::Stream_Block* block);
+    void initialize_from_stream_block(data_struct::Stream_Block* block);
 
-    void update_from_stream_block(data_struct::xrf::Stream_Block* block);
+    void update_from_stream_block(data_struct::Stream_Block* block);
 
     bool is_scalers_loaded() { return _loaded_scalers; }
 
@@ -90,9 +90,9 @@ protected:
 
     std::string _analysis_enum_to_str(int val);
 
-    std::unordered_map<std::string, data_struct::xrf::Fit_Count_Dict*> _analyzed_counts;
+    std::unordered_map<std::string, data_struct::Fit_Count_Dict*> _analyzed_counts;
 
-    data_struct::xrf::Spectra _integrated_spectra;
+    data_struct::Spectra _integrated_spectra;
 
 private:
 

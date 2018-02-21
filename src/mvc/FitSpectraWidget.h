@@ -23,9 +23,9 @@
 #include "mvc/ComboBoxDelegate.h"
 #include <QComboBox>
 #include <QCheckBox>
-#include "data_struct/xrf/spectra.h"
-#include "data_struct/xrf/fit_element_map.h"
-#include "data_struct/xrf/fit_parameters.h"
+#include "data_struct/spectra.h"
+#include "data_struct/fit_element_map.h"
+#include "data_struct/fit_parameters.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -52,8 +52,8 @@ public:
    ~FitSpectraWidget();
 
    void setModels(MapsH5Model* h5_model,
-                  data_struct::xrf::Fit_Parameters* fit_params,
-                  data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit);
+                  data_struct::Fit_Parameters* fit_params,
+                  data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
 signals:
 
@@ -87,7 +87,7 @@ protected:
 
    FitElementsTableModel* _fit_elements_table_model;
 
-   data_struct::xrf::Fit_Element_Map_Dict *_elements_to_fit;
+   data_struct::Fit_Element_Map_Dict *_elements_to_fit;
 
    MapsH5Model* _h5_model;
 
@@ -104,11 +104,11 @@ private slots:
 
    void fit_params_customMenuRequested(QPoint);
 
-   void set_fit_params_bounds_fixed(bool v) {set_fit_params_bounds(data_struct::xrf::E_Bound_Type::FIXED);}
+   void set_fit_params_bounds_fixed(bool v) {set_fit_params_bounds(data_struct::E_Bound_Type::FIXED);}
 
-   void set_fit_params_bounds_fit(bool v) {set_fit_params_bounds(data_struct::xrf::E_Bound_Type::FIT);}
+   void set_fit_params_bounds_fit(bool v) {set_fit_params_bounds(data_struct::E_Bound_Type::FIT);}
 
-   void set_fit_params_bounds(data_struct::xrf::E_Bound_Type e_type);
+   void set_fit_params_bounds(data_struct::E_Bound_Type e_type);
 
 private:
 
@@ -124,7 +124,7 @@ private:
 
    QPushButton* _btn_model_spectra;
 
-   data_struct::xrf::Spectra _spectra_background;
+   data_struct::Spectra _spectra_background;
 
    QMenu *_fit_param_contextMenu;
 

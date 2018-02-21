@@ -136,7 +136,7 @@ void MapsWorkspaceWidget::loadedFitParams(int idx)
 {
     if(idx == -1) //avg fit params
     {
-        data_struct::xrf::Fit_Parameters* fit_params = _model->getFitParameters(idx);
+        data_struct::Fit_Parameters* fit_params = _model->getFitParameters(idx);
         if(fit_params != nullptr)
         {
             _fit_params_table_model->setFitParams(*fit_params);

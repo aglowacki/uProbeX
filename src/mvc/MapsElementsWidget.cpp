@@ -97,7 +97,7 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
     QString elementName = _cb_element->currentText();
     bool found_element = false;
 
-    data_struct::xrf::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
+    data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
     if (analysis_type != nullptr)
     {
         _cb_element->clear();
@@ -139,8 +139,8 @@ void MapsElementsWidget::onElementSelect(QString name)
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::setModel(MapsH5Model* model,
-                                  data_struct::xrf::Fit_Parameters* fit_params,
-                                  data_struct::xrf::Fit_Element_Map_Dict *elements_to_fit)
+                                  data_struct::Fit_Parameters* fit_params,
+                                  data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
     if(_model == model)
     {
@@ -180,7 +180,7 @@ void MapsElementsWidget::redrawCounts()
 
 void MapsElementsWidget::displayCounts(std::string analysis_type, std::string element)
 {
-    data_struct::xrf::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+    data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
     if (fit_counts != nullptr)
     {
         if(fit_counts->count(element) > 0)

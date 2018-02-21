@@ -99,7 +99,7 @@ void SpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::append_spectra(QString name, data_struct::xrf::Spectra* spectra, data_struct::xrf::Spectra *energy)
+void SpectraWidget::append_spectra(QString name, data_struct::Spectra* spectra, data_struct::Spectra *energy)
 {
     if (spectra == nullptr)
         return;
@@ -211,7 +211,7 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::set_element_lines(data_struct::xrf::Fit_Element_Map * element)
+void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 {
     if(element != nullptr)
     {
@@ -224,7 +224,7 @@ void SpectraWidget::set_element_lines(data_struct::xrf::Fit_Element_Map * elemen
         }
         _element_lines.clear();
 
-        const std::vector<data_struct::xrf::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
+        const std::vector<data_struct::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
 
         int ka_cnt = 0;
         int kb_cnt = 0;
@@ -239,22 +239,22 @@ void SpectraWidget::set_element_lines(data_struct::xrf::Fit_Element_Map * elemen
             QString eName = QString(element->full_name().c_str());
             switch(itr.ptype)
             {
-                case data_struct::xrf::Element_Param_Type::Ka_Line:
+                case data_struct::Element_Param_Type::Ka_Line:
                 ka_cnt ++;
                 eName += " Ka"+QString::number(ka_cnt);
                 break;
 
-                case data_struct::xrf::Element_Param_Type::Kb_Line:
+                case data_struct::Element_Param_Type::Kb_Line:
                 kb_cnt ++;
                 eName += " Kb"+QString::number(kb_cnt);
                 break;
 
-                case data_struct::xrf::Element_Param_Type::L_Line:
+                case data_struct::Element_Param_Type::L_Line:
                 l_cnt ++;
                 eName += " L"+QString::number(l_cnt);
                 break;
 
-                case data_struct::xrf::Element_Param_Type::M_Line:
+                case data_struct::Element_Param_Type::M_Line:
                 m_cnt ++;
                 eName += " L"+QString::number(m_cnt);
                 break;

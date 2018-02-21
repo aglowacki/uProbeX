@@ -26,7 +26,7 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
 
 /*---------------------------------------------------------------------------*/
 
-void FitParamsTableModel::setFitParams(data_struct::xrf::Fit_Parameters fit_params)
+void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters fit_params)
 {
 
     _fit_parameters = fit_params;
@@ -59,7 +59,7 @@ void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
     emit layoutChanged();
 }
 
-void FitParamsTableModel::updateFitParams(data_struct::xrf::Fit_Parameters* fit_params)
+void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters* fit_params)
 {
     if(fit_params != nullptr)
     {
@@ -115,14 +115,14 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
     // Return values for display and edit roles
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        data_struct::xrf::Fit_Param fitp = _fit_parameters.at(_row_indicies[row]);
+        data_struct::Fit_Param fitp = _fit_parameters.at(_row_indicies[row]);
         // Insert data
         if (index.column() == NAME) return QString(fitp.name.c_str());
         else if (index.column() == VALUE) return fitp.value;
         else if (index.column() == MIN_VAL) return fitp.min_val;
         else if (index.column() == MAX_VAL) return fitp.max_val;
         else if (index.column() == STEP_SIZE) return fitp.step_size;
-        else if (index.column() == BOUND_TYPE) return fitp.bound_type; //QString(fitp.bound_type_str().c_str());
+        else if (index.column() == BOUND_TYPE) return (int)fitp.bound_type;
     }
 
 
@@ -209,7 +209,7 @@ int FitParamsTableModel::rowCount(const QModelIndex &parent) const
 /*---------------------------------------------------------------------------*/
 
 bool FitParamsTableModel::setDataFitBounds(const QModelIndex &index,
-                                           const QVariant &value)
+                                           const data_struct::E_Bound_Type &value)
 {
     // Check for valid index
     if (index.isValid() == false)
@@ -220,7 +220,7 @@ bool FitParamsTableModel::setDataFitBounds(const QModelIndex &index,
     int row = index.row();
     std::string fitp_name = _row_indicies[row];
 
-    _fit_parameters[fitp_name].bound_type = (data_struct::xrf::E_Bound_Type)value.toInt();
+    _fit_parameters[fitp_name].bound_type = value;
 
     // Emit dataChanged signal
     emit(dataChanged(index, index));
@@ -285,7 +285,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
     }
     else if (column == BOUND_TYPE)
     {
-        _fit_parameters[fitp_name].bound_type = (data_struct::xrf::E_Bound_Type)value.toInt();
+        _fit_parameters[fitp_name].bound_type = (data_struct::E_Bound_Type)value.toInt();
     }
     else
     {

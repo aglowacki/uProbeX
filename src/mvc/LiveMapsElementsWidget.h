@@ -39,7 +39,7 @@ public:
 
 public slots:
 
-   void newDataArrived(data_struct::xrf::Stream_Block *new_packet);
+   void newDataArrived(data_struct::Stream_Block *new_packet);
 
    void updateIp();
 
