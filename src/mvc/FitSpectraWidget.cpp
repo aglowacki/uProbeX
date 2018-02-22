@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/FitSpectraWidget.h>
-
+#include <future>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -145,7 +145,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
         delete _fit_thread;
         _fit_thread = nullptr;
     }
-    _fit_thread = new std::thread( [this]()
+    //_fit_thread = new std::thread( [this]()
+    std::async( [this]()
     {
 
         if(_elements_to_fit != nullptr)
