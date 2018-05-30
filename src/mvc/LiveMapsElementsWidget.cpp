@@ -17,6 +17,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 
     _streamWorker = nullptr;
     _mapsElementsWidget = nullptr;
+    _last_row = -1;
     createLayout();
 
 }
@@ -95,19 +96,18 @@ void LiveMapsElementsWidget::updateIp()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
 {
-    static int last_row = -1;
 
     if(new_packet->row() == 0 && new_packet->col() == 0)
     {
         _currentModel.initialize_from_stream_block(new_packet);
-        _currentModel.update_from_stream_block(new_packet);
+        //_currentModel.update_from_stream_block(new_packet);
         _mapsElementsWidget->setModel(&_currentModel, nullptr, nullptr);
         _progressBar->setRange(0, new_packet->height()-1);
         //_mapsElementsWidget
     }
 
     _currentModel.update_from_stream_block(new_packet);
-    if(last_row != new_packet->row())
+    if(_last_row != new_packet->row())
     {   
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
         _textEdit->append(str);
@@ -119,7 +119,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         _progressBar->update();
         //cntr = 0;
     }
-    last_row = new_packet->row();
+    _last_row = new_packet->row();
     delete new_packet;
 
 }

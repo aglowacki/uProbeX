@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <preferences/SolverTable.h>
-#include <CheckBoxDelegate.h>
+#include <gstar/CheckBoxDelegate.h>
 #include <QHeaderView>
 #include <QPushButton>
 #include <QSortFilterProxyModel>

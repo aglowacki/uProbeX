@@ -63,6 +63,8 @@ protected:
    QPushButton *_btn_update;
 
    MapsH5Model _currentModel;
+
+   int _last_row;
 };
 
 

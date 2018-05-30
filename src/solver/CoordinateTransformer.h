@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <ITransformer.h>
+#include <gstar/ITransformer.h>
 #include <QString>
 #include <QMap>
 

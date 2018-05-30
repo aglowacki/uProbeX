@@ -5,7 +5,7 @@
 
 #include <mvc/TIFFWidget.h>
 
-#include <ImageViewWidget.h>
+#include <gstar/ImageViewWidget.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>

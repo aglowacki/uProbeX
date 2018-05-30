@@ -1,5 +1,42 @@
 # Copyright (c) 2014, UChicago Argonne, LLC
-SOURCES +=  src/mvc/DeselectableTreeView.cpp \
+SOURCES +=  src/gstar/CoordinateWidget.cpp \
+    src/gstar/CoordinateModel.cpp \
+    src/gstar/ImageViewToolBar.cpp \
+    src/gstar/RangeWidget.cpp \
+    src/gstar/CheckBoxDelegate.cpp \
+    src/gstar/ROI.cpp \
+    src/gstar/ROITableModel.cpp \
+    src/gstar/RectItem.cpp \
+    src/gstar/Array.cpp \
+    src/gstar/ImageViewScene.cpp \
+    src/gstar/ImageViewWidget.cpp \
+    src/gstar/HistogramPlot.cpp \
+    src/gstar/ColorGradientDisplay.cpp \
+    src/gstar/ColorTransferFunctionEditor.cpp \
+    src/gstar/ColorTransferFunction.cpp \
+    src/gstar/ControlPointPicker.cpp \
+    src/gstar/ControlPoints.cpp \
+    src/gstar/ControlPointSlider.cpp \
+    src/gstar/ControlPointWidget.cpp \
+    src/gstar/Splash.cpp \
+    src/gstar/AnnotationProperty.cpp \
+    src/gstar/Annotation/AbstractGraphicsItem.cpp \
+    src/gstar/Annotation/LineGraphicsItem.cpp \
+    src/gstar/Annotation/PieGraphicsItem.cpp \
+    src/gstar/Annotation/MarkerGraphicsItem.cpp \
+    src/gstar/Annotation/UProbeMarkerGraphicsItem.cpp \
+    src/gstar/Annotation/UProbeRegionGraphicsItem.cpp \
+    src/gstar/Annotation/RulerGraphicsItem.cpp \
+    src/gstar/Annotation/IntensityPieGraphicsItem.cpp \
+    src/gstar/Annotation/IntensityLineGraphicsItem.cpp \
+    src/gstar/Annotation/EmptyGraphicsItem.cpp \
+    src/gstar/AnnotationToolBarWidget.cpp \
+    src/gstar/AnnotationTreeModel.cpp \
+    src/gstar/RulerUnitsDialog.cpp \
+    src/gstar/ITransformer.cpp \
+    src/gstar/LinearTransformer.cpp \
+    src/gstar/AbstractImageWidget.cpp \
+    src/mvc/DeselectableTreeView.cpp \
     src/solver/asa047.cpp \
     src/solver/AbstractSolver.cpp \
     src/solver/Solver.cpp \
@@ -52,7 +89,45 @@ SOURCES +=  src/mvc/DeselectableTreeView.cpp \
     src/core/SubWindow.cpp \
     src/core/uProbeX.cpp \
     src/main.cpp
-HEADERS = src/mvc/DeselectableTreeView.h \
+HEADERS = src/gstar/CoordinateWidget.h \
+    src/gstar/CoordinateModel.h \
+    src/gstar/ImageViewToolBar.h \
+    src/gstar/RangeWidget.h \
+    src/gstar/CheckBoxDelegate.h \
+    src/gstar/ROI.h \
+    src/gstar/ROITableModel.h \
+    src/gstar/RectItem.h \
+    src/gstar/Array.h \
+    src/gstar/ImageViewScene.h \
+    src/gstar/ImageViewWidget.h \
+    src/gstar/HistogramPlot.h \
+    src/gstar/ColorGradientDisplay.h \
+    src/gstar/ColorTransferFunctionEditor.h \
+    src/gstar/ColorTransferFunction.h \
+    src/gstar/ControlPointPicker.h \
+    src/gstar/ControlPoints.h \
+    src/gstar/ControlPointSlider.h \
+    src/gstar/ControlPointWidget.h \
+    src/gstar/Splash.h \
+    src/gstar/AnnotationProperty.h \
+    src/gstar/Annotation/AbstractGraphicsItem.h \
+    src/gstar/Annotation/LineGraphicsItem.h \
+    src/gstar/Annotation/PieGraphicsItem.h \
+    src/gstar/Annotation/MarkerGraphicsItem.h \
+    src/gstar/Annotation/UProbeMarkerGraphicsItem.h \
+    src/gstar/Annotation/UProbeRegionGraphicsItem.h \
+    src/gstar/Annotation/RulerGraphicsItem.h \
+    src/gstar/Annotation/IntensityPieGraphicsItem.h \
+    src/gstar/Annotation/IntensityLineGraphicsItem.h \
+    src/gstar/Annotation/EmptyGraphicsItem.h \
+    src/gstar/AnnotationToolBarWidget.h \
+    src/gstar/AnnotationTreeModel.h \
+    src/gstar/RulerUnitsDialog.h \
+    src/gstar/ITransformer.h \
+    src/gstar/LinearTransformer.h \
+    src/gstar/AbstractImageWidget.h \
+    src/gstar/GStarResource.h \
+    src/mvc/DeselectableTreeView.h \
     src/solver/asa047.hpp \
     src/solver/AbstractSolver.h \
     src/solver/Solver.h \

@@ -5,7 +5,7 @@
 
 #include <solver/NelderMeadSolver.h>
 #include <preferences/CoordinateTransformGlobals.h>
-#include <ITransformer.h>
+#include <gstar/ITransformer.h>
 #include <solver/asa047.hpp>
 #include <exception>
 

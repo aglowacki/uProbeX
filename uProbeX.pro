@@ -22,37 +22,33 @@ QMAKE_EXT_CPP += .c
 #                             						  #
 ###################################################
 
-GSTAR_INCLUDE = "${GSTAR_BASE}/include"
-GSTAR_LIBS = "${GSTAR_BASE}/lib"
-EIGEN_INCLUDE = "${EIGEN3_BASE}"
-XRF_MAPS_INCLUDE = "${XRF_MAPS_BASE}/src/"
-XRF_MAPS_LIBS = "${XRF_MAPS_BASE}/bin"
-HDF5_INCLUDE = "${HDF5_BASE}/include"
-HDF5_LIBS = "${HDF5_BASE}/lib"
-NETCDF_INCLUDE = "${NETCDF_BASE}/include"
-NETCDF_LIBS = "${NETCDF_BASE}/lib"
-ZMQ_INCLUDE = "${ZMQ_BASE}/include"
-ZMQ_LIBS = "${ZMQ_BASE}/lib/libzmq.a"
+EIGEN_INCLUDE = "${EIGEN3_DIR}"
+HDF5_INCLUDE = "${HDF5_DIR}/include"
+HDF5_LIBS = "${HDF5_DIR}/lib"
+XRF_MAPS_INCLUDE = "${XRF_MAPS_DIR}/src"
+XRF_MAPS_LIBS = "${XRF_MAPS_DIR}/bin"
+NETCDF_INCLUDE = "${NETCDF_DIR}/include"
+NETCDF_LIBS = "${NETCDF_DIR}/lib"
+ZMQ_INCLUDE = "${ZMQ_DIR}/include"
+ZMQ_LIBS = "${ZMQ_DIR}/lib"
 
 
 win32 {
-GSTAR_INCLUDE = "$(GSTAR_BASE)\\include"
-GSTAR_LIBS = "$(GSTAR_BASE)\\Debug\\lib"
-EIGEN_INCLUDE = "$(EIGEN3_BASE)"
-XRF_MAPS_INCLUDE = "$(XRF_MAPS_BASE)\\src"
-XRF_MAPS_LIBS = "$(XRF_MAPS_BASE)\\build\\Debug"
-HDF5_INCLUDE = "$(HDF5_BASE)\\include"
-HDF5_LIBS = "$(HDF5_BASE)\\lib"
-NETCDF_INCLUDE = "$(NETCDF_BASE)\\include"
-NETCDF_LIBS = "$(NETCDF_BASE)\\lib"
-ZMQ_INCLUDE = "$(ZMQ_BASE)\\include"
-ZMQ_LIBS = "$(ZMQ_BASE)\\build\\lib\\Release\\libzmq-v140-mt-4_2_3.lib"
-WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
-WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
-DEFINES += NOMINMAX
-DEFINES += WIN32_LEAN_AND_MEAN
-#DEFINES += ZMQ_STATIC
-LIBS += ws2_32.lib rpcrt4.lib iphlpapi.lib
+    EIGEN_INCLUDE = "$(EIGEN3_BASE)"
+    XRF_MAPS_INCLUDE = "$(XRF_MAPS_BASE)\\src"
+    XRF_MAPS_LIBS = "$(XRF_MAPS_BASE)\\build\\Debug"
+    HDF5_INCLUDE = "$(HDF5_BASE)\\include"
+    HDF5_LIBS = "$(HDF5_BASE)\\lib"
+    NETCDF_INCLUDE = "$(NETCDF_BASE)\\include"
+    NETCDF_LIBS = "$(NETCDF_BASE)\\lib"
+    ZMQ_INCLUDE = "$(ZMQ_BASE)\\include"
+    ZMQ_LIBS = "$(ZMQ_BASE)\\build\\lib\\Release\\libzmq-v140-mt-4_2_3.lib"
+    WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
+    WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
+    DEFINES += NOMINMAX
+    DEFINES += WIN32_LEAN_AND_MEAN
+    #DEFINES += ZMQ_STATIC
+    LIBS += ws2_32.lib rpcrt4.lib iphlpapi.lib
 }
 
 #######################################################
@@ -61,8 +57,8 @@ LIBS += ws2_32.lib rpcrt4.lib iphlpapi.lib
 DESTDIR = ./bin
 
 # Release or Debug
-#CONFIG += release
-CONFIG += debug
+CONFIG += release
+#CONFIG += debug
 CONFIG += ordered
 CONFIG += console 
 CONFIG += c++14
@@ -72,49 +68,18 @@ DEFINES += H5_BUILT_AS_DYNAMIC_LIB
 QMAKE_CXXFLAGS_WARN_OFF -= -Wunused-parameter
 
 # Include paths
+INCLUDEPATH += $$PWD
 INCLUDEPATH += src
 INCLUDEPATH += $${EIGEN_INCLUDE}
-INCLUDEPATH += $${XRF_MAPS_INCLUDE}
-INCLUDEPATH += $${GSTAR_INCLUDE}
 INCLUDEPATH += $${HDF5_INCLUDE}
 INCLUDEPATH += $${NETCDF_INCLUDE}
 INCLUDEPATH += $${ZMQ_INCLUDE}
+INCLUDEPATH += $${XRF_MAPS_INCLUDE}
 
-# System dependent library paths
-macx {
-LIBS += -L$${XRF_MAPS_LIBS} -lxrf_io -lxrf_fit
-}
-unix:!macx {
-LIBS += -L$${XRF_MAPS_LIBS} -lxrf_io -lxrf_fit
-}
-win32 {
-#QMAKE_CXXFLAGS += /D__STDC__=0 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
-#QMAKE_LFLAGS += /STACK:41943040,41943040
-
-#flag for qlibrary
-#QMAKE_LFLAGS -= /NXCOMPAT
-#QMAKE_LFLAGS += /NXCOMPAT:NO
-
-INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\shared
-INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\um
-INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\winrt
-INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\ucrt
-
-LIBS += -L$${WINDOWS_DEV_KIT_LIBS}\\ucrt\\x64
-
-#debug
-Debug:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
-#release
-Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
-
-LIBS += -L$${XRF_MAPS_LIBS} -llibxrf_io -llibxrf_fit
-}
-
-
-LIBS += -L$${GSTAR_LIBS} -lGStar
-LIBS += -L$${HDF5_LIBS}  -lhdf5
-LIBS += -L$${NETCDF_LIBS}  -lnetcdf
-LIBS += $${ZMQ_LIBS}
+LIBS += -L$${HDF5_LIBS}
+LIBS += -L$${NETCDF_LIBS}
+LIBS += -L$${ZMQ_LIBS}
+LIBS += -L$${XRF_MAPS_LIBS}
 
 # Location for intermediate files
 MOC_DIR += ./generated
@@ -125,3 +90,45 @@ RESOURCES = uProbeX.qrc
 
 # Include actual project
 include(uProbeX.pri)
+
+
+LIBS += -lhdf5 -lnetcdf -lzmq
+
+# System dependent library paths
+macx {
+    LIBS += -lxrf_fit -lxrf_io
+}
+unix:!macx {
+    LIBS += -lxrf_fit -lxrf_io
+}
+win32 {
+    #QMAKE_CXXFLAGS += /D__STDC__=0 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
+    #QMAKE_LFLAGS += /STACK:41943040,41943040
+
+    #flag for qlibrary
+    #QMAKE_LFLAGS -= /NXCOMPAT
+    #QMAKE_LFLAGS += /NXCOMPAT:NO
+    QMAKE_CXXFLAGS += /Gs999999
+
+    INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\shared
+    INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\um
+    INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\winrt
+    INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\ucrt
+
+    LIBS += -L$${WINDOWS_DEV_KIT_LIBS}\\ucrt\\x64
+
+    #debug
+    Debug:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
+    #release
+    Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
+
+    LIBS += -llibxrf_io -llibxrf_fit
+}
+
+unix:!macx: LIBS += -L$$PWD/../../libs/hdf5/lib/ -lhdf5
+
+INCLUDEPATH += $$PWD/../../libs/hdf5/include
+DEPENDPATH += $$PWD/../../libs/hdf5/include
+
+INCLUDEPATH += $$PWD/../XRF-Maps/src
+DEPENDPATH += $$PWD/../XRF-Maps/src

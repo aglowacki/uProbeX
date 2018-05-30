@@ -5,7 +5,7 @@
 
 #include <mvc/MapsElementsWidget.h>
 
-#include <ImageViewWidget.h>
+#include <gstar/ImageViewWidget.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -24,6 +24,10 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
 {
 
     _model = nullptr;
+    for (int i = 0; i < 256; ++i)
+    {
+        _grayscale.append(qRgb(i, i, i));
+    }
     createLayout();
 
 }
@@ -187,33 +191,20 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
         {
             int height = fit_counts->at(element).rows();
             int width = fit_counts->at(element).cols();
-            unsigned long length = height * width;
-            // Build a colour table of grayscale
-            QByteArray data(length, (char)0);
+            QImage image(width, height, QImage::Format_Indexed8);
+            image.setColorTable(_grayscale);
 
             float counts_max = fit_counts->at(element).maxCoeff();
             float counts_min = fit_counts->at(element).minCoeff();
             float max_min = counts_max - counts_min;
-            int i=0;
             for(int row = 0; row < height; row++)
             {
                 for(int col = 0; col < width; col++)
                 {
-                    data[i] = (unsigned char)( ((fit_counts->at(element)(row,col) - counts_min) / max_min) * 255);
-                    i++;
+                    uint data = (uint)( ((fit_counts->at(element)(row,col) - counts_min) / max_min) * 255);
+                    image.setPixel(col, row, data);
                 }
             }
-            QVector<QRgb> grayscale;
-
-            for (int i = 0; i < 255; ++i)
-            {
-                grayscale.append(qRgb(i, i, i));
-            }
-
-            QImage image((const uchar *)data.constData(), width, height, width, QImage::Format_Indexed8);
-            image.setColorTable(grayscale);
-
-
             m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
     }

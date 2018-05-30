@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <AbstractImageWidget.h>
+#include <gstar/AbstractImageWidget.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;

@@ -12,7 +12,7 @@
 
 #include <preferences/Preferences.h>
 #include <preferences/SolverParameterParse.h>
-#include <CoordinateModel.h>
+#include <gstar/CoordinateModel.h>
 #include <mvc/MapsH5Model.h>
 #include <mvc/LiveMapsElementsWidget.h>
 #include <QDesktopWidget>

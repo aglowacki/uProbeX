@@ -12,7 +12,7 @@
 #include <preferences/PreferencesSolverOption.h>
 #include <preferences/PreferencesAutoSave.h>
 #include <preferences/PreferencesExport.h>
-#include <AbstractImageWidget.h>
+#include <gstar/AbstractImageWidget.h>
 
 #include <QListView>
 #include <QStackedWidget>

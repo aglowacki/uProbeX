@@ -14,7 +14,7 @@
 #include <QSettings>
 #include <QString>
 
-#include <CoordinateModel.h>
+#include <gstar/CoordinateModel.h>
 
 /*---------------------------------------------------------------------------*/
 

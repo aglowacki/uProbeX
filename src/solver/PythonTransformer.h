@@ -8,8 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <ITransformer.h>
-//#include <python2.7/Python.h>
+#include <gstar/ITransformer.h>
 
 #include <QString>
 

@@ -20,7 +20,7 @@
 #include <mvc/FitSpectraWidget.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
-#include <Splash.h>
+#include <gstar/Splash.h>
 
 #include <solver/Solver.h>
 #include <solver/NelderMeadSolver.h>
@@ -68,7 +68,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     std::string element_henke_filename = "../reference/henke.xdr";
 
     // Use resources from GStar
-    Q_INIT_RESOURCE(GStar);
+    //Q_INIT_RESOURCE(GStar);
 
     PythonLoader::inst()->safeCheck();
 
@@ -94,7 +94,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     processPreferencesUpdate();
 
 
-    if (false == io::load_element_info(element_henke_filename, element_csv_filename, data_struct::Element_Info_Map::inst()) )
+    if (false == io::load_element_info(element_henke_filename, element_csv_filename ) )
     {
         qDebug()<<"Error loading "<< element_henke_filename.c_str() <<" and "<< element_csv_filename.c_str();
     }

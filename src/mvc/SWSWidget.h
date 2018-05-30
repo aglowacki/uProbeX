@@ -8,9 +8,9 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <AbstractImageWidget.h>
+#include <gstar/AbstractImageWidget.h>
 #include <QApplication>
-#include <AnnotationTreeModel.h>
+#include <gstar/AnnotationTreeModel.h>
 #include <QXmlStreamWriter>
 #include <QFile>
 #include <QMap>

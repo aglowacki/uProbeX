@@ -5,7 +5,7 @@
 
 #include <preferences/PreferencesPythonFunc.h>
 
-#include <CheckBoxDelegate.h>
+#include <gstar/CheckBoxDelegate.h>
 #include <mvc/DeselectableTreeView.h>
 #include <preferences/Attribute.h>
 #include <preferences/AttributeGroup.h>

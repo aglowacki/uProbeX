@@ -9,7 +9,7 @@
 #include <QMap>
 #include <QString>
 
-#include <ITransformer.h>
+#include <gstar/ITransformer.h>
 /*---------------------------------------------------------------------------*/
 
 /**

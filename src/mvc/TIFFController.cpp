@@ -10,7 +10,7 @@
 #include <preferences/Preferences.h>
 //#include <preferences/PVAttributesGroup.h>
 
-#include <Array.h>
+#include <gstar/Array.h>
 #include <QDateTime>
 
 using gstar::ImageViewWidget;

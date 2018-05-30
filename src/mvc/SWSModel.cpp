@@ -9,7 +9,7 @@
 #include <QFileInfo>
 #include <math.h>
 #include <QDebug>
-#include <LinearTransformer.h>
+#include <gstar/LinearTransformer.h>
 #include <QMessageBox>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>

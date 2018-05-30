@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <AbstractImageWidget.h>
+#include <gstar/AbstractImageWidget.h>
 
 #include <mvc/MapsH5Model.h>
 #include <mvc/FitSpectraWidget.h>
@@ -83,6 +83,8 @@ protected:
    QComboBox *_cb_element;
 
    QTabWidget *_tab_widget;
+
+   QVector<QRgb> _grayscale;
 };
 
 

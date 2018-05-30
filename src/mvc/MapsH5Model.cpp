@@ -50,7 +50,7 @@ void MapsH5Model::clear_analyzed_counts()
 
 data_struct::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
 {
-    if(_analyzed_counts.count(analysis_type) > 0)
+    if(analysis_type.length() > 0 && _analyzed_counts.count(analysis_type) > 0)
     {
         return _analyzed_counts[analysis_type];
     }
@@ -132,6 +132,7 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
             xrf_counts->emplace(std::pair<std::string,EMatrixF>(itr2.first, EMatrixF() ));
             xrf_counts->at(itr2.first).resize(block->height(), block->width());
             xrf_counts->at(itr2.first).setZero(block->height(), block->width());
+            xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
         }
     }
 }
@@ -150,6 +151,10 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
             {
                 xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
             }
+        }
+        else
+        {
+            initialize_from_stream_block(block);
         }
     }
 }
@@ -287,7 +292,7 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 {
 
-    return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(file_id, &_integrated_spectra);
+    return io::file::HDF5_IO::inst()->_load_integrated_spectra_analyzed_h5(file_id, &_integrated_spectra);
 
 }
 

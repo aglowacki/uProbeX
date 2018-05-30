@@ -5,11 +5,11 @@
 
 #include <mvc/SWSWidget.h>
 
-#include <ImageViewWidget.h>
+#include <gstar/ImageViewWidget.h>
 
-#include <AnnotationTreeModel.h>
-#include <CoordinateModel.h>
-#include <CoordinateWidget.h>
+#include <gstar/AnnotationTreeModel.h>
+#include <gstar/CoordinateModel.h>
+#include <gstar/CoordinateWidget.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -24,13 +24,13 @@
 
 #include <QDebug>
 
-#include "Annotation/UProbeMarkerGraphicsItem.h"
-#include "Annotation/UProbeRegionGraphicsItem.h"
-#include "Annotation/MarkerGraphicsItem.h"
-#include "Annotation/AbstractGraphicsItem.h"
-#include "Annotation/EmptyGraphicsItem.h"
-#include "GStarResource.h"
-#include "ImageViewToolBar.h"
+#include "gstar/Annotation/UProbeMarkerGraphicsItem.h"
+#include "gstar/Annotation/UProbeRegionGraphicsItem.h"
+#include "gstar/Annotation/MarkerGraphicsItem.h"
+#include "gstar/Annotation/AbstractGraphicsItem.h"
+#include "gstar/Annotation/EmptyGraphicsItem.h"
+#include "gstar/GStarResource.h"
+#include "gstar/ImageViewToolBar.h"
 
 #include <preferences/Preferences.h>
 #include <preferences/PreferencesExport.h>
