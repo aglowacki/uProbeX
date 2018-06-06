@@ -42,7 +42,7 @@ win32 {
     NETCDF_INCLUDE = "$(NETCDF_BASE)\\include"
     NETCDF_LIBS = "$(NETCDF_BASE)\\lib"
     ZMQ_INCLUDE = "$(ZMQ_BASE)\\include"
-    ZMQ_LIBS = "$(ZMQ_BASE)\\build\\lib\\Release\\libzmq-v140-mt-4_2_3.lib"
+    ZMQ_LIBS = "$(ZMQ_BASE)\\build\\lib\\Release"
     WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
     WINDOWS_DEV_KIT_LIBS = "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0"
     DEFINES += NOMINMAX
@@ -92,7 +92,7 @@ RESOURCES = uProbeX.qrc
 include(uProbeX.pri)
 
 
-LIBS += -lhdf5 -lnetcdf -lzmq
+LIBS += -lhdf5 -lnetcdf
 
 # System dependent library paths
 macx {
@@ -122,10 +122,10 @@ win32 {
     #release
     Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
 
-    LIBS += -llibxrf_io -llibxrf_fit
+    LIBS += -llibxrf_io -llibxrf_fit -llibzmq-v140-mt-4_2_3
 }
 
-unix:!macx: LIBS += -L$$PWD/../../libs/hdf5/lib/ -lhdf5
+unix:!macx: LIBS += -L$$PWD/../../libs/hdf5/lib/ -lhdf5 -lzmq
 
 INCLUDEPATH += $$PWD/../../libs/hdf5/include
 DEPENDPATH += $$PWD/../../libs/hdf5/include

@@ -292,7 +292,8 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 {
 
-    return io::file::HDF5_IO::inst()->_load_integrated_spectra_analyzed_h5(file_id, &_integrated_spectra);
+    //return io::file::HDF5_IO::inst()->_load_integrated_spectra_analyzed_h5(file_id, &_integrated_spectra);
+    return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(_filepath.toStdString(), -1, &_integrated_spectra);
 
 }
 
