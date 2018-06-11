@@ -185,7 +185,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
             //Update fit parameters by override values
             model.update_fit_params_values(&out_fit_params);
 
-            //model.set_fit_params_preset(fitting::models::BATCH_FIT_WITH_TAILS);
+            //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
             //Initialize the fit routine
             fit_routine.initialize(&model, _elements_to_fit, energy_range);
@@ -486,7 +486,7 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
 
     _fit_params_table_model->updateFitParams(fit_params);
 
-    if(_h5_model != nullptr)
+    if(_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
     {
         fitting::models::Range energy_range;
         energy_range.min = 0;
@@ -495,7 +495,7 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
         data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
         data_struct::ArrayXr ev = fit_params->at(STR_ENERGY_OFFSET).value + energy * fit_params->at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(STR_ENERGY_QUADRATIC).value;
 
-
+        data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
         _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&ev);
         if(fit_params != nullptr)
         {
