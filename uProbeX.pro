@@ -34,7 +34,7 @@ ZMQ_LIBS = "${ZMQ_DIR}/lib"
 
 
 win32 {
-    EIGEN_INCLUDE = "$(EIGEN3_BASE)"
+    EIGEN_INCLUDE = "$(EIGEN3_DIR)"
     XRF_MAPS_INCLUDE = "$(XRF_MAPS_DIR)\\src"
     XRF_MAPS_LIBS = "$(XRF_MAPS_DIR)\\build\\Release"
     HDF5_INCLUDE = "$(HDF5_DIR)\\include"
