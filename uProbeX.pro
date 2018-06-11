@@ -100,6 +100,13 @@ macx {
 }
 unix:!macx {
     LIBS += -lxrf_fit -lxrf_io
+    LIBS += -L$$PWD/../../libs/hdf5/lib/ -lhdf5 -lzmq
+
+    INCLUDEPATH += $$PWD/../../libs/hdf5/include
+    DEPENDPATH += $$PWD/../../libs/hdf5/include
+
+    INCLUDEPATH += $$PWD/../XRF-Maps/src
+    DEPENDPATH += $$PWD/../XRF-Maps/src
 }
 win32 {
     #QMAKE_CXXFLAGS += /D__STDC__=0 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
@@ -118,17 +125,9 @@ win32 {
     LIBS += -L$${WINDOWS_DEV_KIT_LIBS}\\ucrt\\x64
 
     #debug
-    Debug:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
+    #Debug:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=2
     #release
-    Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
+    #Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
 
     LIBS += -llibxrf_io -llibxrf_fit -llibzmq-v140-mt-4_2_3
 }
-
-unix:!macx: LIBS += -L$$PWD/../../libs/hdf5/lib/ -lhdf5 -lzmq
-
-INCLUDEPATH += $$PWD/../../libs/hdf5/include
-DEPENDPATH += $$PWD/../../libs/hdf5/include
-
-INCLUDEPATH += $$PWD/../XRF-Maps/src
-DEPENDPATH += $$PWD/../XRF-Maps/src
