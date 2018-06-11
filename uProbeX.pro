@@ -41,6 +41,7 @@ win32 {
     HDF5_LIBS = "$(HDF5_DIR)\\lib"
     NETCDF_INCLUDE = "$(NETCDF_DIR)\\include"
     NETCDF_LIBS = "$(NETCDF_DIR)\\lib"
+    NETCDF_LIBS2= "$(NETCDF_DIR)\\build\\liblib\\Release"
     ZMQ_INCLUDE = "$(ZMQ_DIR)\\include"
     ZMQ_LIBS = "$(ZMQ_DIR)\\build\\lib\\Release"
     WINDOWS_DEV_KIT_INCLUDE = "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10586.0"
@@ -91,9 +92,6 @@ RESOURCES = uProbeX.qrc
 # Include actual project
 include(uProbeX.pri)
 
-
-LIBS += -lhdf5 -lnetcdf
-
 # System dependent library paths
 macx {
     LIBS += -lxrf_fit -lxrf_io
@@ -117,6 +115,8 @@ win32 {
     #QMAKE_LFLAGS += /NXCOMPAT:NO
     QMAKE_CXXFLAGS += /Gs999999
 
+    LIBS += -L$${NETCDF_LIBS2}
+
     INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\shared
     INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\um
     INCLUDEPATH += $${WINDOWS_DEV_KIT_INCLUDE}\\winrt
@@ -131,3 +131,5 @@ win32 {
 
     LIBS += -llibxrf_io -llibxrf_fit -llibzmq-v140-mt-4_2_3
 }
+
+LIBS += -lhdf5 -lnetcdf
