@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QString>
+#include <QObject>
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
@@ -25,8 +26,10 @@ typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EM
 /**
  * @brief Model for Maps analyzed hdf5 files
  */
-class MapsH5Model
+class MapsH5Model : public QObject
 {
+
+    Q_OBJECT
 
 public:
 
@@ -69,6 +72,9 @@ public:
     bool is_counts_loaded() { return _loaded_counts; }
 
     std::vector<std::string> getAnalyzedTypes();
+
+signals:
+    void model_data_updated();
 
 protected:
 

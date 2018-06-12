@@ -48,6 +48,8 @@ public:
                  data_struct::Fit_Parameters* fit_params,
                  data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
+   MapsH5Model *getModel(){return _model;}
+
    void redrawCounts();
 
 public slots:
@@ -64,6 +66,8 @@ public slots:
    void onAnalysisSelect(QString name);
 
    void onElementSelect(QString name);
+
+   void model_updated();
 
 protected:
 

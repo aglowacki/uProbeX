@@ -151,6 +151,24 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
         return;
     }
     _model = model;
+    model_updated();
+
+    if(_model->is_integrated_spectra_loaded())
+    {
+        //_spectra_widget->setModels(fit_params, elements_to_fit, model);
+        _spectra_widget->setModels(_model, fit_params, elements_to_fit);
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::model_updated()
+{
+    if(_model == nullptr)
+    {
+        return;
+    }
     _cb_analysis->clear();
     //disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
 
@@ -161,12 +179,6 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
     {
         _cb_analysis->addItem(QString(itr.c_str()));
         //m_imageWidgetToolBar->appendImageViewWidget(imageViewWidget);
-    }
-
-    if(_model->is_integrated_spectra_loaded())
-    {
-        //_spectra_widget->setModels(fit_params, elements_to_fit, model);
-        _spectra_widget->setModels(model, fit_params, elements_to_fit);
     }
 
     //connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));

@@ -27,6 +27,12 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 LiveMapsElementsWidget::~LiveMapsElementsWidget()
 {
 
+
+    disconnect(&_currentModel,
+            SIGNAL(model_data_updated()),
+            _mapsElementsWidget,
+            SLOT(model_updated()));
+
     if(_streamWorker != nullptr)
     {
         _streamWorker->stop();
@@ -63,7 +69,14 @@ void LiveMapsElementsWidget::createLayout()
     _textEdit->resize(1024, 800);
     _textEdit->scrollBarWidgets(Qt::AlignRight);
     _mapsElementsWidget = new MapsElementsWidget(this);
+    _mapsElementsWidget->setModel(&_currentModel, nullptr, nullptr);
     _mapsElementsWidget->appendTab(_textEdit, "Log");
+
+    connect(&_currentModel,
+            SIGNAL(model_data_updated()),
+            _mapsElementsWidget,
+            SLOT(model_updated()));
+
     layout->addWidget(_mapsElementsWidget);
 
     _progressBar = new QProgressBar(this);
@@ -90,6 +103,7 @@ void LiveMapsElementsWidget::updateIp()
     //connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
     _streamWorker->start();
+    _last_row = -1;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -97,13 +111,10 @@ void LiveMapsElementsWidget::updateIp()
 void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
 {
 
-    if(new_packet->row() == 0 && new_packet->col() == 0)
+    if( (new_packet->row() == 0 && new_packet->col() == 0) || _last_row == -1)
     {
         _currentModel.initialize_from_stream_block(new_packet);
-        //_currentModel.update_from_stream_block(new_packet);
-        _mapsElementsWidget->setModel(&_currentModel, nullptr, nullptr);
         _progressBar->setRange(0, new_packet->height()-1);
-        //_mapsElementsWidget
     }
 
     _currentModel.update_from_stream_block(new_packet);

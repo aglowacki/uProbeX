@@ -8,7 +8,7 @@
 
 /*----------------src/mvc/MapsH5Model.cpp \-----------------------------------------------------------*/
 
-MapsH5Model::MapsH5Model()
+MapsH5Model::MapsH5Model() : QObject()
 {
 
     _filepath = "";
@@ -135,26 +135,34 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
             xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
         }
     }
+    emit model_data_updated();
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
-    for(auto& itr : block->fitting_blocks)
+    if(_analyzed_counts.size() < 1)
     {
-        std::string group_name = _analysis_enum_to_str(itr.first);
-        if(_analyzed_counts.count(group_name) > 0)
+        initialize_from_stream_block(block);
+    }
+    else
+    {
+        for(auto& itr : block->fitting_blocks)
         {
-            data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
-            for(auto& itr2 : itr.second.fit_counts)
+            std::string group_name = _analysis_enum_to_str(itr.first);
+            if(_analyzed_counts.count(group_name) > 0)
             {
-                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
+                for(auto& itr2 : itr.second.fit_counts)
+                {
+                    xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                }
             }
-        }
-        else
-        {
-            initialize_from_stream_block(block);
+            else
+            {
+                initialize_from_stream_block(block);
+            }
         }
     }
 }
