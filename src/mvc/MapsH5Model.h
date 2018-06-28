@@ -78,7 +78,22 @@ signals:
 
 protected:
 
+    //Version 9
     bool _load_version_9(hid_t maps_grp_id);
+
+    bool _load_quantification_9(hid_t maps_grp_id);
+
+    bool _load_scalers_9(hid_t maps_grp_id);
+
+    bool _load_scan_9(hid_t maps_grp_id);
+
+    bool _load_integrated_spectra_9(hid_t maps_grp_id);
+
+    bool _load_counts_9(hid_t maps_grp_id);
+
+    bool _load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name);
+
+    //Version 10
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
 
@@ -92,7 +107,7 @@ protected:
 
     bool _load_counts_10(hid_t maps_grp_id);
 
-    bool _load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name);
+    bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
 
     std::string _analysis_enum_to_str(int val);
 

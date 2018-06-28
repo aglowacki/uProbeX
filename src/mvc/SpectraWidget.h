@@ -46,6 +46,8 @@ public:
 
     //void remove_spectra(QString name);
 
+    void setXLabel(QString val) { _axisX->setTitleText(val); }
+
 signals:
 
     void trigger_connect_markers();

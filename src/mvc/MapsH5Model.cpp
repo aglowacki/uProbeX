@@ -251,13 +251,217 @@ bool MapsH5Model::load(QString filepath)
     return _is_fully_loaded;
 }
 
-
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 {
 
-    return false;
+    _loaded_quantification = _load_quantification_9(maps_grp_id);
+
+    _loaded_scalers = _load_scalers_9(maps_grp_id);
+
+    _loaded_scan = _load_scan_9(maps_grp_id);
+
+    _loaded_integrated_spectra = _load_integrated_spectra_9(maps_grp_id);
+
+    _loaded_counts = _load_counts_9(maps_grp_id);
+
+    return (_loaded_quantification && _loaded_scalers && _loaded_scan && _loaded_integrated_spectra &&_loaded_counts);
+
 }
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_quantification_9(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
+{
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
+{
+    //   /MAPS/int_spec
+    hid_t counts_dset_id, counts_dspace_id;
+    hid_t memoryspace_id, error;
+    hsize_t offset[1] = {0};
+    hsize_t count[1] = {1};
+    hid_t   filetype, memtype, status;
+
+    counts_dset_id = H5Dopen(maps_grp_id, "int_spec", H5P_DEFAULT);
+    if(counts_dset_id < 0)
+    {
+        qDebug()<<"Error opening group /MAPS/int_spec";
+        return false;
+    }
+    counts_dspace_id = H5Dget_space(counts_dset_id);
+
+    int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
+    if (rank != 1)
+    {
+        qDebug()<<"Error opening group /MAPS/int_spec";
+    }
+    hsize_t* dims_out = new hsize_t[rank];
+    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], NULL);
+
+    for (int i=0; i < rank; i++)
+    {
+       offset[i] = 0;
+       count[i] = dims_out[i];
+    }
+
+    _integrated_spectra.resize(count[0]);
+    memoryspace_id = H5Screate_simple(1, count, NULL);
+    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+    H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+    error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
+
+    delete []dims_out;
+
+    H5Sclose(memoryspace_id);
+    H5Sclose(counts_dspace_id);
+    H5Dclose(counts_dset_id);
+
+    return true;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_counts_9(hid_t maps_grp_id)
+{
+
+    // XRF_roi
+    // XRF_roi_plus
+    // XRF_fits
+
+    hid_t analyzed_grp_id;
+
+    std::string analyzed_groups[] = {"XRF_roi", "XRF_roi_plus", "XRF_fits"};
+
+    for( std::string group_name : analyzed_groups )
+    {
+        _load_analyzed_counts_9(maps_grp_id, group_name);
+    }
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name)
+{
+
+    hid_t counts_dset_id, channels_dset_id, counts_dspace_id, channels_dspace_id;
+    hid_t memoryspace_id, memoryspace_name_id, error;
+    hsize_t offset[3] = {0,0,0};
+    hsize_t count[3] = {1,1,1};
+    hsize_t offset_name[1] = {0};
+    hsize_t count_name[1] = {1};
+    char tmp_name[255] = {0};
+    hid_t   filetype, memtype, status;
+
+    counts_dset_id = H5Dopen(analyzed_grp_id, group_name.c_str(), H5P_DEFAULT);
+    if(counts_dset_id < 0)
+    {
+        H5Gclose(analyzed_grp_id);
+        qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
+        return false;
+    }
+    counts_dspace_id = H5Dget_space(counts_dset_id);
+
+    channels_dset_id = H5Dopen(analyzed_grp_id, "channel_names", H5P_DEFAULT);
+    if(channels_dset_id < 0)
+    {
+        H5Sclose(counts_dspace_id);
+        H5Dclose(counts_dset_id);
+        H5Gclose(analyzed_grp_id);
+        qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
+        return false;
+    }
+    channels_dspace_id = H5Dget_space(channels_dset_id);
+
+    int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
+    if (rank != 3)
+    {
+        qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
+    }
+    hsize_t* dims_out = new hsize_t[rank];
+    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], NULL);
+
+    filetype = H5Tcopy (H5T_C_S1);
+    H5Tset_size (filetype, 256);
+    memtype = H5Tcopy (H5T_C_S1);
+    status = H5Tset_size (memtype, 255);
+
+    for (int i=0; i < 3; i++)
+    {
+       offset[i] = 0;
+       count[i] = dims_out[i];
+    }
+
+    count[0] = 1;
+
+    data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
+    _analyzed_counts.insert( {group_name, xrf_counts} );
+
+    memoryspace_id = H5Screate_simple(3, count, NULL);
+    memoryspace_name_id = H5Screate_simple(1, count_name, NULL);
+    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+    H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+
+    for(hsize_t el_idx=0; el_idx < dims_out[0]; el_idx++)
+    {
+        offset[0] = el_idx;
+        offset_name[0] = el_idx;
+        memset(&tmp_name[0], 0, 254);
+        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+        error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+        std::string el_name = std::string(tmp_name);
+        xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
+        xrf_counts->at(el_name).resize(count[1], count[2]);
+
+        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
+    }
+
+    delete []dims_out;
+
+    H5Sclose(memoryspace_name_id);
+    H5Sclose(memoryspace_id);
+    H5Sclose(channels_dspace_id);
+    H5Dclose(channels_dset_id);
+    H5Sclose(counts_dspace_id);
+    H5Dclose(counts_dset_id);
+    H5Gclose(analyzed_grp_id);
+
+    //nan to 0.f
+    for(auto& itr : *xrf_counts)
+    {
+        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v)? v : 0.0f; });
+    }
+
+    return true;
+}
+
+//-----------------------------------------------Version 10---------------------------------------------------------
 
 bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 {
@@ -276,6 +480,7 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 }
 
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
 {
@@ -283,6 +488,7 @@ bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
     return true;
 }
 
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 {
@@ -290,12 +496,15 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     return true;
 }
 
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
 
     return true;
 }
+
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 {
@@ -304,6 +513,8 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
     return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(_filepath.toStdString(), -1, &_integrated_spectra);
 
 }
+
+/*---------------------------------------------------------------------------*/
 
 bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
 {
@@ -321,7 +532,7 @@ bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
 
     for( std::string group_name : analyzed_groups )
     {
-        _load_analyzed_counts(analyzed_grp_id, group_name);
+        _load_analyzed_counts_10(analyzed_grp_id, group_name);
     }
 
     H5Gclose(analyzed_grp_id);
@@ -329,8 +540,9 @@ bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
     return true;
 }
 
+/*---------------------------------------------------------------------------*/
 
-bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group_name)
+bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name)
 {
 
     hid_t sub_grp_id, counts_dset_id, channels_dset_id, counts_dspace_id, channels_dspace_id;
@@ -432,3 +644,4 @@ bool MapsH5Model::_load_analyzed_counts(hid_t analyzed_grp_id, std::string group
     return true;
 }
 
+/*---------------------------------------------------------------------------*/

@@ -492,13 +492,15 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
         energy_range.min = 0;
         energy_range.max = _h5_model->getIntegratedSpectra()->size() -1;
 
-        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-        data_struct::ArrayXr ev = fit_params->at(STR_ENERGY_OFFSET).value + energy * fit_params->at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(STR_ENERGY_QUADRATIC).value;
-
         data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
-        _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&ev);
+        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
         if(fit_params != nullptr)
         {
+            data_struct::ArrayXr ev = fit_params->at(STR_ENERGY_OFFSET).value + energy * fit_params->at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(STR_ENERGY_QUADRATIC).value;
+
+
+            _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&ev);
+
             _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
                                                  fit_params->at(STR_ENERGY_OFFSET).value,
                                                  fit_params->at(STR_ENERGY_SLOPE).value,
@@ -509,6 +511,12 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
                                                  _h5_model->getIntegratedSpectra()->size());
 
             _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+            _spectra_widget->setXLabel("Energy (kEv)");
+        }
+        else
+        {
+            _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&energy);
+            _spectra_widget->setXLabel("Channels");
         }
     }
 }
