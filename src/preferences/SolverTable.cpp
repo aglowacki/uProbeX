@@ -334,3 +334,38 @@ QStringList SolverTable::toStringList()
 
 /*---------------------------------------------------------------------------*/
 
+QMap<QString, double> SolverTable::toMap()
+{
+
+   QMap<QString, double> lst;
+   QList<Attribute> attrs = getSolverAttrs();
+   for (int i = 0 ; i < attrs.size() ; i++)
+   {
+      Attribute attr = attrs.at(i);
+      lst.insert(attr.getName(), attr.getValue().toDouble());
+   }
+   return lst;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+QMap<QString, double> SolverTable::toSelectedMap()
+{
+
+   QMap<QString, double> lst;
+   QList<Attribute> attrs = getSolverAttrs();
+   for (int i = 0 ; i < attrs.size() ; i++)
+   {
+      Attribute attr = attrs.at(i);
+      if(attr.getIsEnable())
+      {
+        lst.insert(attr.getName(), attr.getValue().toDouble());
+      }
+   }
+   return lst;
+
+}
+
+/*---------------------------------------------------------------------------*/
+

@@ -99,7 +99,7 @@ void SpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::append_spectra(QString name, data_struct::Spectra* spectra, data_struct::Spectra *energy)
+void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr *energy)
 {
     if (spectra == nullptr)
         return;

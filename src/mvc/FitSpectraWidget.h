@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------------------
+﻿/*-----------------------------------------------------------------------------
  * Copyright (c) 2012, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
@@ -124,7 +124,7 @@ private:
 
    QPushButton* _btn_model_spectra;
 
-   data_struct::Spectra _spectra_background;
+   data_struct::ArrayXr _spectra_background;
 
    QMenu *_fit_param_contextMenu;
 

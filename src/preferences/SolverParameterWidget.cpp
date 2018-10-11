@@ -129,6 +129,20 @@ QList<Attribute> SolverParameterWidget::getCoefficientAttrsList()
 
 /*---------------------------------------------------------------------------*/
 
+QMap<QString, double> SolverParameterWidget::getCoefficientAttrsMap()
+{
+   return m_coefficientTable->toMap();
+}
+
+/*---------------------------------------------------------------------------*/
+
+QMap<QString, double> SolverParameterWidget::getSelectedCoefficientAttrsMap()
+{
+   return m_coefficientTable->toSelectedMap();
+}
+
+/*---------------------------------------------------------------------------*/
+
 QStringList SolverParameterWidget::getOptionAttrs()
 {
 
@@ -143,6 +157,21 @@ QList<Attribute> SolverParameterWidget::getOptionAttrsList()
    return m_optionTable->getSolverAttrs();
 
 }
+
+/*---------------------------------------------------------------------------*/
+
+QMap<QString, double> SolverParameterWidget::getOptionAttrsMap()
+{
+   return m_optionTable->toMap();
+}
+
+/*---------------------------------------------------------------------------*/
+
+QMap<QString, double> SolverParameterWidget::getSelectedOptionAttrsMap()
+{
+   return m_optionTable->toSelectedMap();
+}
+
 
 /*---------------------------------------------------------------------------*/
 

@@ -84,6 +84,10 @@ public:
     */
    QList<Attribute> getCoefficientAttrsList();
 
+   QMap<QString, double> getCoefficientAttrsMap();
+
+   QMap<QString, double> getSelectedCoefficientAttrsMap();
+
    /**
     * @brief getOptionAttrs
     * @return options
@@ -95,6 +99,10 @@ public:
     * @return options
     */
    QList<Attribute> getOptionAttrsList();
+
+   QMap<QString, double> getOptionAttrsMap();
+
+   QMap<QString, double> getSelectedOptionAttrsMap();
 
    /**
     * @brief setButtionVisible

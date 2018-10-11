@@ -218,6 +218,38 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
                 }
             }
             m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+
+            /// save pixmap to png
+            /// //    static int path_cntr = 0;
+            //    std::string ipath;
+
+            //    if (path_cntr < 10)
+            //    {
+            //        ipath = "/data/tmp_img/counts_000"+std::to_string(path_cntr) + ".png";
+            //    }
+            //    else if (path_cntr > 9 && path_cntr < 100)
+            //    {
+            //        ipath = "/data/tmp_img/counts_00"+std::to_string(path_cntr) + ".png";
+            //    }
+            //    else if (path_cntr > 99 && path_cntr < 1000)
+            //    {
+            //        ipath = "/data/tmp_img/counts_0"+std::to_string(path_cntr) + ".png";
+            //    }
+            //    else
+            //    {
+            //        ipath = "/data/tmp_img/counts_"+std::to_string(path_cntr) + ".png";
+            //    }
+//            QPixmap pix = QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32);
+//            QPainter painter(&pix);
+//            int h = 1080;
+//            int w = 1920;
+//            int x = 0;
+//            int y = 0;
+//            painter.drawPixmap(x, y, w, h, pix);
+
+//            painter.end();
+//            pix.save(QString(ipath.c_str()), "png");
+        //    path_cntr ++;
         }
     }
 }

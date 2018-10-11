@@ -144,7 +144,7 @@ void PreferencesDialog::accept()
                                  m_solverOptionWidget->getNMCoefficientAttrs());
       m_preferences->saveValueKey(Preferences::NMOptions,
                                   m_solverOptionWidget->getNMOptionAttrs());
-
+/*
       // Profile information
       m_preferences->saveValueKey(Preferences::ProfileList,
                                   m_solverOptionWidget->getPythonSolverPofile());
@@ -164,7 +164,7 @@ void PreferencesDialog::accept()
                              m_solverOptionWidget->getCurrentCoefficientAttrs());
       m_preferences->saveValueKey(Preferences::PythonOptions,
                                   m_solverOptionWidget->getCurrentOptionAttrs());
-
+*/
       m_preferences->saveValueKey(Preferences::SolverCheckedID,
                                   m_solverOptionWidget->getCheckedID());
 
@@ -254,7 +254,7 @@ void PreferencesDialog::setPreferences(Preferences* preferences, bool passMode)
       m_solverOptionWidget->setNMOptionAttrs(
             preferences->readValueKey(
                   Preferences::NMOptions).toStringList());
-
+/*
       // Preference for all the profiles
       m_solverOptionWidget->setPythonSolverPofile(
             preferences->readValueKey(
@@ -280,7 +280,7 @@ void PreferencesDialog::setPreferences(Preferences* preferences, bool passMode)
       m_solverOptionWidget->setCurrentOptionAttrs(
             preferences->readValueKey(
                   Preferences::PythonOptions).toStringList());
-
+*/
       // General window attribute
       m_displaySettings->setFontSize(
          preferences->readValueKey(Preferences::FontSize).toInt());

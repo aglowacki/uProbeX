@@ -43,7 +43,7 @@
 //#include <core/CAEmitDataChangeHandler.h>
 
 #include <mvc/SolverWidget.h>
-
+#include <preferences/PythonSolverProfileWidget.h>
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -836,11 +836,11 @@ void SWSWidget::createCalibrationTab()
            this,
            SLOT(addTopWindowPoints()));
 
-   m_btnRunSolver = new QPushButton("Run Solver");
+   m_btnRunSolver = new QPushButton("Open Solver");
    connect(m_btnRunSolver,
            SIGNAL(clicked()),
            this,
-           SLOT(runSolver()));
+           SLOT(openSolver()));
 
    QLabel* lblXOffset = new QLabel("2xfm:X ");
    m_xOffset = new QLineEdit();
@@ -1933,10 +1933,28 @@ void SWSWidget::restoreMarkerLoaded()
 
 /*---------------------------------------------------------------------------*/
 
+void SWSWidget::openSolver()
+{
+    QList< QMap<QString, double> > coordPoints;
+    if (!getMarkerCoordinatePoints(coordPoints))
+    {
+        QMessageBox::warning(nullptr, "Warning", "You need to add coordinate points before running solver");
+
+        return;
+    }
+    PythonSolverProfileWidget solverWidget;
+    solverWidget.setCoordinatePoints(&coordPoints);
+
+    if (solverWidget.exec() == QDialog::Accepted)
+    {
+
+    }
+}
+
+/*---------------------------------------------------------------------------*/
 
 void SWSWidget::runSolver()
 {
-
    emit solverStart();
 
    QList< QMap<QString, double> > coordPoints;

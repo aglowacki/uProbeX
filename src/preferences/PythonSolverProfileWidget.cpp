@@ -14,14 +14,16 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include <core/PythonLoader.h>
 
 /*---------------------------------------------------------------------------*/
 
-PythonSolverProfileWidget::PythonSolverProfileWidget(QWidget* parent) : QWidget(parent)
+PythonSolverProfileWidget::PythonSolverProfileWidget(QWidget* parent) : QDialog(parent)
 {
 
    m_currentProfileIndex = 0;
-
+    m_coordPoints = nullptr;
+    m_solverWidget = nullptr;
    createCompontent();
 
    createLayOut();
@@ -58,10 +60,11 @@ void PythonSolverProfileWidget::addProfileItem(QString name, QString desc)
 
 void PythonSolverProfileWidget::coefficientItemChanged()
 {
-
-   m_profiles[m_currentProfileIndex].setCoefficientAttrs(
-            m_pythonSolverWidget -> getCoefficientAttrsList());
-
+    if(m_profiles.size() > 0)
+    {
+        m_profiles[m_currentProfileIndex].setCoefficientAttrs(
+                m_pythonSolverWidget -> getCoefficientAttrsList());
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -144,6 +147,30 @@ void PythonSolverProfileWidget::createLayOut()
    mainLayout->addRow(
          new QLabel("The python solver must have solver and transform functions !"));
    mainLayout->addRow(m_pythonSolverWidget);
+
+   m_btnRunSolver = new QPushButton("Run Solver");
+   connect(m_btnRunSolver,
+           SIGNAL(pressed()),
+           this,
+           SLOT(runSolver()));
+   mainLayout->addRow(m_btnRunSolver);
+
+   QHBoxLayout* hLayout2 = new QHBoxLayout();
+   m_btnSave = new QPushButton("Save");
+   connect(m_btnSave,
+           SIGNAL(pressed()),
+           this,
+           SLOT(accept()));
+   m_btnCancel = new QPushButton("Cancel");
+   connect(m_btnCancel,
+           SIGNAL(pressed()),
+           this,
+           SLOT(reject()));
+   hLayout2->addWidget(m_btnSave);
+   hLayout2->addWidget(m_btnCancel);
+
+   mainLayout->addRow(hLayout2);
+
 
    setLayout(mainLayout);
 
@@ -269,18 +296,87 @@ void PythonSolverProfileWidget::openPythonFile()
 
    m_lePythonPath->setText(m_filePath);
 
+   if(m_profiles.size() < 1)
+   {
+        addProfileItem(m_fileName, "New Python");
+   }
+
    m_profiles[m_currentProfileIndex].setFilePath(m_filePath);
 
+   try
+    {
+        if(false == PythonLoader::inst()->isLoaded())
+        {
+            PythonLoader::inst()->init();
+        }
+        QMap<QString, QString> variables;
+        //Coefs
+        if(!PythonLoader::inst()-> loadFunction(m_fileInfo.path(), m_fileInfo.baseName(), "getCoefDict"))
+        {
+            QMessageBox::warning(NULL, "Error loading variables", "Error calling getCoefDict in the script. You will have to manually enter them.");
+            return;
+        }
+        PythonLoader::inst()->setRetCnt(m_fileInfo.baseName(), "getCoefDict", 1);
+        PythonLoader::inst()->callFunc(m_fileInfo.baseName(), "getCoefDict", PythonLoader::RET_STR_DICT);
+        QList<Attribute> coefList;
+        if(PythonLoader::inst()->getRetStrDict(m_fileInfo.baseName(), "getCoefDict", &variables))
+        {
+            foreach (QString key, variables.keys())
+            {
+                qDebug()<< key <<" : "<< variables[key];
+                ////play_attributes->addAttr(key, variables[key], "float", true);
+                Attribute attr(key, variables[key], "", true);
+                coefList.append(attr);
+            }
+            m_profiles[m_currentProfileIndex].setCoefficientAttrs(coefList);
+            m_profileTable->setRow(m_currentProfileIndex);
+            m_pythonSolverWidget->removeCoefficientItems();
+            m_pythonSolverWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
+        }
+
+
+        variables.clear();
+        //Options
+        if(!PythonLoader::inst()-> loadFunction(m_fileInfo.path(), m_fileInfo.baseName(), "getOptionsDict"))
+        {
+            QMessageBox::warning(NULL, "Error loading options", "Error calling getOptionsDict in the script. You will have to manually enter them.");
+            return;
+        }
+        PythonLoader::inst()->setRetCnt(m_fileInfo.baseName(), "getOptionsDict", 1);
+        PythonLoader::inst()->callFunc(m_fileInfo.baseName(), "getOptionsDict", PythonLoader::RET_STR_DICT);
+        QList<Attribute> optionsList;
+        if(PythonLoader::inst()->getRetStrDict(m_fileInfo.baseName(), "getOptionsDict", &variables))
+        {
+            foreach (QString key, variables.keys())
+            {
+                qDebug()<< key <<" : "<< variables[key];
+                Attribute attr(key, variables[key], "", true);
+                optionsList.append(attr);
+            }
+            m_profiles[m_currentProfileIndex].setOptionAttrs(optionsList);
+            m_pythonSolverWidget->removeOptionItems();
+            m_pythonSolverWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
+        }
+
+        m_profileTable->setRow(m_currentProfileIndex);
+
+    }
+    catch(PythonLoader::pyException ex)
+    {
+        qDebug()<<ex.what();
+        QMessageBox::warning(NULL, "Error loading variables", "Error loading variables. You will have to manually enter them.");
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 void PythonSolverProfileWidget::optionItemChanged()
 {
-
-   m_profiles[m_currentProfileIndex].setOptionAttrs(
-            m_pythonSolverWidget -> getOptionAttrsList());
-
+    if(m_profiles.size() > 0)
+    {
+       m_profiles[m_currentProfileIndex].setOptionAttrs(
+                m_pythonSolverWidget -> getOptionAttrsList());
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -326,9 +422,11 @@ void PythonSolverProfileWidget::setCoefficientAttrs(QStringList attrs)
 
    for (int i = 0 ; i < attrs.length() ; i++)
    {
-      m_profiles[i].coefficientfromString(attrs[i]);
+       if(m_profiles.size() > 0)
+        {
+            m_profiles[i].coefficientfromString(attrs[i]);
+        }
    }
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -348,7 +446,10 @@ void PythonSolverProfileWidget::setPythonOptionAttrs(QStringList attrs)
 
    for (int i = 0 ; i < attrs.length() ; i++)
    {
-      m_profiles[i].optionfromString(attrs[i]);
+       if(m_profiles.size() > 0)
+        {
+            m_profiles[i].optionfromString(attrs[i]);
+       }
    }
 
 }
@@ -364,9 +465,12 @@ void PythonSolverProfileWidget::setPythonSolverNameList(QStringList fileNameList
       QStringList l = attr.split(",");
       if (l.size() != 2)  continue;
 
-      if(l.at(0) == m_profiles[i].getName())
+      if(m_profiles.size() > i)
       {
-         m_profiles[i].setFilePath(l.at(1));
+          if(l.at(0) == m_profiles[i].getName())
+          {
+             m_profiles[i].setFilePath(l.at(1));
+          }
       }
    }
 
@@ -443,6 +547,70 @@ void PythonSolverProfileWidget::switchProfileItem(const QItemSelection& selected
 
 /*---------------------------------------------------------------------------*/
 
+void PythonSolverProfileWidget::runSolver()
+{
+    if(m_coordPoints == nullptr)
+    {
+     return;
+    }
 
+   emit solverStart();
+
+    if(m_solver == nullptr)
+    {
+        m_solver = new PythonSolver();
+        if(false == m_solver->initialPythonSolver(m_filePath, m_fileInfo.baseName(), "my_solver"))
+        {
+         QMessageBox::warning(nullptr, "Error loading python solver", "Could not load function my_solver() in python script");
+         return;
+        }
+    }
+
+   m_solver->setCoordPoints(*m_coordPoints);
+
+   QMap<QString, double> newMinCoefs;
+   QMap<QString, double> minCoefs = m_pythonSolverWidget->getSelectedCoefficientAttrsMap();
+
+   m_solver->setAllCoef(m_pythonSolverWidget->getCoefficientAttrsMap());
+   m_solver->setOptions(m_pythonSolverWidget->getOptionAttrsMap());
+   m_solver->setMinCoef(minCoefs);
+
+
+
+   QApplication::setOverrideCursor(Qt::WaitCursor);
+   bool retVal = m_solver->run();
+   QApplication::restoreOverrideCursor();
+
+   if(m_solverWidget != NULL)
+      delete m_solverWidget;
+   m_solverWidget = NULL;
+
+   m_solverWidget = new SolverWidget();
+   connect(m_solverWidget,
+     SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
+     this,
+     SLOT(useUpdatedSolverVariables(const QMap<QString, double> )));
+
+   connect(m_solverWidget,
+     SIGNAL(cancelUpdatedVariables()),
+     this,
+     SLOT(cancelUpdatedSolverVariables()));
+
+   newMinCoefs = m_solver->getMinCoef();
+   m_solverWidget->setCoefs(minCoefs, newMinCoefs);
+   m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
+
+   if(retVal)
+   {
+      m_solverWidget->setUseBtnEnabled(true);
+   }
+   else
+   {
+      m_solverWidget->setUseBtnEnabled(false);
+   }
+
+   m_solverWidget->show();
+
+}
 
 

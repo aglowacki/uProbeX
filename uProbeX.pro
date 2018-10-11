@@ -58,11 +58,11 @@ win32 {
 DESTDIR = ./bin
 
 # Release or Debug
-CONFIG += release
-#CONFIG += debug
+#CONFIG += release
+CONFIG += debug
 CONFIG += ordered
 CONFIG += console 
-CONFIG += c++14
+CONFIG += c++17
 DEFINES += WITH_DOM
 DEFINES += _REAL_FLOAT
 DEFINES += H5_BUILT_AS_DYNAMIC_LIB

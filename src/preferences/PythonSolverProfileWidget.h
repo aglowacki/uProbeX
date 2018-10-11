@@ -20,6 +20,8 @@
 #include <preferences/ProfileTable.h>
 #include <preferences/Profile.h>
 #include <preferences/SolverParameterWidget.h>
+#include <solver/PythonSolver.h>
+#include <mvc/SolverWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -27,7 +29,7 @@
  * @brief
  */
 class PythonSolverProfileWidget
-: public QWidget
+: public QDialog
 {
 
    Q_OBJECT
@@ -115,6 +117,27 @@ public:
     */
    void setPythonSolverPofileList(QStringList list);
 
+   void setCoordinatePoints( QList< QMap<QString, double> > * points){m_coordPoints = points;}
+
+signals:
+
+   /**
+    * @brief SolverStart
+    */
+   void solverStart();
+
+   /**
+    * @brief SolverVariableUpdate
+    * @param valX
+    * @param valY
+    */
+   void solverVariableUpdate(double valX, double valY);
+
+   /**
+    * @brief CancelSolverVariableUpdate
+    */
+   void cancelSolverVariableUpdate();
+
 private:
 
    /**
@@ -163,6 +186,8 @@ private slots:
     * @brief switchProfileItem
     */
    void switchProfileItem(const QItemSelection &, const QItemSelection &);
+
+   void runSolver();
 
 private:
 
@@ -226,10 +251,22 @@ private:
     */
    QFileInfo m_fileInfo;
 
+   QPushButton *m_btnRunSolver;
+
+   QPushButton *m_btnSave;
+
+   QPushButton *m_btnCancel;
+
    /**
     * @brief m_pythonSolverTable
     */
    SolverParameterWidget* m_pythonSolverWidget;
+
+   PythonSolver *m_solver;
+
+   QList< QMap<QString, double> > *m_coordPoints;
+
+   SolverWidget *m_solverWidget;
 
    int m_currentProfileIndex;
 

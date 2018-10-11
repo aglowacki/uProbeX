@@ -19,6 +19,26 @@ g_transDic = dict()
 g_varIndexes = dict()
 g_list_coord_points = []
 
+g_dict_min_coef = {'SlopeX': 0.0,
+                   'SlopeY': 0.0,
+                   'InterceptX': 0.0,
+                   'InterceptY': 0.0,
+                   'SlopeXY': 0.0,
+                   'InterceptXY': 0.0,
+                   'SlopeYX': 0.0,
+                   'InterceptYX': 0.0,
+                   'm2xfm_x': 0.0,
+                   'm2xfm_y': 0.0
+                   }
+
+g_options = {'NA': 0}
+
+def getCoefDict():
+    return g_dict_min_coef
+
+def getOptionsDict():
+    return g_options
+
 #my custom transform function
 def my_transform(d_params, inX, inY, inZ):
 	#initialize our output variable
@@ -33,12 +53,6 @@ def my_transform(d_params, inX, inY, inZ):
     out[Z] = 0.0
     #return output
     return out
-
-def polyFunc(x, *p):
-    poly = 0.0
-    for i, n in enumerate(p):
-        poly += n* x**i
-    return poly
 
 def fitFunc(x, slope, intercept):
     return slope * x + intercept
@@ -56,13 +70,10 @@ def my_solver( dict_min_coef, dict_options, dict_transform_coef, list_coord_poin
         y+=[t[Y]]
         mx+=[t[MX]]
         my+=[t[MY]]
-    print 'x = ',x
-    print 'y = ',y
-    print 'mx = ',mx
-    print 'my = ',my
-    #p0 = numpy.ones(6,)
-    #coeff, var_matrix = curve_fit(polyFunc, x, mx, p0=p0)
-    #yfit = [polyFunc(xx, *tuple(coeff)) for xx in x]
+    #print( 'x = ',x)
+    #print( 'y = ',y)
+    #print( 'mx = ',mx)
+    #print( 'my = ',my)
     '''
     #Get the X slope and intercept
     '''
@@ -97,14 +108,14 @@ def my_solver( dict_min_coef, dict_options, dict_transform_coef, list_coord_poin
     coeff, var_matrix = curve_fit(fitFunc, yPred, xDelta, p0=p0)
     dict_min_coef['SlopeYX'] = coeff[0]
     dict_min_coef['InterceptYX'] = coeff[1]
-    print 'xPred = ',xPred
-    print 'yPred = ',yPred
-    print 'xDelta = ',xDelta
-    print 'yDelta = ',yDelta
+    #print( 'xPred = ',xPred)
+    #print( 'yPred = ',yPred)
+    #print( 'xDelta = ',xDelta)
+    #print( 'yDelta = ',yDelta)
     #plot results
     if 'plot' in dict_options:
         yfit = [fitFunc(xx, dict_min_coef['SlopeXY'], dict_min_coef['InterceptXY']) for xx in xPred]
-        print 'yfit = ',yfit
+        #print( 'yfit = ',yfit)
         import matplotlib.pyplot as plt
         plt.plot(xPred, yDelta, 'ro', label='Test data')
         plt.plot(xPred, yfit , label='Fitted data')
@@ -117,6 +128,6 @@ if __name__ == '__main__':
     dicOpt = {'plo':1.0}
     coords = ((71.486, 42.560, 0.0, 0.412, 3.102), (71.468, 43.090, 0.0, 0.4312, 2.5696), (71.320, 42.325, 0.0, 0.5862, 3.3343), (71.381, 42.390, 0.0, 0.523, 3.269), (70.809, 43.099, 0.0, 1.0906, 2.5590), (70.924, 43.129, 0.0, 0.978, 2.529), (71.942, 42.048, 0.0, -0.0373, 3.6134), (71.874, 42.601, 0.0, 0.029, 3.060), (71.415, 43.578, 0.0, 0.485, 2.083), (72.017, 43.216, 0.0, -0.118, 2.449))
     dicTrans = my_solver(dicMin, dicOpt, dicTrans, coords)
-    print dicTrans
-    print my_transform(dicTrans, 71.486, 42.560, 0.0)
+    print( dicTrans)
+    print( my_transform(dicTrans, 71.486, 42.560, 0.0))
 

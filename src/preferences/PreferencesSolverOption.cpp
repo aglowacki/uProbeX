@@ -35,7 +35,7 @@ PreferencesSolverOption::PreferencesSolverOption(
 
    createLayOut();
 
-   initialState();
+   //initialState();
 
 }
 
@@ -93,7 +93,7 @@ void PreferencesSolverOption::createLayOut()
 //   // mainLayout->addRow(m_pythonFuncName);
 //   mainLayout->addRow(
 //         new QLabel("The python solver must have solver and transform functions !"));
-   mainLayout->addRow(m_pythonSolverProfileWidget);
+//   mainLayout->addRow(m_pythonSolverProfileWidget);
 
    mainLayout->addRow(m_btnRunSolver);
 
@@ -120,8 +120,8 @@ void PreferencesSolverOption::createNelMinSolver()
 void PreferencesSolverOption::createPythonSolver()
 {
 
-   m_pythonSolverProfileWidget = new PythonSolverProfileWidget();
-   m_pythonSolverWidget = m_pythonSolverProfileWidget -> getPythonSolverProfileWiget();
+   //m_pythonSolverProfileWidget = new PythonSolverProfileWidget();
+   //m_pythonSolverWidget = m_pythonSolverProfileWidget -> getPythonSolverProfileWiget();
 
 }
 
@@ -177,34 +177,6 @@ int PreferencesSolverOption::getCheckedID()
 
 /*---------------------------------------------------------------------------*/
 
-QStringList PreferencesSolverOption::getPythonSolverName()
-{
-
-   return m_pythonSolverProfileWidget->getPythonSolverName();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QString PreferencesSolverOption::getPythonSolverPath()
-{
-
-//   return m_filePath;
-   return m_pythonSolverProfileWidget->getCurrentFileName();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QStringList PreferencesSolverOption::getPythonSolverPofile()
-{
-
-   return m_pythonSolverProfileWidget->getProfileAttrs();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 QStringList PreferencesSolverOption::getNMCoefficientAttrs()
 {
 
@@ -232,45 +204,10 @@ QStringList PreferencesSolverOption::getCurrentCoefficientAttrs()
 
 /*---------------------------------------------------------------------------*/
 
-int PreferencesSolverOption::getCurrentIndex()
-{
-
-    return m_pythonSolverProfileWidget->getCurrentIndex();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 QStringList PreferencesSolverOption::getCurrentOptionAttrs()
 {
 
    return m_pythonSolverWidget->getOptionAttrs();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QString PreferencesSolverOption::getCurrentFileName()
-{
-
-   return m_pythonSolverProfileWidget->getCurrentFileName();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QStringList PreferencesSolverOption::getPythonCoefficientAttrs()
-{
-
-   return m_pythonSolverProfileWidget->getProfileCoefficientAttrs();
-}
-
-/*---------------------------------------------------------------------------*/
-
-QStringList PreferencesSolverOption::getPythonOptionAttrs()
-{
-
-   return m_pythonSolverProfileWidget->getProfileOptionAttrs();
 
 }
 
@@ -299,15 +236,6 @@ void PreferencesSolverOption::getSolverPropertiesFromModel(
       return;
    }
    m_solverParameterParse -> getOptions(options);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::initialState()
-{
-
-   m_pythonSolverProfileWidget->setEnabled(false);
 
 }
 
@@ -344,7 +272,7 @@ void PreferencesSolverOption::runSolver()
       widget = m_pythonSolverWidget;
 
       impl = new PythonSolver();
-      QFileInfo fileInfo = QFileInfo(getPythonSolverPath());
+/*      QFileInfo fileInfo = QFileInfo(getPythonSolverPath());
       if(false ==((PythonSolver*)impl)->initialPythonSolver(fileInfo.path(),
                                                             fileInfo.baseName(),
                                                             "my_solver"))
@@ -354,7 +282,7 @@ void PreferencesSolverOption::runSolver()
          QMessageBox::critical(NULL,"Error", "Error Initializing Python Solver!");
          return;
       }
-
+*/
       m_solver->setImpl(impl);
    }
 
@@ -427,51 +355,7 @@ void PreferencesSolverOption::setCheckedID(int id)
         m_radioPython->setChecked(true);
     }
 
-    solverOptionSelected(id);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setCurrentFileName(QString fileName)
-{
-
-   m_pythonSolverProfileWidget->setPythonSolverName(fileName);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setCurrentIndex(int index)
-{
-
-   m_pythonSolverProfileWidget->setCurrentIndex(index);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setCurrentCoefficientAttrs(QStringList attrs)
-{
-
-   if(!attrs.empty())
-   {
-      m_pythonSolverWidget->setCoefficientAttrs(attrs);
-//      m_pythonSolverProfileWidget->setCoefficientAttrs(attrs);
-   }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setCurrentOptionAttrs(QStringList attrs)
-{
-
-   if(!attrs.empty())
-   {
-      m_pythonSolverWidget->setOptionAttrs(attrs);
-//      m_pythonSolverProfileWidget->setCoefficientAttrs(attrs);
-   }
+    //solverOptionSelected(id);
 
 }
 
@@ -497,82 +381,6 @@ void PreferencesSolverOption::setNMOptionAttrs(QStringList attrs)
    {
       m_NMSolverWidget->setOptionAttrs(attrs);
    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setPythonCoefficientAttrs(QStringList attrs)
-{
-
-   if(!attrs.empty())
-   {
-//      m_pythonSolverWidget->setCoefficientAttrs(attrs);
-      m_pythonSolverProfileWidget->setCoefficientAttrs(attrs);
-   }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setPythonOptionAttrs(QStringList attrs)
-{
-
-   if(!attrs.empty())
-   {
-//      m_pythonSolverWidget->setOptionAttrs(attrs);
-      m_pythonSolverProfileWidget->setPythonOptionAttrs(attrs);
-   }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setPythonSolverName(QStringList fileNameList)
-{
-
-   m_pythonSolverProfileWidget->setPythonSolverNameList(fileNameList);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::setPythonSolverPofile(QStringList attrs)
-{
-
-   m_pythonSolverProfileWidget->setPythonSolverPofileList(attrs);
-
-}
-
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::solverOptionSelected(int value)
-{
-
-   if(m_windowList.count() > 0)
-      {
-         m_btnRunSolver->setEnabled(true);
-      }
-      else
-      {
-         m_btnRunSolver->setEnabled(false);
-      }
-
-      switch (value) {
-      case NM_SELECTED:
-         m_NMSolverWidget->setEnabled(true);
-         m_pythonSolverProfileWidget->setEnabled(false);
-         break;
-      case PY_SELECTED:
-         m_NMSolverWidget->setEnabled(false);
-         m_pythonSolverProfileWidget->setEnabled(true);
-         break;
-      default:
-         m_NMSolverWidget->setEnabled(true);
-         m_pythonSolverProfileWidget->setEnabled(false);
-         break;
-      }
 
 }
 

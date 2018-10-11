@@ -20,7 +20,7 @@
 
 #include <preferences/SolverParameterWidget.h>
 #include <preferences/SolverParameterParse.h>
-#include <preferences/PythonSolverProfileWidget.h>
+//#include <preferences/PythonSolverProfileWidget.h>
 #include <solver/PythonSolver.h>
 #include <solver/NelderMeadSolver.h>
 #include <mvc/SWSWidget.h>
@@ -86,11 +86,6 @@ public:
     * @brief getPythonSolverPofile
     */
    QStringList getPythonSolverPofile();
-
-   /**
-    * @brief getPythonSolverPath
-    */
-   QString getPythonSolverPath();
 
    /**
     * @brief getCheckedID
@@ -242,16 +237,11 @@ private slots:
     */
    void runSolver();
 
-//   /**
-//    * @brief openPythonFile
-//    */
-//   void openPythonFile();
-
    /**
     * @brief Solver option
     * @param vals
     */
-   void solverOptionSelected(int value);
+   //void solverOptionSelected(int value);
 
    /**
     * @brief useUpdatedSolverVariables
@@ -271,16 +261,6 @@ private:
     */
    NelderMeadSolver* m_errorMinimizer;
 
-//   /**
-//    * @brief m_profileTable
-//    */
-//   ProfileTable* m_profileTable;
-
-   /**
-    * @brief Radio button group.
-    */
-   PythonSolverProfileWidget* m_pythonSolverProfileWidget;
-
    /**
     * @brief Radio button group.
     */
@@ -296,11 +276,6 @@ private:
     */
    QPushButton* m_btnRunSolver;
 
-//   /**
-//    * @brief m_openPythonAction
-//    */
-//   QPushButton* m_openPythonButton;
-
    /**
     * @brief Radio button for simulate camera
     */
@@ -310,51 +285,6 @@ private:
     * @brief Radio button for 32 ID camera
     */
    QRadioButton* m_radioPython;
-
-//   /**
-//    * @brief m_lblOpenPthon
-//    */
-//   QLabel* m_lblOpenPthon;
-
-//   /**
-//    * @brief m_lblP
-//    */
-//   QLabel* m_lblP;
-
-//   /**
-//    * @brief m_lblPofileTable
-//    */
-//   QLabel* m_lblPofileTable;
-
-//   /**
-//    * @brief m_lblTitle
-//    */
-//   QLabel* m_lblTitle;
-
-//   /**
-//    * @brief m_pythonFuncName
-//    */
-//   QLineEdit* m_pythonFuncName;
-
-//   /**
-//    * @brief m_lePythonPath
-//    */
-//   QLineEdit* m_lePythonPath;
-
-//   /**
-//    * @brief m_fileName
-//    */
-//   QString m_fileName;
-
-//   /**
-//    * @brief m_filePath
-//    */
-//   QString m_filePath;
-
-//   /**
-//    * @brief m_fileInfo
-//    */
-//   QFileInfo m_fileInfo;
 
    /**
     * @brief m_solver

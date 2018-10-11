@@ -115,7 +115,7 @@ bool PythonSolver::run()
 
    try
    {
-      PythonLoader::inst()->callFunc(m_module, m_funcName, PythonLoader::RET_DICT);
+      PythonLoader::inst()->callFunc(m_module, m_funcName, PythonLoader::RET_DOUBLE_DICT);
       PythonLoader::inst()->getRetDict(m_module, m_funcName, &m_dict_min_coef);
    }
    catch(PythonLoader::pyException ex)

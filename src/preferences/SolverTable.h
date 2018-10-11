@@ -105,6 +105,11 @@ public:
     */
    void setNMModel();
 
+   QMap<QString, double> toMap();
+
+   QMap<QString, double> toSelectedMap();
+
+
 signals:
 
    /**

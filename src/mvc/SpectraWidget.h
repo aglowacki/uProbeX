@@ -42,7 +42,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, data_struct::Spectra* spectra, data_struct::Spectra *energy=nullptr);
+    void append_spectra(QString name, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr *energy=nullptr);
 
     //void remove_spectra(QString name);
 
@@ -111,7 +111,7 @@ private:
 
     bool m_isTouching;
 
-    std::map<QString, data_struct::Spectra> _spectra_map;
+    //std::map<QString, data_struct::Spectra> _spectra_map;
 
     QAction *_action_check_log10;
 

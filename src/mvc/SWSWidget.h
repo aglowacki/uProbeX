@@ -242,6 +242,11 @@ protected slots:
    void runSolver();
 
    /**
+    * @brief openSolver
+    */
+   void openSolver();
+
+   /**
     * @brief tabIndexChanged
     * @param index
     */

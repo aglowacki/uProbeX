@@ -28,6 +28,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _fit_thread = nullptr;
     createLayout();
 
+    _spectra_background.resize(10);
+    _spectra_background.Zero(10);
     connect(this, SIGNAL(signal_finished_fit()), this, SLOT(finished_fitting()));
 
 
@@ -158,7 +160,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
             data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
 
-            data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
+            const data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
 
             //Range of energy in spectra to fit
             fitting::models::Range energy_range;
@@ -313,7 +315,7 @@ void FitSpectraWidget::Model_Spectra_Click()
             data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
             data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
 
-            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+            //_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
 
 
 //            _fit_params_table_model->updateFitParams(&fit_params);
@@ -488,34 +490,34 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
 
     if(_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
     {
+        const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
+
         fitting::models::Range energy_range;
         energy_range.min = 0;
-        energy_range.max = _h5_model->getIntegratedSpectra()->size() -1;
+        energy_range.max = int_spec->size() -1;
 
-        data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
         data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
         if(fit_params != nullptr)
         {
             data_struct::ArrayXr ev = fit_params->at(STR_ENERGY_OFFSET).value + energy * fit_params->at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(STR_ENERGY_QUADRATIC).value;
 
+            _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
 
-            _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&ev);
-
-            _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
+            _spectra_background = snip_background(int_spec,
                                                  fit_params->at(STR_ENERGY_OFFSET).value,
                                                  fit_params->at(STR_ENERGY_SLOPE).value,
                                                  fit_params->at(STR_ENERGY_QUADRATIC).value,
                                                  0, //spectral binning
                                                  fit_params->at(STR_SNIP_WIDTH).value,
                                                  0, //spectra energy start range
-                                                 _h5_model->getIntegratedSpectra()->size());
+                                                 int_spec->size()-1);
 
             _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
             _spectra_widget->setXLabel("Energy (kEv)");
         }
         else
         {
-            _spectra_widget->append_spectra("Integrated Spectra", _h5_model->getIntegratedSpectra(), (data_struct::Spectra*)&energy);
+            _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&energy);
             _spectra_widget->setXLabel("Channels");
         }
     }

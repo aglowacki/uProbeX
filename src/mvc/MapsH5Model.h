@@ -53,7 +53,7 @@ public:
 
     data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
 
-    data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
 
     QString getFilePath() { return _filepath; }
 

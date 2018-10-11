@@ -1,7 +1,47 @@
-/*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
- * See LICENSE file.
- *---------------------------------------------------------------------------*/
+/*
+* Copyright (c) 2016, UChicago Argonne, LLC. All rights reserved.
+*
+* Copyright 2016. UChicago Argonne, LLC. This software was produced 
+* under U.S. Government contract DE-AC02-06CH11357 for Argonne National 
+* Laboratory (ANL), which is operated by UChicago Argonne, LLC for the 
+* U.S. Department of Energy. The U.S. Government has rights to use, 
+* reproduce, and distribute this software.  NEITHER THE GOVERNMENT NOR 
+* UChicago Argonne, LLC MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR 
+* ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  If software is 
+* modified to produce derivative works, such modified software should 
+* be clearly marked, so as not to confuse it with the version available 
+* from ANL.
+
+* Additionally, redistribution and use in source and binary forms, with 
+* or without modification, are permitted provided that the following 
+* conditions are met:
+*
+*   * Redistributions of source code must retain the above copyright 
+*     notice, this list of conditions and the following disclaimer. 
+*
+*   * Redistributions in binary form must reproduce the above copyright 
+*     notice, this list of conditions and the following disclaimer in 
+*     the documentation and/or other materials provided with the 
+*     distribution. 
+*
+*   * Neither the name of UChicago Argonne, LLC, Argonne National 
+*     Laboratory, ANL, the U.S. Government, nor the names of its 
+*     contributors may be used to endorse or promote products derived 
+*     from this software without specific prior written permission. 
+
+* THIS SOFTWARE IS PROVIDED BY UChicago Argonne, LLC AND CONTRIBUTORS 
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL UChicago 
+* Argonne, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+* POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #ifndef PYTHON_LOADER_H
 #define PYTHON_LOADER_H
@@ -140,7 +180,7 @@ public:
    /**
     * @brief The pyReturnType enum: Used by callFunc()
     */
-   enum pyReturnType{RET_NONE, RET_LIST, RET_DICT};
+   enum pyReturnType{RET_NONE, RET_LIST, RET_DOUBLE_DICT, RET_STR_DICT};
 
    /**
     * Destructor.
@@ -204,6 +244,15 @@ public:
     * @return
     */
    bool getRetDict(QString module, QString func, QMap<QString, double> *val);
+
+   /**
+    * @brief getRetStrDict
+    * @param module
+    * @param func
+    * @param val
+    * @return
+    */
+   bool getRetStrDict(QString module, QString func, QMap<QString, QString> *val);
 
    /**
     * @brief getRetDouble
@@ -320,6 +369,7 @@ private:
     typedef PyObject* (*PyString_FromStringDef)(const char*);
     typedef int (*PyList_AppendDef)(PyObject*,PyObject*);
     typedef PyObject* (*PyImport_ImportDef)(PyObject*);
+    typedef PyObject* (*PyImport_ReloadModuleDef)(PyObject*);
     typedef PyObject* (*PyObject_GetAttrStringDef)(PyObject*, const char*);
     typedef int (*PyCallable_CheckDef)(PyObject*);
     typedef PyObject* (*PyDict_NewDef)();
@@ -336,9 +386,13 @@ private:
     typedef PyObject* (*PyTuple_GetItemDef)(PyObject*, long);
     typedef double (*PyFloat_AsDoubleDef)(PyObject*);
     typedef char* (*PyString_AsStringDef)(PyObject*);
+    typedef long (* PyInt_AsLongDef)(PyObject*);
     typedef PyObject* (*PyDict_KeysDef)(PyObject*);
     typedef int (*PyDict_SizeDef)(PyObject*);
     typedef PyObject* (*PyDict_GetItemDef)(PyObject*, PyObject*);
+    typedef void (*PyErr_PrintDef)();
+    typedef void (*PyErr_ClearDef)();
+
 
     Py_InitializeDef Py_Initialize;
     Py_FinalizeDef Py_Finalize;
@@ -347,6 +401,7 @@ private:
     PyString_FromStringDef PyString_FromString;
     PyList_AppendDef PyList_Append;
     PyImport_ImportDef PyImport_Import;
+    PyImport_ReloadModuleDef PyImport_ReloadModule;
     PyObject_GetAttrStringDef PyObject_GetAttrString;
     PyCallable_CheckDef PyCallable_Check;
     PyDict_NewDef PyDict_New;
@@ -363,9 +418,12 @@ private:
     PyTuple_GetItemDef PyTuple_GetItem;
     PyFloat_AsDoubleDef PyFloat_AsDouble;
     PyString_AsStringDef PyString_AsString;
+    PyInt_AsLongDef PyInt_AsLong;
     PyDict_KeysDef PyDict_Keys;
     PyDict_SizeDef PyDict_Size;
     PyDict_GetItemDef PyDict_GetItem;
+    PyErr_PrintDef PyErr_Print;
+    PyErr_ClearDef PyErr_Clear;
 
     /**
     * @brief The pyFunc struct
@@ -421,6 +479,11 @@ private:
        * @brief retDict
        */
       QMap<QString, double> retDict;
+
+      /**
+       * @brief retStrDict
+       */
+      QMap<QString, QString> retStrDict;
 
    };
 
