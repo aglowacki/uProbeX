@@ -56,7 +56,7 @@ AbstractGraphicsItem::~AbstractGraphicsItem()
    m_children.clear();
    clearProperties();
 
-   m_parent = NULL;
+   m_parent = nullptr;
 
 }
 
@@ -307,7 +307,7 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
    }
 
    AnnotationProperty* prop = m_data.value(column);
-   if (prop == NULL)
+   if (prop == nullptr)
    {
       return 0;
    }
@@ -346,7 +346,7 @@ QTransform AbstractGraphicsItem::getFirstViewTransform() const
    QTransform trans;
 
    QGraphicsScene *s = scene();
-   if (s != NULL)
+   if (s != nullptr)
    {
       QList<QGraphicsView*> v = s->views();
       if (v.length() > 0)
@@ -380,7 +380,7 @@ QVariant AbstractGraphicsItem::itemChange(GraphicsItemChange change,
       // value is the new position.
       QPointF newPos = value.toPointF();
 
-      if (m_parent != NULL)
+      if (m_parent != nullptr)
       {
          newPos += m_parent->pos();
       }
@@ -428,7 +428,7 @@ QVariant AbstractGraphicsItem::itemChange(GraphicsItemChange change,
          //newPos.setX(qMin(rect.right(), qMax(newPos.x(), rect.left())));
          //newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));
 
-         if (m_parent != NULL)
+         if (m_parent != nullptr)
          {
             newPos -= m_parent->pos();
          }

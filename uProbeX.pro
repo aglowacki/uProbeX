@@ -129,7 +129,7 @@ win32 {
     #release
     #Release:QMAKE_CXXFLAGS += /D_ITERATOR_DEBUG_LEVEL=0
 
-    LIBS += -llibxrf_io -llibxrf_fit -llibzmq-v140-mt-4_3_1
+    LIBS += -llibxrf_io -llibxrf_fit -llibzmq-v140-mt-4_2_3
 }
 
 LIBS += -lhdf5 -lnetcdf

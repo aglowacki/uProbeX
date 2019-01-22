@@ -211,7 +211,7 @@ bool MapsH5Model::load(QString filepath)
         }
         dataspace_id = H5Dget_space(dset_id);
 
-        memoryspace_id = H5Screate_simple(1, count, NULL);
+        memoryspace_id = H5Screate_simple(1, count, nullptr);
 
         error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&version);
 
@@ -319,7 +319,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         qDebug()<<"Error opening group /MAPS/int_spec";
     }
     hsize_t* dims_out = new hsize_t[rank];
-    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], NULL);
+    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
 
     for (int i=0; i < rank; i++)
     {
@@ -328,9 +328,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     }
 
     _integrated_spectra.resize(count[0]);
-    memoryspace_id = H5Screate_simple(1, count, NULL);
-    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
-    H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+    memoryspace_id = H5Screate_simple(1, count, nullptr);
+    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
 
     delete []dims_out;
@@ -404,7 +404,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
         qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
     }
     hsize_t* dims_out = new hsize_t[rank];
-    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], NULL);
+    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
 
     filetype = H5Tcopy (H5T_C_S1);
     H5Tset_size (filetype, 256);
@@ -422,23 +422,23 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
-    memoryspace_id = H5Screate_simple(3, count, NULL);
-    memoryspace_name_id = H5Screate_simple(1, count_name, NULL);
-    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
-    H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+    memoryspace_id = H5Screate_simple(3, count, nullptr);
+    memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
+    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
     for(hsize_t el_idx=0; el_idx < dims_out[0]; el_idx++)
     {
         offset[0] = el_idx;
         offset_name[0] = el_idx;
         memset(&tmp_name[0], 0, 254);
-        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
         xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
-        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
         error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 
@@ -587,7 +587,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
         qDebug()<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Channel_Names";
     }
     hsize_t* dims_out = new hsize_t[rank];
-    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], NULL);
+    unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
 
     filetype = H5Tcopy (H5T_C_S1);
     H5Tset_size (filetype, 256);
@@ -605,23 +605,23 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
-    memoryspace_id = H5Screate_simple(3, count, NULL);
-    memoryspace_name_id = H5Screate_simple(1, count_name, NULL);
-    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
-    H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+    memoryspace_id = H5Screate_simple(3, count, nullptr);
+    memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
+    H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
     for(hsize_t el_idx=0; el_idx < dims_out[0]; el_idx++)
     {
         offset[0] = el_idx;
         offset_name[0] = el_idx;
         memset(&tmp_name[0], 0, 254);
-        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, NULL, count_name, NULL);
+        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
         xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
-        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, NULL, count, NULL);
+        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
         error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 

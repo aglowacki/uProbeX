@@ -266,7 +266,7 @@ private:
    void createSolver();
 
    /**
-    * @brief Default initialization of variables such as setting pointers to NULL
+    * @brief Default initialization of variables such as setting pointers to nullptr
     */
    void initialize();
 

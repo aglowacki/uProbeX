@@ -16,10 +16,10 @@
 ProfileTable::ProfileTable(QWidget* parent) : QWidget(parent)
 {
 
-   m_btnAdd = NULL;
-   m_btnRemove = NULL;
-   m_solverModel = NULL;
-   m_solverTable = NULL;
+   m_btnAdd = nullptr;
+   m_btnRemove = nullptr;
+   m_solverModel = nullptr;
+   m_solverTable = nullptr;
 
    createComponents();
 
@@ -47,7 +47,7 @@ void ProfileTable::addItem()
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get row number for new item
    int row = m_solverModel->rowCount(QModelIndex()) + 1;
@@ -72,7 +72,7 @@ void ProfileTable::addItem(Attribute attr)
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get row number for new item
    int row = m_solverModel->rowCount(QModelIndex()) + 1;
@@ -234,7 +234,7 @@ void ProfileTable::removeItem()
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get current selection
    QModelIndexList list = m_solverTable->selectionModel()->selectedIndexes();

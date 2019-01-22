@@ -59,7 +59,7 @@ QMap<QString, double> PythonSolver::getOptions()
 gstar::ITransformer* PythonSolver::getTransformer()
 {
 
-   return NULL;
+   return nullptr;
 
 }
 
@@ -101,7 +101,7 @@ bool PythonSolver::initialPythonSolver(QString path,
       er += QString("\r\n Path: "+path
                     +"\r\nModule: "+module+
                     "\r\nFunction Name: "+functionnName);
-      QMessageBox::critical(NULL, "PythonSolver Error", er);
+      QMessageBox::critical(nullptr, "PythonSolver Error", er);
       return false;
    }
 
@@ -121,7 +121,7 @@ bool PythonSolver::run()
    catch(PythonLoader::pyException ex)
    {
       this->m_lastErrorMsg = ex.what();
-      //QMessageBox::critical(NULL, "Error", ex.what());
+      //QMessageBox::critical(nullptr, "Error", ex.what());
       qDebug()<<ex.what();
       return false;
    }

@@ -77,12 +77,12 @@ public:
        * @brief The pyError enum
        */
       enum pyError{ FUNC_NOT_FOUND
-                   ,FUNC_PTR_NULL
+                   ,FUNC_PTR_nullptr
                    ,CALL_FUNC_THROW_EXCP
                    ,RETURN_WRONG_LIST_SIZE
                    ,RETURN_WRONG_DICT_SIZE
-                   ,NULL_RETURNED_FOR_LIST
-                   ,NULL_RETURNED_FOR_DICT
+                   ,nullptr_RETURNED_FOR_LIST
+                   ,nullptr_RETURNED_FOR_DICT
                    ,VALUE_DOES_NOT_EXIST_FOR_KEY
                    ,VOID_CALL_FAILED
                    ,PYTHON_NOT_FOUND_ON_SYSTEM
@@ -125,18 +125,18 @@ public:
          {
          case FUNC_NOT_FOUND:
             return "Function not found in map";
-         case FUNC_PTR_NULL:
-            return "Function pointer null";
+         case FUNC_PTR_nullptr:
+            return "Function pointer nullptr";
          case CALL_FUNC_THROW_EXCP:
             return "Exception was catch in PythonLoader::callFunc";
          case RETURN_WRONG_LIST_SIZE:
             return "Function returned wrong list size";
          case RETURN_WRONG_DICT_SIZE:
             return "Function returned wrong dictionary size";
-         case NULL_RETURNED_FOR_LIST:
-            return "Function returned NULL for list, A variable may be mispelled?";
-         case NULL_RETURNED_FOR_DICT:
-            return "Function returned NULL for dictionary";
+         case nullptr_RETURNED_FOR_LIST:
+            return "Function returned nullptr for list, A variable may be mispelled?";
+         case nullptr_RETURNED_FOR_DICT:
+            return "Function returned nullptr for dictionary";
          case VALUE_DOES_NOT_EXIST_FOR_KEY:
             return "Value was not found for key in dictionary";
          case VOID_CALL_FAILED:

@@ -30,10 +30,10 @@ AnnotationTreeModel::AnnotationTreeModel(QObject* parent) : QAbstractItemModel(p
 
 AnnotationTreeModel::~AnnotationTreeModel()
 {  
-   if (m_root != NULL)
+   if (m_root != nullptr)
    {
       delete m_root;
-      m_root = NULL;
+      m_root = nullptr;
    }
 
    m_groups.clear();
@@ -216,7 +216,7 @@ QModelIndex AnnotationTreeModel::duplicateNode(const QModelIndex& index)
    AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>
          (index.internalPointer());
 
-   if (item == NULL)
+   if (item == nullptr)
       return QModelIndex();
 
    AbstractGraphicsItem* pItem = item->parent();
@@ -334,7 +334,7 @@ QModelIndex AnnotationTreeModel::index(int row,
       parentItem = static_cast<AbstractGraphicsItem*>(parent.internalPointer());
    }
 
-   if (parentItem == NULL)
+   if (parentItem == nullptr)
    {
       return QModelIndex();
    }
@@ -398,7 +398,7 @@ QModelIndex AnnotationTreeModel::parent(const QModelIndex& index)const
    AbstractGraphicsItem* childItem =
          static_cast<AbstractGraphicsItem*>(index.internalPointer());
 
-   if (childItem == m_root || childItem == NULL)
+   if (childItem == m_root || childItem == nullptr)
    {
       return QModelIndex();
    }
@@ -410,7 +410,7 @@ QModelIndex AnnotationTreeModel::parent(const QModelIndex& index)const
 
    AbstractGraphicsItem* parentItem = childItem->parent();
 
-   if (parentItem == m_root || parentItem == NULL)
+   if (parentItem == m_root || parentItem == nullptr)
    {
       return QModelIndex();
    }
@@ -460,7 +460,7 @@ bool AnnotationTreeModel::removeRow(int row,
    AbstractGraphicsItem* item =
            static_cast<AbstractGraphicsItem*>(parent.internalPointer());
 
-   if (item == NULL)
+   if (item == nullptr)
    {
        return false;
    }
@@ -470,7 +470,7 @@ bool AnnotationTreeModel::removeRow(int row,
 
    AbstractGraphicsItem* pItem = item->parent();
 
-   if (pItem == NULL)
+   if (pItem == nullptr)
    {
        return false;
    }
@@ -544,7 +544,7 @@ bool AnnotationTreeModel::removeRows(int row,
    AbstractGraphicsItem* pItem =
            static_cast<AbstractGraphicsItem*>(parent.internalPointer());
 
-   if (pItem == NULL)
+   if (pItem == nullptr)
    {
        return false;
    }

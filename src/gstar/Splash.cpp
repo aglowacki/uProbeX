@@ -68,7 +68,7 @@ Splash::Splash(QWidget* parent, Qt::WindowFlags f,
    layout -> addWidget(m_status);
 
    // OK button
-   m_btnOK = NULL;
+   m_btnOK = nullptr;
    if (m_aboutMode == true) {
 
       // Create button

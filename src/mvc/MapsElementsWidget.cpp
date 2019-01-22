@@ -263,7 +263,7 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
     if(Qt::WindowMaximized || Qt::WindowActive == newState)
     {
-        m_imageViewWidget->resizeEvent(NULL);
+        m_imageViewWidget->resizeEvent(nullptr);
     }
 
 }

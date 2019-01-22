@@ -26,7 +26,7 @@ PreferencesSolverOption::PreferencesSolverOption(
 {
 
    m_windowList = windowList;
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
    m_transformer = new CoordinateTransformer();
    m_solverParameterParse = new SolverParameterParse();
    m_solver = solver;
@@ -44,23 +44,23 @@ PreferencesSolverOption::PreferencesSolverOption(
 PreferencesSolverOption::~PreferencesSolverOption()
 {
 
-   if(m_solverParameterParse != NULL)
+   if(m_solverParameterParse != nullptr)
    {
       delete m_solverParameterParse;
    }
-   m_solverParameterParse = NULL;
+   m_solverParameterParse = nullptr;
 
-   if(m_solverWidget != NULL)
+   if(m_solverWidget != nullptr)
    {
       delete m_solverWidget;
    }
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       delete m_transformer;
    }
-   m_transformer = NULL;
+   m_transformer = nullptr;
 
 }
 
@@ -253,11 +253,11 @@ void PreferencesSolverOption::runSolver()
    AbstractSolver *impl = m_solver->getImpl();
    SolverParameterWidget* widget;
 
-   if(impl != NULL)
+   if(impl != nullptr)
    {
-      m_solver->setImpl(NULL);
+      m_solver->setImpl(nullptr);
       delete impl;
-      impl = NULL;
+      impl = nullptr;
    }
 
    if (m_buttonGroup->checkedId() == NM_SELECTED)
@@ -279,7 +279,7 @@ void PreferencesSolverOption::runSolver()
       {
          delete impl;
          qDebug()<<"Error initializing python solver";
-         QMessageBox::critical(NULL,"Error", "Error Initializing Python Solver!");
+         QMessageBox::critical(nullptr,"Error", "Error Initializing Python Solver!");
          return;
       }
 */
@@ -304,7 +304,7 @@ void PreferencesSolverOption::runSolver()
    }
    else
    {
-      QMessageBox::critical(NULL, "Solver Error", "Could not find active SWS workspace!");
+      QMessageBox::critical(nullptr, "Solver Error", "Could not find active SWS workspace!");
       return;
    }
 
@@ -314,9 +314,9 @@ void PreferencesSolverOption::runSolver()
    bool retVal = m_solver->run();
    QApplication::restoreOverrideCursor();
 
-   if(m_solverWidget != NULL)
+   if(m_solverWidget != nullptr)
       delete m_solverWidget;
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget();
    connect(m_solverWidget,

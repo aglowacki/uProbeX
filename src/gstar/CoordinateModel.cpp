@@ -29,10 +29,10 @@ CoordinateModel::CoordinateModel(ITransformer *transformer) : QObject(0)
 CoordinateModel::~CoordinateModel()
 {
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       delete m_transformer;
-      m_transformer = NULL;
+      m_transformer = nullptr;
    }
 
 }
@@ -51,7 +51,7 @@ ITransformer* CoordinateModel::getTransformer()
 bool CoordinateModel::getTransformerVariable(QString name, double *val)
 {
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       return m_transformer->getVariable(name, val);
    }
@@ -65,7 +65,7 @@ bool CoordinateModel::getTransformerVariable(QString name, double *val)
 bool CoordinateModel::setTransformerVariable(QString name, double val)
 {
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       if(m_transformer->setVariable(name, val))
       {
@@ -106,7 +106,7 @@ void CoordinateModel::runTransformer(double inX,
                                      double *outZ)
 {
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       m_transformer->transformCommand(inX, inY, inZ, outX, outY, outZ);
       m_transformer->getResultWithPrecision(outX, outY, outZ);

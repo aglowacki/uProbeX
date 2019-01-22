@@ -30,7 +30,7 @@ PreferencesPythonFunc::PreferencesPythonFunc(QWidget *parent)
 : QWidget(parent)
 {
 
-   m_model = NULL;
+   m_model = nullptr;
    m_foundPython = false;
 
    createComponents();
@@ -42,7 +42,7 @@ PreferencesPythonFunc::PreferencesPythonFunc(QWidget *parent)
 PreferencesPythonFunc::~PreferencesPythonFunc()
 {
 
-   if (m_model != NULL) delete m_model;
+   if (m_model != nullptr) delete m_model;
 
 }
 
@@ -63,7 +63,7 @@ void PreferencesPythonFunc::addGroupItem()
       "Open exec file", ".",
          "Python (*.py);; Shell (*.sh);; Batch (*.bat)");
 
-   // Dialog returns a null string if user press cancel.
+   // Dialog returns a nullptr string if user press cancel.
    if (fileName.isNull() || fileName.isEmpty()) return;
 
    QString filePath = QFileInfo(fileName).path();//.canonicalFilePath();
@@ -148,7 +148,7 @@ void PreferencesPythonFunc::addItem()
       if(idx.isValid() == false)
          return;
 
-      AttributeGroup* mGrp = NULL;
+      AttributeGroup* mGrp = nullptr;
       if(idx.parent().isValid() == false) //it is a group
       {
          mGrp = static_cast<AttributeGroup*>(idx.internalPointer());
@@ -156,12 +156,12 @@ void PreferencesPythonFunc::addItem()
       else //it is a pv attr
       {
          Attribute* attr = static_cast<Attribute*>(idx.internalPointer());
-         if(attr != NULL)
+         if(attr != nullptr)
          {
             mGrp = attr->getParent();
          }
       }
-      if(mGrp != NULL)
+      if(mGrp != nullptr)
       {
          QString attrName =
                QString("Function%1").arg(mGrp->count()+1);
@@ -477,11 +477,11 @@ void PreferencesPythonFunc::linkItem()
          return;
 
       Attribute* attr = static_cast<Attribute*>(idx.internalPointer());
-      if(attr == NULL)
+      if(attr == nullptr)
          return;
 
       AttributeGroup* grp = attr->getParent();
-      if(grp == NULL)
+      if(grp == nullptr)
          return;
 
 /*
@@ -522,10 +522,10 @@ void PreferencesPythonFunc::moveDown()
       if(idx.isValid() == false)
          return;
 
-      AttributeGroup* mGrp = NULL;
+      AttributeGroup* mGrp = nullptr;
       if(idx.parent().isValid() == false) //it is a group
       {
-         if(m_model != NULL)
+         if(m_model != nullptr)
          {
             if(m_model->moveDown(idx))
             {
@@ -538,7 +538,7 @@ void PreferencesPythonFunc::moveDown()
       else //it is a pv attr
       {
          Attribute* attr = static_cast<Attribute*>(idx.internalPointer());
-         if(attr != NULL)
+         if(attr != nullptr)
          {
             mGrp = attr->getParent();
             if(mGrp->moveAttrDown(attr))
@@ -566,10 +566,10 @@ void PreferencesPythonFunc::moveUp()
       if(idx.isValid() == false)
          return;
 
-      AttributeGroup* mGrp = NULL;
+      AttributeGroup* mGrp = nullptr;
       if(idx.parent().isValid() == false) //it is a group
       {
-         if(m_model != NULL)
+         if(m_model != nullptr)
          {
             if(m_model->moveUp(idx))
             {
@@ -582,7 +582,7 @@ void PreferencesPythonFunc::moveUp()
       else //it is a pv attr
       {
          Attribute* attr = static_cast<Attribute*>(idx.internalPointer());
-         if(attr != NULL)
+         if(attr != nullptr)
          {
             mGrp = attr->getParent();
             if(mGrp->moveAttrUp(attr))
@@ -602,7 +602,7 @@ void PreferencesPythonFunc::moveUp()
 void PreferencesPythonFunc::parseGroupStringList(QStringList attrStrList)
 {
 
-   if (m_model != NULL)
+   if (m_model != nullptr)
    {
       for(const QString &str : attrStrList)
       {
@@ -648,7 +648,7 @@ void PreferencesPythonFunc::removeItem()
       if(idx.isValid() == false)
          return;
 
-      AttributeGroup* mGrp = NULL;
+      AttributeGroup* mGrp = nullptr;
       if(idx.parent().isValid() == false) //it is a group
       {
          mGrp = static_cast<AttributeGroup*>(idx.internalPointer());
@@ -658,10 +658,10 @@ void PreferencesPythonFunc::removeItem()
       else //it is a pv attr
       {
          Attribute* attr = static_cast<Attribute*>(idx.internalPointer());
-         if(attr != NULL)
+         if(attr != nullptr)
          {
             mGrp = attr->getParent();
-            if(mGrp != NULL)
+            if(mGrp != nullptr)
             {
                mGrp->remove(attr);
                delete attr;

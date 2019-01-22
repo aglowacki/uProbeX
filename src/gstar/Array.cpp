@@ -25,7 +25,7 @@ Array::Array(unsigned long long bytes)
 
 Array::Array(uchar* buffer, unsigned long long bytes)
 {
-    if (buffer != NULL && bytes > 0)
+    if (buffer != nullptr && bytes > 0)
     {
         m_buffer = buffer;
         m_bytes = bytes;
@@ -37,13 +37,13 @@ Array::Array(uchar* buffer, unsigned long long bytes)
 Array::~Array()
 {
 
-    if (m_dataDims != NULL)
+    if (m_dataDims != nullptr)
     {
         delete [] m_dataDims;
     }
     m_dataDims = nullptr;
 
-    if (m_buffer != NULL)
+    if (m_buffer != nullptr)
     {
         delete [] m_buffer;
     }

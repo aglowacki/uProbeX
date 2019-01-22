@@ -19,8 +19,8 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
 {
 
-   m_mouseOverPixelCoordModel = NULL;
-   m_lightToMicroCoordModel = NULL;
+   m_mouseOverPixelCoordModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
 
    m_outlineColor = QColor(255, 0, 127);
    m_rect = QRectF(-300, -300, 600, 600);
@@ -69,8 +69,8 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
                                                    : AbstractGraphicsItem(parent)
 {
 
-   m_mouseOverPixelCoordModel = NULL;
-   m_lightToMicroCoordModel = NULL;
+   m_mouseOverPixelCoordModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
 
 
    m_outlineColor = QColor(marker[UPROBE_COLOR]);
@@ -126,7 +126,7 @@ QString UProbeRegionGraphicsItem::getUProbeName()
    if (value.type()  == QVariant::String) {
       return value.toString();
    }
-   return NULL;
+   return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -689,7 +689,7 @@ void UProbeRegionGraphicsItem::setHeight(double height)
 void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* model)
 {
 
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       disconnect(m_mouseOverPixelCoordModel,
                  SIGNAL(modelUpdated()),
@@ -699,7 +699,7 @@ void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
    m_mouseOverPixelCoordModel = model;
 
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       connect(m_mouseOverPixelCoordModel,
               SIGNAL(modelUpdated()),
@@ -714,7 +714,7 @@ void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 void UProbeRegionGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 {
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       disconnect(m_lightToMicroCoordModel,
                  SIGNAL(modelUpdated()),
@@ -724,7 +724,7 @@ void UProbeRegionGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
    m_lightToMicroCoordModel = model;
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       connect(m_lightToMicroCoordModel,
               SIGNAL(modelUpdated()),
@@ -808,7 +808,7 @@ void UProbeRegionGraphicsItem::updateModel()
    QPointF topRight = mapToScene(m_rect.topRight());
    QPointF bottomRight = mapToScene(m_rect.bottomRight());
 
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       double x,y,z;
       m_mouseOverPixelCoordModel->runTransformer((double)position.x(),
@@ -840,7 +840,7 @@ void UProbeRegionGraphicsItem::updateModel()
                                                  &bottomRightY,
                                                  &bottomRightZ);
 
-      if(m_lightToMicroCoordModel != NULL)
+      if(m_lightToMicroCoordModel != nullptr)
       {
          double x1,y1,z1;
          m_lightToMicroCoordModel->runTransformer(x,

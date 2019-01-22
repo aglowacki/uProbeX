@@ -23,8 +23,8 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
 {
 
-   m_mouseOverPixelCoordModel = NULL;
-   m_lightToMicroCoordModel = NULL;
+   m_mouseOverPixelCoordModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
 
    m_outlineColor = QColor(255, 0, 127);
    m_lineWidth = 2;
@@ -72,8 +72,8 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(QMap<QString, QString>& marke
    : AbstractGraphicsItem(parent)
 {
 
-   m_mouseOverPixelCoordModel = NULL;
-   m_lightToMicroCoordModel = NULL;
+   m_mouseOverPixelCoordModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
 
    m_outlineColor = QColor(marker[UPROBE_COLOR]);
    m_lineWidth = 2;
@@ -272,7 +272,7 @@ void UProbeMarkerGraphicsItem::paint(QPainter* painter,
 void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* model)
 {
 
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       disconnect(m_mouseOverPixelCoordModel,
                  SIGNAL(modelUpdated()),
@@ -282,7 +282,7 @@ void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
    m_mouseOverPixelCoordModel = model;
 
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       connect(m_mouseOverPixelCoordModel,
               SIGNAL(modelUpdated()),
@@ -297,7 +297,7 @@ void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 void UProbeMarkerGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 {
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       disconnect(m_lightToMicroCoordModel,
                  SIGNAL(modelUpdated()),
@@ -307,7 +307,7 @@ void UProbeMarkerGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
    m_lightToMicroCoordModel = model;
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       connect(m_lightToMicroCoordModel,
               SIGNAL(modelUpdated()),
@@ -444,7 +444,7 @@ void UProbeMarkerGraphicsItem::updateModel()
 
    QPointF position = pos();
    m_sizeProp->setValue(m_size);
-   if(m_mouseOverPixelCoordModel != NULL)
+   if(m_mouseOverPixelCoordModel != nullptr)
    {
       double x,y,z;
       m_mouseOverPixelCoordModel->runTransformer((double)position.x(),
@@ -456,7 +456,7 @@ void UProbeMarkerGraphicsItem::updateModel()
       m_positionXProp->setValue(x);
       m_positionYProp->setValue(y);
 
-      if(m_lightToMicroCoordModel != NULL)
+      if(m_lightToMicroCoordModel != nullptr)
       {
          double x1,y1,z1;
          m_lightToMicroCoordModel->runTransformer(x,

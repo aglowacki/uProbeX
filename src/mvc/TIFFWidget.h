@@ -31,7 +31,7 @@ public:
    /**
     * Constructor.
     */
-   TIFFWidget(QWidget* parent = NULL);
+   TIFFWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.

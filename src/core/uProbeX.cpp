@@ -56,9 +56,9 @@ static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
 uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
-    m_lightToMicroCoordModel = NULL;
-    m_solver = NULL;
-    m_autosaveTimer = NULL;
+    m_lightToMicroCoordModel = nullptr;
+    m_solver = nullptr;
+    m_autosaveTimer = nullptr;
     m_solverParameterParse = new SolverParameterParse();
     _load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
@@ -118,13 +118,13 @@ uProbeX::~uProbeX()
 {
 
 
-    if(m_solverParameterParse != NULL)
+    if(m_solverParameterParse != nullptr)
         delete m_solverParameterParse;
-    m_solverParameterParse = NULL;
+    m_solverParameterParse = nullptr;
 
-    if(m_lightToMicroCoordModel != NULL)
+    if(m_lightToMicroCoordModel != nullptr)
         delete m_lightToMicroCoordModel;
-    m_lightToMicroCoordModel = NULL;
+    m_lightToMicroCoordModel = nullptr;
 
     disconnect(&m_preferences,
                SIGNAL(preferenceSolverValueChanged()),
@@ -142,7 +142,7 @@ uProbeX::~uProbeX()
 
         AbstractWindowController* h = m_subWindows[id];
 
-        if (h != NULL)
+        if (h != nullptr)
         {
             delete h;
         }
@@ -237,18 +237,18 @@ void uProbeX::createLightToMicroCoords(int id)
    */
 
 
-    ITransformer *lightTransformer = NULL;
+    ITransformer *lightTransformer = nullptr;
     QMap<QString, double> allCoefs;
 
-    if(m_lightToMicroCoordModel != NULL)
+    if(m_lightToMicroCoordModel != nullptr)
     {
         lightTransformer = m_lightToMicroCoordModel->getTransformer();
-        if (lightTransformer != NULL)
+        if (lightTransformer != nullptr)
         {
             delete lightTransformer;
-            m_lightToMicroCoordModel->setTransformer(NULL);
+            m_lightToMicroCoordModel->setTransformer(nullptr);
         }
-        lightTransformer = NULL;
+        lightTransformer = nullptr;
     }
 
     if(id == ID_NELDER_MEAD)
@@ -264,7 +264,7 @@ void uProbeX::createLightToMicroCoords(int id)
             m_solverParameterParse -> getTransform(allCoefs);
         }
 
-        if(lightTransformer == NULL)
+        if(lightTransformer == nullptr)
         {
             lightTransformer = new CoordinateTransformer();
         }
@@ -282,7 +282,7 @@ void uProbeX::createLightToMicroCoords(int id)
         }
         m_solverParameterParse -> getTransform(allCoefs);
 
-        if(lightTransformer == NULL)
+        if(lightTransformer == nullptr)
         {
             QString pythonFileName = m_preferences.readValueKey(
                         Preferences::PythonSolverName).toString();
@@ -304,7 +304,7 @@ void uProbeX::createLightToMicroCoords(int id)
 
     if(lightTransformer->Init(allCoefs))
     {
-        if(m_lightToMicroCoordModel != NULL)
+        if(m_lightToMicroCoordModel != nullptr)
         {
             m_lightToMicroCoordModel->setTransformer(lightTransformer);
         }
@@ -315,7 +315,7 @@ void uProbeX::createLightToMicroCoords(int id)
     }
     else
     {
-        QMessageBox::critical(NULL, "uProbeX", "Error initializeing Transformer!");
+        QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
         qDebug()<<"Could not init Transformer\n";
     }
 
@@ -384,7 +384,7 @@ void uProbeX::createSolver()
 
     QMap<QString, double> dict_options;
 
-    if(m_solver == NULL)
+    if(m_solver == nullptr)
         m_solver = new Solver();
 
     int id = m_preferences.readValueKey(Preferences::SolverCheckedID).toInt();
@@ -392,9 +392,9 @@ void uProbeX::createSolver()
     createLightToMicroCoords(id);
 
     AbstractSolver *impl = m_solver->getImpl();
-    if(impl!=NULL)
+    if(impl!=nullptr)
     {
-        m_solver->setImpl(NULL);
+        m_solver->setImpl(nullptr);
         delete impl;
     }
 
@@ -436,7 +436,7 @@ void uProbeX::createSolver()
                                                     QString("my_solver")))
         {
             qDebug()<<"Error reading options for python solver, reverting to NelderMeadSolver";
-            QMessageBox::critical(NULL, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
+            QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
             m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
             createSolver();
             return;
@@ -478,8 +478,8 @@ void uProbeX::exitApplication()
 void uProbeX::initialize()
 {
 
-    m_splashAbout = NULL;
-    m_mdiArea = NULL;
+    m_splashAbout = nullptr;
+    m_mdiArea = nullptr;
 
     connect(&m_preferences,
             SIGNAL(preferenceSolverValueChanged()),
@@ -500,7 +500,7 @@ void uProbeX::adjustAutoSaveSettings()
 {
     if (m_preferences.readValueKey(Preferences::AutoSaveRecoveryEnable).toBool())
     {
-        if (m_autosaveTimer == NULL) {
+        if (m_autosaveTimer == nullptr) {
             m_autosaveTimer = new QTimer(this);
 
             connect(m_autosaveTimer,
@@ -523,7 +523,7 @@ void uProbeX::adjustAutoSaveSettings()
     else
     {
         //  autosafe functionality is disabled.
-        if (m_autosaveTimer != NULL)
+        if (m_autosaveTimer != nullptr)
         {
             disconnect(m_autosaveTimer,
                        SIGNAL(timeout()),
@@ -531,7 +531,7 @@ void uProbeX::adjustAutoSaveSettings()
                        SLOT(performAutoSave()));
 
             delete m_autosaveTimer;
-            m_autosaveTimer = NULL;
+            m_autosaveTimer = nullptr;
         }
     }
 
@@ -599,7 +599,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
             SLOT(cancelSolverVariableUpdate()));
 
 
-    SubWindow* w = NULL;
+    SubWindow* w = nullptr;
     if (newWindow == true)
     {
         w = new SubWindow(m_mdiArea);
@@ -658,7 +658,7 @@ void uProbeX::makeMapsWindow(QString path)
                                      data_struct::Fit_Parameters*,
                                      data_struct::Fit_Element_Map_Dict*)));
 
-    SubWindow* w = NULL;
+    SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
     connect(w,
             SIGNAL(windowClosing(SubWindow*)),
@@ -734,7 +734,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
     //widget->resize(800, 600);
 
 
-    SubWindow* w = NULL;
+    SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
     connect(w,
             SIGNAL(windowClosing(SubWindow*)),
@@ -771,7 +771,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model,
     //widget->resize(800, 600);
 
 
-    SubWindow* w = NULL;
+    SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
     connect(w,
             SIGNAL(windowClosing(SubWindow*)),
@@ -824,7 +824,7 @@ void uProbeX::menuBarEnable()
 void uProbeX::openAcquisitionData(QString path)
 {
 
-    if (path.isEmpty() || path.isNull()) return;
+    if (path.isNull() || path.isEmpty()) return;
 
 }
 
@@ -837,7 +837,7 @@ void uProbeX::openSWSFile()
                                                     "Open SWS workspace", ".",
                                                     tr("SWS (*.sws *.SWS)"));
 
-    // Dialog returns a null string if user press cancel.
+    // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
 
     QString filePath = QFileInfo(fileName).canonicalFilePath();
@@ -864,7 +864,7 @@ void uProbeX::openMapsWorkspace()
 
     QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
 
-    // Dialog returns a null string if user press cancel.
+    // Dialog returns a nullptr string if user press cancel.
     if (dirName.isNull() || dirName.isEmpty()) return;
 
     makeMapsWindow(dirName);
@@ -880,7 +880,7 @@ void uProbeX::openHDFFile()
                                                     "Open HDF5", ".",
                                                     tr("H5 (*.h5 *.h50 *.h51 *.h52 *.h53)"));
 
-    // Dialog returns a null string if user press cancel.
+    // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
 
     QString filePath = QFileInfo(fileName).canonicalFilePath();
@@ -946,7 +946,7 @@ void uProbeX::saveScreenShot()
     if(m_mdiArea->activeSubWindow() != 0)
     {
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
-        if (w == NULL) return;
+        if (w == nullptr) return;
         QUuid id = w->getUuid();
 
         if(m_subWindows.contains(id))
@@ -976,7 +976,7 @@ void uProbeX::saveActivatedXML()
     if(m_mdiArea->activeSubWindow() != 0)
     {
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
-        if (w == NULL) return;
+        if (w == nullptr) return;
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
         SWSWidget* swsWidget;
         if(typeid(*imageWidget) == typeid(SWSWidget))
@@ -1043,7 +1043,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
 
     if (ret == QMessageBox::Yes)
     {
-        SWSWidget* widget = NULL;
+        SWSWidget* widget = nullptr;
 
         for(AbstractWindowController* con : m_subWindows.values())
         {
@@ -1062,7 +1062,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
 bool uProbeX::saveAllXMLRequired()
 {
 return false;
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1087,7 +1087,7 @@ bool uProbeX::saveActivatedXmlRequired()
 {
     return false;
     SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
-    if (w != NULL) {
+    if (w != nullptr) {
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
         if(typeid(*imageWidget) == typeid(SWSWidget))
         {
@@ -1136,7 +1136,7 @@ void uProbeX::loadPreferencesXMLData()
                                                     "Open XML Preferences", ".",
                                                     tr("XML (*.xml *.XML)"));
 
-    // Dialog returns a null string if user press cancel.
+    // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
 
     QString filePath = QFileInfo(fileName).canonicalFilePath();
@@ -1169,7 +1169,7 @@ void uProbeX::loadPreferencesXMLData()
 
 void uProbeX::performAutoSave()
 {
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1185,7 +1185,7 @@ void uProbeX::performAutoSave()
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::cleanUpAutoSafeData() {
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1204,7 +1204,7 @@ void uProbeX::showAbout()
 {
 
     // New about screen
-    if (m_splashAbout == NULL) {
+    if (m_splashAbout == nullptr) {
         m_splashAbout = new Splash(this, Qt::Popup, "uProbeX", true);
     }
 
@@ -1289,7 +1289,7 @@ void uProbeX::processPreferencesUpdate()
 void uProbeX::solverStart()
 {
 
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1308,7 +1308,7 @@ void uProbeX::solverStart()
 void uProbeX::solverEnd()
 {
 
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1360,7 +1360,7 @@ void uProbeX::solverVariableUpdate(double valX, double valY)
 void uProbeX::subWindowClosed(SubWindow* subWindow)
 {
 
-    if (subWindow == NULL) return;
+    if (subWindow == nullptr) return;
 
     QUuid id = subWindow->getUuid();
 
@@ -1371,11 +1371,11 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
 
     // Found the controller to close.
     AbstractWindowController* absWinCon = i.value();
-    if (absWinCon == NULL) return;
+    if (absWinCon == nullptr) return;
 
     m_subWindows.erase(i);
     delete absWinCon;
-    absWinCon = NULL;
+    absWinCon = nullptr;
 
 }
 
@@ -1384,7 +1384,7 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
 void uProbeX::updatePreference()
 {
 
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {
@@ -1403,7 +1403,7 @@ void uProbeX::updatePreference()
 void uProbeX::updateContextMenus()
 {
 
-    SWSWidget* widget = NULL;
+    SWSWidget* widget = nullptr;
 
     for(AbstractWindowController* con : m_subWindows.values())
     {

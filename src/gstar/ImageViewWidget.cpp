@@ -19,7 +19,7 @@ ImageViewWidget::ImageViewWidget(QWidget* parent)
 : QWidget(parent), m_fillState(false)
 {
 
-   m_coordWidget = NULL;
+   m_coordWidget = nullptr;
 
    // Create scene and view
    createSceneAndView();
@@ -31,7 +31,7 @@ ImageViewWidget::ImageViewWidget(QWidget* parent)
    m_zoomInCursor = QCursor(QPixmap(":/images/zoomin.png"));
    m_zoomOutCursor = QCursor(QPixmap(":/images/zoomout.png"));
 
-   m_zoomPercent = NULL;
+   m_zoomPercent = nullptr;
    m_mouseLeaveState = true;
 
 /*   m_widget = parent;
@@ -44,16 +44,16 @@ ImageViewWidget::ImageViewWidget(QWidget* parent)
 ImageViewWidget::~ImageViewWidget()
 {
 
-   if (m_scene != NULL)
+   if (m_scene != nullptr)
    {
       delete m_scene;
-      m_scene = NULL;
+      m_scene = nullptr;
    }
 
-   if (m_view != NULL)
+   if (m_view != nullptr)
    {
       delete m_view;
-      m_view = NULL;
+      m_view = nullptr;
    }
 
 
@@ -96,7 +96,7 @@ void ImageViewWidget::clickFill(bool checked)
    // Set scene mode
    if (checked == true) {
       m_scene->setZoomModeToFit();
-      resizeEvent(NULL);
+      resizeEvent(nullptr);
       m_zoomPercent->setCurrentIndex(-1);
    }
    
@@ -244,12 +244,12 @@ void ImageViewWidget::leaveEvent(QEvent * event)
 
    m_mouseLeaveState = true;
 
-   m_coordWidget -> setNull();
+   m_coordWidget -> setnullptr();
 
    QLayout* lout = layout();
    QWidget* w = lout->itemAt(lout->count()-1)->widget();
    CoordinateWidget* lightToMicroCoordWidget = dynamic_cast<CoordinateWidget*>(w);
-   lightToMicroCoordWidget->setNull();
+   lightToMicroCoordWidget->setnullptr();
 
    QWidget::leaveEvent(event);
 
@@ -315,7 +315,7 @@ void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
    Q_UNUSED(rect)
 
    // Force a resize
-   resizeEvent(NULL);
+   resizeEvent(nullptr);
 
 }
 
@@ -325,10 +325,10 @@ void ImageViewWidget::setScene(ImageViewScene* scene)
 {
 
    // Pointer check
-   if (scene == NULL) return;
+   if (scene == nullptr) return;
 
    // Disconnect current scene
-   if (m_scene != NULL) {
+   if (m_scene != nullptr) {
       disconnect(m_scene, SIGNAL(zoomIn()), this, SLOT(zoomIn()));
       disconnect(m_scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
       disconnect(m_scene, SIGNAL(sceneRectChanged(const QRectF&)),
@@ -376,7 +376,7 @@ void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 void ImageViewWidget::updateZoomPercentage()
 {
 
-   if (m_zoomPercent == NULL) return;
+   if (m_zoomPercent == nullptr) return;
 
    qreal wp = getCurrentZoomPercent();
 

@@ -40,9 +40,9 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
 {
    
    // Background
-   m_annotationToolbar = NULL;
-   m_coordinateModel = NULL;
-   m_imageWidgetToolBar = NULL;
+   m_annotationToolbar = nullptr;
+   m_coordinateModel = nullptr;
+   m_imageWidgetToolBar = nullptr;
    QPalette pal = this->palette();
    pal.setColor(this->backgroundRole(), Qt::white);
    this->setPalette(pal);
@@ -98,7 +98,7 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
    //add it in parent class so you can control what tab it is on.
    //m_tabWidget->addTab(layoutWidget, QIcon(), "Annotations");
 
-   //m_lblPixelXCoordinate = NULL;
+   //m_lblPixelXCoordinate = nullptr;
 
 }
 
@@ -107,22 +107,22 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
 AbstractImageWidget::~AbstractImageWidget()
 {
 
-   if(m_treeModel != NULL)
+   if(m_treeModel != nullptr)
    {
       delete m_treeModel;
-      m_treeModel = NULL;
+      m_treeModel = nullptr;
    }
 
-   if(m_annotationToolbar != NULL)
+   if(m_annotationToolbar != nullptr)
    {
       delete m_annotationToolbar;
-      m_annotationToolbar = NULL;
+      m_annotationToolbar = nullptr;
    }
 
-   if(m_imageWidgetToolBar != NULL)
+   if(m_imageWidgetToolBar != nullptr)
    {
       delete m_imageWidgetToolBar;
-      m_imageWidgetToolBar = NULL;
+      m_imageWidgetToolBar = nullptr;
    }
 
 }
@@ -343,7 +343,7 @@ void AbstractImageWidget::displayContextMenu(QWidget* parent,
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
 
-   if (m_treeModel != NULL && m_treeModel->rowCount() > 0)
+   if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
       if (m_selectionModel->hasSelection())
       {
@@ -359,7 +359,7 @@ void AbstractImageWidget::displayContextMenu(QWidget* parent,
    menu.addAction(m_showRulerDialogAction);
 
    QAction* result = menu.exec(pos);
-   if (result == NULL)
+   if (result == nullptr)
    {
       m_selectionModel->clearSelection();
    }
@@ -537,7 +537,7 @@ void AbstractImageWidget::setAnnotationModel(AnnotationTreeModel *model)
 void AbstractImageWidget::setCoordinateModel(CoordinateModel *model)
 {
    m_coordinateModel = model; 
-   if(m_imageViewWidget != NULL)
+   if(m_imageViewWidget != nullptr)
    {
       m_imageViewWidget->setCoordinateModel(model);
    }
@@ -700,7 +700,7 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
       AbstractGraphicsItem* item =
             static_cast<AbstractGraphicsItem*>(index.internalPointer());
 
-      if (item != NULL)
+      if (item != nullptr)
       {
          QVariant data = item->data(0, index.column());
          if (data.type() == QVariant::Color)
@@ -721,7 +721,7 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 void AbstractImageWidget::updateFrame(const Array* image)
 {
 
-   if (image == NULL)
+   if (image == nullptr)
       return;
 
    // Get type

@@ -137,7 +137,7 @@ void PreferencesDialog::accept()
 {
 
    // Accept changes in settings widget
-   if (m_preferences != NULL)
+   if (m_preferences != nullptr)
    {
 
       m_preferences->saveValueKey(Preferences::NMCoefficient,
@@ -242,7 +242,7 @@ void PreferencesDialog::setPreferences(Preferences* preferences, bool passMode)
    m_preferences = preferences;
 
    // Assign preferences to pages
-   if (m_preferences != NULL)
+   if (m_preferences != nullptr)
    {
       // Solver check id and general attribute which would be used as default
       m_solverOptionWidget->setCheckedID(

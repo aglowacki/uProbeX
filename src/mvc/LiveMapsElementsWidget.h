@@ -30,7 +30,7 @@ public:
    /**
     * Constructor.
     */
-   LiveMapsElementsWidget(QWidget* parent = NULL);
+   LiveMapsElementsWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -64,7 +64,7 @@ protected:
 
    MapsH5Model _currentModel;
 
-   int _last_row;
+   data_struct::Stream_Block *_last_packet;
 };
 
 

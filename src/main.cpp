@@ -39,7 +39,7 @@ int main(int argc, char** argv)
    }
 
    // Startup application
-   uProbeX* widget = new uProbeX(NULL);
+   uProbeX* widget = new uProbeX(nullptr);
    widget->setAttribute(Qt::WA_DeleteOnClose);
    widget->show();
 
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
    return a.exec();
 
    // Clean up
-   if (widget != NULL)
+   if (widget != nullptr)
    {
       delete widget;
    }

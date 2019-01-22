@@ -37,7 +37,7 @@ public:
    /**
     * Constructor.
     */
-   MapsWorkspaceWidget(QWidget* parent = NULL);
+   MapsWorkspaceWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.

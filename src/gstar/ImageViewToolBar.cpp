@@ -22,7 +22,7 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    m_toolbar = new QToolBar();
    m_cursorAction = new QAction(QIcon(":images/cursor.png"),
                                 tr("Cursor"), 
-                                NULL);
+                                nullptr);
    m_cursorAction->setCheckable(true);
    m_cursorAction->setChecked(true);
    connect(m_cursorAction, SIGNAL(triggered()), this, SLOT(clickCursor()));
@@ -103,10 +103,10 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
 ImageViewToolBar::~ImageViewToolBar()
 {
 
-   if(m_cursorAction != NULL)
+   if(m_cursorAction != nullptr)
    {  
       delete m_cursorAction;
-      m_cursorAction = NULL;
+      m_cursorAction = nullptr;
    }
 
 }

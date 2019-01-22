@@ -13,8 +13,8 @@ using gstar::Array;
 AbstractWindowController::AbstractWindowController()
 {
 
-   m_widget = NULL;
-   m_preferences = NULL;
+   m_widget = nullptr;
+   m_preferences = nullptr;
 
 }
 

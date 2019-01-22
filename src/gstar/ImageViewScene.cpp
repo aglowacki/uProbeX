@@ -23,11 +23,11 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
 
    Q_UNUSED(parent)
 
-   // Initialize pointers to NULL
-   m_pixItem = NULL;
-   m_model = NULL;
-   m_selectionModel = NULL;
-   m_zoomSelection = NULL;
+   // Initialize pointers to nullptr
+   m_pixItem = nullptr;
+   m_model = nullptr;
+   m_selectionModel = nullptr;
+   m_zoomSelection = nullptr;
 
    m_unitsLabel = "";
    m_unitsPerPixelX = 1.0;
@@ -75,14 +75,14 @@ void ImageViewScene::addAnnotationsFromModel()
    AbstractGraphicsItem* cItem = static_cast<AbstractGraphicsItem*>(
                                           firstIndex.internalPointer());
 
-   if (cItem == NULL)
+   if (cItem == nullptr)
    {
       return;
    }
 
    AbstractGraphicsItem* rootItem = cItem->parent();
 
-   if (rootItem == NULL)
+   if (rootItem == nullptr)
    {
       return;
    }
@@ -143,14 +143,14 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
       const QAbstractItemModel* pm = parent.model();
       if (typeid(*pm) == typeid(AnnotationTreeModel))
       {
-         AbstractGraphicsItem* cItem = NULL;
+         AbstractGraphicsItem* cItem = nullptr;
          AbstractGraphicsItem* item =
             static_cast<AbstractGraphicsItem*>(parent.internalPointer());
 
-         if (item != NULL)
+         if (item != nullptr)
          {
             cItem = item->child(start);
-            if (cItem != NULL)
+            if (cItem != nullptr)
             {
                addItem(cItem);
             }
@@ -180,14 +180,14 @@ void ImageViewScene::enableAnnotations(bool state)
    AbstractGraphicsItem* cItem = static_cast<AbstractGraphicsItem*>(
                                           firstIndex.internalPointer());
 
-   if (cItem == NULL)
+   if (cItem == nullptr)
    {
       return;
    }
 
    AbstractGraphicsItem* rootItem = cItem->parent();
 
-   if (rootItem == NULL)
+   if (rootItem == nullptr)
    {
       return;
    }
@@ -236,7 +236,7 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
                                            const QItemSelection& deselected)
 {
 
-   if (m_selectionModel == NULL || m_model == NULL)
+   if (m_selectionModel == nullptr || m_model == nullptr)
    {
       return;
    }
@@ -289,7 +289,7 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 
    // Zoom in mode
-   if ((m_mode == ZoomIn) && (m_zoomSelection != NULL))
+   if ((m_mode == ZoomIn) && (m_zoomSelection != nullptr))
    {
 
       /// Get attached view
@@ -313,7 +313,7 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
    {
       int x = event->scenePos().x();
       int y = event->scenePos().y();
-      if(m_pixItem != NULL)
+      if(m_pixItem != nullptr)
       {
          if(x > -1 && x < m_pixItem->pixmap().width())
          {
@@ -382,10 +382,10 @@ void ImageViewScene::updateZoom(QGraphicsItem* zoomObject)
 void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
 
-   if ((m_mode == ZoomIn) && m_zoomSelection != NULL)
+   if ((m_mode == ZoomIn) && m_zoomSelection != nullptr)
    {
       delete m_zoomSelection;
-      m_zoomSelection = NULL;
+      m_zoomSelection = nullptr;
       emit zoomIn(m_zoomRect, event);
    }
    else
@@ -462,7 +462,7 @@ void ImageViewScene::removeAllGraphicsItems()
 
 void ImageViewScene::sceneSelectionChanged()
 {
-   if (m_model != NULL && m_selectionModel != NULL)
+   if (m_model != nullptr && m_selectionModel != nullptr)
    {
 
     disconnect(m_selectionModel,
@@ -484,7 +484,7 @@ void ImageViewScene::sceneSelectionChanged()
    {
       AbstractGraphicsItem* tItem = (AbstractGraphicsItem*)item;
       AbstractGraphicsItem* parent = tItem->parent();
-      if (parent != NULL)
+      if (parent != nullptr)
       {
          QModelIndex groupIndex =
                  m_model->index(parent->row(), 0, QModelIndex());
@@ -524,7 +524,7 @@ void ImageViewScene::setPixmap(QPixmap p)
 {
 
    // Set pixmap
-   if (m_pixItem != NULL)
+   if (m_pixItem != nullptr)
    {
       // Check against old image size and reset scene if necessary
       if ((m_pixItem -> boundingRect()).width() != p.width() ||
@@ -566,7 +566,7 @@ void ImageViewScene::setModel(QAbstractItemModel* model)
 {
 
    // Remove old connections
-   if (m_model != NULL)
+   if (m_model != nullptr)
    {
       disconnect(m_model,
                  SIGNAL(rowsInserted(const QModelIndex&, int, int)),
@@ -595,7 +595,7 @@ void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
 {
 
    // Remove old connections
-   if (m_selectionModel != NULL)
+   if (m_selectionModel != nullptr)
    {
       disconnect(m_selectionModel,
                  SIGNAL(selectionChanged(const QItemSelection&,

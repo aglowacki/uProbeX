@@ -36,7 +36,7 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(QWidget* parent = NULL);
+   MapsElementsWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.

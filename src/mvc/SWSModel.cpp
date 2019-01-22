@@ -26,9 +26,9 @@ const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\
 
 SWSModel::SWSModel(QString filepath)
 {
-   m_tiffModel = NULL;
-   m_samples = NULL;
-   m_model = NULL;
+   m_tiffModel = nullptr;
+   m_samples = nullptr;
+   m_model = nullptr;
    m_numSamples = 0;
    m_numXSamples = 0;
    m_numYSamples = 0;
@@ -80,21 +80,21 @@ SWSModel::SWSModel(QString filepath)
 SWSModel::~SWSModel()
 {
 
-   if(m_samples != NULL)
+   if(m_samples != nullptr)
    {
       delete [] m_samples;
-      m_samples = NULL;
+      m_samples = nullptr;
    }
-   if(m_model != NULL)
+   if(m_model != nullptr)
    {
       delete m_model;
-      m_model = NULL;
+      m_model = nullptr;
    }
 
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
    {
       delete m_tiffModel;
-      m_tiffModel = NULL;
+      m_tiffModel = nullptr;
    }
 
 }
@@ -113,7 +113,7 @@ gstar::CoordinateModel* SWSModel::getCoordModel()
 int SWSModel::getPixelByteSize()
 {
 
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
       return m_tiffModel->getPixelByteSize();
    return 1;
 
@@ -133,7 +133,7 @@ QString SWSModel::getDataPath()
 int SWSModel::getImageDims(int imageIndex)
 {
 
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
       return m_tiffModel->getImageDims(imageIndex);
    return 0;
 
@@ -145,7 +145,7 @@ Selection SWSModel::getImageSelection()
 {
 
    Selection s;
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
       return m_tiffModel->getImageSelection();
    return s;
 
@@ -156,7 +156,7 @@ Selection SWSModel::getImageSelection()
 int SWSModel::getNumberOfImages()
 {
 
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
       return m_tiffModel->getNumberOfImages();
    return 0;
 
@@ -167,7 +167,7 @@ int SWSModel::getNumberOfImages()
 int SWSModel::getRank()
 {
 
-   if(m_tiffModel != NULL)
+   if(m_tiffModel != nullptr)
       return m_tiffModel->getRank();
    return -1;
 
@@ -193,7 +193,7 @@ void SWSModel::initializeCoordModel()
 
    if(m_numSamples == 1)
    {
-       if(m_tiffModel != NULL)
+       if(m_tiffModel != nullptr)
        {
           imgWidth = m_tiffModel->getImageDims(2);
           imgHeight = m_tiffModel->getImageDims(1);
@@ -211,7 +211,7 @@ void SWSModel::initializeCoordModel()
    }
    if(m_numSamples == 2)
    {
-       if(m_tiffModel != NULL)
+       if(m_tiffModel != nullptr)
        {
           imgWidth = m_tiffModel->getImageDims(2);
           imgHeight = m_tiffModel->getImageDims(1);
@@ -343,7 +343,7 @@ void SWSModel::initializeCoordModel()
       bottomLeft.x = m_samples[bottomLeftIdx].x - xStride0;
       bottomLeft.y = m_samples[bottomLeftIdx].y + yStride0;
 
-      if(m_tiffModel != NULL)
+      if(m_tiffModel != nullptr)
       {
          imgWidth = m_tiffModel->getImageDims(2);
          imgHeight = m_tiffModel->getImageDims(1);
@@ -676,7 +676,7 @@ bool SWSModel::loadTiles()
 
    for(unsigned int i=0; i<m_numSamples; i++)
    {
-      //m_samples[i].m_tiffModel = NULL;
+      //m_samples[i].m_tiffModel = nullptr;
       QString fileName = m_datasetPath+QDir::separator()+m_samples[i].path;
       QFileInfo tiffFileInfo(fileName);
       if(false == tiffFileInfo.exists())

@@ -56,7 +56,7 @@ static const char STR_IS_FUNCTION[] = {"isfunction"};
 
 /*---------------------------------------------------------------------------*/
 
-PythonLoader* PythonLoader::m_inst = NULL;
+PythonLoader* PythonLoader::m_inst = nullptr;
 
 PythonLoader::PythonLoader()
 {
@@ -85,9 +85,9 @@ PythonLoader::~PythonLoader()
           if(pf->pDict)
               Py_DecRef(pf->pDict);
 
-          if(pf->retVals != NULL)
+          if(pf->retVals != nullptr)
              delete [] pf->retVals;
-          pf->retVals = NULL;
+          pf->retVals = nullptr;
 
           delete pf;
        }
@@ -112,16 +112,16 @@ void PythonLoader::callFunc(QString module,
    }
 
    pyFunc* pf = m_functionMap[pfKey];
-   if(pf == NULL)
+   if(pf == nullptr)
    {
       m_functionMap.remove(pfKey);
-      throw pyException(pyException::FUNC_PTR_NULL);
+      throw pyException(pyException::FUNC_PTR_nullptr);
    }
 
-   //if(pf->pDict != NULL)
+   //if(pf->pDict != nullptr)
    //   Py_IncRef(pf->pDict);
 
-   PyObject* pRetVal = NULL;
+   PyObject* pRetVal = nullptr;
    try
    {
       pRetVal = PyObject_CallObject(pf->pFunc, pf->pArgs);
@@ -134,7 +134,7 @@ void PythonLoader::callFunc(QString module,
    switch(returnType)
    {
    case RET_LIST:
-      if (pRetVal != NULL)
+      if (pRetVal != nullptr)
       {
          if(pf->retCnt > 0)
          {
@@ -160,11 +160,11 @@ void PythonLoader::callFunc(QString module,
       {
           PyErr_Print();
           qDebug()<<"PythonLoader::python call failed! Check the python script";
-          throw pyException(pyException::NULL_RETURNED_FOR_LIST);
+          throw pyException(pyException::nullptr_RETURNED_FOR_LIST);
       }
       break;
    case RET_DOUBLE_DICT:
-      if (pRetVal != NULL)
+      if (pRetVal != nullptr)
       {
          if(pf->retCnt > 0)
          {
@@ -196,10 +196,10 @@ void PythonLoader::callFunc(QString module,
       }
       else
       {
-         throw pyException(pyException::NULL_RETURNED_FOR_DICT);
+         throw pyException(pyException::nullptr_RETURNED_FOR_DICT);
       }
    case RET_STR_DICT:
-      if (pRetVal != NULL)
+      if (pRetVal != nullptr)
       {
          if(pf->retCnt > 0)
          {
@@ -242,11 +242,11 @@ void PythonLoader::callFunc(QString module,
       {
           if(pRetVal != 0)
             Py_DecRef(pRetVal);
-         throw pyException(pyException::NULL_RETURNED_FOR_DICT);
+         throw pyException(pyException::nullptr_RETURNED_FOR_DICT);
       }
       break;
    default:
-      if (pRetVal == NULL)
+      if (pRetVal == nullptr)
       {
           if(pRetVal != 0)
             Py_DecRef(pRetVal);
@@ -274,7 +274,7 @@ bool PythonLoader::init()
 PythonLoader* PythonLoader::inst()
 {
 
-   if(m_inst == NULL)
+   if(m_inst == nullptr)
       m_inst = new PythonLoader();
 
    return m_inst;
@@ -338,35 +338,35 @@ bool PythonLoader::init(QString sharedLibName)
       throw pyException(pyException::PYTHON_NOT_FOUND_ON_SYSTEM);
    }
 
-   Py_Initialize = NULL;
-   Py_Finalize = NULL;
-   PySys_GetObject = NULL;
-   PyString_FromString = NULL;
-   PyList_Append = NULL;
-   PyImport_Import = NULL;
-   PyImport_ReloadModule = NULL;
-   PyObject_GetAttrString = NULL;
-   PyCallable_Check = NULL;
-   PyDict_New = NULL;
-   PyTuple_New = NULL;
-   PyLong_FromLong = NULL;
-   PyFloat_FromDouble = NULL;
-   PyDict_SetItem = NULL;
-   Py_IncRef = NULL;
-   Py_DecRef = NULL;
-   PyTuple_SetItem = NULL;
-   PyObject_CallObject = NULL;
-   PyList_Size = NULL;
-   PyList_GetItem = NULL;
-   PyTuple_GetItem = NULL;
-   PyFloat_AsDouble = NULL;
-   PyString_AsString = NULL;
-   PyInt_AsLong = NULL;
-   PyDict_Keys = NULL;
-   PyDict_GetItem = NULL;
-   PyDict_Size = NULL;
-   PyErr_Print = NULL;
-   PyErr_Clear = NULL;
+   Py_Initialize = nullptr;
+   Py_Finalize = nullptr;
+   PySys_GetObject = nullptr;
+   PyString_FromString = nullptr;
+   PyList_Append = nullptr;
+   PyImport_Import = nullptr;
+   PyImport_ReloadModule = nullptr;
+   PyObject_GetAttrString = nullptr;
+   PyCallable_Check = nullptr;
+   PyDict_New = nullptr;
+   PyTuple_New = nullptr;
+   PyLong_FromLong = nullptr;
+   PyFloat_FromDouble = nullptr;
+   PyDict_SetItem = nullptr;
+   Py_IncRef = nullptr;
+   Py_DecRef = nullptr;
+   PyTuple_SetItem = nullptr;
+   PyObject_CallObject = nullptr;
+   PyList_Size = nullptr;
+   PyList_GetItem = nullptr;
+   PyTuple_GetItem = nullptr;
+   PyFloat_AsDouble = nullptr;
+   PyString_AsString = nullptr;
+   PyInt_AsLong = nullptr;
+   PyDict_Keys = nullptr;
+   PyDict_GetItem = nullptr;
+   PyDict_Size = nullptr;
+   PyErr_Print = nullptr;
+   PyErr_Clear = nullptr;
 
 
    Py_Initialize = (Py_InitializeDef) myLib.resolve("Py_Initialize");
@@ -503,7 +503,7 @@ bool PythonLoader::loadFunction(QString path,
 
    if(m_foundFuncs)
    {
-        PyObject *pyModule = NULL;
+        PyObject *pyModule = nullptr;
         if( false == m_functionMap.contains(pfKey))
         {
             PyObject *sys_path;
@@ -511,7 +511,7 @@ bool PythonLoader::loadFunction(QString path,
             //QString binaryPath;
 
             sys_path = PySys_GetObject("path");
-            if (sys_path == NULL)
+            if (sys_path == nullptr)
                 return false;
             qDebug()<<"Python path object found."<<endl;
 
@@ -525,7 +525,7 @@ bool PythonLoader::loadFunction(QString path,
             }
 
             pyPath = PyString_FromString(path.toStdString().c_str());
-            if (pyPath == NULL)
+            if (pyPath == nullptr)
                 return false;
 
             qDebug()<<"appending to python path: "<<path;
@@ -548,7 +548,7 @@ bool PythonLoader::loadFunction(QString path,
         {
             qDebug()<<"Reloaded python function ! " <<moduleName<<" "<<functionnName;
             pyFunc* pf = m_functionMap[pfKey];
-            if (pf != NULL)
+            if (pf != nullptr)
             {
                 //Py_DecRef(pf->pModule);
 /*
@@ -571,12 +571,12 @@ bool PythonLoader::loadFunction(QString path,
             }
             else
             {
-               qDebug()<<"Error: null python module while reloading ! " <<moduleName<<" "<<functionnName;
+               qDebug()<<"Error: nullptr python module while reloading ! " <<moduleName<<" "<<functionnName;
                m_functionMap.remove(pfKey);
                return false;
             }
         }
-        if (pyModule != NULL)
+        if (pyModule != nullptr)
         {
             qDebug()<<"Module found";
             pyFunc* pf = new pyFunc();
@@ -592,10 +592,10 @@ bool PythonLoader::loadFunction(QString path,
              //Py_IncRef(m_pDict);
              //Py_IncRef(m_pArgs);
              //Py_IncRef(m_pFunc);
-             pf->pArgs = NULL;
+             pf->pArgs = nullptr;
              pf->argCnt = 0;
              pf->retCnt = 0;
-             pf->retVals = NULL;
+             pf->retVals = nullptr;
              m_functionMap.insert(pfKey, pf);
 
              return true;
@@ -632,12 +632,12 @@ QStringList PythonLoader::getFunctionList(QString path, QString moduleName)
      //QString binaryPath;
 
      sys_path = PySys_GetObject("path");
-     if (sys_path == NULL)
+     if (sys_path == nullptr)
          return funcList;
      qDebug()<<"Python path object found.";
 
      pyPath = PyString_FromString(path.toStdString().c_str());
-     if (pyPath == NULL)
+     if (pyPath == nullptr)
          return funcList;
 
 
@@ -840,7 +840,7 @@ bool PythonLoader::setArgDict(QString module,
       }
       else
          return false;
-      if(tempDict != NULL)
+      if(tempDict != nullptr)
          Py_IncRef(tempDict);
    }
 
@@ -900,10 +900,10 @@ bool PythonLoader::setArgDouble(QString module,
    {
       pyFunc* pf = m_functionMap[pfKey];
 
-      if(pf->argCnt > idx && pf->pArgs != NULL)
+      if(pf->argCnt > idx && pf->pArgs != nullptr)
       {
          PyObject* pVal = PyFloat_FromDouble(val);
-         if(pVal != NULL)
+         if(pVal != nullptr)
          {
             if( 0 == PyTuple_SetItem(pf->pArgs, idx, pVal))
                return true;
@@ -934,10 +934,10 @@ bool PythonLoader::setArgLong(QString module, QString func, int idx, long val)
    {
       pyFunc* pf = m_functionMap[pfKey];
 
-      if(pf->argCnt > idx && pf->pArgs != NULL)
+      if(pf->argCnt > idx && pf->pArgs != nullptr)
       {
          PyObject* pVal = PyLong_FromLong(val);
-         if(pVal != NULL)
+         if(pVal != nullptr)
          {
             if(0==PyTuple_SetItem(pf->pArgs, idx, pVal))
                return true;
@@ -971,10 +971,10 @@ bool PythonLoader::setArgString(QString module,
    {
       pyFunc* pf = m_functionMap[pfKey];
 
-      if(pf->argCnt > idx && pf->pArgs != NULL)
+      if(pf->argCnt > idx && pf->pArgs != nullptr)
       {
          PyObject* pVal = PyString_FromString(val.toStdString().c_str());
-         if(pVal != NULL)
+         if(pVal != nullptr)
          {
             if(0==PyTuple_SetItem(pf->pArgs, idx, pVal))
                return true;
@@ -1025,7 +1025,7 @@ bool PythonLoader::setRetCnt(QString module, QString func, int amt)
       pyFunc* pf = m_functionMap[pfKey];
 
       pf->retCnt = amt;
-      if(pf->retVals != NULL)
+      if(pf->retVals != nullptr)
          delete [] pf->retVals;
       pf->retVals = new double[amt];
       return true;

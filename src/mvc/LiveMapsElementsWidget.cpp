@@ -17,7 +17,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 
     _streamWorker = nullptr;
     _mapsElementsWidget = nullptr;
-    _last_row = -1;
+    _last_packet = nullptr;
     createLayout();
 
 }
@@ -103,7 +103,9 @@ void LiveMapsElementsWidget::updateIp()
     //connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
     _streamWorker->start();
-    _last_row = -1;
+    if(_last_packet != nullptr)
+        delete _last_packet;
+    _last_packet = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -111,14 +113,23 @@ void LiveMapsElementsWidget::updateIp()
 void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
 {
 
-    if( (new_packet->row() == 0 && new_packet->col() == 0) || _last_row == -1)
+    bool start_new_image = false;
+    if( (new_packet->row() == 0 && new_packet->col() == 0) || _last_packet == nullptr)
+    {
+        start_new_image = true;
+    }
+    if(_last_packet != nullptr && (_last_packet->width() != new_packet->width() || _last_packet->height() != new_packet->height()))
+    {
+        start_new_image = true;
+    }
+    if(start_new_image)
     {
         _currentModel.initialize_from_stream_block(new_packet);
         _progressBar->setRange(0, new_packet->height()-1);
     }
 
     _currentModel.update_from_stream_block(new_packet);
-    if(_last_row != new_packet->row())
+    if(_last_packet != nullptr && _last_packet->row() != new_packet->row())
     {   
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
         _textEdit->append(str);
@@ -130,9 +141,11 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         _progressBar->update();
         //cntr = 0;
     }
-    _last_row = new_packet->row();
-    delete new_packet;
-
+    if(_last_packet != nullptr)
+    {
+        delete _last_packet;
+    }
+    _last_packet = new_packet;
 }
 
 /*---------------------------------------------------------------------------*/

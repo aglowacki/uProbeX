@@ -25,7 +25,7 @@ public:
    /**
     * Constructor.
     */
-   NetStreamWorker(QString str_ip, QObject* parent = NULL) : QThread(parent)
+   NetStreamWorker(QString str_ip, QObject* parent = nullptr) : QThread(parent)
    {
 
        std::string conn_str = "tcp://"+str_ip.toStdString()+":43434";

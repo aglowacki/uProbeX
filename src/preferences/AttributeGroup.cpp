@@ -57,7 +57,7 @@ void AttributeGroup::clearAndDeleteAttributes()
    for(Attribute* attr : m_attrs)
    {
       delete attr;
-      attr = NULL;
+      attr = nullptr;
    }
 
    m_attrs.clear();
@@ -128,7 +128,7 @@ bool AttributeGroup::fromString(QString str)
 Attribute* AttributeGroup::getAttrAt(int index)
 {
 
-   Attribute* attr = NULL;
+   Attribute* attr = nullptr;
    if(index > - 1 && index < m_attrs.count())
    {
       attr = m_attrs.at(index);

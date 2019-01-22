@@ -35,7 +35,7 @@ public:
     /**
     * Constructor.
     */
-    SpectraWidget(QWidget* parent = NULL);
+    SpectraWidget(QWidget* parent = nullptr);
 
     /**
     * Destructor.

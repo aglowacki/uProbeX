@@ -66,12 +66,12 @@ SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
 {
 
    m_microProbePvSet = false;
-//   m_pvXHandler = NULL;
-//   m_pvYHandler = NULL;
-   m_solverWidget = NULL;
-   m_coordinateModel = NULL;
-   m_calSelectionModel = NULL;
-   m_lightToMicroCoordModel = NULL;
+//   m_pvXHandler = nullptr;
+//   m_pvYHandler = nullptr;
+   m_solverWidget = nullptr;
+   m_coordinateModel = nullptr;
+   m_calSelectionModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
    m_solver = solver;
    m_preferences = pref;
    m_solverParameterParse = new SolverParameterParse();
@@ -92,29 +92,29 @@ SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
 SWSWidget::~SWSWidget()
 {
 
-   if(m_solverParameterParse != NULL)
+   if(m_solverParameterParse != nullptr)
    {
       delete m_solverParameterParse;
    }
-   m_solverParameterParse = NULL;
+   m_solverParameterParse = nullptr;
 
-   if(m_solverWidget != NULL)
+   if(m_solverWidget != nullptr)
    {
       delete m_solverWidget;
    }
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
 /*
-   if (m_pvXHandler != NULL)
+   if (m_pvXHandler != nullptr)
       delete m_pvXHandler;
-   m_pvXHandler = NULL;
+   m_pvXHandler = nullptr;
 
-   if (m_pvYHandler != NULL)
+   if (m_pvYHandler != nullptr)
       delete m_pvYHandler;
-   m_pvYHandler = NULL;
+   m_pvYHandler = nullptr;
 */
-   //if(m_lightToMicroCoordWidget != NULL)
+   //if(m_lightToMicroCoordWidget != nullptr)
    //   delete m_lightToMicroCoordWidget;
-   //m_lightToMicroCoordWidget = NULL;
+   //m_lightToMicroCoordWidget = nullptr;
 //   saveXMLCoordinateInfo();
 
 }
@@ -245,7 +245,7 @@ UProbeRegionGraphicsItem* SWSWidget::getSelectedRegion()
       }
    }
 
-   return NULL;
+   return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -253,7 +253,7 @@ UProbeRegionGraphicsItem* SWSWidget::getSelectedRegion()
 void SWSWidget::zoomMicroProbeRegion()
 {
    UProbeRegionGraphicsItem* item = getSelectedRegion();
-   if (item != NULL) {
+   if (item != nullptr) {
       item->zoomToRegion();
    }
 }
@@ -266,7 +266,7 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
    if (selectedIndexes.size() > 0)
    {
       // When summary information is enabled no exports occur however a summary of all directories is genereated.
-      bool summaryMode = (summaryInformation != NULL && summaryWarnings != NULL);
+      bool summaryMode = (summaryInformation != nullptr && summaryWarnings != nullptr);
       if (!summaryMode)
       {
          summaryInformation = new QList<QString>();
@@ -329,12 +329,12 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
       bool seperateXMLFile = selectedXMLExportOption == PreferencesExport::sepereateFileXMLExport;
       bool singleXmlFileExport = selectedXMLExportOption == PreferencesExport::singleFileXMLExport;
 
-      QXmlStreamWriter* xmlStreamWriter = NULL;
-      QFile* xmlFile = NULL;
+      QXmlStreamWriter* xmlStreamWriter = nullptr;
+      QFile* xmlFile = nullptr;
       QString filePath = QFileInfo(m_pathFile).absolutePath();
 
       // Create the desired directory for exports.
-      if (exportDirectoryName != NULL)
+      if (exportDirectoryName != nullptr)
       {
          filePath += "/" + exportDirectoryName;
          QDir directory(filePath);
@@ -381,7 +381,7 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
          if (index.isValid()){
             AbstractGraphicsItem* abstractItem = static_cast<AbstractGraphicsItem*>(index.internalPointer());
             UProbeRegionGraphicsItem* item = dynamic_cast<UProbeRegionGraphicsItem*>(abstractItem);
-            if (item != NULL)
+            if (item != nullptr)
             {
                QString itemName = item->getUProbeName();
                QString fileName = fileBaseName + "." + itemName + ".jpg";
@@ -614,7 +614,7 @@ void SWSWidget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
    delete painter;
    delete tempTreeModel;  
 
-   if (xmlStreamWriter != NULL)
+   if (xmlStreamWriter != nullptr)
    {
       xmlStreamWriter->writeStartElement("Region");
 
@@ -666,7 +666,7 @@ void SWSWidget::callbackPvYUpdatedFloat(float val)
 void SWSWidget::callbackPvXUpdatedDouble(double val)
 {
 
-   if(m_calSelectionModel == NULL || m_grabbingPvsX == false)
+   if(m_calSelectionModel == nullptr || m_grabbingPvsX == false)
       return;
 
    qDebug()<<"double x val = "<<val;
@@ -697,7 +697,7 @@ void SWSWidget::callbackPvXUpdatedDouble(double val)
 void SWSWidget::callbackPvYUpdatedDouble(double val)
 {
 
-   if(m_calSelectionModel == NULL || m_grabbingPvsY == false)
+   if(m_calSelectionModel == nullptr || m_grabbingPvsY == false)
       return;
 
    qDebug()<<"double y val = "<<val;
@@ -947,7 +947,7 @@ void SWSWidget::createMicroProbeMenu()
                QAction *action = new QAction(attr->getName(), this);
 
                QString execType = attr->getDescription();
-               RegionCaller *prc = NULL;
+               RegionCaller *prc = nullptr;
 
                if(execType == "shell")
                {
@@ -959,7 +959,7 @@ void SWSWidget::createMicroProbeMenu()
                   else
                   {
                      delete prc;
-                     prc = NULL;
+                     prc = nullptr;
                      qDebug()<<"Error initializing shell call: "
                             <<attr->getName();
                   }
@@ -974,13 +974,13 @@ void SWSWidget::createMicroProbeMenu()
                   else
                   {
                      delete prc;
-                     prc = NULL;
+                     prc = nullptr;
                      qDebug()<<"Error initializing python call: "
                             <<attr->getName();
                   }
                }               
 
-               if(prc != NULL)
+               if(prc != nullptr)
                {
                   connect(action,
                           SIGNAL(triggered()),
@@ -1096,8 +1096,8 @@ void SWSWidget::displayContextMenu(QWidget* parent,
                                    const QPoint& pos)
 {
 
-   gstar::AnnotationTreeModel* treeModel = NULL;
-   QItemSelectionModel* selectionModel = NULL;
+   gstar::AnnotationTreeModel* treeModel = nullptr;
+   QItemSelectionModel* selectionModel = nullptr;
    QModelIndexList selectedIndexes;
 
    //if (m_annotationsEnabled == false)
@@ -1136,7 +1136,7 @@ void SWSWidget::displayContextMenu(QWidget* parent,
 
             UProbeRegionGraphicsItem* item = getSelectedRegion();
             // Selected item is of proper type for zoom action.
-            if (item != NULL) {
+            if (item != nullptr) {
                menu.addSeparator();
                menu.addAction(m_zoomMicroProbeRegionAction);
                menu.addAction(m_exportMicroProbeRegionInfoAction);
@@ -1154,9 +1154,9 @@ void SWSWidget::displayContextMenu(QWidget* parent,
          break;
    }
 
-   if (treeModel != NULL && treeModel->rowCount() > 0)
+   if (treeModel != nullptr && treeModel->rowCount() > 0)
    {
-      if (selectionModel != NULL && selectionModel->hasSelection())
+      if (selectionModel != nullptr && selectionModel->hasSelection())
       {
          bool addDuplicate = true;
          if (selectedIndexes.count() == 1)
@@ -1166,7 +1166,7 @@ void SWSWidget::displayContextMenu(QWidget* parent,
             EmptyGraphicsItem* item = dynamic_cast<EmptyGraphicsItem*>(abstractItem);
 
             // Add duplicate when group is not selected.
-            addDuplicate = (item == NULL);
+            addDuplicate = (item == nullptr);
          }
 
          if (addDuplicate) {
@@ -1179,9 +1179,9 @@ void SWSWidget::displayContextMenu(QWidget* parent,
    }
 
    QAction* result = menu.exec(pos);
-   if (result == NULL)
+   if (result == nullptr)
    {
-      if (selectionModel != NULL)
+      if (selectionModel != nullptr)
          selectionModel->clearSelection();
    }
 
@@ -1343,13 +1343,13 @@ void SWSWidget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
    QModelIndex first = m_calTreeModel->index(0,0,QModelIndex());
    gstar::AbstractGraphicsItem* groupPtr =
          (gstar::AbstractGraphicsItem*)first.internalPointer();
-   if(groupPtr == NULL)
+   if(groupPtr == nullptr)
       return;
    QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
    for (gstar::AbstractGraphicsItem* child : clist)
    {
-      if (child != NULL)
+      if (child != nullptr)
       {
          xmlWriter->writeStartElement("marker");
 
@@ -1400,13 +1400,13 @@ void SWSWidget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
    QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
    gstar::AbstractGraphicsItem* groupPtr =
          (gstar::AbstractGraphicsItem*)first.internalPointer();
-   if(groupPtr == NULL)
+   if(groupPtr == nullptr)
       return;
    QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
    for (gstar::AbstractGraphicsItem* child : clist)
    {
-      if (child != NULL)
+      if (child != nullptr)
       {
          xmlWriter->writeStartElement("regionmarker");
 
@@ -1468,7 +1468,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
    QModelIndex first = m_calTreeModel->index(0,0,QModelIndex());
    gstar::AbstractGraphicsItem* groupPtr =
          (gstar::AbstractGraphicsItem*)first.internalPointer();
-   if(groupPtr == NULL)
+   if(groupPtr == nullptr)
    {
       QMessageBox::critical(0, "uProbeX", "No Points to run solver on!");
       return false;
@@ -1480,7 +1480,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
    for (gstar::AbstractGraphicsItem* child : clist)
    {
       QMap<QString,double> cPoint;
-      if (child != NULL)
+      if (child != nullptr)
       {
          QVariant vlx = child->propertyValue(UPROBE_LIGHT_POS_X);
          QVariant vly = child->propertyValue(UPROBE_LIGHT_POS_Y);
@@ -1850,7 +1850,7 @@ void SWSWidget::preferenceChanged()
          m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
 
    // Set the value in the calibration text linedit box
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       double val;
       if(m_lightToMicroCoordModel->getTransformerVariable(
@@ -1965,7 +1965,7 @@ void SWSWidget::runSolver()
    QMap<QString, double> minCoefs;
    QMap<QString, double> newMinCoefs;
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       double val;
       QString fmx = CoordinateTransformGlobals::keyToString(
@@ -2005,9 +2005,9 @@ void SWSWidget::runSolver()
    bool retVal = m_solver->run();
    QApplication::restoreOverrideCursor();
 
-   if(m_solverWidget != NULL)
+   if(m_solverWidget != nullptr)
       delete m_solverWidget;
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget();
    connect(m_solverWidget,
@@ -2048,7 +2048,7 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 
    m_lightToMicroCoordWidget->setModel(model);
 
-   if(m_lightToMicroCoordModel != NULL)
+   if(m_lightToMicroCoordModel != nullptr)
    {
       double val;
       if(m_lightToMicroCoordModel->getTransformerVariable(
@@ -2072,7 +2072,7 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 {
 
-   if(m_coordinateModel != NULL)
+   if(m_coordinateModel != nullptr)
    {
       disconnect(m_coordinateModel,
                  SIGNAL(transformOutput(double, double, double)),
@@ -2084,7 +2084,7 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
    m_coordinateModel->setTransformerPrecision(
          m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
 
-   if(m_imageViewWidget != NULL)
+   if(m_imageViewWidget != nullptr)
    {
       m_imageViewWidget->setCoordinateModel(model);
 
@@ -2422,7 +2422,7 @@ void SWSWidget::windowChanged(Qt::WindowStates oldState,
 
    if(Qt::WindowMaximized || Qt::WindowActive == newState)
    {
-      m_imageViewWidget->resizeEvent(NULL);
+      m_imageViewWidget->resizeEvent(nullptr);
    }
 
 }

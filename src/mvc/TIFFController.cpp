@@ -39,7 +39,7 @@ TIFFController::~TIFFController()
 
    //closePipeline();
 
-   if (m_tiffModel != NULL) delete m_tiffModel;
+   if (m_tiffModel != nullptr) delete m_tiffModel;
    // the widget is deleted by the qt.
 
 }
@@ -49,14 +49,14 @@ TIFFController::~TIFFController()
 void TIFFController::closePipeline()
 {
 
-   // Only proceede to close file, if hdf5 source stage is not null.
-   if (m_tiffSourceStage == NULL) return;
+   // Only proceede to close file, if hdf5 source stage is not nullptr.
+   if (m_tiffSourceStage == nullptr) return;
 
    m_tiffSourceStage->stop();
 
      delete m_tiffSourceStage;
 
-     m_tiffSourceStage = NULL;
+     m_tiffSourceStage = nullptr;
 
    disconnect(m_tiffWidget,
               SIGNAL(rangeChanged(int, int)),
@@ -74,7 +74,7 @@ void TIFFController::closePipeline()
               SLOT(imageHeightDimUpdated(int)));
 
 
-   if (m_displayStage != NULL)
+   if (m_displayStage != nullptr)
    {
       disconnect(m_displayStage,
                  SIGNAL(newFrame(const gstar::Array*)),
@@ -82,13 +82,13 @@ void TIFFController::closePipeline()
                  SLOT(newFrameAvailable(const gstar::Array*)));
 
       delete m_displayStage;
-      m_displayStage = NULL;
+      m_displayStage = nullptr;
    }
 
-   if (m_histogram != NULL)
+   if (m_histogram != nullptr)
    {
       delete m_histogram;
-      m_histogram = NULL;
+      m_histogram = nullptr;
    }
 
 }
@@ -115,7 +115,7 @@ gstar::AbstractImageWidget* TIFFController::getWidget()
 void TIFFController::imageHeightDimUpdated(int h)
 {
 
-   //if (m_tiffSourceStage == NULL) return;
+   //if (m_tiffSourceStage == nullptr) return;
 
    //m_tiffSourceStage->setHeightDimension(h);
    //m_tiffWidget->setWidthDims(m_tiffSourceStage->getWidthDimension());
@@ -128,7 +128,7 @@ void TIFFController::imageHeightDimUpdated(int h)
 void TIFFController::imageWidthDimUpdated(int w)
 {
 
-   //if (m_tiffSourceStage == NULL) return;
+   //if (m_tiffSourceStage == nullptr) return;
 
    //m_tiffSourceStage->setWidthDimension(w);
    //m_tiffWidget->setHeightDims(m_tiffSourceStage->getHeightDimension());

@@ -18,11 +18,11 @@ using gstar::CheckBoxDelegate;
 SolverTable::SolverTable(QWidget* parent) : QWidget(parent)
 {
 
-   m_btnAdd = NULL;
-   m_btnRemove = NULL;
-   m_solverModel = NULL;
-   m_sortModel = NULL;
-   m_solverTable = NULL;
+   m_btnAdd = nullptr;
+   m_btnRemove = nullptr;
+   m_solverModel = nullptr;
+   m_sortModel = nullptr;
+   m_solverTable = nullptr;
 
    createComponents();
 
@@ -33,7 +33,7 @@ SolverTable::SolverTable(QWidget* parent) : QWidget(parent)
 SolverTable::~SolverTable()
 {
 
-   if (m_sortModel != NULL) delete m_sortModel;
+   if (m_sortModel != nullptr) delete m_sortModel;
 
 }
 
@@ -50,7 +50,7 @@ void SolverTable::addItem()
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get row number for new item
    int row = m_solverModel->rowCount(QModelIndex()) + 1;
@@ -75,7 +75,7 @@ void SolverTable::addItem(Attribute attr)
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get row number for new item
    int row = m_solverModel->rowCount(QModelIndex()) + 1;
@@ -222,7 +222,7 @@ void SolverTable::removeItem()
 {
 
    // Check valid model
-   if (m_solverModel == NULL) return;
+   if (m_solverModel == nullptr) return;
 
    // Get current selection
    QModelIndexList list = m_solverTable->selectionModel()->selectedIndexes();

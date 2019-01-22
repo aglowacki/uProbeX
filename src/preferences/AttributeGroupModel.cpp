@@ -130,7 +130,7 @@ QVariant AttributeGroupModel::data(const QModelIndex &index, int role) const
       AttributeGroup* mGroup = m_groups.at(parent.row());
       Attribute* attr = mGroup->getAttrAt(index.row());
 
-      if (attr == NULL)
+      if (attr == nullptr)
          return QVariant();
 
       // Return values for display and edit roles
@@ -194,7 +194,7 @@ Qt::ItemFlags AttributeGroupModel::flags(const QModelIndex &index) const
 
       // Get attribute
       Attribute* attr = static_cast<Attribute*>(index.internalPointer());
-      if (attr == NULL)
+      if (attr == nullptr)
          return Qt::ItemIsSelectable;
 
       // If no pv name is set, disable the cell
@@ -226,7 +226,7 @@ QModelIndex AttributeGroupModel::index(int row,
                                  const QModelIndex& parent) const
 {
 
-   AttributeGroup* item = NULL;
+   AttributeGroup* item = nullptr;
 
    if (m_groups.size() < 1)
    {
@@ -244,7 +244,7 @@ QModelIndex AttributeGroupModel::index(int row,
    }
 
    item = static_cast<AttributeGroup*>(parent.internalPointer());
-   if(item == NULL)
+   if(item == nullptr)
    {
       return QModelIndex();
    }
@@ -252,7 +252,7 @@ QModelIndex AttributeGroupModel::index(int row,
    {
       Attribute* childItem = item->getAttrAt(row);
 
-      if (childItem != NULL)
+      if (childItem != nullptr)
       {
          return createIndex(row, column, childItem);
       }

@@ -199,12 +199,12 @@ bool Preferences::readPreferencesFromXml(QString xmlPath, QString xmlElementName
 
    if (!file->exists())
    {
-      return NULL;
+      return nullptr;
    }
 
    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
    {
-      return NULL;
+      return nullptr;
    }
 
    QXmlStreamReader xml(file);

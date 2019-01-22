@@ -53,7 +53,7 @@ char* RectItem::getMask()
 
    // Check image dimensions
    if (w <= 0 || h <= 0) {
-      return NULL;
+      return nullptr;
    }
 
    // Create new image mask
@@ -103,7 +103,7 @@ void RectItem::getMask(Array& mask) const
 
    // Get buffer from array
    uchar* buffer = mask.getBuffer();
-   if (buffer == NULL) {
+   if (buffer == nullptr) {
       return;
    }
 

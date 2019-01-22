@@ -95,9 +95,9 @@ public:
    void setModel(CoordinateModel* model);
 
    /**
-    * @brief setNull
+    * @brief setnullptr
     */
-   void setNull();
+   void setnullptr();
 
 private:
 

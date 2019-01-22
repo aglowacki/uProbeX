@@ -68,11 +68,11 @@ double TotalErrorFunction(double vars[], void *p)
 NelderMeadSolver::NelderMeadSolver() : AbstractSolver()
 {
 
-   m_transformer = NULL;
+   m_transformer = nullptr;
    m_numPoints = 0.0;
-   m_mins = NULL;
+   m_mins = nullptr;
    m_nvars = 0;
-   m_points = NULL;
+   m_points = nullptr;
    m_dict_options.insert(STR_ITER, 100000);
    m_dict_options.insert(STR_STEP_SIZE, 0.01);
 
@@ -83,9 +83,9 @@ NelderMeadSolver::NelderMeadSolver() : AbstractSolver()
 NelderMeadSolver::~NelderMeadSolver()
 {
 
-   if (m_points != NULL)
+   if (m_points != nullptr)
       delete [] m_points;
-   m_points = NULL;
+   m_points = nullptr;
 
 }
 
@@ -159,7 +159,7 @@ QMap<QString, double> NelderMeadSolver::getOptions()
 void NelderMeadSolver::setAllCoef(QMap<QString, double> vars)
 {
 
-   if(m_transformer != NULL)
+   if(m_transformer != nullptr)
    {
       if(!m_transformer->Init(vars))
       {
@@ -174,7 +174,7 @@ void NelderMeadSolver::setAllCoef(QMap<QString, double> vars)
 void NelderMeadSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 {
 
-   if( m_points != NULL )
+   if( m_points != nullptr )
       delete [] m_points;
 
    m_numPoints = vars.count();
@@ -240,7 +240,7 @@ void NelderMeadSolver::setTransformer(gstar::ITransformer* transformer)
 bool NelderMeadSolver::run()
 {
 
-   if(m_transformer == NULL)
+   if(m_transformer == nullptr)
    {
       m_lastErrorMsg = "No transformer set!";
       return false;

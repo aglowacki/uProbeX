@@ -287,7 +287,7 @@ void PythonSolverProfileWidget::openPythonFile()
       "Open python script", ".",
          tr("py (*.py *.PY)"));
 
-   // Dialog returns a null string if user press cancel.
+   // Dialog returns a nullptr string if user press cancel.
    if (m_fileName.isNull() || m_fileName.isEmpty()) return;
 
    m_fileInfo = QFileInfo(m_fileName);
@@ -313,7 +313,7 @@ void PythonSolverProfileWidget::openPythonFile()
         //Coefs
         if(!PythonLoader::inst()-> loadFunction(m_fileInfo.path(), m_fileInfo.baseName(), "getCoefDict"))
         {
-            QMessageBox::warning(NULL, "Error loading variables", "Error calling getCoefDict in the script. You will have to manually enter them.");
+            QMessageBox::warning(nullptr, "Error loading variables", "Error calling getCoefDict in the script. You will have to manually enter them.");
             return;
         }
         PythonLoader::inst()->setRetCnt(m_fileInfo.baseName(), "getCoefDict", 1);
@@ -339,7 +339,7 @@ void PythonSolverProfileWidget::openPythonFile()
         //Options
         if(!PythonLoader::inst()-> loadFunction(m_fileInfo.path(), m_fileInfo.baseName(), "getOptionsDict"))
         {
-            QMessageBox::warning(NULL, "Error loading options", "Error calling getOptionsDict in the script. You will have to manually enter them.");
+            QMessageBox::warning(nullptr, "Error loading options", "Error calling getOptionsDict in the script. You will have to manually enter them.");
             return;
         }
         PythonLoader::inst()->setRetCnt(m_fileInfo.baseName(), "getOptionsDict", 1);
@@ -364,7 +364,7 @@ void PythonSolverProfileWidget::openPythonFile()
     catch(PythonLoader::pyException ex)
     {
         qDebug()<<ex.what();
-        QMessageBox::warning(NULL, "Error loading variables", "Error loading variables. You will have to manually enter them.");
+        QMessageBox::warning(nullptr, "Error loading variables", "Error loading variables. You will have to manually enter them.");
     }
 }
 
@@ -581,9 +581,9 @@ void PythonSolverProfileWidget::runSolver()
    bool retVal = m_solver->run();
    QApplication::restoreOverrideCursor();
 
-   if(m_solverWidget != NULL)
+   if(m_solverWidget != nullptr)
       delete m_solverWidget;
-   m_solverWidget = NULL;
+   m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget();
    connect(m_solverWidget,

@@ -44,7 +44,7 @@ public:
    /**
     * Constructor.
     */
-   FitSpectraWidget(QWidget* parent = NULL);
+   FitSpectraWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.

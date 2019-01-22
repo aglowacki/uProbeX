@@ -55,7 +55,7 @@ public:
    /**
     * Constructor.
     */
-   SWSWidget(Solver *solver, Preferences* pref, QWidget* parent = NULL);
+   SWSWidget(Solver *solver, Preferences* pref, QWidget* parent = nullptr);
 
 
    /**
@@ -177,7 +177,7 @@ protected slots:
     * @param summaryWarnings - When pointer is provided, only simulated output is generated. (must be specified with summaryInformation)
     *
     */
-   void exportSelectedRegionInformation(QList<QString>* summaryInformation = NULL, QList<QString>* summaryWarnings = NULL);
+   void exportSelectedRegionInformation(QList<QString>* summaryInformation = nullptr, QList<QString>* summaryWarnings = nullptr);
 
    /**
     * @brief calModelDataChanged
@@ -391,7 +391,7 @@ private:
                                 bool printNameOnImage,
                                 bool printPredictedXYOnImage,
                                 bool printWidthHeightOnImage,
-                                QXmlStreamWriter* xmlStreamWriter = NULL);
+                                QXmlStreamWriter* xmlStreamWriter = nullptr);
 
    /**
     * @brief writeXMLSaveData
@@ -411,7 +411,7 @@ private:
     * Used for getting a selected region graphics item.
     *
     * @brief getSelectedRegion
-    * @return null when invalid selection is made.
+    * @return nullptr when invalid selection is made.
     */
    gstar::UProbeRegionGraphicsItem* getSelectedRegion();
 

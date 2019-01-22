@@ -55,7 +55,7 @@ bool PythonRegionCaller::init(QString path,
    }
    catch(PythonLoader::pyException px)
    {
-      QMessageBox::critical(NULL, "PythonRegionCaller Error", px.what());
+      QMessageBox::critical(nullptr, "PythonRegionCaller Error", px.what());
       return false;
    }
 

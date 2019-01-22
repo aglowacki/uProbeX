@@ -67,7 +67,7 @@ void ColorTransferFunction::computeMap(double* map,
                                        vector<double> values)
 {
 
-   if (map == NULL) return;
+   if (map == nullptr) return;
 
    int range = m_totalRange[1] - m_totalRange[0] + 1;
 

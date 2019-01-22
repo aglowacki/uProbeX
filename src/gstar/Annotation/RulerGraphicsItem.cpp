@@ -45,10 +45,10 @@ void RulerGraphicsItem::calculate()
 
    //get units per pixel from scene
    QGraphicsScene* bScene = scene();
-   if (bScene != NULL)
+   if (bScene != nullptr)
    {
       ImageViewScene* iScene = dynamic_cast<ImageViewScene*>(bScene);
-      if (iScene != NULL)
+      if (iScene != nullptr)
       {
          unitsLabel = iScene->getUnitsLabel();
          unitsPerPixelX = iScene->getUnitsPerPixelX();

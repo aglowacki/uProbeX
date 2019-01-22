@@ -10,7 +10,7 @@
 Solver::Solver()
 {
 
-   m_impl = NULL;
+   m_impl = nullptr;
 
 }
 
@@ -27,7 +27,7 @@ QMap<QString, double> Solver::getAllCoef()
 {
 
    QMap<QString, double> dic;
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       dic = m_impl->getAllCoef();
 
    return dic;
@@ -49,7 +49,7 @@ QMap<QString, double> Solver::getMinCoef()
 {
 
    QMap<QString, double> dic;
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       dic = m_impl->getMinCoef();
 
    return dic;
@@ -62,7 +62,7 @@ QMap<QString, double> Solver::getOptions()
 {
 
    QMap<QString, double> dic;
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       dic = m_impl->getOptions();
 
    return dic;
@@ -74,10 +74,10 @@ QMap<QString, double> Solver::getOptions()
 gstar::ITransformer* Solver::getTransformer()
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       return m_impl->getTransformer();
 
-   return NULL;
+   return nullptr;
 
 }
 
@@ -86,7 +86,7 @@ gstar::ITransformer* Solver::getTransformer()
 void Solver::setAllCoef(QMap<QString, double> vars)
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       m_impl->setAllCoef(vars);
 
 }
@@ -95,7 +95,7 @@ void Solver::setAllCoef(QMap<QString, double> vars)
 QString Solver::getLastErrorMessage()
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       return m_impl->getLastErrorMessage();
 
    return "";
@@ -107,7 +107,7 @@ QString Solver::getLastErrorMessage()
 void Solver::setCoordPoints(QList < QMap<QString,double> > vars)
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       m_impl->setCoordPoints(vars);
 
 }
@@ -126,7 +126,7 @@ void Solver::setImpl(AbstractSolver* impl)
 void Solver::setMinCoef(QMap<QString, double> vars)
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       m_impl->setMinCoef(vars);
 
 }
@@ -136,7 +136,7 @@ void Solver::setMinCoef(QMap<QString, double> vars)
 void Solver::setOptions(QMap<QString, double> vars)
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       m_impl->setOptions(vars);
 
 }
@@ -146,7 +146,7 @@ void Solver::setOptions(QMap<QString, double> vars)
 void Solver::setTransformer(gstar::ITransformer* transformer)
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       m_impl->setTransformer(transformer);
 
 }
@@ -156,7 +156,7 @@ void Solver::setTransformer(gstar::ITransformer* transformer)
 bool Solver::run()
 {
 
-   if(m_impl != NULL)
+   if(m_impl != nullptr)
       return m_impl->run();
 
    return false;

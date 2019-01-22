@@ -52,7 +52,7 @@ PythonTransformer::PythonTransformer(QString path,
       er += QString("\r\n Path: "+path
                     +"\r\nModule: "+filename+
                     "\r\nFunction Name: "+functionnName);
-      QMessageBox::critical(NULL, "PythonLoader Error", er);
+      QMessageBox::critical(nullptr, "PythonLoader Error", er);
       return;
    }
 

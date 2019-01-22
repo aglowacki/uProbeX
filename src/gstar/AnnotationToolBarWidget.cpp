@@ -29,23 +29,23 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
 
    m_rulerAction = new QAction(QIcon(":images/ruler.png"),
                                "Ruler",
-                               NULL);
+                               nullptr);
 
    m_intensityLineAction = new QAction(QIcon(":images/intensity.png"),
                                "Line Out Intensity",
-                               NULL);
+                               nullptr);
 
    m_intensityPieAction = new QAction(QIcon(":images/arc.png"),
                                "Arc Intensity",
-                               NULL);
+                               nullptr);
 
    m_markerAction = new QAction(QIcon(":images/marker.png"),
                                "Marker",
-                               NULL);
+                               nullptr);
 
    m_crossHairAction = new QAction(QIcon(":images/crosshair.png"),
                                   "Cross Hair",
-                                  NULL);
+                                  nullptr);
 
 
    connect(m_rulerAction,
@@ -94,34 +94,34 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
 AnnotationToolBarWidget::~AnnotationToolBarWidget()
 {
 
-   if(m_rulerAction != NULL)
+   if(m_rulerAction != nullptr)
    {
       delete m_rulerAction;
-      m_rulerAction = NULL;
+      m_rulerAction = nullptr;
    }
 
-   if(m_intensityLineAction != NULL)
+   if(m_intensityLineAction != nullptr)
    {
       delete m_intensityLineAction;
-      m_intensityLineAction = NULL;
+      m_intensityLineAction = nullptr;
    }
 
-   if(m_intensityPieAction != NULL)
+   if(m_intensityPieAction != nullptr)
    {
       delete m_intensityPieAction;
-      m_intensityPieAction = NULL;
+      m_intensityPieAction = nullptr;
    }
 
-   if(m_markerAction != NULL)
+   if(m_markerAction != nullptr)
    {
       delete m_markerAction;
-      m_markerAction = NULL;
+      m_markerAction = nullptr;
    }
 
-   if(m_crossHairAction != NULL)
+   if(m_crossHairAction != nullptr)
    {
       delete m_crossHairAction;
-      m_crossHairAction = NULL;
+      m_crossHairAction = nullptr;
    }
 
 }

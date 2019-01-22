@@ -12,9 +12,9 @@ CoordinateWidget::CoordinateWidget(QWidget* parent)
 : QWidget(parent)
 {
 
-   m_model = NULL;
-   m_lblPixelXCoordinate = NULL;
-   m_lblPixelYCoordinate = NULL;
+   m_model = nullptr;
+   m_lblPixelXCoordinate = nullptr;
+   m_lblPixelYCoordinate = nullptr;
 
    m_lblXUnits = new QLabel("");
    m_lblXUnits->setMinimumWidth(40);
@@ -92,7 +92,7 @@ void CoordinateWidget::setLabel(QString xLabel, QString yLabel, QString zLabel)
 void CoordinateWidget::setCoordinate(int x, int y)
 {
 
-   if(m_model != NULL)
+   if(m_model != nullptr)
    {
       double dx = 0.0;
       double dy = 0.0;
@@ -115,7 +115,7 @@ void CoordinateWidget::setCoordinate(int x, int y)
 void CoordinateWidget::setCoordinate(double x, double y, double z)
 {
 
-   if(m_model != NULL)
+   if(m_model != nullptr)
    {
       double dx = 0.0;
       double dy = 0.0;
@@ -145,7 +145,7 @@ void CoordinateWidget::setModel(CoordinateModel* model)
 
 /*---------------------------------------------------------------------------*/
 
-void CoordinateWidget::setNull()
+void CoordinateWidget::setnullptr()
 {
 
    m_lblPixelXCoordinate->setText("");

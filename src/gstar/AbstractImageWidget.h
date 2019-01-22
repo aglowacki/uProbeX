@@ -52,7 +52,7 @@ public:
    /**
     * Constructor.
     */
-   AbstractImageWidget(QWidget* parent = NULL);
+   AbstractImageWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
