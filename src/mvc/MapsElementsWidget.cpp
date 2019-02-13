@@ -169,6 +169,8 @@ void MapsElementsWidget::model_updated()
     {
         return;
     }
+    QString current_a = _cb_analysis->currentText();
+    QString current_e = _cb_element->currentText();
     _cb_analysis->clear();
     //disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
 
@@ -180,9 +182,8 @@ void MapsElementsWidget::model_updated()
         _cb_analysis->addItem(QString(itr.c_str()));
         //m_imageWidgetToolBar->appendImageViewWidget(imageViewWidget);
     }
-
     //connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-
+    displayCounts(current_a.toStdString(), current_e.toStdString());
 }
 
 /*---------------------------------------------------------------------------*/

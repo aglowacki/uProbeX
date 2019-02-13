@@ -43,6 +43,8 @@ public slots:
 
    void updateIp();
 
+   void image_changed(int start, int end);
+
 protected:
 
    /**
@@ -60,11 +62,17 @@ protected:
 
    QLineEdit *_qline_ip_addr;
 
+   QLineEdit *_qline_port;
+
    QPushButton *_btn_update;
 
-   MapsH5Model _currentModel;
+   std::vector<MapsH5Model*> _maps_h5_models;
+
+   MapsH5Model *_currentModel;
 
    data_struct::Stream_Block *_last_packet;
+
+   int _num_images;
 };
 
 

@@ -58,8 +58,8 @@ win32 {
 DESTDIR = ./bin
 
 # Release or Debug
-#CONFIG += release
-CONFIG += debug
+CONFIG += release
+#CONFIG += debug
 CONFIG += ordered
 CONFIG += console 
 CONFIG += c++17

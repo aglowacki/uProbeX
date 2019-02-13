@@ -25,10 +25,10 @@ public:
    /**
     * Constructor.
     */
-   NetStreamWorker(QString str_ip, QObject* parent = nullptr) : QThread(parent)
+   NetStreamWorker(QString str_ip, QString port, QObject* parent = nullptr) : QThread(parent)
    {
 
-       std::string conn_str = "tcp://"+str_ip.toStdString()+":43434";
+       std::string conn_str = "tcp://"+str_ip.toStdString()+":"+port.toStdString();
        //std::string conn_str = "tcp://192.168.0.254:43434";
        _context = new zmq::context_t(1);
        _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);

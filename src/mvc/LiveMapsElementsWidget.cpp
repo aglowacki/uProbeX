@@ -18,6 +18,9 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
     _streamWorker = nullptr;
     _mapsElementsWidget = nullptr;
     _last_packet = nullptr;
+    //_currentModel = new MapsH5Model();
+    _currentModel = nullptr;
+    _num_images = 0;
     createLayout();
 
 }
@@ -28,10 +31,16 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 {
 
 
-    disconnect(&_currentModel,
+    disconnect(_currentModel,
             SIGNAL(model_data_updated()),
             _mapsElementsWidget,
             SLOT(model_updated()));
+
+    if(_currentModel != nullptr)
+    {
+        delete _currentModel;
+    }
+    _currentModel = nullptr;
 
     if(_streamWorker != nullptr)
     {
@@ -58,10 +67,12 @@ void LiveMapsElementsWidget::createLayout()
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* hlayout = new QHBoxLayout();
     _qline_ip_addr = new QLineEdit("127.0.0.1");
+    _qline_port = new QLineEdit("43434");
     _btn_update = new QPushButton("Update");
     connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
 
     hlayout->addWidget(_qline_ip_addr);
+    hlayout->addWidget(_qline_port);
     hlayout->addWidget(_btn_update);
     layout->addLayout(hlayout);
 
@@ -69,10 +80,15 @@ void LiveMapsElementsWidget::createLayout()
     _textEdit->resize(1024, 800);
     _textEdit->scrollBarWidgets(Qt::AlignRight);
     _mapsElementsWidget = new MapsElementsWidget(this);
-    _mapsElementsWidget->setModel(&_currentModel, nullptr, nullptr);
+    //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
     _mapsElementsWidget->appendTab(_textEdit, "Log");
 
-    connect(&_currentModel,
+    connect(_mapsElementsWidget,
+            SIGNAL(rangeChanged(int, int)),
+            this,
+            SLOT(image_changed(int, int)));
+
+    connect(_currentModel,
             SIGNAL(model_data_updated()),
             _mapsElementsWidget,
             SLOT(model_updated()));
@@ -99,7 +115,7 @@ void LiveMapsElementsWidget::updateIp()
         _streamWorker->wait();
         delete _streamWorker;
     }
-    _streamWorker = new NetStreamWorker(_qline_ip_addr->text(), this);
+    _streamWorker = new NetStreamWorker(_qline_ip_addr->text(), _qline_port->text(), this);
     //connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
     _streamWorker->start();
@@ -122,13 +138,34 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
     {
         start_new_image = true;
     }
-    if(start_new_image)
+    if(_currentModel == nullptr)
     {
-        _currentModel.initialize_from_stream_block(new_packet);
-        _progressBar->setRange(0, new_packet->height()-1);
+        start_new_image = true;
     }
 
-    _currentModel.update_from_stream_block(new_packet);
+    if(start_new_image)
+    {
+        if(_currentModel != nullptr)
+        {
+            disconnect(_currentModel,
+                        SIGNAL(model_data_updated()),
+                        _mapsElementsWidget,
+                        SLOT(model_updated()));
+        }
+        _currentModel = new MapsH5Model();
+        _currentModel->initialize_from_stream_block(new_packet);
+        _progressBar->setRange(0, new_packet->height()-1);
+        _maps_h5_models.push_back(_currentModel);
+        _mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
+        connect(_currentModel,
+                SIGNAL(model_data_updated()),
+                _mapsElementsWidget,
+                SLOT(model_updated()));
+        _num_images++;
+        _mapsElementsWidget->setNumberOfImages(_num_images);
+    }
+
+    _currentModel->update_from_stream_block(new_packet);
     if(_last_packet != nullptr && _last_packet->row() != new_packet->row())
     {   
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
@@ -149,3 +186,9 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 }
 
 /*---------------------------------------------------------------------------*/
+
+void LiveMapsElementsWidget::image_changed(int start, int end)
+{
+    qDebug()<<start<<" "<<end;
+    _mapsElementsWidget->setModel(_maps_h5_models[start-1], nullptr, nullptr);
+}
