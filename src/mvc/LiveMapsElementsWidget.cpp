@@ -12,7 +12,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent)
+LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget* parent) : QWidget(parent)
 {
 
     _streamWorker = nullptr;
@@ -21,6 +21,20 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
     _num_images = 0;
+    _qline_ip_addr = new QLineEdit();
+    if(ip.length() > 0)
+    {
+        _qline_ip_addr->setText(ip);
+    }
+    _qline_port = new QLineEdit();
+    if(port.length() > 0)
+    {
+        _qline_port->setText(port);
+    }
+    else
+    {
+        _qline_port->setText("43434");
+    }
     createLayout();
 
 }
@@ -66,8 +80,6 @@ void LiveMapsElementsWidget::createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* hlayout = new QHBoxLayout();
-    _qline_ip_addr = new QLineEdit("127.0.0.1");
-    _qline_port = new QLineEdit("43434");
     _btn_update = new QPushButton("Update");
     connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
 

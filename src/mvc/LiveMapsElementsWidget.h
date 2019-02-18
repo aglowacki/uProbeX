@@ -30,12 +30,16 @@ public:
    /**
     * Constructor.
     */
-   LiveMapsElementsWidget(QWidget* parent = nullptr);
+   LiveMapsElementsWidget(QString ip="127.0.0.1", QString port="43434", QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
    ~LiveMapsElementsWidget();
+
+   QString getIpAddress(){return _qline_ip_addr->text();}
+
+   QString getPort(){return _qline_port->text();}
 
 public slots:
 

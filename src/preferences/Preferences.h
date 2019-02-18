@@ -66,6 +66,8 @@ public:
       ExportPrintPxPyOnExportedImage,
       ExportPrintWidthHeightOnExportedImage,
       ExportSelectedXmlOption,
+      LastIP,
+      LastPort
    };
 
    /**

@@ -73,6 +73,9 @@ void Preferences::createValueKeyMap()
    m_mapValueKey.insert(ExportPrintPxPyOnExportedImage, "ExportPrintPxPyOnExportedImage");
    m_mapValueKey.insert(ExportPrintWidthHeightOnExportedImage, "ExportPrintWidthHeightOnExportedImage");
    m_mapValueKey.insert(ExportSelectedXmlOption, "ExportSelectedXmlOption");
+
+   m_mapValueKey.insert(LastIP, "LastIP");
+   m_mapValueKey.insert(LastPort, "LastPort");
 }
 
 /*---------------------------------------------------------------------------*/

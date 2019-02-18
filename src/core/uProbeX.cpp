@@ -117,6 +117,15 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 uProbeX::~uProbeX()
 {
 
+    if(_liveMapsViewer != nullptr)
+    {
+        QString strIp = _liveMapsViewer->getIpAddress();
+        QString strPort = _liveMapsViewer->getPort();
+        m_preferences.saveValueKey(Preferences::LastIP, strIp);
+        m_preferences.saveValueKey(Preferences::LastPort, strPort);
+        delete _liveMapsViewer;
+        _liveMapsViewer = nullptr;
+    }
 
     if(m_solverParameterParse != nullptr)
         delete m_solverParameterParse;
@@ -456,9 +465,12 @@ void uProbeX::createSolver()
 
 void uProbeX::openLiveStreamViewer()
 {
+    QString strIp = m_preferences.readValueKey(Preferences::LastIP).toString();
+    QString strPort = m_preferences.readValueKey(Preferences::LastPort).toString();
+
     if (_liveMapsViewer == nullptr)
     {
-        _liveMapsViewer = new LiveMapsElementsWidget();
+        _liveMapsViewer = new LiveMapsElementsWidget(strIp, strPort);
     }
     _liveMapsViewer->show();
 }
@@ -467,7 +479,15 @@ void uProbeX::openLiveStreamViewer()
 
 void uProbeX::exitApplication()
 {
-
+    if(_liveMapsViewer != nullptr)
+    {
+        QString strIp = _liveMapsViewer->getIpAddress();
+        QString strPort = _liveMapsViewer->getPort();
+        m_preferences.saveValueKey(Preferences::LastIP, strIp);
+        m_preferences.saveValueKey(Preferences::LastPort, strPort);
+        delete _liveMapsViewer;
+        _liveMapsViewer = nullptr;
+    }
     // Quit
     QCoreApplication::quit();
 
