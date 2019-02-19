@@ -114,14 +114,31 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
     {
         //_elements_to_fit = *elements_to_fit;
         _row_indicies.clear();
+        for(auto &itr : _nodes)
+        {
+            delete itr.second;
+        }
+        _nodes.clear();
         for(auto& itr : *elements_to_fit)
         {
             data_struct::Fit_Element_Map* element = itr.second;
             if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
             {
-                _nodes[element->Z()] = new TreeItem();
-                _nodes[element->Z()]->set_root(element);
-                _row_indicies.push_back(element->Z());
+                int idx = element->Z();
+                const std::string el_name = element->full_name();
+                int found_L = el_name.find("_L");
+                int found_M = el_name.find("_M");
+                if(found_L > 0)
+                {
+                    idx += 1000;
+                }
+                else if(found_M > 0)
+                {
+                    idx += 2000;
+                }
+                _nodes[idx] = new TreeItem();
+                _nodes[idx]->set_root(element);
+                _row_indicies.push_back(idx);
             }
         }
 
@@ -133,6 +150,67 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
         emit layoutChanged();
 
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
+{
+    if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
+    {
+        int idx = element->Z();
+        const std::string el_name = element->full_name();
+        int found_L = el_name.find("_L");
+        int found_M = el_name.find("_M");
+        if(found_L > 0)
+        {
+            idx += 1000;
+        }
+        else if(found_M > 0)
+        {
+            idx += 2000;
+        }
+        _nodes[idx] = new TreeItem();
+        _nodes[idx]->set_root(element);
+        _row_indicies.push_back(idx);
+
+        std::sort(_row_indicies.begin(), _row_indicies.end());
+
+        QModelIndex topLeft = index(0, 0);
+        QModelIndex bottomRight = index(_row_indicies.size()-1, NUM_PROPS-1);
+        emit dataChanged(topLeft, bottomRight);
+        emit layoutChanged();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitElementsTableModel::deleteElementIndex(int row)
+{
+//currently causes seg fault. need fix
+    return;
+
+    if(row < 0)
+        return;
+    int rsize = _row_indicies.size();
+    if(row < rsize)
+    {
+        //beginRemoveRows(nullptr, row, row);
+        int z = _row_indicies[row];
+        TreeItem* node = _nodes[z];
+        _row_indicies.erase(_row_indicies.begin()+row);
+        _nodes.erase(z);
+        delete node;
+        //endRemoveRows(this->parent(), row, row);
+    }
+
+    //std::sort(_row_indicies.begin(), _row_indicies.end());
+/*
+    QModelIndex topLeft = index(row, 0);
+    QModelIndex bottomRight = index(row, NUM_PROPS-1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
+*/
 }
 
 /*---------------------------------------------------------------------------*/
@@ -285,7 +363,7 @@ int FitElementsTableModel::rowCount(const QModelIndex &parent) const
     if(parent.isValid())
     {
         TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
-        return node->childItems.count();
+        return node->childItems.size();
     }
 
     // Return number of rows
@@ -309,7 +387,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
     else
     {
         TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
-        if(node && node->childItems.count() > row)
+        if(node && node->childItems.size() > row)
         {
             TreeItem* childNode = node->childItems.at(row);
             if(childNode)
@@ -346,8 +424,9 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-
     TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    if(childItem == nullptr)
+       return QModelIndex();
     TreeItem *parentItem = childItem->parentItem;
 
     if (parentItem == nullptr)

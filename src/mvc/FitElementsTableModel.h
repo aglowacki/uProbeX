@@ -124,6 +124,9 @@ public:
                       const QVariant &value,
                       int role = Qt::EditRole);
 
+   void appendElement(data_struct::Fit_Element_Map* element);
+
+   void deleteElementIndex(int row);
 
 private:
 
@@ -138,7 +141,15 @@ private:
        }
        ~TreeItem()
        {
-           qDeleteAll(childItems);
+           for(TreeItem* t : childItems)
+           {
+                t->parentItem = nullptr;
+                delete t;
+           }
+           childItems.clear();
+           parentItem = nullptr;
+           element_data = nullptr;
+           props_editable = false;
        }
 
        void set_root(data_struct::Fit_Element_Map* element)
@@ -159,13 +170,13 @@ private:
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Center"));
            child->itemData.push_back(QVariant(element->center()));
-           childItems.append(child);
+           childItems.push_back(child);
 
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Width"));
            child->itemData.push_back(QVariant(element->width()));
            child->itemData.push_back(QVariant(element->width_multi()));
-           childItems.append(child);
+           childItems.push_back(child);
 
            //child = new TreeItem(this, true);
            //child->itemData.push_back(QVariant("Width Multiplier"));
@@ -196,7 +207,7 @@ private:
                 child->itemData.push_back(QVariant(multi_vec[i]));
                 //child->itemData.push_back(QVariant(itr.mu_fraction));
                 //child->itemData.push_back(QVariant(itr.ratio));
-                childItems.append(child);
+                childItems.push_back(child);
                 i++;
            }
        }
@@ -254,7 +265,28 @@ private:
 
 //           return true;
 //       }
-       int childNumber() const { return parentItem? parentItem->childItems.indexOf(const_cast<TreeItem*>(this)) : 0;}
+       int childIndex(TreeItem* t)
+       {
+            for(int i=0; i< childItems.size(); i++)
+            {
+                if(childItems[i] == t)
+                    return i;
+            }
+            return -1;
+       }
+
+       int childNumber() const
+       {
+           if(parentItem != nullptr)
+           {
+               if(parentItem->childItems.size() > 1)
+               {
+                return parentItem->childIndex(const_cast<TreeItem*>(this));
+               }
+               return 0;
+           }
+           return 0;
+       }
        bool setData(int column, const QVariant &value)
        {
            if (column < 0 || column >= itemData.size())
@@ -265,7 +297,7 @@ private:
        }
 
        data_struct::Fit_Element_Map* element_data;
-       QList<TreeItem*> childItems;
+       std::vector<TreeItem*> childItems;
        QVector<QVariant> itemData;
        TreeItem *parentItem;
        bool props_editable;

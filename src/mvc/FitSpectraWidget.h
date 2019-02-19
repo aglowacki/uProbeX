@@ -14,6 +14,7 @@
 #include <thread>
 #include <QWidget>
 #include <QTableView>
+#include <QComboBox>
 #include <QTreeView>
 #include <QPushButton>
 #include <mvc/MapsH5Model.h>
@@ -79,6 +80,12 @@ public slots:
 
    void element_selection_changed(QModelIndex,QModelIndex);
 
+   void export_fit_paramters();
+
+   void add_element();
+
+   void del_element();
+
 protected:
 
    SpectraWidget* _spectra_widget;
@@ -124,11 +131,21 @@ private:
 
    QPushButton* _btn_model_spectra;
 
+   QPushButton* _btn_export_parameters;
+
+   QPushButton* _btn_add_element;
+
+   QPushButton* _btn_del_element;
+
    data_struct::ArrayXr _spectra_background;
 
    QMenu *_fit_param_contextMenu;
 
    QMenu *_set_fit_params_bounds_menu;
+
+   QComboBox* _cb_add_elements;
+
+   QComboBox* _cb_add_shell;
 };
 
 

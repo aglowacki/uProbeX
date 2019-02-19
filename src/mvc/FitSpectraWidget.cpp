@@ -7,13 +7,18 @@
 #include <future>
 
 #include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
 #include <QHeaderView>
 #include <QGridLayout>
 #include <QItemSelectionModel>
 #include <QDebug>
+#include <QFileDialog>
+
 
 #include <math.h>
+
+#include "data_struct/element_info.h"
 
 using namespace data_struct;
 
@@ -26,6 +31,18 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 {
 
     _fit_thread = nullptr;
+    _cb_add_elements = new QComboBox();
+    _cb_add_shell = new QComboBox();
+    _elements_to_fit = nullptr;
+    for(const std::string e : data_struct::Element_Symbols)
+    {
+        _cb_add_elements->addItem(QString::fromStdString(e));
+    }
+
+    _cb_add_shell->addItem("K");
+    _cb_add_shell->addItem("L");
+    _cb_add_shell->addItem("M");
+
     createLayout();
 
     _spectra_background.resize(10);
@@ -103,8 +120,35 @@ void FitSpectraWidget::createLayout()
     _btn_model_spectra = new QPushButton("Model Spectra");
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
+    _btn_export_parameters = new QPushButton("Export Fit Parameters");
+    connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::export_fit_paramters);
+
+    _btn_add_element = new QPushButton("Add Element");
+    connect(_btn_add_element, &QPushButton::released, this, &FitSpectraWidget::add_element);
+
+    _btn_del_element = new QPushButton("Delete Element");
+    connect(_btn_del_element, &QPushButton::released, this, &FitSpectraWidget::del_element);
+
+    QVBoxLayout* element_button_layout = new QVBoxLayout();
+    element_button_layout->addWidget(new QLabel("Element"));
+    element_button_layout->addWidget(_cb_add_elements);
+    element_button_layout->addWidget(new QLabel("Shell"));
+    element_button_layout->addWidget(_cb_add_shell);
+    element_button_layout->addWidget(_btn_add_element);
+    element_button_layout->addWidget(_btn_del_element);
+    element_button_layout->addStretch(1);
+
+
+    QHBoxLayout* elements_layout = new QHBoxLayout();
+    elements_layout->addWidget(_fit_elements_table);
+    elements_layout->addLayout(element_button_layout);
+
+    QWidget* element_widget = new QWidget();
+    element_widget->setLayout(elements_layout);
+
+
     _fit_params_tab_widget->addTab(_fit_params_table, "Fit Parameters");
-    _fit_params_tab_widget->addTab(_fit_elements_table, "Fit Elements");
+    _fit_params_tab_widget->addTab(element_widget, "Fit Elements");
 
     _cb_opttimizer = new QComboBox();
     _cb_opttimizer->addItem(STR_LM_FIT);
@@ -128,11 +172,86 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_chk_auto_model, 1, 0);
     grid_layout->addWidget(_btn_model_spectra, 1, 1);
 
+    grid_layout->addWidget(_btn_export_parameters, 2, 1);
+
     QLayout* layout = new QVBoxLayout();
     layout->addWidget(_spectra_widget);
     layout->addWidget(_fit_params_tab_widget);
     layout->addItem(grid_layout);
     setLayout(layout);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::export_fit_paramters()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+              tr("Export Fit Parameters"),
+              "maps_fit_parameters_override.txt",
+              tr("Fit Params (*.txt)"));
+
+    if(fileName.length() > 0)
+    {
+
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::add_element()
+{
+
+    if(_elements_to_fit == nullptr)
+    {
+        _elements_to_fit = new data_struct::Fit_Element_Map_Dict();
+    }
+
+    QString el_name = _cb_add_elements->currentText();
+    int shell = _cb_add_shell->currentIndex();
+    if(shell == 1)
+    {
+        el_name += "_L";
+    }
+    else if(shell == 2)
+    {
+        el_name += "_M";
+    }
+
+
+
+    data_struct::Fit_Element_Map* fit_element = gen_element_map(el_name.toStdString());
+    if(fit_element != nullptr)
+    {
+        (*_elements_to_fit)[el_name.toStdString()] = fit_element;
+    }
+
+
+    _fit_elements_table_model->appendElement(fit_element);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::del_element()
+{
+    //get selected elements to remove
+    QModelIndexList selected_rows = _fit_elements_table->selectionModel()->selectedIndexes();
+    for( auto i : selected_rows)
+    {
+        if(i.isValid())
+        {
+            auto p = i.parent();
+            if(false == p.isValid())
+            {
+                _fit_elements_table_model->deleteElementIndex(i.row());
+            }
+            else
+            {
+                _fit_elements_table_model->deleteElementIndex(p.row());
+            }
+        }
+        break;
+    }
 }
 
 /*---------------------------------------------------------------------------*/
