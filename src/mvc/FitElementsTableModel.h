@@ -126,7 +126,7 @@ public:
 
    void appendElement(data_struct::Fit_Element_Map* element);
 
-   void deleteElementIndex(int row);
+   void deleteElementIndex(QModelIndex idx);
 
 private:
 
@@ -277,7 +277,7 @@ private:
 
        int childNumber() const
        {
-           if(parentItem != nullptr)
+           if(parentItem != nullptr && element_data != nullptr)
            {
                if(parentItem->childItems.size() > 1)
                {

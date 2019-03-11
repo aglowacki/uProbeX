@@ -243,11 +243,11 @@ void FitSpectraWidget::del_element()
             auto p = i.parent();
             if(false == p.isValid())
             {
-                _fit_elements_table_model->deleteElementIndex(i.row());
+                _fit_elements_table_model->deleteElementIndex(i);
             }
             else
             {
-                _fit_elements_table_model->deleteElementIndex(p.row());
+                _fit_elements_table_model->deleteElementIndex(p);
             }
         }
         break;

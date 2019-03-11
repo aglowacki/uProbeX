@@ -185,32 +185,34 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::deleteElementIndex(int row)
+void FitElementsTableModel::deleteElementIndex(QModelIndex idx)
 {
 //currently causes seg fault. need fix
-    return;
+    //return;
+
+    int row = idx.row();
 
     if(row < 0)
         return;
     int rsize = _row_indicies.size();
     if(row < rsize)
     {
-        //beginRemoveRows(nullptr, row, row);
+        beginRemoveRows(idx, row, row);
         int z = _row_indicies[row];
         TreeItem* node = _nodes[z];
         _row_indicies.erase(_row_indicies.begin()+row);
         _nodes.erase(z);
         delete node;
-        //endRemoveRows(this->parent(), row, row);
+        endRemoveRows();
     }
 
     //std::sort(_row_indicies.begin(), _row_indicies.end());
-/*
+
     QModelIndex topLeft = index(row, 0);
     QModelIndex bottomRight = index(row, NUM_PROPS-1);
     emit dataChanged(topLeft, bottomRight);
     emit layoutChanged();
-*/
+
 }
 
 /*---------------------------------------------------------------------------*/
