@@ -123,6 +123,10 @@ void FitSpectraWidget::createLayout()
     _btn_export_parameters = new QPushButton("Export Fit Parameters");
     connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::export_fit_paramters);
 
+	_btn_replot_integrated = new QPushButton("Replot Integrated Spectra");
+	connect(_btn_replot_integrated, &QPushButton::released, this, &FitSpectraWidget::replot_integrated_spectra);
+
+
     _btn_add_element = new QPushButton("Add Element");
     connect(_btn_add_element, &QPushButton::released, this, &FitSpectraWidget::add_element);
 
@@ -172,6 +176,7 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_chk_auto_model, 1, 0);
     grid_layout->addWidget(_btn_model_spectra, 1, 1);
 
+	grid_layout->addWidget(_btn_replot_integrated, 2, 0);
     grid_layout->addWidget(_btn_export_parameters, 2, 1);
 
     QLayout* layout = new QVBoxLayout();
@@ -194,6 +199,52 @@ void FitSpectraWidget::export_fit_paramters()
     {
 
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::replot_integrated_spectra()
+{
+	data_struct::Fit_Parameters fit_params;
+	data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+	data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+	fit_params.append_and_update(&model_fit_params);
+	fit_params.append_and_update(&element_fit_params);
+	/*
+	fitting::models::Range energy_range = data_struct::get_energy_range(sub_struct->fit_params_override_dict.min_energy,
+	sub_struct->fit_params_override_dict.max_energy,
+	_spectra_background.size(),
+	model_fit_params[STR_ENERGY_OFFSET].value,
+	model_fit_params[STR_ENERGY_SLOPE].value);
+	*/
+
+
+	if (_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
+	{
+		const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
+
+		fitting::models::Range energy_range;
+		energy_range.min = 0;
+		energy_range.max = int_spec->size() - 1;
+
+		data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+		data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
+
+		_spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
+
+		_spectra_background = snip_background(int_spec,
+			fit_params.at(STR_ENERGY_OFFSET).value,
+			fit_params.at(STR_ENERGY_SLOPE).value,
+			fit_params.at(STR_ENERGY_QUADRATIC).value,
+			0, //spectral binning
+			fit_params.at(STR_SNIP_WIDTH).value,
+			0, //spectra energy start range
+			int_spec->size() - 1);
+
+		_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+		_spectra_widget->setXLabel("Energy (kEv)");
+	
+	}
 }
 
 /*---------------------------------------------------------------------------*/

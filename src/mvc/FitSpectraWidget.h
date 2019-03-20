@@ -82,6 +82,8 @@ public slots:
 
    void export_fit_paramters();
 
+   void replot_integrated_spectra();
+
    void add_element();
 
    void del_element();
@@ -132,6 +134,8 @@ private:
    QPushButton* _btn_model_spectra;
 
    QPushButton* _btn_export_parameters;
+
+   QPushButton* _btn_replot_integrated;
 
    QPushButton* _btn_add_element;
 

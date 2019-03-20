@@ -116,6 +116,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         if(itr->name() == name)
         {
             series = (QtCharts::QLineSeries*)itr;
+			break;
         }
     }
 
@@ -167,7 +168,8 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
             {
                 val = 1.0;
             }
-            itr->setY(val);
+            itr->setX((*energy)[i]);
+			itr->setY(val);
             itr++;
         }
         series->replace(points);
