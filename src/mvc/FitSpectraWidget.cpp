@@ -19,6 +19,7 @@
 #include <math.h>
 
 #include "data_struct/element_info.h"
+#include "io/file/aps/aps_fit_params_import.h"
 
 using namespace data_struct;
 
@@ -197,7 +198,14 @@ void FitSpectraWidget::export_fit_paramters()
 
     if(fileName.length() > 0)
     {
+		data_struct::Fit_Parameters fit_params;
+		data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+		data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+		fit_params.append_and_update(&model_fit_params);
+		fit_params.append_and_update(&element_fit_params);
 
+		io::file::aps::APS_Fit_Params_Import override_file;
+		override_file.save(fileName.toStdString(), fit_params, 0);
     }
 }
 
@@ -516,6 +524,8 @@ void FitSpectraWidget::finished_fitting()
         _btn_model_spectra->setEnabled(false);
     else
         _btn_model_spectra->setEnabled(true);
+
+	replot_integrated_spectra();
 }
 
 /*---------------------------------------------------------------------------*/
