@@ -7,6 +7,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include <QDebug>
 
@@ -44,11 +45,13 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
 LiveMapsElementsWidget::~LiveMapsElementsWidget()
 {
 
-
-    disconnect(_currentModel,
-            SIGNAL(model_data_updated()),
-            _mapsElementsWidget,
-            SLOT(model_updated()));
+    if(_currentModel != nullptr)
+	{
+ 	   disconnect(_currentModel,
+	            SIGNAL(model_data_updated()),
+	            _mapsElementsWidget,
+	            SLOT(model_updated()));
+	}
 
     if(_currentModel != nullptr)
     {
@@ -83,28 +86,32 @@ void LiveMapsElementsWidget::createLayout()
     _btn_update = new QPushButton("Update");
     connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
 
+    hlayout->addWidget(new QLabel("Computer:"));
     hlayout->addWidget(_qline_ip_addr);
+    hlayout->addWidget(new QLabel("Port:"));
     hlayout->addWidget(_qline_port);
     hlayout->addWidget(_btn_update);
     layout->addLayout(hlayout);
 
-    _textEdit = new QTextEdit(this);
-    _textEdit->resize(1024, 800);
-    _textEdit->scrollBarWidgets(Qt::AlignRight);
+ //   _textEdit = new QTextEdit(this);
+ //   _textEdit->resize(1024, 800);
+ //   _textEdit->scrollBarWidgets(Qt::AlignRight);
     _mapsElementsWidget = new MapsElementsWidget(this);
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
-    _mapsElementsWidget->appendTab(_textEdit, "Log");
+ //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 
     connect(_mapsElementsWidget,
             SIGNAL(rangeChanged(int, int)),
             this,
             SLOT(image_changed(int, int)));
 
-    connect(_currentModel,
-            SIGNAL(model_data_updated()),
-            _mapsElementsWidget,
-            SLOT(model_updated()));
-
+	if(_currentModel != nullptr)
+	{
+	    connect(_currentModel,
+	            SIGNAL(model_data_updated()),
+	            _mapsElementsWidget,
+	            SLOT(model_updated()));
+	}
     layout->addWidget(_mapsElementsWidget);
 
     _progressBar = new QProgressBar(this);
@@ -181,7 +188,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
     if(_last_packet != nullptr && _last_packet->row() != new_packet->row())
     {   
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
-        _textEdit->append(str);
+//        _textEdit->append(str);
 
         _mapsElementsWidget->redrawCounts();
 

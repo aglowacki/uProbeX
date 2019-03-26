@@ -67,6 +67,8 @@ public slots:
 
    void onElementSelect(QString name);
 
+   void onColormapSelect(QString name);
+
    void model_updated();
 
 protected:
@@ -86,9 +88,13 @@ protected:
 
    QComboBox *_cb_element;
 
+   QComboBox *_cb_colormap;
+
    QTabWidget *_tab_widget;
 
-   QVector<QRgb> _grayscale;
+   QVector<QRgb> *_selected_colormap;
+   QVector<QRgb> _gray_colormap;
+   QVector<QRgb> _heat_colormap;
 };
 
 

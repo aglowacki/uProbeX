@@ -26,8 +26,10 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
     _model = nullptr;
     for (int i = 0; i < 256; ++i)
     {
-        _grayscale.append(qRgb(i, i, i));
+        _gray_colormap.append(qRgb(i, i, i));
+        _heat_colormap.append(qRgb(i, 0, 0));
     }
+	_selected_colormap = &_gray_colormap;
     createLayout();
 
 }
@@ -77,6 +79,13 @@ void MapsElementsWidget::createLayout()
     counts_layout->addWidget(m_toolbar);
     counts_layout->addWidget(splitter);
 
+	_cb_colormap = new QComboBox();
+	_cb_colormap->addItem("Grayscale");
+	_cb_colormap->addItem("Heatmap");
+    connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
+
+    m_toolbar -> addWidget(new QLabel(" ColorMap :"));
+    m_toolbar -> addWidget(_cb_colormap);
 
     hbox->addWidget(_cb_analysis);
     hbox->addWidget(_cb_element);
@@ -142,6 +151,22 @@ void MapsElementsWidget::onElementSelect(QString name)
 
 /*---------------------------------------------------------------------------*/
 
+void MapsElementsWidget::onColormapSelect(QString name)
+{
+    QString colormap = _cb_colormap->currentText();
+	if(colormap == "Grayscale")
+	{
+		_selected_colormap = &_gray_colormap;
+	}
+	else
+	{
+		_selected_colormap = &_heat_colormap;
+	}
+	redrawCounts();
+}
+
+ /*---------------------------------------------------------------------------*/
+
 void MapsElementsWidget::setModel(MapsH5Model* model,
                                   data_struct::Fit_Parameters* fit_params,
                                   data_struct::Fit_Element_Map_Dict *elements_to_fit)
@@ -204,8 +229,10 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
         {
             int height = fit_counts->at(element).rows();
             int width = fit_counts->at(element).cols();
+			m_imageHeightDim->setCurrentText(QString::number(height));
+			m_imageWidthDim->setCurrentText(QString::number(width));
             QImage image(width, height, QImage::Format_Indexed8);
-            image.setColorTable(_grayscale);
+            image.setColorTable(*_selected_colormap);
 
             float counts_max = fit_counts->at(element).maxCoeff();
             float counts_min = fit_counts->at(element).minCoeff();

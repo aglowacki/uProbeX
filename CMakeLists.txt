@@ -336,6 +336,7 @@ add_executable(uProbeX
     src/core/SubWindow.cpp
     src/core/uProbeX.cpp
     src/main.cpp
+    uProbeX.qrc
 )
 
 set(CompilerFlags

@@ -1,7 +1,7 @@
+#set (XRF_MAPS_ROOT_DIR "" CACHE PATH "XRF-Maps root dir")
 
 find_path(XRF_MAPS_ROOT_DIR
-  NAMES build/XRF_MAPS.sln
-  )
+  NAMES "build/XRF_MAPS.sln" "${PROJECT_SOURCE_DIR}/../XRF-Maps/build/Makefile")
 
 #find_path(XRF_MAPS_INCLUDE_DIR
 #  NAMES defines.h main.cpp
@@ -9,11 +9,11 @@ find_path(XRF_MAPS_ROOT_DIR
 #) 
 
 find_library (LIB_XRF_IO_LIBRARY NAMES libxrf_io
-  PATHS "${XRF_MAPS_ROOT_DIR}/build/Release/" "${XRF_MAPS_ROOT_DIR}/build/Debug/")
+  PATHS "${XRF_MAPS_ROOT_DIR}/build/Release/" "${XRF_MAPS_ROOT_DIR}/build/Debug/" "${XRF_MAPS_ROOT_DIR}/bin")
 
   
 find_library (LIB_XRF_FIT_LIBRARY NAMES libxrf_fit
-  PATHS "${XRF_MAPS_ROOT_DIR}/build/Release/" "${XRF_MAPS_ROOT_DIR}/build/Debug/")
+  PATHS "${XRF_MAPS_ROOT_DIR}/build/Release/" "${XRF_MAPS_ROOT_DIR}/build/Debug/" "${XRF_MAPS_ROOT_DIR}/bin")
 
 mark_as_advanced (XRF_MAPS_LIBRARIES
 				  EIGEN3_INCLUDES
