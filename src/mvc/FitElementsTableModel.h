@@ -68,6 +68,11 @@ public:
    int columnCount(const QModelIndex &parent) const override;
 
    /**
+   * @brief Get element name at row 
+   */
+   QString element_at_row(int row);
+
+   /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
    QVariant data(const QModelIndex &index,
@@ -125,8 +130,6 @@ public:
                       int role = Qt::EditRole);
 
    void appendElement(data_struct::Fit_Element_Map* element);
-
-   void deleteElementIndex(QModelIndex idx);
 
 private:
 
@@ -277,15 +280,15 @@ private:
 
        int childNumber() const
        {
-           if(parentItem != nullptr && element_data != nullptr)
+           if(parentItem != nullptr)
            {
                if(parentItem->childItems.size() > 1)
                {
                 return parentItem->childIndex(const_cast<TreeItem*>(this));
                }
-               return 0;
+               return -1;
            }
-           return 0;
+           return -1;
        }
        bool setData(int column, const QVariant &value)
        {

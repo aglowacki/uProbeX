@@ -299,14 +299,15 @@ void FitSpectraWidget::del_element()
     {
         if(i.isValid())
         {
+			_spectra_widget->set_element_lines(nullptr);
             auto p = i.parent();
             if(false == p.isValid())
-            {
-                _fit_elements_table_model->deleteElementIndex(i);
+            {	
+                _fit_elements_table_model->removeRows(i.row(), 1);
             }
             else
             {
-                _fit_elements_table_model->deleteElementIndex(p);
+                _fit_elements_table_model->removeRows(i.row(), 1, p);
             }
         }
         break;

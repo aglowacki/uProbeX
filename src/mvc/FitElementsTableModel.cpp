@@ -154,6 +154,22 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
 
 /*---------------------------------------------------------------------------*/
 
+QString FitElementsTableModel::element_at_row(int row)
+{
+	if (row > 0 && row < _row_indicies.size())
+	{
+		int nidx = _row_indicies[row];
+		TreeItem* node = _nodes[nidx];
+		if (node != nullptr && node->element_data != nullptr)
+		{
+			return QString::fromStdString(node->element_data->full_name());
+		}
+	}
+	return QString("");
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
 {
     if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
@@ -170,48 +186,50 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
         {
             idx += 2000;
         }
-        _nodes[idx] = new TreeItem();
-        _nodes[idx]->set_root(element);
-        _row_indicies.push_back(idx);
+		if (_nodes.find(idx) == _nodes.end())
+		{
+			_nodes[idx] = new TreeItem();
+			_nodes[idx]->set_root(element);
+			_row_indicies.push_back(idx);
 
-        std::sort(_row_indicies.begin(), _row_indicies.end());
+			std::sort(_row_indicies.begin(), _row_indicies.end());
 
-        QModelIndex topLeft = index(0, 0);
-        QModelIndex bottomRight = index(_row_indicies.size()-1, NUM_PROPS-1);
-        emit dataChanged(topLeft, bottomRight);
-        emit layoutChanged();
+			QModelIndex topLeft = index(0, 0);
+			QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+			emit dataChanged(topLeft, bottomRight);
+			emit layoutChanged();
+		}
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::deleteElementIndex(QModelIndex idx)
+bool FitElementsTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-//currently causes seg fault. need fix
-    //return;
-
-    int row = idx.row();
-
+	if (parent.isValid())
+	{
+		row = parent.row();
+	}
     if(row < 0)
-        return;
+        return false;
     int rsize = _row_indicies.size();
     if(row < rsize)
     {
-        beginRemoveRows(idx, row, row);
+        beginRemoveRows(QModelIndex(), row, row);
         int z = _row_indicies[row];
         TreeItem* node = _nodes[z];
         _row_indicies.erase(_row_indicies.begin()+row);
         _nodes.erase(z);
         delete node;
         endRemoveRows();
+		return true;
     }
-
-    //std::sort(_row_indicies.begin(), _row_indicies.end());
-
-    QModelIndex topLeft = index(row, 0);
-    QModelIndex bottomRight = index(row, NUM_PROPS-1);
-    emit dataChanged(topLeft, bottomRight);
-    emit layoutChanged();
+	return false;
+    
+    //QModelIndex topLeft = index(row, 0);
+    //QModelIndex bottomRight = index(row, NUM_PROPS-1);
+    //emit dataChanged(topLeft, bottomRight);
+    //emit layoutChanged();
 
 }
 
@@ -344,20 +362,6 @@ QVariant FitElementsTableModel::headerData(int section, Qt::Orientation orientat
 
 /*---------------------------------------------------------------------------*/
 
-bool FitElementsTableModel::removeRows(int row,
-                                     int count,
-                                     const QModelIndex& parent)
-{
-
-    // Mark unused
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    Q_UNUSED(parent);
-    return true;
-}
-
-/*---------------------------------------------------------------------------*/
-
 int FitElementsTableModel::rowCount(const QModelIndex &parent) const
 {
 
@@ -383,8 +387,15 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
     if (!parent.isValid())
     {
         int Z = _row_indicies[row];
-        TreeItem *childItem = _nodes.at(Z);
-        return createIndex(row, column, childItem);
+		if (_nodes.find(Z) != _nodes.end())
+		{
+			TreeItem *childItem = _nodes.at(Z);
+			return createIndex(row, column, childItem);
+		}
+		else
+		{
+			return QModelIndex();
+		}
     }
     else
     {
@@ -434,7 +445,23 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
     if (parentItem == nullptr)
         return QModelIndex();
 
-    int row = childItem->childNumber();
+	int row = -1;
+	for (auto& itr : _nodes)
+	{
+		if (itr.second == parentItem)
+		{
+			for (int j=0; j< _row_indicies.size(); j++)
+			{
+				if (_row_indicies[j] == itr.first)
+				{
+					row = j;
+					break;
+				}
+			}
+		}
+
+	}
+    //int row = childItem->childNumber();
     return createIndex(row, 0, parentItem);
 }
 

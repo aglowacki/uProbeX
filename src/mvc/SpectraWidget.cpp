@@ -215,17 +215,18 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 
 void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 {
+	//clear old one
+	for (QtCharts::QLineSeries* itr : _element_lines)
+	{
+		itr->detachAxis(_axisX);
+		itr->detachAxis(_axisY);
+		_chart->removeSeries(itr);
+		delete itr;
+	}
+	_element_lines.clear();
+
     if(element != nullptr)
     {
-        for(QtCharts::QLineSeries* itr : _element_lines)
-        {
-           itr->detachAxis(_axisX);
-           itr->detachAxis(_axisY);
-           _chart->removeSeries(itr);
-           delete itr;
-        }
-        _element_lines.clear();
-
         const std::vector<data_struct::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
 
         int ka_cnt = 0;
