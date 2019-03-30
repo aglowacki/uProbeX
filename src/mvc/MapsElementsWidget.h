@@ -95,6 +95,8 @@ protected:
    QVector<QRgb> *_selected_colormap;
    QVector<QRgb> _gray_colormap;
    QVector<QRgb> _heat_colormap;
+
+   QPushButton *_pb_perpixel_fitting;
 };
 
 

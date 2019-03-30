@@ -168,13 +168,6 @@ add_executable(uProbeX
     src/gstar/ImageViewScene.h
     src/gstar/ImageViewWidget.h
     src/gstar/HistogramPlot.h
-    src/gstar/ColorGradientDisplay.h
-    src/gstar/ColorTransferFunctionEditor.h
-    src/gstar/ColorTransferFunction.h
-    src/gstar/ControlPointPicker.h
-    src/gstar/ControlPoints.h
-    src/gstar/ControlPointSlider.h
-    src/gstar/ControlPointWidget.h
     src/gstar/Splash.h
     src/gstar/AnnotationProperty.h
     src/gstar/Annotation/AbstractGraphicsItem.h
@@ -202,6 +195,7 @@ add_executable(uProbeX
     src/solver/PythonTransformer.h
     src/solver/NelderMeadSolver.h
     src/solver/PythonSolver.h
+	src/mvc/PerPixelFitWidget.h
     src/mvc/SolverWidget.h
     src/mvc/ComboBoxDelegate.h
     src/mvc/AbstractWindowModel.h
@@ -258,13 +252,6 @@ add_executable(uProbeX
     src/gstar/ImageViewScene.cpp
     src/gstar/ImageViewWidget.cpp
     src/gstar/HistogramPlot.cpp
-    src/gstar/ColorGradientDisplay.cpp
-    src/gstar/ColorTransferFunctionEditor.cpp
-    src/gstar/ColorTransferFunction.cpp
-    src/gstar/ControlPointPicker.cpp
-    src/gstar/ControlPoints.cpp
-    src/gstar/ControlPointSlider.cpp
-    src/gstar/ControlPointWidget.cpp
     src/gstar/Splash.cpp
     src/gstar/AnnotationProperty.cpp
     src/gstar/Annotation/AbstractGraphicsItem.cpp
@@ -291,6 +278,7 @@ add_executable(uProbeX
     src/solver/PythonTransformer.cpp
     src/solver/NelderMeadSolver.cpp
     src/solver/PythonSolver.cpp
+	src/mvc/PerPixelFitWidget.cpp
     src/mvc/SolverWidget.cpp
     src/mvc/ComboBoxDelegate.cpp
     src/mvc/AbstractWindowModel.cpp

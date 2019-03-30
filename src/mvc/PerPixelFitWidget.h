@@ -3,55 +3,66 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef GSTAR_COLOR_GRADIENT_DISPLAY_H
-#define GSTAR_COLOR_GRADIENT_DISPLAY_H
+#ifndef PER_PIXEL_FIT_WIDGET_H
+#define PER_PIXEL_FIT_WIDGET_H
 
 /*---------------------------------------------------------------------------*/
 
 #include <QWidget>
-#include <QPainter>
-
-#include <gstar/ColorTransferFunction.h>
+#include <QThread>
+#include <QTextEdit>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
 
 /*---------------------------------------------------------------------------*/
 
-namespace gstar
-{
 
-class ColorGradientDisplay
-: public QWidget
+class PerPixelFitWidget : public QWidget
 {
 
    Q_OBJECT
 
 public:
-   /**
-    * Constructor
-    */
-   ColorGradientDisplay(QWidget* widget = 0);
 
    /**
-    * Paint the event
+    * Constructor.
     */
-   void paintEvent(QPaintEvent* event);
+	PerPixelFitWidget(QWidget *parent = nullptr);
 
    /**
-    * Set the color transfer function
+    * Destructor.
     */
-   void setColorTransferFunction(ColorTransferFunction ctf);
+   ~PerPixelFitWidget();
 
-private:
+public slots:
+
+   
+protected:
+
    /**
-    * Color transfer function
+    * @brief Create layout
     */
-   ColorTransferFunction m_ctf;
+   void createLayout();
 
+   
+   QTextEdit *_textEdit;
+
+   QProgressBar *_progressBar;
+
+   QLineEdit *_qline_ip_addr;
+
+   QLineEdit *_qline_port;
+
+   QPushButton *_btn_update;
 };
 
-}
 
 /*---------------------------------------------------------------------------*/
 
-#endif
+#endif 
 
 /*---------------------------------------------------------------------------*/
