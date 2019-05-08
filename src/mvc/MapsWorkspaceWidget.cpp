@@ -50,19 +50,18 @@ void MapsWorkspaceWidget::createLayout()
 {
     std::vector<std::string> bound_types {"Not Initialized", "Fixed", "Limited Low High", "Limited Low", "Limited High", "Fit"};
     _lbl_workspace = new QLabel();
-    _analyzed_h5_list_view = new QListView();
+    _tab_widget = new QTabWidget();
 
     _analyzed_h5_list_model = new QStringListModel();
-
+    _analyzed_h5_list_view = new QListView();
     _analyzed_h5_list_view->setModel(_analyzed_h5_list_model);
     _analyzed_h5_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _analyzed_h5_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
     _analyzed_h5_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
     connect(_analyzed_h5_list_view, SIGNAL(doubleClicked(const QModelIndex)),
-                this, SLOT(onListItemClicked(const QModelIndex)));
+                this, SLOT(onOpenHDF5(const QModelIndex)));
     connect(_analyzed_h5_list_view, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(ShowContextMenu(const QPoint &)));
-
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -76,14 +75,28 @@ void MapsWorkspaceWidget::createLayout()
 
     QLayout* vlayout = new QVBoxLayout();
 
-    QLayout* hlayout = new QHBoxLayout();
+    //setup mda
+    _mda_list_model = new QStringListModel();
+    _mda_list_view = new QListView();
+    _mda_list_view->setModel(_mda_list_model);
+    _mda_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(_mda_list_view, SIGNAL(doubleClicked(const QModelIndex)),
+                this, SLOT(onOpenMDA(const QModelIndex)));
 
-    hlayout->addWidget(new QLabel("Analyzed H5"));
-    //hlayout->addWidget(_lbl_workspace);
+    //setup sws light microscope
+    _sws_list_model = new QStringListModel();
+    _sws_list_view = new QListView();
+    _sws_list_view->setModel(_sws_list_model);
+    _sws_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(_sws_list_view, SIGNAL(doubleClicked(const QModelIndex)),
+                this, SLOT(onOpenSWS(const QModelIndex)));
 
-    vlayout->addItem(hlayout);
-    vlayout->addWidget(_analyzed_h5_list_view);
-    //vlayout->addWidget(_fit_params_table);
+    _tab_widget->insertTab(0, _analyzed_h5_list_view, "Analyized H5");
+    _tab_widget->insertTab(1, _mda_list_view, "Raw MDA");
+    _tab_widget->insertTab(2, _sws_list_view, "Light Microscope");
+
+
+    vlayout->addWidget(_tab_widget);
     setLayout(vlayout);
 }
 
@@ -98,9 +111,9 @@ void MapsWorkspaceWidget::setModel(MapsWorkspaceModel *model)
         _lbl_workspace->setText(path);
     }
     connect(_model,
-            SIGNAL(newAnalyzedH5FileLoaded(QString)),
+            SIGNAL(doneLoading()),
             this,
-            SLOT(loadedAnalysedH5(QString)));
+            SLOT(model_done_loading()));
 
     connect(_model,
             SIGNAL(newFitParamsFileLoaded(int)),
@@ -112,22 +125,37 @@ void MapsWorkspaceWidget::setModel(MapsWorkspaceModel *model)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::ShowContextMenu(const QPoint &pos)
+void MapsWorkspaceWidget::model_done_loading()
 {
-    _contextMenu->exec(mapToGlobal(pos));
+
+    const map<QString, QFileInfo> h5_fileinfo_list = _model->get_hdf5_file_list();
+    const map<QString, QFileInfo> mda_fileinfo_list = _model->get_mda_file_list();
+    const map<QString, QFileInfo> sws_fileinfo_list = _model->get_sws_file_list();
+    for(auto & itr : h5_fileinfo_list)
+    {
+        _analyzed_h5_list.append(itr.first);
+    }
+    _analyzed_h5_list_model->setStringList(_analyzed_h5_list);
+
+    for(auto & itr : mda_fileinfo_list)
+    {
+        _mda_list.append(itr.first);
+    }
+    _mda_list_model->setStringList(_mda_list);
+
+    for(auto & itr : sws_fileinfo_list)
+    {
+        _sws_list.append(itr.first);
+    }
+    _sws_list_model->setStringList(_sws_list);
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::loadedAnalysedH5(QString filename)
+void MapsWorkspaceWidget::ShowContextMenu(const QPoint &pos)
 {
-    QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
-    _analyzed_h5_list.append(filename);
-    _analyzed_h5_list_model->setStringList(_analyzed_h5_list);
-    if(list.size() > 0)
-    {
-        _analyzed_h5_list_view->selectionModel()->select(list.at(0), QItemSelectionModel::Select);
-    }
+    _contextMenu->exec(mapToGlobal(pos));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -151,7 +179,7 @@ void MapsWorkspaceWidget::viewAnalyzedH5()
     QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
     for(int i =0; i<list.length(); i++)
     {
-        onListItemClicked(list.at(i));
+        onOpenHDF5(list.at(i));
     }
 
 }
@@ -180,7 +208,7 @@ void MapsWorkspaceWidget::fitIntegratedSpectra()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::onListItemClicked(const QModelIndex idx)
+void MapsWorkspaceWidget::onOpenHDF5(const QModelIndex idx)
 {
     QVariant data = idx.data(0);
     if(_model != nullptr)
@@ -189,9 +217,37 @@ void MapsWorkspaceWidget::onListItemClicked(const QModelIndex idx)
         if(h5Model != nullptr)
         {
             //selectedAnalyzedH5(h5Model);
-            showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
+            emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
         }
     }
 }
 
 /*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceWidget::onOpenMDA(const QModelIndex idx)
+{
+    QVariant data = idx.data(0);
+    if(_model != nullptr)
+    {
+        MDA_Model* mda_model = _model->get_MDA_Model(data.toString());
+        if(mda_model != nullptr)
+        {
+            emit show_MDA_Window(mda_model);
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceWidget::onOpenSWS(const QModelIndex idx)
+{
+    QVariant data = idx.data(0);
+    if(_model != nullptr)
+    {
+        SWSModel* sws_model = _model->get_SWS_Model(data.toString());
+        if(sws_model != nullptr)
+        {
+            emit show_SWS_Window(sws_model);
+        }
+    }
+}

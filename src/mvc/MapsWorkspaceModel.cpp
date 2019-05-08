@@ -22,7 +22,9 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _all_h5_suffex.append("h52");
     _all_h5_suffex.append("h53");
 
-    _avg_h5_suffex.append("h5");;
+    _mda_suffex.append("mda");
+
+    _sws_suffex.append("sws");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -37,7 +39,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::load(QString filepath, bool all)
+bool MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
@@ -51,17 +53,9 @@ bool MapsWorkspaceModel::load(QString filepath, bool all)
 
         _is_fit_params_loaded = _load_fit_params();
 
-        _is_sws_loaded = _load_sws_workspaces();
-
-
-        if (all)
-        {
-            _is_imgdat_loaded = _load_img_dat(_all_h5_suffex);
-        }
-        else
-        {
-            _is_imgdat_loaded = _load_img_dat(_avg_h5_suffex);
-        }
+        _is_mda_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_mda_fileinfo_list);
+        _is_sws_loaded = _get_filesnames_in_directory("", _sws_suffex, &_sws_fileinfo_list);
+        _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list);
 
     }
     catch (std::string& s)
@@ -86,6 +80,71 @@ MapsH5Model* MapsWorkspaceModel::getMapsH5Model(QString name)
     {
         return _h5_models[name];
     }
+    if(_h5_fileinfo_list.count(name) > 0)
+    {
+        MapsH5Model * model = new MapsH5Model();
+        QFileInfo fileInfo = _h5_fileinfo_list[name];
+        model->load(fileInfo.absoluteFilePath());
+        if(model->is_counts_loaded())
+        {
+            _h5_models.insert( {fileInfo.fileName(), model} );
+            return model;
+        }
+    }
+
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+MDA_Model* MapsWorkspaceModel::get_MDA_Model(QString name)
+{
+    if(_mda_models.count(name) > 0)
+    {
+        return _mda_models[name];
+    }
+    if(_mda_fileinfo_list.count(name) > 0)
+    {
+        MDA_Model * model = new MDA_Model();
+        QFileInfo fileInfo = _mda_fileinfo_list[name];
+
+        if(model->load(fileInfo.absoluteFilePath()))
+        {
+            _mda_models.insert( {fileInfo.fileName(), model} );
+            return model;
+        }
+        else
+        {
+            delete model;
+        }
+    }
+
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+SWSModel* MapsWorkspaceModel::get_SWS_Model(QString name)
+{
+    if(_sws_models.count(name) > 0)
+    {
+        return _sws_models[name];
+    }
+    if(_mda_fileinfo_list.count(name) > 0)
+    {
+        SWSModel * model = new SWSModel();
+        QFileInfo fileInfo = _mda_fileinfo_list[name];
+        if(model->load(fileInfo.absoluteFilePath()))
+        {
+            _sws_models.insert( {fileInfo.fileName(), model} );
+            return model;
+        }
+        else
+        {
+            delete model;
+        }
+    }
+
     return nullptr;
 }
 
@@ -127,15 +186,18 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
+bool MapsWorkspaceModel::_get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list)
 {
-    if (!_dir->cd("img.dat"))
+    if(sub_dir_name.length() > 0)
     {
-        qWarning("Cannot find the \"/tmp\" directory");
-        return false;
+        if (!_dir->cd(sub_dir_name))
+        {
+            QString warn_msg = "Cannot find the "+sub_dir_name+" directory";
+            qWarning(warn_msg.toStdString().c_str());
+            return false;
+        }
     }
     _dir->setFilter(QDir::Files | QDir::NoSymLinks);
-    //_dir->setSorting(QDir::Size | QDir::Reversed);
 
     QFileInfoList list = _dir->entryInfoList();
 
@@ -144,29 +206,15 @@ bool MapsWorkspaceModel::_load_img_dat(QList <QString> suffex)
         QFileInfo fileInfo = list.at(i);
         if (suffex.contains(fileInfo.suffix()))
         {
-            MapsH5Model * model = new MapsH5Model();
-            model->load(fileInfo.absoluteFilePath());
-            if(model->is_counts_loaded())
-            {
-                _h5_models.insert( {fileInfo.fileName(), model} );
-                emit newAnalyzedH5FileLoaded(fileInfo.fileName());
-            }
-//            else
-//            {
-//                delete model;
-//            }
+            fileinfo_list->emplace( fileInfo.fileName(), fileInfo );
         }
     }
 
-    _dir->cd("..");
+    if(sub_dir_name.length() > 0)
+    {
+        _dir->cd("..");
+    }
     return true;
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool MapsWorkspaceModel::_load_sws_workspaces()
-{
-    return false;
 }
 
 /*---------------------------------------------------------------------------*/

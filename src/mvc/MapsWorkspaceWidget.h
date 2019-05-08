@@ -56,11 +56,16 @@ signals:
                           data_struct::Fit_Parameters* fit_params,
                           data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
+
+   void show_MDA_Window(MDA_Model * model);
+
+   void show_SWS_Window(SWSModel* model);
+
 public slots:
 
    void ShowContextMenu(const QPoint &);
 
-   void loadedAnalysedH5(QString filename);
+   void model_done_loading();
 
    void loadedFitParams(int idx);
 
@@ -68,7 +73,11 @@ public slots:
 
    void fitIntegratedSpectra();
 
-   void onListItemClicked(const QModelIndex);
+   void onOpenHDF5(const QModelIndex);
+
+   void onOpenMDA(const QModelIndex);
+
+   void onOpenSWS(const QModelIndex);
 
 protected:
 
@@ -79,11 +88,25 @@ protected:
 
 private:
 
+   QTabWidget *_tab_widget;
+
    QStringList _analyzed_h5_list;
+
+   QStringList _mda_list;
+
+   QStringList _sws_list;
 
    QListView* _analyzed_h5_list_view;
 
+   QListView* _mda_list_view;
+
+   QListView* _sws_list_view;
+
    QStringListModel* _analyzed_h5_list_model;
+
+   QStringListModel* _mda_list_model;
+
+   QStringListModel* _sws_list_model;
 
    QLabel* _lbl_workspace;
 

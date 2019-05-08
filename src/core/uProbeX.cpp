@@ -18,6 +18,7 @@
 #include <mvc/MapsWorkspaceWidget.h>
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/FitSpectraWidget.h>
+#include <mvc/MDA_Widget.h>
 #include <preferences/CoordinateTransformGlobals.h>
 
 #include <gstar/Splash.h>
@@ -62,6 +63,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solverParameterParse = new SolverParameterParse();
     _load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
+    _maps_workspace_dock = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -560,6 +562,60 @@ void uProbeX::adjustAutoSaveSettings()
 
 /*---------------------------------------------------------------------------*/
 
+void uProbeX::makeSWSWindow(SWSModel* swsModel)
+{
+    SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
+    swsWidget->resize(800, 600);
+    swsWidget->updateFrame(swsModel->getImage());
+    swsWidget->setCoordinateModel(swsModel->getCoordModel());
+    swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+    //swsWidget->setMarker(path);
+
+    connect(swsWidget,
+            SIGNAL(solverStart()),
+            this,
+            SLOT(solverStart()));
+
+    connect(swsWidget,
+            SIGNAL(solverVariableUpdate(double, double)),
+            this,
+            SLOT(solverVariableUpdate(double, double)));
+
+    connect(swsWidget,
+            SIGNAL(cancelSolverVariableUpdate()),
+            this,
+            SLOT(cancelSolverVariableUpdate()));
+
+
+    SubWindow* w = new SubWindow(m_mdiArea);
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
+
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
+
+
+    m_mdiArea->addSubWindow(w);
+    w->setWidget(swsWidget);
+    w->resize(950, 700);
+    //w->setIsAcquisitionWindow(false);
+    w->setWindowTitle(swsModel->getFilePath());
+    w->show();
+
+    //m_subWindows[w->getUuid()] = tiffController;
+
+    connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+            swsWidget,
+            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+}
+
+/*---------------------------------------------------------------------------*/
+
 void uProbeX::makeSWSWindow(QString path, bool newWindow)
 {
 
@@ -571,7 +627,8 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
     try
     {
         //this->setCursor(Qt::WaitCursor);
-        SWSModel* swsModel = new SWSModel(path);
+        SWSModel* swsModel = new SWSModel();
+        swsModel->load(path);
         if(swsModel->tiffLoaded())
         {
 
@@ -661,6 +718,13 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 void uProbeX::makeMapsWindow(QString path)
 {
 
+    if(_maps_workspace_dock != nullptr)
+    {
+        // TODO: unload old space before loading new one.
+        return;
+    }
+
+
     MapsWorkspaceModel* model = new MapsWorkspaceModel();
     MapsWorkspaceWidget *widget = new MapsWorkspaceWidget();
     widget->setLabelWorkspacePath(path);
@@ -678,6 +742,14 @@ void uProbeX::makeMapsWindow(QString path)
                                      data_struct::Fit_Parameters*,
                                      data_struct::Fit_Element_Map_Dict*)));
 
+
+    connect(widget, SIGNAL(show_MDA_Window(MDA_Model*)),
+            this, SLOT(makeMDAWindow(MDA_Model*)));
+
+    connect(widget, SIGNAL(show_SWS_Window(SWSModel*)),
+            this, SLOT(makeSWSWindow(SWSModel*)));
+
+/*
     SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
     connect(w,
@@ -698,6 +770,12 @@ void uProbeX::makeMapsWindow(QString path)
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
             widget,
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+*/
+
+    _maps_workspace_dock = new QDockWidget(tr("MAPS Workspace"), this);
+    _maps_workspace_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _maps_workspace_dock->setWidget(widget);
+    addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
 
     // TODO: this should be changed. will cause the first not to load
     // if loading 2 workspaces right after another
@@ -815,6 +893,37 @@ void uProbeX::makeHDFWindow(MapsH5Model* model,
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::makeMDAWindow(MDA_Model* model)
+{
+    MDA_Widget* widget = new MDA_Widget();
+    widget->setModel(model);
+
+    SubWindow* w = nullptr;
+    w = new SubWindow(m_mdiArea);
+    connect(w,
+            SIGNAL(windowClosing(SubWindow*)),
+            this,
+            SLOT(subWindowClosed(SubWindow*)));
+
+
+    m_mdiArea->addSubWindow(w);
+
+    w->setWidget(widget);
+    w->resize(950, 700);
+    w->setIsAcquisitionWindow(false);
+    w->setWindowTitle(model->getFilePath());
+    w->show();
+
+    //    m_subWindows[w->getUuid()] = tiffController;
+
+    connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
+            widget,
+            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 }
 
 /*---------------------------------------------------------------------------*/

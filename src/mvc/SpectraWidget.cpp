@@ -339,6 +339,8 @@ void SpectraWidget::_check_log10()
     _display_log10 = !_display_log10;
     _action_check_log10->setChecked(_display_log10);
 
+    emit(y_axis_changed(_display_log10));
+
 }
 
 /*---------------------------------------------------------------------------*/

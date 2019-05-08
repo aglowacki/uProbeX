@@ -23,16 +23,46 @@ const char NUM_SAMPLES_STR[] = {"Mosaic/Count"};
 const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\n"};
 
 /*----------------src/mvc/SWSModel.cpp \-----------------------------------------------------------*/
-
-SWSModel::SWSModel(QString filepath)
+SWSModel::SWSModel()
 {
-   m_tiffModel = nullptr;
-   m_samples = nullptr;
-   m_model = nullptr;
-   m_numSamples = 0;
-   m_numXSamples = 0;
-   m_numYSamples = 0;
-   m_tiffLoaded = false;
+    m_tiffModel = nullptr;
+    m_samples = nullptr;
+    m_model = nullptr;
+    m_numSamples = 0;
+    m_numXSamples = 0;
+    m_numYSamples = 0;
+    m_tiffLoaded = false;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+SWSModel::~SWSModel()
+{
+
+   if(m_samples != nullptr)
+   {
+      delete [] m_samples;
+      m_samples = nullptr;
+   }
+   if(m_model != nullptr)
+   {
+      delete m_model;
+      m_model = nullptr;
+   }
+
+   if(m_tiffModel != nullptr)
+   {
+      delete m_tiffModel;
+      m_tiffModel = nullptr;
+   }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool SWSModel::load(QString filepath)
+{
 
    try
    {
@@ -61,7 +91,7 @@ SWSModel::SWSModel(QString filepath)
       m_numSamples = swsData.value(NUM_SAMPLES_STR).toInt();
 
       //Load directory files
-      loadDirectory();
+      return loadDirectory();
 
    }
    catch (std::string& s)
@@ -72,30 +102,7 @@ SWSModel::SWSModel(QString filepath)
    {
       throw std::string("Failed to open SWS workspace!");
    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-SWSModel::~SWSModel()
-{
-
-   if(m_samples != nullptr)
-   {
-      delete [] m_samples;
-      m_samples = nullptr;
-   }
-   if(m_model != nullptr)
-   {
-      delete m_model;
-      m_model = nullptr;
-   }
-
-   if(m_tiffModel != nullptr)
-   {
-      delete m_tiffModel;
-      m_tiffModel = nullptr;
-   }
+    return false;
 
 }
 

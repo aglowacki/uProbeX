@@ -33,6 +33,8 @@ class QToolBar;
 class QMdiArea;
 class QMdiSubWindow;
 class Solver;
+class SWSModel;
+class MDA_Model;
 
 namespace gstar
 {
@@ -95,6 +97,12 @@ private slots:
    void makeSWSWindow(QString path, bool newWindow = false);
 
    /**
+    * @brief makeSWSWindow
+    * @param swsModel
+    */
+   void makeSWSWindow(SWSModel* swsModel);
+
+   /**
     * @brief makeMAPSWindow
     * @param path
     */
@@ -122,6 +130,8 @@ private slots:
    void makeHDFWindow(MapsH5Model* model,
                       data_struct::Fit_Parameters* fit_params,
                       data_struct::Fit_Element_Map_Dict *elements_to_fit);
+
+   void makeMDAWindow(MDA_Model* model);
 
    /**
     * @brief Open the data file at the given path. Triggered by acquisition controller
@@ -380,6 +390,8 @@ private:
     * @brief _liveMapsViewer
     */
    LiveMapsElementsWidget*  _liveMapsViewer;
+
+   QDockWidget *_maps_workspace_dock;
 
 };
 

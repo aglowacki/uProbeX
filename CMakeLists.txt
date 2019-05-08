@@ -195,7 +195,7 @@ add_executable(uProbeX
     src/solver/PythonTransformer.h
     src/solver/NelderMeadSolver.h
     src/solver/PythonSolver.h
-	src/mvc/PerPixelFitWidget.h
+    src/mvc/PerPixelFitWidget.h
     src/mvc/SolverWidget.h
     src/mvc/ComboBoxDelegate.h
     src/mvc/AbstractWindowModel.h
@@ -210,6 +210,8 @@ add_executable(uProbeX
     src/mvc/FitElementsTableModel.h
     src/mvc/NetStreamWorker.h
     src/mvc/MapsH5Model.h
+    src/mvc/MDA_Model.h
+    src/mvc/MDA_Widget.h
     src/mvc/FitSpectraWidget.h
     src/mvc/MapsElementsWidget.h
     src/mvc/LiveMapsElementsWidget.h
@@ -278,7 +280,7 @@ add_executable(uProbeX
     src/solver/PythonTransformer.cpp
     src/solver/NelderMeadSolver.cpp
     src/solver/PythonSolver.cpp
-	src/mvc/PerPixelFitWidget.cpp
+    src/mvc/PerPixelFitWidget.cpp
     src/mvc/SolverWidget.cpp
     src/mvc/ComboBoxDelegate.cpp
     src/mvc/AbstractWindowModel.cpp
@@ -293,6 +295,8 @@ add_executable(uProbeX
     src/mvc/FitElementsTableModel.cpp
     src/mvc/NetStreamWorker.cpp
     src/mvc/MapsH5Model.cpp
+    src/mvc/MDA_Model.cpp
+    src/mvc/MDA_Widget.cpp
     src/mvc/FitSpectraWidget.cpp
     src/mvc/MapsElementsWidget.cpp
     src/mvc/LiveMapsElementsWidget.cpp

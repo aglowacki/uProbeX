@@ -62,6 +62,12 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
     }
 }
 */
+/*---------------------------------------------------------------------------*/
+
+void FitElementsTableModel::update_counts_log10(bool is_log10)
+{
+
+}
 
 /*---------------------------------------------------------------------------*/
 

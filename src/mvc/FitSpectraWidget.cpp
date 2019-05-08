@@ -104,6 +104,8 @@ void FitSpectraWidget::createLayout()
 
     _fit_elements_table_model = new FitElementsTableModel();
 
+    connect(_spectra_widget, SIGNAL(y_axis_changed(bool)), _fit_elements_table_model, SLOT(update_counts_log10(bool)));
+
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
     _fit_elements_table->sortByColumn(0);
@@ -299,6 +301,11 @@ void FitSpectraWidget::del_element()
     {
         if(i.isValid())
         {
+            data_struct::Fit_Element_Map* fit_element = _fit_elements_table_model->getElementByIndex(i);
+            if( fit_element != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
+            {
+                _elements_to_fit->erase(fit_element->full_name());
+            }
 			_spectra_widget->set_element_lines(nullptr);
             auto p = i.parent();
             if(false == p.isValid())
@@ -338,6 +345,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
 
             data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
+            data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
 
             const data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
 
@@ -365,6 +373,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
             model.reset_to_default_fit_params();
             //Update fit parameters by override values
             model.update_fit_params_values(&out_fit_params);
+            model.update_and_add_fit_params_values_gt_zero(&element_fit_params);
 
             //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 

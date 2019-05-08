@@ -52,6 +52,8 @@ signals:
 
     void trigger_connect_markers();
 
+    void y_axis_changed(bool is_log10);
+
 public slots:
 
     void ShowContextMenu(const QPoint &);

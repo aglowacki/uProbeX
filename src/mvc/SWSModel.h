@@ -29,12 +29,25 @@ public:
     /**
     * Constructor
     */
-    SWSModel(QString filepath);
+    SWSModel();
 
     /**
     * Destructor
     */
     ~SWSModel();
+
+    /**
+     * @brief load
+     * @param filepath
+     * @return
+     */
+    bool load(QString filepath);
+
+    /**
+     * @brief getFilePath
+     * @return
+     */
+    QString getFilePath(){return m_pathFile;}
 
     /**
     * @brief getCoordModel

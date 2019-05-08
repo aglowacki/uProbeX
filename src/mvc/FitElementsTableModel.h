@@ -131,6 +131,9 @@ public:
 
    void appendElement(data_struct::Fit_Element_Map* element);
 
+public slots:
+   void update_counts_log10(bool is_log10);
+
 private:
 
    class TreeItem
