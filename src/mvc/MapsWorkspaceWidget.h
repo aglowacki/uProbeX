@@ -22,6 +22,10 @@
 
 /*---------------------------------------------------------------------------*/
 
+enum File_Loaded_Status {UNLOADED, LOADED, FAILED_LOADING};
+
+/*---------------------------------------------------------------------------*/
+
 class FileTabWidget : public QWidget
 {
     Q_OBJECT
@@ -45,6 +49,8 @@ public slots:
     void filterTextChanged(const QString &);
 
     void ShowContextMenu(const QPoint &);
+
+    void loaded_file_status_changed(File_Loaded_Status status, const QString& filename);
 
 protected:
 
@@ -95,6 +101,12 @@ signals:
    void show_MDA_Window(MDA_Model * model);
 
    void show_SWS_Window(SWSModel* model);
+
+   void loaded_hdf5(File_Loaded_Status status, const QString& name);
+
+   void loaded_mda(File_Loaded_Status status, const QString& name);
+
+   void loaded_sws(File_Loaded_Status status, const QString& name);
 
 public slots:
 

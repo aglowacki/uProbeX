@@ -1014,19 +1014,6 @@ void uProbeX::openHDFFile()
 
     QString filePath = QFileInfo(fileName).canonicalFilePath();
 
-    /*
-   QString fileSuffix = QFileInfo(fileName).suffix();
-
-   if (0==fileSuffix.compare("sws")||0==fileSuffix.compare("SWS"))
-   {
-      // Check if the image has been opened
-      if(true == checkSameFileWindow(filePath))
-         return;
-
-      makeSWSWindow(filePath, true);
-
-   }
-*/
     makeHDFWindow(filePath);
 
 }

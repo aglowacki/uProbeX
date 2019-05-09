@@ -57,7 +57,7 @@ void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
 {
     for(auto & itr : fileinfo_list)
     {
-        _file_list_model->appendRow(new QStandardItem(QIcon(":/not_loaded.png"), itr.first));
+        _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr.first));
     }
 }
 
@@ -120,6 +120,33 @@ void FileTabWidget::filterTextChanged(const QString &text)
 }
 
 /*---------------------------------------------------------------------------*/
+
+void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const QString& filename)
+{
+    for(int i=0; i < _file_list_model->rowCount(); i++)
+    {
+        QStandardItem *val = _file_list_model->item(i, 0);
+        if(filename == val->text())
+        {
+            switch(status)
+            {
+            case UNLOADED:
+                val->setIcon(QIcon(":/images/circle_gray.png"));
+                break;
+            case LOADED:
+                val->setIcon(QIcon(":/images/circle_green.png"));
+                break;
+            case FAILED_LOADING:
+                val->setIcon(QIcon(":/images/circle_red.png"));
+                break;
+            }
+            break;
+        }
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
@@ -147,13 +174,19 @@ void MapsWorkspaceWidget::createLayout()
 
     _h5_tab_widget = new FileTabWidget();
     connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
-                this, SLOT(onOpenHDF5(QString)));
+            this, SLOT(onOpenHDF5(QString)));
+    connect(this, SIGNAL(loaded_hdf5(File_Loaded_Status, const QString&)),
+            _h5_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, SIGNAL(onOpenItem(QString)),
-                this, SLOT(onOpenMDA(QString)));
+            this, SLOT(onOpenMDA(QString)));
+    connect(this, SIGNAL(loaded_mda(File_Loaded_Status, const QString&)),
+            _mda_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
     _sws_tab_widget = new FileTabWidget();
     connect(_sws_tab_widget, SIGNAL(onOpenItem(QString)),
-                this, SLOT(onOpenSWS(QString)));
+            this, SLOT(onOpenSWS(QString)));
+    connect(this, SIGNAL(loaded_sws(File_Loaded_Status, const QString&)),
+            _sws_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -229,11 +262,18 @@ void MapsWorkspaceWidget::onOpenHDF5(QString name)
 {
     if(_model != nullptr)
     {
+        File_Loaded_Status load_status = UNLOADED;
         MapsH5Model* h5Model = _model->getMapsH5Model(name);
         if(h5Model != nullptr)
         {
+            load_status = LOADED;
             emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
         }
+        else
+        {
+            load_status = FAILED_LOADING;
+        }
+        emit loaded_hdf5(load_status, name);
     }
 }
 
@@ -243,11 +283,18 @@ void MapsWorkspaceWidget::onOpenMDA(QString name)
 {
     if(_model != nullptr)
     {
+        File_Loaded_Status load_status = UNLOADED;
         MDA_Model* mda_model = _model->get_MDA_Model(name);
         if(mda_model != nullptr)
         {
+            load_status = LOADED;
             emit show_MDA_Window(mda_model);
         }
+        else
+        {
+            load_status = FAILED_LOADING;
+        }
+        emit loaded_mda(load_status, name);
     }
 }
 
@@ -257,11 +304,18 @@ void MapsWorkspaceWidget::onOpenSWS(QString name)
 {
     if(_model != nullptr)
     {
+        File_Loaded_Status load_status = UNLOADED;
         SWSModel* sws_model = _model->get_SWS_Model(name);
         if(sws_model != nullptr)
         {
+            load_status = LOADED;
             emit show_SWS_Window(sws_model);
         }
+        else
+        {
+            load_status = FAILED_LOADING;
+        }
+        emit loaded_sws(load_status, name);
     }
 }
 

@@ -23,5 +23,9 @@
         <file>images/up.png</file>
         <file>images/down2.png</file>
         <file>images/uprobe.png</file>
+        <file>images/circle_blue.png</file>
+        <file>images/circle_gray.png</file>
+        <file>images/circle_green.png</file>
+        <file>images/circle_red.png</file>
     </qresource>
 </RCC>
