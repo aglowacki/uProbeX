@@ -41,10 +41,14 @@ class FileTabWidget : public QWidget
 signals:
     void onOpenItem(QString);
 
+    void onCloseItem(QString);
+
 public slots:
     void onDoubleClickElement(const QModelIndex);
 
-    void onContextMenuTrigger();
+    void onLoadFile();
+
+    void onUnloadFile();
 
     void filterTextChanged(const QString &);
 
@@ -68,7 +72,7 @@ protected:
  * the image from the area detector writer, the window will also be updated to
  * show the image.
  */
-class MapsWorkspaceWidget : public QWidget
+class MapsWorkspaceFilesWidget : public QWidget
 {
 
    Q_OBJECT
@@ -78,12 +82,12 @@ public:
    /**
     * Constructor.
     */
-   MapsWorkspaceWidget(QWidget* parent = nullptr);
+   MapsWorkspaceFilesWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
-   ~MapsWorkspaceWidget();
+   ~MapsWorkspaceFilesWidget();
 
    void setModel(MapsWorkspaceModel* model);
 
@@ -116,9 +120,15 @@ public slots:
 
    void onOpenHDF5(QString name);
 
+   void onCloseHDF5(QString name);
+
    void onOpenMDA(QString name);
 
+   void onCloseMDA(QString name);
+
    void onOpenSWS(QString name);
+
+   void onCloseSWS(QString name);
 
 protected:
 
@@ -149,7 +159,7 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* MapsWorkspaceWidget_H_ */
+#endif /* MapsWorkspaceFilesWidget_H_ */
 
 /*---------------------------------------------------------------------------*/
 

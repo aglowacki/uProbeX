@@ -15,7 +15,8 @@
 #include <solver/CoordinateTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <mvc/MapsElementsWidget.h>
-#include <mvc/MapsWorkspaceWidget.h>
+#include <mvc/MapsWorkspaceFilesWidget.h>
+#include <mvc/ImageStackControlWidget.h>
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/FitSpectraWidget.h>
 #include <mvc/MDA_Widget.h>
@@ -726,10 +727,12 @@ void uProbeX::makeMapsWindow(QString path)
 
 
     MapsWorkspaceModel* model = new MapsWorkspaceModel();
-    MapsWorkspaceWidget *widget = new MapsWorkspaceWidget();
+    MapsWorkspaceFilesWidget *widget = new MapsWorkspaceFilesWidget();
+    ImageStackControlWidget* iscWidget = new ImageStackControlWidget();
     widget->setLabelWorkspacePath(path);
 
     widget->setModel(model);
+    iscWidget->setModel(model);
     //widget->resize(800, 600);
 
     //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
@@ -749,33 +752,19 @@ void uProbeX::makeMapsWindow(QString path)
     connect(widget, SIGNAL(show_SWS_Window(SWSModel*)),
             this, SLOT(makeSWSWindow(SWSModel*)));
 
-/*
-    SubWindow* w = nullptr;
-    w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
 
 
-    m_mdiArea->addSubWindow(w);
-
-    w->setWidget(widget);
-    w->resize(300, 800);
-    w->setIsAcquisitionWindow(false);
-    w->setWindowTitle(path);
-    w->show();
-
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
-*/
-
-    _maps_workspace_dock = new QDockWidget(tr("MAPS Workspace"), this);
+    _maps_workspace_dock = new QDockWidget("Files", this);
     _maps_workspace_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     _maps_workspace_dock->setWidget(widget);
     addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
+
+
+    _image_stack_control_dock = new QDockWidget("", this);
+    _image_stack_control_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    _image_stack_control_dock->setWidget(iscWidget);
+    addDockWidget(Qt::TopDockWidgetArea, _image_stack_control_dock);
+
 
     // TODO: this should be changed. will cause the first not to load
     // if loading 2 workspaces right after another

@@ -91,8 +91,8 @@ void MapsElementsWidget::createLayout()
     hbox->addWidget(_cb_element);
     counts_layout->addItem(hbox);
 
-	_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
-	counts_layout->addWidget(_pb_perpixel_fitting);
+    //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
+    //counts_layout->addWidget(_pb_perpixel_fitting);
 
 
     QWidget *window = new QWidget();

@@ -381,7 +381,6 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     counts_dset_id = H5Dopen(analyzed_grp_id, group_name.c_str(), H5P_DEFAULT);
     if(counts_dset_id < 0)
     {
-        H5Gclose(analyzed_grp_id);
         qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
         return false;
     }
@@ -392,7 +391,6 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     {
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
-        H5Gclose(analyzed_grp_id);
         qDebug()<<"Error opening group /MAPS/"<<group_name.c_str();
         return false;
     }
@@ -450,7 +448,6 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     H5Dclose(channels_dset_id);
     H5Sclose(counts_dspace_id);
     H5Dclose(counts_dset_id);
-    H5Gclose(analyzed_grp_id);
 
     //nan to 0.f
     for(auto& itr : *xrf_counts)

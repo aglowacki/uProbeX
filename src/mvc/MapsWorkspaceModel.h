@@ -50,6 +50,12 @@ public:
 
     SWSModel* get_SWS_Model(QString name);
 
+    void unload_H5_Model(QString name);
+
+    void unload_MDA_Model(QString name);
+
+    void unload_SWS_Model(QString name);
+
     data_struct::Fit_Parameters* getFitParameters(int idx);
 
     data_struct::Fit_Element_Map_Dict *getElementToFit(int idx);

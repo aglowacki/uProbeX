@@ -393,6 +393,8 @@ private:
 
    QDockWidget *_maps_workspace_dock;
 
+   QDockWidget *_image_stack_control_dock;
+
 };
 
 /*---------------------------------------------------------------------------*/
