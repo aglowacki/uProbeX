@@ -103,7 +103,34 @@ void MapsElementsWidget::createLayout()
 
     layout->addWidget(_tab_widget);
 
+
+    _counts_lookup = new gstar::CountsLookupTransformer();
+    _counts_coord_model = new gstar::CoordinateModel(_counts_lookup);
+
+    _counts_coord_widget = new gstar::CoordinateWidget();
+    _counts_coord_widget->setVisible(true, false, false);
+    _counts_coord_widget->setModel(_counts_coord_model);
+    _counts_coord_widget->setLabel("Counts :", "");
+    _counts_coord_widget->setUnitsLabel("cts/s");
+    m_imageViewWidget->layout()->addWidget(_counts_coord_widget);
+
+    gstar::ImageViewScene* scene = m_imageViewWidget->scene();
+
+    connect(scene, SIGNAL(mouseOverPixel(int, int)),
+            this, SLOT(mouseOverPixel(int, int)));
+
+
+
     setLayout(layout);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::mouseOverPixel(int x, int y)
+{
+
+   _counts_coord_widget -> setCoordinate(x,y);
 
 }
 
@@ -180,7 +207,9 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
         return;
     }
     _model = model;
+    _counts_lookup->setModel(model);
     model_updated();
+
 
     if(_model->is_integrated_spectra_loaded())
     {
@@ -231,6 +260,7 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
     {
         if(fit_counts->count(element) > 0)
         {
+            _counts_lookup->setAnalyaisElement(analysis_type, element);
             int height = fit_counts->at(element).rows();
             int width = fit_counts->at(element).cols();
 			m_imageHeightDim->setCurrentText(QString::number(height));
@@ -250,38 +280,6 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
                 }
             }
             m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
-
-            /// save pixmap to png
-            /// //    static int path_cntr = 0;
-            //    std::string ipath;
-
-            //    if (path_cntr < 10)
-            //    {
-            //        ipath = "/data/tmp_img/counts_000"+std::to_string(path_cntr) + ".png";
-            //    }
-            //    else if (path_cntr > 9 && path_cntr < 100)
-            //    {
-            //        ipath = "/data/tmp_img/counts_00"+std::to_string(path_cntr) + ".png";
-            //    }
-            //    else if (path_cntr > 99 && path_cntr < 1000)
-            //    {
-            //        ipath = "/data/tmp_img/counts_0"+std::to_string(path_cntr) + ".png";
-            //    }
-            //    else
-            //    {
-            //        ipath = "/data/tmp_img/counts_"+std::to_string(path_cntr) + ".png";
-            //    }
-//            QPixmap pix = QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32);
-//            QPainter painter(&pix);
-//            int h = 1080;
-//            int w = 1920;
-//            int x = 0;
-//            int y = 0;
-//            painter.drawPixmap(x, y, w, h, pix);
-
-//            painter.end();
-//            pix.save(QString(ipath.c_str()), "png");
-        //    path_cntr ++;
         }
     }
 }

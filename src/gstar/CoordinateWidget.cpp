@@ -89,6 +89,26 @@ void CoordinateWidget::setLabel(QString xLabel, QString yLabel, QString zLabel)
 
 /*---------------------------------------------------------------------------*/
 
+void CoordinateWidget::setVisible(bool xVisible, bool yVisible, bool zVisible)
+{
+
+    m_lblPixelXLabel->setVisible(xVisible);
+    m_lblPixelXCoordinate->setVisible(xVisible);
+    m_lblXUnits->setVisible(xVisible);
+
+    m_lblPixelYLabel->setVisible(yVisible);
+    m_lblPixelYCoordinate->setVisible(yVisible);
+    m_lblYUnits->setVisible(yVisible);
+
+    m_lblPixelZLabel->setVisible(zVisible);
+    m_lblPixelZCoordinate->setVisible(zVisible);
+    m_lblZUnits->setVisible(zVisible);
+
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void CoordinateWidget::setCoordinate(int x, int y)
 {
 

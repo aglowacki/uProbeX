@@ -83,6 +83,8 @@ public:
     */
    void setLabel(QString xLabel, QString yLabel, QString zLabel);
 
+   void setVisible(bool xVisible, bool yVisible, bool zVisible);
+
    /**
     * @brief setUnitsLabel
     * @param units

@@ -14,6 +14,8 @@
 #include <mvc/FitSpectraWidget.h>
 #include <QComboBox>
 #include <unordered_map>
+#include <gstar/CoordinateWidget.h>
+#include <gstar/CountsLookupTransformer.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -69,6 +71,8 @@ public slots:
 
    void onColormapSelect(QString name);
 
+   void mouseOverPixel(int x, int y);
+
    void model_updated();
 
 protected:
@@ -93,10 +97,19 @@ protected:
    QTabWidget *_tab_widget;
 
    QVector<QRgb> *_selected_colormap;
+
    QVector<QRgb> _gray_colormap;
+
    QVector<QRgb> _heat_colormap;
 
    QPushButton *_pb_perpixel_fitting;
+
+   gstar::CoordinateWidget* _counts_coord_widget;
+
+   gstar::CoordinateModel *_counts_coord_model;
+
+   gstar::CountsLookupTransformer *_counts_lookup;
+
 };
 
 

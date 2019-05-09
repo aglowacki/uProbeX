@@ -185,6 +185,7 @@ add_executable(uProbeX
     src/gstar/RulerUnitsDialog.h
     src/gstar/ITransformer.h
     src/gstar/LinearTransformer.h
+    src/gstar/CountsLookupTransformer.h
     src/gstar/AbstractImageWidget.h
     src/gstar/GStarResource.h
     src/mvc/DeselectableTreeView.h
@@ -272,6 +273,7 @@ add_executable(uProbeX
     src/gstar/RulerUnitsDialog.cpp
     src/gstar/ITransformer.cpp
     src/gstar/LinearTransformer.cpp
+    src/gstar/CountsLookupTransformer.cpp
     src/gstar/AbstractImageWidget.cpp
     src/mvc/DeselectableTreeView.cpp
     src/solver/asa047.cpp
