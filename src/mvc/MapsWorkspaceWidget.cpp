@@ -8,33 +8,126 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QRegExp>
 #include <QDebug>
 
+/*---------------------------------------------------------------------------*/
+
+FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
+{
+
+    _contextMenu = new QMenu(("Context menu"), this);
+    QAction* action = _contextMenu->addAction("Open");
+    connect(action, SIGNAL(triggered()), this, SLOT(onContextMenuTrigger()));
+
+    _file_list_model = new QStandardItemModel();
+    _file_list_view = new QListView();
+   // _file_list_view->setViewMode(QListView::IconMode);
+    _file_list_view->setModel(_file_list_model);
+    _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    _file_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    _file_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
+
+    connect(_file_list_view, SIGNAL(doubleClicked(const QModelIndex)),
+                this, SLOT(onDoubleClickElement(const QModelIndex)));
+    connect(_file_list_view, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(ShowContextMenu(const QPoint &)));
+
+    _filter_line = new QLineEdit();
+    connect(_filter_line, SIGNAL(textChanged(const QString &)),
+            this, SLOT(filterTextChanged(const QString &)));
+
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->addWidget(new QLabel("Filter"));
+    hlayout->addWidget(_filter_line);
+
+    QLayout* vlayout = new QVBoxLayout();
+    vlayout->addItem(hlayout);
+    vlayout->addWidget(_file_list_view);
+    setLayout(vlayout);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
+{
+    for(auto & itr : fileinfo_list)
+    {
+        _file_list_model->appendRow(new QStandardItem(QIcon(":/not_loaded.png"), itr.first));
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::ShowContextMenu(const QPoint &pos)
+{
+    _contextMenu->exec(mapToGlobal(pos));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
+{
+    QVariant data = idx.data(0);
+    emit onOpenItem(data.toString());
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::onContextMenuTrigger()
+{
+    QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
+    for(int i =0; i<list.length(); i++)
+    {
+        QModelIndex idx = list.at(i);
+        QVariant data = idx.data(0);
+        emit onOpenItem(data.toString());
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::filterTextChanged(const QString &text)
+{
+    QString filter_text = _filter_line->text();
+
+    if(filter_text.length() > 0)
+    {
+        QRegExp re (_filter_line->text());
+        re.setPatternSyntax(QRegExp::Wildcard);
+
+        for(int i=0; i < _file_list_model->rowCount(); i++)
+        {
+            _file_list_view->setRowHidden(i, true);
+            QStandardItem *val = _file_list_model->item(i, 0);
+            if(re.exactMatch(val->text()))
+            {
+                _file_list_view->setRowHidden(i, false);
+            }
+        }
+    }
+    else
+    {
+        for(int i=0; i < _file_list_model->rowCount(); i++)
+        {
+            _file_list_view->setRowHidden(i, false);
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
 MapsWorkspaceWidget::MapsWorkspaceWidget(QWidget* parent) : QWidget(parent)
 {
 
-    QAction* action;
     createLayout();
 
-    _contextMenu = new QMenu(("Context menu"), this);
-
-    //action = _contextMenu->addAction("View");
-    //connect(action, SIGNAL(triggered()), this, SLOT(viewAnalyzedH5()));
-
-
-    action = _contextMenu->addAction("Open");
-    connect(action, SIGNAL(triggered()), this, SLOT(fitIntegratedSpectra()));
-
-    /*
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
-            */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -52,16 +145,15 @@ void MapsWorkspaceWidget::createLayout()
     _lbl_workspace = new QLabel();
     _tab_widget = new QTabWidget();
 
-    _analyzed_h5_list_model = new QStringListModel();
-    _analyzed_h5_list_view = new QListView();
-    _analyzed_h5_list_view->setModel(_analyzed_h5_list_model);
-    _analyzed_h5_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    _analyzed_h5_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
-    _analyzed_h5_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
-    connect(_analyzed_h5_list_view, SIGNAL(doubleClicked(const QModelIndex)),
-                this, SLOT(onOpenHDF5(const QModelIndex)));
-    connect(_analyzed_h5_list_view, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
+    _h5_tab_widget = new FileTabWidget();
+    connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
+                this, SLOT(onOpenHDF5(QString)));
+    _mda_tab_widget = new FileTabWidget();
+    connect(_mda_tab_widget, SIGNAL(onOpenItem(QString)),
+                this, SLOT(onOpenMDA(QString)));
+    _sws_tab_widget = new FileTabWidget();
+    connect(_sws_tab_widget, SIGNAL(onOpenItem(QString)),
+                this, SLOT(onOpenSWS(QString)));
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -75,26 +167,9 @@ void MapsWorkspaceWidget::createLayout()
 
     QLayout* vlayout = new QVBoxLayout();
 
-    //setup mda
-    _mda_list_model = new QStringListModel();
-    _mda_list_view = new QListView();
-    _mda_list_view->setModel(_mda_list_model);
-    _mda_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(_mda_list_view, SIGNAL(doubleClicked(const QModelIndex)),
-                this, SLOT(onOpenMDA(const QModelIndex)));
-
-    //setup sws light microscope
-    _sws_list_model = new QStringListModel();
-    _sws_list_view = new QListView();
-    _sws_list_view->setModel(_sws_list_model);
-    _sws_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(_sws_list_view, SIGNAL(doubleClicked(const QModelIndex)),
-                this, SLOT(onOpenSWS(const QModelIndex)));
-
-    _tab_widget->insertTab(0, _analyzed_h5_list_view, "Analyized H5");
-    _tab_widget->insertTab(1, _mda_list_view, "Raw MDA");
-    _tab_widget->insertTab(2, _sws_list_view, "Light Microscope");
-
+    _tab_widget->insertTab(0, _h5_tab_widget, "Analyized H5");
+    _tab_widget->insertTab(1, _mda_tab_widget, "Raw MDA");
+    _tab_widget->insertTab(2, _sws_tab_widget, "Light Microscope");
 
     vlayout->addWidget(_tab_widget);
     setLayout(vlayout);
@@ -128,34 +203,10 @@ void MapsWorkspaceWidget::setModel(MapsWorkspaceModel *model)
 void MapsWorkspaceWidget::model_done_loading()
 {
 
-    const map<QString, QFileInfo> h5_fileinfo_list = _model->get_hdf5_file_list();
-    const map<QString, QFileInfo> mda_fileinfo_list = _model->get_mda_file_list();
-    const map<QString, QFileInfo> sws_fileinfo_list = _model->get_sws_file_list();
-    for(auto & itr : h5_fileinfo_list)
-    {
-        _analyzed_h5_list.append(itr.first);
-    }
-    _analyzed_h5_list_model->setStringList(_analyzed_h5_list);
+    _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
+    _mda_tab_widget->set_file_list(_model->get_mda_file_list());
+    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
 
-    for(auto & itr : mda_fileinfo_list)
-    {
-        _mda_list.append(itr.first);
-    }
-    _mda_list_model->setStringList(_mda_list);
-
-    for(auto & itr : sws_fileinfo_list)
-    {
-        _sws_list.append(itr.first);
-    }
-    _sws_list_model->setStringList(_sws_list);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceWidget::ShowContextMenu(const QPoint &pos)
-{
-    _contextMenu->exec(mapToGlobal(pos));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -174,49 +225,13 @@ void MapsWorkspaceWidget::loadedFitParams(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::viewAnalyzedH5()
+void MapsWorkspaceWidget::onOpenHDF5(QString name)
 {
-    QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
-    for(int i =0; i<list.length(); i++)
-    {
-        onOpenHDF5(list.at(i));
-    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceWidget::fitIntegratedSpectra()
-{
-
-    QModelIndexList list = _analyzed_h5_list_view->selectionModel()->selectedIndexes();
-    for(int i =0; i<list.length(); i++)
-    {
-        QModelIndex idx = list.at(i);
-        QVariant data = idx.data(0);
-        if(_model != nullptr)
-        {
-            MapsH5Model* h5Model = _model->getMapsH5Model(data.toString());
-            if(h5Model != nullptr)
-            {
-                showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
-            }
-        }
-    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceWidget::onOpenHDF5(const QModelIndex idx)
-{
-    QVariant data = idx.data(0);
     if(_model != nullptr)
     {
-        MapsH5Model* h5Model = _model->getMapsH5Model(data.toString());
+        MapsH5Model* h5Model = _model->getMapsH5Model(name);
         if(h5Model != nullptr)
         {
-            //selectedAnalyzedH5(h5Model);
             emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
         }
     }
@@ -224,12 +239,11 @@ void MapsWorkspaceWidget::onOpenHDF5(const QModelIndex idx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::onOpenMDA(const QModelIndex idx)
+void MapsWorkspaceWidget::onOpenMDA(QString name)
 {
-    QVariant data = idx.data(0);
     if(_model != nullptr)
     {
-        MDA_Model* mda_model = _model->get_MDA_Model(data.toString());
+        MDA_Model* mda_model = _model->get_MDA_Model(name);
         if(mda_model != nullptr)
         {
             emit show_MDA_Window(mda_model);
@@ -239,15 +253,16 @@ void MapsWorkspaceWidget::onOpenMDA(const QModelIndex idx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceWidget::onOpenSWS(const QModelIndex idx)
+void MapsWorkspaceWidget::onOpenSWS(QString name)
 {
-    QVariant data = idx.data(0);
     if(_model != nullptr)
     {
-        SWSModel* sws_model = _model->get_SWS_Model(data.toString());
+        SWSModel* sws_model = _model->get_SWS_Model(name);
         if(sws_model != nullptr)
         {
             emit show_SWS_Window(sws_model);
         }
     }
 }
+
+/*---------------------------------------------------------------------------*/

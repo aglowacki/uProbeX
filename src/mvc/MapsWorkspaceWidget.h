@@ -22,6 +22,41 @@
 
 /*---------------------------------------------------------------------------*/
 
+class FileTabWidget : public QWidget
+{
+    Q_OBJECT
+
+ public:
+
+    FileTabWidget(QWidget* parent = nullptr);
+
+    ~FileTabWidget(){}
+
+    void set_file_list(const map<QString, QFileInfo>& fileinfo_list);
+
+signals:
+    void onOpenItem(QString);
+
+public slots:
+    void onDoubleClickElement(const QModelIndex);
+
+    void onContextMenuTrigger();
+
+    void filterTextChanged(const QString &);
+
+    void ShowContextMenu(const QPoint &);
+
+protected:
+
+    QListView* _file_list_view;
+
+    QStandardItemModel* _file_list_model;
+
+    QMenu *_contextMenu;
+
+    QLineEdit *_filter_line;
+};
+
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
  * the image from the area detector writer, the window will also be updated to
@@ -63,21 +98,15 @@ signals:
 
 public slots:
 
-   void ShowContextMenu(const QPoint &);
-
    void model_done_loading();
 
    void loadedFitParams(int idx);
 
-   void viewAnalyzedH5();
+   void onOpenHDF5(QString name);
 
-   void fitIntegratedSpectra();
+   void onOpenMDA(QString name);
 
-   void onOpenHDF5(const QModelIndex);
-
-   void onOpenMDA(const QModelIndex);
-
-   void onOpenSWS(const QModelIndex);
+   void onOpenSWS(QString name);
 
 protected:
 
@@ -90,29 +119,15 @@ private:
 
    QTabWidget *_tab_widget;
 
-   QStringList _analyzed_h5_list;
+   FileTabWidget* _h5_tab_widget;
 
-   QStringList _mda_list;
+   FileTabWidget* _mda_tab_widget;
 
-   QStringList _sws_list;
-
-   QListView* _analyzed_h5_list_view;
-
-   QListView* _mda_list_view;
-
-   QListView* _sws_list_view;
-
-   QStringListModel* _analyzed_h5_list_model;
-
-   QStringListModel* _mda_list_model;
-
-   QStringListModel* _sws_list_model;
+   FileTabWidget* _sws_tab_widget;
 
    QLabel* _lbl_workspace;
 
    MapsWorkspaceModel* _model;
-
-   QMenu *_contextMenu;
 
    QTableView* _fit_params_table;
 
