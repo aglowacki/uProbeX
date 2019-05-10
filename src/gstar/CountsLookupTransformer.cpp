@@ -129,6 +129,42 @@ bool CountsLookupTransformer::setVariable(QString name, double val)
 
 /*---------------------------------------------------------------------------*/
 
+void CountsLookupTransformer::setAnalyaisElement(std::string analysis_type, std::string element)
+{
+    _analysis_type = analysis_type;
+    _element = element;
+    if(_model != nullptr && _analysis_type.length() > 0 && _element.length() > 0)
+    {
+        data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(_analysis_type);
+        if (fit_counts != nullptr)
+        {
+            if(fit_counts->count(_element) > 0)
+            {
+                _min_counts = fit_counts->at(_element).minCoeff();
+                _max_counts = fit_counts->at(_element).maxCoeff();
+            }
+            else
+            {
+                _min_counts = 0.0;
+                _max_counts = 0.0;
+            }
+        }
+        else
+        {
+            _min_counts = 0.0;
+            _max_counts = 0.0;
+        }
+    }
+    else
+    {
+        _min_counts = 0.0;
+        _max_counts = 0.0;
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void CountsLookupTransformer::transformCommand(double inX,
                                          double inY,
                                          double inZ,
@@ -152,8 +188,8 @@ void CountsLookupTransformer::transformCommand(double inX,
                 {
                     *outX = fit_counts->at(_element)(row,col);
                 }
-                //*outY = fit_counts->at(_element).minCoeff();
-                //*outZ = fit_counts->at(_element).maxCoeff();
+                *outY = _min_counts;
+                *outZ = _max_counts;
             }
             else
             {

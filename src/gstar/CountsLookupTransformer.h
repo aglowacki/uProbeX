@@ -73,7 +73,7 @@ public:
 
    void setModel(MapsH5Model* model){ _model = model; }
 
-   void setAnalyaisElement(std::string analysis_type, std::string element){ _analysis_type = analysis_type; _element = element;}
+   void setAnalyaisElement(std::string analysis_type, std::string element);
 
    /**
     * @brief transformCommand

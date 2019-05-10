@@ -155,6 +155,8 @@ public:
     */
    QGraphicsView* view();
 
+
+   bool set_null_mouse_pos;
    /**
     * Event filter
     */

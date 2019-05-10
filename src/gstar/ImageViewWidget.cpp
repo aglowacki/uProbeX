@@ -33,6 +33,7 @@ ImageViewWidget::ImageViewWidget(QWidget* parent)
 
    m_zoomPercent = nullptr;
    m_mouseLeaveState = true;
+   set_null_mouse_pos = true;
 
 /*   m_widget = parent;
    m_widget->installEventFilter(this);*/
@@ -244,12 +245,14 @@ void ImageViewWidget::leaveEvent(QEvent * event)
 
    m_mouseLeaveState = true;
 
-   m_coordWidget -> setnullptr();
+   if(set_null_mouse_pos)
+        m_coordWidget -> setnullptr();
 
    QLayout* lout = layout();
    QWidget* w = lout->itemAt(lout->count()-1)->widget();
    CoordinateWidget* lightToMicroCoordWidget = dynamic_cast<CoordinateWidget*>(w);
-   lightToMicroCoordWidget->setnullptr();
+   if(set_null_mouse_pos)
+        lightToMicroCoordWidget->setnullptr();
 
    QWidget::leaveEvent(event);
 
