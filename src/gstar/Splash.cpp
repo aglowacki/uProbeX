@@ -22,12 +22,12 @@ Splash::Splash(QWidget* parent, Qt::WindowFlags f,
 {
 
    // Background color
-   QPalette pal = this -> palette();
-   pal.setColor(this -> backgroundRole(), Qt::white);
-   this -> setPalette(pal);
+   //QPalette pal = this -> palette();
+   //pal.setColor(this -> backgroundRole(), Qt::white);
+   //this -> setPalette(pal);
 
    // Autofill background
-   setAutoFillBackground(true);
+//   setAutoFillBackground(true);
 
    // Make label for pixmap
    //QLabel* lblPix = new QLabel();

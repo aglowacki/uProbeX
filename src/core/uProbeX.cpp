@@ -738,6 +738,9 @@ void uProbeX::makeMapsWindow(QString path)
     //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
     //        this, SLOT(makeHDFWindow(MapsH5Model*)));
 
+    connect(widget, SIGNAL(loadList_H5(QStringList)), iscWidget, SLOT(loadList_H5(QStringList)));
+    connect(widget, SIGNAL(unloadList_H5(QStringList)), iscWidget, SLOT(unloadList_H5(QStringList)));
+
     connect(widget, SIGNAL(showFitSpecWindow(MapsH5Model*,
                                              data_struct::Fit_Parameters*,
                                              data_struct::Fit_Element_Map_Dict*)),

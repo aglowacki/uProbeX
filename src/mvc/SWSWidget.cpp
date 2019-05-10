@@ -798,7 +798,7 @@ void SWSWidget::createCalibrationTab()
    m_calSelectionModel = new QItemSelectionModel(m_calTreeModel);
 
    m_calAnnoTreeView = new QTreeView();
-   m_calAnnoTreeView->setAutoFillBackground(true);
+   //m_calAnnoTreeView->setAutoFillBackground(true);
    m_calAnnoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_calAnnoTreeView->setAnimated(true);
    m_calAnnoTreeView->setModel(m_calTreeModel);
@@ -882,7 +882,7 @@ void SWSWidget::createCalibrationTab()
    infoLayout->addWidget(m_calAnnoTreeView);
 
    m_calibrationTabWidget = new QWidget(this);
-   m_calibrationTabWidget->setAutoFillBackground(true);
+   //m_calibrationTabWidget->setAutoFillBackground(true);
    m_calibrationTabWidget->setLayout(infoLayout);
 
 }
@@ -1015,7 +1015,7 @@ void SWSWidget::createMicroProbeTab()
    m_mpSelectionModel = new QItemSelectionModel(m_mpTreeModel);
 
    m_mpAnnoTreeView = new QTreeView();
-   m_mpAnnoTreeView->setAutoFillBackground(true);
+   //m_mpAnnoTreeView->setAutoFillBackground(true);
    m_mpAnnoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_mpAnnoTreeView->setAnimated(true);
    m_mpAnnoTreeView->setModel(m_mpTreeModel);
@@ -1043,7 +1043,7 @@ void SWSWidget::createMicroProbeTab()
    infoLayout->addWidget(m_mpAnnoTreeView);
 
    m_microProbeTabWidget = new QWidget(this);
-   m_microProbeTabWidget->setAutoFillBackground(true);
+   //m_microProbeTabWidget->setAutoFillBackground(true);
    m_microProbeTabWidget->setLayout(infoLayout);
 
 }

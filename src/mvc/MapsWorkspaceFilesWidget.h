@@ -17,6 +17,7 @@
 #include <QTableView>
 #include <QStringListModel>
 #include <QListWidgetItem>
+#include <QPushButton>
 #include "FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 
@@ -43,6 +44,10 @@ signals:
 
     void onCloseItem(QString);
 
+    void loadList(QStringList);
+
+    void unloadList(QStringList);
+
 public slots:
     void onDoubleClickElement(const QModelIndex);
 
@@ -56,7 +61,13 @@ public slots:
 
     void loaded_file_status_changed(File_Loaded_Status status, const QString& filename);
 
+    void load_all_visible();
+
+    void unload_all_visible();
+
 protected:
+
+    void _gen_visible_list(QStringList *sl);
 
     QListView* _file_list_view;
 
@@ -65,6 +76,10 @@ protected:
     QMenu *_contextMenu;
 
     QLineEdit *_filter_line;
+
+    QPushButton *_load_all_btn;
+
+    QPushButton *_unload_all_btn;
 };
 
 /**
@@ -111,6 +126,10 @@ signals:
    void loaded_mda(File_Loaded_Status status, const QString& name);
 
    void loaded_sws(File_Loaded_Status status, const QString& name);
+
+   void loadList_H5(QStringList);
+
+   void unloadList_H5(QStringList);
 
 public slots:
 

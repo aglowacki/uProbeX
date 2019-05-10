@@ -42,15 +42,58 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     connect(_filter_line, SIGNAL(textChanged(const QString &)),
             this, SLOT(filterTextChanged(const QString &)));
 
-    QHBoxLayout* hlayout = new QHBoxLayout();
-    hlayout->addWidget(new QLabel("Filter"));
-    hlayout->addWidget(_filter_line);
+    QHBoxLayout* hlayout1 = new QHBoxLayout();
+    hlayout1->addWidget(new QLabel("Filter"));
+    hlayout1->addWidget(_filter_line);
+
+
+    _load_all_btn = new QPushButton("Load All");
+    connect(_load_all_btn, SIGNAL(released()), this, SLOT(load_all_visible()));
+    _unload_all_btn = new QPushButton("Unload All");
+    connect(_unload_all_btn, SIGNAL(released()), this, SLOT(unload_all_visible()));
+
+    QHBoxLayout* hlayout2 = new QHBoxLayout();
+    hlayout2->addWidget(_load_all_btn);
+    hlayout2->addWidget(_unload_all_btn);
 
     QLayout* vlayout = new QVBoxLayout();
-    vlayout->addItem(hlayout);
+    vlayout->addItem(hlayout1);
+    vlayout->addItem(hlayout2);
     vlayout->addWidget(_file_list_view);
     setLayout(vlayout);
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::_gen_visible_list(QStringList *sl)
+{
+    for(int i=0; i < _file_list_model->rowCount(); i++)
+    {
+        if(false == _file_list_view->isRowHidden(i))
+        {
+            QStandardItem *val = _file_list_model->item(i, 0);
+            sl->append(val->text());
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::load_all_visible()
+{
+    QStringList sl;
+    _gen_visible_list(&sl);
+    emit loadList(sl);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::unload_all_visible()
+{
+    QStringList sl;
+    _gen_visible_list(&sl);
+    emit unloadList(sl);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -193,6 +236,12 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     connect(_h5_tab_widget, SIGNAL(onCloseItem(QString)),
             this, SLOT(onCloseHDF5(QString)));
+
+    connect(_h5_tab_widget, SIGNAL(loadList(QStringList)),
+            this, SIGNAL(loadList_H5(QStringList)));
+
+    connect(_h5_tab_widget, SIGNAL(unloadList(QStringList)),
+            this, SIGNAL(unloadList_H5(QStringList)));
 
     connect(this, SIGNAL(loaded_hdf5(File_Loaded_Status, const QString&)),
             _h5_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));

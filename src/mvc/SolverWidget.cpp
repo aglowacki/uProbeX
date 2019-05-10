@@ -27,10 +27,10 @@ SolverWidget::SolverWidget(QWidget *parent) : QWidget(parent)
    setWindowTitle("Solver Results");
 
    //Set background white
-   QPalette * p = new QPalette;
-   p->setColor(QPalette::Background, Qt::white);
-   setAutoFillBackground(true);
-   setPalette(*p);
+   //QPalette * p = new QPalette;
+   //p->setColor(QPalette::Background, Qt::white);
+   //setAutoFillBackground(true);
+   //setPalette(*p);
 
    QVBoxLayout* vboxLayout = new QVBoxLayout();
    m_gridLayout = new QGridLayout();

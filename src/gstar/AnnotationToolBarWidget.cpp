@@ -19,13 +19,13 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
 {
 
    // Background color
-   QPalette pal = this->palette();
-   pal.setColor(this->backgroundRole(), Qt::white);
-   this->setPalette(pal);
-   setAutoFillBackground(true);
+   //QPalette pal = this->palette();
+//   pal.setColor(this->backgroundRole(), Qt::white);
+//   this->setPalette(pal);
+//   setAutoFillBackground(true);
 
    m_toolbar = new QToolBar();
-   m_toolbar->setPalette(pal);
+   //m_toolbar->setPalette(pal);
 
    m_rulerAction = new QAction(QIcon(":images/ruler.png"),
                                "Ruler",

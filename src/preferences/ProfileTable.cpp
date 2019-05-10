@@ -95,12 +95,12 @@ void ProfileTable::createComponents()
 {
 
    // Background color
-   QPalette pal = this->palette();
-   pal.setColor(this->backgroundRole(), Qt::white);
-   this->setPalette(pal);
+//   QPalette pal = this->palette();
+//   pal.setColor(this->backgroundRole(), Qt::white);
+//   this->setPalette(pal);
 
    // Autofill background
-   setAutoFillBackground(true);
+//   setAutoFillBackground(true);
 
    m_solverTable = new QTableView;
    m_solverModel = new AttributeTableModel();

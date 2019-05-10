@@ -36,12 +36,12 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
 {
 
    // Background color
-   QPalette pal = this->palette();
-   pal.setColor(this->backgroundRole(), Qt::white);
-   this->setPalette(pal);
+   //QPalette pal = this->palette();
+   //pal.setColor(this->backgroundRole(), Qt::white);
+   //this->setPalette(pal);
 
    // Autofill background
-   setAutoFillBackground(true);
+//   setAutoFillBackground(true);
 
    // Create contents list
    m_contentsWidget = new QListWidget;

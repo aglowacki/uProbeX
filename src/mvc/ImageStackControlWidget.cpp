@@ -58,4 +58,25 @@ void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 }
 
 /*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::loadList_H5(QStringList sl)
+{
+    foreach (QString s, sl)
+    {
+        _h5_model_map[s] = _model->getMapsH5Model(s);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::unloadList_H5(QStringList sl)
+{
+    foreach (QString s, sl)
+    {
+        _h5_model_map.erase(s);
+        _model->unload_H5_Model(s);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

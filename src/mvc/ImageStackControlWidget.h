@@ -42,6 +42,11 @@ public:
 
    void setModel(MapsWorkspaceModel* model);
 
+public slots:
+   void loadList_H5(QStringList sl);
+
+   void unloadList_H5(QStringList sl);
+
 protected:
 
    void createLayout();
@@ -53,6 +58,8 @@ protected:
    QPushButton *_left_btn;
 
    QPushButton *_right_btn;
+
+   map<QString, MapsH5Model*> _h5_model_map;
 
 };
 

@@ -238,7 +238,7 @@ void PreferencesPythonFunc::createComponents()
    this->setPalette(pal);
 
    // Autofill background
-   setAutoFillBackground(true);
+//   setAutoFillBackground(true);
 
    m_tree = new DeselectableTreeView();
    m_model = new AttributeGroupModel("Dialog Name",

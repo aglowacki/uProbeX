@@ -43,10 +43,10 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
    m_annotationToolbar = nullptr;
    m_coordinateModel = nullptr;
    m_imageWidgetToolBar = nullptr;
-   QPalette pal = this->palette();
-   pal.setColor(this->backgroundRole(), Qt::white);
-   this->setPalette(pal);
-   setAutoFillBackground(true);
+   //QPalette pal = this->palette();
+   //pal.setColor(this->backgroundRole(), Qt::white);
+   //this->setPalette(pal);
+   //setAutoFillBackground(true);
 
    createActions();
 
@@ -62,8 +62,8 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
    m_selectionModel = new QItemSelectionModel(m_treeModel);
 
    m_annoTreeView = new QTreeView();
-   m_annoTreeView->setPalette(pal);
-   m_annoTreeView->setAutoFillBackground(true);
+   //m_annoTreeView->setPalette(pal);
+   //m_annoTreeView->setAutoFillBackground(true);
    m_annoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_annoTreeView->setAnimated(true);
    m_annoTreeView->setModel(m_treeModel);
@@ -91,8 +91,8 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
    createAnnotationToolBar();
 
    m_tabWidget = new QTabWidget();
-   m_tabWidget->setPalette(pal);
-   m_tabWidget->setAutoFillBackground(true);
+   //m_tabWidget->setPalette(pal);
+   //m_tabWidget->setAutoFillBackground(true);
 
    m_annotationsEnabled = true;
    //add it in parent class so you can control what tab it is on.
@@ -158,7 +158,7 @@ void AbstractImageWidget::appendAnnotationTab()
 
    m_treeTabWidget = new QWidget(this);
    //m_treeTabWidget->setPalette(pal);
-   m_treeTabWidget->setAutoFillBackground(true);
+   //m_treeTabWidget->setAutoFillBackground(true);
    m_treeTabWidget->setLayout(infoLayout);
 
    m_tabWidget->addTab(m_treeTabWidget, QIcon(), "Annotations");
