@@ -1641,201 +1641,15 @@ void SWSWidget::offsetReturnPressed()
 
 /*---------------------------------------------------------------------------*/
 
-QMap<QString, QString> SWSWidget::parseMarker(QXmlStreamReader& xml)
+void SWSWidget::setModel(SWSModel* swsmodel)
 {
-
-   QMap<QString, QString> marker;
-
-   QXmlStreamAttributes attributes = xml.attributes();
-
-   if(attributes.hasAttribute(UPROBE_COLOR))
-   {
-    marker.insert(UPROBE_COLOR, attributes.value(UPROBE_COLOR).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_LIGHT_POS_X))
-   {
-    marker.insert(UPROBE_LIGHT_POS_X,
-                  attributes.value(UPROBE_LIGHT_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_REAL_POS_X))
-   {
-    marker.insert(UPROBE_REAL_POS_X,
-                  attributes.value(UPROBE_REAL_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_LIGHT_POS_Y))
-   {
-    marker.insert(UPROBE_LIGHT_POS_Y,
-                  attributes.value(UPROBE_LIGHT_POS_Y).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_REAL_POS_Y))
-   {
-    marker.insert(UPROBE_REAL_POS_Y,
-                  attributes.value(UPROBE_REAL_POS_Y).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_LIGHT_POS_Z))
-   {
-    marker.insert(UPROBE_LIGHT_POS_Z,
-                  attributes.value(UPROBE_LIGHT_POS_Z).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_MICRO_POS_X))
-   {
-    marker.insert(UPROBE_MICRO_POS_X,
-                  attributes.value(UPROBE_MICRO_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_MICRO_POS_Y))
-   {
-    marker.insert(UPROBE_MICRO_POS_Y,
-                  attributes.value(UPROBE_MICRO_POS_Y).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_PRED_POS_X))
-   {
-    marker.insert(UPROBE_PRED_POS_X,
-                  attributes.value(UPROBE_PRED_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_PRED_POS_Y))
-   {
-    marker.insert(UPROBE_PRED_POS_Y,
-                  attributes.value(UPROBE_PRED_POS_Y).toString());
-   }
-
-   xml.readNext();
-   if(xml.tokenType() == QXmlStreamReader::Characters)
-   {
-      marker.insert(UPROBE_NAME, xml.text().toString());
-   }
-
-   return marker;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QMap<QString, QString> SWSWidget::parseRegionMarker(QXmlStreamReader& xml)
-{
-
-
-   QMap<QString, QString> marker;
-
-   QXmlStreamAttributes attributes = xml.attributes();
-
-   if(attributes.hasAttribute(UPROBE_COLOR))
-   {
-    marker.insert(UPROBE_COLOR, attributes.value(UPROBE_COLOR).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_REAL_POS_X))
-   {
-    marker.insert(UPROBE_REAL_POS_X,
-                  attributes.value(UPROBE_REAL_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_REAL_POS_Y))
-   {
-    marker.insert(UPROBE_REAL_POS_Y,
-                  attributes.value(UPROBE_REAL_POS_Y).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_PRED_POS_X))
-   {
-    marker.insert(UPROBE_PRED_POS_X,
-                  attributes.value(UPROBE_PRED_POS_X).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_PRED_POS_Y))
-   {
-    marker.insert(UPROBE_PRED_POS_Y,
-                  attributes.value(UPROBE_PRED_POS_Y).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_RECT_TLX))
-   {
-    marker.insert(UPROBE_RECT_TLX,
-                  attributes.value(UPROBE_RECT_TLX).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_RECT_TLY))
-   {
-    marker.insert(UPROBE_RECT_TLY,
-                  attributes.value(UPROBE_RECT_TLY).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_RECT_W))
-   {
-    marker.insert(UPROBE_RECT_W,
-                  attributes.value(UPROBE_RECT_W).toString());
-   }
-   if(attributes.hasAttribute(UPROBE_RECT_H))
-   {
-    marker.insert(UPROBE_RECT_H,
-                  attributes.value(UPROBE_RECT_H).toString());
-   }
-
-   xml.readNext();
-   if(xml.tokenType() == QXmlStreamReader::Characters)
-   {
-      marker.insert(UPROBE_NAME, xml.text().toString());
-   }
-
-   return marker;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SWSWidget::parseXML()
-{
-
-   QFile* file = new QFile(m_datasetPath);
-
-   if (!file->exists())
-   {
-      return;
-   }
-
-   if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-   {
-      QMessageBox::critical(this,
-                            "SWSWidget::parseXML",
-                            "Couldn't open maker xml",
-                            QMessageBox::Ok);
-      return;
-   }
-
-   QXmlStreamReader xml(file);
-
-   while(!xml.atEnd() && !xml.hasError())
-   {
-      // Read next element
-      QXmlStreamReader::TokenType token = xml.readNext();
-
-      // If token is just StartDocument, we'll go to next
-      if(token == QXmlStreamReader::StartDocument)
-      {
-         continue;
-      }
-
-      if(token == QXmlStreamReader::StartElement)
-      {
-         if(xml.name() == "markers")
-         {
-            continue;
-         }
-         if(xml.name() == "marker")
-         {
-            m_markersLoaded.prepend(this->parseMarker(xml));
-            continue;
-         }
-         if(xml.name() == "regionmarker")
-         {
-            m_regionMarkersLoaded.prepend(this->parseRegionMarker(xml));
-         }
-      }
-   }
-
-   // Error handling.
-   if(xml.hasError())
-   {
-      QMessageBox::critical(this,
-                            "SWSWidget::parseXML",
-                            xml.errorString(),
-                            QMessageBox::Ok);
-   }
-
-   xml.clear();
-
+	_model = swsmodel;
+	if (_model != nullptr)
+	{
+		updateFrame(_model->getImage());
+		setCoordinateModel(_model->getCoordModel());
+		restoreMarkerLoaded();
+	}
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1877,13 +1691,19 @@ void SWSWidget::preferenceChanged()
 void SWSWidget::restoreMarkerLoaded()
 {
 
-   // First parse the XML tags
-   parseXML();
+   // get from model
+  // parseXML();
+	if (_model == nullptr)
+	{
+		return;
+	}
 
-   for(int i = m_markersLoaded.size()-1; i>=0; i--)
+	auto markersLoaded = _model->getMarkers();
+
+   for(int i = markersLoaded.size()-1; i>=0; i--)
    {
 
-      QMap<QString, QString> marker = m_markersLoaded.at(i);
+      QMap<QString, QString> marker = markersLoaded.at(i);
 
       UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
       annotation->setMouseOverPixelCoordModel(m_coordinateModel);
@@ -1904,10 +1724,12 @@ void SWSWidget::restoreMarkerLoaded()
 
    tabIndexChanged(MICROPROBE_IDX);
 
-   for(int i = m_regionMarkersLoaded.size()-1; i>=0; i--)
+   auto regionMarkersLoaded = _model->getRegionMarkers();
+
+   for(int i = regionMarkersLoaded.size()-1; i>=0; i--)
    {
 
-      QMap<QString, QString> marker = m_regionMarkersLoaded.at(i);
+      QMap<QString, QString> marker = regionMarkersLoaded.at(i);
 
       UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem(marker);
       annotation->setMouseOverPixelCoordModel(m_coordinateModel);
@@ -2098,56 +1920,56 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::setMarker(QString filepath)
-{
-
-   m_pathFile = filepath;
-   QString originalPath;
-
-   try
-   {
-      QStringList slist = m_pathFile.split('.');
-      if(slist.length() > 0)
-      {
-         m_datasetPath = slist[0]+".xml";
-         originalPath = m_datasetPath;
-
-         QString autosavedTemporaryFile = getTemporaryDatasetPath();
-         QFile autosavedTmpFile(autosavedTemporaryFile);
-         if(autosavedTmpFile.exists()) {
-            QFileInfo fileInfo(autosavedTmpFile);
-            QDateTime lastModified = fileInfo.lastModified();
-
-            QMessageBox msgBox;
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            msgBox.setDefaultButton(QMessageBox::No);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText("It looks like last time this application was used something went wrong, "
-                           "would you like to restore auto-safe data from " + lastModified.toString());
-            int ret = msgBox.exec();
-
-            if (ret == QMessageBox::Yes)
-            {
-               m_datasetPath = autosavedTemporaryFile;
-            }
-         }
-      }
-      else
-         throw std::string("Error:: Could not identify file!");
-   }
-   catch (std::string& s)
-   {
-      throw s;
-   }
-   catch (...)
-   {
-      throw std::string("Failed to open SWS workspace!");
-   }
-
-   restoreMarkerLoaded();
-   m_datasetPath = originalPath;
-
-}
+//void SWSWidget::setMarker(QString filepath)
+//{
+//
+//   m_pathFile = filepath;
+//   QString originalPath;
+//
+//   try
+//   {
+//      QStringList slist = m_pathFile.split('.');
+//      if(slist.length() > 0)
+//      {
+//         m_datasetPath = slist[0]+".xml";
+//         originalPath = m_datasetPath;
+//
+//         QString autosavedTemporaryFile = getTemporaryDatasetPath();
+//         QFile autosavedTmpFile(autosavedTemporaryFile);
+//         if(autosavedTmpFile.exists()) {
+//            QFileInfo fileInfo(autosavedTmpFile);
+//            QDateTime lastModified = fileInfo.lastModified();
+//
+//            QMessageBox msgBox;
+//            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+//            msgBox.setDefaultButton(QMessageBox::No);
+//            msgBox.setIcon(QMessageBox::Warning);
+//            msgBox.setText("It looks like last time this application was used something went wrong, "
+//                           "would you like to restore auto-safe data from " + lastModified.toString());
+//            int ret = msgBox.exec();
+//
+//            if (ret == QMessageBox::Yes)
+//            {
+//               m_datasetPath = autosavedTemporaryFile;
+//            }
+//         }
+//      }
+//      else
+//         throw std::string("Error:: Could not identify file!");
+//   }
+//   catch (std::string& s)
+//   {
+//      throw s;
+//   }
+//   catch (...)
+//   {
+//      throw std::string("Failed to open SWS workspace!");
+//   }
+//
+//   restoreMarkerLoaded();
+//   m_datasetPath = originalPath;
+//
+//}
 
 /*---------------------------------------------------------------------------*/
 

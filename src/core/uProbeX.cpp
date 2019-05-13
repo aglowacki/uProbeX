@@ -567,11 +567,9 @@ void uProbeX::makeSWSWindow(SWSModel* swsModel)
 {
     SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
     swsWidget->resize(800, 600);
-    swsWidget->updateFrame(swsModel->getImage());
-    swsWidget->setCoordinateModel(swsModel->getCoordModel());
+	swsWidget->setModel(swsModel);
     swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-    //swsWidget->setMarker(path);
-
+    
     connect(swsWidget,
             SIGNAL(solverStart()),
             this,
@@ -632,11 +630,8 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
         swsModel->load(path);
         if(swsModel->tiffLoaded())
         {
-
-            swsWidget->updateFrame(swsModel->getImage());
-            swsWidget->setCoordinateModel(swsModel->getCoordModel());
+			swsWidget->setModel(swsModel);
             swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-            swsWidget->setMarker(path);
         }
         else
         {

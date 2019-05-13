@@ -76,6 +76,10 @@ public:
     */
     int getNumberOfImages();
 
+	const QList< QMap<QString, QString> >& getMarkers() { return m_markersLoaded; }
+
+	const QList< QMap<QString, QString> >& getRegionMarkers() {return m_regionMarkersLoaded;}
+
     /**
     * @brief Get the total number of dimensions in the dataset.
     */
@@ -120,6 +124,14 @@ protected:
     * @return Tiles is loaded
     */
     bool loadTiles();
+
+	void load_xml_markers_and_regions();
+
+	void check_and_load_autosave();
+
+	QMap<QString, QString> parseMarker(QXmlStreamReader& xml);
+
+	QMap<QString, QString> parseRegionMarker(QXmlStreamReader& xml);
 
     /**
     * @brief loadXYZ
@@ -195,6 +207,16 @@ private:
     * @brief m_datasetName
     */
     QString m_datasetName;
+
+	/**
+	* @brief m_markersLoaded
+	*/
+	QList< QMap<QString, QString> > m_markersLoaded;
+
+	/**
+	 * @brief m_markersLoaded
+	 */
+	QList< QMap<QString, QString> > m_regionMarkersLoaded;
 
     /**
     * @brief m_mapValueKey

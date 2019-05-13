@@ -54,7 +54,7 @@ bool MapsWorkspaceModel::load(QString filepath)
         _is_fit_params_loaded = _load_fit_params();
 
         _is_mda_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_mda_fileinfo_list);
-        _is_sws_loaded = _get_filesnames_in_directory("", _sws_suffex, &_sws_fileinfo_list);
+        _is_sws_loaded = _get_filesnames_in_directory("vlm", _sws_suffex, &_sws_fileinfo_list);
         _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list);
 
     }
@@ -130,10 +130,10 @@ SWSModel* MapsWorkspaceModel::get_SWS_Model(QString name)
     {
         return _sws_models[name];
     }
-    if(_mda_fileinfo_list.count(name) > 0)
+    if(_sws_fileinfo_list.count(name) > 0)
     {
         SWSModel * model = new SWSModel();
-        QFileInfo fileInfo = _mda_fileinfo_list[name];
+        QFileInfo fileInfo = _sws_fileinfo_list[name];
         if(model->load(fileInfo.absoluteFilePath()))
         {
             _sws_models.insert( {fileInfo.fileName(), model} );

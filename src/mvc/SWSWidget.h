@@ -18,6 +18,7 @@
 #include <QMapIterator>
 #include <QXmlStreamReader>
 #include <QGraphicsView>
+#include <mvc/SWSModel.h>
 
 #include <preferences/SolverParameterParse.h>
 //#include <SStar.h>
@@ -79,7 +80,7 @@ public:
     * @brief setMarker
     * @param filepath
     */
-   void setMarker(QString filepath);
+ //  void setMarker(QString filepath);
 
    /**
     * @brief getMarkerCoordinatePoints
@@ -134,6 +135,8 @@ public:
     * @brief verifySaveIsRequired
     */
    bool verifySaveIsRequired();
+
+   void setModel(SWSModel* swsmodel);
 
    /**
     * @brief widgetChanged
@@ -333,22 +336,22 @@ protected:
    /**
     * Parse xml file
     */
-   void parseXML();
+   //void parseXML();
 
    /**
     * Parse marker
     * @param xml
     */
-   QMap<QString, QString> parseMarker(QXmlStreamReader& xml);
+   //QMap<QString, QString> parseMarker(QXmlStreamReader& xml);
+
+   ///**
+   // * @brief Parse region marker
+   // * @param xml
+   // */
+   //QMap<QString, QString> parseRegionMarker(QXmlStreamReader& xml);
 
    /**
-    * @brief Parse region marker
-    * @param xml
-    */
-   QMap<QString, QString> parseRegionMarker(QXmlStreamReader& xml);
-
-   /**
-    * Restore xml file
+    * 
     */
    void restoreMarkerLoaded();
 
@@ -415,6 +418,9 @@ private:
     */
    gstar::UProbeRegionGraphicsItem* getSelectedRegion();
 
+
+   SWSModel* _model;
+
    /**
     * @brief m_addCalibrationAction
     */
@@ -440,15 +446,15 @@ private:
     */
    QAction* m_exportMicroProbeRegionInfoAction;
 
-   /**
-    * @brief m_markersLoaded
-    */
-   QList< QMap<QString,QString> > m_markersLoaded;
+   ///**
+   // * @brief m_markersLoaded
+   // */
+   //QList< QMap<QString,QString> > m_markersLoaded;
 
-   /**
-    * @brief m_markersLoaded
-    */
-   QList< QMap<QString,QString> > m_regionMarkersLoaded;
+   ///**
+   // * @brief m_markersLoaded
+   // */
+   //QList< QMap<QString,QString> > m_regionMarkersLoaded;
 
    /**
     * @brief m_colorValue
