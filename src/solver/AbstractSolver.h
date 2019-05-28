@@ -29,7 +29,7 @@ public:
    /**
     * Destructor.
     */
-   ~AbstractSolver();
+   virtual ~AbstractSolver();
 
    /**
     * @brief getAllCoef

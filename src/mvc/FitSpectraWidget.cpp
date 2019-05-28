@@ -35,7 +35,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _cb_add_elements = new QComboBox();
     _cb_add_shell = new QComboBox();
     _elements_to_fit = nullptr;
-    for(const std::string e : data_struct::Element_Symbols)
+    for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
     }
@@ -433,8 +433,10 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
             for(int i=0; i<fit_spec.size(); i++)
             {
-             if(fit_spec[i] <= 0.0)
-                 fit_spec[i] = 0.1;
+                if(fit_spec[i] <= 0.0)
+                {
+                    fit_spec[i] = 0.1;
+                }
             }
 
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&ev);

@@ -15,6 +15,7 @@
 #include <QWidget>
 #include <QLogValueAxis>
 #include <QValueAxis>
+#include <QLineEdit>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 
@@ -99,9 +100,15 @@ private slots:
 
     void _check_log10();
 
+    void onSpectraDisplayChanged(const QString &);
+
     //void _update_series();
 
 private:
+
+    QLineEdit *_display_eneergy_max;
+
+    QLineEdit *_display_eneergy_min;
 
     float _max_log_range;
 

@@ -40,6 +40,8 @@ public:
 
     bool load(QString filepath);
 
+    void unload();
+
     //bool is_loaded() {return _is_loaded;}
 
     QString get_directory_name();
@@ -71,6 +73,8 @@ public:
 signals:
 
     void doneLoading();
+
+    void doneUnloading();
 
     void newFitParamsFileLoaded(int);
 

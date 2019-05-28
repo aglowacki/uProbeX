@@ -98,6 +98,13 @@ void FileTabWidget::unload_all_visible()
 
 /*---------------------------------------------------------------------------*/
 
+void FileTabWidget::unload_all()
+{
+    _file_list_model->clear();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
 {
     for(auto & itr : fileinfo_list)
@@ -117,34 +124,37 @@ void FileTabWidget::ShowContextMenu(const QPoint &pos)
 
 void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 {
-    QVariant data = idx.data(0);
-    emit onOpenItem(data.toString());
+    QStringList sl;
+    sl.append(idx.data(0).toString());
+    emit loadList(sl);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void FileTabWidget::onLoadFile()
 {
+    QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        QVariant data = idx.data(0);
-        emit onOpenItem(data.toString());
+        sl.append(idx.data(0).toString());
     }
+    emit loadList(sl);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void FileTabWidget::onUnloadFile()
 {
+    QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        QVariant data = idx.data(0);
-        emit onCloseItem(data.toString());
+        sl.append(idx.data(0).toString());
     }
+    emit unloadList(sl);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -231,19 +241,19 @@ void MapsWorkspaceFilesWidget::createLayout()
     _tab_widget = new QTabWidget();
 
     _h5_tab_widget = new FileTabWidget();
-    connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
-            this, SLOT(onOpenHDF5(QString)));
+//    connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
+//            this, SLOT(onOpenHDF5(QString)));
 
-    connect(_h5_tab_widget, SIGNAL(onCloseItem(QString)),
-            this, SLOT(onCloseHDF5(QString)));
+//    connect(_h5_tab_widget, SIGNAL(onCloseItem(QString)),
+//            this, SLOT(onCloseHDF5(QStringList)));
 
-    connect(_h5_tab_widget, SIGNAL(loadList(QStringList)),
-            this, SIGNAL(loadList_H5(QStringList)));
+    connect(_h5_tab_widget, SIGNAL(loadList(const QStringList&)),
+            this, SLOT(onOpenHDF5(const QStringList&)));
 
-    connect(_h5_tab_widget, SIGNAL(unloadList(QStringList)),
-            this, SIGNAL(unloadList_H5(QStringList)));
+    connect(_h5_tab_widget, SIGNAL(unloadList(const QStringList&)),
+            this, SLOT(onCloseHDF5(const QStringList&)));
 
-    connect(this, SIGNAL(loaded_hdf5(File_Loaded_Status, const QString&)),
+    connect(this, SIGNAL(status_loaded_hdf5(File_Loaded_Status, const QString&)),
             _h5_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
 
     _mda_tab_widget = new FileTabWidget();
@@ -253,7 +263,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_mda_tab_widget, SIGNAL(onCloseItem(QString)),
             this, SLOT(onCloseMDA(QString)));
 
-    connect(this, SIGNAL(loaded_mda(File_Loaded_Status, const QString&)),
+    connect(this, SIGNAL(status_loaded_mda(File_Loaded_Status, const QString&)),
             _mda_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
 
     _sws_tab_widget = new FileTabWidget();
@@ -263,7 +273,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_sws_tab_widget, SIGNAL(onCloseItem(QString)),
             this, SLOT(onCloseSWS(QString)));
 
-    connect(this, SIGNAL(loaded_sws(File_Loaded_Status, const QString&)),
+    connect(this, SIGNAL(status_loaded_sws(File_Loaded_Status, const QString&)),
             _sws_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
 
     _fit_params_table_model = new FitParamsTableModel();
@@ -302,6 +312,11 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
             SLOT(model_done_loading()));
 
     connect(_model,
+            SIGNAL(doneUnloading()),
+            this,
+            SLOT(model_done_unloading()));
+
+    connect(_model,
             SIGNAL(newFitParamsFileLoaded(int)),
             this,
             SLOT(loadedFitParams(int)));
@@ -322,6 +337,15 @@ void MapsWorkspaceFilesWidget::model_done_loading()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceFilesWidget::model_done_unloading()
+{
+    _h5_tab_widget->unload_all();
+    _mda_tab_widget->unload_all();
+    _sws_tab_widget->unload_all();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 {
     if(idx == -1) //avg fit params
@@ -336,35 +360,46 @@ void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onOpenHDF5(QString name)
+void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
 {
     if(_model != nullptr)
     {
-        File_Loaded_Status load_status = UNLOADED;
-        MapsH5Model* h5Model = _model->getMapsH5Model(name);
-        if(h5Model != nullptr)
+        QStringList opened_list;
+
+        foreach (QString name , names_list)
         {
-            load_status = LOADED;
-            emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
+            File_Loaded_Status load_status = UNLOADED;
+            MapsH5Model* h5Model = _model->getMapsH5Model(name);
+            if(h5Model != nullptr)
+            {
+                opened_list.append(name);
+                load_status = LOADED;
+                //emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
+            }
+            else
+            {
+                load_status = FAILED_LOADING;
+            }
+            emit status_loaded_hdf5(load_status, name);
         }
-        else
-        {
-            load_status = FAILED_LOADING;
-        }
-        emit loaded_hdf5(load_status, name);
+        emit loadList_H5(opened_list);
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onCloseHDF5(QString name)
+void MapsWorkspaceFilesWidget::onCloseHDF5(const QStringList& names_list)
 {
     if(_model != nullptr)
     {
-        File_Loaded_Status load_status = UNLOADED;
-        _model->unload_H5_Model(name);
-        emit loaded_hdf5(load_status, name);
+        foreach (QString name , names_list)
+        {
+            File_Loaded_Status load_status = UNLOADED;
+            _model->unload_H5_Model(name);
+            emit status_loaded_hdf5(load_status, name);
+        }
     }
+    emit unloadList_H5(names_list);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -384,7 +419,7 @@ void MapsWorkspaceFilesWidget::onOpenMDA(QString name)
         {
             load_status = FAILED_LOADING;
         }
-        emit loaded_mda(load_status, name);
+        emit status_loaded_mda(load_status, name);
     }
 }
 
@@ -396,7 +431,7 @@ void MapsWorkspaceFilesWidget::onCloseMDA(QString name)
     {
         File_Loaded_Status load_status = UNLOADED;
         _model->unload_MDA_Model(name);
-        emit loaded_mda(load_status, name);
+        emit status_loaded_mda(load_status, name);
     }
 }
 
@@ -417,7 +452,7 @@ void MapsWorkspaceFilesWidget::onOpenSWS(QString name)
         {
             load_status = FAILED_LOADING;
         }
-        emit loaded_sws(load_status, name);
+        emit status_loaded_sws(load_status, name);
     }
 }
 
@@ -429,7 +464,7 @@ void MapsWorkspaceFilesWidget::onCloseSWS(QString name)
     {
         File_Loaded_Status load_status = UNLOADED;
         _model->unload_SWS_Model(name);
-        emit loaded_sws(load_status, name);
+        emit status_loaded_sws(load_status, name);
     }
 }
 

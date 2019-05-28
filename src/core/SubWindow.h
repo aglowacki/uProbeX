@@ -33,7 +33,7 @@ public:
     * @param parent the parent widget.
     * @param flags window flags.
     */
-   SubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+   SubWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = 0);
 
    /**
     * Destructor
@@ -41,19 +41,9 @@ public:
    ~SubWindow();
 
    /**
-    * @brief Get if is acquisition window
-    */
-   bool getIsAcquisitionWindow();
-
-   /**
     * @brief UUID associate with this window.
     */
    QUuid getUuid();
-
-   /**
-    * @brief Set if is acquisition window
-    */
-   void setIsAcquisitionWindow(bool flag);
 
 protected:
 
@@ -90,8 +80,6 @@ signals:
 private:
 
    QUuid m_id;
-
-   bool m_isAcquisitionWindow;
 
 };
 

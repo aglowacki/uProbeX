@@ -31,7 +31,7 @@ public:
    /**
     * Destructor.
     */
-   ~ITransformer();
+   virtual ~ITransformer();
 
    /**
     * intialize the variable for the transformation 

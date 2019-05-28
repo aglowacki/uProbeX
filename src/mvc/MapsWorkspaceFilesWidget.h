@@ -39,6 +39,8 @@ class FileTabWidget : public QWidget
 
     void set_file_list(const map<QString, QFileInfo>& fileinfo_list);
 
+    void unload_all();
+
 signals:
     void onOpenItem(QString);
 
@@ -121,11 +123,11 @@ signals:
 
    void show_SWS_Window(SWSModel* model);
 
-   void loaded_hdf5(File_Loaded_Status status, const QString& name);
+   void status_loaded_hdf5(File_Loaded_Status status, const QString& name);
 
-   void loaded_mda(File_Loaded_Status status, const QString& name);
+   void status_loaded_mda(File_Loaded_Status status, const QString& name);
 
-   void loaded_sws(File_Loaded_Status status, const QString& name);
+   void status_loaded_sws(File_Loaded_Status status, const QString& name);
 
    void loadList_H5(QStringList);
 
@@ -135,11 +137,13 @@ public slots:
 
    void model_done_loading();
 
+   void model_done_unloading();
+
    void loadedFitParams(int idx);
 
-   void onOpenHDF5(QString name);
+   void onOpenHDF5(const QStringList& names_list);
 
-   void onCloseHDF5(QString name);
+   void onCloseHDF5(const QStringList& names_list);
 
    void onOpenMDA(QString name);
 

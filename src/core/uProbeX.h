@@ -15,6 +15,8 @@
 #include <gstar/CoordinateModel.h>
 #include <mvc/MapsH5Model.h>
 #include <mvc/LiveMapsElementsWidget.h>
+#include <mvc/MapsWorkspaceFilesWidget.h>
+#include <mvc/ImageStackControlWidget.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
@@ -320,6 +322,12 @@ private:
    bool saveActivatedXmlRequired();
 
 private:
+
+   MapsWorkspaceFilesWidget* _mapsFilsWidget;
+
+   ImageStackControlWidget* _imgStackControllWidget;
+
+   MapsWorkspaceModel* _mapsWorkspaceModel;
 
    /**
     * @brief m_lightToMicroCoordModel

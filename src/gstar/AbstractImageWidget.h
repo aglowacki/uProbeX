@@ -256,7 +256,7 @@ protected:
     * Virtual method that must be overidden by base classes.
     */
    virtual QLayout* generateDefaultLayout();
-//   QLayout* generateDefaultLayout();
+
    /**
     * Create tool bar
     */

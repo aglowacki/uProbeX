@@ -9,8 +9,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QtCharts/QLegendMarker>
-
-#include <QDebug>
+#include <QSpacerItem>
+#include <QLabel>
 
 #include <math.h>
 
@@ -92,9 +92,48 @@ void SpectraWidget::createLayout()
     _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
     //_chartView->setRenderHint(QPainter::Antialiasing);
 
-    QLayout* layout = new QHBoxLayout();
-    layout->addWidget(_chartView);
-    setLayout(layout);
+
+    _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
+    _display_eneergy_min->setMinimumWidth(100);
+    connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
+
+
+    _display_eneergy_max = new QLineEdit(QString::number(_axisX->max()));
+    _display_eneergy_max->setMinimumWidth(100);
+    connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
+
+    QHBoxLayout* spectra_layout = new QHBoxLayout();
+    spectra_layout->addWidget(_chartView);
+
+    QHBoxLayout* options_layout = new QHBoxLayout();
+    options_layout->addWidget(new QLabel("Display Energy Min:"));
+    options_layout->addWidget(_display_eneergy_min);
+    options_layout->addWidget(new QLabel("KeV  ,  "));
+
+    options_layout->addWidget(new QLabel("Display Energy Max:"));
+    options_layout->addWidget(_display_eneergy_max);
+    options_layout->addWidget(new QLabel("KeV"));
+
+    options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
+
+    QVBoxLayout* vlayout = new QVBoxLayout();
+    vlayout->addItem(spectra_layout);
+    vlayout->addItem(options_layout);
+
+
+
+    setLayout(vlayout);
+}
+
+void SpectraWidget::onSpectraDisplayChanged(const QString &)
+{
+
+    qreal maxRange = _display_eneergy_max->text().toDouble();
+    qreal minRange = _display_eneergy_min->text().toDouble();
+    _axisX->setRange(minRange, maxRange);
+
+//    _axisY->setRange(_axisY->min(), _axisY->max());
+//    _axisYLog10->setRange(_axisYLog10->min(), _axisYLog10->max());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -148,6 +187,8 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         }
         _chart->addSeries(series);
         series->attachAxis(_axisX);
+        _display_eneergy_min->setText(QString::number(_axisX->min()));
+        _display_eneergy_max->setText(QString::number(_axisX->max()));
         //_axisYLog10->setRange(1.0, _max_log_range);
         //_axisY->setRange(0.0, new_max);
 
@@ -526,7 +567,7 @@ void SpectraWidget::handleMarkerClicked()
         }
     default:
         {
-        qDebug() << "Unknown marker type";
+        //qDebug() << "Unknown marker type";
         break;
         }
     }

@@ -37,9 +37,11 @@ void ImageStackControlWidget::createLayout()
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
+    _left_btn->setMaximumWidth(150);
     _image_name_cb = new QComboBox();
     _right_btn =  new QPushButton();
     _right_btn->setIcon(QIcon(":/images/next.png"));
+    _right_btn->setMaximumWidth(150);
 
     hlayout->addWidget(_left_btn);
     hlayout->addWidget(_image_name_cb);
@@ -64,6 +66,7 @@ void ImageStackControlWidget::loadList_H5(QStringList sl)
     foreach (QString s, sl)
     {
         _h5_model_map[s] = _model->getMapsH5Model(s);
+        _image_name_cb->addItem(s);
     }
 }
 
@@ -75,7 +78,16 @@ void ImageStackControlWidget::unloadList_H5(QStringList sl)
     {
         _h5_model_map.erase(s);
         _model->unload_H5_Model(s);
+        for(int i=0; i < _image_name_cb->count(); i++)
+        {
+            if (s == _image_name_cb->itemText(i))
+            {
+                _image_name_cb->removeItem(i);
+                break;
+            }
+        }
     }
+
 }
 
 /*---------------------------------------------------------------------------*/

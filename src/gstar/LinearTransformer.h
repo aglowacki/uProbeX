@@ -34,7 +34,7 @@ public:
    /**
     * Destructor.
     */
-   ~LinearTransformer();
+   virtual ~LinearTransformer();
 
    /**
     * Init variables

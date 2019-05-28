@@ -15,8 +15,6 @@
 #include <solver/CoordinateTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <mvc/MapsElementsWidget.h>
-#include <mvc/MapsWorkspaceFilesWidget.h>
-#include <mvc/ImageStackControlWidget.h>
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/FitSpectraWidget.h>
 #include <mvc/MDA_Widget.h>
@@ -65,6 +63,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     _load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
     _maps_workspace_dock = nullptr;
+    _mapsWorkspaceModel = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -199,7 +198,7 @@ bool uProbeX::checkSameFileWindow(QString& filePath)
         QString modelPath = windowModel->getDataPath();
         if(modelPath == filePath)
         {
-            QMessageBox::critical(0, "SWS Window",
+            QMessageBox::critical(nullptr, "SWS Window",
                                   "You already have opened this image!!");
             return true;
         }
@@ -300,7 +299,7 @@ void uProbeX::createLightToMicroCoords(int id)
                         Preferences::PythonSolverName).toString();
             if(pythonFileName.isEmpty())
             {
-                QMessageBox::critical(0, "Error",
+                QMessageBox::critical(nullptr, "Error",
                                       "Must have a python script having a transform function, using default transformer right now.");
                 m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
                 createSolver();
@@ -601,7 +600,6 @@ void uProbeX::makeSWSWindow(SWSModel* swsModel)
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
     w->resize(950, 700);
-    //w->setIsAcquisitionWindow(false);
     w->setWindowTitle(swsModel->getFilePath());
     w->show();
 
@@ -696,7 +694,6 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
     w->resize(950, 700);
-    //w->setIsAcquisitionWindow(false);
     w->setWindowTitle(path);
     w->show();
 
@@ -714,74 +711,76 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 void uProbeX::makeMapsWindow(QString path)
 {
 
-    if(_maps_workspace_dock != nullptr)
+    if(_mapsWorkspaceModel != nullptr)
     {
-        // TODO: unload old space before loading new one.
+        _mapsWorkspaceModel->unload();
+        _mapsWorkspaceModel->load(path);
         return;
     }
 
 
-    MapsWorkspaceModel* model = new MapsWorkspaceModel();
-    MapsWorkspaceFilesWidget *widget = new MapsWorkspaceFilesWidget();
-    ImageStackControlWidget* iscWidget = new ImageStackControlWidget();
-    widget->setLabelWorkspacePath(path);
+    _mapsWorkspaceModel = new MapsWorkspaceModel();
+    _mapsFilsWidget = new MapsWorkspaceFilesWidget();
+    _imgStackControllWidget = new ImageStackControlWidget();
+    _mapsFilsWidget->setLabelWorkspacePath(path);
 
-    widget->setModel(model);
-    iscWidget->setModel(model);
+    _mapsFilsWidget->setModel(_mapsWorkspaceModel);
+    _imgStackControllWidget->setModel(_mapsWorkspaceModel);
     //widget->resize(800, 600);
 
     //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
     //        this, SLOT(makeHDFWindow(MapsH5Model*)));
 
-    connect(widget, SIGNAL(loadList_H5(QStringList)), iscWidget, SLOT(loadList_H5(QStringList)));
-    connect(widget, SIGNAL(unloadList_H5(QStringList)), iscWidget, SLOT(unloadList_H5(QStringList)));
+    connect(_mapsFilsWidget, SIGNAL(loadList_H5(QStringList)), _imgStackControllWidget, SLOT(loadList_H5(QStringList)));
+    connect(_mapsFilsWidget, SIGNAL(unloadList_H5(QStringList)), _imgStackControllWidget, SLOT(unloadList_H5(QStringList)));
 
-    connect(widget, SIGNAL(showFitSpecWindow(MapsH5Model*,
-                                             data_struct::Fit_Parameters*,
-                                             data_struct::Fit_Element_Map_Dict*)),
-            this, SLOT(makeHDFWindow(MapsH5Model*,
-                                     data_struct::Fit_Parameters*,
-                                     data_struct::Fit_Element_Map_Dict*)));
+//    connect(_mapsFilsWidget, SIGNAL(showFitSpecWindow(MapsH5Model*,
+//                                             data_struct::Fit_Parameters*,
+//                                             data_struct::Fit_Element_Map_Dict*)),
+//            this, SLOT(makeHDFWindow(MapsH5Model*,
+//                                     data_struct::Fit_Parameters*,
+//                                     data_struct::Fit_Element_Map_Dict*)));
 
 
-    connect(widget, SIGNAL(show_MDA_Window(MDA_Model*)),
+    connect(_mapsFilsWidget, SIGNAL(show_MDA_Window(MDA_Model*)),
             this, SLOT(makeMDAWindow(MDA_Model*)));
 
-    connect(widget, SIGNAL(show_SWS_Window(SWSModel*)),
+    connect(_mapsFilsWidget, SIGNAL(show_SWS_Window(SWSModel*)),
             this, SLOT(makeSWSWindow(SWSModel*)));
 
 
 
     _maps_workspace_dock = new QDockWidget("Files", this);
     _maps_workspace_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _maps_workspace_dock->setWidget(widget);
+    _maps_workspace_dock->setWidget(_mapsFilsWidget);
     addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
 
 
     _image_stack_control_dock = new QDockWidget("", this);
     _image_stack_control_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-    _image_stack_control_dock->setWidget(iscWidget);
+    _image_stack_control_dock->setWidget(_imgStackControllWidget);
     addDockWidget(Qt::TopDockWidgetArea, _image_stack_control_dock);
 
+    _mapsWorkspaceModel->load(path);
 
     // TODO: this should be changed. will cause the first not to load
     // if loading 2 workspaces right after another
-    if(_load_maps_workspace_thread != nullptr)
-    {
-        _load_maps_workspace_thread->join();
-        delete _load_maps_workspace_thread;
-    }
-    _load_maps_workspace_thread = new std::thread( [model, path]()
-    {
-        try
-        {
-            model->load(path);
-        }
-        catch(std::string& s)
-        {
-            qDebug()<<"Failed to open maps workspace.\n\n"<<QString(s.c_str());
-        }
-    });
+//    if(_load_maps_workspace_thread != nullptr)
+//    {
+//        _load_maps_workspace_thread->join();
+//        delete _load_maps_workspace_thread;
+//    }
+//    _load_maps_workspace_thread = new std::thread( [model, path]()
+//    {
+//        try
+//        {
+//            model->load(path);
+//        }
+//        catch(std::string& s)
+//        {
+//            qDebug()<<"Failed to open maps workspace.\n\n"<<QString(s.c_str());
+//        }
+//    });
 
 }
 
@@ -830,10 +829,9 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
     m_mdiArea->addSubWindow(w);
 
     w->setWidget(widget);
-    w->resize(950, 700);
-    w->setIsAcquisitionWindow(false);
+    w->resize(1024, 768);
     w->setWindowTitle(model->getFilePath());
-    w->show();
+    w->showMaximized();
 
     //    m_subWindows[w->getUuid()] = tiffController;
 
@@ -867,10 +865,9 @@ void uProbeX::makeHDFWindow(MapsH5Model* model,
     m_mdiArea->addSubWindow(w);
 
     w->setWidget(widget);
-    w->resize(950, 700);
-    w->setIsAcquisitionWindow(false);
+    w->resize(1024, 768);
     w->setWindowTitle(model->getFilePath());
-    w->show();
+    w->showMaximized();
 
     //    m_subWindows[w->getUuid()] = tiffController;
 
@@ -901,7 +898,6 @@ void uProbeX::makeMDAWindow(MDA_Model* model)
 
     w->setWidget(widget);
     w->resize(950, 700);
-    w->setIsAcquisitionWindow(false);
     w->setWindowTitle(model->getFilePath());
     w->show();
 
@@ -1046,7 +1042,7 @@ void uProbeX::saveXYToCoefficient(double& valX,
 void uProbeX::saveScreenShot()
 {
 
-    if(m_mdiArea->activeSubWindow() != 0)
+    if(m_mdiArea->activeSubWindow() != nullptr)
     {
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
         if (w == nullptr) return;
@@ -1076,7 +1072,7 @@ void uProbeX::saveScreenShot()
 void uProbeX::saveActivatedXML()
 {
 
-    if(m_mdiArea->activeSubWindow() != 0)
+    if(m_mdiArea->activeSubWindow() != nullptr)
     {
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
         if (w == nullptr) return;
@@ -1153,7 +1149,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
             gstar::AbstractImageWidget* w = con->getWidget();
             if(typeid(*w) == typeid(SWSWidget))
             {
-                widget = (SWSWidget*)w;
+                widget = static_cast<SWSWidget*>(w);
                 widget->saveXMLCoordinateInfo();
             }
         }
@@ -1172,7 +1168,7 @@ return false;
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             bool saveRequired = widget->verifySaveIsRequired();
             if (saveRequired)
             {
@@ -1217,7 +1213,7 @@ void uProbeX::savePreferencesXMLData()
 
     if (!file.open(QIODevice::WriteOnly))
     {
-        QMessageBox::warning(0, "Read only", "The file is in read only mode");
+        QMessageBox::warning(nullptr, "Read only", "The file is in read only mode");
     }
 
     QXmlStreamWriter xmlWriter(&file);
@@ -1264,7 +1260,7 @@ void uProbeX::loadPreferencesXMLData()
     }
     else
     {
-        QMessageBox::information(0, "Preferences Loaded", "Preferences loaded currently are the same as in preferences file.");
+        QMessageBox::information(nullptr, "Preferences Loaded", "Preferences loaded currently are the same as in preferences file.");
     }
 }
 
@@ -1279,7 +1275,7 @@ void uProbeX::performAutoSave()
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->saveTemporaryXMLCoordinateInfo();
         }
     }
@@ -1295,7 +1291,7 @@ void uProbeX::cleanUpAutoSafeData() {
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->cleanUpTemoraryXMLFiles();
         }
     }
@@ -1399,7 +1395,7 @@ void uProbeX::solverStart()
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->widgetChanged(false);
         }
     }
@@ -1418,7 +1414,7 @@ void uProbeX::solverEnd()
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->widgetChanged(true);
         }
     }
@@ -1494,7 +1490,7 @@ void uProbeX::updatePreference()
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->preferenceChanged();
         }
     }
@@ -1513,7 +1509,7 @@ void uProbeX::updateContextMenus()
         gstar::AbstractImageWidget* w = con->getWidget();
         if(typeid(*w) == typeid(SWSWidget))
         {
-            widget = (SWSWidget*)w;
+            widget = static_cast<SWSWidget*>(w);
             widget->updateContextMenus();
         }
     }

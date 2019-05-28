@@ -35,7 +35,7 @@ public:
    /**
     * Destructor.
     */
-   ~CountsLookupTransformer();
+   virtual ~CountsLookupTransformer();
 
    /**
     * Init variables

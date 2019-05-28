@@ -31,7 +31,7 @@ public:
    /**
     * Destructor.
     */
-   ~CoordinateTransformer();
+   virtual ~CoordinateTransformer();
 
    /**
     * @brief Init

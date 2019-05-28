@@ -29,7 +29,7 @@ public:
    /**
     * Destructor
     */
-   ~AbstractWindowModel();
+   virtual ~AbstractWindowModel();
 
    /**
     * Get the list of the points of the histogram

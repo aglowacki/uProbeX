@@ -74,6 +74,43 @@ bool MapsWorkspaceModel::load(QString filepath)
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceModel::unload()
+{
+
+    for(auto &itr : _h5_models)
+    {
+        delete itr.second;
+    }
+    _h5_models.clear();
+
+    for(auto &itr : _mda_models)
+    {
+        delete itr.second;
+    }
+    _mda_models.clear();
+
+    for(auto &itr : _sws_models)
+    {
+        delete itr.second;
+    }
+    _sws_models.clear();
+
+    _fit_params_override_dict.clear();
+    _mda_fileinfo_list.clear();
+    _sws_fileinfo_list.clear();
+    _h5_fileinfo_list.clear();
+
+    _is_fit_params_loaded = false;
+    _is_mda_loaded = false;
+    _is_sws_loaded = false;
+    _is_imgdat_loaded = false;
+    //_dir = new QDir(filepath);
+
+    emit doneUnloading();
+}
+
+/*---------------------------------------------------------------------------*/
+
 MapsH5Model* MapsWorkspaceModel::getMapsH5Model(QString name)
 {
     if(_h5_models.count(name) > 0)
@@ -282,4 +319,5 @@ data_struct::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
     {
         return &(_fit_params_override_dict[idx].elements_to_fit);
     }
+    return nullptr;
 }
