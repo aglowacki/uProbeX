@@ -191,8 +191,8 @@ void MapsWorkspaceModel::unload_H5_Model(QString name)
 {
     if(_h5_models.count(name) > 0)
     {
-        _h5_models.erase(name);
         MapsH5Model* model = _h5_models[name];
+        _h5_models.erase(name);
         delete model;
     }
 }
@@ -203,8 +203,8 @@ void MapsWorkspaceModel::unload_MDA_Model(QString name)
 {
     if(_mda_models.count(name) > 0)
     {
-        _mda_models.erase(name);
         MDA_Model* model = _mda_models[name];
+        _mda_models.erase(name);
         delete model;
     }
 }
@@ -215,8 +215,8 @@ void MapsWorkspaceModel::unload_SWS_Model(QString name)
 {
     if(_sws_models.count(name) > 0)
     {
-        _sws_models.erase(name);
         SWSModel* model = _sws_models[name];
+        _sws_models.erase(name);
         delete model;
     }
 }
