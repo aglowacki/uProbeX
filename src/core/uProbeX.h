@@ -382,7 +382,7 @@ private:
    /**
     * @brief Keeps track of all open MDI child windows for hdf5 play-back.
     */
-   QMap<QUuid, AbstractWindowController*> m_subWindows;
+   QMap<QUuid, SubWindow*> m_subWindows;
 
    /**
     * @brief _load_maps_workspace_thread

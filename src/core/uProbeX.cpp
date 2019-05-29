@@ -41,7 +41,6 @@
 
 
 #include <stdio.h>
-#include <QDebug>
 using gstar::Splash;
 using gstar::ImageViewWidget;
 using gstar::CoordinateModel;
@@ -98,7 +97,12 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
     if (false == io::load_element_info(element_henke_filename, element_csv_filename ) )
     {
-        qDebug()<<"Error loading "<< element_henke_filename.c_str() <<" and "<< element_csv_filename.c_str();
+        QString msg = QString("Error loading ");
+        msg += QString(element_henke_filename.c_str());
+        msg += QString(" and ");
+        msg += QString(element_csv_filename.c_str());
+
+        QMessageBox::critical(this, "Warning", msg);
     }
 
 
@@ -145,19 +149,13 @@ uProbeX::~uProbeX()
     m_preferences.saveValueKey(Preferences::MainWindowSavedWidth, width());
     m_preferences.saveValueKey(Preferences::MainWindowSavedHeight, height());
 
-    // Close all open HDF5 files.
-    QMapIterator<QUuid, AbstractWindowController*> i(m_subWindows);
-    while (i.hasNext())
+    // Close all open HDF5 files
+    foreach(auto& i , m_subWindows.values())
     {
-        QUuid id = i.next().key();
-
-        AbstractWindowController* h = m_subWindows[id];
-
-        if (h != nullptr)
+        if (i != nullptr)
         {
-            delete h;
+            delete i;
         }
-
     }
 
 }
@@ -192,15 +190,18 @@ void uProbeX::cancelSolverVariableUpdate()
 bool uProbeX::checkSameFileWindow(QString& filePath)
 {
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        AbstractWindowModel* windowModel = con->getModel();
-        QString modelPath = windowModel->getDataPath();
-        if(modelPath == filePath)
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
+        if(typeid(*w) == typeid(SWSWidget))
         {
-            QMessageBox::critical(nullptr, "SWS Window",
-                                  "You already have opened this image!!");
-            return true;
+            SWSWidget* widget = static_cast<SWSWidget*>(w);
+            if(widget->getModelFileName()  == filePath)
+            {
+                QMessageBox::critical(nullptr, "SWS Window",
+                                      "You already have opened this image!!");
+                return true;
+            }
         }
     }
 
@@ -565,7 +566,7 @@ void uProbeX::adjustAutoSaveSettings()
 void uProbeX::makeSWSWindow(SWSModel* swsModel)
 {
     SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
-    swsWidget->resize(800, 600);
+    swsWidget->resize(1027, 768);
 	swsWidget->setModel(swsModel);
     swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
     
@@ -599,11 +600,11 @@ void uProbeX::makeSWSWindow(SWSModel* swsModel)
 
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
-    w->resize(950, 700);
+    w->resize(1024, 768);
     w->setWindowTitle(swsModel->getFilePath());
-    w->show();
+    w->showMaximized();
 
-    //m_subWindows[w->getUuid()] = tiffController;
+    m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -693,11 +694,11 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
-    w->resize(950, 700);
+    w->resize(1024, 768);
     w->setWindowTitle(path);
-    w->show();
+    w->showMaximized();
 
-    //m_subWindows[w->getUuid()] = tiffController;
+    m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -833,7 +834,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
     w->setWindowTitle(model->getFilePath());
     w->showMaximized();
 
-    //    m_subWindows[w->getUuid()] = tiffController;
+    m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -869,7 +870,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model,
     w->setWindowTitle(model->getFilePath());
     w->showMaximized();
 
-    //    m_subWindows[w->getUuid()] = tiffController;
+    m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -897,11 +898,11 @@ void uProbeX::makeMDAWindow(MDA_Model* model)
     m_mdiArea->addSubWindow(w);
 
     w->setWidget(widget);
-    w->resize(950, 700);
+    w->resize(1024, 768);
     w->setWindowTitle(model->getFilePath());
     w->show();
 
-    //    m_subWindows[w->getUuid()] = tiffController;
+    m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
@@ -1144,9 +1145,9 @@ void uProbeX::saveAllXML(bool verifyWithUser)
     {
         SWSWidget* widget = nullptr;
 
-        for(AbstractWindowController* con : m_subWindows.values())
+        for(SubWindow* con : m_subWindows.values())
         {
-            gstar::AbstractImageWidget* w = con->getWidget();
+            gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
             if(typeid(*w) == typeid(SWSWidget))
             {
                 widget = static_cast<SWSWidget*>(w);
@@ -1163,9 +1164,9 @@ bool uProbeX::saveAllXMLRequired()
 return false;
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1270,9 +1271,9 @@ void uProbeX::performAutoSave()
 {
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = dynamic_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1286,9 +1287,9 @@ void uProbeX::performAutoSave()
 void uProbeX::cleanUpAutoSafeData() {
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = dynamic_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1333,9 +1334,9 @@ void uProbeX::showPreferences()
 {
 
     QList<gstar::AbstractImageWidget*> widgetList;
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widgetList.append(w);
@@ -1390,9 +1391,9 @@ void uProbeX::solverStart()
 
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1409,9 +1410,9 @@ void uProbeX::solverEnd()
 
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1463,14 +1464,16 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
 
     QUuid id = subWindow->getUuid();
 
-    QMap<QUuid, AbstractWindowController*>::iterator i = m_subWindows.find(id);
-    if (i == m_subWindows.end()) return;
+    auto i = m_subWindows.find(id);
+    if (i == m_subWindows.end())
+        return;
 
     saveActivatedXML();
 
     // Found the controller to close.
-    AbstractWindowController* absWinCon = i.value();
-    if (absWinCon == nullptr) return;
+    auto absWinCon = i.value();
+    if (absWinCon == nullptr)
+        return;
 
     m_subWindows.erase(i);
     delete absWinCon;
@@ -1485,9 +1488,9 @@ void uProbeX::updatePreference()
 
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
@@ -1504,9 +1507,9 @@ void uProbeX::updateContextMenus()
 
     SWSWidget* widget = nullptr;
 
-    for(AbstractWindowController* con : m_subWindows.values())
+    for(SubWindow* con : m_subWindows.values())
     {
-        gstar::AbstractImageWidget* w = con->getWidget();
+        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
         if(typeid(*w) == typeid(SWSWidget))
         {
             widget = static_cast<SWSWidget*>(w);
