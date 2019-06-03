@@ -61,7 +61,7 @@ find_package(Threads)
 find_package(HDF5 REQUIRED COMPONENTS C)
 
 IF(MSVC)
-  set(HDF5_LIBRARIES "" CACHE FILEPATH "HDF5 library")
+  # set(HDF5_LIBRARIES "" CACHE FILEPATH "HDF5 library")
 ELSE()
   set(GCC_INCLUDE_DIR "/usr/include" CACHE PATH "Aditional GCC include folder")
   include_directories(GCC_INCLUDE_DIR)
