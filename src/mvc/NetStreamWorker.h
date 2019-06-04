@@ -29,11 +29,12 @@ public:
    {
 
        std::string conn_str = "tcp://"+str_ip.toStdString()+":"+port.toStdString();
-       //std::string conn_str = "tcp://192.168.0.254:43434";
        _context = new zmq::context_t(1);
        _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
        _zmq_socket->connect(conn_str);
        _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
+       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Spectra", 11);
+       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts-and-Spectra", 22);
        _zmq_socket->setsockopt(ZMQ_RCVTIMEO, 1000); //set timeout to 1000ms
 
    }
@@ -67,11 +68,27 @@ public slots:
         {
             _zmq_socket->recv(&token);
             std::string s1 ((char*)token.data(), token.size());
-            if(s1 == "XRF-Counts")
+            if(s1 == "XRF-Counts-and-Spectra")
+            {
+                if(_zmq_socket->recv(&message))
+                {
+                    new_packet = _serializer.decode_counts_and_spectra((char*)message.data(), message.size());
+                    emit newData(new_packet);
+                }
+            }
+            else if(s1 == "XRF-Counts")
             {
                 if(_zmq_socket->recv(&message))
                 {
                     new_packet = _serializer.decode_counts((char*)message.data(), message.size());
+                    emit newData(new_packet);
+                }
+            }
+            else if(s1 == "XRF-Spectra")
+            {
+                if(_zmq_socket->recv(&message))
+                {
+                    new_packet = _serializer.decode_spectra((char*)message.data(), message.size());
                     emit newData(new_packet);
                 }
             }

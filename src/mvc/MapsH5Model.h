@@ -57,6 +57,8 @@ public:
 
     QString getFilePath() { return _filepath; }
 
+    QString getDatasetName() { return _datset_name; }
+
     void initialize_from_stream_block(data_struct::Stream_Block* block);
 
     void update_from_stream_block(data_struct::Stream_Block* block);
@@ -75,6 +77,8 @@ public:
 
 signals:
     void model_data_updated();
+
+    void model_int_spec_updated(bool snip_background);
 
 protected:
 
@@ -118,6 +122,8 @@ protected:
 private:
 
     QString _filepath;
+
+    QString _datset_name;
 
     bool _initialized_by_stream_block;
 

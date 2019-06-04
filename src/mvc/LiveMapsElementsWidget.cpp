@@ -182,6 +182,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
                 SLOT(model_updated()));
         _num_images++;
         _mapsElementsWidget->setNumberOfImages(_num_images);
+        _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
     }
 
     _currentModel->update_from_stream_block(new_packet);

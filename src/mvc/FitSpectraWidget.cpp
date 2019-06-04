@@ -651,6 +651,13 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
                                  data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
     _h5_model = h5_model;
+    if(_h5_model != nullptr)
+    {
+       connect(_h5_model,
+               SIGNAL(model_int_spec_updated(bool)),
+               this,
+               SLOT(h5_int_spec_updated(bool)));
+    }
     _elements_to_fit = elements_to_fit;
     data_struct::Fit_Parameters element_fit_params;
 
@@ -680,37 +687,49 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
 
     _fit_params_table_model->updateFitParams(fit_params);
 
+    h5_int_spec_updated(true);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::h5_int_spec_updated(bool b_snip_background)
+{
+    //todo: make this a thread
     if(_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
     {
         const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
+
+        data_struct::Fit_Parameters fit_params = _fit_params_table_model->getFitParams();
 
         fitting::models::Range energy_range;
         energy_range.min = 0;
         energy_range.max = int_spec->size() -1;
 
         data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-        if(fit_params != nullptr)
+
+        data_struct::ArrayXr ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, (real_t)2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
+
+        _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
+        if(b_snip_background)
         {
-            data_struct::ArrayXr ev = fit_params->at(STR_ENERGY_OFFSET).value + energy * fit_params->at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params->at(STR_ENERGY_QUADRATIC).value;
-
-            _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
-
             _spectra_background = snip_background(int_spec,
-                                                 fit_params->at(STR_ENERGY_OFFSET).value,
-                                                 fit_params->at(STR_ENERGY_SLOPE).value,
-                                                 fit_params->at(STR_ENERGY_QUADRATIC).value,
+                                                 fit_params[STR_ENERGY_OFFSET].value,
+                                                 fit_params[STR_ENERGY_SLOPE].value,
+                                                 fit_params[STR_ENERGY_QUADRATIC].value,
                                                  0, //spectral binning
-                                                 fit_params->at(STR_SNIP_WIDTH).value,
+                                                 fit_params[STR_SNIP_WIDTH].value,
                                                  0, //spectra energy start range
                                                  int_spec->size()-1);
 
             _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
-            _spectra_widget->setXLabel("Energy (kEv)");
         }
-        else
-        {
-            _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&energy);
-            _spectra_widget->setXLabel("Channels");
-        }
+        _spectra_widget->setXLabel("Energy (kEv)");
+
+        //if fit_params == nullptr
+        //    _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&energy);
+        //    _spectra_widget->setXLabel("Channels");
+
     }
 }
+
+/*---------------------------------------------------------------------------*/

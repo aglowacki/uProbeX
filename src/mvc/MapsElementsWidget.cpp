@@ -65,8 +65,16 @@ void MapsElementsWidget::createLayout()
     _cb_element = new QComboBox(this);
 
     QHBoxLayout* hbox = new QHBoxLayout();
+    QHBoxLayout* hbox2 = new QHBoxLayout();
     QVBoxLayout* counts_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
+
+    _dataset_directory = new QLabel();
+    _dataset_name = new QLabel();
+    hbox2->addWidget(new QLabel("Dataset: "));
+    hbox2->addWidget(_dataset_directory);
+    hbox2->addWidget(_dataset_name);
+    hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Horizontal);
@@ -99,6 +107,7 @@ void MapsElementsWidget::createLayout()
     _tab_widget->addTab(window, "Counts");
     _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
 
+    layout->addItem(hbox2);
     layout->addWidget(_tab_widget);
 
 
@@ -234,21 +243,33 @@ void MapsElementsWidget::model_updated()
     disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
     disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
 
+    _dataset_directory->setText(_model->getFilePath());
+    _dataset_name->setText(_model->getDatasetName());
+
     std::string current_a;
     std::string current_e;
+
+    QString current_analysis = _cb_analysis->currentText();
+    QString current_element = _cb_element->currentText();
 
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
     //m_imageWidgetToolBar->clearImageViewWidget();
+    bool found_analysis = false;
     for(auto& itr: analysis_types)
     {
-        _cb_analysis->addItem(QString(itr.c_str()));
+        QString newVal = QString(itr.c_str());
+        _cb_analysis->addItem(newVal);
         current_a = itr;
-
+        if(current_analysis == newVal)
+        {
+            found_analysis = true;
+        }
     }
 
     data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(current_a);
+    bool found_element = false;
     if(analysis_type != nullptr)
     {
         _cb_element->clear();
@@ -257,12 +278,25 @@ void MapsElementsWidget::model_updated()
             QString val = QString(itr.first.c_str());
             _cb_element->addItem(val);
             current_e = itr.first;
+            if(current_element == val)
+            {
+                found_element = true;
+            }
         }
     }
 
-    _cb_analysis->setCurrentText(QString(current_a.c_str()));
-    _cb_element->setCurrentText(QString(current_e.c_str()));
-    displayCounts(current_a, current_e);
+    if(false == found_analysis)
+    {
+        current_analysis = QString(current_a.c_str());
+    }
+    if(false == found_element)
+    {
+        current_element = QString(current_e.c_str());
+    }
+
+    _cb_analysis->setCurrentText(current_analysis);
+    _cb_element->setCurrentText(current_element);
+    displayCounts(current_analysis.toStdString(), current_element.toStdString());
 
     connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
     connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));

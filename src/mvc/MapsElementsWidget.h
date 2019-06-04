@@ -88,6 +88,10 @@ protected:
 
    FitSpectraWidget* _spectra_widget;
 
+   QLabel *_dataset_directory;
+
+   QLabel *_dataset_name;
+
    QComboBox *_cb_analysis;
 
    QComboBox *_cb_element;

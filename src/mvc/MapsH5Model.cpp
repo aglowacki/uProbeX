@@ -120,6 +120,16 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 {
     clear_analyzed_counts();
 
+    _filepath = QString(block->dataset_directory->c_str());
+    _datset_name = QString(block->dataset_name->c_str());
+
+    if(block->spectra != nullptr)
+    {
+        _integrated_spectra = *block->spectra;
+        _loaded_integrated_spectra = true;
+        //emit model_int_spec_updated(false);
+    }
+
     for(auto& itr : block->fitting_blocks)
     {
         std::string group_name = _analysis_enum_to_str(itr.first);
@@ -142,6 +152,13 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
+    if(block->spectra != nullptr)
+    {
+        _integrated_spectra += *block->spectra;
+        //wait until the FitSpectraWidget has a thread to update int spec
+        //emit model_int_spec_updated(false);
+    }
+
     if(_analyzed_counts.size() < 1)
     {
         initialize_from_stream_block(block);

@@ -119,6 +119,8 @@ private slots:
 
    void set_fit_params_bounds(data_struct::E_Bound_Type e_type);
 
+   void h5_int_spec_updated(bool b_snip_background);
+
 private:
 
     QCheckBox *_chk_auto_model;
