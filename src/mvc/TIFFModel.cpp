@@ -79,7 +79,7 @@ int TIFFModel::getImageDims(int imageIndex)
     case 2:
         return _img.width();
     }
-
+return 0;
 }
 
 /*---------------------------------------------------------------------------*/
