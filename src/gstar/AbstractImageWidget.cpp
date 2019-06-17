@@ -8,6 +8,7 @@
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/Annotation/MarkerGraphicsItem.h"
 #include "gstar/Annotation/RulerGraphicsItem.h"
+#include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "gstar/AnnotationTreeModel.h"
 #include "gstar/AnnotationToolBarWidget.h"
 #include "gstar/ImageViewWidget.h"
@@ -147,6 +148,15 @@ void AbstractImageWidget::addRuler()
 
 }
 
+void AbstractImageWidget::addHotSpotMask()
+{
+    int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
+    int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
+   HotSpotMaskGraphicsItem* annotation = new HotSpotMaskGraphicsItem(w, h);
+   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
+
+}
+
 /*---------------------------------------------------------------------------*/
 
 void AbstractImageWidget::appendAnnotationTab()
@@ -179,6 +189,7 @@ void AbstractImageWidget::createActions()
 
    m_addRulerAction = new QAction("Add Ruler", this);
    m_addMarkerAction = new QAction("Add Marker", this);
+   m_addHotSpotMaskAction = new QAction("Add Hotspot Mask", this);
    m_duplicateAction = new QAction("Duplicate", this);
    m_deleteAction = new QAction("Delete", this);
    m_showRulerDialogAction = new QAction("Ruler Units", this);
@@ -191,6 +202,11 @@ void AbstractImageWidget::createActions()
            SIGNAL(triggered()),
            this,
            SLOT(addMarker()));
+
+   connect(m_addHotSpotMaskAction,
+           SIGNAL(triggered()),
+           this,
+           SLOT(addHotSpotMask()));
 
    connect(m_duplicateAction,
            SIGNAL(triggered()),
@@ -342,6 +358,7 @@ void AbstractImageWidget::displayContextMenu(QWidget* parent,
    QMenu menu(parent);
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
+   menu.addAction(m_addHotSpotMaskAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {

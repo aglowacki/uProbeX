@@ -317,6 +317,8 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
    {
    case QVariant::Color:
       return Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+   case QVariant::Bool:
+      return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
    default:
       return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
    }
@@ -466,7 +468,7 @@ void AbstractGraphicsItem::modelChanged()
 
 /*---------------------------------------------------------------------------*/
 
-AbstractGraphicsItem* AbstractGraphicsItem::parent()
+AbstractGraphicsItem* AbstractGraphicsItem::parent() const
 {
 
    return m_parent;

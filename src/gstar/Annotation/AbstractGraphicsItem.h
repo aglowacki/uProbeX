@@ -148,7 +148,7 @@ public:
     * @brief parent : Returns Parent node.
     * @return
     */
-   AbstractGraphicsItem* parent();
+   AbstractGraphicsItem* parent() const;
 
    /**
     * @brief prependProperty : Insert property to beginning of tehe list.

@@ -177,6 +177,7 @@ add_executable(uProbeX
     src/gstar/Annotation/UProbeMarkerGraphicsItem.h
     src/gstar/Annotation/UProbeRegionGraphicsItem.h
     src/gstar/Annotation/RulerGraphicsItem.h
+    src/gstar/Annotation/HotSpotMaskGraphicsItem.h
     src/gstar/Annotation/IntensityPieGraphicsItem.h
     src/gstar/Annotation/IntensityLineGraphicsItem.h
     src/gstar/Annotation/EmptyGraphicsItem.h
@@ -265,6 +266,7 @@ add_executable(uProbeX
     src/gstar/Annotation/UProbeMarkerGraphicsItem.cpp
     src/gstar/Annotation/UProbeRegionGraphicsItem.cpp
     src/gstar/Annotation/RulerGraphicsItem.cpp
+    src/gstar/Annotation/HotSpotMaskGraphicsItem.cpp
     src/gstar/Annotation/IntensityPieGraphicsItem.cpp
     src/gstar/Annotation/IntensityLineGraphicsItem.cpp
     src/gstar/Annotation/EmptyGraphicsItem.cpp

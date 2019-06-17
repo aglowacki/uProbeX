@@ -98,6 +98,8 @@ public:
     */
    double getUnitsPerPixelY() const;
 
+   QGraphicsPixmapItem* getPixmapItem(){return m_pixItem;}
+
    /**
     * Set ROI movel
     *

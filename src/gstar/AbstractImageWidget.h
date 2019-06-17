@@ -190,6 +190,8 @@ protected slots:
     */
    void addRuler();
 
+   void addHotSpotMask();
+
    /**
     * @brief deleteItem
     */
@@ -305,6 +307,9 @@ protected:
     * @brief m_addMarkerAction
     */
    QAction* m_addMarkerAction;
+
+
+   QAction *m_addHotSpotMaskAction;
 
    /**
     * @brief m_addRulerAction

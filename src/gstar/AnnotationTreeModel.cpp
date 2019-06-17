@@ -185,7 +185,13 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
       {
          return QColor(var.toString());
       }
+
       return QVariant();
+   }
+   else if ( role == Qt::CheckStateRole  )
+   {
+       Qt::CheckState eChkState = ( item->data(index.row(), index.column() ).toBool() ) ? Qt::Checked : Qt::Unchecked;
+       return eChkState;
    }
    else if (role == Qt::DisplayRole || role == Qt::EditRole)
    {
@@ -257,8 +263,7 @@ Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
       return 0;
    }
 
-   AbstractGraphicsItem* item =
-         static_cast<AbstractGraphicsItem*>(index.internalPointer());
+   AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
 
    if (item->parent() == m_root || item == m_root)
    {
@@ -598,7 +603,7 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
                              const QVariant& value,
                              int role)
  {
-
+    bool changed  = false;
    if (value.type() == QVariant::String)
    {
       QString sValue = value.toString();
@@ -613,7 +618,7 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
       return false;
    }
 
-   if (role != Qt::DisplayRole && role != Qt::EditRole)
+   if (role != Qt::DisplayRole && role != Qt::EditRole &&  role != Qt::CheckStateRole)
    {
       return false;
    }
@@ -626,7 +631,16 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
       return false;
    }
 
-   bool changed = item->setData(index, value);
+    if ( role == Qt::CheckStateRole )
+    {
+        Qt::CheckState eChecked = static_cast< Qt::CheckState >( value.toInt() );
+        bool bNewValue = eChecked == Qt::Checked;
+        changed = item->setData( index, bNewValue );
+    }
+    else
+    {
+        changed = item->setData(index, value);
+    }
    if (changed)
       emit dataChanged(index, index);
 

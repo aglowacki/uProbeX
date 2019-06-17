@@ -157,6 +157,7 @@ uProbeX::~uProbeX()
             delete i;
         }
     }
+    m_subWindows.clear();
 
 }
 
@@ -592,11 +593,6 @@ void uProbeX::makeSWSWindow(SWSModel* swsModel)
             this,
             SLOT(subWindowClosed(SubWindow*)));
 
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
-
 
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
@@ -681,16 +677,6 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
                 SLOT(subWindowClosed(SubWindow*)));
 
     }
-    else
-    {
-
-    }
-
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
-
 
     m_mdiArea->addSubWindow(w);
     w->setWidget(swsWidget);
@@ -1083,8 +1069,7 @@ void uProbeX::saveActivatedXML()
         {
             swsWidget = dynamic_cast<SWSWidget*>(imageWidget);
         } else {
-            QMessageBox::critical(this, tr("Warning"),
-                                  tr("No SWS Window Activated\n\n"));
+
             return;
         }
 
@@ -1476,7 +1461,7 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
         return;
 
     m_subWindows.erase(i);
-    delete absWinCon;
+    ////delete absWinCon;
     absWinCon = nullptr;
 
 }

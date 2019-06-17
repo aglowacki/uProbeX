@@ -129,7 +129,7 @@ void MapsElementsWidget::createLayout()
     connect(scene, SIGNAL(mouseOverPixel(int, int)),
             this, SLOT(mouseOverPixel(int, int)));
 
-
+    appendAnnotationTab();
 
     setLayout(layout);
 

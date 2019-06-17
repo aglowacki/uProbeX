@@ -793,7 +793,7 @@ bool PythonLoader::safeCheck()
    //QString appName = QCoreApplication::applicationName();
    //path += appName;
    QStringList arguments;
-   arguments << "-testPython";
+   arguments << "--testPython";
 
    QProcess proc; 
    proc.start(path, arguments);
