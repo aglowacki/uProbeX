@@ -22,6 +22,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
     _num_images = 0;
+    _prev_dataset_name = " ";
     _qline_ip_addr = new QLineEdit();
     if(ip.length() > 0)
     {
@@ -153,6 +154,10 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
     {
         start_new_image = true;
     }
+    if(_prev_dataset_name != *new_packet->dataset_name)
+    {
+        start_new_image = true;
+    }
     if(_last_packet != nullptr && (_last_packet->width() != new_packet->width() || _last_packet->height() != new_packet->height()))
     {
         start_new_image = true;
@@ -164,6 +169,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 
     if(start_new_image)
     {
+        _prev_dataset_name = *new_packet->dataset_name;
         if(_currentModel != nullptr)
         {
             disconnect(_currentModel,

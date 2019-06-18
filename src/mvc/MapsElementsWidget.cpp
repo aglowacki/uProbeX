@@ -7,11 +7,13 @@
 
 #include <gstar/ImageViewWidget.h>
 
+#include <gstar/Annotation/HotSpotMaskGraphicsItem.h>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
 
-#include <QDebug>
+#include <limits>
 
 
 using gstar::AbstractImageWidget;
@@ -30,7 +32,7 @@ MapsElementsWidget::MapsElementsWidget(QWidget* parent)
         _heat_colormap.append(qRgb(i, 0, 0));
     }
 	_selected_colormap = &_gray_colormap;
-    createLayout();
+    _createLayout();
 
 }
 
@@ -55,7 +57,7 @@ MapsElementsWidget::~MapsElementsWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::createLayout()
+void MapsElementsWidget::_createLayout()
 {
 
     _tab_widget = new QTabWidget();
@@ -311,7 +313,81 @@ void MapsElementsWidget::redrawCounts()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::displayCounts(std::string analysis_type, std::string element)
+void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
+{
+    gstar::HotSpotMaskGraphicsItem item(0,0);
+
+    QList<gstar::AbstractGraphicsItem*>  hotspots;
+    if(m_treeModel != nullptr)
+    {
+        hotspots = m_treeModel->get_all_of_type( item.classId() );
+    }
+
+    QImage *sum_of_masks = nullptr;
+    if(hotspots.size() > 0)
+    {
+        foreach(gstar::AbstractGraphicsItem* item , hotspots)
+        {
+            gstar::HotSpotMaskGraphicsItem* mask = dynamic_cast<gstar::HotSpotMaskGraphicsItem*>(item);
+            if(mask->isEnabled())
+            {
+                if(sum_of_masks == nullptr)
+                {
+                    sum_of_masks = mask->image_mask();
+                }
+                else
+                {
+                    QImage * tmpImg = mask->image_mask();
+                    for(int row = 0; row < sum_of_masks->height(); row++)
+                    {
+                        for(int col = 0; col < sum_of_masks->width(); col++)
+                        {
+                            QColor color = tmpImg->pixelColor(col, row);
+                            if(color.green() > 0)
+                            {
+                                sum_of_masks->setPixelColor(col, row, color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if(sum_of_masks != nullptr)
+    {
+        max_val = std::numeric_limits<float>::min();
+        min_val = std::numeric_limits<float>::max();
+        int height = static_cast<int>(element_counts.rows());
+        int width = static_cast<int>(element_counts.cols());
+
+        for(int row = 0; row < height; row++)
+        {
+            for(int col = 0; col < width; col++)
+            {
+                QColor color = sum_of_masks->pixelColor(col, row);
+                //green is what we set the mask to so if it isn't green we use this for min max
+                if(color.green() == 0)
+                {
+                    float val = element_counts(row, col);
+                    min_val = std::min(min_val, val);
+                    max_val = std::max(max_val, val);
+                }
+            }
+        }
+        if(max_val < min_val)
+        {
+            max_val = min_val;
+        }
+    }
+    else
+    {
+        max_val = element_counts.maxCoeff();
+        min_val = element_counts.minCoeff();
+    }
+}
+
+void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element)
 {
     data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
     if (fit_counts != nullptr)
@@ -320,21 +396,27 @@ void MapsElementsWidget::displayCounts(std::string analysis_type, std::string el
         {
             _counts_lookup->setAnalyaisElement(analysis_type, element);
             _counts_coord_widget -> setCoordinate(0, 0, 0);
-            int height = fit_counts->at(element).rows();
-            int width = fit_counts->at(element).cols();
+            int height = static_cast<int>(fit_counts->at(element).rows());
+            int width = static_cast<int>(fit_counts->at(element).cols());
 			m_imageHeightDim->setCurrentText(QString::number(height));
 			m_imageWidthDim->setCurrentText(QString::number(width));
             QImage image(width, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
-            float counts_max = fit_counts->at(element).maxCoeff();
-            float counts_min = fit_counts->at(element).minCoeff();
+            float counts_max;
+            float counts_min;
+            _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
             float max_min = counts_max - counts_min;
             for(int row = 0; row < height; row++)
             {
                 for(int col = 0; col < width; col++)
                 {
-                    uint data = (uint)( ((fit_counts->at(element)(row,col) - counts_min) / max_min) * 255);
+                    //first clamp the data to max min
+                    float cnts = fit_counts->at(element)(row,col);
+                    cnts = std::min(counts_max, cnts);
+                    cnts = std::max(counts_min, cnts);
+                    //convert to pixel
+                    uint data = (uint)( ((cnts - counts_min) / max_min) * 255);
                     image.setPixel(col, row, data);
                 }
             }

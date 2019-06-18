@@ -9,7 +9,6 @@
 #include "gstar/Annotation/MarkerGraphicsItem.h"
 #include "gstar/Annotation/RulerGraphicsItem.h"
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
-#include "gstar/AnnotationTreeModel.h"
 #include "gstar/AnnotationToolBarWidget.h"
 #include "gstar/ImageViewWidget.h"
 #include "gstar/ImageViewToolBar.h"

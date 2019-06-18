@@ -63,7 +63,7 @@ public slots:
     */
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
-   void displayCounts(std::string analysis_type, std::string element);
+   void displayCounts(const std::string analysis_type, const std::string element);
 
    void onAnalysisSelect(QString name);
 
@@ -80,7 +80,9 @@ protected:
    /**
     * @brief Create layout
     */
-   void createLayout();
+   void _createLayout();
+
+   void _get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts);
 
    std::unordered_map<std::string, std::unordered_map<std::string, gstar::ImageViewWidget*> > _imagesWidgets;
 

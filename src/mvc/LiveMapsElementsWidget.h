@@ -76,6 +76,8 @@ protected:
 
    data_struct::Stream_Block *_last_packet;
 
+   std::string _prev_dataset_name;
+
    int _num_images;
 };
 

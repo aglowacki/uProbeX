@@ -10,12 +10,13 @@
 
 #include <QWidget>
 
+#include "gstar/AnnotationTreeModel.h"
+
 namespace gstar
 {
    class AbstractGraphicsItem;
    class AnnotationToolBarWidget;
    class Array;
-   class AnnotationTreeModel;
    class ImageViewWidget;
    class ImageViewToolBar;
    class RangeWidget;
@@ -30,6 +31,7 @@ class QTabWidget;
 class QToolBar;
 class QTreeView;
 class QModelIndex;
+
 
 /*---------------------------------------------------------------------------*/
 

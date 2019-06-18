@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include "gstar/Annotation/AbstractGraphicsItem.h"
-#include "gstar/AnnotationProperty.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -301,28 +300,34 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
 
    Q_UNUSED(row);
 
+    Qt::ItemFlags flags = Qt::NoItemFlags;
+
    if (column < 0 || column > m_data.count())
    {
-      return 0;
+      return flags;
    }
 
    AnnotationProperty* prop = m_data.value(column);
    if (prop == nullptr)
    {
-      return 0;
+      return flags;
    }
 
    QVariant::Type t = prop->getValue().type();
    switch(t)
    {
    case QVariant::Color:
-      return Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+      flags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+       break;
    case QVariant::Bool:
-      return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+      flags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+       break;
    default:
-      return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+      flags = Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+       break;
    }
 
+   return flags;
 }
 
 /*---------------------------------------------------------------------------*/

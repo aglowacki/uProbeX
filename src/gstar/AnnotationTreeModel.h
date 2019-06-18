@@ -160,6 +160,8 @@ public:
                 const QVariant& value,
                 int role = Qt::EditRole);
 
+   QList<AbstractGraphicsItem*> get_all_of_type(const QString type_name);
+
 public slots:
 
    /**

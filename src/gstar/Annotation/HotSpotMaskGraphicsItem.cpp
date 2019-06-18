@@ -23,12 +23,14 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
 
     setFlags( ItemIsSelectable );
 
+    _mouse_down = false;
+
     _mask = new QImage(width, height, QImage::Format_ARGB32);
     for(int w=0; w<width; w++)
     {
         for(int h=0; h<height; h++)
         {
-            _mask->setPixelColor(w,h, QColor(0,0,0,100));
+            _mask->setPixelColor(w,h, QColor(0,0,0,153));
         }
     }
 
@@ -42,16 +44,18 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
 
    QStringList slist;
    slist.append("View");
-   slist.append("Draw");
-   slist.append("Erase");
+   slist.append("Point Draw");
+   slist.append("Point Erase");
+   slist.append("Rect Draw");
+   slist.append("Rect Erase");
 
    _draw_mask = new AnnotationProperty();
    _draw_mask->setName("Draw Mode");
    _draw_mask->setValue(slist);
 
    _alpha_value = new AnnotationProperty();
-   _alpha_value->setName("Alpha");
-   _alpha_value->setValue(100);
+   _alpha_value->setName("Alpha %");
+   _alpha_value->setValue(60);
 
    m_data.push_back(_enable_mask);
    m_data.push_back(_display_mask);
@@ -106,6 +110,13 @@ void HotSpotMaskGraphicsItem::updateModel()
 void HotSpotMaskGraphicsItem::updateView()
 {
     int val = _alpha_value->getValue().toInt();
+
+    val = std::min(val, 100);
+    val = std::max(val, 0);
+
+    _alpha_value->setValue(val);
+
+    val = (int)(((float)val / 100.0) * 255.0);
 
     for(int w=0; w<_mask->width(); w++)
     {
@@ -186,9 +197,11 @@ void HotSpotMaskGraphicsItem::paint(QPainter* painter,
 
 void HotSpotMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+
+    _mouse_down = true;
    // Mouse click position (in item coordinates)
     int alpha_val = _alpha_value->getValue().toInt();
-   QPointF pt = event -> pos();
+    QPointF pt = event -> pos();
     QPoint p(0,0);
     p.setX(static_cast<int>(pt.x()));
     p.setY(static_cast<int>(pt.y()));
@@ -206,14 +219,17 @@ void HotSpotMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 void HotSpotMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 
-   // Current mouse position
-   QPointF pt = event -> pos();
-
-   // Last mouse position
-   QPointF lpt = event -> lastPos();
-
-   // Queue an update
-   update();
+   if(_mouse_down == true)
+   {
+       int alpha_val = _alpha_value->getValue().toInt();
+       QPointF pt = event -> pos();
+       QPoint p(0,0);
+       p.setX(static_cast<int>(pt.x()));
+       p.setY(static_cast<int>(pt.y()));
+       _mask->setPixelColor(p, QColor(0,255,0,alpha_val));
+       // Queue an update
+       update();
+   }
 
 }
 
@@ -222,8 +238,10 @@ void HotSpotMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 void HotSpotMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
 
+    _mouse_down = false;
+
    // Queue an update
-   update();
+   //update();
 
    // Pass mouse event
    QGraphicsItem::mouseReleaseEvent(event);

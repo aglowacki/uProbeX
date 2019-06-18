@@ -10,13 +10,12 @@
 
 #include <QGraphicsObject>
 #include <QModelIndex>
+#include "gstar/AnnotationProperty.h"
 
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
 {
-
-class AnnotationProperty;
 
 /**
  * @brief The AbstractGraphicsItem class is the glue between QGraphicsScene

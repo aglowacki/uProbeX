@@ -160,54 +160,98 @@ AbstractGraphicsItem* AnnotationTreeModel::createGroup(AbstractGraphicsItem* ite
 QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
 {
 
+    if (!index.isValid())
+    {
+        return QVariant();
+    }
+
+    AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+
+    QVariant var = item->data(index.row(), index.column());
+
+    if(role == Qt::FontRole)
+    {
+        if (item->parent() == m_root)
+        {
+            QFont font;
+            font.setBold(true);
+            return font;
+        }
+    }
+    else if (role == Qt::DecorationRole)
+    {
+        if (var.type() == QVariant::Color)
+        {
+            return QColor(var.toString());
+        }
+    }
+    else if ( role == Qt::CheckStateRole  )
+    {
+        if (var.type() == QVariant::Bool)
+        {
+            Qt::CheckState eChkState = ( item->data(index.row(), index.column() ).toBool() ) ? Qt::Checked : Qt::Unchecked;
+            return eChkState;
+        }
+    }
+    else if (role == Qt::DisplayRole || role == Qt::EditRole)
+    {
+        //this stops the color variants from displaying the color as
+        // a hex value in the tree
+        QVariant var = item->data(index.row(), index.column());
+        if (var.type() == QVariant::Color || var.type() == QVariant::Bool)
+        {
+            return QVariant();
+        }
+
+        return item->data(index.row(), index.column());
+    }
+
+    return QVariant();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+ bool AnnotationTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
+ {
+    bool changed  = false;
+   if (value.type() == QVariant::String)
+   {
+      QString sValue = value.toString();
+      if (sValue.length() < 1)
+      {
+         return false;
+      }
+   }
+
    if (!index.isValid())
    {
-      return QVariant();
+      return false;
    }
 
-   AbstractGraphicsItem* item =
-         static_cast<AbstractGraphicsItem*>(index.internalPointer());
+   AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
 
-   if(role == Qt::FontRole)
+   QVariant var = item->data(index.row(), index.column());
+
+   if (item->parent() == m_root)
    {
-      if (item->parent() == m_root)
-      {
-         QFont font;
-         font.setBold(true);
-         return font;
-      }
-      return QVariant();
-   }
-   else if (role == Qt::DecorationRole)
-   {
-      QVariant var = item->data(index.row(), index.column());
-      if (var.type() == QVariant::Color)
-      {
-         return QColor(var.toString());
-      }
-
-      return QVariant();
-   }
-   else if ( role == Qt::CheckStateRole  )
-   {
-       Qt::CheckState eChkState = ( item->data(index.row(), index.column() ).toBool() ) ? Qt::Checked : Qt::Unchecked;
-       return eChkState;
-   }
-   else if (role == Qt::DisplayRole || role == Qt::EditRole)
-   {
-
-      //this stops the color variants from displaying the color as
-      // a hex value in the tree
-      QVariant var = item->data(index.row(), index.column());
-      if (var.type() == QVariant::Color)
-      {
-         return QVariant();
-      }
-
-      return item->data(index.row(), index.column());
+      return false;
    }
 
-   return QVariant();
+    if ( role == Qt::CheckStateRole && var.type() == QVariant::Bool)
+    {
+        Qt::CheckState eChecked = static_cast< Qt::CheckState >( value.toInt() );
+        bool bNewValue = eChecked == Qt::Checked;
+        changed = item->setData( index, bNewValue );
+    }
+    else if(role == Qt::EditRole)
+    {
+        changed = item->setData(index, value);
+    }
+    if (changed)
+        emit dataChanged(index, index);
+
+    return changed;
 
 }
 
@@ -599,53 +643,14 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
 
 /*---------------------------------------------------------------------------*/
 
- bool AnnotationTreeModel::setData(const QModelIndex& index,
-                             const QVariant& value,
-                             int role)
- {
-    bool changed  = false;
-   if (value.type() == QVariant::String)
-   {
-      QString sValue = value.toString();
-      if (sValue.length() < 1)
-      {
-         return false;
-      }
-   }
-
-   if (!index.isValid())
-   {
-      return false;
-   }
-
-   if (role != Qt::DisplayRole && role != Qt::EditRole &&  role != Qt::CheckStateRole)
-   {
-      return false;
-   }
-
-   AbstractGraphicsItem* item =
-         static_cast<AbstractGraphicsItem*>(index.internalPointer());
-
-   if (item->parent() == m_root)
-   {
-      return false;
-   }
-
-    if ( role == Qt::CheckStateRole )
+QList<AbstractGraphicsItem*> AnnotationTreeModel::get_all_of_type(const QString type_name)
+{
+    QList<AbstractGraphicsItem*> na;
+    if(m_groups.count(type_name) > 0)
     {
-        Qt::CheckState eChecked = static_cast< Qt::CheckState >( value.toInt() );
-        bool bNewValue = eChecked == Qt::Checked;
-        changed = item->setData( index, bNewValue );
+        return m_groups[type_name]->childList();
     }
-    else
-    {
-        changed = item->setData(index, value);
-    }
-   if (changed)
-      emit dataChanged(index, index);
-
-   return changed;
-
+    return na;
 }
 
 /*---------------------------------------------------------------------------*/

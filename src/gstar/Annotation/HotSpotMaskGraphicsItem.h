@@ -54,6 +54,12 @@ public:
 
    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
 
+   bool isEnabled() { return _enable_mask->getValue().toBool(); }
+
+   int alphaValue() { return _alpha_value->getValue().toInt(); }
+
+   QImage* image_mask() { return _mask; }
+
 public slots:
    /**
     * @brief updateModel
@@ -97,7 +103,7 @@ protected:
 
    QImage* _mask;
 
-   std::vector< QPoint > _pixels;
+   bool _mouse_down;
 };
 
 }
