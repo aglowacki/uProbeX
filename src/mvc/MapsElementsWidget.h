@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------------------
+﻿/*-----------------------------------------------------------------------------
  * Copyright (c) 2012, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
@@ -16,10 +16,11 @@
 #include <unordered_map>
 #include <gstar/CoordinateWidget.h>
 #include <gstar/CountsLookupTransformer.h>
+#include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
-
+using gstar::AbstractGraphicsItem;
 /*---------------------------------------------------------------------------*/
 
 /**
@@ -75,6 +76,10 @@ public slots:
 
    void model_updated();
 
+   void addHotSpotMask();
+
+   void hotspotUpdated();
+
 protected:
 
    /**
@@ -83,6 +88,10 @@ protected:
    void _createLayout();
 
    void _get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts);
+
+   virtual void createActions();
+
+   virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
 
    std::unordered_map<std::string, std::unordered_map<std::string, gstar::ImageViewWidget*> > _imagesWidgets;
 
@@ -115,6 +124,8 @@ protected:
    gstar::CoordinateModel *_counts_coord_model;
 
    gstar::CountsLookupTransformer *_counts_lookup;
+
+   QAction *_addHotSpotMaskAction;
 
 };
 

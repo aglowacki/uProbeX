@@ -9,8 +9,6 @@
 #include <QGraphicsView>
 #include <typeinfo>
 
-#include <QDebug>
-
 using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
@@ -221,20 +219,14 @@ QVariant AbstractGraphicsItem::data(int row, int column) const
    case QVariant::Point:
       point = data->getValue().toPoint();
       return QString("%1, %2").arg(point.x()).arg(point.y());
-      break;
    case QVariant::PointF:
       pointf = data->getValue().toPointF();
       return QString("%1, %2").arg(pointf.x()).arg(pointf.y());
-      break;
-//   case QVariant::Color:
-
-//      break;
+   case QVariant::StringList:
+       return data->getValue().toStringList()[0];
    default:
       return data->getValue();
-      break;
    }
-
-   return QVariant();
 
 }
 

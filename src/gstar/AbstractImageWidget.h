@@ -192,8 +192,6 @@ protected slots:
     */
    void addRuler();
 
-   void addHotSpotMask();
-
    /**
     * @brief deleteItem
     */
@@ -254,7 +252,7 @@ protected:
    /**
     * @brief createActions
     */
-   void createActions();
+   virtual void createActions();
 
    /**
     * Virtual method that must be overidden by base classes.
@@ -309,9 +307,6 @@ protected:
     * @brief m_addMarkerAction
     */
    QAction* m_addMarkerAction;
-
-
-   QAction *m_addHotSpotMaskAction;
 
    /**
     * @brief m_addRulerAction

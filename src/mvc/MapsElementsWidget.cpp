@@ -133,8 +133,30 @@ void MapsElementsWidget::_createLayout()
 
     appendAnnotationTab();
 
+    createActions();
+
     setLayout(layout);
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::addHotSpotMask()
+{
+    int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
+    int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
+   gstar::HotSpotMaskGraphicsItem* annotation = new gstar::HotSpotMaskGraphicsItem(w, h);
+   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
+
+   connect(annotation, SIGNAL(mask_updated()), this, SLOT(hotspotUpdated()));
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::hotspotUpdated()
+{
+    redrawCounts();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -143,6 +165,54 @@ void MapsElementsWidget::mouseOverPixel(int x, int y)
 {
 
    _counts_coord_widget -> setCoordinate(x, y, 0);
+
+}
+
+void MapsElementsWidget::createActions()
+{
+    AbstractImageWidget::createActions();
+    _addHotSpotMaskAction = new QAction("Add Hotspot Mask", this);
+
+    connect(_addHotSpotMaskAction,
+            SIGNAL(triggered()),
+            this,
+            SLOT(addHotSpotMask()));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::displayContextMenu(QWidget* parent,
+                                             const QPoint& pos)
+{
+
+   if (m_annotationsEnabled == false)
+      return;
+
+   QMenu menu(parent);
+   menu.addAction(m_addMarkerAction);
+   menu.addAction(m_addRulerAction);
+   menu.addAction(_addHotSpotMaskAction);
+
+   if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
+   {
+      if (m_selectionModel->hasSelection())
+      {
+         menu.addSeparator();
+         menu.addAction(m_duplicateAction);
+         menu.addSeparator();
+         menu.addAction(m_deleteAction);
+      }
+   }
+
+   //ruler properties
+   menu.addSeparator();
+   menu.addAction(m_showRulerDialogAction);
+
+   QAction* result = menu.exec(pos);
+   if (result == nullptr)
+   {
+      m_selectionModel->clearSelection();
+   }
 
 }
 

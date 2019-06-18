@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------------------
+﻿/*-----------------------------------------------------------------------------
  * Copyright (c) 2013, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
@@ -20,6 +20,8 @@ namespace gstar
  */
 class HotSpotMaskGraphicsItem : public AbstractGraphicsItem
 {
+    Q_OBJECT
+
 public:
 
     /**
@@ -27,6 +29,8 @@ public:
     * @param parent
     */
    HotSpotMaskGraphicsItem(int width, int height, AbstractGraphicsItem* parent = 0);
+
+   ~HotSpotMaskGraphicsItem();
 
    /**
     * @brief className
@@ -60,6 +64,10 @@ public:
 
    QImage* image_mask() { return _mask; }
 
+signals:
+
+   void mask_updated();
+
 public slots:
    /**
     * @brief updateModel
@@ -75,6 +83,10 @@ public slots:
     * @brief calculate
     */
    void calculate();
+
+   void drawmask_changed();
+
+   void erasemask_changed();
 
 protected:
 
@@ -98,6 +110,8 @@ protected:
    AnnotationProperty* _display_mask;
 
    AnnotationProperty* _draw_mask;
+
+   AnnotationProperty* _erase_mask;
 
    AnnotationProperty* _alpha_value;
 

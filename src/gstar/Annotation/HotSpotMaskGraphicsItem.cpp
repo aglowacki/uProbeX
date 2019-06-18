@@ -30,7 +30,7 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
     {
         for(int h=0; h<height; h++)
         {
-            _mask->setPixelColor(w,h, QColor(0,0,0,153));
+            _mask->setPixelColor(w,h, QColor(0,0,0,0));
         }
     }
 
@@ -42,26 +42,32 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
    _display_mask->setName("Visible");
    _display_mask->setValue(true);
 
-   QStringList slist;
-   slist.append("View");
-   slist.append("Point Draw");
-   slist.append("Point Erase");
-   slist.append("Rect Draw");
-   slist.append("Rect Erase");
-
    _draw_mask = new AnnotationProperty();
-   _draw_mask->setName("Draw Mode");
-   _draw_mask->setValue(slist);
+   _draw_mask->setName("Draw");
+   _draw_mask->setValue(true);
+
+   _erase_mask = new AnnotationProperty();
+   _erase_mask->setName("Erase");
+   _erase_mask->setValue(false);
 
    _alpha_value = new AnnotationProperty();
    _alpha_value->setName("Alpha %");
-   _alpha_value->setValue(60);
+   _alpha_value->setValue(70);
+
+   connect(_draw_mask, SIGNAL(valueChanged()), this ,SLOT(drawmask_changed()));
+   connect(_erase_mask, SIGNAL(valueChanged()), this ,SLOT(erasemask_changed()));
 
    m_data.push_back(_enable_mask);
    m_data.push_back(_display_mask);
    m_data.push_back(_draw_mask);
+   m_data.push_back(_erase_mask);
    m_data.push_back(_alpha_value);
 
+}
+
+HotSpotMaskGraphicsItem::~HotSpotMaskGraphicsItem()
+{
+    emit (mask_updated());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -123,13 +129,40 @@ void HotSpotMaskGraphicsItem::updateView()
         for(int h=0; h<_mask->height(); h++)
         {
             QColor c = _mask->pixelColor(w,h);
-            c.setAlpha(val);
-            _mask->setPixelColor(w,h, c);
+            if(c.green() > 0)
+            {
+                c.setAlpha(val);
+                _mask->setPixelColor(w,h, c);
+            }
         }
     }
     update();
+    emit(mask_updated());
 }
 
+/*---------------------------------------------------------------------------*/
+
+void HotSpotMaskGraphicsItem::drawmask_changed()
+{
+    bool val = _draw_mask->getValue().toBool();
+    if(val == true)
+    {
+        _erase_mask->setValue(false);
+        update();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void HotSpotMaskGraphicsItem::erasemask_changed()
+{
+    bool val = _erase_mask->getValue().toBool();
+    if(val == true)
+    {
+        _draw_mask->setValue(false);
+        update();
+    }
+}
 /*---------------------------------------------------------------------------*/
 
 QRectF HotSpotMaskGraphicsItem::boundingRect() const
@@ -200,12 +233,20 @@ void HotSpotMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
     _mouse_down = true;
    // Mouse click position (in item coordinates)
-    int alpha_val = _alpha_value->getValue().toInt();
+
+    int alpha_val = (int)((_alpha_value->getValue().toFloat() / 100.0) * 255.0);
     QPointF pt = event -> pos();
     QPoint p(0,0);
     p.setX(static_cast<int>(pt.x()));
     p.setY(static_cast<int>(pt.y()));
-    _mask->setPixelColor(p, QColor(0,255,0,alpha_val));
+    if(_draw_mask->getValue().toBool() == true)
+    {
+        _mask->setPixelColor(p, QColor(0,255,0,alpha_val));
+    }
+    if(_erase_mask->getValue().toBool() == true)
+    {
+        _mask->setPixelColor(p, QColor(0,0,0,0));
+    }
    // Queue an update
    update();
 
@@ -221,12 +262,19 @@ void HotSpotMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
    if(_mouse_down == true)
    {
-       int alpha_val = _alpha_value->getValue().toInt();
+       int alpha_val = (int)((_alpha_value->getValue().toFloat() / 100.0) * 255.0);
        QPointF pt = event -> pos();
        QPoint p(0,0);
        p.setX(static_cast<int>(pt.x()));
        p.setY(static_cast<int>(pt.y()));
-       _mask->setPixelColor(p, QColor(0,255,0,alpha_val));
+       if(_draw_mask->getValue().toBool() == true)
+       {
+           _mask->setPixelColor(p, QColor(0,255,0,alpha_val));
+       }
+       if(_erase_mask->getValue().toBool() == true)
+       {
+           _mask->setPixelColor(p, QColor(0,0,0,0));
+       }
        // Queue an update
        update();
    }
@@ -242,6 +290,7 @@ void HotSpotMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
    // Queue an update
    //update();
+    emit(mask_updated());
 
    // Pass mouse event
    QGraphicsItem::mouseReleaseEvent(event);
