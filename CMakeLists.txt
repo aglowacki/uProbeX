@@ -49,23 +49,19 @@ cmake_minimum_required(VERSION 3.5)
 project(uProbeX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/libzmq/)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(PREC _REAL_FLOAT)
 
 find_package(XRF_Maps REQUIRED)
 find_package(NetCDF REQUIRED)
 find_package(Threads)
 find_package(HDF5 REQUIRED COMPONENTS C)
-
-IF(MSVC)
-  # set(HDF5_LIBRARIES "" CACHE FILEPATH "HDF5 library")
-ELSE()
-  set(GCC_INCLUDE_DIR "/usr/include" CACHE PATH "Aditional GCC include folder")
-  include_directories(GCC_INCLUDE_DIR)
-ENDIF()
+find_package(ZeroMQ)
 
 # Opitons for getting YouCompleteMe plugin working with this project
 SET( CMAKE_EXPORT_COMPILE_COMMANDS ON )
@@ -76,19 +72,6 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
   )
 ENDIF()
-
-
-add_definitions(-D_BUILD_WITH_ZMQ)
-IF( NOT ZeroMQ_INCLUDE_DIR AND NOT ZeroMQ_LIBRARY)
-  find_package(ZeroMQ)
-ENDIF()
-
-#IF( NOT EIGEN3_INCLUDES )
-#    MESSAGE( FATAL_ERROR "Please point the environment variable EIGEN3_INCLUDES to the include directory of your Eigen3 installation.")
-#ENDIF()
-
-set(PREC _REAL_FLOAT)
-
 
 IF(NOT DEFINED CMAKE_PREFIX_PATH)
   set(CMAKE_PREFIX_PATH CACHE PATH "")
@@ -106,8 +89,6 @@ IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 ENDIF()
-
-string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
 
 include(CheckCXXCompilerFlag)
 
@@ -130,10 +111,8 @@ IF(MSVC)
   ENDIF()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DHDF5CPP_USEDLL /D_USE_MATH_DEFINES /DH5_BUILT_AS_DYNAMIC_LIB /D_HDF5USEDLL_ /DBUILDING_DLL /DXDR_HACK /DXDR_LE /D${PREC} /DNOMINMAX /openmp")
 ELSEIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
-  IF (${U_CMAKE_BUILD_TYPE} MATCHES DEBUG)
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Waddress -Warray-bounds=1 -Wbool-compare -Wbool-operation -Wc++11-compat -Wc++14-compat -Wcatch-value -Wchar-subscripts -Wcomment -Wduplicate-decl-specifier -Wenum-compare -Wformat -Wimplicit -Wimplicit-int -Wimplicit-function-declaration -Winit-self -Wlogical-not-parentheses -Wmain -Wmaybe-uninitialized -Wmemset-elt-size -Wmemset-transposed-args -Wmisleading-indentation -Wmissing-attributes -Wmissing-braces -Wmultistatement-macros -Wnarrowing -Wnonnull -Wnonnull-compare -Wopenmp-simd -Wparentheses -Wpointer-sign -Wreorder -Wrestrict -Wreturn-type -Wsequence-point -Wsign-compare -Wsizeof-pointer-div -Wsizeof-pointer-memaccess -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtautological-compare -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var")
-  ENDIF()
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Waddress -Warray-bounds=1 -Wbool-compare -Wbool-operation -Wc++11-compat -Wc++14-compat -Wcatch-value -Wchar-subscripts -Wcomment -Wduplicate-decl-specifier -Wenum-compare -Wformat -Wimplicit -Wimplicit-int -Wimplicit-function-declaration -Winit-self -Wlogical-not-parentheses -Wmain -Wmaybe-uninitialized -Wmemset-elt-size -Wmemset-transposed-args -Wmisleading-indentation -Wmissing-attributes -Wmissing-braces -Wmultistatement-macros -Wnarrowing -Wnonnull -Wnonnull-compare -Wopenmp-simd -Wparentheses -Wpointer-sign -Wreorder -Wrestrict -Wreturn-type -Wsequence-point -Wsign-compare -Wsizeof-pointer-div -Wsizeof-pointer-memaccess -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtautological-compare -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var")
 ENDIF()
 
 #zeromq include
@@ -347,58 +326,23 @@ endforeach()
 
 
 #qt5_use_modules(uProbeX Core Widgets Gui)
-
-IF (WIN32)
-  IF (MSVC)
-    # /bigobj is needed for bigger binding projects due to the limit to 64k addressable sections
-    # /MP enables multithreaded builds (relevant when there are many files).
-    set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
-    IF (NOT ${U_CMAKE_BUILD_TYPE} MATCHES DEBUG)
-        set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/Ox /arch:SSE2 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
-        set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
-    ENDIF()
-  ENDIF()
-
-  IF (NOT ${U_CMAKE_BUILD_TYPE} MATCHES DEBUG)
-    string(REGEX REPLACE "mt-s" "mt" ZeroMQ_LIBRARY "${ZeroMQ_LIBRARY}")
-  ELSE()
-    string(REGEX REPLACE "sgd" "gd" ZeroMQ_LIBRARY "${ZeroMQ_LIBRARY}")
-  ENDIF()
-  target_link_libraries(uProbeX LINK_PUBLIC optimized ${ZeroMQ_LIBRARY_RELEASE} optimized ws2_32.lib )
-  target_link_libraries(uProbeX LINK_PUBLIC debug ${ZeroMQ_LIBRARY_DEBUG} debug ws2_32.lib )
+IF (MSVC)
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
+  set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
+  target_link_libraries(uProbeX LINK_PUBLIC ws2_32.lib )
 ELSEIF (UNIX)
-  # It's quite common to have multiple copies of the same Python version
-  # installed on one's system. E.g.: one copy from the OS and another copy
-  # that's statically linked into an application like Blender or Maya.
-  # If we link our plugin library against the OS Python here and import it
-  # into Blender or Maya later on, this will cause segfaults when multiple
-  # conflicting Python instances are active at the same time.
-
-  # Windows is not affected by this issue since it handles DLL imports 
-  # differently. The solution for Linux and Mac OS is simple: we just don't
-  # link against the Python library. The resulting shared library will have
-  # missing symbols, but that's perfectly fine -- they will be resolved at
-  # import time.
-  IF (NOT ${U_CMAKE_BUILD_TYPE} MATCHES DEBUG)
-    set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
-  ENDIF()
-
-  target_link_libraries(uProbeX LINK_PUBLIC optimized ${ZeroMQ_LIBRARY} )
-  target_link_libraries(uProbeX LINK_PUBLIC debug ${ZeroMQ_LIBRARY} )
-
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
 ENDIF()
 
+
 target_link_libraries (uProbeX LINK_PUBLIC 
-						optimized ${XRF_MAPS_LIBRARIES}
-						optimized ${NETCDF_LIBRARIES}
-						optimized ${HDF5_LIBRARIES}
-						optimized ${Qt5Core_LIBRARIES}
-						optimized ${Qt5Charts_LIBRARIES}
-						${CMAKE_THREAD_LIBS_INIT} )
-target_link_libraries (uProbeX LINK_PUBLIC 
-						debug ${XRF_MAPS_LIBRARIES}
-						debug ${NETCDF_LIBRARIES}
-						debug ${HDF5_LIBRARIES}
-						debug ${Qt5Core_LIBRARIES}
-						debug ${Qt5Charts_LIBRARIES}
-						${CMAKE_THREAD_LIBS_INIT} )
+                        optimized ${XRF_MAPS_LIBRARIES}
+                        debug ${XRF_MAPS_LIBRARIES_DEBUG}
+                        optimized ${ZeroMQ_LIBRARY_RELEASE}
+                        debug ${ZeroMQ_LIBRARY_DEBUG}
+                        ${Qt5Core_LIBRARIES}
+                        ${Qt5Charts_LIBRARIES}
+                        ${NETCDF_LIBRARIES}
+                        ${HDF5_LIBRARIES}
+                        ${CMAKE_THREAD_LIBS_INIT} )

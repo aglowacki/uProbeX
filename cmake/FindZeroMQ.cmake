@@ -34,50 +34,45 @@ find_path(ZeroMQ_ROOT_DIR
   )
 
 if(MSVC)
-  #add in all the names it can have on windows
-  if(CMAKE_GENERATOR_TOOLSET MATCHES "v150" OR MSVC15)
-    set(_zmq_TOOLSET "-v150")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v141" OR MSVC14)
-    set(_zmq_TOOLSET "-v141")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v120" OR MSVC12)
-    set(_zmq_TOOLSET "-v120")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v110_xp")
-    set(_zmq_TOOLSET "-v110_xp")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v110" OR MSVC11)
-    set(_zmq_TOOLSET "-v110")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v100" OR MSVC10)
-    set(_zmq_TOOLSET "-v100")
-  elseif(CMAKE_GENERATOR_TOOLSET MATCHES "v90" OR MSVC90)
-    set(_zmq_TOOLSET "-v90")
-  endif()
+
+  set(_zmq_TOOLSET)
+  list(APPEND _zmq_TOOLSET "-v150")
+  list(APPEND _zmq_TOOLSET "-v141")
+  list(APPEND _zmq_TOOLSET "-v140")
+ 
 
   set(_zmq_versions
      "4_2_3"
-     "4_1_5" "4_1_4" "4_1_3" "4_1_2" "4_1_1" "4_1_0"
-     "4_0_8" "4_0_7" "4_0_6" "4_0_5" "4_0_4" "4_0_3" "4_0_2" "4_0_1" "4_0_0"
-     "3_2_5" "3_2_4" "3_2_3" "3_2_2"  "3_2_1" "3_2_0" "3_1_0")
+     "4_1_5" "4_1_4" "4_1_3" "4_1_2" "4_1_1" "4_1_0")
 
   set(_zmq_release_names)
   set(_zmq_debug_names)
-  foreach( ver ${_zmq_versions})
-    list(APPEND _zmq_release_names "libzmq${_zmq_TOOLSET}-mt-${ver}")
-  endforeach()
-  foreach( ver ${_zmq_versions})
-    list(APPEND _zmq_debug_names "libzmq${_zmq_TOOLSET}-mt-gd-${ver}")
-  endforeach()
-
-  #now try to find the release and debug version
-  find_library(ZeroMQ_LIBRARY_RELEASE
-    NAMES ${_zmq_release_names} zmq libzmq
-    HINTS ${ZeroMQ_ROOT_DIR}/bin/Release
+  foreach( toolset ${_zmq_TOOLSET})
+    foreach( ver ${_zmq_versions})
+	  find_library(ZeroMQ_LIBRARY_RELEASE
+        NAMES "libzmq${toolset}-mt-${ver}"
+        PATHS ${ZeroMQ_ROOT_DIR}/bin/Release
           ${ZeroMQ_ROOT_DIR}/lib/Release
-    )
-
-  find_library(ZeroMQ_LIBRARY_DEBUG
-    NAMES ${_zmq_debug_names} zmq libzmq
-    HINTS ${ZeroMQ_ROOT_DIR}/bin/Debug
+		  ${ZeroMQ_ROOT_DIR}/build/lib/Release
+      )
+	  IF(ZeroMQ_LIBRARY_RELEASE)
+		break()
+	  ENDIF()
+    endforeach()
+  endforeach()
+  foreach( toolset ${_zmq_TOOLSET})
+    foreach( ver ${_zmq_versions})
+	  find_library(ZeroMQ_LIBRARY_DEBUG
+        NAMES "libzmq${toolset}-mt-gd-${ver}"
+        PATHS ${ZeroMQ_ROOT_DIR}/bin/Debug
           ${ZeroMQ_ROOT_DIR}/lib/Debug
-    )
+		  ${ZeroMQ_ROOT_DIR}/build/lib/Debug
+      )
+	  IF(ZeroMQ_LIBRARY_DEBUG)
+		break()
+	  ENDIF()
+	endforeach()
+  endforeach()
 
   if(ZeroMQ_LIBRARY_RELEASE AND ZeroMQ_LIBRARY_DEBUG)
     set(ZeroMQ_LIBRARY
