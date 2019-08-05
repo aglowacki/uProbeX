@@ -199,6 +199,7 @@ add_executable(uProbeX
     src/mvc/MapsWorkspaceModel.h
     src/mvc/MapsWorkspaceFilesWidget.h
     src/mvc/ImageStackControlWidget.h
+	src/mvc/MapsWorkspaceController.h
     src/preferences/Preferences.h
     src/preferences/PreferencesDisplay.h
     src/preferences/PreferencesMicroPv.h
@@ -287,6 +288,7 @@ add_executable(uProbeX
     src/mvc/MapsWorkspaceModel.cpp
     src/mvc/MapsWorkspaceFilesWidget.cpp
     src/mvc/ImageStackControlWidget.cpp
+	src/mvc/MapsWorkspaceController.cpp
     src/preferences/Preferences.cpp
     src/preferences/Attribute.cpp
     src/preferences/AttributeGroup.cpp
