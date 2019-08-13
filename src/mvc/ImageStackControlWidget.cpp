@@ -33,7 +33,7 @@ void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout = new QHBoxLayout();
-
+	_imageGrid = new ImageGridWidget();
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
@@ -47,9 +47,23 @@ void ImageStackControlWidget::createLayout()
     hlayout->addWidget(_image_name_cb);
     hlayout->addWidget(_right_btn);
 
+	connect(_image_name_cb, SIGNAL(currentIndexChanged(const QString &text)), this, SLOT(h5IndexChanged(const QString &text)));
+
+	connect(this, SIGNAL(newH5ModelSelected), _imageGrid, SLOT(setModel));
 
     vlayout->addItem(hlayout);
-    setLayout(vlayout);
+	vlayout->addWidget(_imageGrid);
+	setLayout(vlayout);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::h5IndexChanged(const QString &text)
+{
+	if (_h5_model_map.count(text) > 0)
+	{
+		emit newH5ModelSelected(_h5_model_map[text]);
+	}
 }
 
 /*---------------------------------------------------------------------------*/

@@ -61,8 +61,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solverParameterParse = new SolverParameterParse();
     _load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
-    _maps_workspace_dock = nullptr;
-    _mapsWorkspaceModel = nullptr;
+	_mapsWorkspaceController = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -698,29 +697,16 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 void uProbeX::makeMapsWindow(QString path)
 {
 
-    if(_mapsWorkspaceModel != nullptr)
+    if(_mapsWorkspaceController == nullptr)
     {
-        _mapsWorkspaceModel->unload();
-        _mapsWorkspaceModel->load(path);
-        return;
+		_mapsWorkspaceController = new MapsWorkspaceController(this);
     }
-
-
-    _mapsWorkspaceModel = new MapsWorkspaceModel();
-    _mapsFilsWidget = new MapsWorkspaceFilesWidget();
-    _imgStackControllWidget = new ImageStackControlWidget();
-    _mapsFilsWidget->setLabelWorkspacePath(path);
-
-    _mapsFilsWidget->setModel(_mapsWorkspaceModel);
-    _imgStackControllWidget->setModel(_mapsWorkspaceModel);
-    //widget->resize(800, 600);
+	_mapsWorkspaceController->setWorkingDir(path);
 
     //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
     //        this, SLOT(makeHDFWindow(MapsH5Model*)));
 
-    connect(_mapsFilsWidget, SIGNAL(loadList_H5(QStringList)), _imgStackControllWidget, SLOT(loadList_H5(QStringList)));
-    connect(_mapsFilsWidget, SIGNAL(unloadList_H5(QStringList)), _imgStackControllWidget, SLOT(unloadList_H5(QStringList)));
-
+    
 //    connect(_mapsFilsWidget, SIGNAL(showFitSpecWindow(MapsH5Model*,
 //                                             data_struct::Fit_Parameters*,
 //                                             data_struct::Fit_Element_Map_Dict*)),
@@ -728,46 +714,6 @@ void uProbeX::makeMapsWindow(QString path)
 //                                     data_struct::Fit_Parameters*,
 //                                     data_struct::Fit_Element_Map_Dict*)));
 
-
-    connect(_mapsFilsWidget, SIGNAL(show_MDA_Window(MDA_Model*)),
-            this, SLOT(makeMDAWindow(MDA_Model*)));
-
-    connect(_mapsFilsWidget, SIGNAL(show_SWS_Window(SWSModel*)),
-            this, SLOT(makeSWSWindow(SWSModel*)));
-
-
-
-    _maps_workspace_dock = new QDockWidget("Files", this);
-    _maps_workspace_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _maps_workspace_dock->setWidget(_mapsFilsWidget);
-    addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
-
-
-    _image_stack_control_dock = new QDockWidget("", this);
-    _image_stack_control_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-    _image_stack_control_dock->setWidget(_imgStackControllWidget);
-    addDockWidget(Qt::TopDockWidgetArea, _image_stack_control_dock);
-
-    _mapsWorkspaceModel->load(path);
-
-    // TODO: this should be changed. will cause the first not to load
-    // if loading 2 workspaces right after another
-//    if(_load_maps_workspace_thread != nullptr)
-//    {
-//        _load_maps_workspace_thread->join();
-//        delete _load_maps_workspace_thread;
-//    }
-//    _load_maps_workspace_thread = new std::thread( [model, path]()
-//    {
-//        try
-//        {
-//            model->load(path);
-//        }
-//        catch(std::string& s)
-//        {
-//            qDebug()<<"Failed to open maps workspace.\n\n"<<QString(s.c_str());
-//        }
-//    });
 
 }
 

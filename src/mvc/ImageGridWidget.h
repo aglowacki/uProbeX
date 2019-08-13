@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2019, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef IMAGE_STACK_CONTROL_WIDGET_H
-#define IMAGE_STACK_CONTROL_WIDGET_H
+#ifndef IMAGE_GRID_WIDGET_H
+#define IMAGE_GRID_WIDGET_H
 
 /*---------------------------------------------------------------------------*/
 
@@ -15,7 +15,7 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include <mvc/ImageGridWidget.h>
+#include <gstar/ImageViewWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -24,7 +24,7 @@
  * the image from the area detector writer, the window will also be updated to
  * show the image.
  */
-class ImageStackControlWidget : public QWidget
+class ImageGridWidget : public QWidget
 {
 
    Q_OBJECT
@@ -34,47 +34,31 @@ public:
    /**
     * Constructor.
     */
-   ImageStackControlWidget(QWidget* parent = nullptr);
+   ImageGridWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
-   ~ImageStackControlWidget();
+   ~ImageGridWidget();
 
-   void setModel(MapsWorkspaceModel* model);
-
-signals:
-	void newH5ModelSelected(MapsH5Model*);
-
-public slots:
-   void loadList_H5(QStringList sl);
-
-   void unloadList_H5(QStringList sl);
-
-   void h5IndexChanged(const QString &text);
+ public slots:
+ 
+	 void setModel(MapsH5Model* model);
 
 protected:
 
    void createLayout();
 
-   MapsWorkspaceModel* _model;
+   MapsH5Model* _model;
 
-   ImageGridWidget* _imageGrid;
-
-   QComboBox *_image_name_cb;
-
-   QPushButton *_left_btn;
-
-   QPushButton *_right_btn;
-
-   map<QString, MapsH5Model*> _h5_model_map;
-
+   vector<gstar::ImageViewWidget*> _imageViewArray;
+ 
 };
 
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* ImageStackControlWidget_H_ */
+#endif /* ImageGridWidget_H_ */
 
 /*---------------------------------------------------------------------------*/
 

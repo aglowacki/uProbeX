@@ -15,8 +15,7 @@
 #include <gstar/CoordinateModel.h>
 #include <mvc/MapsH5Model.h>
 #include <mvc/LiveMapsElementsWidget.h>
-#include <mvc/MapsWorkspaceFilesWidget.h>
-#include <mvc/ImageStackControlWidget.h>
+#include <mvc/MapsWorkspaceController.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
@@ -28,7 +27,6 @@ class AbstractWindowController;
 
 class QAction;
 class QActionGroup;
-class QDockWidget;
 class QMenu;
 class QMenuBar;
 class QToolBar;
@@ -323,11 +321,7 @@ private:
 
 private:
 
-   MapsWorkspaceFilesWidget* _mapsFilsWidget;
-
-   ImageStackControlWidget* _imgStackControllWidget;
-
-   MapsWorkspaceModel* _mapsWorkspaceModel;
+   MapsWorkspaceController* _mapsWorkspaceController;
 
    /**
     * @brief m_lightToMicroCoordModel
@@ -398,10 +392,6 @@ private:
     * @brief _liveMapsViewer
     */
    LiveMapsElementsWidget*  _liveMapsViewer;
-
-   QDockWidget *_maps_workspace_dock;
-
-   QDockWidget *_image_stack_control_dock;
 
 };
 

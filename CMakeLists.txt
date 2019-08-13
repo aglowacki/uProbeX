@@ -193,12 +193,14 @@ add_executable(uProbeX
     src/mvc/MapsH5Model.h
     src/mvc/MDA_Model.h
     src/mvc/MDA_Widget.h
+	src/mvc/FileTabWidget.h
     src/mvc/FitSpectraWidget.h
     src/mvc/MapsElementsWidget.h
     src/mvc/LiveMapsElementsWidget.h
     src/mvc/MapsWorkspaceModel.h
     src/mvc/MapsWorkspaceFilesWidget.h
     src/mvc/ImageStackControlWidget.h
+	src/mvc/ImageGridWidget.h
 	src/mvc/MapsWorkspaceController.h
     src/preferences/Preferences.h
     src/preferences/PreferencesDisplay.h
@@ -282,12 +284,14 @@ add_executable(uProbeX
     src/mvc/MapsH5Model.cpp
     src/mvc/MDA_Model.cpp
     src/mvc/MDA_Widget.cpp
+	src/mvc/FileTabWidget.cpp
     src/mvc/FitSpectraWidget.cpp
     src/mvc/MapsElementsWidget.cpp
     src/mvc/LiveMapsElementsWidget.cpp
     src/mvc/MapsWorkspaceModel.cpp
     src/mvc/MapsWorkspaceFilesWidget.cpp
     src/mvc/ImageStackControlWidget.cpp
+	src/mvc/ImageGridWidget.cpp
 	src/mvc/MapsWorkspaceController.cpp
     src/preferences/Preferences.cpp
     src/preferences/Attribute.cpp
