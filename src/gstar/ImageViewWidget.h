@@ -57,7 +57,7 @@ public:
     *
     * @param parent the Qt parent widget.
     */
-   ImageViewWidget(QWidget* parent = 0);
+   ImageViewWidget(int rows = 1, int cols = 1, QWidget* parent = 0);
 
    /**
     * Destructor
@@ -133,14 +133,6 @@ public:
     * Set the visible status of the rangeWidget.
     */
    void setRangewidgetVisible(bool m_rangeVisible = false);
-
-   /**
-    * Sets the current scene to scene. If scene is already being viewed,
-    * this function does nothing.
-    *
-    * @param scene - The scene to set.
-    */
-   void setScene(ImageViewScene* scene);
 
    /**
     * The widget to display current zoom value.
@@ -293,7 +285,7 @@ private:
    /**
     * Create graphics scene and graphics view
     */
-   void createSceneAndView();
+   void createSceneAndView(int rows, int cols);
 
    /**
     * Create and setup the rangewidget.
@@ -311,7 +303,7 @@ private:
    /**
     * The QGraphicsScene subclass for the QGraphicsView
     */
-   ImageViewScene* m_scene;
+   std::vector<ImageViewScene*> m_scene;
 
    /**
     * Widget
@@ -321,7 +313,7 @@ private:
    /**
     * QGraphicsView for displaying the scene graph
     */
-   QGraphicsView* m_view;
+   std::vector<QGraphicsView*> m_view;
 
    /**
     * Zoom in cursor
@@ -348,6 +340,10 @@ private:
     * Zoom percent combobox
     */
    bool m_mouseLeaveState;
+
+   int _grid_rows;
+
+   int _grid_cols;
 
 };
 

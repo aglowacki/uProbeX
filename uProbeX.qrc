@@ -29,5 +29,6 @@
         <file>images/circle_red.png</file>
         <file>qss/dark.qss</file>
         <file>qss/dark2.qss</file>
+        <file>images/grid.png</file>
     </qresource>
 </RCC>

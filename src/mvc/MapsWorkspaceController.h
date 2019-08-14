@@ -14,7 +14,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/MapsWorkspaceFilesWidget.h>
 #include <mvc/ImageStackControlWidget.h>
-
+//#include <mvc/MapsElementsWidget.h>
 
 class MapsWorkspaceController : public QObject
 {
@@ -43,7 +43,7 @@ protected:
 
 	MapsWorkspaceModel* _mapsWorkspaceModel;
 
-	ImageGridWidget* _imageGrid;
+	//MapsElementsWidget* _imageGrid;
 
 	QMainWindow * _parentWindowPtr;
 

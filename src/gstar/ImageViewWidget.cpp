@@ -15,14 +15,14 @@ using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
 
-ImageViewWidget::ImageViewWidget(QWidget* parent)
+ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
 : QWidget(parent), m_fillState(false)
 {
 
    m_coordWidget = nullptr;
 
    // Create scene and view
-   createSceneAndView();
+   createSceneAndView(rows,cols);
 
    // Create main layout and add widgets
    createLayout();
@@ -45,18 +45,17 @@ ImageViewWidget::ImageViewWidget(QWidget* parent)
 ImageViewWidget::~ImageViewWidget()
 {
 
-   if (m_scene != nullptr)
-   {
-      delete m_scene;
-      m_scene = nullptr;
-   }
+	for (auto& itr : m_scene)
+	{
+		delete itr;
+	}
+	m_scene.clear();
 
-   if (m_view != nullptr)
-   {
-      delete m_view;
-      m_view = nullptr;
-   }
-
+	for (auto& itr : m_view)
+	{
+		delete itr;
+	}
+	m_view.clear();
 
 }
 
@@ -75,11 +74,16 @@ void ImageViewWidget::clickCursor()
 {
 
    // Set scene mode
-   m_scene->setZoomModeToNone();
+	for (auto& itr : m_scene)
+	{
+		itr->setZoomModeToNone();
+	}
 
    // Set regular cursor
-   m_view->viewport()->setCursor(Qt::ArrowCursor);
-
+   for (auto& itr : m_view)
+   {
+	   itr->viewport()->setCursor(Qt::ArrowCursor);
+   }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -95,15 +99,21 @@ void ImageViewWidget::clickFill(bool checked)
    clickCursor();
 
    // Set scene mode
-   if (checked == true) {
-      m_scene->setZoomModeToFit();
-      resizeEvent(nullptr);
-      m_zoomPercent->setCurrentIndex(-1);
+   if (checked == true) 
+   {
+	   for (auto& itr : m_scene)
+	   {
+		   itr->setZoomModeToFit();
+	   }
+		resizeEvent(nullptr);
+		m_zoomPercent->setCurrentIndex(-1);
    }
    
    // Set regular cursor
-   m_view->viewport()->setCursor(Qt::ArrowCursor);
-
+   for (auto &itr : m_view)
+   {
+	   itr->viewport()->setCursor(Qt::ArrowCursor);
+   }
 
 }
 
@@ -112,11 +122,15 @@ void ImageViewWidget::clickFill(bool checked)
 void ImageViewWidget::clickZoomIn()
 {
 
-   // Set zoom in mode
-   m_scene->setZoomModeToZoomIn();
+	for (auto& itr : m_scene)
+	{
+		itr->setZoomModeToZoomIn();
+	}
 
-   // Change cursor
-   m_view->viewport()->setCursor(m_zoomInCursor);
+	for (auto& itr : m_view)
+	{
+		itr->viewport()->setCursor(m_zoomInCursor);
+	}
 
 }
 
@@ -125,12 +139,13 @@ void ImageViewWidget::clickZoomIn()
 void ImageViewWidget::clickZoomOriginal()
 {
 
-   // Zoom back to actual image size
-   m_view->resetMatrix();
-
-   // Force update scroll bars
-   m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	for (auto& itr : m_view)
+	{
+		itr->resetMatrix();
+		itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	}
+  
 
    updateZoomPercentage();
 
@@ -142,11 +157,14 @@ void ImageViewWidget::clickZoomOut()
 {
 
    // Set zoom out mode
-   m_scene->setZoomModeToZoomOut();
-
-   // Change cursor
-   m_view->viewport()->setCursor(m_zoomOutCursor);
-
+	for (auto& itr : m_scene)
+	{
+		itr->setZoomModeToZoomOut();
+	}
+   for (auto& itr : m_view)
+   {
+	   itr->viewport()->setCursor(m_zoomOutCursor);
+   }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -159,7 +177,17 @@ void ImageViewWidget::createLayout()
    // Layout
    QVBoxLayout* layout = new QVBoxLayout();
    layout -> setContentsMargins(0, 0, 0, 0);
-   layout -> addWidget(m_view);
+
+   QGridLayout *gw = new QGridLayout();
+   for (int i = 0; i < _grid_rows; i++)
+   {
+	   for (int j = 0; j < _grid_cols; j++)
+	   {
+		   gw->addWidget(m_view[(i*_grid_rows) + j], i, j, 1, 1);
+	   }
+   }
+   
+   layout -> addItem(gw);
    layout->addWidget(m_coordWidget);
 
    // Set widget's layout
@@ -169,28 +197,37 @@ void ImageViewWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void ImageViewWidget::createSceneAndView()
+void ImageViewWidget::createSceneAndView(int rows, int cols)
 {
+	_grid_rows = rows;
+	_grid_cols = cols;
 
-   // Initialize scene
-   m_scene = new ImageViewScene();
-   m_scene->setSceneRect(m_scene->itemsBoundingRect());
+	m_view.resize(_grid_rows*_grid_cols);
+	m_scene.resize(_grid_rows*_grid_cols);
+	for (int i = 0; i < _grid_rows * _grid_cols; i++)
+	{
+		// Initialize scene
+		ImageViewScene* scene = new ImageViewScene();
+		scene->setSceneRect(scene->itemsBoundingRect());
 
 
-   connect(m_scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
-   connect(m_scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
-   connect(m_scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-   connect(m_scene, SIGNAL(sceneRectChanged(const QRectF&)),
-           this, SLOT(sceneRectUpdated(const QRectF&)));
+		connect(scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
+		connect(scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
+		connect(scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+		connect(scene, SIGNAL(sceneRectChanged(const QRectF&)),
+			this, SLOT(sceneRectUpdated(const QRectF&)));
 
-   connect(m_scene, SIGNAL(mouseOverPixel(int, int)),
-           this, SLOT(mouseOverPixel(int, int)));
+		connect(scene, SIGNAL(mouseOverPixel(int, int)),
+			this, SLOT(mouseOverPixel(int, int)));
 
-   // Initialize view
-   m_view = new QGraphicsView();
-   m_view -> setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-   m_view -> setScene(m_scene);
+		// Initialize view
+		QGraphicsView *view = new QGraphicsView();
+		view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+		view->setScene(scene);
 
+		m_scene[i] = scene;
+		m_view[i] = view;
+	}
 }
 
 /*---------------------------------------------------------------------------*/
@@ -217,10 +254,10 @@ void ImageViewWidget::enterEvent(QEvent * event)
 qreal ImageViewWidget::getCurrentZoomPercent()
 {
 
-   QTransform t = m_view->transform();
-   QRectF tImage = t.mapRect(m_scene->pixRect());
+   QTransform t = m_view[0]->transform();
+   QRectF tImage = t.mapRect(m_scene[0]->pixRect());
 
-   qreal wp = tImage.width() / m_scene->pixRect().width() * 100.0;
+   qreal wp = tImage.width() / m_scene[0]->pixRect().width() * 100.0;
 
    return wp;
 
@@ -231,8 +268,7 @@ qreal ImageViewWidget::getCurrentZoomPercent()
 QPointF ImageViewWidget::getCenterPoint() const
 {
 
-   const QRectF centerRect = m_view->mapToScene(
-            m_view->viewport()->geometry()).boundingRect();
+   const QRectF centerRect = m_view[0]->mapToScene(m_view[0]->viewport()->geometry()).boundingRect();
 
    return centerRect.center();
 
@@ -286,18 +322,16 @@ void ImageViewWidget::resizeEvent(QResizeEvent* event)
    if (m_fillState == false) return;
    
    // Get image size
-   QRectF r(0, 0,
-            (m_scene->sceneRect()).width(),
-            (m_scene->sceneRect()).height());
+   QRectF r(0, 0, (m_scene[0]->sceneRect()).width(), (m_scene[0]->sceneRect()).height());
+   for (auto &itr : m_view)
+   {
+	   itr->fitInView(r, Qt::KeepAspectRatio);
 
-   m_view -> fitInView(r,Qt::KeepAspectRatio);
-
+	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+   }
    updateZoomPercentage();
    update();
-
-   m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-   m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -306,7 +340,7 @@ ImageViewScene* ImageViewWidget::scene()
 {
 
    // Return current scene
-   return m_scene;
+   return m_scene[0];
 
 }
 
@@ -319,42 +353,6 @@ void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
 
    // Force a resize
    resizeEvent(nullptr);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ImageViewWidget::setScene(ImageViewScene* scene)
-{
-
-   // Pointer check
-   if (scene == nullptr) return;
-
-   // Disconnect current scene
-   if (m_scene != nullptr) {
-      disconnect(m_scene, SIGNAL(zoomIn()), this, SLOT(zoomIn()));
-      disconnect(m_scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-      disconnect(m_scene, SIGNAL(sceneRectChanged(const QRectF&)),
-                 this, SLOT(sceneRectUpdated(const QRectF&)));
-
-      disconnect(m_scene, SIGNAL(mouseOverPixel(int, int)),
-              this, SLOT(mouseOverPixel(int, int)));
-   }
-
-   // Keep a pointer and connect new scene
-   m_scene = scene;
-   connect(m_scene, SIGNAL(zoomIn()), this, SLOT(zoomIn()));
-   connect(m_scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-   connect(m_scene, SIGNAL(sceneRectChanged(const QRectF&)),
-           this, SLOT(sceneRectUpdated(const QRectF&)));
-
-   connect(m_scene, SIGNAL(mouseOverPixel(int, int)),
-           this, SLOT(mouseOverPixel(int, int)));
-
-   // Update the view
-   m_view -> setScene(m_scene);
-
-   updateZoomPercentage();
 
 }
 
@@ -404,7 +402,7 @@ QGraphicsView* ImageViewWidget::view()
 {
 
    // Return current scene
-   return m_view;
+   return m_view[0];
 
 }
 
@@ -412,12 +410,14 @@ QGraphicsView* ImageViewWidget::view()
 
 void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
 {
-   m_view->fitInView(zoomObject, Qt::KeepAspectRatio);
+	for (auto & itr : m_view)
+	{
+		itr->fitInView(zoomObject, Qt::KeepAspectRatio);
 
-   // Force update scroll bars
-   m_view -> setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   m_view -> setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
+		// Force update scroll bars
+		itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	}
    updateZoomPercentage();
 
    clickCursor();
@@ -442,11 +442,10 @@ void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
    if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty())
        && (zoomWidth > 10 && zoomHeight > 10) )
    {
-
-      m_view->fitInView(QRectF(m_view->mapToScene(zoomRect.topLeft().toPoint()),
-                               m_view->mapToScene(zoomRect.bottomRight().toPoint())),
-                        Qt::KeepAspectRatio);
-
+	   for (auto & itr : m_view)
+	   {
+		   itr->fitInView(QRectF(itr->mapToScene(zoomRect.topLeft().toPoint()), itr->mapToScene(zoomRect.bottomRight().toPoint())),   Qt::KeepAspectRatio);
+	   }
       /*
       QRect viewport = m_view -> rect();
 
@@ -471,14 +470,18 @@ void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
    else
    {
       // Without zoom rectangle, scale using fixed value
-      m_view -> scale(1.50, 1.50);
-      m_view -> centerOn(event->lastScenePos());
+	   for (auto & itr : m_view)
+	   {
+		   itr->scale(1.50, 1.50);
+		   itr->centerOn(event->lastScenePos());
+	   }
    }
-
-   // Force update scroll bars
-   m_view -> setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   m_view -> setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
+   for (auto & itr : m_view)
+   {
+	   // Force update scroll bars
+	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+   }
    updateZoomPercentage();
 
 }
@@ -491,13 +494,14 @@ void ImageViewWidget::zoomOut()
    qreal wp = getCurrentZoomPercent();
 
    if (wp <= 12.5) return;
+   for (auto & itr : m_view)
+   {
+	   itr->scale(.66, .66);
 
-   m_view -> scale(.66, .66);
-
-   // Force update scroll bars
-   m_view -> setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   m_view -> setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
+	   // Force update scroll bars
+	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+   }
    updateZoomPercentage();
 
 }
@@ -515,8 +519,8 @@ void ImageViewWidget::zoomValueChanged()
       return;
    }
 
-   QTransform t = m_view->transform();
-   QRectF image = m_scene->pixRect();
+   QTransform t = m_view[0]->transform();
+   QRectF image = m_scene[0]->pixRect();
    QRectF tImage = t.mapRect(image);
 
    qreal sx = (value/100 * image.width()) / tImage.width();
@@ -525,8 +529,10 @@ void ImageViewWidget::zoomValueChanged()
    qreal s = sx;
    if (sy < sx) s = sy;
 
-   m_view->scale(s, s);
-
+   for (auto & itr : m_view)
+   {
+	   itr->scale(s, s);
+   }
 }
 
 /*---------------------------------------------------------------------------*/

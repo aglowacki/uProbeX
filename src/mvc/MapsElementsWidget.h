@@ -39,7 +39,7 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(QWidget* parent = nullptr);
+   MapsElementsWidget(int rows = 1, int cols = 1, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -79,6 +79,8 @@ public slots:
    void addHotSpotMask();
 
    void hotspotUpdated();
+
+   void onGridDialog();
 
 protected:
 
@@ -126,6 +128,8 @@ protected:
    gstar::CountsLookupTransformer *_counts_lookup;
 
    QAction *_addHotSpotMaskAction;
+   
+   QPushButton * _grid_button;
 
 };
 

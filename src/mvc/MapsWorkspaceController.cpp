@@ -27,10 +27,13 @@ MapsWorkspaceController::MapsWorkspaceController(QMainWindow * parentWindow, QOb
 		_maps_workspace_dock->setWidget(_mapsFilsWidget);
 		_parentWindowPtr->addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
 
+		/*
 		_image_stack_control_dock = new QDockWidget("", _parentWindowPtr);
 		_image_stack_control_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
 		_image_stack_control_dock->setWidget(_imgStackControllWidget);
 		_parentWindowPtr->addDockWidget(Qt::TopDockWidgetArea, _image_stack_control_dock);
+		*/
+		_imgStackControllWidget->show();
 	}
 
 }

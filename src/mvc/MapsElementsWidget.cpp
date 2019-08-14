@@ -14,6 +14,7 @@
 #include <QSplitter>
 
 #include <limits>
+#include "mvc/ImageGridDialog.h"
 
 
 using gstar::AbstractImageWidget;
@@ -21,8 +22,8 @@ using gstar::ImageViewWidget;
 
 /*---------------------------------------------------------------------------*/
 
-MapsElementsWidget::MapsElementsWidget(QWidget* parent)
-    : AbstractImageWidget(parent)
+MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
+    : AbstractImageWidget(rows, cols, parent)
 {
 
     _model = nullptr;
@@ -92,12 +93,22 @@ void MapsElementsWidget::_createLayout()
 	_cb_colormap->addItem("Heatmap");
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
-    m_toolbar -> addWidget(new QLabel(" ColorMap :"));
-    m_toolbar -> addWidget(_cb_colormap);
+    m_toolbar->addWidget(new QLabel(" ColorMap :"));
+    m_toolbar->addWidget(_cb_colormap);
 
-    hbox->addWidget(_cb_analysis);
-    hbox->addWidget(_cb_element);
-    counts_layout->addItem(hbox);
+	_grid_button = new QPushButton();
+	_grid_button->setIcon(QIcon(":/images/grid.png"));
+	_grid_button->setIconSize(QSize(15, 15)); 
+
+	connect(_grid_button, SIGNAL(pressed()), this, SLOT(onGridDialog()));
+
+	m_toolbar->addWidget(_grid_button);
+	m_toolbar->addWidget(_cb_analysis);
+	m_toolbar->addWidget(_cb_element);
+	
+    //hbox->addWidget(_cb_analysis);
+    //hbox->addWidget(_cb_element);
+    //counts_layout->addItem(hbox);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -141,6 +152,15 @@ void MapsElementsWidget::_createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsElementsWidget::onGridDialog()
+{
+	ImageGridDialog iDiag;
+	iDiag.show();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsElementsWidget::addHotSpotMask()
 {
     int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
@@ -167,6 +187,8 @@ void MapsElementsWidget::mouseOverPixel(int x, int y)
    _counts_coord_widget -> setCoordinate(x, y, 0);
 
 }
+
+/*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::createActions()
 {

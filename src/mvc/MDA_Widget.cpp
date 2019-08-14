@@ -20,7 +20,7 @@ using gstar::ImageViewWidget;
 /*---------------------------------------------------------------------------*/
 
 MDA_Widget::MDA_Widget(QWidget* parent)
-    : AbstractImageWidget(parent)
+    : AbstractImageWidget(1,1,parent)
 {
 
     _model = nullptr;

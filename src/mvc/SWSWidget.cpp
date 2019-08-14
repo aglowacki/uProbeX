@@ -62,7 +62,7 @@ enum TabIndex{
 /*---------------------------------------------------------------------------*/
 
 SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
-: AbstractImageWidget(parent)
+: AbstractImageWidget(1,1,parent)
 {
 
    m_microProbePvSet = false;

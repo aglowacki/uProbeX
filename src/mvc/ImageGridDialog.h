@@ -3,19 +3,17 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef IMAGE_GRID_WIDGET_H
-#define IMAGE_GRID_WIDGET_H
+#ifndef IMAGE_GRID_DIALOG_H
+#define IMAGE_GRID_DIALOG_H
 
 /*---------------------------------------------------------------------------*/
 
-#include <QWidget>
+#include <QDialog>
 #include <QLabel>
-#include <mvc/MapsWorkspaceModel.h>
 #include <QPushButton>
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include <gstar/ImageViewWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -24,7 +22,7 @@
  * the image from the area detector writer, the window will also be updated to
  * show the image.
  */
-class ImageGridWidget : public QWidget
+class ImageGridDialog : public QDialog
 {
 
    Q_OBJECT
@@ -34,31 +32,28 @@ public:
    /**
     * Constructor.
     */
-   ImageGridWidget(QWidget* parent = nullptr);
+   ImageGridDialog();
 
    /**
     * Destructor.
     */
-   ~ImageGridWidget();
+   ~ImageGridDialog();
 
  public slots:
  
-	 void setModel(MapsH5Model* model);
+	
 
 protected:
 
    void createLayout();
 
-   MapsH5Model* _model;
-
-   vector<gstar::ImageViewWidget*> _imageViewArray;
- 
+   
 };
 
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* ImageGridWidget_H_ */
+#endif /* ImageGridDialog_H_ */
 
 /*---------------------------------------------------------------------------*/
 

@@ -200,7 +200,7 @@ add_executable(uProbeX
     src/mvc/MapsWorkspaceModel.h
     src/mvc/MapsWorkspaceFilesWidget.h
     src/mvc/ImageStackControlWidget.h
-	src/mvc/ImageGridWidget.h
+	src/mvc/ImageGridDialog.h
 	src/mvc/MapsWorkspaceController.h
     src/preferences/Preferences.h
     src/preferences/PreferencesDisplay.h
@@ -291,7 +291,7 @@ add_executable(uProbeX
     src/mvc/MapsWorkspaceModel.cpp
     src/mvc/MapsWorkspaceFilesWidget.cpp
     src/mvc/ImageStackControlWidget.cpp
-	src/mvc/ImageGridWidget.cpp
+	src/mvc/ImageGridDialog.cpp
 	src/mvc/MapsWorkspaceController.cpp
     src/preferences/Preferences.cpp
     src/preferences/Attribute.cpp

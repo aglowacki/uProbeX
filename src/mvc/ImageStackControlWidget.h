@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2019, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
@@ -15,7 +15,7 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include <mvc/ImageGridWidget.h>
+#include "mvc/MapsElementsWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ protected:
 
    MapsWorkspaceModel* _model;
 
-   ImageGridWidget* _imageGrid;
+   MapsElementsWidget* _imageGrid;
 
    QComboBox *_image_name_cb;
 

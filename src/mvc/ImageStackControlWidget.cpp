@@ -33,7 +33,7 @@ void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout = new QHBoxLayout();
-	_imageGrid = new ImageGridWidget();
+	_imageGrid = new MapsElementsWidget(1,1);
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));

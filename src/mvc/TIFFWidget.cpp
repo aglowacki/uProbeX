@@ -18,7 +18,7 @@ using gstar::ImageViewWidget;
 /*---------------------------------------------------------------------------*/
 
 TIFFWidget::TIFFWidget(QWidget* parent)
-: AbstractImageWidget(parent)
+: AbstractImageWidget(1,1,parent)
 {
 
    createLayout();

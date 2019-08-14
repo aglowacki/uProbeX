@@ -34,7 +34,7 @@ using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
 
-AbstractImageWidget::AbstractImageWidget(QWidget* parent)
+AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 : QWidget(parent)
 {
    
@@ -78,7 +78,7 @@ AbstractImageWidget::AbstractImageWidget(QWidget* parent)
            this,
            SLOT(treeDoubleClicked(const QModelIndex &)));
 
-   m_imageViewWidget = new ImageViewWidget();
+   m_imageViewWidget = new ImageViewWidget(rows, cols);
    m_imageViewWidget->scene()->setModel(m_treeModel);
    m_imageViewWidget->scene()->setSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
