@@ -45,6 +45,22 @@ MapsWorkspaceController::~MapsWorkspaceController()
 
 }
 
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceController::makeSWSWindow(SWSModel* model)
+{
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceController::makeMDAWindow(MDA_Model *model)
+{
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceController::setWorkingDir(QString path)
 {
 	_mapsWorkspaceModel->unload();

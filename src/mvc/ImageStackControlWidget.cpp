@@ -47,9 +47,9 @@ void ImageStackControlWidget::createLayout()
     hlayout->addWidget(_image_name_cb);
     hlayout->addWidget(_right_btn);
 
-	connect(_image_name_cb, SIGNAL(currentIndexChanged(const QString &text)), this, SLOT(h5IndexChanged(const QString &text)));
+	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
 
-	connect(this, SIGNAL(newH5ModelSelected), _imageGrid, SLOT(setModel));
+	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
 
     vlayout->addItem(hlayout);
 	vlayout->addWidget(_imageGrid);
@@ -64,6 +64,15 @@ void ImageStackControlWidget::h5IndexChanged(const QString &text)
 	{
 		emit newH5ModelSelected(_h5_model_map[text]);
 	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::onNewH5ModelSelected(MapsH5Model* model)
+{
+
+	//_imageGrid->setModel(model, _fit_params, _elements_to_fit);
+	_imageGrid->setModel(model, nullptr, nullptr);
 }
 
 /*---------------------------------------------------------------------------*/

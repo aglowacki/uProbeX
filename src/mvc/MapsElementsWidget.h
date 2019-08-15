@@ -17,6 +17,7 @@
 #include <gstar/CoordinateWidget.h>
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
+#include "mvc/ImageGridDialog.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -82,6 +83,8 @@ public slots:
 
    void onGridDialog();
 
+   void onNewGridLayout(int rows, int cols);
+
 protected:
 
    /**
@@ -130,6 +133,8 @@ protected:
    QAction *_addHotSpotMaskAction;
    
    QPushButton * _grid_button;
+
+   ImageGridDialog iDiag;
 
 };
 

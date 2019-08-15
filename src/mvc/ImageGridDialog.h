@@ -10,10 +10,13 @@
 
 #include <QDialog>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
+#include <QSpinBox>
+#include <QDialogButtonBox>
 
 /*---------------------------------------------------------------------------*/
 
@@ -39,14 +42,27 @@ public:
     */
    ~ImageGridDialog();
 
- public slots:
- 
-	
+signals:
+	void onNewGridLayout(int rows, int cols);
+
+public slots:
+	void onUpdate();
 
 protected:
 
    void createLayout();
 
+private:
+	QLabel *rowLabel;
+	QLabel *colLabel;
+
+   //QDialogButtonBox *buttonBox;
+
+   QPushButton *updateBtn;
+   QPushButton *cancelBtn;
+
+   QSpinBox *sbRow;
+   QSpinBox *sbCol;
    
 };
 

@@ -35,6 +35,11 @@ public:
 
    void setWorkingDir(QString path);
 
+public slots:
+	void makeSWSWindow(SWSModel* model);
+
+	void makeMDAWindow(MDA_Model *model);
+
 protected:
 
 	MapsWorkspaceFilesWidget* _mapsFilsWidget;

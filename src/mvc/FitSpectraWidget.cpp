@@ -14,7 +14,7 @@
 #include <QItemSelectionModel>
 #include <QDebug>
 #include <QFileDialog>
-
+#include <QSplitter>
 
 #include <math.h>
 
@@ -86,6 +86,13 @@ void FitSpectraWidget::createLayout()
     _fit_params_tab_widget = new QTabWidget();
 
     fitting::models::Gaussian_Model g_model;
+
+	QSplitter* splitter = new QSplitter();
+	splitter->setOrientation(Qt::Vertical);
+	splitter->addWidget(_spectra_widget);
+	splitter->setStretchFactor(0, 1);
+	splitter->addWidget(_fit_params_tab_widget);
+
 
     _fit_params_table_model = new FitParamsTableModel();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
@@ -183,8 +190,9 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_btn_export_parameters, 2, 1);
 
     QLayout* layout = new QVBoxLayout();
-    layout->addWidget(_spectra_widget);
-    layout->addWidget(_fit_params_tab_widget);
+	layout->addWidget(splitter);
+    //layout->addWidget(_spectra_widget);
+    //layout->addWidget(_fit_params_tab_widget);
     layout->addItem(grid_layout);
     setLayout(layout);
 }

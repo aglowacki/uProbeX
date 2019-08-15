@@ -191,6 +191,8 @@ public slots:
     */
    void resizeEvent(QResizeEvent* event);
 
+   void newGridLayout(int rows, int cols);
+
 signals:
 
    /**
@@ -341,9 +343,13 @@ private:
     */
    bool m_mouseLeaveState;
 
+   QGridLayout *_image_view_grid_layout;
+
    int _grid_rows;
 
    int _grid_cols;
+
+   QVBoxLayout* _main_layout;
 
 };
 

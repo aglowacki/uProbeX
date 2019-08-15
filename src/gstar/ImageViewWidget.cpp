@@ -175,23 +175,23 @@ void ImageViewWidget::createLayout()
    m_coordWidget = new CoordinateWidget();
 
    // Layout
-   QVBoxLayout* layout = new QVBoxLayout();
-   layout -> setContentsMargins(0, 0, 0, 0);
+   _main_layout = new QVBoxLayout();
+   _main_layout->setContentsMargins(0, 0, 0, 0);
 
-   QGridLayout *gw = new QGridLayout();
+   _image_view_grid_layout = new QGridLayout();
    for (int i = 0; i < _grid_rows; i++)
    {
 	   for (int j = 0; j < _grid_cols; j++)
 	   {
-		   gw->addWidget(m_view[(i*_grid_rows) + j], i, j, 1, 1);
+		   _image_view_grid_layout->addWidget(m_view[(i*_grid_rows) + j], i, j);
 	   }
    }
    
-   layout -> addItem(gw);
-   layout->addWidget(m_coordWidget);
+   _main_layout->addItem(_image_view_grid_layout);
+   _main_layout->addWidget(m_coordWidget);
 
    // Set widget's layout
-   setLayout(layout);
+   setLayout(_main_layout);
 
 }
 
@@ -227,6 +227,68 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 		m_scene[i] = scene;
 		m_view[i] = view;
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::newGridLayout(int rows, int cols)
+{
+	if (rows < _grid_rows || cols < _grid_cols)
+	{
+
+	}
+	else
+	{
+		int current_total = _grid_cols * _grid_rows;
+		int new_total = rows * cols;
+
+		int diff = new_total - current_total;
+		for (int i = 0; i < diff; i++)
+		{
+			// Initialize scene
+			ImageViewScene* scene = new ImageViewScene();
+			scene->setSceneRect(scene->itemsBoundingRect());
+
+
+			connect(scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
+			connect(scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
+			connect(scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+			connect(scene, SIGNAL(sceneRectChanged(const QRectF&)),
+				this, SLOT(sceneRectUpdated(const QRectF&)));
+
+			connect(scene, SIGNAL(mouseOverPixel(int, int)),
+				this, SLOT(mouseOverPixel(int, int)));
+
+			// Initialize view
+			QGraphicsView *view = new QGraphicsView();
+			view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+			view->setScene(scene);
+
+			m_scene.push_back(scene);
+			m_view.push_back(view);
+		}
+
+		_grid_cols = cols;
+		_grid_rows = rows;
+
+		int i = 0;
+		int j = 0;
+		for (auto & itr : m_view)
+		{
+			_image_view_grid_layout->addWidget(itr, i, j);
+			//itr->show();
+			j++;
+			if (j >= _grid_cols)
+			{
+				j = 0;
+				i++;
+				if (i >= _grid_rows)
+				{
+					i = 0;
+				}
+			}
+		}
 	}
 }
 

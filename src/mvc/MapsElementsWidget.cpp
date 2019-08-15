@@ -14,7 +14,6 @@
 #include <QSplitter>
 
 #include <limits>
-#include "mvc/ImageGridDialog.h"
 
 
 using gstar::AbstractImageWidget;
@@ -71,6 +70,8 @@ void MapsElementsWidget::_createLayout()
     QHBoxLayout* hbox2 = new QHBoxLayout();
     QVBoxLayout* counts_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
+
+	connect(&iDiag, SIGNAL(onNewGridLayout(int, int)), this, SLOT(onNewGridLayout(int, int)));
 
     _dataset_directory = new QLabel();
     _dataset_name = new QLabel();
@@ -154,11 +155,15 @@ void MapsElementsWidget::_createLayout()
 
 void MapsElementsWidget::onGridDialog()
 {
-	ImageGridDialog iDiag;
+	
 	iDiag.show();
 
 }
 
+void MapsElementsWidget::onNewGridLayout(int rows, int cols)
+{
+	m_imageViewWidget->newGridLayout(rows, cols);
+}
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::addHotSpotMask()

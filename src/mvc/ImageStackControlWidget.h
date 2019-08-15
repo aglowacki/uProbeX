@@ -53,6 +53,8 @@ public slots:
 
    void h5IndexChanged(const QString &text);
 
+   void onNewH5ModelSelected(MapsH5Model*);
+
 protected:
 
    void createLayout();
