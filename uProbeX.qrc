@@ -30,5 +30,6 @@
         <file>qss/dark.qss</file>
         <file>qss/dark2.qss</file>
         <file>images/grid.png</file>
+        <file>images/question.png</file>
     </qresource>
 </RCC>

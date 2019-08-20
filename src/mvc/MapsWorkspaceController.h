@@ -26,7 +26,7 @@ public:
    /**
     * Constructor.
     */
-	MapsWorkspaceController(QMainWindow * parentWindow, QObject* parent = nullptr);
+	MapsWorkspaceController(QObject* parent = nullptr);
 
    /**
     * Destructor.
@@ -45,10 +45,6 @@ protected:
 	ImageStackControlWidget* _imgStackControllWidget;
 
 	MapsWorkspaceModel* _mapsWorkspaceModel;
-
-	//MapsElementsWidget* _imageGrid;
-
-	QMainWindow * _parentWindowPtr;
 
 	QDockWidget *_maps_workspace_dock;
 

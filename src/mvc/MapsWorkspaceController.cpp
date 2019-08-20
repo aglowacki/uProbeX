@@ -5,12 +5,10 @@
 
 #include <mvc/MapsWorkspaceController.h>
 
-MapsWorkspaceController::MapsWorkspaceController(QMainWindow * parentWindow, QObject* parent) : QObject(parent)
+MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
 
-	_parentWindowPtr = parentWindow;
 	_mapsWorkspaceModel = new MapsWorkspaceModel();
-	//_mapsFilsWidget = new MapsWorkspaceFilesWidget();
 	_imgStackControllWidget = new ImageStackControlWidget();
 	
 	_imgStackControllWidget->setModel(_mapsWorkspaceModel);
@@ -21,21 +19,6 @@ MapsWorkspaceController::MapsWorkspaceController(QMainWindow * parentWindow, QOb
 //	connect(_mapsFilsWidget, SIGNAL(show_MDA_Window(MDA_Model*)), this, SLOT(makeMDAWindow(MDA_Model*)));
 //	connect(_mapsFilsWidget, SIGNAL(show_SWS_Window(SWSModel*)), this, SLOT(makeSWSWindow(SWSModel*)));
 
-	if (_parentWindowPtr != nullptr)
-	{
-		/*
-		_maps_workspace_dock = new QDockWidget("Files", _parentWindowPtr);
-		_maps_workspace_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-		_maps_workspace_dock->setWidget(_mapsFilsWidget);
-		_parentWindowPtr->addDockWidget(Qt::LeftDockWidgetArea, _maps_workspace_dock);
-
-		
-		_image_stack_control_dock = new QDockWidget("", _parentWindowPtr);
-		_image_stack_control_dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-		_image_stack_control_dock->setWidget(_imgStackControllWidget);
-		_parentWindowPtr->addDockWidget(Qt::TopDockWidgetArea, _image_stack_control_dock);
-		*/
-	}
 	_imgStackControllWidget->show();
 }
 

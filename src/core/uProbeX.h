@@ -66,6 +66,9 @@ public:
     */
    ~uProbeX();
 
+   //Static log windows 
+   static QTextEdit * log_textedit;
+
 private slots:
 
    /**
@@ -392,6 +395,9 @@ private:
     * @brief _liveMapsViewer
     */
    LiveMapsElementsWidget*  _liveMapsViewer;
+
+   // log dock
+   QDockWidget *_log_dock;
 
 };
 

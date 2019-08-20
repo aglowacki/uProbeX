@@ -246,39 +246,41 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
-{
+{	
     QString elementName = _cb_element->currentText();
     bool found_element = false;
-
-    data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
-    if (analysis_type != nullptr)
-    {
-        disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
-        _cb_element->clear();
-        //std::vector<std::string> elements = analysis_type->get_count_names();
-        std::string lastName;
-        for(auto& itr: *analysis_type)
-        {
-            QString val = QString(itr.first.c_str());
-            _cb_element->addItem(val);
-            if(elementName == val)
-            {
-                found_element = true;
-            }
-            lastName = itr.first;
-        }
-        if(found_element)
-        {
-            _cb_element->setCurrentText(elementName);
-            displayCounts(name.toStdString(), elementName.toStdString());
-        }
-        else
-        {
-            _cb_element->setCurrentText(QString(lastName.c_str()));
-            displayCounts(name.toStdString(), lastName);
-        }
-        connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
-    }
+	if (_model != nullptr)
+	{
+		data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
+		if (analysis_type != nullptr)
+		{
+			disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+			_cb_element->clear();
+			//std::vector<std::string> elements = analysis_type->get_count_names();
+			std::string lastName;
+			for (auto& itr : *analysis_type)
+			{
+				QString val = QString(itr.first.c_str());
+				_cb_element->addItem(val);
+				if (elementName == val)
+				{
+					found_element = true;
+				}
+				lastName = itr.first;
+			}
+			if (found_element)
+			{
+				_cb_element->setCurrentText(elementName);
+				displayCounts(name.toStdString(), elementName.toStdString());
+			}
+			else
+			{
+				_cb_element->setCurrentText(QString(lastName.c_str()));
+				displayCounts(name.toStdString(), lastName);
+			}
+			connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+		}
+	}
 }
 
 /*---------------------------------------------------------------------------*/
@@ -314,20 +316,22 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
                                   data_struct::Fit_Parameters* fit_params,
                                   data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
-    if(_model == model)
-    {
-        return;
-    }
-
     _model = model;
     _counts_lookup->setModel(model);
     model_updated();
 
-    if(_model->is_integrated_spectra_loaded())
-    {
-        //_spectra_widget->setModels(fit_params, elements_to_fit, model);
-        _spectra_widget->setModels(_model, fit_params, elements_to_fit);
-    }
+	if (_model != nullptr)
+	{
+		if (_model->is_integrated_spectra_loaded())
+		{
+			//_spectra_widget->setModels(fit_params, elements_to_fit, model);
+			_spectra_widget->setModels(_model, fit_params, elements_to_fit);
+		}
+	}
+	else
+	{
+		_spectra_widget->setModels(nullptr, nullptr, nullptr);
+	}
 
 }
 
@@ -486,40 +490,43 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
 
 void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element)
 {
-    data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
-    if (fit_counts != nullptr)
-    {
-        if(fit_counts->count(element) > 0)
-        {
-            _counts_lookup->setAnalyaisElement(analysis_type, element);
-            _counts_coord_widget -> setCoordinate(0, 0, 0);
-            int height = static_cast<int>(fit_counts->at(element).rows());
-            int width = static_cast<int>(fit_counts->at(element).cols());
-			m_imageHeightDim->setCurrentText(QString::number(height));
-			m_imageWidthDim->setCurrentText(QString::number(width));
-            QImage image(width, height, QImage::Format_Indexed8);
-            image.setColorTable(*_selected_colormap);
+	if (_model != nullptr)
+	{
+		data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+		if (fit_counts != nullptr)
+		{
+			if (fit_counts->count(element) > 0)
+			{
+				_counts_lookup->setAnalyaisElement(analysis_type, element);
+				_counts_coord_widget->setCoordinate(0, 0, 0);
+				int height = static_cast<int>(fit_counts->at(element).rows());
+				int width = static_cast<int>(fit_counts->at(element).cols());
+				m_imageHeightDim->setCurrentText(QString::number(height));
+				m_imageWidthDim->setCurrentText(QString::number(width));
+				QImage image(width, height, QImage::Format_Indexed8);
+				image.setColorTable(*_selected_colormap);
 
-            float counts_max;
-            float counts_min;
-            _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
-            float max_min = counts_max - counts_min;
-            for(int row = 0; row < height; row++)
-            {
-                for(int col = 0; col < width; col++)
-                {
-                    //first clamp the data to max min
-                    float cnts = fit_counts->at(element)(row,col);
-                    cnts = std::min(counts_max, cnts);
-                    cnts = std::max(counts_min, cnts);
-                    //convert to pixel
-                    uint data = (uint)( ((cnts - counts_min) / max_min) * 255);
-                    image.setPixel(col, row, data);
-                }
-            }
-            m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
-        }
-    }
+				float counts_max;
+				float counts_min;
+				_get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
+				float max_min = counts_max - counts_min;
+				for (int row = 0; row < height; row++)
+				{
+					for (int col = 0; col < width; col++)
+					{
+						//first clamp the data to max min
+						float cnts = fit_counts->at(element)(row, col);
+						cnts = std::min(counts_max, cnts);
+						cnts = std::max(counts_min, cnts);
+						//convert to pixel
+						uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+						image.setPixel(col, row, data);
+					}
+				}
+				m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+			}
+		}
+	}
 }
 
 /*---------------------------------------------------------------------------*/

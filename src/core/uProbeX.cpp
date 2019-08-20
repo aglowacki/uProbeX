@@ -51,10 +51,14 @@ static const int ID_NELDER_MEAD = 0;
 static const int ID_PYTHON = 1;
 static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
+QTextEdit * uProbeX::log_textedit = 0;
+
 /*---------------------------------------------------------------------------*/
 
 uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
+	
+	log_textedit = new QTextEdit();
     m_lightToMicroCoordModel = nullptr;
     m_solver = nullptr;
     m_autosaveTimer = nullptr;
@@ -73,6 +77,11 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     PythonLoader::inst()->safeCheck();
 
     initialize();
+
+	_log_dock = new QDockWidget("Log", this);
+	_log_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	_log_dock->setWidget(log_textedit);
+	this->addDockWidget(Qt::BottomDockWidgetArea, _log_dock);
 
     // Create menu
     createMenuBar();
@@ -113,7 +122,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_mdiArea->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     setCentralWidget(m_mdiArea);
 
-
     show();
 }
 
@@ -121,7 +129,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
 uProbeX::~uProbeX()
 {
-
+	log_textedit = nullptr;
     if(_liveMapsViewer != nullptr)
     {
         QString strIp = _liveMapsViewer->getIpAddress();
@@ -385,6 +393,7 @@ void uProbeX::createMenuBar()
     m_menuHelp = new QMenu(tr("Help"));
     action = m_menuHelp->addAction("About");
     connect(action, SIGNAL(triggered()), this, SLOT(showAbout()));
+	m_menuHelp->addAction(_log_dock->toggleViewAction());
     m_menu->addMenu(m_menuHelp);
 
 }
@@ -697,26 +706,10 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 void uProbeX::makeMapsWindow(QString path)
 {
 
-    //if(_mapsWorkspaceController == nullptr)
-    //{
-	//	_mapsWorkspaceController = new MapsWorkspaceController(this);
-    //}
 	MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
 	mapsWorkspaceController->setWorkingDir(path);
 
 	//TODO; Handle deleting this class onClose
-
-    //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
-    //        this, SLOT(makeHDFWindow(MapsH5Model*)));
-
-    
-//    connect(_mapsFilsWidget, SIGNAL(showFitSpecWindow(MapsH5Model*,
-//                                             data_struct::Fit_Parameters*,
-//                                             data_struct::Fit_Element_Map_Dict*)),
-//            this, SLOT(makeHDFWindow(MapsH5Model*,
-//                                     data_struct::Fit_Parameters*,
-//                                     data_struct::Fit_Element_Map_Dict*)));
-
 
 }
 

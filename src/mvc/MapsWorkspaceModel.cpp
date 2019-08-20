@@ -31,6 +31,24 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
 MapsWorkspaceModel::~MapsWorkspaceModel()
 {
+	for (auto & itr : _h5_models)
+	{
+		delete itr.second;
+	}
+	_h5_models.clear();
+
+	for (auto & itr : _mda_models)
+	{
+		delete itr.second;
+	}
+	_mda_models.clear();
+
+	for (auto & itr : _sws_models)
+	{
+		delete itr.second;
+	}
+	_sws_models.clear();
+
     if(_dir != nullptr)
     {
         delete _dir;

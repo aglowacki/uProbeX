@@ -67,6 +67,8 @@ public slots:
 
     void unload_all_visible();
 
+	void filterBtnClicked();
+
 protected:
 
     void _gen_visible_list(QStringList *sl);
@@ -82,6 +84,8 @@ protected:
     QPushButton *_load_all_btn;
 
     QPushButton *_unload_all_btn;
+
+	QPushButton * _filter_suggest_btn;
 };
 
 /*---------------------------------------------------------------------------*/

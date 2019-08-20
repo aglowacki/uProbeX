@@ -167,24 +167,27 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         //_max_log_range = std::max(_max_log_range, new_max);
 
         series->setName(name);
-        for(unsigned int i =0; i < spectra->size(); i++)
-        {
+		if (energy->size() >= spectra->size())
+		{
+			for (unsigned int i = 0; i < spectra->size(); i++)
+			{
 
-            float val = (*spectra)[i];
-            bool isFine = std::isfinite(val);
-            if (false == isFine || val <= 0.0f)
-            {
-                val = 1.0;
-            }
-            if(energy !=nullptr)
-            {
-                series->append((*energy)[i], val);
-            }
-            else
-            {
-                series->append(i, val);
-            }
-        }
+				float val = (*spectra)[i];
+				bool isFine = std::isfinite(val);
+				if (false == isFine || val <= 0.0f)
+				{
+					val = 1.0;
+				}
+				if (energy != nullptr)
+				{
+					series->append((*energy)[i], val);
+				}
+				else
+				{
+					series->append(i, val);
+				}
+			}
+		}
         _chart->addSeries(series);
         series->attachAxis(_axisX);
         _display_eneergy_min->setText(QString::number(_axisX->min()));
@@ -199,20 +202,31 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
     }
     else
     {
+		if (series->count() < spectra->size())
+		{
+			for (int i = series->count(); i < spectra->size(); i++)
+			{
+				series->append(i, 0.1);
+			}
+		}
+
         QList<QPointF> points = series->points();
         auto itr = points.begin();
-        for(unsigned int i =0; i < spectra->size(); i++)
-        {
-            float val = (*spectra)[i];
-            bool isFine = std::isfinite(val);
-            if (false == isFine || val <= 0.0f)
-            {
-                val = 1.0;
-            }
-            itr->setX((*energy)[i]);
-			itr->setY(val);
-            itr++;
-        }
+		if (energy->size() >= spectra->size())
+		{
+			for (unsigned int i = 0; i < spectra->size(); i++)
+			{
+				float val = (*spectra)[i];
+				bool isFine = std::isfinite(val);
+				if (false == isFine || val <= 0.0f)
+				{
+					val = 1.0;
+				}
+				itr->setX((*energy)[i]);
+				itr->setY(val);
+				itr++;
+			}
+		}
         series->replace(points);
     }
 

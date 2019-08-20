@@ -24,7 +24,13 @@ ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(pare
 
 ImageStackControlWidget::~ImageStackControlWidget()
 {
-
+	/* handeled by MapsWorkspaceMdodel
+	for(auto &itr : _h5_model_map)
+	{
+		_model->unload_H5_Model(itr.first);
+	}
+	_h5_model_map.clear();
+	*/
 	if (_mapsFilsWidget != nullptr)
 	{
 		delete _mapsFilsWidget;
@@ -136,6 +142,10 @@ void ImageStackControlWidget::loadList_H5(QStringList sl)
 
 void ImageStackControlWidget::unloadList_H5(QStringList sl)
 {
+	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
+	disconnect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
+
+	_imageGrid->setModel(nullptr, nullptr, nullptr);
     foreach (QString s, sl)
     {
         _h5_model_map.erase(s);
@@ -149,6 +159,17 @@ void ImageStackControlWidget::unloadList_H5(QStringList sl)
             }
         }
     }
+
+
+	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
+	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
+
+	if (_h5_model_map.count(_image_name_cb->currentText()) > 0)
+	{
+		emit newH5ModelSelected(_h5_model_map[_image_name_cb->currentText()]);
+	}
+
+
 
 }
 

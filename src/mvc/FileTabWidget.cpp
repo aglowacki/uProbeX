@@ -42,9 +42,18 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     connect(_filter_line, SIGNAL(textChanged(const QString &)),
             this, SLOT(filterTextChanged(const QString &)));
 
+	_filter_suggest_btn = new QPushButton();
+	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));
+	_filter_suggest_btn->setIconSize(QSize(15, 15));
+	connect(_filter_suggest_btn, SIGNAL(clicked()),
+		this, SLOT(filterBtnClicked()));
+
+
+
     QHBoxLayout* hlayout1 = new QHBoxLayout();
     hlayout1->addWidget(new QLabel("Filter"));
     hlayout1->addWidget(_filter_line);
+	hlayout1->addWidget(_filter_suggest_btn);
 
 
     _load_all_btn = new QPushButton("Load All");
@@ -213,6 +222,13 @@ void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const 
         }
     }
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::filterBtnClicked()
+{
+	//display help
 }
 
 /*---------------------------------------------------------------------------*/
