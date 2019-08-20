@@ -16,6 +16,7 @@
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include "mvc/MapsElementsWidget.h"
+#include "mvc/MapsWorkspaceFilesWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -58,6 +59,8 @@ public slots:
 protected:
 
    void createLayout();
+
+   MapsWorkspaceFilesWidget* _mapsFilsWidget;
 
    MapsWorkspaceModel* _model;
 

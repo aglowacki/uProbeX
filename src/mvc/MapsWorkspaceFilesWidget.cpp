@@ -19,6 +19,7 @@
 MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(parent)
 {
 
+	_model = nullptr;
     createLayout();
 
 }
@@ -98,27 +99,48 @@ void MapsWorkspaceFilesWidget::createLayout()
 
 void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 {
-    _model = model;
-    QString path = _model->get_directory_name();
-    if(path.length() > 0)
-    {
-        _lbl_workspace->setText(path);
-    }
-    connect(_model,
-            SIGNAL(doneLoading()),
-            this,
-            SLOT(model_done_loading()));
+	if (_model != nullptr)
+	{
 
-    connect(_model,
-            SIGNAL(doneUnloading()),
-            this,
-            SLOT(model_done_unloading()));
+		disconnect(_model,
+			SIGNAL(doneLoading()),
+			this,
+			SLOT(model_done_loading()));
 
-    connect(_model,
-            SIGNAL(newFitParamsFileLoaded(int)),
-            this,
-            SLOT(loadedFitParams(int)));
+		disconnect(_model,
+			SIGNAL(doneUnloading()),
+			this,
+			SLOT(model_done_unloading()));
 
+		disconnect(_model,
+			SIGNAL(newFitParamsFileLoaded(int)),
+			this,
+			SLOT(loadedFitParams(int)));
+	}
+	
+	_model = model;
+	if (_model != nullptr)
+	{
+		QString path = _model->get_directory_name();
+		if (path.length() > 0)
+		{
+			_lbl_workspace->setText(path);
+		}
+		connect(_model,
+			SIGNAL(doneLoading()),
+			this,
+			SLOT(model_done_loading()));
+
+		connect(_model,
+			SIGNAL(doneUnloading()),
+			this,
+			SLOT(model_done_unloading()));
+
+		connect(_model,
+			SIGNAL(newFitParamsFileLoaded(int)),
+			this,
+			SLOT(loadedFitParams(int)));
+	}
 
 }
 

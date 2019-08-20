@@ -321,7 +321,7 @@ private:
 
 private:
 
-   MapsWorkspaceController* _mapsWorkspaceController;
+   //MapsWorkspaceController* _mapsWorkspaceController;
 
    /**
     * @brief m_lightToMicroCoordModel

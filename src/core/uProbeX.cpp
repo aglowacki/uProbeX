@@ -61,7 +61,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solverParameterParse = new SolverParameterParse();
     _load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
-	_mapsWorkspaceController = nullptr;
+	//_mapsWorkspaceController = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
@@ -697,11 +697,14 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 void uProbeX::makeMapsWindow(QString path)
 {
 
-    if(_mapsWorkspaceController == nullptr)
-    {
-		_mapsWorkspaceController = new MapsWorkspaceController(this);
-    }
-	_mapsWorkspaceController->setWorkingDir(path);
+    //if(_mapsWorkspaceController == nullptr)
+    //{
+	//	_mapsWorkspaceController = new MapsWorkspaceController(this);
+    //}
+	MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
+	mapsWorkspaceController->setWorkingDir(path);
+
+	//TODO; Handle deleting this class onClose
 
     //connect(widget, SIGNAL(selectedAnalyzedH5(MapsH5Model*)),
     //        this, SLOT(makeHDFWindow(MapsH5Model*)));

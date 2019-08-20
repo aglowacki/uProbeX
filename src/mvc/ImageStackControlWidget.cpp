@@ -9,14 +9,14 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QSplitter>
 
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
 ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(parent)
 {
-
-    createLayout();
+	createLayout();
 
 }
 
@@ -25,6 +25,12 @@ ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(pare
 ImageStackControlWidget::~ImageStackControlWidget()
 {
 
+	if (_mapsFilsWidget != nullptr)
+	{
+		delete _mapsFilsWidget;
+		_mapsFilsWidget = nullptr;
+	}
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -32,8 +38,13 @@ ImageStackControlWidget::~ImageStackControlWidget()
 void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
-    QHBoxLayout* hlayout = new QHBoxLayout();
+    QHBoxLayout* hlayout1 = new QHBoxLayout();
+	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
+
+	_mapsFilsWidget = new MapsWorkspaceFilesWidget();
+	connect(_mapsFilsWidget, SIGNAL(loadList_H5(QStringList)), this, SLOT(loadList_H5(QStringList)));
+	connect(_mapsFilsWidget, SIGNAL(unloadList_H5(QStringList)), this, SLOT(unloadList_H5(QStringList)));
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
@@ -43,17 +54,38 @@ void ImageStackControlWidget::createLayout()
     _right_btn->setIcon(QIcon(":/images/next.png"));
     _right_btn->setMaximumWidth(150);
 
-    hlayout->addWidget(_left_btn);
-    hlayout->addWidget(_image_name_cb);
-    hlayout->addWidget(_right_btn);
+    hlayout1->addWidget(_left_btn);
+    hlayout1->addWidget(_image_name_cb);
+    hlayout1->addWidget(_right_btn);
 
 	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
 
 	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
 
-    vlayout->addItem(hlayout);
+    vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
-	setLayout(vlayout);
+
+	hlayout2->addWidget(_mapsFilsWidget);
+
+	QWidget *leftWidget = new QWidget();
+	leftWidget->setLayout(hlayout2);
+	QWidget *rightWidget = new QWidget();
+	rightWidget->setLayout(vlayout);
+
+	QSplitter* splitter = new QSplitter();
+	splitter->setOrientation(Qt::Horizontal);
+	splitter->addWidget(leftWidget);
+	splitter->setStretchFactor(0, 1);
+	splitter->addWidget(rightWidget);
+	//createToolBar(m_imageViewWidget);
+	//counts_layout->addWidget(m_toolbar);
+	//counts_layout->addWidget(splitter);
+
+	QVBoxLayout *mainLayout = new QVBoxLayout();
+	mainLayout->addWidget(splitter);
+
+
+	setLayout(mainLayout);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -79,7 +111,14 @@ void ImageStackControlWidget::onNewH5ModelSelected(MapsH5Model* model)
 
 void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 {
-    _model = model;
+	_model = model;
+	_mapsFilsWidget->clearLists();
+	_mapsFilsWidget->setModel(_model);
+	if (_model != nullptr)
+	{
+		_mapsFilsWidget->setLabelWorkspacePath(_model->get_directory_name());
+		this->setWindowTitle(_model->get_directory_name());
+	}
 }
 
 /*---------------------------------------------------------------------------*/

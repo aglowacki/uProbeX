@@ -42,8 +42,6 @@ public slots:
 
 protected:
 
-	MapsWorkspaceFilesWidget* _mapsFilsWidget;
-
 	ImageStackControlWidget* _imgStackControllWidget;
 
 	MapsWorkspaceModel* _mapsWorkspaceModel;
