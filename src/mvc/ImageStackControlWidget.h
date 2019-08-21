@@ -47,6 +47,8 @@ public:
 signals:
 	void newH5ModelSelected(MapsH5Model*);
 
+	void widgetClosed();
+
 public slots:
    void loadList_H5(QStringList sl);
 
@@ -57,6 +59,8 @@ public slots:
    void onNewH5ModelSelected(MapsH5Model*);
 
 protected:
+
+	void closeEvent(QCloseEvent *event);
 
    void createLayout();
 

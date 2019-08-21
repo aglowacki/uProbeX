@@ -708,9 +708,15 @@ void uProbeX::makeMapsWindow(QString path)
 
 	MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
 	mapsWorkspaceController->setWorkingDir(path);
+	connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
 
-	//TODO; Handle deleting this class onClose
+}
 
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
+{
+	delete controller;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -35,7 +35,13 @@ public:
 
    void setWorkingDir(QString path);
 
+signals:
+	void controllerClosed(MapsWorkspaceController*);
+
 public slots:
+
+	void imgWidgetClosed();
+
 	void makeSWSWindow(SWSModel* model);
 
 	void makeMDAWindow(MDA_Model *model);

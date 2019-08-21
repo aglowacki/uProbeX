@@ -241,6 +241,8 @@ private slots:
     */
    void loadPreferencesXMLData();
 
+   void mapsControllerClosed(MapsWorkspaceController*);
+
 private:
 
    /**

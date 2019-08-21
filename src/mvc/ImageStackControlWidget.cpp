@@ -96,6 +96,14 @@ void ImageStackControlWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void ImageStackControlWidget::closeEvent(QCloseEvent *event)
+{
+	emit widgetClosed();
+	event->accept();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageStackControlWidget::h5IndexChanged(const QString &text)
 {
 	if (_h5_model_map.count(text) > 0)

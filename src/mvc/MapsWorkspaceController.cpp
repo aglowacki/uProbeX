@@ -18,6 +18,8 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 
 //	connect(_mapsFilsWidget, SIGNAL(show_MDA_Window(MDA_Model*)), this, SLOT(makeMDAWindow(MDA_Model*)));
 //	connect(_mapsFilsWidget, SIGNAL(show_SWS_Window(SWSModel*)), this, SLOT(makeSWSWindow(SWSModel*)));
+	_imgStackControllWidget->setAttribute(Qt::WA_DeleteOnClose);
+	connect(_imgStackControllWidget, SIGNAL(widgetClosed()), this, SLOT(imgWidgetClosed()));
 
 	_imgStackControllWidget->show();
 }
@@ -37,6 +39,16 @@ MapsWorkspaceController::~MapsWorkspaceController()
 	{
 		delete _mapsWorkspaceModel;
 	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+
+void MapsWorkspaceController::imgWidgetClosed()
+{
+	_imgStackControllWidget = nullptr;
+	emit controllerClosed(this);
+
 }
 
 /*---------------------------------------------------------------------------*/
