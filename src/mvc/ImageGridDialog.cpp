@@ -9,7 +9,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QIcon>
-#include <QGridlayout>
+#include <QGridLayout>
 
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

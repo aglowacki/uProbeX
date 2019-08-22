@@ -148,7 +148,7 @@ void HotSpotMaskGraphicsItem::drawmask_changed()
     if(val == true)
     {
         _erase_mask->setValue(false);
-        update();
+        updateModel();
     }
 }
 
@@ -160,9 +160,10 @@ void HotSpotMaskGraphicsItem::erasemask_changed()
     if(val == true)
     {
         _draw_mask->setValue(false);
-        update();
+        updateModel();
     }
 }
+
 /*---------------------------------------------------------------------------*/
 
 QRectF HotSpotMaskGraphicsItem::boundingRect() const

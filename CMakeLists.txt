@@ -48,8 +48,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(uProbeX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/libzmq/)
+#include(${PROJECT_SOURCE_DIR}/../XRF-Maps/build/XRF_MapsConfig.cmake)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/zmq/ ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -57,11 +59,21 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(PREC _REAL_FLOAT)
 
-find_package(XRF_Maps REQUIRED)
+find_package(XRF_Maps REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(NetCDF REQUIRED)
 find_package(Threads)
 find_package(HDF5 REQUIRED COMPONENTS C)
 find_package(ZeroMQ)
+
+if (XRF_Maps_FOUND)
+  message("Found XRF_Maps")
+endif()
+
+if (libxrf_io_FOUND)
+  message("Found libxrf_io")
+endif()
+
+add_definitions(-D_BUILD_WITH_ZMQ)
 
 # Opitons for getting YouCompleteMe plugin working with this project
 SET( CMAKE_EXPORT_COMPILE_COMMANDS ON )
@@ -128,7 +140,8 @@ include_directories(${EIGEN3_INCLUDES})
 include_directories(${NETCDF_INCLUDE_DIRS})
 
 # Include XRF_Maps
-include_directories(${XRF_MAPS_INCLUDE_DIR})
+include_directories(${XRF_Maps_DIR}/../src)
+include_directories(${XRF_Maps_DIR}/../src/support/eigen-git-mirror)
 
 # Include header files
 include_directories(src)
@@ -337,12 +350,7 @@ IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
   target_link_libraries(uProbeX LINK_PUBLIC ws2_32.lib )
-ELSEIF (UNIX)
-  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
-ENDIF()
-
-
-target_link_libraries (uProbeX LINK_PUBLIC 
+  target_link_libraries (uProbeX LINK_PUBLIC 
                         optimized ${XRF_MAPS_LIBRARIES}
                         debug ${XRF_MAPS_LIBRARIES_DEBUG}
                         optimized ${ZeroMQ_LIBRARY_RELEASE}
@@ -352,3 +360,19 @@ target_link_libraries (uProbeX LINK_PUBLIC
                         ${NETCDF_LIBRARIES}
                         ${HDF5_LIBRARIES}
                         ${CMAKE_THREAD_LIBS_INIT} )
+ELSEIF (UNIX)
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
+
+  target_link_libraries (uProbeX PUBLIC libxrf_fit PUBLIC libxrf_io)
+
+  target_link_libraries (uProbeX LINK_PUBLIC
+                        ${ZeroMQ_LIBRARIES}
+                        ${Qt5Core_LIBRARIES}
+                        ${Qt5Charts_LIBRARIES}
+                        ${NETCDF_LIBRARIES}
+                        ${HDF5_LIBRARIES}
+                        ${CMAKE_THREAD_LIBS_INIT} )
+ENDIF()
+
+#${ZeroMQ_STATIC_LIBRARY}
+
