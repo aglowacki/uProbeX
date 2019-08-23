@@ -64,7 +64,6 @@ void MapsElementsWidget::_createLayout()
     _spectra_widget = new FitSpectraWidget();
 
     _cb_analysis = new QComboBox(this);
-    _cb_element = new QComboBox(this);
 
     QHBoxLayout* hbox = new QHBoxLayout();
     QHBoxLayout* hbox2 = new QHBoxLayout();
@@ -85,9 +84,11 @@ void MapsElementsWidget::_createLayout()
     splitter->addWidget(m_imageViewWidget);
     splitter->setStretchFactor(0, 1);
     splitter->addWidget(m_tabWidget);
+
     createToolBar(m_imageViewWidget);
     counts_layout->addWidget(m_toolbar);
     counts_layout->addWidget(splitter);
+
 
 	_cb_colormap = new QComboBox();
 	_cb_colormap->addItem("Grayscale");
@@ -105,15 +106,10 @@ void MapsElementsWidget::_createLayout()
 
 	m_toolbar->addWidget(_grid_button);
 	m_toolbar->addWidget(_cb_analysis);
-	m_toolbar->addWidget(_cb_element);
+    //m_toolbar->addWidget(_cb_element);
 	
-    //hbox->addWidget(_cb_analysis);
-    //hbox->addWidget(_cb_element);
-    //counts_layout->addItem(hbox);
-
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
-
 
     QWidget *window = new QWidget();
     window->setLayout(counts_layout);
@@ -124,24 +120,9 @@ void MapsElementsWidget::_createLayout()
     layout->addItem(hbox2);
     layout->addWidget(_tab_widget);
 
-
-    _counts_lookup = new gstar::CountsLookupTransformer();
-    _counts_coord_model = new gstar::CoordinateModel(_counts_lookup);
-
-    _counts_coord_widget = new gstar::CoordinateWidget();
-    //_counts_coord_widget->setVisible(true, false, false);
-    _counts_coord_widget->setModel(_counts_coord_model);
-    _counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
-    _counts_coord_widget->setUnitsLabel("cts/s");
-    m_imageViewWidget->layout()->addWidget(_counts_coord_widget);
-
     //don't erase counts when mouse is off scene
     m_imageViewWidget->set_null_mouse_pos = false;
-
-    gstar::ImageViewScene* scene = m_imageViewWidget->scene();
-
-    connect(scene, SIGNAL(mouseOverPixel(int, int)),
-            this, SLOT(mouseOverPixel(int, int)));
+    connect(m_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
 
     appendAnnotationTab();
 
@@ -162,7 +143,11 @@ void MapsElementsWidget::onGridDialog()
 
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
-	m_imageViewWidget->newGridLayout(rows, cols);
+    //delete m_imageViewWidget;
+    //m_imageViewWidget = new ImageViewWidget(rows, cols);
+    //createToolBar(m_imageViewWidget);
+    //this->layout()->addWidget(m_imageViewWidget);
+    m_imageViewWidget->newGridLayout(rows, cols);
 }
 /*---------------------------------------------------------------------------*/
 
@@ -182,15 +167,6 @@ void MapsElementsWidget::addHotSpotMask()
 void MapsElementsWidget::hotspotUpdated()
 {
     redrawCounts();
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsElementsWidget::mouseOverPixel(int x, int y)
-{
-
-   _counts_coord_widget -> setCoordinate(x, y, 0);
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -247,6 +223,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
+    /*
     QString elementName = _cb_element->currentText();
     bool found_element = false;
 	if (_model != nullptr)
@@ -281,16 +258,17 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
 			connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
 		}
 	}
+    */
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::onElementSelect(QString name)
+void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 {
     QString analysisName = _cb_analysis->currentText();
     if(analysisName.length() > 0 && name.length() > 0)
     {
-        displayCounts(analysisName.toStdString() , name.toStdString());
+        displayCounts(analysisName.toStdString() , name.toStdString(), viewIdx);
     }
 }
 
@@ -317,7 +295,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model,
                                   data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
     _model = model;
-    _counts_lookup->setModel(model);
+    ////_counts_lookup->setModel(model);
     model_updated();
 
 	if (_model != nullptr)
@@ -343,8 +321,9 @@ void MapsElementsWidget::model_updated()
     {
         return;
     }
+
     disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-    disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+    //disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
@@ -353,7 +332,8 @@ void MapsElementsWidget::model_updated()
     std::string current_e;
 
     QString current_analysis = _cb_analysis->currentText();
-    QString current_element = _cb_element->currentText();
+
+    //QString current_element = _cb_element->currentText();
 
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
@@ -375,16 +355,20 @@ void MapsElementsWidget::model_updated()
     bool found_element = false;
     if(analysis_type != nullptr)
     {
-        _cb_element->clear();
+        m_imageViewWidget->clearLabels();
+        //_cb_element->clear();
         for(auto& itr: *analysis_type)
         {
             QString val = QString(itr.first.c_str());
-            _cb_element->addItem(val);
+            //_cb_element->addItem(val);
+            m_imageViewWidget->addLabel(val);
             current_e = itr.first;
+            /*
             if(current_element == val)
             {
                 found_element = true;
             }
+            */
         }
     }
 
@@ -392,24 +376,26 @@ void MapsElementsWidget::model_updated()
     {
         current_analysis = QString(current_a.c_str());
     }
+    /*
     if(false == found_element)
     {
         current_element = QString(current_e.c_str());
     }
-
+    */
     _cb_analysis->setCurrentText(current_analysis);
-    _cb_element->setCurrentText(current_element);
-    displayCounts(current_analysis.toStdString(), current_element.toStdString());
+    //_cb_element->setCurrentText(current_element);
+    //displayCounts(current_analysis.toStdString(), current_element.toStdString());
 
     connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-    connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+    //connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::redrawCounts()
 {
-    displayCounts(_cb_analysis->currentText().toStdString(), _cb_element->currentText().toStdString());
+    //displayCounts(_cb_analysis->currentText().toStdString(), _cb_element->currentText().toStdString());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -488,7 +474,9 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
     }
 }
 
-void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element)
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, int grid_idx)
 {
 	if (_model != nullptr)
 	{
@@ -497,8 +485,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 		{
 			if (fit_counts->count(element) > 0)
 			{
-				_counts_lookup->setAnalyaisElement(analysis_type, element);
-				_counts_coord_widget->setCoordinate(0, 0, 0);
+                ////_counts_lookup->setAnalyaisElement(analysis_type, element);
+                ////_counts_coord_widget->setCoordinate(0, 0, 0);
 				int height = static_cast<int>(fit_counts->at(element).rows());
 				int width = static_cast<int>(fit_counts->at(element).cols());
 				m_imageHeightDim->setCurrentText(QString::number(height));
@@ -523,7 +511,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 						image.setPixel(col, row, data);
 					}
 				}
-				m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+                m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
 			}
 		}
 	}

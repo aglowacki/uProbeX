@@ -65,15 +65,13 @@ public slots:
     */
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
-   void displayCounts(const std::string analysis_type, const std::string element);
+   void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);
 
    void onAnalysisSelect(QString name);
 
-   void onElementSelect(QString name);
+   void onElementSelect(QString name, int viewIdx = 0);
 
    void onColormapSelect(QString name);
-
-   void mouseOverPixel(int x, int y);
 
    void model_updated();
 
@@ -110,8 +108,6 @@ protected:
 
    QComboBox *_cb_analysis;
 
-   QComboBox *_cb_element;
-
    QComboBox *_cb_colormap;
 
    QTabWidget *_tab_widget;
@@ -124,11 +120,11 @@ protected:
 
    QPushButton *_pb_perpixel_fitting;
 
-   gstar::CoordinateWidget* _counts_coord_widget;
+  // gstar::CoordinateWidget* _counts_coord_widget;
 
-   gstar::CoordinateModel *_counts_coord_model;
+   //gstar::CoordinateModel *_counts_coord_model;
 
-   gstar::CountsLookupTransformer *_counts_lookup;
+   //gstar::CountsLookupTransformer *_counts_lookup;
 
    QAction *_addHotSpotMaskAction;
    

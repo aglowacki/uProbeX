@@ -57,6 +57,27 @@ ImageViewWidget::~ImageViewWidget()
 	}
 	m_view.clear();
 
+    for (auto& itr : _cb_image_label)
+    {
+        delete itr;
+    }
+    _cb_image_label.clear();
+
+    //this memeory is deleted by the model, just need to clear the vector
+    _counts_lookup.clear();
+
+    for (auto& itr : _counts_coord_model)
+    {
+        delete itr;
+    }
+    _counts_coord_model.clear();
+
+    for (auto& itr : _counts_coord_widget)
+    {
+        delete itr;
+    }
+    _counts_coord_widget.clear();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -183,7 +204,15 @@ void ImageViewWidget::createLayout()
    {
 	   for (int j = 0; j < _grid_cols; j++)
 	   {
-		   _image_view_grid_layout->addWidget(m_view[(i*_grid_rows) + j], i, j);
+           QVBoxLayout *vb = new QVBoxLayout();
+           int idx = (i*_grid_cols) + j;
+
+           vb->addWidget(_counts_coord_widget[idx]);
+           vb->addWidget(m_view[idx]);
+           vb->addWidget(_cb_image_label[idx]);
+
+           //_cb_image_label
+           _image_view_grid_layout->addItem(vb, i, j);
 	   }
    }
    
@@ -204,11 +233,17 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 	m_view.resize(_grid_rows*_grid_cols);
 	m_scene.resize(_grid_rows*_grid_cols);
+
+    _cb_image_label.resize(_grid_rows*_grid_cols);
+    _counts_lookup.resize(_grid_rows*_grid_cols);
+    _counts_coord_model.resize(_grid_rows*_grid_cols);
+    _counts_coord_widget.resize(_grid_rows*_grid_cols);
+
 	for (int i = 0; i < _grid_rows * _grid_cols; i++)
 	{
 		// Initialize scene
 		ImageViewScene* scene = new ImageViewScene();
-		scene->setSceneRect(scene->itemsBoundingRect());
+        // scene->setSceneRect(scene->itemsBoundingRect());
 
 
 		connect(scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
@@ -225,8 +260,26 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 		view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 		view->setScene(scene);
 
+        connect(scene, SIGNAL(mouseOverPixel(int, int)),
+                this, SLOT(mouseOverPixel(int, int)));
+
 		m_scene[i] = scene;
 		m_view[i] = view;
+
+        QComboBox *cb_label = new QComboBox(this);
+        connect(cb_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+
+        CountsLookupTransformer* counts_lookup = new gstar::CountsLookupTransformer();
+        CoordinateModel* counts_coord_model = new gstar::CoordinateModel(counts_lookup);
+        gstar::CoordinateWidget *counts_coord_widget = new gstar::CoordinateWidget();
+        counts_coord_widget->setModel(counts_coord_model);
+        counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
+        counts_coord_widget->setUnitsLabel("cts/s");
+
+        _cb_image_label[i] = cb_label;
+        _counts_lookup[i] = counts_lookup;
+        _counts_coord_model[i] = counts_coord_model;
+        _counts_coord_widget[i] = counts_coord_widget;
 	}
 }
 
@@ -234,62 +287,28 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 void ImageViewWidget::newGridLayout(int rows, int cols)
 {
-	if (rows < _grid_rows || cols < _grid_cols)
-	{
 
-	}
-	else
-	{
-		int current_total = _grid_cols * _grid_rows;
-		int new_total = rows * cols;
+    for (int i = 0; i < _grid_rows * _grid_cols; i++)
+    {
+        delete m_scene[i];
+        delete m_view[i];
+        delete _cb_image_label[i];
+        //delete _counts_lookup[i]; // deleted in coord_model
+        delete _counts_coord_model[i];
+        delete _counts_coord_widget[i];
+    }
+    m_scene.clear();
+    m_view.clear();
+    _cb_image_label.clear();
+    _counts_lookup.clear();
+    _counts_coord_model.clear();
+    _counts_coord_widget.clear();
 
-		int diff = new_total - current_total;
-		for (int i = 0; i < diff; i++)
-		{
-			// Initialize scene
-			ImageViewScene* scene = new ImageViewScene();
-			scene->setSceneRect(scene->itemsBoundingRect());
-
-
-			connect(scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
-			connect(scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
-			connect(scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-			connect(scene, SIGNAL(sceneRectChanged(const QRectF&)),
-				this, SLOT(sceneRectUpdated(const QRectF&)));
-
-			connect(scene, SIGNAL(mouseOverPixel(int, int)),
-				this, SLOT(mouseOverPixel(int, int)));
-
-			// Initialize view
-			QGraphicsView *view = new QGraphicsView();
-			view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-			view->setScene(scene);
-
-			m_scene.push_back(scene);
-			m_view.push_back(view);
-		}
-
-		_grid_cols = cols;
-		_grid_rows = rows;
-
-		int i = 0;
-		int j = 0;
-		for (auto & itr : m_view)
-		{
-			_image_view_grid_layout->addWidget(itr, i, j);
-			//itr->show();
-			j++;
-			if (j >= _grid_cols)
-			{
-				j = 0;
-				i++;
-				if (i >= _grid_rows)
-				{
-					i = 0;
-				}
-			}
-		}
-	}
+    delete m_coordWidget;
+    delete _main_layout;
+    //create new layout
+    createSceneAndView(rows, cols);
+    createLayout();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -309,6 +328,41 @@ void ImageViewWidget::enterEvent(QEvent * event)
    m_mouseLeaveState = false;
    QWidget::enterEvent(event);
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::onComboBoxChange(QString lbl)
+{
+    QObject* obj = sender();
+    for(int i =0; i< _cb_image_label.size(); i++)
+    {
+        if(_cb_image_label[i] == obj)
+        {
+            emit cbLabelChanged(lbl, i);
+            break;
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::clearLabels()
+{
+    for(auto &itr : _cb_image_label)
+    {
+        itr->clear();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::addLabel(QString lbl)
+{
+    for(auto &itr : _cb_image_label)
+    {
+        itr->addItem(lbl);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -370,7 +424,11 @@ void ImageViewWidget::setCoordinateModel(CoordinateModel* model)
 void ImageViewWidget::mouseOverPixel(int x, int y)
 {
 
-   m_coordWidget -> setCoordinate(x,y);
+    m_coordWidget -> setCoordinate(x,y);
+    for(auto &itr : _counts_coord_widget)
+    {
+        itr->setCoordinate(x, y, 0);
+    }
 
 }
 
@@ -398,11 +456,15 @@ void ImageViewWidget::resizeEvent(QResizeEvent* event)
 
 /*---------------------------------------------------------------------------*/
 
-ImageViewScene* ImageViewWidget::scene()
+ImageViewScene* ImageViewWidget::scene(int grid_idx)
 {
 
    // Return current scene
-   return m_scene[0];
+    if(m_scene.size() > grid_idx)
+    {
+        return m_scene[grid_idx];
+    }
+    return nullptr;
 
 }
 

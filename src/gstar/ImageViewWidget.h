@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QLabel>
+#include <gstar/CountsLookupTransformer.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -102,7 +103,7 @@ public:
     *
     * @return the current scene.
     */
-   ImageViewScene* scene();
+   ImageViewScene* scene(int grid_idx = 0);
 
    /**
     * sets the coordinate model for coordinate widget
@@ -153,6 +154,10 @@ public:
     * Event filter
     */
    //bool eventFilter(QObject* object, QEvent* event);
+
+   void clearLabels();
+
+   void addLabel(QString lbl);
 
 public slots:
 
@@ -221,6 +226,8 @@ signals:
     */
    void resetZoomToolBar();
 
+   void cbLabelChanged(QString value, int viewIdx);
+
 protected slots:
 
    /**
@@ -271,6 +278,8 @@ private slots:
     */
    void zoomValueChanged();
 
+   void onComboBoxChange(QString lbl);
+
 private:
 
    /**
@@ -303,19 +312,16 @@ private:
    CoordinateWidget* m_coordWidget;
 
    /**
-    * The QGraphicsScene subclass for the QGraphicsView
-    */
-   std::vector<ImageViewScene*> m_scene;
-
-   /**
     * Widget
     */
    QWidget* m_widget;
 
-   /**
-    * QGraphicsView for displaying the scene graph
-    */
    std::vector<QGraphicsView*> m_view;
+   std::vector<ImageViewScene*> m_scene;
+   std::vector<QComboBox *> _cb_image_label;
+   std::vector<gstar::CountsLookupTransformer*> _counts_lookup;
+   std::vector<gstar::CoordinateModel*> _counts_coord_model;
+   std::vector<gstar::CoordinateWidget*> _counts_coord_widget;
 
    /**
     * Zoom in cursor
