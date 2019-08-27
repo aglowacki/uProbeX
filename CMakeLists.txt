@@ -51,7 +51,7 @@ project(uProbeX)
 #include(${PROJECT_SOURCE_DIR}/../XRF-Maps/build/XRF_MapsConfig.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/zmq/ ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/zmq/ ${PROJECT_SOURCE_DIR}/../XRF-Maps/build ${PROJECT_SOURCE_DIR}/../libs/libzmq/build)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -63,10 +63,10 @@ find_package(XRF_Maps REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(NetCDF REQUIRED)
 find_package(Threads)
 find_package(HDF5 REQUIRED COMPONENTS C)
-find_package(ZeroMQ)
+find_package(ZeroMQ REQUIRED libzmq-static)
 
-if (XRF_Maps_FOUND)
-  message("Found XRF_Maps")
+if (libxrf_fit_FOUND)
+  message("Found libxrf_fit")
 endif()
 
 if (libxrf_io_FOUND)
@@ -74,6 +74,7 @@ if (libxrf_io_FOUND)
 endif()
 
 add_definitions(-D_BUILD_WITH_ZMQ)
+add_definitions(-DZMQ_STATIC)
 
 # Opitons for getting YouCompleteMe plugin working with this project
 SET( CMAKE_EXPORT_COMPILE_COMMANDS ON )
@@ -351,10 +352,12 @@ IF (MSVC)
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
   target_link_libraries(uProbeX LINK_PUBLIC ws2_32.lib )
   target_link_libraries (uProbeX LINK_PUBLIC 
-                        optimized ${XRF_MAPS_LIBRARIES}
-                        debug ${XRF_MAPS_LIBRARIES_DEBUG}
-                        optimized ${ZeroMQ_LIBRARY_RELEASE}
-                        debug ${ZeroMQ_LIBRARY_DEBUG}
+                        libxrf_fit
+						libxrf_io
+                        libzmq-static
+						ws2_32.lib
+						rpcrt4.lib
+						iphlpapi.lib
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
                         ${NETCDF_LIBRARIES}
