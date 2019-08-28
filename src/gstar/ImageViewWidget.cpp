@@ -260,9 +260,6 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 		view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 		view->setScene(scene);
 
-        connect(scene, SIGNAL(mouseOverPixel(int, int)),
-                this, SLOT(mouseOverPixel(int, int)));
-
 		m_scene[i] = scene;
 		m_view[i] = view;
 
@@ -376,7 +373,6 @@ qreal ImageViewWidget::getCurrentZoomPercent()
    qreal wp = tImage.width() / m_scene[0]->pixRect().width() * 100.0;
 
    return wp;
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -661,3 +657,70 @@ void ImageViewWidget::zoomValueChanged()
 
 /*---------------------------------------------------------------------------*/
 
+QString ImageViewWidget::getLabelAt(int idx)
+{
+    if(idx < _cb_image_label.size())
+    {
+        return _cb_image_label[idx]->currentText();
+    }
+    return QString();
+}
+
+/*---------------------------------------------------------------------------*/
+
+CountsLookupTransformer* ImageViewWidget::getMouseTrasnformAt(int idx)
+{
+    if(idx < _counts_lookup.size())
+    {
+        return _counts_lookup[idx];
+    }
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+std::vector<QString> ImageViewWidget::getLabelList()
+{
+    std::vector<QString> label_list;
+    for( auto& itr : _cb_image_label)
+    {
+        label_list.push_back(itr->currentText());
+    }
+    return label_list;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
+{
+
+    for(int i=0; i< _cb_image_label.size(); i++)
+    {
+        bool found = false;
+        QComboBox* cb = _cb_image_label[i];
+        if(i < labels.size())
+        {
+            QString ilabel = labels[i];
+            for(int j=0; j < cb->count(); j++)
+            {
+                if(cb->itemText(j) == ilabel)
+                {
+                    cb->setCurrentText(ilabel);
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(false == found)
+        {
+            int cnt = cb->count();
+            if(i < cnt)
+            {
+                cb->setCurrentText(cb->itemText(i));
+            }
+        }
+
+    }
+}
+
+/*---------------------------------------------------------------------------*/

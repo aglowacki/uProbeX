@@ -12,7 +12,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
-
+#include <gstar/CountsLookupTransformer.h>
 #include <limits>
 
 
@@ -141,14 +141,17 @@ void MapsElementsWidget::onGridDialog()
 
 }
 
+/*---------------------------------------------------------------------------*/
+
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
-    //delete m_imageViewWidget;
-    //m_imageViewWidget = new ImageViewWidget(rows, cols);
-    //createToolBar(m_imageViewWidget);
-    //this->layout()->addWidget(m_imageViewWidget);
+    const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     m_imageViewWidget->newGridLayout(rows, cols);
+    model_updated();
+    m_imageViewWidget->restoreLabels(element_view_list);
+    redrawCounts();
 }
+
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::addHotSpotMask()
@@ -223,42 +226,9 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
-    /*
-    QString elementName = _cb_element->currentText();
-    bool found_element = false;
-	if (_model != nullptr)
-	{
-		data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(name.toStdString());
-		if (analysis_type != nullptr)
-		{
-			disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
-			_cb_element->clear();
-			//std::vector<std::string> elements = analysis_type->get_count_names();
-			std::string lastName;
-			for (auto& itr : *analysis_type)
-			{
-				QString val = QString(itr.first.c_str());
-				_cb_element->addItem(val);
-				if (elementName == val)
-				{
-					found_element = true;
-				}
-				lastName = itr.first;
-			}
-			if (found_element)
-			{
-				_cb_element->setCurrentText(elementName);
-				displayCounts(name.toStdString(), elementName.toStdString());
-			}
-			else
-			{
-				_cb_element->setCurrentText(QString(lastName.c_str()));
-				displayCounts(name.toStdString(), lastName);
-			}
-			connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
-		}
-	}
-    */
+
+    redrawCounts();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -323,17 +293,14 @@ void MapsElementsWidget::model_updated()
     }
 
     disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-    //disconnect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
 
     std::string current_a;
-    std::string current_e;
 
     QString current_analysis = _cb_analysis->currentText();
 
-    //QString current_element = _cb_element->currentText();
 
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
@@ -351,51 +318,74 @@ void MapsElementsWidget::model_updated()
         }
     }
 
-    data_struct::Fit_Count_Dict* analysis_type = _model->getAnalyzedCounts(current_a);
-    bool found_element = false;
-    if(analysis_type != nullptr)
+
+    //create save ordered vector by element Z number with K , L, M lines
+    std::vector<std::string> element_lines;
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name);
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name+"_L");
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name+"_M");
+    }
+
+    element_lines.push_back(STR_COHERENT_SCT_AMPLITUDE);
+    element_lines.push_back(STR_COMPTON_AMPLITUDE);
+    element_lines.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+    element_lines.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+    element_lines.push_back(STR_NUM_ITR);
+
+    data_struct::Fit_Count_Dict* element_counts = _model->getAnalyzedCounts(current_a);
+
+    const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    if(element_counts != nullptr)
     {
         m_imageViewWidget->clearLabels();
-        //_cb_element->clear();
-        for(auto& itr: *analysis_type)
+        //insert in z order
+        for (std::string el_name : element_lines)
         {
-            QString val = QString(itr.first.c_str());
-            //_cb_element->addItem(val);
-            m_imageViewWidget->addLabel(val);
-            current_e = itr.first;
-            /*
-            if(current_element == val)
+            if(element_counts->count(el_name) > 0)
             {
-                found_element = true;
+                QString val = QString(el_name.c_str());
+                m_imageViewWidget->addLabel(val);
             }
-            */
         }
+//        for(auto& itr: *element_counts)
+//        {
+//            QString val = QString(itr.first.c_str());
+//            m_imageViewWidget->addLabel(val);
+//        }
     }
 
     if(false == found_analysis)
     {
         current_analysis = QString(current_a.c_str());
     }
-    /*
-    if(false == found_element)
-    {
-        current_element = QString(current_e.c_str());
-    }
-    */
     _cb_analysis->setCurrentText(current_analysis);
-    //_cb_element->setCurrentText(current_element);
-    //displayCounts(current_analysis.toStdString(), current_element.toStdString());
+
+    m_imageViewWidget->restoreLabels(element_view_list);
+
+    redrawCounts();
 
     connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-    //connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
-
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::redrawCounts()
 {
-    //displayCounts(_cb_analysis->currentText().toStdString(), _cb_element->currentText().toStdString());
+    int view_cnt = m_imageViewWidget->getViewCount();
+    std::string analysis_text = _cb_analysis->currentText().toStdString();
+    for(int vidx = 0; vidx < view_cnt; vidx++)
+    {
+        QString element = m_imageViewWidget->getLabelAt(vidx);
+        displayCounts(analysis_text, element.toStdString(), vidx);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -483,36 +473,42 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 		data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
 		if (fit_counts != nullptr)
 		{
-			if (fit_counts->count(element) > 0)
-			{
-                ////_counts_lookup->setAnalyaisElement(analysis_type, element);
-                ////_counts_coord_widget->setCoordinate(0, 0, 0);
-				int height = static_cast<int>(fit_counts->at(element).rows());
-				int width = static_cast<int>(fit_counts->at(element).cols());
-				m_imageHeightDim->setCurrentText(QString::number(height));
-				m_imageWidthDim->setCurrentText(QString::number(width));
-				QImage image(width, height, QImage::Format_Indexed8);
-				image.setColorTable(*_selected_colormap);
+            if (fit_counts->count(element) > 0)
+            {
+                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+                if(counts_lookup != nullptr)
+                {
+                    counts_lookup->setModel(_model);
+                    counts_lookup->setAnalyaisElement(analysis_type, element);
+                }
 
-				float counts_max;
-				float counts_min;
-				_get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
-				float max_min = counts_max - counts_min;
-				for (int row = 0; row < height; row++)
-				{
-					for (int col = 0; col < width; col++)
-					{
-						//first clamp the data to max min
-						float cnts = fit_counts->at(element)(row, col);
-						cnts = std::min(counts_max, cnts);
-						cnts = std::max(counts_min, cnts);
-						//convert to pixel
-						uint data = (uint)(((cnts - counts_min) / max_min) * 255);
-						image.setPixel(col, row, data);
-					}
-				}
+                ////_counts_coord_widget->setCoordinate(0, 0, 0);
+                int height = static_cast<int>(fit_counts->at(element).rows());
+                int width = static_cast<int>(fit_counts->at(element).cols());
+                m_imageHeightDim->setCurrentText(QString::number(height));
+                m_imageWidthDim->setCurrentText(QString::number(width));
+                QImage image(width, height, QImage::Format_Indexed8);
+                image.setColorTable(*_selected_colormap);
+
+                float counts_max;
+                float counts_min;
+                _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
+                float max_min = counts_max - counts_min;
+                for (int row = 0; row < height; row++)
+                {
+                    for (int col = 0; col < width; col++)
+                    {
+                        //first clamp the data to max min
+                        float cnts = fit_counts->at(element)(row, col);
+                        cnts = std::min(counts_max, cnts);
+                        cnts = std::max(counts_min, cnts);
+                        //convert to pixel
+                        uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                        image.setPixel(col, row, data);
+                    }
+                }
                 m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
-			}
+            }
 		}
 	}
 }

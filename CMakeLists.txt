@@ -59,11 +59,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(PREC _REAL_FLOAT)
 
+IF (UNIX)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
+ENDIF()
+
 find_package(XRF_Maps REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(NetCDF REQUIRED)
 find_package(Threads)
 find_package(HDF5 REQUIRED COMPONENTS C)
 find_package(ZeroMQ REQUIRED libzmq-static)
+
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")

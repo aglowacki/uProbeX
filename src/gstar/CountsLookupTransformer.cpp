@@ -25,6 +25,9 @@ CountsLookupTransformer::CountsLookupTransformer() : ITransformer()
    _model = nullptr;
    _analysis_type = "";
    _element = "";
+   _counts_ptr = nullptr;
+   _rows = 0;
+   _cols = 0;
 
 }
 
@@ -142,23 +145,29 @@ void CountsLookupTransformer::setAnalyaisElement(std::string analysis_type, std:
             {
                 _min_counts = fit_counts->at(_element).minCoeff();
                 _max_counts = fit_counts->at(_element).maxCoeff();
+                _rows = fit_counts->at(_element).rows();
+                _cols = fit_counts->at(_element).cols();
+                _counts_ptr = &fit_counts->at(_element);
             }
             else
             {
                 _min_counts = 0.0;
                 _max_counts = 0.0;
+                _counts_ptr = nullptr;
             }
         }
         else
         {
             _min_counts = 0.0;
             _max_counts = 0.0;
+            _counts_ptr = nullptr;
         }
     }
     else
     {
         _min_counts = 0.0;
         _max_counts = 0.0;
+        _counts_ptr = nullptr;
     }
 
 }
@@ -172,38 +181,16 @@ void CountsLookupTransformer::transformCommand(double inX,
                                          double *outY,
                                          double *outZ)
 {
-
-    if(_model != nullptr && _analysis_type.length() > 0 && _element.length() > 0)
+    int col = (int)inX;
+    int row = (int)inY;
+    if(_counts_ptr!= nullptr)
     {
-        data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(_analysis_type);
-        if (fit_counts != nullptr)
+        if(row > -1 && row < _rows && col > -1 && col < _cols)
         {
-            if(fit_counts->count(_element) > 0)
-            {
-                int col = (int)inX;
-                int row = (int)inY;
-                int height = fit_counts->at(_element).rows();
-                int width = fit_counts->at(_element).cols();
-                if(row > -1 && row < height && col > -1 && col < width)
-                {
-                    *outX = fit_counts->at(_element)(row,col);
-                }
-                *outY = _min_counts;
-                *outZ = _max_counts;
-            }
-            else
-            {
-                *outX = 0.0;
-                *outY = 0.0;
-                *outZ = 0.0;
-            }
+            *outX = (*_counts_ptr)(row,col);
         }
-        else
-        {
-            *outX = 0.0;
-            *outY = 0.0;
-            *outZ = 0.0;
-        }
+        *outY = _min_counts;
+        *outZ = _max_counts;
     }
     else
     {

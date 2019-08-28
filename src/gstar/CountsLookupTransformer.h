@@ -103,6 +103,12 @@ protected:
    std::string _analysis_type;
 
    std::string _element;
+
+   int _rows;
+
+   int _cols;
+
+   Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> * _counts_ptr;
 };
 
 }

@@ -148,6 +148,15 @@ public:
     */
    QGraphicsView* view();
 
+   int getViewCount(){return _grid_rows * _grid_cols;}
+
+   QString getLabelAt(int idx);
+
+   CountsLookupTransformer* getMouseTrasnformAt(int idx);
+
+   std::vector<QString> getLabelList();
+
+   void restoreLabels(const std::vector<QString>& labels);
 
    bool set_null_mouse_pos;
    /**

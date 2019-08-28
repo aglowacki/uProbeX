@@ -109,8 +109,9 @@ void CoordinateModel::runTransformer(double inX,
    if(m_transformer != nullptr)
    {
       m_transformer->transformCommand(inX, inY, inZ, outX, outY, outZ);
-      m_transformer->getResultWithPrecision(outX, outY, outZ);
-      emit transformOutput(*outX, *outY, *outZ);
+      ///TODO: find out why getResultWithPrec cause major performance issues
+//      m_transformer->getResultWithPrecision(outX, outY, outZ);
+//      emit transformOutput(*outX, *outY, *outZ);
    }
 
 }
