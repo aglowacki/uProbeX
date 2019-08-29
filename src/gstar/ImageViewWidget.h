@@ -154,15 +154,13 @@ public:
 
    CountsLookupTransformer* getMouseTrasnformAt(int idx);
 
+   void resetCoordsToZero();
+
    std::vector<QString> getLabelList();
 
    void restoreLabels(const std::vector<QString>& labels);
 
    bool set_null_mouse_pos;
-   /**
-    * Event filter
-    */
-   //bool eventFilter(QObject* object, QEvent* event);
 
    void clearLabels();
 

@@ -724,3 +724,14 @@ void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
 }
 
 /*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::resetCoordsToZero()
+{
+
+    for( auto& itr : _counts_coord_widget)
+    {
+        itr->setCoordinate(0, 0, 0);
+    }
+}
+
+/*---------------------------------------------------------------------------*/

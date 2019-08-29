@@ -41,6 +41,8 @@ class FileTabWidget : public QWidget
 
     void unload_all();
 
+    void appendFilterHelpAction(QAction * action) { _filterHelpMenu->addAction(action); }
+
 signals:
     void onOpenItem(QString);
 
@@ -78,6 +80,8 @@ protected:
     QStandardItemModel* _file_list_model;
 
     QMenu *_contextMenu;
+
+    QMenu *_filterHelpMenu;
 
     QLineEdit *_filter_line;
 

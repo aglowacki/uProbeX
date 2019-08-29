@@ -114,7 +114,7 @@ void MapsElementsWidget::_createLayout()
     QWidget *window = new QWidget();
     window->setLayout(counts_layout);
 
-    _tab_widget->addTab(window, "Counts");
+    _tab_widget->addTab(window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
 
     layout->addItem(hbox2);
@@ -481,8 +481,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                     counts_lookup->setModel(_model);
                     counts_lookup->setAnalyaisElement(analysis_type, element);
                 }
+                m_imageViewWidget->resetCoordsToZero();
 
-                ////_counts_coord_widget->setCoordinate(0, 0, 0);
                 int height = static_cast<int>(fit_counts->at(element).rows());
                 int width = static_cast<int>(fit_counts->at(element).cols());
                 m_imageHeightDim->setCurrentText(QString::number(height));

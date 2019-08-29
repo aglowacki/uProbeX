@@ -19,6 +19,8 @@
 FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 {
 
+    _filterHelpMenu = new QMenu("Help", this);
+
     _contextMenu = new QMenu(("Context menu"), this);
     QAction* action = _contextMenu->addAction("Load");
     connect(action, SIGNAL(triggered()), this, SLOT(onLoadFile()));
@@ -169,13 +171,12 @@ void FileTabWidget::onUnloadFile()
 
 /*---------------------------------------------------------------------------*/
 
-void FileTabWidget::filterTextChanged(const QString &text)
+void FileTabWidget::filterTextChanged(const QString &filter_text)
 {
-    QString filter_text = _filter_line->text();
-
+    _filter_line->setText(filter_text);
     if(filter_text.length() > 0)
     {
-        QRegExp re (_filter_line->text());
+        QRegExp re (filter_text);
         re.setPatternSyntax(QRegExp::Wildcard);
 
         for(int i=0; i < _file_list_model->rowCount(); i++)
@@ -228,7 +229,12 @@ void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const 
 
 void FileTabWidget::filterBtnClicked()
 {
-	//display help
+    QAction* result = _filterHelpMenu->exec(QCursor::pos());
+    if(result != nullptr)
+    {
+      result->trigger();
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/

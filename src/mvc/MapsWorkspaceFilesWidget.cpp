@@ -40,6 +40,13 @@ void MapsWorkspaceFilesWidget::createLayout()
     _tab_widget = new QTabWidget();
 
     _h5_tab_widget = new FileTabWidget();
+    QAction *h5avg_file = new QAction("All Avg files  | *.h5", this);
+    connect(h5avg_file, &QAction::triggered, [this](bool val){ _h5_tab_widget->filterTextChanged("*.h5"); });
+    QAction *h5det_file = new QAction("All Detector 0 | *.h50", this);
+    connect(h5det_file, &QAction::triggered, [this](bool val){ _h5_tab_widget->filterTextChanged("*.h50"); });
+    _h5_tab_widget->appendFilterHelpAction(h5avg_file);
+    _h5_tab_widget->appendFilterHelpAction(h5det_file);
+
 //    connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
 //            this, SLOT(onOpenHDF5(QString)));
 
