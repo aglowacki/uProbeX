@@ -120,12 +120,6 @@ protected:
 
    QPushButton *_pb_perpixel_fitting;
 
-  // gstar::CoordinateWidget* _counts_coord_widget;
-
-   //gstar::CoordinateModel *_counts_coord_model;
-
-   //gstar::CountsLookupTransformer *_counts_lookup;
-
    QAction *_addHotSpotMaskAction;
    
    QPushButton * _grid_button;

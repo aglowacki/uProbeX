@@ -87,13 +87,6 @@ void FitSpectraWidget::createLayout()
 
     fitting::models::Gaussian_Model g_model;
 
-	QSplitter* splitter = new QSplitter();
-	splitter->setOrientation(Qt::Vertical);
-	splitter->addWidget(_spectra_widget);
-	splitter->setStretchFactor(0, 1);
-	splitter->addWidget(_fit_params_tab_widget);
-
-
     _fit_params_table_model = new FitParamsTableModel();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -189,11 +182,20 @@ void FitSpectraWidget::createLayout()
 	grid_layout->addWidget(_btn_replot_integrated, 2, 0);
     grid_layout->addWidget(_btn_export_parameters, 2, 1);
 
+	QVBoxLayout* vlayout_tab = new QVBoxLayout();
+	vlayout_tab->addWidget(_fit_params_tab_widget);
+	vlayout_tab->addItem(grid_layout);
+	QWidget* tab_and_buttons_widget = new QWidget();
+	tab_and_buttons_widget->setLayout(vlayout_tab);
+
+	QSplitter* splitter = new QSplitter();
+	splitter->setOrientation(Qt::Vertical);
+	splitter->addWidget(_spectra_widget);
+	splitter->setStretchFactor(0, 1);
+	splitter->addWidget(tab_and_buttons_widget);
+
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
-    //layout->addWidget(_spectra_widget);
-    //layout->addWidget(_fit_params_tab_widget);
-    layout->addItem(grid_layout);
     setLayout(layout);
 }
 
