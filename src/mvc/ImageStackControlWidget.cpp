@@ -116,9 +116,7 @@ void ImageStackControlWidget::h5IndexChanged(const QString &text)
 
 void ImageStackControlWidget::onNewH5ModelSelected(MapsH5Model* model)
 {
-
-	//_imageGrid->setModel(model, _fit_params, _elements_to_fit);
-	_imageGrid->setModel(model, nullptr, nullptr);
+    _imageGrid->setModel(model);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -153,7 +151,7 @@ void ImageStackControlWidget::unloadList_H5(QStringList sl)
 	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
 	disconnect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
 
-	_imageGrid->setModel(nullptr, nullptr, nullptr);
+    _imageGrid->setModel(nullptr);
     foreach (QString s, sl)
     {
         _h5_model_map.erase(s);

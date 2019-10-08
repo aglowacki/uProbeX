@@ -199,6 +199,24 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
             MapsH5Model* h5Model = _model->getMapsH5Model(name);
             if(h5Model != nullptr)
             {
+                int idx = -1;
+                if(name.endsWith('0'))
+                {
+                    idx = 0;
+                }
+                else if(name.endsWith('1'))
+                {
+                    idx = 1;
+                }
+                else if(name.endsWith('2'))
+                {
+                    idx = 2;
+                }
+                else if(name.endsWith('3'))
+                {
+                    idx = 3;
+                }
+                h5Model->set_fit_parameters_override( _model->getParamOverride(idx) );
                 opened_list.append(name);
                 load_status = LOADED;
                 //emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));

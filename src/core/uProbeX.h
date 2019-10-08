@@ -125,15 +125,9 @@ private slots:
    void makeHDFWindow(MapsH5Model* model);
 
    /**
-    * @brief makeHDFWindow
+    * @brief makeMDAWindow
     * @param model
-    * @param fit_params
-    * @param elements_to_fit
     */
-   void makeHDFWindow(MapsH5Model* model,
-                      data_struct::Fit_Parameters* fit_params,
-                      data_struct::Fit_Element_Map_Dict *elements_to_fit);
-
    void makeMDAWindow(MDA_Model* model);
 
    /**

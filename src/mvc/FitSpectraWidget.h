@@ -52,9 +52,11 @@ public:
     */
    ~FitSpectraWidget();
 
-   void setModels(MapsH5Model* h5_model,
-                  data_struct::Fit_Parameters* fit_params,
-                  data_struct::Fit_Element_Map_Dict *elements_to_fit);
+   void setH5Model(MapsH5Model* h5_model);
+
+   void setFitParams(data_struct::Fit_Parameters* fit_params);
+
+   void setElementsToFit(data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
 signals:
 

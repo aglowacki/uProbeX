@@ -260,27 +260,13 @@ void MapsElementsWidget::onColormapSelect(QString name)
 
  /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::setModel(MapsH5Model* model,
-                                  data_struct::Fit_Parameters* fit_params,
-                                  data_struct::Fit_Element_Map_Dict *elements_to_fit)
+void MapsElementsWidget::setModel(MapsH5Model* model)
 {
     _model = model;
     ////_counts_lookup->setModel(model);
     model_updated();
 
-	if (_model != nullptr)
-	{
-		if (_model->is_integrated_spectra_loaded())
-		{
-			//_spectra_widget->setModels(fit_params, elements_to_fit, model);
-			_spectra_widget->setModels(_model, fit_params, elements_to_fit);
-		}
-	}
-	else
-	{
-		_spectra_widget->setModels(nullptr, nullptr, nullptr);
-	}
-
+    _spectra_widget->setH5Model(_model);
 }
 
 /*---------------------------------------------------------------------------*/

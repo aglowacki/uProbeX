@@ -48,9 +48,7 @@ public:
    ~MapsElementsWidget();
 
    //void setModel(MapsH5Model* model);
-   void setModel(MapsH5Model* h5_model,
-                 data_struct::Fit_Parameters* fit_params,
-                 data_struct::Fit_Element_Map_Dict *elements_to_fit);
+   void setModel(MapsH5Model* h5_model);
 
    MapsH5Model *getModel(){return _model;}
 

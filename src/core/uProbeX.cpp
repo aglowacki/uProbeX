@@ -749,43 +749,7 @@ void uProbeX::makeHDFWindow(QString path)
 void uProbeX::makeHDFWindow(MapsH5Model* model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
-    widget->setModel(model, nullptr, nullptr);
-    //widget->resize(800, 600);
-
-
-    SubWindow* w = nullptr;
-    w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
-
-
-    m_mdiArea->addSubWindow(w);
-
-    w->setWidget(widget);
-    w->resize(1024, 768);
-    w->setWindowTitle(model->getFilePath());
-    w->showMaximized();
-
-    m_subWindows[w->getUuid()] = w;
-
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
-
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::makeHDFWindow(MapsH5Model* model,
-                            data_struct::Fit_Parameters* fit_params,
-                            data_struct::Fit_Element_Map_Dict *elements_to_fit)
-{
-    MapsElementsWidget* widget = new MapsElementsWidget();
-    widget->setModel(model, fit_params, elements_to_fit);
+    widget->setModel(model);
     //widget->resize(800, 600);
 
 

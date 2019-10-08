@@ -19,7 +19,7 @@ MapsH5Model::MapsH5Model() : QObject()
     _loaded_scan = false;
     _loaded_integrated_spectra = false;
     _loaded_counts = false;
-
+    _params_override = nullptr;
     _initialized_by_stream_block = false;
 
 }
@@ -112,6 +112,13 @@ std::string MapsH5Model::_analysis_enum_to_str(int val)
         return "NNLS";
     }
     return "";
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::set_fit_parameters_override(data_struct::Params_Override* override)
+{
+    _params_override = override;
 }
 
 /*---------------------------------------------------------------------------*/

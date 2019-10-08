@@ -75,6 +75,10 @@ public:
 
     std::vector<std::string> getAnalyzedTypes();
 
+    void set_fit_parameters_override(data_struct::Params_Override* override);
+
+    data_struct::Params_Override* getParamOverride(){return _params_override;}
+
 signals:
     void model_data_updated();
 
@@ -118,6 +122,8 @@ protected:
     std::unordered_map<std::string, data_struct::Fit_Count_Dict*> _analyzed_counts;
 
     data_struct::Spectra _integrated_spectra;
+
+    data_struct::Params_Override* _params_override;
 
 private:
 

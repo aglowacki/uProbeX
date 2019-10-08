@@ -656,9 +656,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::setModels(MapsH5Model* h5_model,
-                                 data_struct::Fit_Parameters* fit_params,
-                                 data_struct::Fit_Element_Map_Dict *elements_to_fit)
+void FitSpectraWidget::setH5Model(MapsH5Model* h5_model)
 {
     _h5_model = h5_model;
     if(_h5_model != nullptr)
@@ -667,17 +665,30 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
                SIGNAL(model_int_spec_updated(bool)),
                this,
                SLOT(h5_int_spec_updated(bool)));
-    }
-    _elements_to_fit = elements_to_fit;
-    data_struct::Fit_Parameters element_fit_params;
 
-    if(_elements_to_fit != nullptr)
-    {
-        for(auto &itr : *_elements_to_fit)
+
+        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
+        if(param_override != nullptr)
         {
-            element_fit_params.add_parameter(data_struct::Fit_Param(itr.first, 0.00001, data_struct::E_Bound_Type::FIT));
+            _elements_to_fit = &param_override->elements_to_fit;
+
+            _fit_elements_table_model->updateFitElements(&param_override->elements_to_fit);
+
+            _fit_params_table_model->updateFitParams(&param_override->fit_params);
         }
     }
+    /*
+            if(_elements_to_fit != nullptr)
+            {
+                data_struct::Fit_Parameters element_fit_params;
+                for(auto &itr : *_elements_to_fit)
+                {
+                    element_fit_params.add_parameter(data_struct::Fit_Param(itr.first, 0.00001, data_struct::E_Bound_Type::FIT));
+                }
+            }
+    */
+
+/*
     else if(_h5_model != nullptr)
     {
         _elements_to_fit = new data_struct::Fit_Element_Map_Dict();
@@ -693,11 +704,22 @@ void FitSpectraWidget::setModels(MapsH5Model* h5_model,
         }
     }
 
-    _fit_elements_table_model->updateFitElements(elements_to_fit);
-
-    _fit_params_table_model->updateFitParams(fit_params);
-
+*/
     h5_int_spec_updated(true);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters* fit_params)
+{
+    _fit_params_table_model->updateFitParams(fit_params);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict *elements_to_fit)
+{
+    _fit_elements_table_model->updateFitElements(elements_to_fit);
 }
 
 /*---------------------------------------------------------------------------*/

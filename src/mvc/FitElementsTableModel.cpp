@@ -118,7 +118,6 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
 {
     if(elements_to_fit != nullptr)
     {
-        //_elements_to_fit = *elements_to_fit;
         _row_indicies.clear();
         for(auto &itr : _nodes)
         {
