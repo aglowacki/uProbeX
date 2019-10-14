@@ -15,7 +15,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QSplitter>
-
+#include <QMessageBox>
 #include <math.h>
 
 #include "data_struct/element_info.h"
@@ -34,11 +34,14 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _fit_thread = nullptr;
     _cb_add_elements = new QComboBox();
     _cb_add_shell = new QComboBox();
+    _cb_pileup_elements = new QComboBox();
     _elements_to_fit = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
+        _cb_pileup_elements->addItem(QString::fromStdString(e));
     }
+    _cb_pileup_elements->setEnabled(false);
 
     _cb_add_shell->addItem("K");
     _cb_add_shell->addItem("L");
@@ -146,9 +149,18 @@ void FitSpectraWidget::createLayout()
     element_button_layout->addStretch(1);
 
 
+    _chk_is_pileup = new QCheckBox("Pile Up");
+    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(pileup_chk_changed(int)) );
+
+    QVBoxLayout* element_pileup_layout = new QVBoxLayout();
+    element_pileup_layout->addWidget(_chk_is_pileup);
+    element_pileup_layout->addWidget(_cb_pileup_elements);
+
+
     QHBoxLayout* elements_layout = new QHBoxLayout();
     elements_layout->addWidget(_fit_elements_table);
     elements_layout->addLayout(element_button_layout);
+    elements_layout->addLayout(element_pileup_layout);
 
     QWidget* element_widget = new QWidget();
     element_widget->setLayout(elements_layout);
@@ -203,22 +215,65 @@ void FitSpectraWidget::createLayout()
 
 void FitSpectraWidget::export_fit_paramters()
 {
-    QString fileName = QFileDialog::getSaveFileName(this,
-              tr("Export Fit Parameters"),
-              "maps_fit_parameters_override.txt",
-              tr("Fit Params (*.txt)"));
-
-    if(fileName.length() > 0)
+    if(_h5_model != nullptr)
     {
-		data_struct::Fit_Parameters fit_params;
-		data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-		data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-		fit_params.append_and_update(&model_fit_params);
-		fit_params.append_and_update(&element_fit_params);
+        QString dataset_path = _h5_model->getFilePath();
+        QString dataset_name = _h5_model->getDatasetName();
 
-		io::file::aps::APS_Fit_Params_Import override_file;
-		override_file.save(fileName.toStdString(), fit_params, 0);
+        /*
+        QString fileName = QFileDialog::getSaveFileName(this,
+                  tr("Export Fit Parameters"),
+                  "maps_fit_parameters_override.txt",
+                  tr("Fit Params (*.txt)"));
+        */
+        QString end_idx = "";
+        if(dataset_name.endsWith("0"))
+        {
+            end_idx = "0";
+        }
+        else if(dataset_name.endsWith("1"))
+        {
+            end_idx = "1";
+        }
+        else if(dataset_name.endsWith("2"))
+        {
+            end_idx = "2";
+        }
+        else if(dataset_name.endsWith("3"))
+        {
+            end_idx = "3";
+        }
+        QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
+
+
+        data_struct::Params_Override* param_overrides = _h5_model->getParamOverride();
+
+        //check if file exists and warn user
+        if(param_overrides != nullptr)
+        {
+    //		data_struct::Fit_Parameters fit_params;
+    //		data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+    //		data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+    //		fit_params.append_and_update(&model_fit_params);
+    //		fit_params.append_and_update(&element_fit_params);
+
+            io::file::aps::APS_Fit_Params_Import override_file;
+
+            if(override_file.save(fileName.toStdString(), param_overrides) )
+            {
+                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+            }
+        }
     }
+    else
+    {
+        QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -279,21 +334,38 @@ void FitSpectraWidget::add_element()
 
     QString el_name = _cb_add_elements->currentText();
     int shell = _cb_add_shell->currentIndex();
-    if(shell == 1)
+    if(_chk_is_pileup->checkState() == Qt::CheckState::Unchecked)
     {
-        el_name += "_L";
+        if(shell == 1)
+        {
+            el_name += "_L";
+        }
+        else if(shell == 2)
+        {
+            el_name += "_M";
+        }
     }
-    else if(shell == 2)
-    {
-        el_name += "_M";
-    }
-
-
 
     data_struct::Fit_Element_Map* fit_element = gen_element_map(el_name.toStdString());
     if(fit_element != nullptr)
     {
-        (*_elements_to_fit)[el_name.toStdString()] = fit_element;
+        if(_chk_is_pileup->checkState() == Qt::CheckState::Checked)
+        {
+            QString pileup_name = _cb_pileup_elements->currentText();
+            data_struct::Element_Info* pileup_element = data_struct::Element_Info_Map::inst()->get_element(pileup_name.toStdString());
+            if(pileup_element != nullptr)
+            {
+                el_name += "_" + pileup_name;
+                fit_element->set_as_pileup(pileup_name.toStdString(), pileup_element);
+            }
+        }
+
+        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element("Si"));
+        //check if it exists in list
+        if(_elements_to_fit->count(el_name.toStdString()) == 0)
+        {
+            (*_elements_to_fit)[el_name.toStdString()] = fit_element;
+        }
     }
 
 
@@ -333,6 +405,24 @@ void FitSpectraWidget::del_element()
 
 /*---------------------------------------------------------------------------*/
 
+void FitSpectraWidget::pileup_chk_changed(int state)
+{
+    switch(state)
+    {
+    case Qt::CheckState::Checked:
+        _cb_pileup_elements->setEnabled(true);
+        break;
+    case Qt::CheckState::Unchecked:
+        _cb_pileup_elements->setEnabled(false);
+        break;
+    default:
+        _cb_pileup_elements->setEnabled(false);
+        break;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::Fit_Spectra_Click()
 {
     _btn_fit_spectra->setEnabled(false);
@@ -344,8 +434,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
         _fit_thread = nullptr;
     }
     //_fit_thread = new std::thread( [this]()
-    std::async( [this]()
-    {
+    //std::async( [this]()
+    //{
 
         if(_elements_to_fit != nullptr)
         {
@@ -452,8 +542,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&ev);
         }
         emit signal_finished_fit();
-    }
-    );
+    //}
+    //);
 }
 
 /*---------------------------------------------------------------------------*/

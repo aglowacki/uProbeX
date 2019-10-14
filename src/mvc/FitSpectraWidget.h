@@ -123,6 +123,8 @@ private slots:
 
    void h5_int_spec_updated(bool b_snip_background);
 
+   void pileup_chk_changed(int state);
+
 private:
 
     QCheckBox *_chk_auto_model;
@@ -154,6 +156,10 @@ private:
    QComboBox* _cb_add_elements;
 
    QComboBox* _cb_add_shell;
+
+   QComboBox* _cb_pileup_elements;
+
+   QCheckBox* _chk_is_pileup;
 };
 
 

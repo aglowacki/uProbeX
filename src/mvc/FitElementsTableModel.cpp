@@ -183,6 +183,7 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
         const std::string el_name = element->full_name();
         int found_L = el_name.find("_L");
         int found_M = el_name.find("_M");
+        int found_pileup = el_name.find("_");
         if(found_L > 0)
         {
             idx += 1000;
@@ -190,6 +191,9 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
         else if(found_M > 0)
         {
             idx += 2000;
+        }else if(found_pileup > 0)
+        {
+            idx += 3000;
         }
 		if (_nodes.find(idx) == _nodes.end())
 		{
