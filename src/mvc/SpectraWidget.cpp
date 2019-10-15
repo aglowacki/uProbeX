@@ -314,7 +314,7 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 
                 case data_struct::Element_Param_Type::M_Line:
                 m_cnt ++;
-                eName += " L"+QString::number(m_cnt);
+                eName += " M"+QString::number(m_cnt);
                 break;
             }
             line->setName(eName);

@@ -16,6 +16,7 @@
 #include <QFileDialog>
 #include <QSplitter>
 #include <QMessageBox>
+#include <QSpacerItem>
 #include <math.h>
 
 #include "data_struct/element_info.h"
@@ -35,17 +36,33 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _cb_add_elements = new QComboBox();
     _cb_add_shell = new QComboBox();
     _cb_pileup_elements = new QComboBox();
+    _cb_detector_element = new QComboBox();
+    _chk_is_pileup = new QCheckBox("Pile Up");
     _elements_to_fit = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
         _cb_pileup_elements->addItem(QString::fromStdString(e));
     }
+
+    _cb_detector_element->addItem("Si");
+    _cb_detector_element->addItem("Ge");
+
     _cb_pileup_elements->setEnabled(false);
+
+    _cb_add_elements->setCurrentIndex(1);
+    _cb_pileup_elements->setCurrentIndex(1);
 
     _cb_add_shell->addItem("K");
     _cb_add_shell->addItem("L");
     _cb_add_shell->addItem("M");
+
+    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(pileup_chk_changed(int)) );
+    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(element_selection_changed(int)));
+
+    connect(_cb_add_shell, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
+    connect(_cb_add_elements, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
+    connect(_cb_pileup_elements, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
 
     createLayout();
 
@@ -139,28 +156,22 @@ void FitSpectraWidget::createLayout()
     _btn_del_element = new QPushButton("Delete Element");
     connect(_btn_del_element, &QPushButton::released, this, &FitSpectraWidget::del_element);
 
-    QVBoxLayout* element_button_layout = new QVBoxLayout();
-    element_button_layout->addWidget(new QLabel("Element"));
-    element_button_layout->addWidget(_cb_add_elements);
-    element_button_layout->addWidget(new QLabel("Shell"));
-    element_button_layout->addWidget(_cb_add_shell);
-    element_button_layout->addWidget(_btn_add_element);
-    element_button_layout->addWidget(_btn_del_element);
-    element_button_layout->addStretch(1);
-
-
-    _chk_is_pileup = new QCheckBox("Pile Up");
-    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(pileup_chk_changed(int)) );
-
-    QVBoxLayout* element_pileup_layout = new QVBoxLayout();
-    element_pileup_layout->addWidget(_chk_is_pileup);
-    element_pileup_layout->addWidget(_cb_pileup_elements);
-
+    QGridLayout* add_element_grid_layout = new QGridLayout();
+    add_element_grid_layout->setAlignment(Qt::AlignTop);
+    add_element_grid_layout->addWidget(new QLabel("Element"), 0, 0);
+    add_element_grid_layout->addWidget(_cb_add_elements, 0, 1);
+    add_element_grid_layout->addWidget(new QLabel("Shell"), 1, 0);
+    add_element_grid_layout->addWidget(_cb_add_shell, 1, 1);
+    //add_element_grid_layout->addWidget(new QLabel("Detector Element"), 2, 0);
+    //add_element_grid_layout->addWidget(_cb_detector_element, 2, 1);
+    add_element_grid_layout->addWidget(_chk_is_pileup, 2, 0);
+    add_element_grid_layout->addWidget(_cb_pileup_elements, 2, 1);
+    add_element_grid_layout->addWidget(_btn_add_element, 3, 0);
+    add_element_grid_layout->addWidget(_btn_del_element, 3, 1);
 
     QHBoxLayout* elements_layout = new QHBoxLayout();
     elements_layout->addWidget(_fit_elements_table);
-    elements_layout->addLayout(element_button_layout);
-    elements_layout->addLayout(element_pileup_layout);
+    elements_layout->addLayout(add_element_grid_layout);
 
     QWidget* element_widget = new QWidget();
     element_widget->setLayout(elements_layout);
@@ -187,12 +198,15 @@ void FitSpectraWidget::createLayout()
     QGridLayout *grid_layout = new QGridLayout();
     grid_layout->addWidget(_cb_opttimizer, 0, 0);
     grid_layout->addWidget(_btn_fit_spectra, 0, 1);
+    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 2);
 
     grid_layout->addWidget(_chk_auto_model, 1, 0);
     grid_layout->addWidget(_btn_model_spectra, 1, 1);
+    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 1, 2);
 
 	grid_layout->addWidget(_btn_replot_integrated, 2, 0);
     grid_layout->addWidget(_btn_export_parameters, 2, 1);
+    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 2, 2);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
@@ -360,7 +374,14 @@ void FitSpectraWidget::add_element()
             }
         }
 
-        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element("Si"));
+        std::string detector_element = "Si"; // default to Si detector if not found in param override
+        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
+        if(param_override != nullptr)
+        {
+            detector_element = param_override->detector_element;
+        }
+
+        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
         //check if it exists in list
         if(_elements_to_fit->count(el_name.toStdString()) == 0)
         {
@@ -386,6 +407,11 @@ void FitSpectraWidget::del_element()
             data_struct::Fit_Element_Map* fit_element = _fit_elements_table_model->getElementByIndex(i);
             if( fit_element != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
             {
+                Fit_Element_Map* el = (*_elements_to_fit)[fit_element->full_name()];
+                if(el != nullptr)
+                {
+                    delete el;
+                }
                 _elements_to_fit->erase(fit_element->full_name());
             }
 			_spectra_widget->set_element_lines(nullptr);
@@ -715,20 +741,40 @@ void FitSpectraWidget::check_auto_model(int state)
 void FitSpectraWidget::element_selection_changed(QModelIndex current, QModelIndex previous)
 {
     _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
+}
 
-//    data_struct::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(current);
-//    if(element != nullptr)
-//    {
-//        QString name = QString(element->full_name().c_str());
-//        float energy_offset = _fit_params_table_model->getFitParamValue(STR_ENERGY_OFFSET);
-//        float energy_slope = _fit_params_table_model->getFitParamValue(STR_ENERGY_SLOPE);
-//        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
+/*---------------------------------------------------------------------------*/
 
-//        _spectra_widget->set_vertical_line(x_val, name);
-//    }
+void FitSpectraWidget::element_selection_changed(int index)
+{
+
+    QString element_name = _cb_add_elements->currentText();
+    QString full_name = element_name;
+    if(_chk_is_pileup->checkState() == Qt::CheckState::Unchecked)
+    {
+        if(_cb_add_shell->currentText() != "K")
+        {
+            full_name = element_name + "_" +_cb_add_shell->currentText();
+        }
+    }
+
+    Fit_Element_Map em(full_name.toStdString(), Element_Info_Map::inst()->get_element(element_name.toStdString()));
+
+    if(_chk_is_pileup->checkState() == Qt::CheckState::Checked)
+    {
+        em.set_as_pileup(_cb_pileup_elements->currentText().toStdString(), Element_Info_Map::inst()->get_element(_cb_pileup_elements->currentText().toStdString()));
+    }
+
+
+    std::string detector_element = "Si"; // default to Si detector if not found in param override
+    data_struct::Params_Override* param_override = _h5_model->getParamOverride();
+    if(param_override != nullptr)
+    {
+        detector_element = param_override->detector_element;
+    }
+
+    em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+    _spectra_widget->set_element_lines(&em);
 }
 
 /*---------------------------------------------------------------------------*/

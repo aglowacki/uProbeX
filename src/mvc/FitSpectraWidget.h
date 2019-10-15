@@ -82,6 +82,8 @@ public slots:
 
    void element_selection_changed(QModelIndex,QModelIndex);
 
+   void element_selection_changed(int index);
+
    void export_fit_paramters();
 
    void replot_integrated_spectra();
@@ -160,6 +162,8 @@ private:
    QComboBox* _cb_pileup_elements;
 
    QCheckBox* _chk_is_pileup;
+
+   QComboBox* _cb_detector_element;
 };
 
 
