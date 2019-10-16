@@ -133,6 +133,7 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
                 const std::string el_name = element->full_name();
                 int found_L = el_name.find("_L");
                 int found_M = el_name.find("_M");
+                const data_struct::Element_Info* pileup = element->pileup_element();
                 if(found_L > 0)
                 {
                     idx += 1000;
@@ -140,6 +141,10 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
                 else if(found_M > 0)
                 {
                     idx += 2000;
+                }
+                else if(pileup != nullptr)
+                {
+                    idx += 3000 + pileup->number;
                 }
                 _nodes[idx] = new TreeItem();
                 _nodes[idx]->set_root(element);
@@ -183,7 +188,7 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
         const std::string el_name = element->full_name();
         int found_L = el_name.find("_L");
         int found_M = el_name.find("_M");
-        int found_pileup = el_name.find("_");
+        const data_struct::Element_Info* pileup = element->pileup_element();
         if(found_L > 0)
         {
             idx += 1000;
@@ -191,9 +196,10 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
         else if(found_M > 0)
         {
             idx += 2000;
-        }else if(found_pileup > 0)
+        }
+        else if(pileup != nullptr)
         {
-            idx += 3000;
+            idx += 3000 + pileup->number;
         }
 		if (_nodes.find(idx) == _nodes.end())
 		{
