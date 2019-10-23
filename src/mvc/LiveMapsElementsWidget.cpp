@@ -159,13 +159,16 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
     {
         start_new_image = true;
     }
-    if(_prev_dataset_name != *new_packet->dataset_name)
+    if(_last_packet != nullptr)
     {
-        start_new_image = true;
-    }
-    if(_last_packet != nullptr && (_last_packet->width() != new_packet->width() || _last_packet->height() != new_packet->height()))
-    {
-        start_new_image = true;
+        if( (_last_packet->width() != new_packet->width() || _last_packet->height() != new_packet->height()) )
+        {
+            start_new_image = true;
+        }
+        //if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
+        //{
+        //    start_new_image = true;
+        //}
     }
     if(_currentModel == nullptr)
     {
