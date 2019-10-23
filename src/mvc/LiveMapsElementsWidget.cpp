@@ -148,6 +148,11 @@ void LiveMapsElementsWidget::updateIp()
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
 {
+	if (new_packet == nullptr)
+	{
+		return;
+	}
+
 
     bool start_new_image = false;
     if( (new_packet->row() == 0 && new_packet->col() == 0) || _last_packet == nullptr)
