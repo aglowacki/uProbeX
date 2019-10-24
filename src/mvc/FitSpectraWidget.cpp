@@ -399,20 +399,21 @@ void FitSpectraWidget::add_element()
 void FitSpectraWidget::del_element()
 {
     //get selected elements to remove
-    QModelIndexList selected_rows = _fit_elements_table->selectionModel()->selectedIndexes();
+    QModelIndexList selected_rows = _fit_elements_table->selectionModel()->selectedRows();
     for( auto i : selected_rows)
     {
         if(i.isValid())
         {
             data_struct::Fit_Element_Map* fit_element = _fit_elements_table_model->getElementByIndex(i);
+
             if( fit_element != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
             {
                 Fit_Element_Map* el = (*_elements_to_fit)[fit_element->full_name()];
+				_elements_to_fit->erase(fit_element->full_name());
                 if(el != nullptr)
                 {
                     delete el;
                 }
-                _elements_to_fit->erase(fit_element->full_name());
             }
 			_spectra_widget->set_element_lines(nullptr);
             auto p = i.parent();

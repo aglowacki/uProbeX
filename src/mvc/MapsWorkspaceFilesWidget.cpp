@@ -216,7 +216,13 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
                 {
                     idx = 3;
                 }
-                h5Model->set_fit_parameters_override( _model->getParamOverride(idx) );
+				data_struct::Params_Override *param_override = _model->getParamOverride(idx);
+				//if we can't find override for specific detector, try to use the avg one.
+				if (param_override == nullptr)
+				{
+					param_override = _model->getParamOverride(-1);
+				}
+                h5Model->set_fit_parameters_override( param_override );
                 opened_list.append(name);
                 load_status = LOADED;
                 //emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
