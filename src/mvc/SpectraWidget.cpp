@@ -23,6 +23,7 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _max_log_range = 1.0;
     m_isTouching = false;
     _display_log10 = true;
+    _currentYAxis = nullptr;
     createLayout();
 
     _action_check_log10 = new QAction("Toggle Log10", this);
@@ -79,12 +80,14 @@ void SpectraWidget::createLayout()
 
     if(_display_log10)
     {
-        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+        _currentYAxis = _axisYLog10;
     }
     else
     {
-        _chart->addAxis(_axisY, Qt::AlignLeft);
+        _currentYAxis = _axisY;
     }
+
+    _chart->addAxis(_currentYAxis, Qt::AlignLeft);
 
     _line_series = nullptr;
 
@@ -127,13 +130,9 @@ void SpectraWidget::createLayout()
 
 void SpectraWidget::onSpectraDisplayChanged(const QString &)
 {
-
     qreal maxRange = _display_eneergy_max->text().toDouble();
     qreal minRange = _display_eneergy_min->text().toDouble();
     _axisX->setRange(minRange, maxRange);
-
-//    _axisY->setRange(_axisY->min(), _axisY->max());
-//    _axisYLog10->setRange(_axisYLog10->min(), _axisYLog10->max());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -192,13 +191,8 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         series->attachAxis(_axisX);
         _display_eneergy_min->setText(QString::number(_axisX->min()));
         _display_eneergy_max->setText(QString::number(_axisX->max()));
-        //_axisYLog10->setRange(1.0, _max_log_range);
-        //_axisY->setRange(0.0, new_max);
 
-        if(_display_log10)
-            series->attachAxis(_axisYLog10);
-        else
-            series->attachAxis(_axisY);
+        series->attachAxis(_currentYAxis);
     }
     else
     {
@@ -246,11 +240,8 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
         _chart->addSeries(_line_series);
 
         _line_series->attachAxis(_axisX);
+        _line_series->attachAxis(_currentYAxis);
 
-        //if(_display_log10)
-        //    _line_series->attachAxis(_axisYLog10);
-        //else
-            _line_series->attachAxis(_axisY);
 
         emit trigger_connect_markers();
     }
@@ -274,53 +265,46 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 	for (QtCharts::QLineSeries* itr : _element_lines)
 	{
 		itr->detachAxis(_axisX);
-		itr->detachAxis(_axisY);
+        itr->detachAxis(_currentYAxis);
 		_chart->removeSeries(itr);
 		delete itr;
 	}
 	_element_lines.clear();
 
+    float line_min = 0;
+    float line_max = 9999;
+    //QAbstractAxis doesn't support max and min so we have to cast
+    if(_display_log10)
+    {
+        line_min = std::max(0.0, ((QtCharts::QLogValueAxis*)_currentYAxis)->min());
+        line_max = ((QtCharts::QLogValueAxis*)_currentYAxis)->max();
+    }
+    else
+    {
+        line_min = std::max(0.0, ((QtCharts::QValueAxis*)_currentYAxis)->min());
+        line_max = ((QtCharts::QValueAxis*)_currentYAxis)->max();
+    }
+
+
+
+
     if(element != nullptr)
     {
         const std::vector<data_struct::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
 
-        int ka_cnt = 0;
-        int kb_cnt = 0;
-        int l_cnt = 0;
-        int m_cnt = 0;
-
         for(auto& itr : energy_ratios)
         {
             QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
-            line->append(itr.energy, 1.0f);
-            line->append(itr.energy, 10000.0f);
+            line->append(itr.energy, line_min);
+            float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
+            line->append(itr.energy, (line_max * line_ratio));
             QString eName = QString(element->full_name().c_str());
-            switch(itr.ptype)
-            {
-                case data_struct::Element_Param_Type::Ka_Line:
-                ka_cnt ++;
-                eName += " Ka"+QString::number(ka_cnt);
-                break;
+            eName = QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str());
 
-                case data_struct::Element_Param_Type::Kb_Line:
-                kb_cnt ++;
-                eName += " Kb"+QString::number(kb_cnt);
-                break;
-
-                case data_struct::Element_Param_Type::L_Line:
-                l_cnt ++;
-                eName += " L"+QString::number(l_cnt);
-                break;
-
-                case data_struct::Element_Param_Type::M_Line:
-                m_cnt ++;
-                eName += " M"+QString::number(m_cnt);
-                break;
-            }
             line->setName(eName);
             _chart->addSeries(line);
             line->attachAxis(_axisX);
-            line->attachAxis(_axisY);
+            line->attachAxis(_currentYAxis);
             _element_lines.push_back(line);
         }
         emit trigger_connect_markers();
@@ -364,30 +348,26 @@ void SpectraWidget::_check_log10()
         series.removeOne(ser);
     }
 
-    QtCharts::QAbstractAxis* remove_axis;
-    QtCharts::QAbstractAxis* add_axis;
-
-    if(_display_log10)
+    for(QtCharts::QAbstractSeries* ser : series)
     {
-        remove_axis = _axisYLog10;
-        add_axis = _axisY;
+        ser->detachAxis(_currentYAxis);
+    }
+    _chart->removeAxis(_currentYAxis);
+
+    if(_display_log10) //if current one is log10, set to normal
+    {
+        _currentYAxis = _axisY;
     }
     else
     {
-        remove_axis = _axisY;
-        add_axis = _axisYLog10;
+        _currentYAxis = _axisYLog10;
     }
+
+    _chart->addAxis(_currentYAxis, Qt::AlignLeft);
 
     for(QtCharts::QAbstractSeries* ser : series)
     {
-        ser->detachAxis(remove_axis);
-    }
-    _chart->removeAxis(remove_axis);
-    _chart->addAxis(add_axis, Qt::AlignLeft);
-
-    for(QtCharts::QAbstractSeries* ser : series)
-    {
-        ser->attachAxis(add_axis);
+        ser->attachAxis(_currentYAxis);
     }
 
 
@@ -419,7 +399,7 @@ void SpectraWidget::_update_series()
         }
         _chart->addSeries(series);
         series->attachAxis(_axisX);
-        series->attachAxis(_axisYLog10);
+        series->attachAxis(_currentYAxis);
     }
     //_chart->createDefaultAxes();
 }

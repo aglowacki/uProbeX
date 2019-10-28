@@ -118,6 +118,8 @@ private:
 
     QtCharts::QValueAxis * _axisY;
 
+    QtCharts::QAbstractAxis * _currentYAxis;
+
     bool m_isTouching;
 
     //std::map<QString, data_struct::Spectra> _spectra_map;

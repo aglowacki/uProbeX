@@ -191,31 +191,17 @@ private:
 
            std::vector<float> multi_vec = element->energy_ratio_multipliers();
            int i =0;
-           for(auto& itr : element->energy_ratios())
-           {
-               child = new TreeItem(this, true);
-                switch(itr.ptype)
-                {
-                    case  data_struct::Element_Param_Type::Ka_Line:
-                        child->itemData.push_back(QVariant("Ka"));
-                    break;
-                    case  data_struct::Element_Param_Type::Kb_Line:
-                        child->itemData.push_back(QVariant("Kb"));
-                    break;
-                    case  data_struct::Element_Param_Type::L_Line:
-                        child->itemData.push_back(QVariant("L"));
-                    break;
-                    case  data_struct::Element_Param_Type::M_Line:
-                        child->itemData.push_back(QVariant("M"));
-                    break;
-                }
+            for(auto& itr : element->energy_ratios())
+            {
+                child = new TreeItem(this, true);
+                child->itemData.push_back(QVariant(QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str())));
                 child->itemData.push_back(QVariant(itr.energy));
                 child->itemData.push_back(QVariant(multi_vec[i]));
                 //child->itemData.push_back(QVariant(itr.mu_fraction));
                 //child->itemData.push_back(QVariant(itr.ratio));
                 childItems.push_back(child);
                 i++;
-           }
+            }
        }
 //       TreeItem *child(int number){ return childItems.value(number); }
 //       int childCount() const {return childItems.count();}
