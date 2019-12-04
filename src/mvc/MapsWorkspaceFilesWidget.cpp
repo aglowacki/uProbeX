@@ -94,8 +94,8 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     QLayout* vlayout = new QVBoxLayout();
 
-    _tab_widget->insertTab(0, _h5_tab_widget, "Analyized H5");
-    _tab_widget->insertTab(1, _mda_tab_widget, "Raw MDA");
+    _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
+    _tab_widget->insertTab(1, _mda_tab_widget, "Raw Data");
     _tab_widget->insertTab(2, _sws_tab_widget, "Light Microscope");
 
     vlayout->addWidget(_tab_widget);
@@ -157,7 +157,7 @@ void MapsWorkspaceFilesWidget::model_done_loading()
 {
 
     _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-    _mda_tab_widget->set_file_list(_model->get_mda_file_list());
+    _mda_tab_widget->set_file_list(_model->get_raw_file_list());
     _sws_tab_widget->set_file_list(_model->get_sws_file_list());
 
 }

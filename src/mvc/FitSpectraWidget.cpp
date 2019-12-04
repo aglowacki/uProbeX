@@ -260,18 +260,26 @@ void FitSpectraWidget::export_fit_paramters()
         QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
 
 
+        QFileDialog::getOpenFileName(this,              "Open SWS workspace", ".",
+                                                            tr("SWS (*.sws *.SWS)"));
+        //QFileDialog::
+        //QFileDialog* dislog = new QFileDialog(nullptr, "Override file", dataset_path, "*.txt");
+        //dialog->show();
+
         data_struct::Params_Override* param_overrides = _h5_model->getParamOverride();
 
         //check if file exists and warn user
         if(param_overrides != nullptr)
         {
-    //		data_struct::Fit_Parameters fit_params;
-    //		data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-    //		data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-    //		fit_params.append_and_update(&model_fit_params);
-    //		fit_params.append_and_update(&element_fit_params);
+            data_struct::Fit_Parameters* fit_params = &(param_overrides->fit_params);
+            data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+            data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+            fit_params->append_and_update(&model_fit_params);
+            fit_params->append_and_update(&element_fit_params);
 
             io::file::aps::APS_Fit_Params_Import override_file;
+
+
 
             if(override_file.save(fileName.toStdString(), param_overrides) )
             {

@@ -210,17 +210,18 @@ add_executable(uProbeX
     src/mvc/FitElementsTableModel.h
     src/mvc/NetStreamWorker.h
     src/mvc/MapsH5Model.h
+    src/mvc/RawH5Model.h
     src/mvc/MDA_Model.h
     src/mvc/MDA_Widget.h
-	src/mvc/FileTabWidget.h
+    src/mvc/FileTabWidget.h
     src/mvc/FitSpectraWidget.h
     src/mvc/MapsElementsWidget.h
     src/mvc/LiveMapsElementsWidget.h
     src/mvc/MapsWorkspaceModel.h
     src/mvc/MapsWorkspaceFilesWidget.h
     src/mvc/ImageStackControlWidget.h
-	src/mvc/ImageGridDialog.h
-	src/mvc/MapsWorkspaceController.h
+    src/mvc/ImageGridDialog.h
+    src/mvc/MapsWorkspaceController.h
     src/preferences/Preferences.h
     src/preferences/PreferencesDisplay.h
     src/preferences/PreferencesMicroPv.h
@@ -300,18 +301,19 @@ add_executable(uProbeX
     src/mvc/FitParamsTableModel.cpp
     src/mvc/FitElementsTableModel.cpp
     src/mvc/NetStreamWorker.cpp
+    src/mvc/RawH5Model.cpp
     src/mvc/MapsH5Model.cpp
     src/mvc/MDA_Model.cpp
     src/mvc/MDA_Widget.cpp
-	src/mvc/FileTabWidget.cpp
+    src/mvc/FileTabWidget.cpp
     src/mvc/FitSpectraWidget.cpp
     src/mvc/MapsElementsWidget.cpp
     src/mvc/LiveMapsElementsWidget.cpp
     src/mvc/MapsWorkspaceModel.cpp
     src/mvc/MapsWorkspaceFilesWidget.cpp
     src/mvc/ImageStackControlWidget.cpp
-	src/mvc/ImageGridDialog.cpp
-	src/mvc/MapsWorkspaceController.cpp
+    src/mvc/ImageGridDialog.cpp
+    src/mvc/MapsWorkspaceController.cpp
     src/preferences/Preferences.cpp
     src/preferences/Attribute.cpp
     src/preferences/AttributeGroup.cpp
