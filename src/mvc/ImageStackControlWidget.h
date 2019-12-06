@@ -44,6 +44,8 @@ public:
 
    void setModel(MapsWorkspaceModel* model);
 
+   void update_file_list() { if(_mapsFilsWidget != nullptr) {_mapsFilsWidget->model_done_loading();}}
+
 signals:
 	void newH5ModelSelected(MapsH5Model*);
 

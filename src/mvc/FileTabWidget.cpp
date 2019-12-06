@@ -47,7 +47,7 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 	_filter_suggest_btn = new QPushButton();
 	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));
 	_filter_suggest_btn->setIconSize(QSize(15, 15));
-	connect(_filter_suggest_btn, SIGNAL(clicked()),
+    connect(_filter_suggest_btn, SIGNAL(released()),
 		this, SLOT(filterBtnClicked()));
 
 
@@ -235,6 +235,31 @@ void FileTabWidget::filterBtnClicked()
       result->trigger();
     }
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::addCustomContext(QString Id, QString label)
+{
+    QAction* action = _contextMenu->addAction(label);
+    action->setData(Id);
+    connect(action, SIGNAL(triggered()), this, SLOT(onCustomContext()));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::onCustomContext()
+{
+    QStringList sl;
+    QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
+    for(int i =0; i<list.length(); i++)
+    {
+        QModelIndex idx = list.at(i);
+        sl.append(idx.data(0).toString());
+    }
+    QAction *act = qobject_cast<QAction *>(sender());
+    QVariant v = act->data();
+    emit customContext(v.toString(), sl);
 }
 
 /*---------------------------------------------------------------------------*/

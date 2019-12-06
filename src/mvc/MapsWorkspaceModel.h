@@ -50,7 +50,7 @@ public:
     */
     ~MapsWorkspaceModel();
 
-    bool load(QString filepath);
+    void load(QString filepath);
 
     void unload();
 
@@ -83,6 +83,14 @@ public:
     const map<QString, QFileInfo>& get_sws_file_list() { return _sws_fileinfo_list; }
 
 signals:
+
+    void doneLoadingMDA();
+
+    void doneLoadingRAW();
+
+    void doneLoadingVLM();
+
+    void doneLoadingImgDat();
 
     void doneLoading();
 

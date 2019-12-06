@@ -21,6 +21,7 @@
 #include <QMap>
 #include <QUuid>
 #include <thread>
+//#include <QtConcurrent>
 
 class SubWindow;
 class AbstractWindowController;
@@ -69,6 +70,10 @@ public:
    //Static log windows 
    static QTextEdit * log_textedit;
 
+signals:
+   void loadMapsWorkspace(MapsWorkspaceController*, QString);
+   void FinishThread(std::thread*);
+
 private slots:
 
    /**
@@ -106,10 +111,12 @@ private slots:
    void makeSWSWindow(SWSModel* swsModel);
 
    /**
-    * @brief makeMAPSWindow
+    * @brief laodMapsWorkspace
     * @param path
     */
-   void makeMapsWindow(QString path);
+   void onLoadMapsWorkspace(MapsWorkspaceController* controller, QString path);
+
+   void onFinishThread(std::thread* t);
 
    /**
     * @brief makeHDFWindow
@@ -380,7 +387,7 @@ private:
    /**
     * @brief _load_maps_workspace_thread
     */
-   std::thread* _load_maps_workspace_thread;
+   //std::thread* _load_maps_workspace_thread;
 
    /**
     * @brief timer used to execute autosafe.

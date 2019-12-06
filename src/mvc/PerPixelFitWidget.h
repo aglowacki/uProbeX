@@ -38,6 +38,8 @@ public:
     */
    ~PerPixelFitWidget();
 
+    void updateFileList(QStringList file_list);
+
 public slots:
 
    
@@ -53,11 +55,9 @@ protected:
 
    QProgressBar *_progressBar;
 
-   QLineEdit *_qline_ip_addr;
+   QPushButton *_btn_run;
 
-   QLineEdit *_qline_port;
-
-   QPushButton *_btn_update;
+   QPushButton *_btn_cancel;
 };
 
 

@@ -19,6 +19,7 @@
 MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(parent)
 {
 
+    _per_pixel_fit_widget = nullptr;
 	_model = nullptr;
     createLayout();
 
@@ -47,11 +48,9 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->appendFilterHelpAction(h5avg_file);
     _h5_tab_widget->appendFilterHelpAction(h5det_file);
 
-//    connect(_h5_tab_widget, SIGNAL(onOpenItem(QString)),
-//            this, SLOT(onOpenHDF5(QString)));
+    connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
 
-//    connect(_h5_tab_widget, SIGNAL(onCloseItem(QString)),
-//            this, SLOT(onCloseHDF5(QStringList)));
+    _h5_tab_widget->addCustomContext("hdf5", "Per Pixel Process");
 
     connect(_h5_tab_widget, SIGNAL(loadList(const QStringList&)),
             this, SLOT(onOpenHDF5(const QStringList&)));
@@ -71,6 +70,10 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     connect(this, SIGNAL(status_loaded_mda(File_Loaded_Status, const QString&)),
             _mda_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
+
+    connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
+
+    _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
 
     _sws_tab_widget = new FileTabWidget();
     connect(_sws_tab_widget, SIGNAL(onOpenItem(QString)),
@@ -109,11 +112,26 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 	if (_model != nullptr)
 	{
 
-		disconnect(_model,
-			SIGNAL(doneLoading()),
-			this,
-			SLOT(model_done_loading()));
+        disconnect(_model,
+            SIGNAL(doneLoadingMDA()),
+            this,
+            SLOT(updateMDA()));
 
+        disconnect(_model,
+            SIGNAL(doneLoadingVLM()),
+            this,
+            SLOT(updateSWS()));
+
+		disconnect(_model,
+            SIGNAL(doneLoadingImgDat()),
+			this,
+            SLOT(updateH5()));
+/*
+        disconnect(_model,
+            SIGNAL(doneLoading()),
+            this,
+            SLOT(model_done_loading()));
+  */
 		disconnect(_model,
 			SIGNAL(doneUnloading()),
 			this,
@@ -133,11 +151,28 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 		{
 			_lbl_workspace->setText(path);
 		}
+
+        connect(_model,
+            SIGNAL(doneLoadingMDA()),
+            this,
+            SLOT(updateMDA()));
+
+        connect(_model,
+            SIGNAL(doneLoadingVLM()),
+            this,
+            SLOT(updateSWS()));
+
+        connect(_model,
+            SIGNAL(doneLoadingImgDat()),
+            this,
+            SLOT(updateH5()));
+
+        /*
 		connect(_model,
 			SIGNAL(doneLoading()),
 			this,
 			SLOT(model_done_loading()));
-
+*/
 		connect(_model,
 			SIGNAL(doneUnloading()),
 			this,
@@ -147,7 +182,35 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 			SIGNAL(newFitParamsFileLoaded(int)),
 			this,
 			SLOT(loadedFitParams(int)));
+
 	}
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::updateMDA()
+{
+
+    _mda_tab_widget->set_file_list(_model->get_raw_file_list());
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::updateH5()
+{
+
+    _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::updateSWS()
+{
+
+    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
 
 }
 
@@ -326,6 +389,21 @@ void MapsWorkspaceFilesWidget::clearLists()
 	_h5_tab_widget->unload_all();
 	_mda_tab_widget->unload_all();
 	_sws_tab_widget->unload_all();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onPerPixelProcess(const QString& context_label, const QStringList& file_list)
+{
+
+    //create per pixel process widget and pass workspace
+    if(_per_pixel_fit_widget == nullptr)
+    {
+        _per_pixel_fit_widget = new PerPixelFitWidget();
+        _per_pixel_fit_widget->show();
+    }
+    _per_pixel_fit_widget->updateFileList(file_list);
+
 }
 
 /*---------------------------------------------------------------------------*/

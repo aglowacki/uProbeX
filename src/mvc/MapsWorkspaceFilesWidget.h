@@ -21,6 +21,7 @@
 #include "FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 #include "mvc/FileTabWidget.h"
+#include "mvc/PerPixelFitWidget.h"
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -76,6 +77,12 @@ signals:
 
 public slots:
 
+   void updateMDA();
+
+   void updateH5();
+
+   void updateSWS();
+
    void model_done_loading();
 
    void model_done_unloading();
@@ -93,6 +100,8 @@ public slots:
    void onOpenSWS(QString name);
 
    void onCloseSWS(QString name);
+
+   void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
 
 protected:
 
@@ -118,6 +127,8 @@ private:
    QTableView* _fit_params_table;
 
    FitParamsTableModel* _fit_params_table_model;
+
+   PerPixelFitWidget* _per_pixel_fit_widget;
 };
 
 

@@ -59,7 +59,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::load(QString filepath)
+void MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
@@ -68,15 +68,19 @@ bool MapsWorkspaceModel::load(QString filepath)
         if (!_dir->exists())
         {
             qWarning("Cannot find the example directory");
-            return false;
+            return;
         }
 
         _is_fit_params_loaded = _load_fit_params();
 
-        _is_raw_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
         _is_raw_loaded = _get_filesnames_in_directory(".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
+        emit doneLoadingRAW();
+        _is_raw_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+        emit doneLoadingMDA();
         _is_sws_loaded = _get_filesnames_in_directory("vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+        emit doneLoadingVLM();
         _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+        emit doneLoadingImgDat();
 
     }
     catch (std::string& s)
@@ -90,7 +94,6 @@ bool MapsWorkspaceModel::load(QString filepath)
 
     emit doneLoading();
 
-    return _is_fit_params_loaded && _is_imgdat_loaded;
 }
 
 /*---------------------------------------------------------------------------*/
