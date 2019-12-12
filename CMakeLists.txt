@@ -153,7 +153,7 @@ include_directories(${XRF_Maps_DIR}/../src/support/eigen-git-mirror)
 include_directories(src)
 
 #--------------- start uprobex exec -----------------
-add_executable(uProbeX
+add_executable(uProbeX 
     src/gstar/CoordinateWidget.h
     src/gstar/CoordinateModel.h
     src/gstar/ImageViewToolBar.h
