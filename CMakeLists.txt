@@ -153,8 +153,7 @@ include_directories(${XRF_Maps_DIR}/../src/support/eigen-git-mirror)
 include_directories(src)
 
 #--------------- start uprobex exec -----------------
-add_executable(uProbeX 
-    src/gstar/CoordinateWidget.h
+add_executable(${PROJECT_NAME} src/gstar/CoordinateWidget.h
     src/gstar/CoordinateModel.h
     src/gstar/ImageViewToolBar.h
     src/gstar/RangeWidget.h
@@ -194,13 +193,13 @@ add_executable(uProbeX
     src/solver/CoordinateTransformer.h
     src/solver/PythonTransformer.h
     src/solver/NelderMeadSolver.h
-    src/solver/PythonSolver.h
+    src/solver/PythonSolver.h 
     src/mvc/PerPixelFitWidget.h
-    src/mvc/SolverWidget.h
-    src/mvc/ComboBoxDelegate.h
-    src/mvc/AbstractWindowModel.h
-    src/mvc/AbstractWindowController.h
-    src/mvc/SWSModel.h
+    src/mvc/SolverWidget.h 
+    src/mvc/ComboBoxDelegate.h 
+    src/mvc/AbstractWindowModel.h 
+    src/mvc/AbstractWindowController.h 
+    src/mvc/SWSModel.h 
     src/mvc/TIFFModel.h
     src/mvc/TIFFWidget.h
     src/mvc/TIFFController.h
