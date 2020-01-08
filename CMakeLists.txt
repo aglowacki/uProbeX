@@ -152,8 +152,8 @@ include_directories(${XRF_Maps_DIR}/../src/support/eigen-git-mirror)
 # Include header files
 include_directories(src)
 
-#--------------- start uprobex exec -----------------
-add_executable(${PROJECT_NAME} src/gstar/CoordinateWidget.h
+set(HEADERS 
+    src/gstar/CoordinateWidget.h
     src/gstar/CoordinateModel.h
     src/gstar/ImageViewToolBar.h
     src/gstar/RangeWidget.h
@@ -246,6 +246,10 @@ add_executable(${PROJECT_NAME} src/gstar/CoordinateWidget.h
     src/core/PythonRegionCaller.h
     src/core/SubWindow.h
     src/core/uProbeX.h
+)
+
+#--------------- start uprobex exec -----------------
+add_executable( ${PROJECT_NAME} 
     src/gstar/CoordinateWidget.cpp
     src/gstar/CoordinateModel.cpp
     src/gstar/ImageViewToolBar.cpp
