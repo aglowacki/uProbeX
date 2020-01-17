@@ -152,9 +152,9 @@ include_directories(${XRF_Maps_DIR}/../src/support/eigen-git-mirror)
 # Include header files
 include_directories(src)
 
-file(GLOB_RECURSE PROJ_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.qrc )
+file(GLOB_RECURSE PROJ_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-add_executable( ${PROJECT_NAME} ${PROJ_SRC} )
+add_executable( ${PROJECT_NAME} ${PROJ_SRC} uProbeX.qrc )
 
 set(CompilerFlags
   LIBRARY_OUTPUT_DIRECTORY LIBRARY_OUTPUT_DIRECTORY_RELEASE LIBRARY_OUTPUT_DIRECTORY_DEBUG
