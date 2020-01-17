@@ -79,6 +79,8 @@ public:
 
     data_struct::Params_Override* getParamOverride(){return _params_override;}
 
+	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
+
 signals:
     void model_data_updated();
 
