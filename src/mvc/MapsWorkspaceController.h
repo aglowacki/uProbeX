@@ -7,7 +7,7 @@
 #define MAPS_WORKSPACE_CONTROLLER_H
 
 /*---------------------------------------------------------------------------*/
-
+#include <future>
 #include <QObject>
 #include <QMainWindow>
 #include <QDockWidget>
@@ -35,6 +35,8 @@ public:
 
    void setWorkingDir(QString path);
 
+   void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
+
 signals:
 	void controllerClosed(MapsWorkspaceController*);
 
@@ -55,6 +57,8 @@ protected:
 	QDockWidget *_maps_workspace_dock;
 
 	QDockWidget *_image_stack_control_dock;
+
+    std::thread* _load_maps_workspace_thread;
 
 };
 

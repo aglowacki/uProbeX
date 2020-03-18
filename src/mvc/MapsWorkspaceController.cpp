@@ -8,6 +8,7 @@
 MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
 
+    _load_maps_workspace_thread = nullptr;
 	_mapsWorkspaceModel = new MapsWorkspaceModel();
 	_imgStackControllWidget = new ImageStackControlWidget();
 	
@@ -28,6 +29,13 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 
 MapsWorkspaceController::~MapsWorkspaceController()
 {
+
+    if(_load_maps_workspace_thread != nullptr)
+    {
+        _load_maps_workspace_thread->join();
+        delete _load_maps_workspace_thread;
+    }
+
 
 	if(_imgStackControllWidget != nullptr)
 	{
@@ -69,28 +77,18 @@ void MapsWorkspaceController::makeMDAWindow(MDA_Model *model)
 
 void MapsWorkspaceController::setWorkingDir(QString path)
 {
-	_mapsWorkspaceModel->unload();
 
-	_mapsWorkspaceModel->load(path);
+    _mapsWorkspaceModel->unload();
 
-
-	//    if(_load_maps_workspace_thread != nullptr)
-//    {
-//        _load_maps_workspace_thread->join();
-//        delete _load_maps_workspace_thread;
-//    }
-//    _load_maps_workspace_thread = new std::thread( [model, path]()
-//    {
-//        try
-//        {
-//            model->load(path);
-//        }
-//        catch(std::string& s)
-//        {
-//            qDebug()<<"Failed to open maps workspace.\n\n"<<QString(s.c_str());
-//        }
-//    });
-
+    _mapsWorkspaceModel->load(path);
+/*
+    if(_load_maps_workspace_thread != nullptr)
+    {
+        _load_maps_workspace_thread->join();
+        delete _load_maps_workspace_thread;
+    }
+    _load_maps_workspace_thread = new std::thread(&MapsWorkspaceModel::load, _mapsWorkspaceModel, path);
+*/
 }
 /*---------------------------------------------------------------------------*/
 

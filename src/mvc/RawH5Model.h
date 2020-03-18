@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2019, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef MAPS_H5_MODEL_H
-#define MAPS_H5_MODEL_H
+#ifndef RAW_H5_MODEL_H
+#define RAW_H5_MODEL_H
 
 /*---------------------------------------------------------------------------*/
 
@@ -20,13 +20,10 @@
 #include "data_struct/stream_block.h"
 
 /*---------------------------------------------------------------------------*/
-
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
-
 /**
  * @brief Model for Maps analyzed hdf5 files
  */
-class MapsH5Model : public QObject
+class RawH5Model : public QObject
 {
 
     Q_OBJECT
@@ -36,12 +33,12 @@ public:
     /**
     * Constructor
     */
-    MapsH5Model();
+    RawH5Model();
 
     /**
     * Destructor
     */
-    ~MapsH5Model();
+    ~RawH5Model();
 
     void clear_analyzed_counts();
 
@@ -51,6 +48,7 @@ public:
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
+    /*
     data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
 
     const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
@@ -78,8 +76,6 @@ public:
     void set_fit_parameters_override(data_struct::Params_Override* override);
 
     data_struct::Params_Override* getParamOverride(){return _params_override;}
-
-	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
 
 signals:
     void model_data_updated();
@@ -140,13 +136,13 @@ private:
     bool _loaded_scan;
     bool _loaded_integrated_spectra;
     bool _loaded_counts;
-
+*/
     bool _is_fully_loaded;
 };
 
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* MapsH5Model_H_ */
+#endif /* RawH5Model_H_ */
 
 /*---------------------------------------------------------------------------*/

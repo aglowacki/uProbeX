@@ -5,7 +5,8 @@
 
 #include <mvc/MapsWorkspaceModel.h>
 #include <QDebug>
-
+//                                          confocal,  emd,          gsecars   gsecars
+std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 
 /*----------------src/mvc/MapsWorkspaceModel.cpp \-----------------------------------------------------------*/
 
@@ -23,6 +24,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _all_h5_suffex.append("h53");
 
     _mda_suffex.append("mda");
+    _raw_suffex.append("h5");
 
     _sws_suffex.append("sws");
 }
@@ -57,7 +59,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::load(QString filepath)
+void MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
@@ -66,14 +68,19 @@ bool MapsWorkspaceModel::load(QString filepath)
         if (!_dir->exists())
         {
             qWarning("Cannot find the example directory");
-            return false;
+            return;
         }
 
         _is_fit_params_loaded = _load_fit_params();
 
-        _is_mda_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_mda_fileinfo_list);
-        _is_sws_loaded = _get_filesnames_in_directory("vlm", _sws_suffex, &_sws_fileinfo_list);
-        _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list);
+        _is_raw_loaded = _get_filesnames_in_directory(".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
+        emit doneLoadingRAW();
+        _is_raw_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+        emit doneLoadingMDA();
+        _is_sws_loaded = _get_filesnames_in_directory("vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+        emit doneLoadingVLM();
+        _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+        emit doneLoadingImgDat();
 
     }
     catch (std::string& s)
@@ -87,7 +94,6 @@ bool MapsWorkspaceModel::load(QString filepath)
 
     emit doneLoading();
 
-    return _is_fit_params_loaded && _is_imgdat_loaded;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -100,6 +106,13 @@ void MapsWorkspaceModel::unload()
         delete itr.second;
     }
     _h5_models.clear();
+
+    for(auto &itr : _raw_hd5_models)
+    {
+        delete itr.second;
+    }
+    _raw_hd5_models.clear();
+
 
     for(auto &itr : _mda_models)
     {
@@ -114,12 +127,12 @@ void MapsWorkspaceModel::unload()
     _sws_models.clear();
 
     _fit_params_override_dict.clear();
-    _mda_fileinfo_list.clear();
+    _raw_fileinfo_list.clear();
     _sws_fileinfo_list.clear();
     _h5_fileinfo_list.clear();
 
     _is_fit_params_loaded = false;
-    _is_mda_loaded = false;
+    _is_raw_loaded = false;
     _is_sws_loaded = false;
     _is_imgdat_loaded = false;
     //_dir = new QDir(filepath);
@@ -158,10 +171,10 @@ MDA_Model* MapsWorkspaceModel::get_MDA_Model(QString name)
     {
         return _mda_models[name];
     }
-    if(_mda_fileinfo_list.count(name) > 0)
+    if(_raw_fileinfo_list.count(name) > 0)
     {
         MDA_Model * model = new MDA_Model();
-        QFileInfo fileInfo = _mda_fileinfo_list[name];
+        QFileInfo fileInfo = _raw_fileinfo_list[name];
 
         if(model->load(fileInfo.absoluteFilePath()))
         {
@@ -277,7 +290,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::_get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list)
+bool MapsWorkspaceModel::_get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
 {
     if(sub_dir_name.length() > 0)
     {
@@ -297,11 +310,14 @@ bool MapsWorkspaceModel::_get_filesnames_in_directory(QString sub_dir_name, QLis
         QFileInfo fileInfo = list.at(i);
         if (suffex.contains(fileInfo.suffix()))
         {
-            fileinfo_list->emplace( fileInfo.fileName(), fileInfo );
+            if (chk_func(fileInfo))
+            {
+                fileinfo_list->emplace( fileInfo.fileName(), fileInfo );
+            }
         }
     }
 
-    if(sub_dir_name.length() > 0)
+    if(sub_dir_name.length() > 0 && sub_dir_name != ".")
     {
         _dir->cd("..");
     }
@@ -331,6 +347,7 @@ data_struct::Params_Override* MapsWorkspaceModel::getParamOverride(int idx)
 }
 
 /*---------------------------------------------------------------------------*/
+
 data_struct::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
@@ -338,4 +355,70 @@ data_struct::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
         return &(_fit_params_override_dict[idx].elements_to_fit);
     }
     return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_mda(QFileInfo fileInfo)
+{
+    bool is_good = false;
+
+    io::file::MDA_IO mda_io;
+    is_good = mda_io.load_header(fileInfo.filePath().toStdString());
+
+    return is_good;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if ( fid < 0)
+        return false;
+
+    for(const auto& itr: raw_h5_groups)
+    {
+        hid_t gid = H5Gopen(fid, itr.c_str(), H5P_DEFAULT);
+        if ( gid > -1)
+        {
+            H5Gclose(gid);
+            H5Fclose(fid);
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_vlm(QFileInfo fileInfo)
+{
+
+       return false;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_imgdat_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if ( fid < 0)
+        return false;
+
+    hid_t gid = H5Gopen(fid, "MAPS" , H5P_DEFAULT);
+    if ( gid > -1)
+    {
+        H5Gclose(gid);
+        H5Fclose(fid);
+        return true;
+    }
+
+    return false;
+
 }

@@ -43,6 +43,8 @@ class FileTabWidget : public QWidget
 
     void appendFilterHelpAction(QAction * action) { _filterHelpMenu->addAction(action); }
 
+    void addCustomContext(QString Id, QString label);
+
 signals:
     void onOpenItem(QString);
 
@@ -51,6 +53,8 @@ signals:
     void loadList(QStringList);
 
     void unloadList(QStringList);
+
+    void customContext(QString, QStringList);
 
 public slots:
     void onDoubleClickElement(const QModelIndex);
@@ -70,6 +74,8 @@ public slots:
     void unload_all_visible();
 
 	void filterBtnClicked();
+
+    void onCustomContext();
 
 protected:
 

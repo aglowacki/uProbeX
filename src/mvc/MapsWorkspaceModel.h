@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QString>
+#include "RawH5Model.h"
 #include "MapsH5Model.h"
 #include "SWSModel.h"
 #include "MDA_Model.h"
@@ -17,6 +18,17 @@
 #include <QDir>
 
 /*---------------------------------------------------------------------------*/
+
+typedef std::function<bool(const QFileInfo fileInfo)> Check_Func_Def;
+
+
+bool check_raw_mda(QFileInfo fileInfo);
+
+bool check_raw_h5(QFileInfo fileInfo);
+
+bool check_vlm(QFileInfo fileInfo);
+
+bool check_imgdat_h5(QFileInfo fileInfo);
 
 /**
  * @brief Model
@@ -38,7 +50,7 @@ public:
     */
     ~MapsWorkspaceModel();
 
-    bool load(QString filepath);
+    void load(QString filepath);
 
     void unload();
 
@@ -66,11 +78,19 @@ public:
 
     const map<QString, QFileInfo>& get_hdf5_file_list() { return _h5_fileinfo_list; }
 
-    const map<QString, QFileInfo>& get_mda_file_list() { return _mda_fileinfo_list; }
+    const map<QString, QFileInfo>& get_raw_file_list() { return _raw_fileinfo_list; }
 
     const map<QString, QFileInfo>& get_sws_file_list() { return _sws_fileinfo_list; }
 
 signals:
+
+    void doneLoadingMDA();
+
+    void doneLoadingRAW();
+
+    void doneLoadingVLM();
+
+    void doneLoadingImgDat();
 
     void doneLoading();
 
@@ -82,9 +102,10 @@ protected:
 
     bool _load_fit_params();
 
-    bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list);
+    bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
     std::map<QString, MapsH5Model*> _h5_models;
+    std::map<QString, RawH5Model*> _raw_hd5_models;
     std::map<QString, MDA_Model*> _mda_models;
     std::map<QString, SWSModel*> _sws_models;
 
@@ -94,16 +115,17 @@ private:
 
     QList <QString> _all_h5_suffex;
     QList <QString> _mda_suffex;
+    QList <QString> _raw_suffex;
     QList <QString> _sws_suffex;
 
     map<QString, QFileInfo> _h5_fileinfo_list;
-    map<QString, QFileInfo> _mda_fileinfo_list;
+    map<QString, QFileInfo> _raw_fileinfo_list;
     map<QString, QFileInfo> _sws_fileinfo_list;
 
     QDir* _dir;
 
     bool _is_sws_loaded;
-    bool _is_mda_loaded;
+    bool _is_raw_loaded;
     bool _is_fit_params_loaded;
     bool _is_imgdat_loaded;
 };

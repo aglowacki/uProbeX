@@ -63,13 +63,19 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solver = nullptr;
     m_autosaveTimer = nullptr;
     m_solverParameterParse = new SolverParameterParse();
-    _load_maps_workspace_thread = nullptr;
+    //_load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
 	//_mapsWorkspaceController = nullptr;
 
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
     std::string element_henke_filename = "../reference/henke.xdr";
+
+    //connect(this, SIGNAL( loadMapsWorkspace(MapsWorkspaceController*, QString) ),
+    //        this, SLOT( onLoadMapsWorkspace(MapsWorkspaceController*, QString) ) );
+
+    //connect(this, SIGNAL( FinishThread(std::thread*) ),
+    //        this, SLOT( onFinishThread(std::thread*) ) );
 
     // Use resources from GStar
     //Q_INIT_RESOURCE(GStar);
@@ -703,12 +709,18 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeMapsWindow(QString path)
+void uProbeX::onLoadMapsWorkspace(MapsWorkspaceController* controller, QString path)
 {
 
-	MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
-	mapsWorkspaceController->setWorkingDir(path);
-	connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
+    controller->setWorkingDir(path);
+
+}
+
+void uProbeX::onFinishThread(std::thread* t)
+{
+
+    t->join();
+    delete t;
 
 }
 
@@ -878,7 +890,12 @@ void uProbeX::openMapsWorkspace()
     // Dialog returns a nullptr string if user press cancel.
     if (dirName.isNull() || dirName.isEmpty()) return;
 
-    makeMapsWindow(dirName);
+    MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
+    connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
+
+    mapsWorkspaceController->setWorkingDir(dirName);
+
+    //emit FinishThread(loader);
 
 }
 

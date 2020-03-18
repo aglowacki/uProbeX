@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2019, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
@@ -17,6 +17,10 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListWidgetItem>
+#include <QStringListModel>
+#include <QStandardItemModel>
+#include <QCheckBox>
 
 /*---------------------------------------------------------------------------*/
 
@@ -38,8 +42,10 @@ public:
     */
    ~PerPixelFitWidget();
 
-public slots:
+    void updateFileList(QStringList file_list);
 
+public slots:
+    void runProcessing();
    
 protected:
 
@@ -53,11 +59,20 @@ protected:
 
    QProgressBar *_progressBar;
 
-   QLineEdit *_qline_ip_addr;
+   QPushButton *_btn_run;
 
-   QLineEdit *_qline_port;
+   QPushButton *_btn_cancel;
 
-   QPushButton *_btn_update;
+   QListView* _file_list_view;
+
+   QStandardItemModel* _file_list_model;
+
+   QCheckBox* _proc_roi;
+
+   QCheckBox* _proc_nnls;
+
+   QCheckBox* _proc_matrix;
+
 };
 
 
