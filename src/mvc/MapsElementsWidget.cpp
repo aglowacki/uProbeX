@@ -26,10 +26,25 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
 {
 
     _model = nullptr;
+	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
         _gray_colormap.append(qRgb(i, i, i));
-        _heat_colormap.append(qRgb(i, 0, 0));
+		if (i < 128)
+		{
+			_heat_colormap.append(qRgb(r, 0, 0));
+			r += 2;
+		}
+		else if (i == 128)
+		{
+			r = 1;
+			_heat_colormap.append(qRgb(255, r, 0));
+		}
+		else
+		{
+			_heat_colormap.append(qRgb(255, r, 0));
+			r += 2;
+		}
     }
 	_selected_colormap = &_gray_colormap;
     _createLayout();
