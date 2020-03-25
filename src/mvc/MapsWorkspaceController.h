@@ -14,6 +14,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/MapsWorkspaceFilesWidget.h>
 #include <mvc/ImageStackControlWidget.h>
+#include "workflow/threadpool.h"
 //#include <mvc/MapsElementsWidget.h>
 
 class MapsWorkspaceController : public QObject
@@ -26,7 +27,7 @@ public:
    /**
     * Constructor.
     */
-	MapsWorkspaceController(QObject* parent = nullptr);
+	MapsWorkspaceController(ThreadPool* thread_pool = nullptr, QObject* parent = nullptr);
 
    /**
     * Destructor.
@@ -58,7 +59,9 @@ protected:
 
 	QDockWidget *_image_stack_control_dock;
 
-    std::thread* _load_maps_workspace_thread;
+    //std::thread* _load_maps_workspace_thread;
+
+    ThreadPool* _tp;
 
 };
 

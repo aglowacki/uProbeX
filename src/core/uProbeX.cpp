@@ -53,6 +53,8 @@ static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
 QTextEdit * uProbeX::log_textedit = 0;
 
+ThreadPool tp(std::thread::hardware_concurrency());
+
 /*---------------------------------------------------------------------------*/
 
 uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
@@ -890,7 +892,7 @@ void uProbeX::openMapsWorkspace()
     // Dialog returns a nullptr string if user press cancel.
     if (dirName.isNull() || dirName.isEmpty()) return;
 
-    MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
+    MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(&tp, this);
     connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
 
     mapsWorkspaceController->setWorkingDir(dirName);

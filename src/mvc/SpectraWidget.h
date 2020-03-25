@@ -10,6 +10,7 @@
 
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QCategoryAxis>
 #include <QAction>
 #include <QMenu>
 #include <QWidget>
@@ -71,6 +72,8 @@ public slots:
 
     void set_element_lines(data_struct::Fit_Element_Map * element);
 
+    void set_top_axis(std::map<std::string, float> elements);
+
 protected:
 
     /**
@@ -129,6 +132,8 @@ private:
     QMenu *_contextMenu;
 
     std::vector<QtCharts::QLineSeries*> _element_lines;
+
+    QtCharts::QCategoryAxis* _top_axis_elements;
 };
 
 

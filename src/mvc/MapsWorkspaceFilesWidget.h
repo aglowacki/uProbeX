@@ -103,6 +103,8 @@ public slots:
 
    void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
 
+   void onProcessed_list_update();
+
 protected:
 
    /**

@@ -399,11 +399,17 @@ void MapsWorkspaceFilesWidget::onPerPixelProcess(const QString& context_label, c
     //create per pixel process widget and pass workspace
     if(_per_pixel_fit_widget == nullptr)
     {
-        _per_pixel_fit_widget = new PerPixelFitWidget();
-        _per_pixel_fit_widget->show();
+        _per_pixel_fit_widget = new PerPixelFitWidget(_model->get_directory_name().toStdString());
+        connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
     }
     _per_pixel_fit_widget->updateFileList(file_list);
-
+    _per_pixel_fit_widget->show();
 }
 
 /*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onProcessed_list_update()
+{
+    _model->reload_analyzed();
+
+}

@@ -22,6 +22,8 @@
 #include "data_struct/element_info.h"
 #include "io/file/aps/aps_fit_params_import.h"
 
+#include "fitting//optimizers/lmfit_optimizer.h"
+
 using namespace data_struct;
 
 QString STR_LM_FIT = "Levenberg-Marquardt Fit";
@@ -38,6 +40,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _cb_pileup_elements = new QComboBox();
     _cb_detector_element = new QComboBox();
     _chk_is_pileup = new QCheckBox("Pile Up");
+    _h5_model = nullptr;
     _elements_to_fit = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -220,6 +223,9 @@ void FitSpectraWidget::createLayout()
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
 
+    update_spectra_top_axis({ "Ca", "Fe", "Cu"});
+
+
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
     setLayout(layout);
@@ -257,14 +263,10 @@ void FitSpectraWidget::export_fit_paramters()
         {
             end_idx = "3";
         }
-        QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
+        //QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
 
 
-        QFileDialog::getOpenFileName(this,              "Open SWS workspace", ".",
-                                                            tr("SWS (*.sws *.SWS)"));
-        //QFileDialog::
-        //QFileDialog* dislog = new QFileDialog(nullptr, "Override file", dataset_path, "*.txt");
-        //dialog->show();
+        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT)"));
 
         data_struct::Params_Override* param_overrides = _h5_model->getParamOverride();
 
@@ -278,8 +280,6 @@ void FitSpectraWidget::export_fit_paramters()
             fit_params->append_and_update(&element_fit_params);
 
             io::file::aps::APS_Fit_Params_Import override_file;
-
-
 
             if(override_file.save(fileName.toStdString(), param_overrides) )
             {
@@ -921,3 +921,26 @@ void FitSpectraWidget::h5_int_spec_updated(bool b_snip_background)
 }
 
 /*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_names)
+{
+
+    std::map < std::string, float> labels;
+    std::string detector_element = "Si"; // default to Si detector if not found in param override
+    if (_h5_model != nullptr)
+    {
+        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
+        if (param_override != nullptr)
+        {
+            detector_element = param_override->detector_element;
+        }
+    }
+
+    for (const auto& itr : element_names)
+    {
+        Fit_Element_Map em(itr, Element_Info_Map::inst()->get_element(itr));
+        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+        labels[itr] = em.center();
+    }
+    _spectra_widget->set_top_axis(labels);
+}

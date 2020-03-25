@@ -113,6 +113,8 @@ protected:
     */
    void createLayout();
 
+   void update_spectra_top_axis(std::vector<std::string> element_names);
+
 private slots:
 
    void fit_params_customMenuRequested(QPoint);

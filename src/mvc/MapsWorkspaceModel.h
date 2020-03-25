@@ -17,6 +17,8 @@
 #include <map>
 #include <QDir>
 
+#include "workflow/threadpool.h"
+
 /*---------------------------------------------------------------------------*/
 
 typedef std::function<bool(const QFileInfo fileInfo)> Check_Func_Def;
@@ -50,7 +52,9 @@ public:
     */
     ~MapsWorkspaceModel();
 
-    void load(QString filepath);
+    void load(QString filepath, ThreadPool *tp = nullptr);
+
+    void reload_analyzed();
 
     void unload();
 
@@ -102,7 +106,7 @@ protected:
 
     bool _load_fit_params();
 
-    bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
+    //bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
     std::map<QString, MapsH5Model*> _h5_models;
     std::map<QString, RawH5Model*> _raw_hd5_models;
@@ -130,6 +134,7 @@ private:
     bool _is_imgdat_loaded;
 };
 
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func);
 
 /*---------------------------------------------------------------------------*/
 

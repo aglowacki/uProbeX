@@ -69,6 +69,9 @@ void SpectraWidget::createLayout()
     //_axisX->setRange(0, 2048);
     _axisX->setTickCount(20);
 
+    _top_axis_elements = new QtCharts::QCategoryAxis();
+    //_top_axis_elements->setTickCount(20);
+
     _axisY = new QtCharts::QValueAxis();
     _axisY->setTitleText("Counts");
     _axisY->setLabelFormat("%i");
@@ -77,6 +80,7 @@ void SpectraWidget::createLayout()
 
     _chart = new QtCharts::QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
+    //_chart->addAxis(_top_axis_elements, Qt::AlignTop);
 
     if(_display_log10)
     {
@@ -193,6 +197,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         _display_eneergy_max->setText(QString::number(_axisX->max()));
 
         series->attachAxis(_currentYAxis);
+        //series->attachAxis(_top_axis_elements);
     }
     else
     {
@@ -565,4 +570,14 @@ void SpectraWidget::handleMarkerClicked()
         break;
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
+{  
+    for (const auto& itr : elements)
+    {
+        _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
+    } 
 }

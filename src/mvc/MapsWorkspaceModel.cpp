@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/MapsWorkspaceModel.h>
+#include <QEventLoop>
 #include <QDebug>
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
@@ -25,6 +26,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
     _mda_suffex.append("mda");
     _raw_suffex.append("h5");
+    _raw_suffex.append("hdf5");
 
     _sws_suffex.append("sws");
 }
@@ -59,7 +61,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceModel::load(QString filepath)
+void MapsWorkspaceModel::load(QString filepath, ThreadPool *tp)
 {
     try
     {
@@ -71,17 +73,62 @@ void MapsWorkspaceModel::load(QString filepath)
             return;
         }
 
-        _is_fit_params_loaded = _load_fit_params();
+        if (tp != nullptr)
+        {
+            std::queue<std::future<bool> >* fit_job_queue = new std::queue<std::future<bool> >();
+ 
+            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5));
+            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda));
+            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm));
+            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5));
 
-        _is_raw_loaded = _get_filesnames_in_directory(".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
-        emit doneLoadingRAW();
-        _is_raw_loaded = _get_filesnames_in_directory("mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
-        emit doneLoadingMDA();
-        _is_sws_loaded = _get_filesnames_in_directory("vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
-        emit doneLoadingVLM();
-        _is_imgdat_loaded = _get_filesnames_in_directory("img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
-        emit doneLoadingImgDat();
+            _is_fit_params_loaded = _load_fit_params();
 
+            QCoreApplication::processEvents();
+
+            auto ret = std::move(fit_job_queue->front());
+            fit_job_queue->pop();
+            _is_raw_loaded = ret.get();
+            emit doneLoadingRAW();
+
+            QCoreApplication::processEvents();
+
+            ret = std::move(fit_job_queue->front());
+            fit_job_queue->pop();
+            _is_raw_loaded = ret.get();
+            emit doneLoadingMDA();
+
+            QCoreApplication::processEvents();
+
+            ret = std::move(fit_job_queue->front());
+            fit_job_queue->pop();
+            _is_sws_loaded = ret.get();
+            emit doneLoadingVLM();
+
+            QCoreApplication::processEvents();
+
+            ret = std::move(fit_job_queue->front());
+            fit_job_queue->pop();
+            _is_imgdat_loaded = ret.get();
+            emit doneLoadingImgDat();
+
+            QCoreApplication::processEvents();
+
+        }
+        else
+        {
+            _is_fit_params_loaded = _load_fit_params();
+            
+            _is_raw_loaded = get_filesnames_in_directory(*_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
+            emit doneLoadingRAW();
+            _is_raw_loaded = get_filesnames_in_directory(*_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+            emit doneLoadingMDA();
+            _is_sws_loaded = get_filesnames_in_directory(*_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+            emit doneLoadingVLM();
+            _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+            emit doneLoadingImgDat();
+            
+        }
     }
     catch (std::string& s)
     {
@@ -94,6 +141,14 @@ void MapsWorkspaceModel::load(QString filepath)
 
     emit doneLoading();
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::reload_analyzed()
+{
+    _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+    emit doneLoadingImgDat();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -290,36 +345,37 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsWorkspaceModel::_get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
 {
     if(sub_dir_name.length() > 0)
     {
-        if (!_dir->cd(sub_dir_name))
+        if (!dir.cd(sub_dir_name))
         {
-            QString warn_msg = "Cannot find the "+sub_dir_name+" directory";
-            qWarning(warn_msg.toStdString().c_str());
+            //QString warn_msg = "Cannot find the "+sub_dir_name+" directory";
+            //qWarning(warn_msg.toStdString().c_str());
+            logW<< "Cannot find the " << sub_dir_name.toStdString() << " directory";
             return false;
         }
     }
-    _dir->setFilter(QDir::Files | QDir::NoSymLinks);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
 
-    QFileInfoList list = _dir->entryInfoList();
+    QFileInfoList list = dir.entryInfoList();
 
     for (int i = 0; i < list.size(); ++i)
     {
         QFileInfo fileInfo = list.at(i);
         if (suffex.contains(fileInfo.suffix()))
         {
-            if (chk_func(fileInfo))
+            //if (chk_func(fileInfo))
             {
-                fileinfo_list->emplace( fileInfo.fileName(), fileInfo );
+                fileinfo_list->emplace(fileInfo.fileName(), fileInfo);
             }
         }
     }
-
+    
     if(sub_dir_name.length() > 0 && sub_dir_name != ".")
     {
-        _dir->cd("..");
+        dir.cd("..");
     }
     return true;
 }
@@ -361,12 +417,10 @@ data_struct::Fit_Element_Map_Dict *MapsWorkspaceModel::getElementToFit(int idx)
 
 bool check_raw_mda(QFileInfo fileInfo)
 {
-    bool is_good = false;
-
-    io::file::MDA_IO mda_io;
-    is_good = mda_io.load_header(fileInfo.filePath().toStdString());
-
-    return is_good;
+    int is_good = io::file::mda_get_multiplied_dims(fileInfo.filePath().toStdString());
+    if (is_good > 0)
+        return true;
+    return false;
 }
 
 /*---------------------------------------------------------------------------*/
