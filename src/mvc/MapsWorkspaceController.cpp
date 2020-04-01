@@ -5,9 +5,8 @@
 
 #include <mvc/MapsWorkspaceController.h>
 
-MapsWorkspaceController::MapsWorkspaceController(ThreadPool* thread_pool, QObject* parent) : QObject(parent)
+MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
-	_tp = thread_pool;
     //_load_maps_workspace_thread = nullptr;
 	_mapsWorkspaceModel = new MapsWorkspaceModel();
 	_imgStackControllWidget = new ImageStackControlWidget();
@@ -80,15 +79,8 @@ void MapsWorkspaceController::setWorkingDir(QString path)
 
     _mapsWorkspaceModel->unload();
 
-    _mapsWorkspaceModel->load(path, _tp);
-/*
-    if(_load_maps_workspace_thread != nullptr)
-    {
-        _load_maps_workspace_thread->join();
-        delete _load_maps_workspace_thread;
-    }
-    _load_maps_workspace_thread = new std::thread(&MapsWorkspaceModel::load, _mapsWorkspaceModel, path);
-*/
+    _mapsWorkspaceModel->load(path);
+
 }
 /*---------------------------------------------------------------------------*/
 

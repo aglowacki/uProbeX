@@ -75,6 +75,8 @@ signals:
 
    void unloadList_H5(QStringList);
 
+   void loaded_perc(int, int);
+
 public slots:
 
    void updateMDA();

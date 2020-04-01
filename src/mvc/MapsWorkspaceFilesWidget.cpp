@@ -29,7 +29,7 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 
 MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 {
-
+    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -254,12 +254,24 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
 {
     if(_model != nullptr)
     {
-        QStringList opened_list;
+
+        int amt = names_list.count();
+        int cur = 0;
+        
+        ThreadPool tp(1);
 
         foreach (QString name , names_list)
         {
+            QStringList opened_list;
             File_Loaded_Status load_status = UNLOADED;
-            MapsH5Model* h5Model = _model->getMapsH5Model(name);
+            
+            std::future< MapsH5Model*> ret = tp.enqueue([this, name] { return _model->getMapsH5Model(name); });
+            while (ret._Is_ready() == false)
+            {
+                QCoreApplication::processEvents();
+            }
+
+            MapsH5Model* h5Model = ret.get();
             if(h5Model != nullptr)
             {
                 int idx = -1;
@@ -287,6 +299,7 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
 				}
                 h5Model->set_fit_parameters_override( param_override );
                 opened_list.append(name);
+                emit loadList_H5(opened_list);
                 load_status = LOADED;
                 //emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
             }
@@ -295,8 +308,11 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
                 load_status = FAILED_LOADING;
             }
             emit status_loaded_hdf5(load_status, name);
+            cur++;
+            emit loaded_perc(cur, amt);
+            QCoreApplication::processEvents();
         }
-        emit loadList_H5(opened_list);
+        //emit loadList_H5(opened_list);
     }
 }
 

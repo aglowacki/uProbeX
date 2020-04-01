@@ -83,6 +83,12 @@ protected:
 
    QCheckBox* _proc_matrix;
 
+   QCheckBox* _save_avg;
+
+   QCheckBox* _save_v9;
+   
+   QCheckBox* _save_exchange;
+
    std::string _directory;
 
    size_t _cur_file;

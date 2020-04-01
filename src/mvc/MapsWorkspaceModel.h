@@ -52,7 +52,7 @@ public:
     */
     ~MapsWorkspaceModel();
 
-    void load(QString filepath, ThreadPool *tp = nullptr);
+    void load(QString filepath);
 
     void reload_analyzed();
 

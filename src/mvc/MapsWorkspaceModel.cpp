@@ -61,7 +61,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceModel::load(QString filepath, ThreadPool *tp)
+void MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
@@ -73,61 +73,58 @@ void MapsWorkspaceModel::load(QString filepath, ThreadPool *tp)
             return;
         }
 
-        if (tp != nullptr)
+        ThreadPool tp(4);
+
+        
         {
-            std::queue<std::future<bool> >* fit_job_queue = new std::queue<std::future<bool> >();
+            std::map<int, std::future<bool>> job_queue;
  
-            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5));
-            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda));
-            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm));
-            fit_job_queue->emplace(tp->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5));
+            job_queue[0] = tp.enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
+            job_queue[1] = tp.enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+            job_queue[2] = tp.enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+            job_queue[3] = tp.enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
 
             _is_fit_params_loaded = _load_fit_params();
 
-            QCoreApplication::processEvents();
+            while (job_queue.size() > 0)
+            {
+                QCoreApplication::processEvents();
+                std::vector<int> to_delete;
+                for (auto& itr : job_queue)
+                {
+                    if (itr.second._Is_ready())
+                    {
+                        switch (itr.first)
+                        {
+                        case 0:
+                            _is_raw_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            emit doneLoadingRAW();
+                            break;
+                        case 1:
+                            _is_raw_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            emit doneLoadingMDA();
+                            break;
+                        case 2:
+                            _is_sws_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            emit doneLoadingVLM();
+                            break;
+                        case 3:
+                            _is_imgdat_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            emit doneLoadingImgDat();
+                            break;
+                        }
+                    }
+                }
+                for (const auto& itr : to_delete)
+                {
+                    job_queue.erase(itr);
+                }
 
-            auto ret = std::move(fit_job_queue->front());
-            fit_job_queue->pop();
-            _is_raw_loaded = ret.get();
-            emit doneLoadingRAW();
-
-            QCoreApplication::processEvents();
-
-            ret = std::move(fit_job_queue->front());
-            fit_job_queue->pop();
-            _is_raw_loaded = ret.get();
-            emit doneLoadingMDA();
-
-            QCoreApplication::processEvents();
-
-            ret = std::move(fit_job_queue->front());
-            fit_job_queue->pop();
-            _is_sws_loaded = ret.get();
-            emit doneLoadingVLM();
-
-            QCoreApplication::processEvents();
-
-            ret = std::move(fit_job_queue->front());
-            fit_job_queue->pop();
-            _is_imgdat_loaded = ret.get();
-            emit doneLoadingImgDat();
-
-            QCoreApplication::processEvents();
-
-        }
-        else
-        {
-            _is_fit_params_loaded = _load_fit_params();
-            
-            _is_raw_loaded = get_filesnames_in_directory(*_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
-            emit doneLoadingRAW();
-            _is_raw_loaded = get_filesnames_in_directory(*_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
-            emit doneLoadingMDA();
-            _is_sws_loaded = get_filesnames_in_directory(*_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
-            emit doneLoadingVLM();
-            _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
-            emit doneLoadingImgDat();
-            
+            }
         }
     }
     catch (std::string& s)

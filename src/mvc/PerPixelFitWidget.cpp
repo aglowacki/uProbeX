@@ -60,6 +60,20 @@ void PerPixelFitWidget::createLayout()
     v_proc_layout->addWidget(_proc_matrix);
 
     processing_grp->setLayout(v_proc_layout);
+    processing_grp->setTitle("Processing Options");
+
+    QGroupBox* saving_grp = new QGroupBox();
+    QVBoxLayout* v_save_layout = new QVBoxLayout();
+    _save_avg = new QCheckBox("Generate Avg H5");
+    _save_v9 = new QCheckBox("Add v9 soft links");
+    _save_exchange = new QCheckBox("Add Exchange format");
+
+    v_save_layout->addWidget(_save_avg);
+    v_save_layout->addWidget(_save_v9);
+    v_save_layout->addWidget(_save_exchange);
+
+    saving_grp->setLayout(v_save_layout);
+    saving_grp->setTitle("Export Options");
 
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
@@ -70,8 +84,12 @@ void PerPixelFitWidget::createLayout()
     buttonlayout->addWidget(_btn_run);
     buttonlayout->addWidget(_btn_cancel);
 
+    QHBoxLayout* proc_save_layout = new QHBoxLayout();
+    proc_save_layout->addWidget(processing_grp);
+    proc_save_layout->addWidget(saving_grp);
+
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(processing_grp);
+    layout->addItem(proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
     layout->addWidget(_progressBarBlocks);
@@ -116,10 +134,14 @@ void PerPixelFitWidget::runProcessing()
     //analysis_job.generate_average_h5 = true;
     //analysis_job.add_v9_layout = true;
     //analysis_job.add_exchange_layout = true;
-    for ( unsigned int i = 0; i < 4; i++)
-    {
-        analysis_job.detector_num_arr.push_back(i);
-    }
+    //for ( unsigned int i = 0; i < 4; i++)
+    //{
+    //    analysis_job.detector_num_arr.push_back(i);
+    //}
+    //test
+    analysis_job.detector_num_arr.push_back(0);
+
+
     QModelIndex parent = QModelIndex();
     for (int r = 0; r < _file_list_model->rowCount(parent); ++r)
     {
@@ -155,35 +177,29 @@ void PerPixelFitWidget::runProcessing()
         _progressBarBlocks->setValue(_total_blocks);
         QCoreApplication::processEvents();
     }
-    /*
+    
 
-    if(analysis_job.generate_average_h5)
+
+    if (_save_avg->isChecked())
     {
-        for(const auto& dataset_file : analysis_job.dataset_files)
-        {
-            io::generate_h5_averages(analysis_job.dataset_directory, dataset_file, analysis_job.detector_num_arr);
-        }
+        analysis_job.generate_average_h5 = true;
     }
 
     //add v9 layout soft links
-    if(analysis_job.add_v9_layout)
+    if (_save_v9->isChecked())
     {
-        for(const auto& dataset_file : analysis_job.dataset_files)
-        {
-            io::file::HDF5_IO::inst()->add_v9_layout(analysis_job.dataset_directory, dataset_file, analysis_job.detector_num_arr);
-        }
+        analysis_job.add_v9_layout = true;
     }
 
 
     //add exchange
-    if(analysis_job.add_exchange_layout)
+    if (_save_exchange->isChecked())
     {
-        for(const auto& dataset_file : analysis_job.dataset_files)
-        {
-            io::file::HDF5_IO::inst()->add_exchange_layout(analysis_job.dataset_directory, dataset_file, analysis_job.detector_num_arr);
-        }
+        analysis_job.add_exchange_layout = true;
     }
-    */
+    
+    interate_datasets_and_update(analysis_job);
+
 }
 
 void PerPixelFitWidget::status_callback(size_t cur_block, size_t total_blocks)

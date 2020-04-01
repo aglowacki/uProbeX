@@ -27,7 +27,7 @@ public:
    /**
     * Constructor.
     */
-	MapsWorkspaceController(ThreadPool* thread_pool = nullptr, QObject* parent = nullptr);
+	MapsWorkspaceController(QObject* parent = nullptr);
 
    /**
     * Destructor.
@@ -58,11 +58,6 @@ protected:
 	QDockWidget *_maps_workspace_dock;
 
 	QDockWidget *_image_stack_control_dock;
-
-    //std::thread* _load_maps_workspace_thread;
-
-    ThreadPool* _tp;
-
 };
 
 
