@@ -13,6 +13,7 @@
 #include <QItemSelectionModel>
 #include <QRegExp>
 #include <QDebug>
+#include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -258,14 +259,12 @@ void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
         int amt = names_list.count();
         int cur = 0;
         
-        ThreadPool tp(1);
-
         foreach (QString name , names_list)
         {
             QStringList opened_list;
             File_Loaded_Status load_status = UNLOADED;
             
-            std::future< MapsH5Model*> ret = tp.enqueue([this, name] { return _model->getMapsH5Model(name); });
+            std::future< MapsH5Model*> ret = global_threadpool.enqueue([this, name] { return _model->getMapsH5Model(name); });
             while (ret._Is_ready() == false)
             {
                 QCoreApplication::processEvents();

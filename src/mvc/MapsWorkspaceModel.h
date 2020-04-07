@@ -17,7 +17,7 @@
 #include <map>
 #include <QDir>
 
-#include "workflow/threadpool.h"
+#include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/
 

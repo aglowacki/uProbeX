@@ -63,7 +63,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_solver = nullptr;
     m_autosaveTimer = nullptr;
     m_solverParameterParse = new SolverParameterParse();
-    //_load_maps_workspace_thread = nullptr;
     _liveMapsViewer = nullptr;
 	//_mapsWorkspaceController = nullptr;
 
@@ -73,12 +72,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
     //connect(this, SIGNAL( loadMapsWorkspace(MapsWorkspaceController*, QString) ),
     //        this, SLOT( onLoadMapsWorkspace(MapsWorkspaceController*, QString) ) );
-
-    //connect(this, SIGNAL( FinishThread(std::thread*) ),
-    //        this, SLOT( onFinishThread(std::thread*) ) );
-
-    // Use resources from GStar
-    //Q_INIT_RESOURCE(GStar);
 
     PythonLoader::inst()->safeCheck();
 
@@ -716,14 +709,6 @@ void uProbeX::onLoadMapsWorkspace(MapsWorkspaceController* controller, QString p
 
 }
 
-void uProbeX::onFinishThread(std::thread* t)
-{
-
-    t->join();
-    delete t;
-
-}
-
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
@@ -898,8 +883,6 @@ void uProbeX::openMapsWorkspace()
     connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
 
     mapsWorkspaceController->setWorkingDir(dirName);
-
-    //emit FinishThread(loader);
 
 }
 

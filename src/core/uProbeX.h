@@ -116,8 +116,6 @@ private slots:
     */
    void onLoadMapsWorkspace(MapsWorkspaceController* controller, QString path);
 
-   void onFinishThread(std::thread* t);
-
    /**
     * @brief makeHDFWindow
     * @param path

@@ -18,6 +18,7 @@
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
+#include "core/GlobalThreadPool.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -64,6 +65,8 @@ public slots:
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
    void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);
+
+   QPixmap generate_pixmap(const std::string analysis_type, const std::string element, int grid_idx);
 
    void onAnalysisSelect(QString name);
 

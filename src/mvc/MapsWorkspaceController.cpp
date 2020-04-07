@@ -7,7 +7,6 @@
 
 MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
-    //_load_maps_workspace_thread = nullptr;
 	_mapsWorkspaceModel = new MapsWorkspaceModel();
 	_imgStackControllWidget = new ImageStackControlWidget();
 	
@@ -28,13 +27,6 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 
 MapsWorkspaceController::~MapsWorkspaceController()
 {
-
-    //if(_load_maps_workspace_thread != nullptr)
-    //{
-    //    _load_maps_workspace_thread->join();
-    //    delete _load_maps_workspace_thread;
-    //}
-
 
 	if(_imgStackControllWidget != nullptr)
 	{

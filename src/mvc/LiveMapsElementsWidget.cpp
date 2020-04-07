@@ -128,7 +128,6 @@ void LiveMapsElementsWidget::updateIp()
 
     if(_streamWorker != nullptr)
     {
-        //disconnect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
         disconnect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
         _streamWorker->stop();
         _streamWorker->quit();
@@ -136,7 +135,6 @@ void LiveMapsElementsWidget::updateIp()
         delete _streamWorker;
     }
     _streamWorker = new NetStreamWorker(_qline_ip_addr->text(), _qline_port->text(), this);
-    //connect(_streamWorker, &QThread::finished, _streamWorker, &QObject::deleteLater);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
     _streamWorker->start();
     if(_last_packet != nullptr)
