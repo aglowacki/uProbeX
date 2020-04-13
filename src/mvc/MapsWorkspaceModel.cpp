@@ -23,6 +23,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _all_h5_suffex.append("h51");
     _all_h5_suffex.append("h52");
     _all_h5_suffex.append("h53");
+    _all_h5_suffex.append("hdf5");
 
     _mda_suffex.append("mda");
     _raw_suffex.append("h5");
