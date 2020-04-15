@@ -17,6 +17,7 @@
 #include <QLogValueAxis>
 #include <QValueAxis>
 #include <QLineEdit>
+#include <QPushButton>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 
@@ -105,6 +106,12 @@ private slots:
 
     void onSpectraDisplayChanged(const QString &);
 
+    void onSpectraDisplayHeightChanged(const QString&);
+
+    void onResetChartView();
+
+    void onUpdateChartLineEdits();
+
     //void _update_series();
 
 private:
@@ -112,6 +119,12 @@ private:
     QLineEdit *_display_eneergy_max;
 
     QLineEdit *_display_eneergy_min;
+
+    QLineEdit* _display_height_max;
+
+    QLineEdit* _display_height_min;
+
+    QPushButton* _btn_reset_chart_view;
 
     float _max_log_range;
 
@@ -134,6 +147,10 @@ private:
     std::vector<QtCharts::QLineSeries*> _element_lines;
 
     QtCharts::QCategoryAxis* _top_axis_elements;
+
+    float _int_spec_max_x;
+
+    float _int_spec_max_y;
 };
 
 
