@@ -14,7 +14,6 @@
 #include <QSplitter>
 #include <gstar/CountsLookupTransformer.h>
 #include <limits>
-#include "core/GlobalThreadPool.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
