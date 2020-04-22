@@ -17,8 +17,6 @@
 #include <map>
 #include <QDir>
 
-#include "core/GlobalThreadPool.h"
-
 /*---------------------------------------------------------------------------*/
 
 typedef std::function<bool(const QFileInfo fileInfo)> Check_Func_Def;

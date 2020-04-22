@@ -24,7 +24,6 @@
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 #include "data_struct/fit_parameters.h"
-#include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/
 

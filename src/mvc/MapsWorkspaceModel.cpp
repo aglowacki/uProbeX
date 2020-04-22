@@ -6,6 +6,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <QEventLoop>
 #include <QDebug>
+#include "core/GlobalThreadPool.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 

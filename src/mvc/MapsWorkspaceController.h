@@ -14,8 +14,6 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/MapsWorkspaceFilesWidget.h>
 #include <mvc/ImageStackControlWidget.h>
-#include "workflow/threadpool.h"
-//#include <mvc/MapsElementsWidget.h>
 
 class MapsWorkspaceController : public QObject
 {

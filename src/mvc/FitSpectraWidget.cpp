@@ -24,6 +24,8 @@
 
 #include "fitting//optimizers/lmfit_optimizer.h"
 
+#include "core/GlobalThreadPool.h"
+
 using namespace data_struct;
 
 QString STR_LM_FIT = "Levenberg-Marquardt Fit";
