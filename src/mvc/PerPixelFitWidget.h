@@ -21,6 +21,8 @@
 #include <QStringListModel>
 #include <QStandardItemModel>
 #include <QCheckBox>
+#include <QEventLoop>
+#include <thread>
 
 /*---------------------------------------------------------------------------*/
 
@@ -35,7 +37,7 @@ public:
    /**
     * Constructor.
     */
-	PerPixelFitWidget(QWidget *parent = nullptr);
+	PerPixelFitWidget(std::string directory, QWidget *parent = nullptr);
 
    /**
     * Destructor.
@@ -43,6 +45,12 @@ public:
    ~PerPixelFitWidget();
 
     void updateFileList(QStringList file_list);
+
+    void status_callback(size_t cur_block, size_t total_blocks);
+
+signals:
+
+    void processed_list_update();
 
 public slots:
     void runProcessing();
@@ -57,7 +65,9 @@ protected:
    
    QTextEdit *_textEdit;
 
-   QProgressBar *_progressBar;
+   QProgressBar *_progressBarFiles;
+
+   QProgressBar* _progressBarBlocks;
 
    QPushButton *_btn_run;
 
@@ -73,6 +83,19 @@ protected:
 
    QCheckBox* _proc_matrix;
 
+   QCheckBox* _save_avg;
+
+   QCheckBox* _save_v9;
+   
+   QCheckBox* _save_exchange;
+
+   std::string _directory;
+
+   size_t _cur_file;
+
+   size_t _cur_block;
+   
+   size_t _total_blocks;
 };
 
 

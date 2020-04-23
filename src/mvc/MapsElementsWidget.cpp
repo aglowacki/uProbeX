@@ -14,6 +14,7 @@
 #include <QSplitter>
 #include <gstar/CountsLookupTransformer.h>
 #include <limits>
+#include "core/GlobalThreadPool.h"
 
 
 using gstar::AbstractImageWidget;
@@ -24,7 +25,7 @@ using gstar::ImageViewWidget;
 MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     : AbstractImageWidget(rows, cols, parent)
 {
-
+    
     _model = nullptr;
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -62,6 +63,7 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
+
     if(_spectra_widget != nullptr)
     {
         delete _spectra_widget;
@@ -382,11 +384,49 @@ void MapsElementsWidget::redrawCounts()
 {
     int view_cnt = m_imageViewWidget->getViewCount();
     std::string analysis_text = _cb_analysis->currentText().toStdString();
-    for(int vidx = 0; vidx < view_cnt; vidx++)
+
+    if (view_cnt == 1)
     {
-        QString element = m_imageViewWidget->getLabelAt(vidx);
-        displayCounts(analysis_text, element.toStdString(), vidx);
+        for (int vidx = 0; vidx < view_cnt; vidx++)
+        {
+            QString element = m_imageViewWidget->getLabelAt(vidx);
+            displayCounts(analysis_text, element.toStdString(), vidx);
+        }
     }
+    else
+    {
+        std::map<int, std::future<QPixmap> > job_queue;
+
+        for (int vidx = 0; vidx < view_cnt; vidx++)
+        {
+            QString element = m_imageViewWidget->getLabelAt(vidx);
+            job_queue[vidx] = global_threadpool.enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), vidx); });
+        }
+
+        while (job_queue.size() > 0)
+        {
+            QCoreApplication::processEvents();
+            std::vector<int> to_delete;
+            for (auto& itr : job_queue)
+            {
+                if (itr.second._Is_ready())
+                {
+                    m_imageViewWidget->resetCoordsToZero();
+                    m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
+
+                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
+                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                    to_delete.push_back(itr.first);
+                }
+            }
+
+            for (const auto& itr : to_delete)
+            {
+                job_queue.erase(itr);
+            }
+        }
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -512,6 +552,56 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             }
 		}
 	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, const std::string element, int grid_idx)
+{
+    if (_model != nullptr)
+    {
+        data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+        if (fit_counts != nullptr)
+        {
+            if (fit_counts->count(element) > 0)
+            {
+                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+                if (counts_lookup != nullptr)
+                {
+                    counts_lookup->setModel(_model);
+                    counts_lookup->setAnalyaisElement(analysis_type, element);
+                }
+                ////
+
+                int height = static_cast<int>(fit_counts->at(element).rows());
+                int width = static_cast<int>(fit_counts->at(element).cols());
+                //m_imageHeightDim->setCurrentText(QString::number(height));
+                //m_imageWidthDim->setCurrentText(QString::number(width));
+                QImage image(width, height, QImage::Format_Indexed8);
+                image.setColorTable(*_selected_colormap);
+
+                float counts_max;
+                float counts_min;
+                _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
+                float max_min = counts_max - counts_min;
+                for (int row = 0; row < height; row++)
+                {
+                    for (int col = 0; col < width; col++)
+                    {
+                        //first clamp the data to max min
+                        float cnts = fit_counts->at(element)(row, col);
+                        cnts = std::min(counts_max, cnts);
+                        cnts = std::max(counts_min, cnts);
+                        //convert to pixel
+                        uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                        image.setPixel(col, row, data);
+                    }
+                }
+                return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
+            }
+        }
+    }
+    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/

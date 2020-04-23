@@ -11,7 +11,7 @@
 #include <QtCharts/QLegendMarker>
 #include <QSpacerItem>
 #include <QLabel>
-
+#include <QIntValidator>
 #include <math.h>
 
 
@@ -24,6 +24,8 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     m_isTouching = false;
     _display_log10 = true;
     _currentYAxis = nullptr;
+    _int_spec_max_x = 1;
+    _int_spec_max_y = 1;
     createLayout();
 
     _action_check_log10 = new QAction("Toggle Log10", this);
@@ -69,6 +71,9 @@ void SpectraWidget::createLayout()
     //_axisX->setRange(0, 2048);
     _axisX->setTickCount(20);
 
+    _top_axis_elements = new QtCharts::QCategoryAxis();
+    //_top_axis_elements->setTickCount(20);
+
     _axisY = new QtCharts::QValueAxis();
     _axisY->setTitleText("Counts");
     _axisY->setLabelFormat("%i");
@@ -77,13 +82,21 @@ void SpectraWidget::createLayout()
 
     _chart = new QtCharts::QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
+    //_chart->addAxis(_top_axis_elements, Qt::AlignTop);
 
-    if(_display_log10)
+    float ymax = 0;
+    float ymin = 0;
+
+    if (_display_log10)
     {
+        ymax = _axisYLog10->max();
+        ymin = _axisYLog10->min();
         _currentYAxis = _axisYLog10;
     }
     else
     {
+        ymax = _axisY->max();
+        ymin = _axisY->min();
         _currentYAxis = _axisY;
     }
 
@@ -94,7 +107,7 @@ void SpectraWidget::createLayout()
     _chartView = new QtCharts::QChartView(_chart);
     _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
     //_chartView->setRenderHint(QPainter::Antialiasing);
-
+   
 
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
     _display_eneergy_min->setMinimumWidth(100);
@@ -104,6 +117,18 @@ void SpectraWidget::createLayout()
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max()));
     _display_eneergy_max->setMinimumWidth(100);
     connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
+
+
+    _display_height_min = new QLineEdit(QString::number(ymin));
+    _display_height_min->setMinimumWidth(100);
+    connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+
+    _display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
+    _display_height_max->setMinimumWidth(100);
+    connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+
+    _btn_reset_chart_view = new QPushButton("Reset");
+    connect(_btn_reset_chart_view, &QPushButton::released, this, &SpectraWidget::onResetChartView);
 
     QHBoxLayout* spectra_layout = new QHBoxLayout();
     spectra_layout->addWidget(_chartView);
@@ -117,6 +142,16 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(_display_eneergy_max);
     options_layout->addWidget(new QLabel("KeV"));
 
+    options_layout->addWidget(new QLabel("   |   Display Height Min:"));
+    options_layout->addWidget(_display_height_min);
+    options_layout->addWidget(new QLabel("Counts  ,  "));
+
+    options_layout->addWidget(new QLabel("Display Height Max:"));
+    options_layout->addWidget(_display_height_max);
+    options_layout->addWidget(new QLabel("Counts | "));
+
+    options_layout->addWidget(_btn_reset_chart_view);
+
     options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QVBoxLayout* vlayout = new QVBoxLayout();
@@ -128,11 +163,52 @@ void SpectraWidget::createLayout()
     setLayout(vlayout);
 }
 
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::onSpectraDisplayChanged(const QString &)
 {
     qreal maxRange = _display_eneergy_max->text().toDouble();
     qreal minRange = _display_eneergy_min->text().toDouble();
     _axisX->setRange(minRange, maxRange);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
+{
+    qreal maxRange = _display_height_max->text().toDouble();
+    qreal minRange = _display_height_min->text().toDouble();
+    _currentYAxis->setRange(minRange, maxRange);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::onResetChartView()
+{
+    _display_eneergy_min->setText(QString::number(0));
+    _display_eneergy_max->setText(QString::number(_int_spec_max_x));
+    _display_height_min->setText(QString::number(1));
+    _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
+    _axisX->setRange(0, _int_spec_max_x);
+    _currentYAxis->setRange(1, _int_spec_max_y);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::onUpdateChartLineEdits()
+{
+    _display_eneergy_min->setText(QString::number(_axisX->min()));
+    _display_eneergy_max->setText(QString::number(_axisX->max()));
+    if (_display_log10)
+    {
+        _display_height_min->setText(QString::number(_axisYLog10->min()));
+        _display_height_max->setText(QString::number(_axisYLog10->max(), 'g', 0));
+    }
+    else
+    {
+        _display_height_min->setText(QString::number(_axisY->min()));
+        _display_height_max->setText(QString::number(_axisY->max()));
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -156,6 +232,12 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
             series = (QtCharts::QLineSeries*)itr;
 			break;
         }
+    }
+
+    if (name == "Integrated Spectra")
+    {
+        _int_spec_max_x = energy->maxCoeff();
+        _int_spec_max_y = spectra->maxCoeff();
     }
 
     if(series == nullptr)
@@ -193,6 +275,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         _display_eneergy_max->setText(QString::number(_axisX->max()));
 
         series->attachAxis(_currentYAxis);
+        //series->attachAxis(_top_axis_elements);
     }
     else
     {
@@ -451,6 +534,8 @@ void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
     // we must put them back on.
     _chart->setAnimationOptions(QtCharts::QChart::SeriesAnimations);
 
+    onUpdateChartLineEdits();
+
     QWidget::mouseReleaseEvent(event);
 }
 
@@ -480,8 +565,8 @@ void SpectraWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_R:
         //_chart->resetMatrix();
         //_chart->resetTransform();
-        _chart->zoomReset();
-
+        //_chart->zoomReset();
+        onResetChartView();
         break;
     default:
         QWidget::keyPressEvent(event);
@@ -565,4 +650,14 @@ void SpectraWidget::handleMarkerClicked()
         break;
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
+{  
+    for (const auto& itr : elements)
+    {
+        _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
+    } 
 }

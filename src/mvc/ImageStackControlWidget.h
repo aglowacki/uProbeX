@@ -60,6 +60,12 @@ public slots:
 
    void onNewH5ModelSelected(MapsH5Model*);
 
+   void onPrevFilePressed();
+
+   void onNextFilePressed();
+
+   void update_progress_bar(int val, int amt);
+
 protected:
 
 	void closeEvent(QCloseEvent *event);
@@ -74,12 +80,15 @@ protected:
 
    QComboBox *_image_name_cb;
 
+   QStringListModel _image_name_cb_model;
+
    QPushButton *_left_btn;
 
    QPushButton *_right_btn;
 
    map<QString, MapsH5Model*> _h5_model_map;
 
+   QProgressBar* _load_progress;
 };
 
 

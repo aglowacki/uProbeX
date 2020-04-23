@@ -65,6 +65,8 @@ public slots:
 
    void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);
 
+   QPixmap generate_pixmap(const std::string analysis_type, const std::string element, int grid_idx);
+
    void onAnalysisSelect(QString name);
 
    void onElementSelect(QString name, int viewIdx = 0);

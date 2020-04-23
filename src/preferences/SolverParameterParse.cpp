@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <preferences/SolverParameterParse.h>
-
+#include <QDebug>
 
 /*---------------------------------------------------------------------------*/
 
@@ -92,8 +92,7 @@ bool SolverParameterParse::parseSolverCoefList(QStringList& coefList)
 
    if(coefList.length() == 0)
    {
-      QMessageBox::critical(0, "Python Solver",
-                           "No input for Coefficient.");
+       qDebug() << "Python Solver : No input for Coefficient. \n";
       return false;
    }
 
@@ -171,8 +170,7 @@ bool SolverParameterParse::parseSolverOptionList(QStringList& optionList)
 
    if(optionList.length() == 0)
    {
-      QMessageBox::critical(0, "Python Solver",
-                           "No input for Options.");
+       qDebug() << "Python Solver : No input for Options.\n";
       return false;
    }
 

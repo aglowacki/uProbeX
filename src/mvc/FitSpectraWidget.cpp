@@ -5,7 +5,7 @@
 
 #include <mvc/FitSpectraWidget.h>
 #include <future>
-
+#include <QCoreApplication>
 #include <QVBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -22,6 +22,10 @@
 #include "data_struct/element_info.h"
 #include "io/file/aps/aps_fit_params_import.h"
 
+#include "fitting//optimizers/lmfit_optimizer.h"
+
+#include "core/GlobalThreadPool.h"
+
 using namespace data_struct;
 
 QString STR_LM_FIT = "Levenberg-Marquardt Fit";
@@ -32,12 +36,12 @@ QString STR_MP_FIT = "MP Fit";
 FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 {
 
-    _fit_thread = nullptr;
     _cb_add_elements = new QComboBox();
     _cb_add_shell = new QComboBox();
     _cb_pileup_elements = new QComboBox();
     _cb_detector_element = new QComboBox();
     _chk_is_pileup = new QCheckBox("Pile Up");
+    _h5_model = nullptr;
     _elements_to_fit = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -88,11 +92,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
-    if(_fit_thread != nullptr)
-    {
-        _fit_thread->join();
-        delete _fit_thread;
-    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -220,6 +220,9 @@ void FitSpectraWidget::createLayout()
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
 
+    update_spectra_top_axis({ "Ca", "Fe", "Cu"});
+
+
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
     setLayout(layout);
@@ -257,14 +260,10 @@ void FitSpectraWidget::export_fit_paramters()
         {
             end_idx = "3";
         }
-        QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
+        //QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
 
 
-        QFileDialog::getOpenFileName(this,              "Open SWS workspace", ".",
-                                                            tr("SWS (*.sws *.SWS)"));
-        //QFileDialog::
-        //QFileDialog* dislog = new QFileDialog(nullptr, "Override file", dataset_path, "*.txt");
-        //dialog->show();
+        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT)"));
 
         data_struct::Params_Override* param_overrides = _h5_model->getParamOverride();
 
@@ -278,8 +277,6 @@ void FitSpectraWidget::export_fit_paramters()
             fit_params->append_and_update(&element_fit_params);
 
             io::file::aps::APS_Fit_Params_Import override_file;
-
-
 
             if(override_file.save(fileName.toStdString(), param_overrides) )
             {
@@ -467,123 +464,124 @@ void FitSpectraWidget::Fit_Spectra_Click()
 {
     _btn_fit_spectra->setEnabled(false);
     _btn_model_spectra->setEnabled(false);
-    if(_fit_thread != nullptr)
+
+    
+
+    if(_elements_to_fit != nullptr)
     {
-        _fit_thread->join();
-        delete _fit_thread;
-        _fit_thread = nullptr;
-    }
-    //_fit_thread = new std::thread( [this]()
-    //std::async( [this]()
-    //{
+        fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
+        fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
+        fitting::models::Gaussian_Model model;
 
-        if(_elements_to_fit != nullptr)
+
+        data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
+        data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+
+        const data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
+
+        //Range of energy in spectra to fit
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = int_spectra->rows() -1;
+
+        //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
+
+        //Fitting routines
+        fitting::routines::Param_Optimized_Fit_Routine fit_routine;
+        fit_routine.set_update_coherent_amplitude_on_fit(false);
+
+        if(_cb_opttimizer->currentText() == STR_LM_FIT)
         {
-            fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
-            fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
-            fitting::models::Gaussian_Model model;
-
-
-            data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
-            data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-
-            const data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
-
-            //Range of energy in spectra to fit
-            fitting::models::Range energy_range;
-            energy_range.min = 0;
-            energy_range.max = int_spectra->rows() -1;
-
-            //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
-
-            //Fitting routines
-            fitting::routines::Param_Optimized_Fit_Routine fit_routine;
-            fit_routine.set_update_coherent_amplitude_on_fit(false);
-
-            if(_cb_opttimizer->currentText() == STR_LM_FIT)
-            {
-                fit_routine.set_optimizer(&lmfit_optimizer);
-            }
-            else if(_cb_opttimizer->currentText() == STR_MP_FIT)
-            {
-                fit_routine.set_optimizer(&mpfit_optimizer);
-            }
-
-            //reset model fit parameters to defaults
-            model.reset_to_default_fit_params();
-            //Update fit parameters by override values
-            model.update_fit_params_values(&out_fit_params);
-            model.update_and_add_fit_params_values_gt_zero(&element_fit_params);
-
-            //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
-
-            //Initialize the fit routine
-            fit_routine.initialize(&model, _elements_to_fit, energy_range);
-            //Fit the spectra saving the element counts in element_fit_count_dict
-            out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
-            //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
-
-            disconnect(_fit_params_table_model,
-                       SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                       this,
-                       SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-            disconnect(_fit_elements_table_model,
-                       SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                       this,
-                       SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-            _fit_params_table_model->updateFitParams(&out_fit_params);
-
-            _fit_elements_table_model->updateElementValues(&out_fit_params);
-
-            if(_chk_auto_model->checkState() == Qt::Checked)
-            {
-                connect(_fit_params_table_model,
-                        SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                        this,
-                        SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-                connect(_fit_elements_table_model,
-                        SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                        this,
-                        SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-                Model_Spectra_Click();
-            }
-
-            _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
-                                                 out_fit_params.at(STR_ENERGY_OFFSET).value,
-                                                 out_fit_params.at(STR_ENERGY_SLOPE).value,
-                                                 out_fit_params.at(STR_ENERGY_QUADRATIC).value,
-                                                 0, //spectral binning
-                                                 out_fit_params.at(STR_SNIP_WIDTH).value,
-                                                 0, //spectra energy start range
-                                                 _h5_model->getIntegratedSpectra()->rows());
-
-            data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-            data_struct::ArrayXr ev = out_fit_params.at(STR_ENERGY_OFFSET).value + energy * out_fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * out_fit_params.at(STR_ENERGY_QUADRATIC).value;
-
-            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
-
-            data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
-
-            if(fit_spec.size() == _spectra_background.size())
-            {
-                fit_spec += _spectra_background;
-            }
-            for(int i=0; i<fit_spec.size(); i++)
-            {
-                if(fit_spec[i] <= 0.0)
-                {
-                    fit_spec[i] = 0.1;
-                }
-            }
-
-            _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&ev);
+            fit_routine.set_optimizer(&lmfit_optimizer);
         }
-        emit signal_finished_fit();
-    //}
-    //);
+        else if(_cb_opttimizer->currentText() == STR_MP_FIT)
+        {
+            fit_routine.set_optimizer(&mpfit_optimizer);
+        }
+
+        //reset model fit parameters to defaults
+        model.reset_to_default_fit_params();
+        //Update fit parameters by override values
+        model.update_fit_params_values(&out_fit_params);
+        model.update_and_add_fit_params_values_gt_zero(&element_fit_params);
+
+        //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
+
+        //Initialize the fit routine
+        fit_routine.initialize(&model, _elements_to_fit, energy_range);
+        //Fit the spectra saving the element counts in element_fit_count_dict
+        // single threaded
+        //out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
+        // use background thread to not freeze up the gui
+        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, fit_routine, &model, int_spectra, _elements_to_fit);
+
+        while (ret._Is_ready() == false)
+        {
+            QCoreApplication::processEvents();
+        }
+        out_fit_params = ret.get();
+        //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
+
+        disconnect(_fit_params_table_model,
+                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+        disconnect(_fit_elements_table_model,
+                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+        _fit_params_table_model->updateFitParams(&out_fit_params);
+
+        _fit_elements_table_model->updateElementValues(&out_fit_params);
+
+        if(_chk_auto_model->checkState() == Qt::Checked)
+        {
+            connect(_fit_params_table_model,
+                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+            connect(_fit_elements_table_model,
+                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+
+            Model_Spectra_Click();
+        }
+
+        _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
+                                                out_fit_params.at(STR_ENERGY_OFFSET).value,
+                                                out_fit_params.at(STR_ENERGY_SLOPE).value,
+                                                out_fit_params.at(STR_ENERGY_QUADRATIC).value,
+                                                0, //spectral binning
+                                                out_fit_params.at(STR_SNIP_WIDTH).value,
+                                                0, //spectra energy start range
+                                                _h5_model->getIntegratedSpectra()->rows());
+
+        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+        data_struct::ArrayXr ev = out_fit_params.at(STR_ENERGY_OFFSET).value + energy * out_fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * out_fit_params.at(STR_ENERGY_QUADRATIC).value;
+
+        _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+
+        data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
+
+        if(fit_spec.size() == _spectra_background.size())
+        {
+            fit_spec += _spectra_background;
+        }
+        for(int i=0; i<fit_spec.size(); i++)
+        {
+            if(fit_spec[i] <= 0.0)
+            {
+                fit_spec[i] = 0.1;
+            }
+        }
+
+        _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&ev);
+    }
+    emit signal_finished_fit();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -599,72 +597,64 @@ void FitSpectraWidget::Model_Spectra_Click()
 {
     _btn_fit_spectra->setEnabled(false);
     _btn_model_spectra->setEnabled(false);
-    if(_fit_thread != nullptr)
-    {
-        _fit_thread->join();
-        delete _fit_thread;
-        _fit_thread = nullptr;
-    }
-//    _fit_thread = new std::thread( [this]()
-    {
 
-        if(_elements_to_fit != nullptr)
-        {
-            fitting::models::Gaussian_Model model;
-            //Range of energy in spectra to fit
 
-            data_struct::Fit_Parameters fit_params;
-            data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-            data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-            fit_params.append_and_update(&model_fit_params);
-            fit_params.append_and_update(&element_fit_params);
+    if(_elements_to_fit != nullptr)
+    {
+        fitting::models::Gaussian_Model model;
+        //Range of energy in spectra to fit
+
+        data_struct::Fit_Parameters fit_params;
+        data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+        data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+        fit_params.append_and_update(&model_fit_params);
+        fit_params.append_and_update(&element_fit_params);
 /*
-            fitting::models::Range energy_range = data_struct::get_energy_range(sub_struct->fit_params_override_dict.min_energy,
-                                                                                     sub_struct->fit_params_override_dict.max_energy,
-                                                                                     _spectra_background.size(),
-                                                                                     model_fit_params[STR_ENERGY_OFFSET].value,
-                                                                                     model_fit_params[STR_ENERGY_SLOPE].value);
+        fitting::models::Range energy_range = data_struct::get_energy_range(sub_struct->fit_params_override_dict.min_energy,
+                                                                                    sub_struct->fit_params_override_dict.max_energy,
+                                                                                    _spectra_background.size(),
+                                                                                    model_fit_params[STR_ENERGY_OFFSET].value,
+                                                                                    model_fit_params[STR_ENERGY_SLOPE].value);
 */
-            fitting::models::Range energy_range;
-            energy_range.min = 0;
-            energy_range.max = _spectra_background.size() -1;
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = _spectra_background.size() -1;
 
 
-            data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
+        data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
 
-            _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
-                                                 fit_params.at(STR_ENERGY_OFFSET).value,
-                                                 fit_params.at(STR_ENERGY_SLOPE).value,
-                                                 fit_params.at(STR_ENERGY_QUADRATIC).value,
-                                                 0, //spectral binning
-                                                 fit_params.at(STR_SNIP_WIDTH).value,
-                                                 0, //spectra energy start range
-                                                 _h5_model->getIntegratedSpectra()->size());
+        _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
+                                                fit_params.at(STR_ENERGY_OFFSET).value,
+                                                fit_params.at(STR_ENERGY_SLOPE).value,
+                                                fit_params.at(STR_ENERGY_QUADRATIC).value,
+                                                0, //spectral binning
+                                                fit_params.at(STR_SNIP_WIDTH).value,
+                                                0, //spectra energy start range
+                                                _h5_model->getIntegratedSpectra()->size());
 
-            data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-            data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
+        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+        data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
 
-            //_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+        //_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
 
 
 //            _fit_params_table_model->updateFitParams(&fit_params);
 //            _fit_elements_table_model->updateElementValues(&fit_params);
 
-            if(fit_spec.size() == _spectra_background.size())
-            {
-                fit_spec += _spectra_background;
-            }
-            for(int i=0; i<fit_spec.size(); i++)
-            {
-             if(fit_spec[i] <= 0.0)
-                 fit_spec[i] = 0.1;
-            }
-            _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::Spectra*)&ev);
+        if(fit_spec.size() == _spectra_background.size())
+        {
+            fit_spec += _spectra_background;
         }
-        emit signal_finished_fit();
+        for(int i=0; i<fit_spec.size(); i++)
+        {
+            if(fit_spec[i] <= 0.0)
+                fit_spec[i] = 0.1;
+        }
+        _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::Spectra*)&ev);
     }
-    //);
+    emit signal_finished_fit();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -876,7 +866,7 @@ void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict *eleme
 
 void FitSpectraWidget::h5_int_spec_updated(bool b_snip_background)
 {
-    //todo: make this a thread
+
     if(_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
     {
         const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
@@ -913,11 +903,30 @@ void FitSpectraWidget::h5_int_spec_updated(bool b_snip_background)
 			_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&ev);
 		}
 
-        //if fit_params == nullptr
-        //    _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&energy);
-        //    _spectra_widget->setXLabel("Channels");
-
     }
 }
 
 /*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_names)
+{
+
+    std::map < std::string, float> labels;
+    std::string detector_element = "Si"; // default to Si detector if not found in param override
+    if (_h5_model != nullptr)
+    {
+        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
+        if (param_override != nullptr)
+        {
+            detector_element = param_override->detector_element;
+        }
+    }
+
+    for (const auto& itr : element_names)
+    {
+        Fit_Element_Map em(itr, Element_Info_Map::inst()->get_element(itr));
+        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+        labels[itr] = em.center();
+    }
+    _spectra_widget->set_top_axis(labels);
+}

@@ -75,6 +75,8 @@ signals:
 
    void unloadList_H5(QStringList);
 
+   void loaded_perc(int, int);
+
 public slots:
 
    void updateMDA();
@@ -102,6 +104,8 @@ public slots:
    void onCloseSWS(QString name);
 
    void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
+
+   void onProcessed_list_update();
 
 protected:
 

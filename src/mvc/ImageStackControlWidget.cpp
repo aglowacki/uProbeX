@@ -55,10 +55,15 @@ void ImageStackControlWidget::createLayout()
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
     _left_btn->setMaximumWidth(150);
+	connect(_left_btn, &QAbstractButton::pressed, this, &ImageStackControlWidget::onPrevFilePressed);
+
     _image_name_cb = new QComboBox();
+	_image_name_cb->setModel(&_image_name_cb_model);
+
     _right_btn =  new QPushButton();
     _right_btn->setIcon(QIcon(":/images/next.png"));
     _right_btn->setMaximumWidth(150);
+	connect(_right_btn, &QAbstractButton::pressed, this, &ImageStackControlWidget::onNextFilePressed);
 
     hlayout1->addWidget(_left_btn);
     hlayout1->addWidget(_image_name_cb);
@@ -67,6 +72,8 @@ void ImageStackControlWidget::createLayout()
 	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
 
 	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
+
+	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 
     vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
@@ -87,9 +94,13 @@ void ImageStackControlWidget::createLayout()
 	//counts_layout->addWidget(m_toolbar);
 	//counts_layout->addWidget(splitter);
 
+	_load_progress = new QProgressBar();
+	
+
 	QVBoxLayout *mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(splitter);
-
+	mainLayout->addWidget(_load_progress);
+	
 
 	setLayout(mainLayout);
 }
@@ -109,6 +120,32 @@ void ImageStackControlWidget::h5IndexChanged(const QString &text)
 	if (_h5_model_map.count(text) > 0)
 	{
 		emit newH5ModelSelected(_h5_model_map[text]);
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::onPrevFilePressed()
+{
+	int idx = _image_name_cb->currentIndex();
+	idx--;
+	int amt = _image_name_cb->count();
+	if (idx < amt)
+	{
+		_image_name_cb->setCurrentIndex(idx);
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::onNextFilePressed()
+{
+	int idx = _image_name_cb->currentIndex();
+	idx++;
+	int amt = _image_name_cb->count();
+	if (idx < amt)
+	{
+		_image_name_cb->setCurrentIndex(idx);
 	}
 }
 
@@ -135,12 +172,29 @@ void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 
 /*---------------------------------------------------------------------------*/
 
+void ImageStackControlWidget::update_progress_bar(int val, int amt)
+{
+	if (amt != _load_progress->maximum())
+	{
+		_load_progress->setRange(0, amt);
+	}
+
+	_load_progress->setValue(val);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageStackControlWidget::loadList_H5(QStringList sl)
 {
+	QStringList model_list = _image_name_cb_model.stringList();
     foreach (QString s, sl)
     {
-        _h5_model_map[s] = _model->getMapsH5Model(s);
-        _image_name_cb->addItem(s);
+		//make sure no duplicates
+		if (model_list.contains(s) == false)
+		{
+			_h5_model_map[s] = _model->getMapsH5Model(s);
+			_image_name_cb->addItem(s);
+		}
     }
 }
 

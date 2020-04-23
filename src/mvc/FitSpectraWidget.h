@@ -9,9 +9,6 @@
 /*---------------------------------------------------------------------------*/
 
 
-//#include <QAction>
-//#include <QMenu>
-#include <thread>
 #include <QWidget>
 #include <QTableView>
 #include <QComboBox>
@@ -113,6 +110,8 @@ protected:
     */
    void createLayout();
 
+   void update_spectra_top_axis(std::vector<std::string> element_names);
+
 private slots:
 
    void fit_params_customMenuRequested(QPoint);
@@ -134,8 +133,6 @@ private:
     QComboBox *_cb_opttimizer;
 
    QTabWidget *_fit_params_tab_widget;
-
-   std::thread* _fit_thread;
 
    QPushButton* _btn_fit_spectra;
 

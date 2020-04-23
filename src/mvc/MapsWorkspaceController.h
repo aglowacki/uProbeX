@@ -14,7 +14,6 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/MapsWorkspaceFilesWidget.h>
 #include <mvc/ImageStackControlWidget.h>
-//#include <mvc/MapsElementsWidget.h>
 
 class MapsWorkspaceController : public QObject
 {
@@ -57,9 +56,6 @@ protected:
 	QDockWidget *_maps_workspace_dock;
 
 	QDockWidget *_image_stack_control_dock;
-
-    std::thread* _load_maps_workspace_thread;
-
 };
 
 
