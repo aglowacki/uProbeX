@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <preferences/AttributeTableModel.h>
-#include <QDebug>
 
 /*---------------------------------------------------------------------------*/
 
@@ -289,7 +288,7 @@ bool AttributeTableModel::setData(const QModelIndex &index,
 
    }
    else if (column == DESC)
-   {qDebug()<<value.toString();
+   {
       m_solverAttrs[row].setDescription(value.toString());
    }
    else if (column == ENABLED)

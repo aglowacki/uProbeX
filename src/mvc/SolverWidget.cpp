@@ -14,8 +14,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QApplication>
-#include <QDebug>
-
+#include "core/defines.h"
 #define BUTTON_SIZE 32
 
 /*---------------------------------------------------------------------------*/
@@ -135,7 +134,7 @@ void SolverWidget::setCoefs(QMap<QString, double> oldVals, QMap<QString, double>
    m_newCoefs = newVals;
    if(oldVals.keys().size() != newVals.keys().size())
    {
-      qDebug()<<"Error: SolverWidget::setCoefs(), oldVals dictionary size does not match newVals dictionary!";
+      logW<<"Error: SolverWidget::setCoefs(), oldVals dictionary size does not match newVals dictionary!";
       return;
    }
    int i=0;
@@ -143,7 +142,7 @@ void SolverWidget::setCoefs(QMap<QString, double> oldVals, QMap<QString, double>
    {
       if(false == newVals.contains(key))
       {
-         qDebug()<<"Error: SolverWidget::setCoefs(), oldVals dictionary keys do not match newVals dictionary keys!";
+         logW<<"Error: SolverWidget::setCoefs(), oldVals dictionary keys do not match newVals dictionary keys!";
          return;
       }
       this->appendVariable(i, key, oldVals[key], newVals[key]);

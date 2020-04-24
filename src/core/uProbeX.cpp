@@ -335,7 +335,7 @@ void uProbeX::createLightToMicroCoords(int id)
     else
     {
         QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
-        qDebug()<<"Could not init Transformer\n";
+        logW<<"Could not init Transformer\n";
     }
 
 }
@@ -427,7 +427,7 @@ void uProbeX::createSolver()
                     Preferences::NMOptions).toStringList();
         if(false == m_solverParameterParse -> parseSolverOptionList(optionList))
         {
-            qDebug()<<"Error reading options for NM solver";
+            logE<<"Error reading options for NM solver";
             // Initialize with the default option
             dict_options = nm ->getOptions();
         }
@@ -455,7 +455,7 @@ void uProbeX::createSolver()
                                                     fileInfo.baseName(),
                                                     QString("my_solver")))
         {
-            qDebug()<<"Error reading options for python solver, reverting to NelderMeadSolver";
+            logE<<"Error reading options for python solver, reverting to NelderMeadSolver";
             QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
             m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
             createSolver();

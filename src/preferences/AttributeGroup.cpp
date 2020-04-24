@@ -5,7 +5,6 @@
 
 #include <preferences/AttributeGroup.h>
 
-#include <QDebug>
 
 /*---------------------------------------------------------------------------*/
 

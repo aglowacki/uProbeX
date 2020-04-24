@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <gstar/ImageViewWidget.h>
-#include <QDebug>
 #include <QLabel>
 #include <QComboBox>
 #include <QListView>
@@ -556,9 +555,8 @@ void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
    //int zoomRecPer = 500 - wp;
    int zoomWidth = zoomRect.normalized().width();
    int zoomHeight = zoomRect.normalized().height();
-   qDebug()<<"ZoomIn Rect Width "<<zoomWidth<<" height "<<zoomHeight;
-   // Zoom in
-   //qDebug()<<"ZoomIn Rect Width per "<<zoomRecPer<<" height "<<zoomRecPer;
+      // Zoom in
+   
    if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty())
        && (zoomWidth > 10 && zoomHeight > 10) )
    {

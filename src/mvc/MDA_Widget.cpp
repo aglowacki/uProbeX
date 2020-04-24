@@ -11,8 +11,6 @@
 #include <QHBoxLayout>
 #include <QSplitter>
 
-#include <QDebug>
-
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;

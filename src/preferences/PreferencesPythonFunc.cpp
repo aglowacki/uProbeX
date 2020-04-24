@@ -21,7 +21,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QDebug>
+#include "core/defines.h"
 
 using gstar::CheckBoxDelegate;
 /*---------------------------------------------------------------------------*/
@@ -84,7 +84,7 @@ void PreferencesPythonFunc::addGroupItem()
       }
       catch(PythonLoader::pyException ex)
       {
-         qDebug()<<"Error PreferencesPythonFunc::addGroupItem "<<ex.what();
+         logW<<"Error PreferencesPythonFunc::addGroupItem "<<ex.what();
       }
 
       if(functionList.count() > 0)
@@ -295,7 +295,7 @@ void PreferencesPythonFunc::createComponents()
       {
          m_foundPython = false;
 		 foundPyLabel->setText("Could not find Python library on system. Current supported versions are 2.6 or 2.7 for Linux environment.");
-         qDebug()<<"Error PreferencesPythonFunc::createComponents "<<ex.what();
+         logW<<"Error PreferencesPythonFunc::createComponents "<<ex.what();
       }
    }
 

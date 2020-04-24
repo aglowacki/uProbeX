@@ -11,7 +11,6 @@
 #include <math.h>
 #include <QLineF>
 
-#include <QDebug>
 
 using namespace gstar;
 

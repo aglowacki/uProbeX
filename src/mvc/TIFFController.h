@@ -13,7 +13,6 @@
 
 
 #include <QObject>
-#include <QDebug>
 #include <QApplication>
 #include <QMessageBox>
 

@@ -7,9 +7,6 @@
 
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/AnnotationTreeModel.h"
-
-#include "QDebug"
-
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <typeinfo>
@@ -321,8 +318,7 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             {
                QImage img = m_pixItem->pixmap().toImage();
                //QRgb val = img.pixel(x, y);
-               //qDebug()<<"II= "<<x<<" "<<y<<" "<<QColor::fromRgb(val);
-               // emit the mouse over pixel location
+                              // emit the mouse over pixel location
                emit mouseOverPixel(x, y);
             }
          }

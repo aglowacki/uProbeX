@@ -12,7 +12,6 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QMessageBox>
-#include <QDebug>
 
 #include <core/PythonLoader.h>
 
@@ -323,7 +322,7 @@ void PythonSolverProfileWidget::openPythonFile()
         {
             foreach (QString key, variables.keys())
             {
-                qDebug()<< key <<" : "<< variables[key];
+                logW<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
                 ////play_attributes->addAttr(key, variables[key], "float", true);
                 Attribute attr(key, variables[key], "", true);
                 coefList.append(attr);
@@ -349,7 +348,7 @@ void PythonSolverProfileWidget::openPythonFile()
         {
             foreach (QString key, variables.keys())
             {
-                qDebug()<< key <<" : "<< variables[key];
+                logW<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
                 Attribute attr(key, variables[key], "", true);
                 optionsList.append(attr);
             }
@@ -363,7 +362,7 @@ void PythonSolverProfileWidget::openPythonFile()
     }
     catch(PythonLoader::pyException ex)
     {
-        qDebug()<<ex.what();
+        logW<<ex.what();
         QMessageBox::warning(nullptr, "Error loading variables", "Error loading variables. You will have to manually enter them.");
     }
 }
@@ -521,7 +520,7 @@ void PythonSolverProfileWidget::switchProfileItem(const QItemSelection& selected
 
    if(list.empty())
    {
-//      qDebug()<<"the index list is empty";
+//      logW<<"the index list is empty";
       return;
    }
 

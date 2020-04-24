@@ -12,7 +12,6 @@
 #include <QHeaderView>
 #include <QGridLayout>
 #include <QItemSelectionModel>
-#include <QDebug>
 #include <QFileDialog>
 #include <QSplitter>
 #include <QMessageBox>
@@ -844,6 +843,7 @@ void FitSpectraWidget::setH5Model(MapsH5Model* h5_model)
 
 */
     h5_int_spec_updated(true);
+    _spectra_widget->onResetChartView();
 }
 
 /*---------------------------------------------------------------------------*/

@@ -6,7 +6,7 @@
 #include <core/PythonRegionCaller.h>
 #include <core/PythonLoader.h>
 
-#include <QDebug>
+#include "core/defines.h"
 /*---------------------------------------------------------------------------*/
 
 const static int num_args = 7;
@@ -43,13 +43,13 @@ bool PythonRegionCaller::init(QString path,
 
       if(false == PythonLoader::inst()->loadFunction(path, module, functionnName))
       {
-         qDebug()<<"Failed to load function: "<<module<<" "<<functionnName;
+         logW<<"Failed to load function: "<<module.toStdString()<<" "<<functionnName.toStdString() << "\n";
          return false;
       }
 
       if(false == PythonLoader::inst()->setNumArgs(m_module, m_funcName, num_args))
       {
-         qDebug()<<"Failed to set argument count";
+         logW<<"Failed to set argument count";
          return false;
       }
    }
@@ -96,7 +96,7 @@ bool PythonRegionCaller::CallFunc(QString name,
    catch(PythonLoader::pyException ex)
    {
       //QMessageBox::critical(0, "Error", ex.what());
-      qDebug()<<ex.what();
+      logW<<ex.what();
       return false;
    }
 

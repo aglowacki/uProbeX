@@ -8,7 +8,7 @@
 
 #include <core/PythonLoader.h>
 
-#include <QDebug>
+#include "core/defines.h"
 /*---------------------------------------------------------------------------*/
 
 PythonTransformer::PythonTransformer(QString path,
@@ -29,25 +29,25 @@ PythonTransformer::PythonTransformer(QString path,
 
       if(false == PythonLoader::inst()->loadFunction(path, filename, functionnName))
       {
-         qDebug()<<"Failed to load function: "<<filename<<" "<<functionnName;
+         logW<<"Failed to load function: "<<filename.toStdString()<<" "<<functionnName.toStdString() << "\n";
          return;
       }
 
       if(false == PythonLoader::inst()->setNumArgs(m_module, m_funcName, 4))
       {
-         qDebug()<<"Failed to set argument count";
+         logW<<"Failed to set argument count";
          return;
       }
 
       if(false == PythonLoader::inst()->setRetCnt(m_module, m_funcName, 3))
       {
-         qDebug()<<"Failed to set argument count";
+         logW<<"Failed to set argument count";
          return;
       }
    }
    catch(PythonLoader::pyException px)
    {
-      qDebug()<<px.what();
+      logW<<px.what();
       QString er = QString(px.what());
       er += QString("\r\n Path: "+path
                     +"\r\nModule: "+filename+
@@ -179,7 +179,7 @@ void PythonTransformer::transformCommand(double inX,
    }
    catch(PythonLoader::pyException ex)
    {
-      qDebug()<<ex.what();
+      logW<<ex.what();
    }
 
 }

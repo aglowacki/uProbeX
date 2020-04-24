@@ -5,7 +5,6 @@
 
 #include <preferences/SolverAttributesGroup.h>
 
-#include <QDebug>
 
 /*---------------------------------------------------------------------------*/
 

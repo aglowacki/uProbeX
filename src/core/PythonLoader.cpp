@@ -47,7 +47,7 @@
 #include <QProcess>
 #include <QCoreApplication>
 
-#include <QDebug>
+#include "core/defines.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -71,7 +71,7 @@ PythonLoader::PythonLoader()
 PythonLoader::~PythonLoader()
 {
 
-    qDebug()<<"PythonLoader::~PythonLoader() \n\r";
+    logW<<"PythonLoader::~PythonLoader() \n\r";
 
     if(m_foundFuncs)
     {
@@ -151,7 +151,7 @@ void PythonLoader::callFunc(QString module,
             else
             {
                PyErr_Print();
-               qDebug()<<"Error PythonLoader::callFunc; returned wrong list size.";
+               logW<<"Error PythonLoader::callFunc; returned wrong list size.";
                throw pyException(pyException::RETURN_WRONG_LIST_SIZE);
             }
          }
@@ -159,7 +159,7 @@ void PythonLoader::callFunc(QString module,
       else
       {
           PyErr_Print();
-          qDebug()<<"PythonLoader::python call failed! Check the python script";
+          logW<<"PythonLoader::python call failed! Check the python script";
           throw pyException(pyException::nullptr_RETURNED_FOR_LIST);
       }
       break;
@@ -189,7 +189,7 @@ void PythonLoader::callFunc(QString module,
             }
             else
             {
-               qDebug()<<"Error PythonLoader::callFunc; returned wrong list size.";
+               logW<<"Error PythonLoader::callFunc; returned wrong list size.";
                throw pyException(pyException::RETURN_WRONG_LIST_SIZE);
             }
          }
@@ -230,7 +230,7 @@ void PythonLoader::callFunc(QString module,
                     //val = QString::number(lval);
                   /*
                   {
-                      qDebug()<<"Warning: Unknown type for Key "<<sKey;
+                      logW<<"Warning: Unknown type for Key "<<sKey;
                   }
                     */
                   pf->retStrDict.insert(sKey, val);
@@ -311,11 +311,11 @@ bool PythonLoader::init(QString sharedLibName)
 
    if(false == sharedLibName.isEmpty())
    {
-      qDebug()<<"Searching for python library: "<<sharedLibName;
+      logW<<"Searching for python library: "<<sharedLibName.toStdString()<<"\n";
       myLib.setFileName(sharedLibName);
       if(myLib.load())
       {
-         qDebug()<<"Found python library: "<<sharedLibName;
+         logW<<"Found python library: "<<sharedLibName.toStdString() << "\n";
          foundLib = true;
       }
    }
@@ -325,7 +325,7 @@ bool PythonLoader::init(QString sharedLibName)
         myLib.setFileName(itr);
         if(myLib.load())
         {
-            qDebug()<<itr;
+            logW<<itr.toStdString() << "\n";
             foundLib = true;
             break;
         }
@@ -333,7 +333,7 @@ bool PythonLoader::init(QString sharedLibName)
 
    if(false == foundLib)
    {
-      qDebug()<<"Python not found on system";
+      logW<<"Python not found on system";
       myLib.unload();
       throw pyException(pyException::PYTHON_NOT_FOUND_ON_SYSTEM);
    }
@@ -459,32 +459,32 @@ bool PythonLoader::init(QString sharedLibName)
    PyDict_Size = (PyDict_SizeDef) myLib.resolve("PyDict_Size");
    if(!PyDict_Size)
    {
-       qDebug()<<"Failed to load python function PyDict_Size";
+       logW<<"Failed to load python function PyDict_Size";
        return false;
    }
    PyDict_GetItem = (PyDict_GetItemDef) myLib.resolve("PyDict_GetItem");
    if(!PyDict_GetItem)
    {
-       qDebug()<<"Failed to load python function PyDict_GetItem";
+       logW<<"Failed to load python function PyDict_GetItem";
        return false;
    }
    PyErr_Print = (PyErr_PrintDef) myLib.resolve("PyErr_Print");
    if(!PyErr_Print)
    {
-       qDebug()<<"Failed to load python function PyErr_Print";
+       logW<<"Failed to load python function PyErr_Print";
        return false;
    }
    PyErr_Clear = (PyErr_ClearDef) myLib.resolve("PyErr_Clear");
    if(!PyErr_Clear)
    {
-       qDebug()<<"Failed to load python function PyErr_Clear";
+       logW<<"Failed to load python function PyErr_Clear";
        return false;
    }
 
 
 
 
-   qDebug()<<"All required python functions found.";
+   logW<<"All required python functions found.";
    Py_Initialize();
    m_foundFuncs = true;
 
@@ -499,7 +499,7 @@ bool PythonLoader::loadFunction(QString path,
 {
 
    QString pfKey = moduleName+functionnName;
-   //qDebug()<<"load Function";
+   //logW<<"load Function";
 
    if(m_foundFuncs)
    {
@@ -513,7 +513,7 @@ bool PythonLoader::loadFunction(QString path,
             sys_path = PySys_GetObject("path");
             if (sys_path == nullptr)
                 return false;
-            qDebug()<<"Python path object found."<<endl;
+            logW<<"Python path object found."<<endl;
 
             int pyPathSize = PyList_Size(sys_path);
             for (int ia=0; ia<pyPathSize; ia++)
@@ -521,32 +521,32 @@ bool PythonLoader::loadFunction(QString path,
                 PyObject *obj = PyList_GetItem(sys_path, ia);
                 QString QPyPath = QString(PyString_AsString(obj));
                 //Py_DecRef(obj);
-                qDebug()<<"Python path = "<<QPyPath;
+                logW<<"Python path = "<<QPyPath.toStdString() << "\n";
             }
 
             pyPath = PyString_FromString(path.toStdString().c_str());
             if (pyPath == nullptr)
                 return false;
 
-            qDebug()<<"appending to python path: "<<path;
+            logW<<"appending to python path: "<<path.toStdString() << "\n";
             if (PyList_Append(sys_path, pyPath) < 0)
                 throw pyException(pyException::COULD_NOT_APPEND_PATH_TO_PYPATH);
-            qDebug()<<"Path appended";
+            logW<<"Path appended";
 
             Py_DecRef(pyPath);
             //Py_DecRef(sys_path);
 
-            qDebug()<<"modulename "<<moduleName;
+            logW<<"modulename "<<moduleName.toStdString() << "\n";
 
             PyObject *pyName = PyString_FromString(moduleName.toStdString().c_str());
             if(pyName)
-                qDebug()<<"pName init";
+                logW<<"pName init";
             pyModule = PyImport_Import(pyName);
             Py_DecRef(pyName);
         }
         else
         {
-            qDebug()<<"Reloaded python function ! " <<moduleName<<" "<<functionnName;
+            logW<<"Reloaded python function ! " <<moduleName.toStdString()<<" "<<functionnName.toStdString() << "\n";
             pyFunc* pf = m_functionMap[pfKey];
             if (pf != nullptr)
             {
@@ -571,14 +571,14 @@ bool PythonLoader::loadFunction(QString path,
             }
             else
             {
-               qDebug()<<"Error: nullptr python module while reloading ! " <<moduleName<<" "<<functionnName;
+               logW<<"Error: nullptr python module while reloading ! " <<moduleName.toStdString()<<" "<<functionnName.toStdString() << "\n";
                m_functionMap.remove(pfKey);
                return false;
             }
         }
         if (pyModule != nullptr)
         {
-            qDebug()<<"Module found";
+            logW<<"Module found";
             pyFunc* pf = new pyFunc();
             pf->pModule = pyModule;
 
@@ -586,8 +586,7 @@ bool PythonLoader::loadFunction(QString path,
                                            functionnName.toStdString().c_str());
             if (pf->pFunc && PyCallable_Check(pf->pFunc))
             {
-             qDebug()<<"function found and callable, adding: "
-                    <<moduleName<<" "<<functionnName;
+             logW<<"function found and callable, adding: "<<moduleName.toStdString()<<" "<<functionnName.toStdString() << "\n";
              pf->pDict = PyDict_New();
              //Py_IncRef(m_pDict);
              //Py_IncRef(m_pArgs);
@@ -604,14 +603,14 @@ bool PythonLoader::loadFunction(QString path,
             {
                 PyErr_Print();
                 delete pf;
-                qDebug()<<"Cound not find function, or function is not callable: "<<functionnName;
+                logW<<"Cound not find function, or function is not callable: "<<functionnName.toStdString() << "\n";
                 throw pyException(pyException::COULD_NOT_FIND_FUNCTION);
             }
         }
         else
         {
             PyErr_Print();
-            qDebug()<<"Cound not find module: "<<moduleName;
+            logW<<"Cound not find module: "<<moduleName.toStdString() << "\n";
             throw pyException(pyException::COULD_NOT_FIND_MODULE);
         }
     }
@@ -634,17 +633,17 @@ QStringList PythonLoader::getFunctionList(QString path, QString moduleName)
      sys_path = PySys_GetObject("path");
      if (sys_path == nullptr)
          return funcList;
-     qDebug()<<"Python path object found.";
+     logW<<"Python path object found.";
 
      pyPath = PyString_FromString(path.toStdString().c_str());
      if (pyPath == nullptr)
          return funcList;
 
 
-     qDebug()<<"appending to python path: "<<path;
+     logW<<"appending to python path: "<<path.toStdString() << "\n";
      if (PyList_Append(sys_path, pyPath) < 0)
          return funcList;
-     qDebug()<<"Path appended";
+     logW<<"Path appended";
 
      Py_DecRef(pyPath);
 
@@ -677,7 +676,7 @@ QStringList PythonLoader::getFunctionList(QString path, QString moduleName)
                long lsize = PyList_Size(pRetVal);
                if(lsize > 0)
                {
-                  qDebug()<<"ret size = "<<lsize;
+                  logW<<"ret size = "<<lsize;
                   for(int i=0; i<lsize; i++)
                   {
                       PyObject* funcTup = PyList_GetItem(pRetVal, i);

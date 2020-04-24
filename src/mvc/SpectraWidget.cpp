@@ -646,7 +646,7 @@ void SpectraWidget::handleMarkerClicked()
         }
     default:
         {
-        //qDebug() << "Unknown marker type";
+        
         break;
         }
     }

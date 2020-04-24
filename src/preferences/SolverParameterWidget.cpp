@@ -12,7 +12,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QMessageBox>
-#include <QDebug>
+
 
 
 /*---------------------------------------------------------------------------*/
