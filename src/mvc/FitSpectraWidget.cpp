@@ -12,7 +12,6 @@
 #include <QHeaderView>
 #include <QGridLayout>
 #include <QItemSelectionModel>
-#include <QDebug>
 #include <QFileDialog>
 #include <QSplitter>
 #include <QMessageBox>
@@ -276,9 +275,7 @@ void FitSpectraWidget::export_fit_paramters()
             fit_params->append_and_update(&model_fit_params);
             fit_params->append_and_update(&element_fit_params);
 
-            io::file::aps::APS_Fit_Params_Import override_file;
-
-            if(override_file.save(fileName.toStdString(), param_overrides) )
+            if(io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides) )
             {
                 QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
             }
@@ -846,6 +843,7 @@ void FitSpectraWidget::setH5Model(MapsH5Model* h5_model)
 
 */
     h5_int_spec_updated(true);
+    _spectra_widget->onResetChartView();
 }
 
 /*---------------------------------------------------------------------------*/

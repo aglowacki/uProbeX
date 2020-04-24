@@ -10,8 +10,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include <QDebug>
-
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 

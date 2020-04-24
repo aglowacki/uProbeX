@@ -8,7 +8,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <math.h>
-#include <QDebug>
 #include <gstar/LinearTransformer.h>
 #include <QMessageBox>
 #include <QGraphicsScene>
@@ -18,7 +17,7 @@
 #include <QApplication>
 #include <gstar/GStarResource.h>
 #include <QMessageBox>
-
+#include "core/defines.h"
 using gstar::LinearTransformer;
 
 const char NUM_SAMPLES_STR[] = {"Mosaic/Count"};
@@ -74,12 +73,12 @@ bool SWSModel::load(QString filepath)
 
       m_datasetName = info1.completeBaseName();
       m_datasetPath = info1.path() + QDir::separator() + m_datasetName;
-      qDebug()<<m_datasetPath;
-      qDebug()<<m_datasetName;
+      logW<<m_datasetPath.toStdString()<<"\n";
+      logW<<m_datasetName.toStdString() << "\n";
 
-      qDebug()<<info1.suffix();
-      qDebug()<<info1.bundleName();
-      qDebug()<<info1.completeBaseName();
+      logW<<info1.suffix().toStdString() << "\n";
+      logW<<info1.bundleName().toStdString() << "\n";
+      logW<<info1.completeBaseName().toStdString() << "\n";
 
       QSettings swsData(filepath, QSettings::IniFormat);
 
@@ -677,7 +676,7 @@ bool SWSModel::readPMGInt(QFile *pmgFile, QString ID, int& data)
       }
    }
 
-   qDebug()<<"Failed to load PMG file header from dataset. Missing '"+ID+"'";
+   logW<<"Failed to load PMG file header from dataset. Missing '"<<ID.toStdString()<<"'\n";
    return false;
 }
 
@@ -707,13 +706,13 @@ bool SWSModel::readPMGDoubleArray(QFile *pmgFile,
          }
          else
          {
-            qDebug()<<"Failed to load PMG file header from dataset. Not enough parameters '"+ID+"'";
+            logW<<"Failed to load PMG file header from dataset. Not enough parameters '"<<ID.toStdString() << "'\n";
             return false;
          }
       }
    }
 
-   qDebug()<<"Failed to load PMG file header from dataset. Missing '"+ID+"'";
+   logW<<"Failed to load PMG file header from dataset. Missing '"<<ID.toStdString() << "'\n";
    return false;
 
 }
@@ -746,7 +745,7 @@ bool SWSModel::readPMGString(QFile *pmgFile, QString ID, QString& data)
          return true;
       }
    }
-   qDebug()<<"Failed to load PMG file header from dataset. Missing '"+ID+"'";
+   logW<<"Failed to load PMG file header from dataset. Missing '"<<ID.toStdString() << "'\n";
    return false;
 
 }
@@ -773,7 +772,7 @@ bool SWSModel::loadPMG()
         }
         if ((unsigned int) tmpNumSamples != m_numSamples)
         {
-           qDebug()<<"Warning: Number of samples does not match PMG file and XYZ dataset";
+           logW<<"Warning: Number of samples does not match PMG file and XYZ dataset";
         }
 
         //read scale
@@ -928,7 +927,7 @@ bool SWSModel::loadTiles()
 
    QGraphicsScene* gscene = new QGraphicsScene();
 
-   qDebug()<<"Supported image formats "<<QImageReader::supportedImageFormats();
+   //logW<<"Supported image formats "<<QImageReader::supportedImageFormats();
 
    for(unsigned int i=0; i<m_numSamples; i++)
    {
@@ -970,7 +969,7 @@ bool SWSModel::loadTiles()
       }
       else
       {
-         qDebug()<<"Failed to load image "<<fileName;
+         logW<<"Failed to load image "<<fileName.toStdString() << "\n";
       }
    }
 
@@ -983,7 +982,7 @@ bool SWSModel::loadTiles()
    gscene->render(&painter);
    if(false == image.save(m_datasetPath+".tif", "tif"))
    {
-      qDebug()<<"Failed to save mosaic image "<<m_datasetPath<<".tif";
+      logW<<"Failed to save mosaic image "<<m_datasetPath.toStdString()<<".tif\n";
    }
 
    QApplication::restoreOverrideCursor();
@@ -1010,7 +1009,7 @@ bool SWSModel::loadXYZ()
          QString line = xyzFile.readLine();
          if(line != XYZ_FILE_HEADER)
          {
-            qDebug()<<"Warning: XYZPositions.txt header is not correct.";
+            logW<<"Warning: XYZPositions.txt header is not correct.";
          }
          for(unsigned int i=0; i < m_numSamples; i++)
          {

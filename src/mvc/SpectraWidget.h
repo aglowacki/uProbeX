@@ -75,6 +75,8 @@ public slots:
 
     void set_top_axis(std::map<std::string, float> elements);
 
+    void onResetChartView();
+
 protected:
 
     /**
@@ -107,8 +109,6 @@ private slots:
     void onSpectraDisplayChanged(const QString &);
 
     void onSpectraDisplayHeightChanged(const QString&);
-
-    void onResetChartView();
 
     void onUpdateChartLineEdits();
 

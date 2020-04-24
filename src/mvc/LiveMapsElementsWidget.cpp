@@ -8,8 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-
-#include <QDebug>
+#include "core/defines.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -221,6 +220,6 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 
 void LiveMapsElementsWidget::image_changed(int start, int end)
 {
-    qDebug()<<start<<" "<<end;
+    logI<<start<<" "<<end;
     _mapsElementsWidget->setModel(_maps_h5_models[start-1]);
 }

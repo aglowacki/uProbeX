@@ -11,8 +11,6 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include <QDebug>
-
 #include<QGraphicsScene>
 
 using namespace gstar;

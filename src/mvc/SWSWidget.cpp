@@ -22,8 +22,6 @@
 #include <QMenu>
 #include <QBuffer>
 
-#include <QDebug>
-
 #include "gstar/Annotation/UProbeMarkerGraphicsItem.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
 #include "gstar/Annotation/MarkerGraphicsItem.h"
@@ -646,7 +644,7 @@ void SWSWidget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
 void SWSWidget::callbackPvXUpdatedFloat(float val)
 {
 
-   qDebug()<<"float x val = "<<val;
+   logW<<"float x val = "<<val;
    callbackPvXUpdatedDouble((double) val);
 
 }
@@ -656,7 +654,7 @@ void SWSWidget::callbackPvXUpdatedFloat(float val)
 void SWSWidget::callbackPvYUpdatedFloat(float val)
 {
 
-   qDebug()<<"float y val = "<<val;
+   logW<<"float y val = "<<val;
    callbackPvYUpdatedDouble((double) val);
 
 }
@@ -669,7 +667,7 @@ void SWSWidget::callbackPvXUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsX == false)
       return;
 
-   qDebug()<<"double x val = "<<val;
+   logW<<"double x val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -685,7 +683,7 @@ void SWSWidget::callbackPvXUpdatedDouble(double val)
    else
    {
       //QMessageBox::warning(0, "Warning", "Please select only one annotation.");
-      qDebug()<<"No marker selection for callbackPvXUpdatedDouble";
+      logW<<"No marker selection for callbackPvXUpdatedDouble";
    }
 
    m_grabbingPvsX = false;
@@ -700,7 +698,7 @@ void SWSWidget::callbackPvYUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsY == false)
       return;
 
-   qDebug()<<"double y val = "<<val;
+   logW<<"double y val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -716,7 +714,7 @@ void SWSWidget::callbackPvYUpdatedDouble(double val)
    else
    {
       //QMessageBox::warning(0, "Warning", "Please select only one annotation.");
-      qDebug()<<"No marker selection for callbackPvYUpdatedDouble";
+      logW<<"No marker selection for callbackPvYUpdatedDouble";
    }
 
    m_grabbingPvsY = false;
@@ -960,8 +958,7 @@ void SWSWidget::createMicroProbeMenu()
                   {
                      delete prc;
                      prc = nullptr;
-                     qDebug()<<"Error initializing shell call: "
-                            <<attr->getName();
+                     logW<<"Error initializing shell call: "<<attr->getName().toStdString() << "\n";
                   }
                }               
                if(execType == "python")
@@ -975,8 +972,7 @@ void SWSWidget::createMicroProbeMenu()
                   {
                      delete prc;
                      prc = nullptr;
-                     qDebug()<<"Error initializing python call: "
-                            <<attr->getName();
+                     logW<<"Error initializing python call: "<<attr->getName().toStdString() << "\n";
                   }
                }               
 
@@ -1220,7 +1216,7 @@ void SWSWidget::checkMicroProbePVs()
                      (CAEmitDataChangeHandler<float, SWSWidget>*)m_pvYHandler);
             //pvType = FLOAT
             m_microProbePvSet = true;
-            qDebug()<<"Set micro pv true";
+            logW<<"Set micro pv true";
             break;
          case DBR_DOUBLE:
             m_pvXHandler = new CAEmitDataChangeHandler<double, SWSWidget>(
@@ -1233,11 +1229,11 @@ void SWSWidget::checkMicroProbePVs()
                      (CAEmitDataChangeHandler<double, SWSWidget>*)m_pvYHandler);
             //pvType = DOUBLE
             m_microProbePvSet = true;
-            qDebug()<<"Set micro pv true";
+            logW<<"Set micro pv true";
             break;
          default:
             m_microProbePvSet = false;
-            qDebug()<<"Set micro pv false";
+            logW<<"Set micro pv false";
          }
 
          m_pvX->asynGet(1, (CAEmitDataChangeHandler<int, SWSWidget>*)m_pvXHandler);
@@ -1246,7 +1242,7 @@ void SWSWidget::checkMicroProbePVs()
    }
    catch(...)
    {
-      qDebug()<<"Failed to initialize PV's";
+      logW<<"Failed to initialize PV's";
    }
    */
 }
@@ -1290,7 +1286,7 @@ void SWSWidget::deleteItem()
          for (int i = selectedIndexes.count() - 1; i >= 0; i--)
          {
             QModelIndex index = selectedIndexes[i];
-            qDebug()<<"index "<<index.row();
+            logW<<"index "<<index.row();
             treeModel->removeRow(index.row(), index);
          }
       }
@@ -1566,7 +1562,7 @@ void SWSWidget::grabMicroProbePV()
    }
    catch(...)
    {
-      qDebug()<<"Error calling caget for PV's";
+      logW<<"Error calling caget for PV's";
    }
    */
 }

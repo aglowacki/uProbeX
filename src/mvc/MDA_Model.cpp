@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/MDA_Model.h>
-#include <QDebug>
+#include "core/defines.h"
 
 /*----------------src/mvc/MDA_Model.cpp \-----------------------------------------------------------*/
 
@@ -33,7 +33,7 @@ bool MDA_Model::load(QString filepath)
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
 
-        qDebug()<<" MDA_Model loading "<< filepath;
+        logW<<" MDA_Model loading "<< filepath.toStdString() << "\n";
 
     }
     catch (std::string& s)

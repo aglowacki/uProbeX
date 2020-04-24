@@ -10,7 +10,7 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QVBoxLayout>
-#include <QDebug>
+
 
 using gstar::CheckBoxDelegate;
 /*---------------------------------------------------------------------------*/

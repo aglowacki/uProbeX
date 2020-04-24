@@ -18,7 +18,6 @@
 #include <QActionGroup>
 #include <QColorDialog>
 #include <QComboBox>
-#include <QDebug>
 #include <QItemSelectionModel>
 #include <QMenu>
 #include <QMessageBox>
@@ -321,7 +320,7 @@ void AbstractImageWidget::deleteItem()
          for (int i = selectedIndexes.count() - 1; i >= 0; i--)
          {
             QModelIndex index = selectedIndexes[i];
-            qDebug()<<"index "<<index.row();
+            //qDebug()<<"index "<<index.row();
             m_treeModel->removeRow(index.row(), index);
          }
       }

@@ -10,8 +10,6 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include <QDebug>
-
 using namespace gstar;
 
 /*---------------------------------------------------------------------------*/

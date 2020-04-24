@@ -25,7 +25,6 @@
 #include <QPair>
 #include <QHeaderView>
 
-#include <QDebug>
 /*---------------------------------------------------------------------------*/
 
 PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowList,

@@ -8,7 +8,6 @@
 #include <QSpinBox>
 #include <QLabel>
 #include <QFormLayout>
-#include <QDebug>
 
 /*---------------------------------------------------------------------------*/
 

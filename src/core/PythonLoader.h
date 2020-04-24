@@ -55,6 +55,7 @@
 #include <QStringList>
 #include <QLibrary>
 #include <QMessageBox>
+#include "core/defines.h"
 
 /*---------------------------------------------------------------------------*/
 

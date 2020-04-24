@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <core/SubWindow.h>
-#include <QDebug>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QIcon>

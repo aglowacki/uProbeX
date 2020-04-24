@@ -12,7 +12,6 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QRegExp>
-#include <QDebug>
 #include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/

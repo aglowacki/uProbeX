@@ -11,8 +11,9 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QMessageBox>
-#include <QDebug>
 #include <solver/Solver.h>
+
+#include "core/defines.h"
 
 const static int NM_SELECTED = 0;
 const static int PY_SELECTED = 1;
@@ -224,7 +225,7 @@ void PreferencesSolverOption::getSolverPropertiesFromModel(
 
    if(false == m_solverParameterParse -> parseSolverCoefList(coefList))
    {
-      qDebug()<<"The coefList has invalid parameters";
+      logW<<"The coefList has invalid parameters";
       return;
    }
    m_solverParameterParse -> getCoefficientAndTransform(minCoefs, allCoefs);
@@ -232,7 +233,7 @@ void PreferencesSolverOption::getSolverPropertiesFromModel(
    QStringList optionList = widget -> getOptionAttrs();
    if(false == m_solverParameterParse -> parseSolverOptionList(optionList))
    {
-      qDebug()<<"The optionList has invalid parameters";
+      logW<<"The optionList has invalid parameters";
       return;
    }
    m_solverParameterParse -> getOptions(options);
@@ -278,7 +279,7 @@ void PreferencesSolverOption::runSolver()
                                                             "my_solver"))
       {
          delete impl;
-         qDebug()<<"Error initializing python solver";
+         logW<<"Error initializing python solver";
          QMessageBox::critical(nullptr,"Error", "Error Initializing Python Solver!");
          return;
       }
