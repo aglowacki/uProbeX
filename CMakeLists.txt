@@ -59,6 +59,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(PREC _REAL_FLOAT)
 
+# If compiled on some intel mahcines this causes crashes so let user set it for compile
+option(AVX2 "Compule with arch AVX2 on MSVC" OFF)
+option(AVX "Compule with arch AVX on MSVC" OFF)
+option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
+
 IF (UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
 ENDIF()
@@ -119,6 +124,21 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
 
 ENDIF()
+
+  IF (AVX2)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
+  ELSE()
+    IF (AVX)
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
+    ELSE()
+      IF(SSE2)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+      ENDIF()
+    ENDIF()
+  ENDIF()
 
 # Compile with compiler warnings turned on
 IF(MSVC)

@@ -119,7 +119,7 @@ protected:
 
     bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
 
-    std::string _analysis_enum_to_str(int val);
+    std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
     std::unordered_map<std::string, data_struct::Fit_Count_Dict*> _analyzed_counts;
 
