@@ -88,25 +88,25 @@ std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 
 /*---------------------------------------------------------------------------*/
 
-std::string MapsH5Model::_analysis_enum_to_str(int val)
+std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val)
 {
-    if(val == data_struct::ROI)
+    if(val == data_struct::Fitting_Routines::ROI)
     {
         return "ROI";
     }
-    else if(val == data_struct::GAUSS_TAILS)
+    else if(val == data_struct::Fitting_Routines::GAUSS_TAILS)
     {
         return "Parameter Fitting";
     }
-    else if(val == data_struct::GAUSS_MATRIX)
+    else if(val == data_struct::Fitting_Routines::GAUSS_MATRIX)
     {
         return "Matrix Fitting";
     }
-    else if(val == data_struct::SVD)
+    else if(val == data_struct::Fitting_Routines::SVD)
     {
         return "SVD";
     }
-    else if(val == data_struct::NNLS)
+    else if(val == data_struct::Fitting_Routines::NNLS)
     {
         return "NNLS";
     }
