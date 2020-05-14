@@ -51,39 +51,18 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
 
     _h5_tab_widget->addCustomContext("hdf5", "Per Pixel Process");
-
-    connect(_h5_tab_widget, SIGNAL(loadList(const QStringList&)),
-            this, SLOT(onOpenHDF5(const QStringList&)));
-
-    connect(_h5_tab_widget, SIGNAL(unloadList(const QStringList&)),
-            this, SLOT(onCloseHDF5(const QStringList&)));
-
-    connect(this, SIGNAL(status_loaded_hdf5(File_Loaded_Status, const QString&)),
-            _h5_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
+    connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
+    connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
 
     _mda_tab_widget = new FileTabWidget();
-    connect(_mda_tab_widget, SIGNAL(onOpenItem(QString)),
-            this, SLOT(onOpenMDA(QString)));
-
-    connect(_mda_tab_widget, SIGNAL(onCloseItem(QString)),
-            this, SLOT(onCloseMDA(QString)));
-
-    connect(this, SIGNAL(status_loaded_mda(File_Loaded_Status, const QString&)),
-            _mda_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
-
+    connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MDA); });
+    connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MDA); });
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
-
     _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
 
     _sws_tab_widget = new FileTabWidget();
-    connect(_sws_tab_widget, SIGNAL(onOpenItem(QString)),
-            this, SLOT(onOpenSWS(QString)));
-
-    connect(_sws_tab_widget, SIGNAL(onCloseItem(QString)),
-            this, SLOT(onCloseSWS(QString)));
-
-    connect(this, SIGNAL(status_loaded_sws(File_Loaded_Status, const QString&)),
-            _sws_tab_widget, SLOT(loaded_file_status_changed(File_Loaded_Status, const QString&)));
+    connect(_sws_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::SWS); });
+    connect(_sws_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::SWS); });
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -111,36 +90,11 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 {
 	if (_model != nullptr)
 	{
-
-        disconnect(_model,
-            SIGNAL(doneLoadingMDA()),
-            this,
-            SLOT(updateMDA()));
-
-        disconnect(_model,
-            SIGNAL(doneLoadingVLM()),
-            this,
-            SLOT(updateSWS()));
-
-		disconnect(_model,
-            SIGNAL(doneLoadingImgDat()),
-			this,
-            SLOT(updateH5()));
-/*
-        disconnect(_model,
-            SIGNAL(doneLoading()),
-            this,
-            SLOT(model_done_loading()));
-  */
-		disconnect(_model,
-			SIGNAL(doneUnloading()),
-			this,
-			SLOT(model_done_unloading()));
-
-		disconnect(_model,
-			SIGNAL(newFitParamsFileLoaded(int)),
-			this,
-			SLOT(loadedFitParams(int)));
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updated);
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updated);
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updated);
+        disconnect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
+        disconnect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
 	}
 	
 	_model = model;
@@ -152,86 +106,24 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 			_lbl_workspace->setText(path);
 		}
 
-        connect(_model,
-            SIGNAL(doneLoadingMDA()),
-            this,
-            SLOT(updateMDA()));
-
-        connect(_model,
-            SIGNAL(doneLoadingVLM()),
-            this,
-            SLOT(updateSWS()));
-
-        connect(_model,
-            SIGNAL(doneLoadingImgDat()),
-            this,
-            SLOT(updateH5()));
-
-        /*
-		connect(_model,
-			SIGNAL(doneLoading()),
-			this,
-			SLOT(model_done_loading()));
-*/
-		connect(_model,
-			SIGNAL(doneUnloading()),
-			this,
-			SLOT(model_done_unloading()));
-
-		connect(_model,
-			SIGNAL(newFitParamsFileLoaded(int)),
-			this,
-			SLOT(loadedFitParams(int)));
-
+        connect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updated);
+        connect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updated);
+        connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updated);
+        connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
+        connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
 	}
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::updateMDA()
+void MapsWorkspaceFilesWidget::updated()
 {
 
     _mda_tab_widget->set_file_list(_model->get_raw_file_list());
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::updateH5()
-{
-
     _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::updateSWS()
-{
-
     _sws_tab_widget->set_file_list(_model->get_sws_file_list());
 
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::model_done_loading()
-{
-
-    _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-    _mda_tab_widget->set_file_list(_model->get_raw_file_list());
-    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::model_done_unloading()
-{
-    _h5_tab_widget->unload_all();
-    _mda_tab_widget->unload_all();
-    _sws_tab_widget->unload_all();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -250,150 +142,138 @@ void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onOpenHDF5(const QStringList& names_list)
+void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_TYPE mt)
 {
-    if(_model != nullptr)
+
+    if (_model != nullptr)
     {
 
         int amt = names_list.count();
         int cur = 0;
-        
-        foreach (QString name , names_list)
+
+        foreach(QString name, names_list)
         {
-            QStringList opened_list;
             File_Loaded_Status load_status = UNLOADED;
-            
-            std::future< MapsH5Model*> ret = global_threadpool.enqueue([this, name] { return _model->getMapsH5Model(name); });
-            while (ret._Is_ready() == false)
+
+            if (mt == MODEL_TYPE::MAPS_H5)
             {
-                QCoreApplication::processEvents();
+                std::future< MapsH5Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_MapsH5_Model(name); });
+                while (ret._Is_ready() == false)
+                {
+                    QCoreApplication::processEvents();
+                }
+
+                MapsH5Model* h5Model = ret.get();
+                if (h5Model != nullptr)
+                {
+                    int idx = -1;
+                    if (name.endsWith('0'))
+                    {
+                        idx = 0;
+                    }
+                    else if (name.endsWith('1'))
+                    {
+                        idx = 1;
+                    }
+                    else if (name.endsWith('2'))
+                    {
+                        idx = 2;
+                    }
+                    else if (name.endsWith('3'))
+                    {
+                        idx = 3;
+                    }
+                    data_struct::Params_Override* param_override = _model->getParamOverride(idx);
+                    //if we can't find override for specific detector, try to use the avg one.
+                    if (param_override == nullptr)
+                    {
+                        param_override = _model->getParamOverride(-1);
+                    }
+                    h5Model->set_fit_parameters_override(param_override);
+                    emit loaded_model(name, mt);
+                    load_status = LOADED;
+                }
+                else
+                {
+                    load_status = FAILED_LOADING;
+                }
+                _h5_tab_widget->loaded_file_status_changed(load_status, name);
+            }
+            else if (mt == MODEL_TYPE::MDA)
+            {
+                std::future< MDA_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_MDA_Model(name); });
+                while (ret._Is_ready() == false)
+                {
+                    QCoreApplication::processEvents();
+                }
+
+                MDA_Model* Model = ret.get();
+                if (Model != nullptr)
+                {
+                    emit loaded_model(name, mt);
+                    load_status = LOADED;
+                }
+                else
+                {
+                    load_status = FAILED_LOADING;
+                }
+                emit _mda_tab_widget->loaded_file_status_changed(load_status, name);
+            }
+            else if (mt == MODEL_TYPE::SWS)
+            {
+                std::future< SWSModel*> ret = global_threadpool.enqueue([this, name] { return _model->get_SWS_Model(name); });
+                while (ret._Is_ready() == false)
+                {
+                    QCoreApplication::processEvents();
+                }
+
+                SWSModel* Model = ret.get();
+                if (Model != nullptr)
+                {
+                    load_status = LOADED;
+                    emit loaded_model(name, mt);
+                }
+                else
+                {
+                    load_status = FAILED_LOADING;
+                }
+                _sws_tab_widget->loaded_file_status_changed(load_status, name);
             }
 
-            MapsH5Model* h5Model = ret.get();
-            if(h5Model != nullptr)
-            {
-                int idx = -1;
-                if(name.endsWith('0'))
-                {
-                    idx = 0;
-                }
-                else if(name.endsWith('1'))
-                {
-                    idx = 1;
-                }
-                else if(name.endsWith('2'))
-                {
-                    idx = 2;
-                }
-                else if(name.endsWith('3'))
-                {
-                    idx = 3;
-                }
-				data_struct::Params_Override *param_override = _model->getParamOverride(idx);
-				//if we can't find override for specific detector, try to use the avg one.
-				if (param_override == nullptr)
-				{
-					param_override = _model->getParamOverride(-1);
-				}
-                h5Model->set_fit_parameters_override( param_override );
-                opened_list.append(name);
-                emit loadList_H5(opened_list);
-                load_status = LOADED;
-                //emit showFitSpecWindow(h5Model, _model->getFitParameters(-1), _model->getElementToFit(-1));
-            }
-            else
-            {
-                load_status = FAILED_LOADING;
-            }
-            emit status_loaded_hdf5(load_status, name);
             cur++;
             emit loaded_perc(cur, amt);
             QCoreApplication::processEvents();
         }
-        //emit loadList_H5(opened_list);
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onCloseHDF5(const QStringList& names_list)
+void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL_TYPE mt)
 {
-    if(_model != nullptr)
+    File_Loaded_Status load_status = UNLOADED;
+    if (_model != nullptr)
     {
-        foreach (QString name , names_list)
+        foreach(QString name, names_list)
         {
-            File_Loaded_Status load_status = UNLOADED;
-            _model->unload_H5_Model(name);
-            emit status_loaded_hdf5(load_status, name);
+            switch (mt)
+            {
+            case MODEL_TYPE::MAPS_H5:
+                _model->unload_H5_Model(name);
+                _h5_tab_widget->loaded_file_status_changed(load_status, name);
+                break;
+            case MODEL_TYPE::MDA:
+                _model->unload_MDA_Model(name);
+                _mda_tab_widget->loaded_file_status_changed(load_status, name);
+                break;
+            case MODEL_TYPE::SWS:
+                _model->unload_SWS_Model(name);
+                _sws_tab_widget->loaded_file_status_changed(load_status, name);
+                break;
+            }
         }
     }
-    emit unloadList_H5(names_list);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::onOpenMDA(QString name)
-{
-    if(_model != nullptr)
-    {
-        File_Loaded_Status load_status = UNLOADED;
-        MDA_Model* mda_model = _model->get_MDA_Model(name);
-        if(mda_model != nullptr)
-        {
-            load_status = LOADED;
-            emit show_MDA_Window(mda_model);
-        }
-        else
-        {
-            load_status = FAILED_LOADING;
-        }
-        emit status_loaded_mda(load_status, name);
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::onCloseMDA(QString name)
-{
-    if(_model != nullptr)
-    {
-        File_Loaded_Status load_status = UNLOADED;
-        _model->unload_MDA_Model(name);
-        emit status_loaded_mda(load_status, name);
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::onOpenSWS(QString name)
-{
-    if(_model != nullptr)
-    {
-        File_Loaded_Status load_status = UNLOADED;
-        SWSModel* sws_model = _model->get_SWS_Model(name);
-        if(sws_model != nullptr)
-        {
-            load_status = LOADED;
-            emit show_SWS_Window(sws_model);
-        }
-        else
-        {
-            load_status = FAILED_LOADING;
-        }
-        emit status_loaded_sws(load_status, name);
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceFilesWidget::onCloseSWS(QString name)
-{
-    if(_model != nullptr)
-    {
-        File_Loaded_Status load_status = UNLOADED;
-        _model->unload_SWS_Model(name);
-        emit status_loaded_sws(load_status, name);
-    }
+    emit unloadList_model(names_list, mt);
 }
 
 /*---------------------------------------------------------------------------*/

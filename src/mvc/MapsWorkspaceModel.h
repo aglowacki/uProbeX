@@ -60,7 +60,7 @@ public:
 
     QString get_directory_name();
 
-    MapsH5Model* getMapsH5Model(QString name);
+    MapsH5Model* get_MapsH5_Model(QString name);
 
     MDA_Model* get_MDA_Model(QString name);
 

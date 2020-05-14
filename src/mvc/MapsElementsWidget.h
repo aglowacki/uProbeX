@@ -47,7 +47,6 @@ public:
     */
    ~MapsElementsWidget();
 
-   //void setModel(MapsH5Model* model);
    void setModel(MapsH5Model* h5_model);
 
    MapsH5Model *getModel(){return _model;}

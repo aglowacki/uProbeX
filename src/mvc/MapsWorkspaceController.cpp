@@ -12,11 +12,6 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 	
 	_imgStackControllWidget->setModel(_mapsWorkspaceModel);
 
-//	connect(_mapsFilsWidget, SIGNAL(loadList_H5(QStringList)), _imgStackControllWidget, SLOT(loadList_H5(QStringList)));
-//	connect(_mapsFilsWidget, SIGNAL(unloadList_H5(QStringList)), _imgStackControllWidget, SLOT(unloadList_H5(QStringList)));
-
-//	connect(_mapsFilsWidget, SIGNAL(show_MDA_Window(MDA_Model*)), this, SLOT(makeMDAWindow(MDA_Model*)));
-//	connect(_mapsFilsWidget, SIGNAL(show_SWS_Window(SWSModel*)), this, SLOT(makeSWSWindow(SWSModel*)));
 	_imgStackControllWidget->setAttribute(Qt::WA_DeleteOnClose);
 	connect(_imgStackControllWidget, SIGNAL(widgetClosed()), this, SLOT(imgWidgetClosed()));
 
@@ -47,20 +42,6 @@ void MapsWorkspaceController::imgWidgetClosed()
 {
 	_imgStackControllWidget = nullptr;
 	emit controllerClosed(this);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceController::makeSWSWindow(SWSModel* model)
-{
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsWorkspaceController::makeMDAWindow(MDA_Model *model)
-{
 
 }
 

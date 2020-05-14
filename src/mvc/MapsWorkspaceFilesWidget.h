@@ -23,6 +23,8 @@
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
 
+enum class MODEL_TYPE { MAPS_H5, MDA, SWS };
+
 /*---------------------------------------------------------------------------*/
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
@@ -50,62 +52,29 @@ public:
 
    void setLabelWorkspacePath(QString path) {_lbl_workspace->setText(path);}
 
-   void clearLists();
-
 signals:
 
-   void selectedAnalyzedH5(MapsH5Model* model);
+   void loaded_model(const QString, MODEL_TYPE);
 
-   void showFitSpecWindow(MapsH5Model* h5_model,
-                          data_struct::Fit_Parameters* fit_params,
-                          data_struct::Fit_Element_Map_Dict *elements_to_fit);
-
-
-   void show_MDA_Window(MDA_Model * model);
-
-   void show_SWS_Window(SWSModel* model);
-
-   void status_loaded_hdf5(File_Loaded_Status status, const QString& name);
-
-   void status_loaded_mda(File_Loaded_Status status, const QString& name);
-
-   void status_loaded_sws(File_Loaded_Status status, const QString& name);
-
-   void loadList_H5(QStringList);
-
-   void unloadList_H5(QStringList);
+   void unloadList_model(const QStringList, MODEL_TYPE);
 
    void loaded_perc(int, int);
 
 public slots:
 
-   void updateMDA();
+    void updated();
 
-   void updateH5();
+    void clearLists();
 
-   void updateSWS();
+    void loadedFitParams(int idx);
+ 
+    void onOpenModel(const QStringList& names_list, MODEL_TYPE mt);
 
-   void model_done_loading();
+    void onCloseModel(const QStringList& names_list, MODEL_TYPE mt);
 
-   void model_done_unloading();
+    void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
 
-   void loadedFitParams(int idx);
-
-   void onOpenHDF5(const QStringList& names_list);
-
-   void onCloseHDF5(const QStringList& names_list);
-
-   void onOpenMDA(QString name);
-
-   void onCloseMDA(QString name);
-
-   void onOpenSWS(QString name);
-
-   void onCloseSWS(QString name);
-
-   void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
-
-   void onProcessed_list_update();
+    void onProcessed_list_update();
 
 protected:
 

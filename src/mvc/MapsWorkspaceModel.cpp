@@ -192,7 +192,7 @@ void MapsWorkspaceModel::unload()
 
 /*---------------------------------------------------------------------------*/
 
-MapsH5Model* MapsWorkspaceModel::getMapsH5Model(QString name)
+MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
 {
     if(_h5_models.count(name) > 0)
     {

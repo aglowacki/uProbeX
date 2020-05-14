@@ -32,9 +32,8 @@ bool MDA_Model::load(QString filepath)
         //_is_loaded = ERROR_LOADING;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
-
         logW<<" MDA_Model loading "<< filepath.toStdString() << "\n";
-
+        //_integrated_spectra = _mda_io.load_integrated_spectra(_filepath.toStdString());
     }
     catch (std::string& s)
     {

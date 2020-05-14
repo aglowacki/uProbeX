@@ -10,10 +10,9 @@
 
 #include <QString>
 #include <QObject>
-#include <hdf5.h>
 #include <unordered_map>
 #include <vector>
-#include "fitting/routines/param_optimized_fit_routine.h"
+#include "io/file/mda_io.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -43,12 +42,18 @@ public:
 
     QString getFilePath(){return _filepath;}
 
+    const data_struct::Spectra* getIntegratedSpectra() { return &_integrated_spectra; }
+
 //signals:
 //    void model_data_updated();
 
 protected:
 
+    data_struct::Spectra _integrated_spectra;
+
 private:
+
+    io::file::MDA_IO _mda_io;
 
     QString _filepath;
 };
