@@ -82,6 +82,8 @@ public slots:
 
    void onNewGridLayout(int rows, int cols);
 
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params);
+
 protected:
 
    /**

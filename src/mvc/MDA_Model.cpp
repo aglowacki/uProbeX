@@ -29,11 +29,20 @@ bool MDA_Model::load(QString filepath)
     try
     {
         _filepath = filepath;
-        //_is_loaded = ERROR_LOADING;
+        
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
         logW<<" MDA_Model loading "<< filepath.toStdString() << "\n";
-        //_integrated_spectra = _mda_io.load_integrated_spectra(_filepath.toStdString());
+        if (_mda_io.load_scalers(filepath.toStdString()) == false)
+        {
+            return false;
+        }
+        data_struct::Scan_Info *scan_info = _mda_io.get_scan_info();
+        if (scan_info != nullptr)
+        {
+            _cols = scan_info->meta_info.requested_cols;
+            _rows = scan_info->meta_info.requested_rows;
+        }
     }
     catch (std::string& s)
     {
@@ -49,3 +58,13 @@ bool MDA_Model::load(QString filepath)
 
 /*---------------------------------------------------------------------------*/
 
+data_struct::Params_Override* MDA_Model::getParamOverride(int idx)
+{
+    if (_fit_params_override_dict.count(idx) > 0)
+    {
+        return _fit_params_override_dict.at(idx);
+    }
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/

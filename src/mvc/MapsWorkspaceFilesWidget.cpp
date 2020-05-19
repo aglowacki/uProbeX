@@ -201,6 +201,8 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             }
             else if (mt == MODEL_TYPE::MDA)
             {
+                QCoreApplication::processEvents();
+                /* // loading through background thread on windows seems to lock up on fopen
                 std::future< MDA_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_MDA_Model(name); });
                 while (ret._Is_ready() == false)
                 {
@@ -208,7 +210,14 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 }
 
                 MDA_Model* Model = ret.get();
-                if (Model != nullptr)
+                */
+                MDA_Model* model = _model->get_MDA_Model(name);
+                for (int i = 0; i < model->getNumIntegratedSpectra(); i++)
+                {
+                    data_struct::Params_Override* param_override = _model->getParamOverride(i);
+                    model->setParamOverride(i, param_override);
+                }
+                if (model != nullptr)
                 {
                     emit loaded_model(name, mt);
                     load_status = LOADED;

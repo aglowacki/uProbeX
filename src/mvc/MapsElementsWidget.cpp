@@ -12,6 +12,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
+#include <QFileDialog>
+#include <QMessageBox>
+#include "io/file/aps/aps_fit_params_import.h"
 #include <gstar/CountsLookupTransformer.h>
 #include <limits>
 #include "core/GlobalThreadPool.h"
@@ -79,6 +82,7 @@ void MapsElementsWidget::_createLayout()
 
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
+    connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
 
     _cb_analysis = new QComboBox(this);
 
@@ -280,10 +284,70 @@ void MapsElementsWidget::onColormapSelect(QString name)
 void MapsElementsWidget::setModel(MapsH5Model* model)
 {
     _model = model;
-    ////_counts_lookup->setModel(model);
     model_updated();
+    if (_model != nullptr)
+    {
+        data_struct::Params_Override* po = _model->getParamOverride();
+        if (po != nullptr)
+        {
+            _spectra_widget->setElementDetector(po->detector_element);
+            _spectra_widget->setElementsToFit(&(po->elements_to_fit));
+            _spectra_widget->setFitParams(&(po->fit_params));
+        }
+        _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
+    }
+}
 
-    _spectra_widget->setH5Model(_model);
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
+{
+    if (_model != nullptr)
+    {
+        
+        QString dataset_path = _model->getFilePath();
+
+        /*
+        QString dataset_name = _model->getDatasetName();
+        QString end_idx = "";
+        if(dataset_name.endsWith("0"))
+        {
+            end_idx = "0";
+        }
+        else if(dataset_name.endsWith("1"))
+        {
+            end_idx = "1";
+        }
+        else if(dataset_name.endsWith("2"))
+        {
+            end_idx = "2";
+        }
+        else if(dataset_name.endsWith("3"))
+        {
+            end_idx = "3";
+        }
+        */
+        data_struct::Params_Override* param_overrides = _model->getParamOverride();
+
+        //check if file exists and warn user
+        if (param_overrides != nullptr)
+        {
+
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT)"));
+
+            data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
+            nfit_params->append_and_update(&fit_params);
+
+            if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
+            {
+                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+            }
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
