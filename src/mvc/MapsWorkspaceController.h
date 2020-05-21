@@ -37,15 +37,12 @@ public:
    void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
 
 signals:
+
 	void controllerClosed(MapsWorkspaceController*);
 
 public slots:
 
 	void imgWidgetClosed();
-
-	void makeSWSWindow(SWSModel* model);
-
-	void makeMDAWindow(MDA_Model *model);
 
 protected:
 

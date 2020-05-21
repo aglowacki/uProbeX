@@ -15,6 +15,8 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
+#include "mvc/SWSWidget.h"
+#include "mvc/MDA_Widget.h"
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/MapsWorkspaceFilesWidget.h"
 
@@ -44,21 +46,18 @@ public:
 
    void setModel(MapsWorkspaceModel* model);
 
-   void update_file_list() { if(_mapsFilsWidget != nullptr) {_mapsFilsWidget->model_done_loading();}}
+   void update_file_list() { if(_mapsFilsWidget != nullptr) {_mapsFilsWidget->updated();}}
 
 signals:
-	void newH5ModelSelected(MapsH5Model*);
 
 	void widgetClosed();
 
 public slots:
-   void loadList_H5(QStringList sl);
+   void onLoad_Model(const QString name, MODEL_TYPE mt);
 
-   void unloadList_H5(QStringList sl);
+   void onUnloadList_Model(const QStringList sl, MODEL_TYPE mt);
 
-   void h5IndexChanged(const QString &text);
-
-   void onNewH5ModelSelected(MapsH5Model*);
+   void model_IndexChanged(const QString &text);
 
    void onPrevFilePressed();
 
@@ -78,6 +77,10 @@ protected:
 
    MapsElementsWidget* _imageGrid;
 
+   SWSWidget *_sws_widget;
+
+   MDA_Widget* _mda_widget;
+
    QComboBox *_image_name_cb;
 
    QStringListModel _image_name_cb_model;
@@ -87,6 +90,10 @@ protected:
    QPushButton *_right_btn;
 
    map<QString, MapsH5Model*> _h5_model_map;
+
+   map<QString, MDA_Model*> _mda_model_map;
+
+   map<QString, SWSModel*> _sws_model_map;
 
    QProgressBar* _load_progress;
 };

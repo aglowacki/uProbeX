@@ -316,6 +316,11 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
          }
       }
 
+      if (m_preferences == nullptr)
+      {
+          return;
+      }
+
       // Gather all export configurations before proceeding.
       bool zoomToRegion = m_preferences->readValueKey(Preferences::ExportZoomToRegion).toBool();
       QString exportDirectoryName = m_preferences->readValueKey(Preferences::ExportDirectoryInDataset).toString();
@@ -927,7 +932,10 @@ void SWSWidget::CallPythonFunc()
 
 void SWSWidget::createMicroProbeMenu()
 {
-
+    if (m_preferences == nullptr)
+    {
+        return;
+    }
    QStringList rList = m_preferences->readValueKey(Preferences::RegionMenuList)
          .toStringList();
 
@@ -1778,8 +1786,12 @@ void SWSWidget::runSolver()
    QList< QMap<QString, double> > coordPoints;
    if (!getMarkerCoordinatePoints(coordPoints))
       return;
-   m_solver->setCoordPoints(coordPoints);
+   if (m_solver == nullptr)
+   {
+       return;
+   }
 
+   m_solver->setCoordPoints(coordPoints);
    QMap<QString, double> minCoefs;
    QMap<QString, double> newMinCoefs;
 

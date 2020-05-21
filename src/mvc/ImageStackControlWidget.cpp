@@ -47,10 +47,12 @@ void ImageStackControlWidget::createLayout()
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
+	_sws_widget = new SWSWidget(nullptr, nullptr); // todo , get good values 
+	_mda_widget = new MDA_Widget();
 
 	_mapsFilsWidget = new MapsWorkspaceFilesWidget();
-	connect(_mapsFilsWidget, SIGNAL(loadList_H5(QStringList)), this, SLOT(loadList_H5(QStringList)));
-	connect(_mapsFilsWidget, SIGNAL(unloadList_H5(QStringList)), this, SLOT(unloadList_H5(QStringList)));
+	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_model, this, &ImageStackControlWidget::onLoad_Model);
+	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::unloadList_model, this, &ImageStackControlWidget::onUnloadList_Model);
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
@@ -69,14 +71,14 @@ void ImageStackControlWidget::createLayout()
     hlayout1->addWidget(_image_name_cb);
     hlayout1->addWidget(_right_btn);
 
-	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
-
-	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
+	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
 
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 
     vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
+	vlayout->addWidget(_sws_widget);
+	vlayout->addWidget(_mda_widget);
 
 	hlayout2->addWidget(_mapsFilsWidget);
 
@@ -102,6 +104,10 @@ void ImageStackControlWidget::createLayout()
 	mainLayout->addWidget(_load_progress);
 	
 
+	//_imageGrid->hide();
+	_sws_widget->hide();
+	_mda_widget->hide();
+
 	setLayout(mainLayout);
 }
 
@@ -115,11 +121,34 @@ void ImageStackControlWidget::closeEvent(QCloseEvent *event)
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::h5IndexChanged(const QString &text)
+void ImageStackControlWidget::model_IndexChanged(const QString &text)
 {
 	if (_h5_model_map.count(text) > 0)
 	{
-		emit newH5ModelSelected(_h5_model_map[text]);
+		if (_mda_widget->isVisible())
+			_mda_widget->hide();
+		if (_sws_widget->isVisible())
+			_sws_widget->hide();
+		_imageGrid->setModel(_h5_model_map[text]);
+		_imageGrid->show();
+	}
+	else if(_mda_model_map.count(text) > 0)
+	{
+		if (_sws_widget->isVisible())
+			_sws_widget->hide();
+		if(_imageGrid->isVisible())
+			_imageGrid->hide();
+		_mda_widget->setModel(_mda_model_map[text]);
+		_mda_widget->show();
+	}
+	else if (_sws_model_map.count(text) > 0)
+	{
+		if (_mda_widget->isVisible())
+			_mda_widget->hide();
+		if (_imageGrid->isVisible())
+			_imageGrid->hide();
+		_sws_widget->setModel(_sws_model_map[text]);
+		_sws_widget->show();
 	}
 }
 
@@ -151,13 +180,6 @@ void ImageStackControlWidget::onNextFilePressed()
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::onNewH5ModelSelected(MapsH5Model* model)
-{
-    _imageGrid->setModel(model);
-}
-
-/*---------------------------------------------------------------------------*/
-
 void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 {
 	_model = model;
@@ -184,32 +206,55 @@ void ImageStackControlWidget::update_progress_bar(int val, int amt)
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::loadList_H5(QStringList sl)
+void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 {
 	QStringList model_list = _image_name_cb_model.stringList();
-    foreach (QString s, sl)
-    {
-		//make sure no duplicates
-		if (model_list.contains(s) == false)
+
+	//make sure no duplicates
+	if (model_list.contains(name) == false)
+	{
+		switch (mt)
 		{
-			_h5_model_map[s] = _model->getMapsH5Model(s);
-			_image_name_cb->addItem(s);
+		case MODEL_TYPE::MAPS_H5:
+			_h5_model_map[name] = _model->get_MapsH5_Model(name);
+			break;
+		case MODEL_TYPE::MDA:
+			_mda_model_map[name] = _model->get_MDA_Model(name);
+			break;
+		case MODEL_TYPE::SWS:
+			_sws_model_map[name] = _model->get_SWS_Model(name);
+			break;
 		}
-    }
+		
+		_image_name_cb->addItem(name);
+	}
 }
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::unloadList_H5(QStringList sl)
+void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYPE mt)
 {
 	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
-	disconnect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
 
     _imageGrid->setModel(nullptr);
     foreach (QString s, sl)
     {
-        _h5_model_map.erase(s);
-        _model->unload_H5_Model(s);
+		switch (mt)
+		{
+		case MODEL_TYPE::MAPS_H5:
+			_h5_model_map.erase(s);
+			_model->unload_H5_Model(s);
+			break;
+		case MODEL_TYPE::MDA:
+			_mda_model_map.erase(s);
+			_model->unload_MDA_Model(s);
+			break;
+		case MODEL_TYPE::SWS:
+			_sws_model_map.erase(s);
+			_model->unload_SWS_Model(s);
+			break;
+		}
+       
         for(int i=0; i < _image_name_cb->count(); i++)
         {
             if (s == _image_name_cb->itemText(i))
@@ -219,19 +264,10 @@ void ImageStackControlWidget::unloadList_H5(QStringList sl)
             }
         }
     }
-
-
 	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
-	connect(this, SIGNAL(newH5ModelSelected(MapsH5Model*)), this, SLOT(onNewH5ModelSelected(MapsH5Model*)));
-
-	if (_h5_model_map.count(_image_name_cb->currentText()) > 0)
-	{
-		emit newH5ModelSelected(_h5_model_map[_image_name_cb->currentText()]);
-	}
-
-
-
+	emit _image_name_cb->currentIndexChanged(_image_name_cb->currentText());
 }
+
 
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

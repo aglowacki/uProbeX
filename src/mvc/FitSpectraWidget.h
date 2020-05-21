@@ -49,7 +49,9 @@ public:
     */
    ~FitSpectraWidget();
 
-   void setH5Model(MapsH5Model* h5_model);
+   void setIntegratedSpectra(data_struct::ArrayXr* int_spec);
+
+   void setElementDetector(std::string e) {_detector_element = e;}
 
    void setFitParams(data_struct::Fit_Parameters* fit_params);
 
@@ -60,6 +62,8 @@ signals:
    void signal_finished_fit();
 
    void vertical_element_line_changed(qreal, QString);
+
+   void export_fit_paramters(data_struct::Fit_Parameters fit_params);
 
 public slots:
 
@@ -81,8 +85,6 @@ public slots:
 
    void element_selection_changed(int index);
 
-   void export_fit_paramters();
-
    void replot_integrated_spectra();
 
    void add_element();
@@ -99,7 +101,7 @@ protected:
 
    data_struct::Fit_Element_Map_Dict *_elements_to_fit;
 
-   MapsH5Model* _h5_model;
+   //MapsH5Model* _h5_model;
 
    QTableView* _fit_params_table;
 
@@ -122,9 +124,9 @@ private slots:
 
    void set_fit_params_bounds(data_struct::E_Bound_Type e_type);
 
-   void h5_int_spec_updated(bool b_snip_background);
-
    void pileup_chk_changed(int state);
+
+   void on_export_fit_paramters();
 
 private:
 
@@ -132,35 +134,43 @@ private:
 
     QComboBox *_cb_opttimizer;
 
-   QTabWidget *_fit_params_tab_widget;
+    QTabWidget *_fit_params_tab_widget;
 
-   QPushButton* _btn_fit_spectra;
+    QPushButton* _btn_fit_spectra;
 
-   QPushButton* _btn_model_spectra;
+    QPushButton* _btn_model_spectra;
 
-   QPushButton* _btn_export_parameters;
+    QPushButton* _btn_export_parameters;
 
-   QPushButton* _btn_replot_integrated;
+    QPushButton* _btn_replot_integrated;
 
-   QPushButton* _btn_add_element;
+    QPushButton* _btn_add_element;
 
-   QPushButton* _btn_del_element;
+    QPushButton* _btn_del_element;
 
-   data_struct::ArrayXr _spectra_background;
+    data_struct::ArrayXr* _int_spec;
 
-   QMenu *_fit_param_contextMenu;
+    data_struct::ArrayXr _spectra_background;
 
-   QMenu *_set_fit_params_bounds_menu;
+    data_struct::ArrayXr _ev;
 
-   QComboBox* _cb_add_elements;
+    data_struct::Params_Override* _param_override;
 
-   QComboBox* _cb_add_shell;
+    std::string _detector_element;
 
-   QComboBox* _cb_pileup_elements;
+    QMenu *_fit_param_contextMenu;
 
-   QCheckBox* _chk_is_pileup;
+    QMenu *_set_fit_params_bounds_menu;
 
-   QComboBox* _cb_detector_element;
+    QComboBox* _cb_add_elements;
+
+    QComboBox* _cb_add_shell;
+
+    QComboBox* _cb_pileup_elements;
+
+    QCheckBox* _chk_is_pileup;
+
+    QComboBox* _cb_detector_element;
 };
 
 

@@ -10,10 +10,9 @@
 
 #include <QString>
 #include <QObject>
-#include <hdf5.h>
 #include <unordered_map>
 #include <vector>
-#include "fitting/routines/param_optimized_fit_routine.h"
+#include "io/file/mda_io.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -43,12 +42,31 @@ public:
 
     QString getFilePath(){return _filepath;}
 
-//signals:
-//    void model_data_updated();
+    unsigned int getNumIntegratedSpectra() { return _mda_io.get_num_integreated_spectra(); }
+
+    data_struct::ArrayXr* getIntegratedSpectra(unsigned int det) { return _mda_io.get_integrated_spectra(det); }
+
+    void getDims(int& rows, int& cols) { rows = _rows; cols = _cols; }
+
+    data_struct::Scan_Info* getScanInfo() { return _mda_io.get_scan_info(); }
+
+    void setParamOverride(int idx, data_struct::Params_Override* params) { if (params != nullptr) { _fit_params_override_dict[idx] = params; } }
+
+    data_struct::Params_Override* getParamOverride(int idx);
 
 protected:
 
+    data_struct::Params_Override* _param_override;
+
 private:
+
+    std::map<int, data_struct::Params_Override*> _fit_params_override_dict;
+
+    int _rows;
+
+    int _cols;
+
+    io::file::MDA_IO _mda_io;
 
     QString _filepath;
 };

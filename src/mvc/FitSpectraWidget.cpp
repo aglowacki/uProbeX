@@ -12,15 +12,12 @@
 #include <QHeaderView>
 #include <QGridLayout>
 #include <QItemSelectionModel>
-#include <QFileDialog>
 #include <QSplitter>
 #include <QMessageBox>
 #include <QSpacerItem>
 #include <math.h>
 
 #include "data_struct/element_info.h"
-#include "io/file/aps/aps_fit_params_import.h"
-
 #include "fitting//optimizers/lmfit_optimizer.h"
 
 #include "core/GlobalThreadPool.h"
@@ -40,7 +37,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _cb_pileup_elements = new QComboBox();
     _cb_detector_element = new QComboBox();
     _chk_is_pileup = new QCheckBox("Pile Up");
-    _h5_model = nullptr;
+    _detector_element = "Si"; // default to Si detector if not found in param override
+    _int_spec = nullptr;
     _elements_to_fit = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -143,7 +141,7 @@ void FitSpectraWidget::createLayout()
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
     _btn_export_parameters = new QPushButton("Export Fit Parameters");
-    connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::export_fit_paramters);
+    connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::on_export_fit_paramters);
 
 	_btn_replot_integrated = new QPushButton("Replot Integrated Spectra");
 	connect(_btn_replot_integrated, &QPushButton::released, this, &FitSpectraWidget::replot_integrated_spectra);
@@ -229,118 +227,55 @@ void FitSpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::export_fit_paramters()
+void FitSpectraWidget::on_export_fit_paramters()
 {
-    if(_h5_model != nullptr)
-    {
-        QString dataset_path = _h5_model->getFilePath();
-        QString dataset_name = _h5_model->getDatasetName();
+    data_struct::Fit_Parameters fit_params;
+    data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
+    data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+    fit_params.append_and_update(&model_fit_params);
+    fit_params.append_and_update(&element_fit_params);
 
-        /*
-        QString fileName = QFileDialog::getSaveFileName(this,
-                  tr("Export Fit Parameters"),
-                  "maps_fit_parameters_override.txt",
-                  tr("Fit Params (*.txt)"));
-        */
-        QString end_idx = "";
-        if(dataset_name.endsWith("0"))
-        {
-            end_idx = "0";
-        }
-        else if(dataset_name.endsWith("1"))
-        {
-            end_idx = "1";
-        }
-        else if(dataset_name.endsWith("2"))
-        {
-            end_idx = "2";
-        }
-        else if(dataset_name.endsWith("3"))
-        {
-            end_idx = "3";
-        }
-        //QString fileName = dataset_path + "/maps_fit_parameters_override.txt" + end_idx;
-
-
-        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT)"));
-
-        data_struct::Params_Override* param_overrides = _h5_model->getParamOverride();
-
-        //check if file exists and warn user
-        if(param_overrides != nullptr)
-        {
-            data_struct::Fit_Parameters* fit_params = &(param_overrides->fit_params);
-            data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-            data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-            fit_params->append_and_update(&model_fit_params);
-            fit_params->append_and_update(&element_fit_params);
-
-            if(io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides) )
-            {
-                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
-            }
-        }
-    }
-    else
-    {
-        QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
-    }
-
+    emit export_fit_paramters(fit_params);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void FitSpectraWidget::replot_integrated_spectra()
 {
-	data_struct::Fit_Parameters fit_params;
-	data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-	data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-	fit_params.append_and_update(&model_fit_params);
-	fit_params.append_and_update(&element_fit_params);
-	/*
-	fitting::models::Range energy_range = data_struct::get_energy_range(sub_struct->fit_params_override_dict.min_energy,
-	sub_struct->fit_params_override_dict.max_energy,
-	_spectra_background.size(),
-	model_fit_params[STR_ENERGY_OFFSET].value,
-	model_fit_params[STR_ENERGY_SLOPE].value);
-	*/
+    if (_int_spec != nullptr)
+    {
+        data_struct::Fit_Parameters fit_params = _fit_params_table_model->getFitParams();
 
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = _int_spec->size() - 1;
 
-	if (_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
-	{
-		const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
+        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
 
-		fitting::models::Range energy_range;
-		energy_range.min = 0;
-		energy_range.max = int_spec->size() - 1;
+        _ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, (real_t)2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
 
-		data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-		data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
+        _spectra_widget->append_spectra("Integrated Spectra", _int_spec, (data_struct::Spectra*) & _ev);
+        
+            _spectra_background = snip_background((Spectra*)_int_spec,
+                fit_params[STR_ENERGY_OFFSET].value,
+                fit_params[STR_ENERGY_SLOPE].value,
+                fit_params[STR_ENERGY_QUADRATIC].value,
+                0, //spectral binning
+                fit_params[STR_SNIP_WIDTH].value,
+                0, //spectra energy start range
+                _int_spec->size() - 1);
 
-		_spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
-
-		_spectra_background = snip_background(int_spec,
-			fit_params.at(STR_ENERGY_OFFSET).value,
-			fit_params.at(STR_ENERGY_SLOPE).value,
-			fit_params.at(STR_ENERGY_QUADRATIC).value,
-			0, //spectral binning
-			fit_params.at(STR_SNIP_WIDTH).value,
-			0, //spectra energy start range
-			int_spec->size() - 1);
-
-		_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
-		_spectra_widget->setXLabel("Energy (kEv)");
-	
-		for (auto &itr : _h5_model->_fit_int_spec_dict)
-		{
-			QString name = "Fitted_Int_" + QString(itr.first.c_str());
-			_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&ev);
-		}
-	}
+            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*) & _ev);
+        
+        _spectra_widget->setXLabel("Energy (kEv)");
+        /*
+        for (auto &itr : _h5_model->_fit_int_spec_dict)
+        {
+            QString name = "Fitted_Int_" + QString(itr.first.c_str());
+            _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&ev);
+        }
+        */
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -381,14 +316,7 @@ void FitSpectraWidget::add_element()
             }
         }
 
-        std::string detector_element = "Si"; // default to Si detector if not found in param override
-        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
-        if(param_override != nullptr)
-        {
-            detector_element = param_override->detector_element;
-        }
-
-        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
         //check if it exists in list
         if(_elements_to_fit->count(el_name.toStdString()) == 0)
         {
@@ -474,12 +402,10 @@ void FitSpectraWidget::Fit_Spectra_Click()
         data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
         data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
 
-        const data_struct::Spectra *int_spectra = _h5_model->getIntegratedSpectra();
-
         //Range of energy in spectra to fit
         fitting::models::Range energy_range;
         energy_range.min = 0;
-        energy_range.max = int_spectra->rows() -1;
+        energy_range.max = _int_spec->rows() -1;
 
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
@@ -510,7 +436,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
         // single threaded
         //out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
         // use background thread to not freeze up the gui
-        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, fit_routine, &model, int_spectra, _elements_to_fit);
+        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, fit_routine, &model, (Spectra*)_int_spec, _elements_to_fit);
 
         while (ret._Is_ready() == false)
         {
@@ -547,19 +473,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
             Model_Spectra_Click();
         }
 
-        _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
-                                                out_fit_params.at(STR_ENERGY_OFFSET).value,
-                                                out_fit_params.at(STR_ENERGY_SLOPE).value,
-                                                out_fit_params.at(STR_ENERGY_QUADRATIC).value,
-                                                0, //spectral binning
-                                                out_fit_params.at(STR_SNIP_WIDTH).value,
-                                                0, //spectra energy start range
-                                                _h5_model->getIntegratedSpectra()->rows());
-
-        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-        data_struct::ArrayXr ev = out_fit_params.at(STR_ENERGY_OFFSET).value + energy * out_fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * out_fit_params.at(STR_ENERGY_QUADRATIC).value;
-
-        _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
+        replot_integrated_spectra();
 
         data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
 
@@ -575,7 +489,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
         }
 
-        _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&ev);
+        _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&_ev);
     }
     emit signal_finished_fit();
 
@@ -620,24 +534,7 @@ void FitSpectraWidget::Model_Spectra_Click()
 
         data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
-
-        _spectra_background = snip_background(_h5_model->getIntegratedSpectra(),
-                                                fit_params.at(STR_ENERGY_OFFSET).value,
-                                                fit_params.at(STR_ENERGY_SLOPE).value,
-                                                fit_params.at(STR_ENERGY_QUADRATIC).value,
-                                                0, //spectral binning
-                                                fit_params.at(STR_SNIP_WIDTH).value,
-                                                0, //spectra energy start range
-                                                _h5_model->getIntegratedSpectra()->size());
-
-        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-        data_struct::ArrayXr ev = fit_params.at(STR_ENERGY_OFFSET).value + energy * fit_params.at(STR_ENERGY_SLOPE).value + pow(energy, (real_t)2.0) * fit_params.at(STR_ENERGY_QUADRATIC).value;
-
-        //_spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
-
-
-//            _fit_params_table_model->updateFitParams(&fit_params);
-//            _fit_elements_table_model->updateElementValues(&fit_params);
+        replot_integrated_spectra();
 
         if(fit_spec.size() == _spectra_background.size())
         {
@@ -648,7 +545,7 @@ void FitSpectraWidget::Model_Spectra_Click()
             if(fit_spec[i] <= 0.0)
                 fit_spec[i] = 0.1;
         }
-        _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::Spectra*)&ev);
+        _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::Spectra*)&_ev);
     }
     emit signal_finished_fit();
 
@@ -766,15 +663,7 @@ void FitSpectraWidget::element_selection_changed(int index)
         em.set_as_pileup(_cb_pileup_elements->currentText().toStdString(), Element_Info_Map::inst()->get_element(_cb_pileup_elements->currentText().toStdString()));
     }
 
-
-    std::string detector_element = "Si"; // default to Si detector if not found in param override
-    data_struct::Params_Override* param_override = _h5_model->getParamOverride();
-    if(param_override != nullptr)
-    {
-        detector_element = param_override->detector_element;
-    }
-
-    em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+    em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
     _spectra_widget->set_element_lines(&em);
 }
 
@@ -792,60 +681,12 @@ void FitSpectraWidget::optimizer_changed(QString val)
 }
 
 /*---------------------------------------------------------------------------*/
-
-void FitSpectraWidget::setH5Model(MapsH5Model* h5_model)
+void FitSpectraWidget::setIntegratedSpectra(data_struct::ArrayXr* int_spec)
 {
-    _h5_model = h5_model;
-    if(_h5_model != nullptr)
-    {
-       connect(_h5_model,
-               SIGNAL(model_int_spec_updated(bool)),
-               this,
-               SLOT(h5_int_spec_updated(bool)));
-
-
-        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
-        if(param_override != nullptr)
-        {
-            _elements_to_fit = &param_override->elements_to_fit;
-
-            _fit_elements_table_model->updateFitElements(&param_override->elements_to_fit);
-
-            _fit_params_table_model->updateFitParams(&param_override->fit_params);
-        }
-    }
-    /*
-            if(_elements_to_fit != nullptr)
-            {
-                data_struct::Fit_Parameters element_fit_params;
-                for(auto &itr : *_elements_to_fit)
-                {
-                    element_fit_params.add_parameter(data_struct::Fit_Param(itr.first, 0.00001, data_struct::E_Bound_Type::FIT));
-                }
-            }
-    */
-
-/*
-    else if(_h5_model != nullptr)
-    {
-        _elements_to_fit = new data_struct::Fit_Element_Map_Dict();
-        std::vector<std::string> count_names = _h5_model->count_names();
-        for(std::string &itr : count_names)
-        {
-            data_struct::Fit_Element_Map* fit_element = gen_element_map(itr);
-            if(fit_element != nullptr)
-            {
-                (*_elements_to_fit)[itr] = fit_element;
-                element_fit_params.add_parameter(data_struct::Fit_Param(itr, 0.00001, data_struct::E_Bound_Type::FIT));
-            }
-        }
-    }
-
-*/
-    h5_int_spec_updated(true);
+    _int_spec = int_spec;
+    replot_integrated_spectra();
     _spectra_widget->onResetChartView();
 }
-
 /*---------------------------------------------------------------------------*/
 
 void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters* fit_params)
@@ -862,69 +703,17 @@ void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict *eleme
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::h5_int_spec_updated(bool b_snip_background)
-{
-
-    if(_h5_model != nullptr && _h5_model->is_integrated_spectra_loaded())
-    {
-        const data_struct::Spectra* int_spec = _h5_model->getIntegratedSpectra();
-
-        data_struct::Fit_Parameters fit_params = _fit_params_table_model->getFitParams();
-
-        fitting::models::Range energy_range;
-        energy_range.min = 0;
-        energy_range.max = int_spec->size() -1;
-
-        data_struct::ArrayXr energy = data_struct::ArrayXr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
-
-        data_struct::ArrayXr ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, (real_t)2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
-
-        _spectra_widget->append_spectra("Integrated Spectra", int_spec, (data_struct::Spectra*)&ev);
-        if(b_snip_background)
-        {
-            _spectra_background = snip_background(int_spec,
-                                                 fit_params[STR_ENERGY_OFFSET].value,
-                                                 fit_params[STR_ENERGY_SLOPE].value,
-                                                 fit_params[STR_ENERGY_QUADRATIC].value,
-                                                 0, //spectral binning
-                                                 fit_params[STR_SNIP_WIDTH].value,
-                                                 0, //spectra energy start range
-                                                 int_spec->size()-1);
-
-            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*)&ev);
-        }
-        _spectra_widget->setXLabel("Energy (kEv)");
-
-		for (auto &itr : _h5_model->_fit_int_spec_dict)
-		{
-			QString name = "Fitted_Int_" + QString(itr.first.c_str());
-			_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&ev);
-		}
-
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
 void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_names)
 {
 
     std::map < std::string, float> labels;
-    std::string detector_element = "Si"; // default to Si detector if not found in param override
-    if (_h5_model != nullptr)
-    {
-        data_struct::Params_Override* param_override = _h5_model->getParamOverride();
-        if (param_override != nullptr)
-        {
-            detector_element = param_override->detector_element;
-        }
-    }
-
     for (const auto& itr : element_names)
     {
         Fit_Element_Map em(itr, Element_Info_Map::inst()->get_element(itr));
-        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(detector_element));
+        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
         labels[itr] = em.center();
     }
     _spectra_widget->set_top_axis(labels);
 }
+
+/*---------------------------------------------------------------------------*/

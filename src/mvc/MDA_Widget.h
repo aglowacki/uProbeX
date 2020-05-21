@@ -8,19 +8,15 @@
 
 /*---------------------------------------------------------------------------*/
 
+#include <QComboBox>
+#include <QTableWidget>
 #include <gstar/AbstractImageWidget.h>
-
 #include <mvc/MDA_Model.h>
+#include <mvc/FitSpectraWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
-/**
- * @brief When open the acquisition window, the widget is showing for capturing
- * the image from the area detector writer, the window will also be updated to
- * show the image.
- */
-class MDA_Widget
-: public gstar::AbstractImageWidget
+class MDA_Widget : public QWidget
 {
 
    Q_OBJECT
@@ -42,18 +38,15 @@ public:
 
    MDA_Model *getModel(){return _model;}
 
-   void redrawCounts();
-
 public slots:
 
-   /**
-    * @brief Accept the window change state
-    * @param oldState
-    * @param newState
-    */
-   void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
-
    void model_updated();
+
+   void onDetectorSelect(const QString& det);
+
+   void onScalerSelect(const QString& det);
+
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params);
 
 protected:
 
@@ -62,7 +55,21 @@ protected:
     */
    void createLayout();
 
+   FitSpectraWidget* _spectra_widget;
+
+   QTabWidget* _tab_widget;
+
    MDA_Model *_model;
+
+   QComboBox* _cb_detector;
+
+   QComboBox* _cb_scaler;
+
+   QTableWidget* _scaler_table_widget;
+
+   QTableWidget* _extra_pvs_table_widget;
+
+   QPushButton* _pb_perpixel_fitting;
 
 };
 

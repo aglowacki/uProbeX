@@ -47,7 +47,6 @@ public:
     */
    ~MapsElementsWidget();
 
-   //void setModel(MapsH5Model* model);
    void setModel(MapsH5Model* h5_model);
 
    MapsH5Model *getModel(){return _model;}
@@ -82,6 +81,8 @@ public slots:
    void onGridDialog();
 
    void onNewGridLayout(int rows, int cols);
+
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params);
 
 protected:
 

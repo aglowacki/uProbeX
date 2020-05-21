@@ -10,15 +10,16 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
-
+#include <QFileDialog>
+#include <QMessageBox>
+#include "io/file/aps/aps_fit_params_import.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 
 /*---------------------------------------------------------------------------*/
 
-MDA_Widget::MDA_Widget(QWidget* parent)
-    : AbstractImageWidget(1,1,parent)
+MDA_Widget::MDA_Widget(QWidget* parent) : QWidget(parent)
 {
 
     _model = nullptr;
@@ -38,57 +39,59 @@ MDA_Widget::~MDA_Widget()
 void MDA_Widget::createLayout()
 {
 
-//    _tab_widget = new QTabWidget();
-//    _spectra_widget = new FitSpectraWidget();
+    _tab_widget = new QTabWidget();
+    _spectra_widget = new FitSpectraWidget();
+    connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MDA_Widget::on_export_fit_params);
 
-//    _cb_analysis = new QComboBox(this);
-//    _cb_element = new QComboBox(this);
-//    connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
-//    connect(_cb_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onElementSelect(QString)));
+    _cb_detector = new QComboBox(this);
+    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
 
-//    QHBoxLayout* hbox = new QHBoxLayout();
-//    QVBoxLayout* counts_layout = new QVBoxLayout();
-//    QVBoxLayout* layout = new QVBoxLayout();
+    _cb_scaler = new QComboBox(this);
+    connect(_cb_scaler, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onScalerSelect);
 
-//    QSplitter* splitter = new QSplitter();
-//    splitter->setOrientation(Qt::Horizontal);
-//    splitter->addWidget(m_imageViewWidget);
-//    splitter->setStretchFactor(0, 1);
-//    splitter->addWidget(m_tabWidget);
-//    createToolBar(m_imageViewWidget);
-//    counts_layout->addWidget(m_toolbar);
-//    counts_layout->addWidget(splitter);
+    QHBoxLayout* hbox = new QHBoxLayout();
+    QVBoxLayout* vbox = new QVBoxLayout();
+    QHBoxLayout* hbox2 = new QHBoxLayout();
+    QVBoxLayout* scalers_layout = new QVBoxLayout();
+    QVBoxLayout* layout = new QVBoxLayout();
 
-//	_cb_colormap = new QComboBox();
-//	_cb_colormap->addItem("Grayscale");
-//	_cb_colormap->addItem("Heatmap");
-//    connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
+    _pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
+    
+    hbox->addWidget(new QLabel(" Scaler:"));
+    hbox->addWidget(_cb_scaler);
+    hbox->addWidget(_pb_perpixel_fitting);
+    scalers_layout->addItem(hbox);
 
-//    m_toolbar -> addWidget(new QLabel(" ColorMap :"));
-//    m_toolbar -> addWidget(_cb_colormap);
+    _scaler_table_widget = new QTableWidget(2,2);
+    scalers_layout->addWidget(_scaler_table_widget);
 
-//    hbox->addWidget(_cb_analysis);
-//    hbox->addWidget(_cb_element);
-//    counts_layout->addItem(hbox);
+    hbox2->addWidget(new QLabel("Detector:"));
+    hbox2->addWidget(_cb_detector);
+    vbox->addItem(hbox2);
+    vbox->addWidget(_spectra_widget);
 
-//	_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
-//	counts_layout->addWidget(_pb_perpixel_fitting);
+    QStringList extra_pv_header = { "Name", "Value", "Unit", "Description" };
 
+    _extra_pvs_table_widget = new QTableWidget(1, 4);
+    _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
+    scalers_layout->addWidget(_extra_pvs_table_widget);
 
-//    QWidget *window = new QWidget();
-//    window->setLayout(counts_layout);
+    QWidget *window = new QWidget();
+    window->setLayout(scalers_layout);
 
-//    _tab_widget->addTab(window, "Counts");
-//    _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
+    QWidget* window2 = new QWidget();
+    window2->setLayout(vbox);
 
-//    layout->addWidget(_tab_widget);
+    _tab_widget->addTab(window, "Scalers");
+    _tab_widget->addTab(window2, "Integrated Spectra");
+    _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
-//    setLayout(layout);
+    layout->addWidget(_tab_widget);
 
+    setLayout(layout);
 }
 
-
- /*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 
 void MDA_Widget::setModel(MDA_Model* model)
 {
@@ -108,21 +111,117 @@ void MDA_Widget::model_updated()
     {
         return;
     }
+    int rows, cols;
 
+    _model->getDims(rows, cols);
+    data_struct::Scan_Info* scan_info = _model->getScanInfo();
+
+    _scaler_table_widget->setRowCount(rows);
+    _scaler_table_widget->setColumnCount(cols);
+
+    for (const auto& itr : scan_info->scaler_maps)
+    {
+        _cb_scaler->addItem(QString::fromLatin1(itr.name.c_str(), itr.name.length()));
+    }
+
+    onScalerSelect(_cb_scaler->itemText(0));
+
+    _extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
+    int i = 0;
+    for (const auto& itr : scan_info->extra_pvs)
+    {
+        _extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
+        _extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
+        _extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
+        _extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
+        i++;
+    }
+
+    disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+    
+    for (unsigned int i = 0; i < _model->getNumIntegratedSpectra(); i++)
+    {
+        _cb_detector->addItem(QString::number(i));
+    }
+
+    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+    if (_model->getNumIntegratedSpectra() > 0)
+    {
+        onDetectorSelect("0");
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::windowChanged(Qt::WindowStates oldState,
-                                       Qt::WindowStates newState)
+void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
 {
-    Q_UNUSED(oldState);
-
-    if(Qt::WindowMaximized || Qt::WindowActive == newState)
+    unsigned int det = _cb_detector->currentText().toUInt();
+    if (_model != nullptr)
     {
-        m_imageViewWidget->resizeEvent(nullptr);
+        data_struct::Params_Override* po  = _model->getParamOverride(det);
+        if (po != nullptr)
+        {
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", _model->getFilePath() , tr("TXT (*.txt *.TXT)"));
+            data_struct::Fit_Parameters* fit_params = &(po->fit_params);
+            if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
+            {
+                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+            }
+        }
+    }
+    
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MDA_Widget::onDetectorSelect(const QString& det)
+{
+    unsigned int detector = det.toUInt();
+
+    data_struct::Params_Override* po = _model->getParamOverride(detector);
+    if (po != nullptr)
+    {
+        _spectra_widget->setElementDetector(po->detector_element);
+        _spectra_widget->setElementsToFit(&(po->elements_to_fit));
+        _spectra_widget->setFitParams(&(po->fit_params));
     }
 
+    _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MDA_Widget::onScalerSelect(const QString& det)
+{
+    const data_struct::ArrayXXr* scaler = nullptr;
+    int rows, cols;
+    _model->getDims(rows, cols);
+    std::string name = det.toStdString();
+    data_struct::Scan_Info* scan_info = _model->getScanInfo();
+    for (const auto& itr : scan_info->scaler_maps)
+    {
+        if (itr.name == name)
+        {
+            scaler = &(itr.values);
+            break;
+        }
+    }
+
+    if (scaler != nullptr)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
+            }
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
