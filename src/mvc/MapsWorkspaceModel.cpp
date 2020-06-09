@@ -83,6 +83,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[3] = global_threadpool.enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
 
             _is_fit_params_loaded = _load_fit_params();
+            io::populate_netcdf_hdf5_files(filepath.toStdString());
 
             while (job_queue.size() > 0)
             {
@@ -225,8 +226,7 @@ MDA_Model* MapsWorkspaceModel::get_MDA_Model(QString name)
     {
         MDA_Model * model = new MDA_Model();
         QFileInfo fileInfo = _raw_fileinfo_list[name];
-
-        if(model->load(fileInfo.absoluteFilePath()))
+        if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {
             _mda_models.insert( {fileInfo.fileName(), model} );
             return model;

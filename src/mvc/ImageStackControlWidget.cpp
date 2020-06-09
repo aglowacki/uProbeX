@@ -234,7 +234,7 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 
 void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYPE mt)
 {
-	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
+	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
 
     _imageGrid->setModel(nullptr);
     foreach (QString s, sl)
@@ -264,7 +264,7 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
             }
         }
     }
-	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(h5IndexChanged(QString)));
+	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
 	emit _image_name_cb->currentIndexChanged(_image_name_cb->currentText());
 }
 

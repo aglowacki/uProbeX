@@ -124,6 +124,9 @@ public:
                       int role = Qt::EditRole);
 
 
+signals:
+    void onEnergyChange();
+
 private:
 
    /**

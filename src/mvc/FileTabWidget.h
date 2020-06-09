@@ -45,6 +45,8 @@ class FileTabWidget : public QWidget
 
     void addCustomContext(QString Id, QString label);
 
+    void setProcessButtonVisible(bool val) { _process_btn->setVisible(val); }
+
 signals:
     void onOpenItem(QString);
 
@@ -54,6 +56,8 @@ signals:
 
     void unloadList(QStringList);
 
+    void processList(const QStringList&);
+
     void customContext(QString, QStringList);
 
 public slots:
@@ -62,6 +66,8 @@ public slots:
     void onLoadFile();
 
     void onUnloadFile();
+
+    void process_all_visible();
 
     void filterTextChanged(const QString &);
 
@@ -94,6 +100,8 @@ protected:
     QPushButton *_load_all_btn;
 
     QPushButton *_unload_all_btn;
+
+    QPushButton* _process_btn;
 
 	QPushButton * _filter_suggest_btn;
 };

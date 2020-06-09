@@ -312,6 +312,16 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
 
 /*---------------------------------------------------------------------------*/
 
+void SpectraWidget::clearAllSpectra()
+{
+    for (auto& itr : _chart->series())
+    {
+        _chart->removeSeries(itr);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::set_vertical_line(qreal center, QString label)
 {
     if(_line_series == nullptr)

@@ -57,6 +57,8 @@ public:
 
    void setElementsToFit(data_struct::Fit_Element_Map_Dict *elements_to_fit);
 
+   void clearAllSpectra() { _spectra_widget->clearAllSpectra(); }
+
 signals:
 
    void signal_finished_fit();
@@ -141,8 +143,6 @@ private:
     QPushButton* _btn_model_spectra;
 
     QPushButton* _btn_export_parameters;
-
-    QPushButton* _btn_replot_integrated;
 
     QPushButton* _btn_add_element;
 

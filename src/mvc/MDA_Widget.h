@@ -50,9 +50,6 @@ public slots:
 
 protected:
 
-   /**
-    * @brief Create layout
-    */
    void createLayout();
 
    FitSpectraWidget* _spectra_widget;
@@ -68,8 +65,6 @@ protected:
    QTableWidget* _scaler_table_widget;
 
    QTableWidget* _extra_pvs_table_widget;
-
-   QPushButton* _pb_perpixel_fitting;
 
 };
 
