@@ -7,7 +7,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractTableModel(parent)
+FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractItemModel(parent)
 {
     // Initialize header data
     m_headers[HEADERS::SYMBOL] = tr("Symbol");
