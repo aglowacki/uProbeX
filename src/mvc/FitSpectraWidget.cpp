@@ -106,6 +106,7 @@ void FitSpectraWidget::createLayout()
 
     _fit_params_table_model = new FitParamsTableModel();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
+    connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra);
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
 
     _fit_params_table = new QTableView();
@@ -142,10 +143,6 @@ void FitSpectraWidget::createLayout()
 
     _btn_export_parameters = new QPushButton("Export Fit Parameters");
     connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::on_export_fit_paramters);
-
-	_btn_replot_integrated = new QPushButton("Replot Integrated Spectra");
-	connect(_btn_replot_integrated, &QPushButton::released, this, &FitSpectraWidget::replot_integrated_spectra);
-
 
     _btn_add_element = new QPushButton("Add Element");
     connect(_btn_add_element, &QPushButton::released, this, &FitSpectraWidget::add_element);
@@ -195,15 +192,14 @@ void FitSpectraWidget::createLayout()
     QGridLayout *grid_layout = new QGridLayout();
     grid_layout->addWidget(_cb_opttimizer, 0, 0);
     grid_layout->addWidget(_btn_fit_spectra, 0, 1);
-    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 2);
+//    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 2);
 
-    grid_layout->addWidget(_chk_auto_model, 1, 0);
-    grid_layout->addWidget(_btn_model_spectra, 1, 1);
-    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 1, 2);
+    grid_layout->addWidget(_chk_auto_model, 0, 2);
+    grid_layout->addWidget(_btn_model_spectra, 0, 3);
+    //grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 1, 2);
 
-	grid_layout->addWidget(_btn_replot_integrated, 2, 0);
-    grid_layout->addWidget(_btn_export_parameters, 2, 1);
-    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 2, 2);
+    grid_layout->addWidget(_btn_export_parameters, 0, 4);
+    grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 5);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
@@ -681,12 +677,14 @@ void FitSpectraWidget::optimizer_changed(QString val)
 }
 
 /*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::setIntegratedSpectra(data_struct::ArrayXr* int_spec)
 {
     _int_spec = int_spec;
     replot_integrated_spectra();
     _spectra_widget->onResetChartView();
 }
+
 /*---------------------------------------------------------------------------*/
 
 void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters* fit_params)

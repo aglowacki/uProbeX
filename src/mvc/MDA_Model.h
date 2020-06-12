@@ -38,7 +38,7 @@ public:
     */
     ~MDA_Model();
 
-    bool load(QString filepath);
+    bool load(QString directory, QString filename);
 
     QString getFilePath(){return _filepath;}
 

@@ -55,11 +55,8 @@ void MDA_Widget::createLayout()
     QVBoxLayout* scalers_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
 
-    _pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
-    
     hbox->addWidget(new QLabel(" Scaler:"));
     hbox->addWidget(_cb_scaler);
-    hbox->addWidget(_pb_perpixel_fitting);
     scalers_layout->addItem(hbox);
 
     _scaler_table_widget = new QTableWidget(2,2);
@@ -99,6 +96,7 @@ void MDA_Widget::setModel(MDA_Model* model)
     {
         return;
     }
+    _spectra_widget->clearAllSpectra();
     _model = model;
     model_updated();
 }
@@ -139,6 +137,8 @@ void MDA_Widget::model_updated()
 
     disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
     
+    _cb_detector->clear();
+
     for (unsigned int i = 0; i < _model->getNumIntegratedSpectra(); i++)
     {
         _cb_detector->addItem(QString::number(i));

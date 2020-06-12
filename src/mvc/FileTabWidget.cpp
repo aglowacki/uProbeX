@@ -57,6 +57,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 	hlayout1->addWidget(_filter_suggest_btn);
 
 
+    _process_btn = new QPushButton("Process All");
+    connect(_process_btn, SIGNAL(released()), this, SLOT(process_all_visible()));
     _load_all_btn = new QPushButton("Load All");
     connect(_load_all_btn, SIGNAL(released()), this, SLOT(load_all_visible()));
     _unload_all_btn = new QPushButton("Unload All");
@@ -69,6 +71,7 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     QLayout* vlayout = new QVBoxLayout();
     vlayout->addItem(hlayout1);
     vlayout->addItem(hlayout2);
+    vlayout->addWidget(_process_btn);
     vlayout->addWidget(_file_list_view);
     setLayout(vlayout);
 
@@ -104,6 +107,15 @@ void FileTabWidget::unload_all_visible()
     QStringList sl;
     _gen_visible_list(&sl);
     emit unloadList(sl);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::process_all_visible()
+{
+    QStringList sl;
+    _gen_visible_list(&sl);
+    emit processList(sl);
 }
 
 /*---------------------------------------------------------------------------*/

@@ -53,27 +53,31 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->addCustomContext("hdf5", "Per Pixel Process");
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
+    connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MDA); });
     connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MDA); });
+    connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
     _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
 
     _sws_tab_widget = new FileTabWidget();
+    _sws_tab_widget->setProcessButtonVisible(false);
     connect(_sws_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::SWS); });
     connect(_sws_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::SWS); });
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
 
+    /*
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     //_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //_fit_params_table->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
-
+    */
     QLayout* vlayout = new QVBoxLayout();
 
     _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
@@ -297,6 +301,13 @@ void MapsWorkspaceFilesWidget::clearLists()
 /*---------------------------------------------------------------------------*/
 
 void MapsWorkspaceFilesWidget::onPerPixelProcess(const QString& context_label, const QStringList& file_list)
+{
+    onPerPixelProcessList(file_list);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_list)
 {
 
     //create per pixel process widget and pass workspace

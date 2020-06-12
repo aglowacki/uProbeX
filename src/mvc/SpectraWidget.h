@@ -51,6 +51,8 @@ public:
 
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 
+    void clearAllSpectra();
+
 signals:
 
     void trigger_connect_markers();
