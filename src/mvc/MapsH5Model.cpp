@@ -131,7 +131,9 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 
     if(block->spectra != nullptr)
     {
-        _integrated_spectra = *block->spectra;
+        _integrated_spectra.resize(block->spectra->size());
+        _integrated_spectra.setZero(block->spectra->size());
+        _integrated_spectra.add( *(block->spectra) );
         _loaded_integrated_spectra = true;
         //emit model_int_spec_updated(false);
     }
@@ -160,7 +162,7 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
     if(block->spectra != nullptr)
     {
-        _integrated_spectra += *block->spectra;
+        _integrated_spectra.add( *(block->spectra) );
         //wait until the FitSpectraWidget has a thread to update int spec
         //emit model_int_spec_updated(false);
     }

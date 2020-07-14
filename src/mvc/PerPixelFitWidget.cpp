@@ -39,6 +39,12 @@ PerPixelFitWidget::~PerPixelFitWidget()
 void PerPixelFitWidget::createLayout()
 {
 
+    QStringList detectors;
+    detectors.append("0");
+    detectors.append("1");
+    detectors.append("2");
+    detectors.append("3");
+
     _progressBarBlocks = new QProgressBar();
     _progressBarBlocks->setRange(0,100);
     _progressBarFiles = new QProgressBar();
@@ -68,6 +74,22 @@ void PerPixelFitWidget::createLayout()
     _save_v9 = new QCheckBox("Add v9 soft links");
     _save_exchange = new QCheckBox("Add Exchange format");
 
+    _detector_model = new QStandardItemModel();
+    //_detector_model->setItem(0, 0, new QStandardItem("Detector 0"));
+    // create check box item
+    for (int i = 0; i < 4; i++)
+    {
+        QStandardItem* item0 = new QStandardItem(true);
+        item0->setCheckable(true);
+        item0->setCheckState(Qt::Checked);
+        item0->setText("Detector " + QString::number(i));
+        item0->setData(i);
+        _detector_model->setItem(i, 0, item0);
+    }
+    // set model
+    _detector_list_view = new QListView();
+    _detector_list_view->setModel(_detector_model);
+
     v_save_layout->addWidget(_save_avg);
     v_save_layout->addWidget(_save_v9);
     v_save_layout->addWidget(_save_exchange);
@@ -88,12 +110,21 @@ void PerPixelFitWidget::createLayout()
     proc_save_layout->addWidget(processing_grp);
     proc_save_layout->addWidget(saving_grp);
 
+    QHBoxLayout* hbox_progresss_blocks = new QHBoxLayout();
+    hbox_progresss_blocks->addWidget(new QLabel("Current Dataset:"));
+    hbox_progresss_blocks->addWidget(_progressBarBlocks);
+
+    QHBoxLayout* hbox_progresss_files = new QHBoxLayout();
+    hbox_progresss_files->addWidget(new QLabel("All Dataset Files:"));
+    hbox_progresss_files->addWidget(_progressBarFiles);
+
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(_detector_list_view);
     layout->addItem(proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
-    layout->addWidget(_progressBarBlocks);
-    layout->addWidget(_progressBarFiles);
+    layout->addItem(hbox_progresss_blocks);
+    layout->addItem(hbox_progresss_files);
 
     setLayout(layout);
 
@@ -114,6 +145,7 @@ void PerPixelFitWidget::updateFileList(QStringList file_list)
 
 void PerPixelFitWidget::runProcessing()
 {
+    _btn_run->setEnabled(false);
     //run in thread
     data_struct::Analysis_Job analysis_job;
     analysis_job.dataset_directory = _directory;
@@ -131,16 +163,14 @@ void PerPixelFitWidget::runProcessing()
         analysis_job.fitting_routines.push_back(data_struct::Fitting_Routines::GAUSS_MATRIX);
     }
 
-    //analysis_job.generate_average_h5 = true;
-    //analysis_job.add_v9_layout = true;
-    //analysis_job.add_exchange_layout = true;
-    //for ( unsigned int i = 0; i < 4; i++)
-    //{
-    //    analysis_job.detector_num_arr.push_back(i);
-    //}
-    //test
-    analysis_job.detector_num_arr.push_back(0);
-
+    for (int i = 0; i < _detector_model->rowCount(); i++)
+    {
+        QStandardItem* item = _detector_model->item(i, 0);
+        if (item->checkState() == Qt::CheckState::Checked)
+        {
+            analysis_job.detector_num_arr.push_back(item->data().toInt());
+        }
+    }
 
     QModelIndex parent = QModelIndex();
     for (int r = 0; r < _file_list_model->rowCount(parent); ++r)
@@ -200,6 +230,7 @@ void PerPixelFitWidget::runProcessing()
     
     interate_datasets_and_update(analysis_job);
 
+    _btn_run->setEnabled(true);
 }
 
 void PerPixelFitWidget::status_callback(size_t cur_block, size_t total_blocks)

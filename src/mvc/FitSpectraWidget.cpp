@@ -20,12 +20,7 @@
 #include "data_struct/element_info.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
 
-#include "core/GlobalThreadPool.h"
-
 using namespace data_struct;
-
-QString STR_LM_FIT = "Levenberg-Marquardt Fit";
-QString STR_MP_FIT = "MP Fit";
 
 /*---------------------------------------------------------------------------*/
 
@@ -40,6 +35,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _detector_element = "Si"; // default to Si detector if not found in param override
     _int_spec = nullptr;
     _elements_to_fit = nullptr;
+    _spectra_fit_widget = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -89,7 +85,11 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
-
+    if (_spectra_fit_widget != nullptr)
+    {
+        delete _spectra_fit_widget;
+        _spectra_fit_widget = nullptr;
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -106,7 +106,7 @@ void FitSpectraWidget::createLayout()
 
     _fit_params_table_model = new FitParamsTableModel();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
-    connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra);
+    connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra_with_background);
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
 
     _fit_params_table = new QTableView();
@@ -236,7 +236,7 @@ void FitSpectraWidget::on_export_fit_paramters()
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::replot_integrated_spectra()
+void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
     {
@@ -251,7 +251,8 @@ void FitSpectraWidget::replot_integrated_spectra()
         _ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, (real_t)2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
 
         _spectra_widget->append_spectra("Integrated Spectra", _int_spec, (data_struct::Spectra*) & _ev);
-        
+        if (snipback)
+        {
             _spectra_background = snip_background((Spectra*)_int_spec,
                 fit_params[STR_ENERGY_OFFSET].value,
                 fit_params[STR_ENERGY_SLOPE].value,
@@ -262,7 +263,7 @@ void FitSpectraWidget::replot_integrated_spectra()
                 _int_spec->size() - 1);
 
             _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*) & _ev);
-        
+        }
         _spectra_widget->setXLabel("Energy (kEv)");
         /*
         for (auto &itr : _h5_model->_fit_int_spec_dict)
@@ -383,111 +384,129 @@ void FitSpectraWidget::pileup_chk_changed(int state)
 
 void FitSpectraWidget::Fit_Spectra_Click()
 {
-    _btn_fit_spectra->setEnabled(false);
-    _btn_model_spectra->setEnabled(false);
+//    _btn_fit_spectra->setEnabled(false);
+//    _btn_model_spectra->setEnabled(false);
 
     
 
     if(_elements_to_fit != nullptr)
     {
-        fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
-        fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
-        fitting::models::Gaussian_Model model;
+        //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
+        //fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
+        //fitting::models::Gaussian_Model model;
 
 
         data_struct::Fit_Parameters out_fit_params = _fit_params_table_model->getFitParams();
         data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
 
+
+        if (_spectra_fit_widget == nullptr)
+        {
+            _spectra_fit_widget = new SpectraFitWidget();
+        }
+        _spectra_fit_widget->updateFitParams(out_fit_params, element_fit_params);
+        _spectra_fit_widget->setOptimizer(_cb_opttimizer->currentText());
+        _spectra_fit_widget->setSpectra((Spectra*)_int_spec);
+        _spectra_fit_widget->setElementsToFit(_elements_to_fit);
+        _spectra_fit_widget->show();
+
         //Range of energy in spectra to fit
-        fitting::models::Range energy_range;
-        energy_range.min = 0;
-        energy_range.max = _int_spec->rows() -1;
+        //fitting::models::Range energy_range;
+        //energy_range.min = 0;
+        //energy_range.max = _int_spec->rows() -1;
 
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
         //Fitting routines
-        fitting::routines::Param_Optimized_Fit_Routine fit_routine;
-        fit_routine.set_update_coherent_amplitude_on_fit(false);
+        //fitting::routines::Param_Optimized_Fit_Routine fit_routine;
+        //fit_routine.set_update_coherent_amplitude_on_fit(false);
 
-        if(_cb_opttimizer->currentText() == STR_LM_FIT)
-        {
-            fit_routine.set_optimizer(&lmfit_optimizer);
-        }
-        else if(_cb_opttimizer->currentText() == STR_MP_FIT)
-        {
-            fit_routine.set_optimizer(&mpfit_optimizer);
-        }
+        //if(_cb_opttimizer->currentText() == STR_LM_FIT)
+        //{
+        //    fit_routine.set_optimizer(&lmfit_optimizer);
+        //}
+        //else if(_cb_opttimizer->currentText() == STR_MP_FIT)
+        //{
+        //    fit_routine.set_optimizer(&mpfit_optimizer);
+        //}
 
         //reset model fit parameters to defaults
-        model.reset_to_default_fit_params();
+        //model.reset_to_default_fit_params();
         //Update fit parameters by override values
-        model.update_fit_params_values(&out_fit_params);
-        model.update_and_add_fit_params_values_gt_zero(&element_fit_params);
+        //model.update_fit_params_values(&out_fit_params);
+        //model.update_and_add_fit_params_values_gt_zero(&element_fit_params);
 
         //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        fit_routine.initialize(&model, _elements_to_fit, energy_range);
+        //fit_routine.initialize(&model, _elements_to_fit, energy_range);
+        
         //Fit the spectra saving the element counts in element_fit_count_dict
         // single threaded
         //out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
         // use background thread to not freeze up the gui
-        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, fit_routine, &model, (Spectra*)_int_spec, _elements_to_fit);
+        //std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, fit_routine, &model, (Spectra*)_int_spec, _elements_to_fit);
 
-        while (ret._Is_ready() == false)
-        {
-            QCoreApplication::processEvents();
-        }
-        out_fit_params = ret.get();
+        //while (ret._Is_ready() == false)
+        //{
+        //    QCoreApplication::processEvents();
+        //}
+        //out_fit_params = ret.get();
+
         //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
 
-        disconnect(_fit_params_table_model,
-                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-        disconnect(_fit_elements_table_model,
-                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-        _fit_params_table_model->updateFitParams(&out_fit_params);
-
-        _fit_elements_table_model->updateElementValues(&out_fit_params);
-
-        if(_chk_auto_model->checkState() == Qt::Checked)
+        if (_spectra_fit_widget->accepted_fit())
         {
-            connect(_fit_params_table_model,
-                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-            connect(_fit_elements_table_model,
-                    SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
 
-            Model_Spectra_Click();
-        }
+            disconnect(_fit_params_table_model,
+                SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+                this,
+                SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
 
-        replot_integrated_spectra();
+            disconnect(_fit_elements_table_model,
+                SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+                this,
+                SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
 
-        data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
+            _fit_params_table_model->updateFitParams(&out_fit_params);
 
-        if(fit_spec.size() == _spectra_background.size())
-        {
-            fit_spec += _spectra_background;
-        }
-        for(int i=0; i<fit_spec.size(); i++)
-        {
-            if(fit_spec[i] <= 0.0)
+            _fit_elements_table_model->updateElementValues(&out_fit_params);
+
+            if (_chk_auto_model->checkState() == Qt::Checked)
             {
-                fit_spec[i] = 0.1;
-            }
-        }
+                connect(_fit_params_table_model,
+                    SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
+                connect(_fit_elements_table_model,
+                    SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
+                    this,
+                    SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
 
-        _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*)&_ev);
+                Model_Spectra_Click();
+            }
+
+            replot_integrated_spectra(true);
+
+            data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
+
+            if (fit_spec.size() == _spectra_background.size())
+            {
+                fit_spec += _spectra_background;
+            }
+            for (int i = 0; i < fit_spec.size(); i++)
+            {
+                if (fit_spec[i] <= 0.0)
+                {
+                    fit_spec[i] = 0.1;
+                }
+            }
+
+            _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*) & _ev);
+        }
     }
     emit signal_finished_fit();
+    
 
 }
 
@@ -530,7 +549,7 @@ void FitSpectraWidget::Model_Spectra_Click()
 
         data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
 
-        replot_integrated_spectra();
+        replot_integrated_spectra(true);
 
         if(fit_spec.size() == _spectra_background.size())
         {
@@ -557,7 +576,7 @@ void FitSpectraWidget::finished_fitting()
     else
         _btn_model_spectra->setEnabled(true);
 
-	replot_integrated_spectra();
+	replot_integrated_spectra(true);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -681,7 +700,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 void FitSpectraWidget::setIntegratedSpectra(data_struct::ArrayXr* int_spec)
 {
     _int_spec = int_spec;
-    replot_integrated_spectra();
+    replot_integrated_spectra(true);
     _spectra_widget->onResetChartView();
 }
 

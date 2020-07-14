@@ -18,6 +18,7 @@
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/FitElementsTableModel.h"
+#include "mvc/SpectraFitWidget.h"
 #include "mvc/ComboBoxDelegate.h"
 #include <QComboBox>
 #include <QCheckBox>
@@ -87,7 +88,9 @@ public slots:
 
    void element_selection_changed(int index);
 
-   void replot_integrated_spectra();
+   void replot_integrated_spectra(bool snipback);
+
+   void replot_integrated_spectra_with_background() { replot_integrated_spectra(true); }
 
    void add_element();
 
@@ -108,6 +111,8 @@ protected:
    QTableView* _fit_params_table;
 
    QTreeView* _fit_elements_table;
+
+   SpectraFitWidget* _spectra_fit_widget;
 
    /**
     * @brief Create layout
