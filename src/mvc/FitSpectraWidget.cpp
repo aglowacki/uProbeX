@@ -35,7 +35,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _detector_element = "Si"; // default to Si detector if not found in param override
     _int_spec = nullptr;
     _elements_to_fit = nullptr;
-    _spectra_fit_widget = nullptr;
+    _fitting_dialog = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -85,10 +85,10 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
-    if (_spectra_fit_widget != nullptr)
+    if (_fitting_dialog != nullptr)
     {
-        delete _spectra_fit_widget;
-        _spectra_fit_widget = nullptr;
+        delete _fitting_dialog;
+        _fitting_dialog = nullptr;
     }
 }
 
@@ -400,15 +400,15 @@ void FitSpectraWidget::Fit_Spectra_Click()
         data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
 
 
-        if (_spectra_fit_widget == nullptr)
+        if (_fitting_dialog == nullptr)
         {
-            _spectra_fit_widget = new SpectraFitWidget();
+            _fitting_dialog = new FittingDialog();
         }
-        _spectra_fit_widget->updateFitParams(out_fit_params, element_fit_params);
-        _spectra_fit_widget->setOptimizer(_cb_opttimizer->currentText());
-        _spectra_fit_widget->setSpectra((Spectra*)_int_spec);
-        _spectra_fit_widget->setElementsToFit(_elements_to_fit);
-        _spectra_fit_widget->show();
+        _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
+        _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
+        _fitting_dialog->setSpectra((Spectra*)_int_spec);
+        _fitting_dialog->setElementsToFit(_elements_to_fit);
+        _fitting_dialog->exec();
 
         //Range of energy in spectra to fit
         //fitting::models::Range energy_range;
@@ -455,7 +455,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
         //out_fit_params = fit_routine.fit_spectra_parameters(&model, &s1, _elements_to_fit);
 
-        if (_spectra_fit_widget->accepted_fit())
+        if (_fitting_dialog->accepted_fit())
         {
 
             disconnect(_fit_params_table_model,
@@ -468,9 +468,14 @@ void FitSpectraWidget::Fit_Spectra_Click()
                 this,
                 SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
 
-            _fit_params_table_model->updateFitParams(&out_fit_params);
+            //_fit_params_table_model->updateFitParams(&out_fit_params);
 
-            _fit_elements_table_model->updateElementValues(&out_fit_params);
+            //_fit_elements_table_model->updateElementValues(&out_fit_params);
+
+			_fit_params_table_model->updateFitParams(_fitting_dialog->get_new_fit_params());
+
+			_fit_elements_table_model->updateElementValues(_fitting_dialog->get_new_fit_params());
+
 
             if (_chk_auto_model->checkState() == Qt::Checked)
             {
@@ -487,9 +492,9 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
 
             replot_integrated_spectra(true);
-
-            data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
-
+			
+            //data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
+			data_struct::Spectra fit_spec = _fitting_dialog->get_fit_spectra();
             if (fit_spec.size() == _spectra_background.size())
             {
                 fit_spec += _spectra_background;
@@ -503,9 +508,12 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
 
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*) & _ev);
+			
         }
+		delete _fitting_dialog;
+		_fitting_dialog = nullptr;
     }
-    emit signal_finished_fit();
+    //emit signal_finished_fit();
     
 
 }
@@ -716,6 +724,7 @@ void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters* fit_params)
 void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict *elements_to_fit)
 {
     _fit_elements_table_model->updateFitElements(elements_to_fit);
+	_elements_to_fit = elements_to_fit;
 }
 
 /*---------------------------------------------------------------------------*/

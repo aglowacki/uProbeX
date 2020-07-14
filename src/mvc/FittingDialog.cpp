@@ -1,17 +1,15 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2019, UChicago Argonne, LLC
+ * Copyright (c) 2020, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/SpectraFitWidget.h>
+#include <mvc/FittingDialog.h>
 #include <QApplication>
 #include <QGroupBox>
-#include <data_struct/analysis_job.h>
-#include <core/process_whole.h>
 
 /*---------------------------------------------------------------------------*/
 
-SpectraFitWidget::SpectraFitWidget(QWidget *parent) : QWidget(parent)
+FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
 {
     _accepted = false;
     _elements_to_fit = nullptr;
@@ -22,7 +20,7 @@ SpectraFitWidget::SpectraFitWidget(QWidget *parent) : QWidget(parent)
 
 /*---------------------------------------------------------------------------*/
 
-SpectraFitWidget::~SpectraFitWidget()
+FittingDialog::~FittingDialog()
 {
 
  
@@ -30,7 +28,7 @@ SpectraFitWidget::~SpectraFitWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::createLayout()
+void FittingDialog::createLayout()
 {
     _progressBarBlocks = new QProgressBar();
     _progressBarBlocks->setRange(0,100);
@@ -38,18 +36,14 @@ void SpectraFitWidget::createLayout()
     _progressBarFiles->setRange(0, 100);
 
     _btn_run = new QPushButton("Run");
-    connect(_btn_run, &QPushButton::released, this, &SpectraFitWidget::runProcessing);
+    connect(_btn_run, &QPushButton::released, this, &FittingDialog::runProcessing);
 
     _btn_accept = new QPushButton("Accept");
-    connect(_btn_accept, &QPushButton::released, this, &SpectraFitWidget::runProcessing);
+    connect(_btn_accept, &QPushButton::released, this, &FittingDialog::onAccepted);
     _btn_accept->setEnabled(false);
 
     _btn_cancel = new QPushButton("Cancel");
-    connect(_btn_cancel, &QPushButton::released, this, &SpectraFitWidget::close);
-
-
-
-
+    connect(_btn_cancel, &QPushButton::released, this, &FittingDialog::close);
 
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(_btn_run);
@@ -70,15 +64,18 @@ void SpectraFitWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::updateFitParams(data_struct::Fit_Parameters out_fit_params, data_struct::Fit_Parameters element_fit_params)
+void FittingDialog::updateFitParams(data_struct::Fit_Parameters out_fit_params, data_struct::Fit_Parameters element_fit_params)
 {
     _out_fit_params = out_fit_params;
     _element_fit_params = element_fit_params;
+	_progressBarBlocks->setValue(0);
+	_accepted = false;
+	_btn_accept->setEnabled(false);
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::setOptimizer(QString opt)
+void FittingDialog::setOptimizer(QString opt)
 {
     if (opt == STR_LM_FIT)
     {
@@ -92,54 +89,69 @@ void SpectraFitWidget::setOptimizer(QString opt)
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::setSpectra(data_struct::Spectra* spectra)
+void FittingDialog::setSpectra(data_struct::Spectra* spectra)
 {
     _int_spec = spectra;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit)
+void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit)
 {
     _elements_to_fit = elements_to_fit;
 }
+
 /*---------------------------------------------------------------------------*/
 
-void SpectraFitWidget::runProcessing()
+data_struct::Spectra FittingDialog::get_fit_spectra()
+{
+	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, _energy_range);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::onAccepted()
+{
+	_accepted = true;
+	_btn_accept->setEnabled(false);
+	close();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::runProcessing()
 {
     if (_elements_to_fit != nullptr && _int_spec != nullptr)
     {
 
         _btn_run->setEnabled(false);
 
-        fitting::models::Gaussian_Model model;
-
         //Range of energy in spectra to fit
-        fitting::models::Range energy_range;
-        energy_range.min = 0;
-        energy_range.max = _int_spec->rows() - 1;
+        _energy_range;
+		_energy_range.min = 0;
+		_energy_range.max = _int_spec->rows() - 1;
 
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
         //Fitting routines
 
         //reset model fit parameters to defaults
-        model.reset_to_default_fit_params();
+        _model.reset_to_default_fit_params();
         //Update fit parameters by override values
-        model.update_fit_params_values(&_out_fit_params);
-        model.update_and_add_fit_params_values_gt_zero(&_element_fit_params);
+        _model.update_fit_params_values(&_out_fit_params);
+        _model.update_and_add_fit_params_values_gt_zero(&_element_fit_params);
 
-        //model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
+        //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        _fit_routine.initialize(&model, _elements_to_fit, energy_range);
+        _fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
         //Fit the spectra saving the element counts in element_fit_count_dict
         // single threaded
-        //out_fit_params = fit_routine.fit_spectra_parameters(&model, int_spectra, _elements_to_fit);
+        //out_fit_params = fit_routine.fit_spectra_parameters(&_model, int_spectra, _elements_to_fit);
         // use background thread to not freeze up the gui
-        Callback_Func_Status_Def cb_func = std::bind(&SpectraFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
+        Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
 
-        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &model, (Spectra*)_int_spec, _elements_to_fit, &cb_func);
+        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &_model, _int_spec, _elements_to_fit, &cb_func);
 
         while (ret._Is_ready() == false)
         {
@@ -147,12 +159,16 @@ void SpectraFitWidget::runProcessing()
         }
         _new_out_fit_params = ret.get();
 
+		_progressBarBlocks->setValue(_total_itr);
 
+		_btn_accept->setEnabled(true);
         _btn_run->setEnabled(true);
     }
 }
 
-void SpectraFitWidget::status_callback(size_t cur_itr, size_t total_itr)
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::status_callback(size_t cur_itr, size_t total_itr)
 {
     if (_total_itr != total_itr)
     {
@@ -161,6 +177,6 @@ void SpectraFitWidget::status_callback(size_t cur_itr, size_t total_itr)
     }
 
     _progressBarBlocks->setValue(cur_itr);
-    
-    QCoreApplication::processEvents();
 }
+
+/*---------------------------------------------------------------------------*/

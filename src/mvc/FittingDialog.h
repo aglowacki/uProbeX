@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2019, UChicago Argonne, LLC
+ * Copyright (c) 2020, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef SPECTRA_FIT_WIDGET_H
-#define SPECTRA_FIT_WIDGET_H
+#ifndef FITTING_DIALOG_H
+#define FITTING_DIALOG_H
 
 /*---------------------------------------------------------------------------*/
 
@@ -22,18 +22,22 @@
 #include <QStandardItemModel>
 #include <QCheckBox>
 #include <QEventLoop>
+#include <QDialog>
 #include <thread>
 #include "fitting//optimizers/lmfit_optimizer.h"
+#include "fitting//optimizers/mpfit_optimizer.h"
+#include "fitting/routines/param_optimized_fit_routine.h"
+#include "fitting/models/gaussian_model.h"
 #include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/
 
-QString STR_LM_FIT = "Levenberg-Marquardt Fit";
-QString STR_MP_FIT = "MP Fit";
+const static QString STR_LM_FIT = "Levenberg-Marquardt Fit";
+const static QString STR_MP_FIT = "MP Fit";
 
 /*---------------------------------------------------------------------------*/
 
-class SpectraFitWidget : public QWidget
+class FittingDialog : public QDialog
 {
 
    Q_OBJECT
@@ -43,24 +47,28 @@ public:
     /**
      * Constructor.
      */
-	SpectraFitWidget(QWidget *parent = nullptr);
+	FittingDialog(QWidget *parent = nullptr);
 
     /**
      * Destructor.
      */
-    ~SpectraFitWidget();
+    ~FittingDialog();
 
     void updateFitParams(data_struct::Fit_Parameters out_fit_params, data_struct::Fit_Parameters element_fit_params);
 
     void status_callback(size_t cur_block, size_t total_blocks);
 
-    void SpectraFitWidget::setOptimizer(QString opt);
+    void FittingDialog::setOptimizer(QString opt);
 
     bool accepted_fit() { return _accepted; }
 
-    void SpectraFitWidget::setSpectra(data_struct::Spectra* spectra);
+    void FittingDialog::setSpectra(data_struct::Spectra* spectra);
 
-    void SpectraFitWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
+    void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
+
+	data_struct::Spectra get_fit_spectra();
+
+	data_struct::Fit_Parameters* get_new_fit_params() { return &_new_out_fit_params; }
 
 signals:
 
@@ -68,6 +76,8 @@ signals:
 
 public slots:
     void runProcessing();
+
+	void onAccepted();
    
 protected:
 
@@ -76,7 +86,10 @@ protected:
     */
    void createLayout();
 
+   fitting::models::Range _energy_range;
    
+   fitting::models::Gaussian_Model _model;
+
    QTextEdit *_textEdit;
 
    QProgressBar *_progressBarFiles;
@@ -106,7 +119,6 @@ protected:
    data_struct::Fit_Parameters _out_fit_params;
    data_struct::Fit_Parameters _element_fit_params;
    data_struct::Fit_Parameters _new_out_fit_params;
-   data_struct::Fit_Parameters _new_element_fit_params;
 
 };
 

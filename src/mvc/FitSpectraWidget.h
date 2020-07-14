@@ -18,7 +18,7 @@
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/FitElementsTableModel.h"
-#include "mvc/SpectraFitWidget.h"
+#include "mvc/FittingDialog.h"
 #include "mvc/ComboBoxDelegate.h"
 #include <QComboBox>
 #include <QCheckBox>
@@ -112,7 +112,7 @@ protected:
 
    QTreeView* _fit_elements_table;
 
-   SpectraFitWidget* _spectra_fit_widget;
+   FittingDialog* _fitting_dialog;
 
    /**
     * @brief Create layout
