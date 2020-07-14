@@ -132,6 +132,8 @@ public slots:
     */
    void setRangeWidgetStartIndex(int index);
 
+   int getRangeWidgetStartIndex();
+
    /**
     * Set the dimension number for the width of the image.
     *

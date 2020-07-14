@@ -181,7 +181,14 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
                 data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
                 for(auto& itr2 : itr.second.fit_counts)
                 {
-                    xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                    if (std::isfinite(itr2.second))
+                    {
+                        xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                    }
+                    else
+                    {
+                        xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
+                    }
                 }
             }
             else

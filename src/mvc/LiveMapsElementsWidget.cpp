@@ -149,6 +149,10 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 	{
 		return;
 	}
+    if (new_packet->is_end_block())
+    {
+        return;
+    }
 
 
     bool start_new_image = false;
@@ -162,38 +166,44 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         {
             start_new_image = true;
         }
-        //if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
-        //{
-        //    start_new_image = true;
-        //}
+        if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
+        {
+            start_new_image = true;
+        }
     }
     if(_currentModel == nullptr)
     {
         start_new_image = true;
     }
 
-    if(start_new_image)
+    if (start_new_image)
     {
         _prev_dataset_name = *new_packet->dataset_name;
-        if(_currentModel != nullptr)
+        if (_currentModel != nullptr)
         {
             disconnect(_currentModel,
-                        SIGNAL(model_data_updated()),
-                        _mapsElementsWidget,
-                        SLOT(model_updated()));
-        }
-        _currentModel = new MapsH5Model();
-        _currentModel->initialize_from_stream_block(new_packet);
-        _progressBar->setRange(0, new_packet->height()-1);
-        _maps_h5_models.push_back(_currentModel);
-        _mapsElementsWidget->setModel(_currentModel);
-        connect(_currentModel,
                 SIGNAL(model_data_updated()),
                 _mapsElementsWidget,
                 SLOT(model_updated()));
+        }
+        _currentModel = new MapsH5Model();
+        _currentModel->initialize_from_stream_block(new_packet);
+        _progressBar->setRange(0, new_packet->height() - 1);
+        _maps_h5_models.push_back(_currentModel);
+
+        int cur = _mapsElementsWidget->getRangeWidgetStartIndex();
         _num_images++;
         _mapsElementsWidget->setNumberOfImages(_num_images);
-        _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
+        
+        if (cur == _num_images - 1)
+        {
+            _mapsElementsWidget->setModel(_currentModel);
+            connect(_currentModel,
+                SIGNAL(model_data_updated()),
+                _mapsElementsWidget,
+                SLOT(model_updated()));
+            _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
+        }
     }
 
     _currentModel->update_from_stream_block(new_packet);
@@ -220,6 +230,5 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 
 void LiveMapsElementsWidget::image_changed(int start, int end)
 {
-    logI<<start<<" "<<end;
     _mapsElementsWidget->setModel(_maps_h5_models[start-1]);
 }

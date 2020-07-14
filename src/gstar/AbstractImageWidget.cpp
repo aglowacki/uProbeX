@@ -611,6 +611,15 @@ void AbstractImageWidget::setRangeWidgetStartIndex(int index)
 
 /*---------------------------------------------------------------------------*/
 
+int AbstractImageWidget::getRangeWidgetStartIndex()
+{
+
+    return m_range->value();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 void AbstractImageWidget::setRangeWidgetVisible(bool m_rangeVisible)
 {
 
