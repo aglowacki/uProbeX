@@ -9,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QHeaderView>
 #include <QGridLayout>
 #include <QItemSelectionModel>
 #include <QSplitter>
@@ -508,13 +507,13 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
 
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*) & _ev);
-			
+            emit signal_finished_fit();		
         }
-		delete _fitting_dialog;
-		_fitting_dialog = nullptr;
+
+        _fitting_dialog->waitToFinishRunning();
+        delete _fitting_dialog;
+        _fitting_dialog = nullptr;
     }
-    //emit signal_finished_fit();
-    
 
 }
 

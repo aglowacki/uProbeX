@@ -308,7 +308,6 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
     {
         
         QString dataset_path = _model->getFilePath();
-
         /*
         QString dataset_name = _model->getDatasetName();
         QString end_idx = "";

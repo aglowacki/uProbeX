@@ -18,7 +18,7 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     m_headers[MIN_VAL] = tr("Min Value");
     m_headers[MAX_VAL] = tr("Max Value");
     m_headers[STEP_SIZE] = tr("Step Size");
-
+    _editable = true;
     _optimizer_supports_min_max = false;
 
 }
@@ -41,6 +41,8 @@ void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters fit_params)
 
 }
 
+/*---------------------------------------------------------------------------*/
+
 int FitParamsTableModel::columnCount(const QModelIndex &parent) const
 {
     if(_optimizer_supports_min_max)
@@ -48,6 +50,8 @@ int FitParamsTableModel::columnCount(const QModelIndex &parent) const
     else
         return NUM_PROPS - 3;
 }
+
+/*---------------------------------------------------------------------------*/
 
 void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
 {
@@ -57,6 +61,8 @@ void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
     emit dataChanged(topLeft, bottomRight);
     emit layoutChanged();
 }
+
+/*---------------------------------------------------------------------------*/
 
 void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters* fit_params)
 {
@@ -74,6 +80,36 @@ void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters* fit_param
         emit layoutChanged();
 
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitParamsTableModel::only_keep_these_keys(data_struct::Fit_Parameters fit_params)
+{
+    std::vector<std::string> to_remove;
+
+    for (const auto& itr : _fit_parameters)
+    {
+        if (fit_params.contains(itr.first) == false)
+        {
+            to_remove.push_back(itr.first);
+        }
+    }
+    for (const auto& itr : to_remove)
+    {
+        _fit_parameters.remove(itr);
+    }
+
+    _row_indicies.clear();
+    _row_indicies = _fit_parameters.names_to_array();
+
+    std::sort(_row_indicies.begin(), _row_indicies.end());
+
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -143,7 +179,14 @@ Qt::ItemFlags FitParamsTableModel::flags(const QModelIndex &index) const
 
     if (index.column() > 0)
     {
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+        if (_editable)
+        {
+            return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+        }
+        else
+        {
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        }
     }
     else
     {

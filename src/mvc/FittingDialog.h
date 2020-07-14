@@ -23,7 +23,11 @@
 #include <QCheckBox>
 #include <QEventLoop>
 #include <QDialog>
+#include <QTableView>
 #include <thread>
+#include <QHeaderView>
+#include "mvc/ComboBoxDelegate.h"
+#include "mvc/FitParamsTableModel.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
@@ -70,6 +74,8 @@ public:
 
 	data_struct::Fit_Parameters* get_new_fit_params() { return &_new_out_fit_params; }
 
+    void waitToFinishRunning();
+
 signals:
 
     void processed_list_update();
@@ -78,6 +84,8 @@ public slots:
     void runProcessing();
 
 	void onAccepted();
+
+    void onCancel();
    
 protected:
 
@@ -85,6 +93,14 @@ protected:
     * @brief Create layout
     */
    void createLayout();
+
+   QTableView* _fit_params_table;
+
+   QTableView* _new_fit_params_table;
+
+   FitParamsTableModel* _fit_params_table_model;
+
+   FitParamsTableModel* _new_fit_params_table_model;
 
    fitting::models::Range _energy_range;
    
@@ -102,6 +118,8 @@ protected:
 
    QPushButton *_btn_cancel;
 
+   Callback_Func_Status_Def _cb_func;
+
    fitting::optimizers::LMFit_Optimizer _lmfit_optimizer;
 
    fitting::optimizers::MPFit_Optimizer _mpfit_optimizer;
@@ -111,6 +129,10 @@ protected:
    size_t _total_itr;
 
    bool _accepted;
+
+   bool _canceled;
+
+   bool _running;
 
    data_struct::Spectra* _int_spec;
 

@@ -14,6 +14,7 @@
 MDA_Model::MDA_Model() : QObject()
 {
 
+    _path = "";
     _filepath = "";
 
 }
@@ -31,6 +32,7 @@ bool MDA_Model::load(QString directory, QString filename)
 {
     try
     {
+        _path = directory;
         _filepath = directory + "/" + filename;
         
         //std::chrono::time_point<std::chrono::system_clock> start, end;

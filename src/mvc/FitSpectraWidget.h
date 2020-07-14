@@ -19,8 +19,6 @@
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/FitElementsTableModel.h"
 #include "mvc/FittingDialog.h"
-#include "mvc/ComboBoxDelegate.h"
-#include <QComboBox>
 #include <QCheckBox>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
