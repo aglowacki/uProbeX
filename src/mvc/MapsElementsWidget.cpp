@@ -290,11 +290,11 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         data_struct::Params_Override* po = _model->getParamOverride();
         if (po != nullptr)
         {
-            _spectra_widget->setElementDetector(po->detector_element);
-            _spectra_widget->setElementsToFit(&(po->elements_to_fit));
-            _spectra_widget->setFitParams(&(po->fit_params));
+			_spectra_widget->setParamOverride(po);
         }
+        disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
+        connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
     }
 }
 
@@ -306,7 +306,6 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
     {
         
         QString dataset_path = _model->getFilePath();
-
         /*
         QString dataset_name = _model->getDatasetName();
         QString end_idx = "";
@@ -334,17 +333,19 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
         {
 
             QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT)"));
-
-            data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
-            nfit_params->append_and_update(&fit_params);
-
-            if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
+            if (fileName.length() > 0)
             {
-                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+                data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
+                nfit_params->append_and_update(&fit_params);
+
+                if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
+                {
+                    QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+                }
             }
         }
     }
@@ -469,7 +470,6 @@ void MapsElementsWidget::redrawCounts()
 
         while (job_queue.size() > 0)
         {
-            QCoreApplication::processEvents();
             std::vector<int> to_delete;
             for (auto& itr : job_queue)
             {

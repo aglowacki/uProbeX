@@ -95,6 +95,10 @@ protected:
 
    size_t _cur_block;
    
+   QListView* _detector_list_view;
+
+   QStandardItemModel* _detector_model;
+
    size_t _total_blocks;
 };
 

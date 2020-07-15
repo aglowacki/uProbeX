@@ -18,12 +18,11 @@
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/FitElementsTableModel.h"
-#include "mvc/ComboBoxDelegate.h"
-#include <QComboBox>
+#include "mvc/FittingDialog.h"
 #include <QCheckBox>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
-#include "data_struct/fit_parameters.h"
+#include "data_struct/params_override.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -50,6 +49,8 @@ public:
    ~FitSpectraWidget();
 
    void setIntegratedSpectra(data_struct::ArrayXr* int_spec);
+
+   void setParamOverride(data_struct::Params_Override* po);
 
    void setElementDetector(std::string e) {_detector_element = e;}
 
@@ -87,7 +88,9 @@ public slots:
 
    void element_selection_changed(int index);
 
-   void replot_integrated_spectra();
+   void replot_integrated_spectra(bool snipback);
+
+   void replot_integrated_spectra_with_background() { replot_integrated_spectra(true); }
 
    void add_element();
 
@@ -108,6 +111,8 @@ protected:
    QTableView* _fit_params_table;
 
    QTreeView* _fit_elements_table;
+
+   FittingDialog* _fitting_dialog;
 
    /**
     * @brief Create layout

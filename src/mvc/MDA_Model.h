@@ -40,6 +40,8 @@ public:
 
     bool load(QString directory, QString filename);
 
+    QString getPath() { return _path; }
+
     QString getFilePath(){return _filepath;}
 
     unsigned int getNumIntegratedSpectra() { return _mda_io.get_num_integreated_spectra(); }
@@ -69,6 +71,8 @@ private:
     io::file::MDA_IO _mda_io;
 
     QString _filepath;
+
+    QString _path;
 };
 
 

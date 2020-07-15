@@ -162,15 +162,25 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
         data_struct::Params_Override* po  = _model->getParamOverride(det);
         if (po != nullptr)
         {
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", _model->getFilePath() , tr("TXT (*.txt *.TXT)"));
-            data_struct::Fit_Parameters* fit_params = &(po->fit_params);
-            if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
+            QString save_path = _model->getPath();
+            if (save_path.endsWith("/mda") || save_path.endsWith("\\mda"))
             {
-                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+                save_path.chop(3);
             }
-            else
+            save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, "TXT"+ _cb_detector->currentText()+" (*.txt"+ _cb_detector->currentText()+" *.TXT"+_cb_detector->currentText()+")");
+            if (!fileName.isEmpty() && !fileName.isNull())
             {
-                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+                data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
+                nfit_params->append_and_update(&fit_params);
+                if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
+                {
+                    QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
+                }
             }
         }
     }
@@ -186,9 +196,7 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     data_struct::Params_Override* po = _model->getParamOverride(detector);
     if (po != nullptr)
     {
-        _spectra_widget->setElementDetector(po->detector_element);
-        _spectra_widget->setElementsToFit(&(po->elements_to_fit));
-        _spectra_widget->setFitParams(&(po->fit_params));
+		_spectra_widget->setParamOverride(po);
     }
 
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));

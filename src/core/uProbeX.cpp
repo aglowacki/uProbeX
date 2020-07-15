@@ -427,7 +427,7 @@ void uProbeX::createSolver()
                     Preferences::NMOptions).toStringList();
         if(false == m_solverParameterParse -> parseSolverOptionList(optionList))
         {
-            logE<<"Error reading options for NM solver";
+            logE<<"Error reading options for NM solver\n";
             // Initialize with the default option
             dict_options = nm ->getOptions();
         }
@@ -455,7 +455,7 @@ void uProbeX::createSolver()
                                                     fileInfo.baseName(),
                                                     QString("my_solver")))
         {
-            logE<<"Error reading options for python solver, reverting to NelderMeadSolver";
+            logE<<"Error reading options for python solver, reverting to NelderMeadSolver\n";
             QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
             m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
             createSolver();

@@ -53,6 +53,8 @@ public:
 
    void updateFitParams(data_struct::Fit_Parameters* fit_params);
 
+   void only_keep_these_keys(data_struct::Fit_Parameters fit_params);
+
    data_struct::Fit_Parameters getFitParams() { return _fit_parameters; }
 
    float getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
@@ -124,6 +126,8 @@ public:
                       int role = Qt::EditRole);
 
 
+   void setEditable(bool val) { _editable = val; }
+
 signals:
     void onEnergyChange();
 
@@ -139,6 +143,8 @@ private:
    std::vector<std::string> _row_indicies;
 
    bool _optimizer_supports_min_max;
+
+   bool _editable;
 
 };
 
