@@ -16,7 +16,6 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _running = false;
     _elements_to_fit = nullptr;
     _int_spec = nullptr;
-    _cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
     _fit_routine.set_update_coherent_amplitude_on_fit(false);
     createLayout();
 }
@@ -165,7 +164,10 @@ void FittingDialog::onAccepted()
 void FittingDialog::onCancel()
 {
     _canceled = true;
-    close();
+    if (_running == false)
+    {
+        close();
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -202,13 +204,24 @@ void FittingDialog::runProcessing()
         //out_fit_params = fit_routine.fit_spectra_parameters(&_model, int_spectra, _elements_to_fit);
 
         // use background thread to not freeze up the gui
-        std::thread worker;
-        
+        Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
+        try
+        {
+            _new_out_fit_params = _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, &cb_func);
+        }
+        catch (int e)
+        {
+            logI << "Exception Thrown" << std::endl;
+            _running = false;
+            close();
+            return;
+        }
+        /*
         //std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &_model, _int_spec, _elements_to_fit, &_cb_func);
         std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue([&](){
             try
             {
-                return _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, &_cb_func);
+                return _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, &cb_func);
             }
             catch (int e)
             {
@@ -224,10 +237,15 @@ void FittingDialog::runProcessing()
                 _running = false;
                 return;
             }
-            QCoreApplication::processEvents();
+            else
+            {
+                std::this_thread::sleep_for(20ms);
+            }
+            //QCoreApplication::processEvents();
         }
+        
         _new_out_fit_params = ret.get();
-
+        */
         _new_fit_params_table_model->setFitParams(_new_out_fit_params);
 
         //don't want to display element counts, so removing them
@@ -257,7 +275,7 @@ void FittingDialog::status_callback(size_t cur_itr, size_t total_itr)
     }
 
     _progressBarBlocks->setValue(cur_itr);
-
+    QCoreApplication::processEvents();
 }
 
 void FittingDialog::waitToFinishRunning()

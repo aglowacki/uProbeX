@@ -118,8 +118,6 @@ protected:
 
    QPushButton *_btn_cancel;
 
-   Callback_Func_Status_Def _cb_func;
-
    fitting::optimizers::LMFit_Optimizer _lmfit_optimizer;
 
    fitting::optimizers::MPFit_Optimizer _mpfit_optimizer;
