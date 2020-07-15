@@ -25,6 +25,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     connect(action, SIGNAL(triggered()), this, SLOT(onLoadFile()));
     action = _contextMenu->addAction("UnLoad");
     connect(action, SIGNAL(triggered()), this, SLOT(onUnloadFile()));
+    action = _contextMenu->addAction("Refresh");
+    connect(action, SIGNAL(triggered()), this, SIGNAL(onRefresh()));
 
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();

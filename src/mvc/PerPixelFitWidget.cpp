@@ -202,14 +202,11 @@ void PerPixelFitWidget::runProcessing()
         //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&PerPixelFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         process_dataset_files(&analysis_job, &cb_func);
         //QCoreApplication::processEvents();
-        emit processed_list_update();
         _progressBarFiles->setValue(total_file_range);
         _progressBarBlocks->setValue(_total_blocks);
         QCoreApplication::processEvents();
     }
     
-
-
     if (_save_avg->isChecked())
     {
         analysis_job.generate_average_h5 = true;
@@ -231,6 +228,7 @@ void PerPixelFitWidget::runProcessing()
     interate_datasets_and_update(analysis_job);
 
     _btn_run->setEnabled(true);
+    emit processed_list_update();
 }
 
 void PerPixelFitWidget::status_callback(size_t cur_block, size_t total_blocks)
