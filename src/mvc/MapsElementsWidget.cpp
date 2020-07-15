@@ -290,9 +290,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         data_struct::Params_Override* po = _model->getParamOverride();
         if (po != nullptr)
         {
-            _spectra_widget->setElementDetector(po->detector_element);
-            _spectra_widget->setElementsToFit(&(po->elements_to_fit));
-            _spectra_widget->setFitParams(&(po->fit_params));
+			_spectra_widget->setParamOverride(po);
         }
         disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());

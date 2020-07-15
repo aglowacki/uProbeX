@@ -390,8 +390,15 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
             QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
             line->append(itr.energy, line_min);
             float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
-            line->append(itr.energy, (line_max * line_ratio));
-            QString eName = QString(element->full_name().c_str());
+			if (itr.ratio == 0)
+			{
+				line->append(itr.energy, (line_min));
+			}
+			else
+			{
+				line->append(itr.energy, (line_max * line_ratio));
+			}
+			QString eName = QString(element->full_name().c_str());
             eName = QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str());
 
             line->setName(eName);

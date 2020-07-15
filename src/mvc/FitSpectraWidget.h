@@ -22,7 +22,7 @@
 #include <QCheckBox>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
-#include "data_struct/fit_parameters.h"
+#include "data_struct/params_override.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -49,6 +49,8 @@ public:
    ~FitSpectraWidget();
 
    void setIntegratedSpectra(data_struct::ArrayXr* int_spec);
+
+   void setParamOverride(data_struct::Params_Override* po);
 
    void setElementDetector(std::string e) {_detector_element = e;}
 

@@ -196,9 +196,7 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     data_struct::Params_Override* po = _model->getParamOverride(detector);
     if (po != nullptr)
     {
-        _spectra_widget->setElementDetector(po->detector_element);
-        _spectra_widget->setElementsToFit(&(po->elements_to_fit));
-        _spectra_widget->setFitParams(&(po->fit_params));
+		_spectra_widget->setParamOverride(po);
     }
 
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));

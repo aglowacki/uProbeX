@@ -35,6 +35,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _int_spec = nullptr;
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
+	_param_override = nullptr;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -222,6 +223,19 @@ void FitSpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void FitSpectraWidget::setParamOverride(data_struct::Params_Override* po)
+{
+	_param_override = po; 
+	if (_param_override != nullptr)
+	{
+		setElementDetector(_param_override->detector_element);
+		setElementsToFit(&(_param_override->elements_to_fit));
+		setFitParams(&(_param_override->fit_params));
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::on_export_fit_paramters()
 {
     data_struct::Fit_Parameters fit_params;
@@ -297,10 +311,19 @@ void FitSpectraWidget::add_element()
             el_name += "_M";
         }
     }
-
+	
     data_struct::Fit_Element_Map* fit_element = gen_element_map(el_name.toStdString());
     if(fit_element != nullptr)
     {
+		if (_param_override != nullptr)
+		{
+			map<int, float> ratios = _param_override->get_custom_factor(el_name.toStdString());
+			for (const auto &itr : ratios)
+			{
+				fit_element->set_custom_multiply_ratio(itr.first, itr.second);
+			}
+		}
+
         if(_chk_is_pileup->checkState() == Qt::CheckState::Checked)
         {
             QString pileup_name = _cb_pileup_elements->currentText();
@@ -680,6 +703,15 @@ void FitSpectraWidget::element_selection_changed(int index)
 
     Fit_Element_Map em(full_name.toStdString(), Element_Info_Map::inst()->get_element(element_name.toStdString()));
 
+	if (_param_override != nullptr)
+	{
+		map<int, float> ratios = _param_override->get_custom_factor(full_name.toStdString());
+		for (const auto &itr : ratios)
+		{
+			em.set_custom_multiply_ratio(itr.first, itr.second);
+		}
+	}
+
     if(_chk_is_pileup->checkState() == Qt::CheckState::Checked)
     {
         em.set_as_pileup(_cb_pileup_elements->currentText().toStdString(), Element_Info_Map::inst()->get_element(_cb_pileup_elements->currentText().toStdString()));
@@ -735,6 +767,15 @@ void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_
     for (const auto& itr : element_names)
     {
         Fit_Element_Map em(itr, Element_Info_Map::inst()->get_element(itr));
+		if (_param_override != nullptr)
+		{
+			map<int, float> ratios = _param_override->get_custom_factor(itr);
+			for (const auto &itr : ratios)
+			{
+				em.set_custom_multiply_ratio(itr.first, itr.second);
+			}
+		}
+
         em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
         labels[itr] = em.center();
     }
