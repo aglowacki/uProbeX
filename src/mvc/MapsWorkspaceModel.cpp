@@ -141,10 +141,26 @@ void MapsWorkspaceModel::load(QString filepath)
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceModel::reload_raw()
+{
+    _is_raw_loaded = get_filesnames_in_directory(*_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+    emit doneLoadingRAW();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceModel::reload_analyzed()
 {
     _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
     emit doneLoadingImgDat();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::reload_vlm()
+{
+    _is_sws_loaded = get_filesnames_in_directory(*_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+    emit doneLoadingVLM();
 }
 
 /*---------------------------------------------------------------------------*/

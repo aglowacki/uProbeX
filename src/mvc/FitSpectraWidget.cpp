@@ -278,14 +278,21 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*) & _ev);
         }
         _spectra_widget->setXLabel("Energy (kEv)");
-        /*
-        for (auto &itr : _h5_model->_fit_int_spec_dict)
+        
+        for (auto &itr : _fit_int_spec_map)
         {
             QString name = "Fitted_Int_" + QString(itr.first.c_str());
-            _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&ev);
+            _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&_ev);
         }
-        */
+        
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::appendFitIntSpectra(string name, data_struct::ArrayXr* spec)
+{
+    _fit_int_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/

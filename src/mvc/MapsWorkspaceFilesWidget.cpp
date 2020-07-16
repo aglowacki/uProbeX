@@ -115,6 +115,9 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
         connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updated);
         connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
         connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
+        connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
+        connect(_sws_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_vlm);
+        connect(_mda_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_raw);
 	}
 
 }
@@ -324,6 +327,8 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
 
 void MapsWorkspaceFilesWidget::onProcessed_list_update()
 {
-    _model->reload_analyzed();
-
+    if (_model != nullptr)
+    {
+        _model->reload_analyzed();
+    }
 }

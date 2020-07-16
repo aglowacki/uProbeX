@@ -52,8 +52,6 @@ public:
 
     void load(QString filepath);
 
-    void reload_analyzed();
-
     void unload();
 
     //bool is_loaded() {return _is_loaded;}
@@ -99,6 +97,14 @@ signals:
     void doneUnloading();
 
     void newFitParamsFileLoaded(int);
+
+public slots:
+
+    void reload_raw();
+
+    void reload_analyzed();
+
+    void reload_vlm();
 
 protected:
 

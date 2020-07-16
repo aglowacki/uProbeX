@@ -60,6 +60,8 @@ signals:
 
     void customContext(QString, QStringList);
 
+    void onRefresh();
+
 public slots:
     void onDoubleClickElement(const QModelIndex);
 

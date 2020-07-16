@@ -60,6 +60,8 @@ public:
 
    void clearAllSpectra() { _spectra_widget->clearAllSpectra(); }
 
+   void appendFitIntSpectra(string, data_struct::ArrayXr*);
+
 signals:
 
    void signal_finished_fit();
@@ -160,6 +162,8 @@ private:
     data_struct::ArrayXr _ev;
 
     data_struct::Params_Override* _param_override;
+
+    unordered_map<string, data_struct::ArrayXr*> _fit_int_spec_map;
 
     std::string _detector_element;
 

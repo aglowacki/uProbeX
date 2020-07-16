@@ -210,7 +210,7 @@ bool MapsH5Model::load(QString filepath)
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
 
-        logW<<" MapsH5Model loading "<< filepath.toStdString() << "\n";
+        //logW<<" MapsH5Model loading "<< filepath.toStdString() << "\n";
 
         float version = 0.0;
         hid_t    file_id, dset_id, dataspace_id, maps_grp_id, memoryspace_id;
