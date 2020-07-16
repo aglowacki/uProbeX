@@ -111,7 +111,7 @@ void PerPixelFitWidget::createLayout()
     proc_save_layout->addWidget(saving_grp);
 
     QHBoxLayout* hbox_progresss_blocks = new QHBoxLayout();
-    hbox_progresss_blocks->addWidget(new QLabel("Current Dataset:"));
+    hbox_progresss_blocks->addWidget(new QLabel("Current Fitting:"));
     hbox_progresss_blocks->addWidget(_progressBarBlocks);
 
     QHBoxLayout* hbox_progresss_files = new QHBoxLayout();
