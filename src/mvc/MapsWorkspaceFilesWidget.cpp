@@ -56,8 +56,8 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
 
     _mda_tab_widget = new FileTabWidget();
-    connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MDA); });
-    connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MDA); });
+    connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
+    connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
     _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
@@ -206,26 +206,35 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 }
                 _h5_tab_widget->loaded_file_status_changed(load_status, name);
             }
-            else if (mt == MODEL_TYPE::MDA)
+            else if (mt == MODEL_TYPE::RAW)
             {
-                QCoreApplication::processEvents();
-                /* // loading through background thread on windows seems to lock up on fopen
-                std::future< MDA_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_MDA_Model(name); });
-                while (ret._Is_ready() == false)
-                {
-                    QCoreApplication::processEvents();
-                }
+				RAW_Model* model = nullptr;
 
-                MDA_Model* Model = ret.get();
-                */
-                MDA_Model* model = _model->get_MDA_Model(name);
-                for (int i = 0; i < model->getNumIntegratedSpectra(); i++)
-                {
-                    data_struct::Params_Override* param_override = _model->getParamOverride(i);
-                    model->setParamOverride(i, param_override);
-                }
+				if (name.endsWith(".mda"))
+				{
+					QCoreApplication::processEvents();
+					// loading through background thread on windows seems to lock up on fopen
+					model = _model->get_RAW_Model(name);
+				}
+				if (name.endsWith(".h5"))
+				{
+					QCoreApplication::processEvents();
+					std::future< RAW_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_RAW_Model(name); });
+					while (ret._Is_ready() == false)
+					{
+						QCoreApplication::processEvents();
+					}
+
+					model = ret.get();
+				}
+
                 if (model != nullptr)
                 {
+					for (int i = 0; i < model->getNumIntegratedSpectra(); i++)
+					{
+						data_struct::Params_Override* param_override = _model->getParamOverride(i);
+						model->setParamOverride(i, param_override);
+					}
                     emit loaded_model(name, mt);
                     load_status = LOADED;
                 }
@@ -278,8 +287,8 @@ void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL
                 _model->unload_H5_Model(name);
                 _h5_tab_widget->loaded_file_status_changed(load_status, name);
                 break;
-            case MODEL_TYPE::MDA:
-                _model->unload_MDA_Model(name);
+            case MODEL_TYPE::RAW:
+                _model->unload_RAW_Model(name);
                 _mda_tab_widget->loaded_file_status_changed(load_status, name);
                 break;
             case MODEL_TYPE::SWS:

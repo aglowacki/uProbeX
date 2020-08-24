@@ -12,7 +12,7 @@
 #include "RawH5Model.h"
 #include "MapsH5Model.h"
 #include "SWSModel.h"
-#include "MDA_Model.h"
+#include "RAW_Model.h"
 #include "io/file/hl_file_io.h"
 #include <map>
 #include <QDir>
@@ -60,13 +60,13 @@ public:
 
     MapsH5Model* get_MapsH5_Model(QString name);
 
-    MDA_Model* get_MDA_Model(QString name);
+    RAW_Model* get_RAW_Model(QString name);
 
     SWSModel* get_SWS_Model(QString name);
 
     void unload_H5_Model(QString name);
 
-    void unload_MDA_Model(QString name);
+    void unload_RAW_Model(QString name);
 
     void unload_SWS_Model(QString name);
 
@@ -113,8 +113,7 @@ protected:
     //bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
     std::map<QString, MapsH5Model*> _h5_models;
-    std::map<QString, RawH5Model*> _raw_hd5_models;
-    std::map<QString, MDA_Model*> _mda_models;
+    std::map<QString, RAW_Model*> _raw_models;
     std::map<QString, SWSModel*> _sws_models;
 
     std::map<int, data_struct::Params_Override> _fit_params_override_dict;

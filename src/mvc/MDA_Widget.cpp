@@ -90,7 +90,7 @@ void MDA_Widget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::setModel(MDA_Model* model)
+void MDA_Widget::setModel(RAW_Model* model)
 {
     if(_model == model)
     {
@@ -117,39 +117,43 @@ void MDA_Widget::model_updated()
     _scaler_table_widget->setRowCount(rows);
     _scaler_table_widget->setColumnCount(cols);
 
-    for (const auto& itr : scan_info->scaler_maps)
-    {
-        _cb_scaler->addItem(QString::fromLatin1(itr.name.c_str(), itr.name.length()));
-    }
+	if (scan_info != nullptr)
+	{
 
-    onScalerSelect(_cb_scaler->itemText(0));
+		for (const auto& itr : scan_info->scaler_maps)
+		{
+			_cb_scaler->addItem(QString::fromLatin1(itr.name.c_str(), itr.name.length()));
+		}
 
-    _extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
-    int i = 0;
-    for (const auto& itr : scan_info->extra_pvs)
-    {
-        _extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
-        _extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
-        _extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
-        _extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
-        i++;
-    }
+		onScalerSelect(_cb_scaler->itemText(0));
 
-    disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
-    
-    _cb_detector->clear();
+		_extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
+		int i = 0;
+		for (const auto& itr : scan_info->extra_pvs)
+		{
+			_extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
+			_extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
+			_extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
+			_extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
+			i++;
+		}
 
-    for (unsigned int i = 0; i < _model->getNumIntegratedSpectra(); i++)
-    {
-        _cb_detector->addItem(QString::number(i));
-    }
+		disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
 
-    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+		_cb_detector->clear();
 
-    if (_model->getNumIntegratedSpectra() > 0)
-    {
-        onDetectorSelect("0");
-    }
+		for (unsigned int i = 0; i < _model->getNumIntegratedSpectra(); i++)
+		{
+			_cb_detector->addItem(QString::number(i));
+		}
+
+		connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+		if (_model->getNumIntegratedSpectra() > 0)
+		{
+			onDetectorSelect("0");
+		}
+	}
 }
 
 /*---------------------------------------------------------------------------*/
@@ -211,25 +215,28 @@ void MDA_Widget::onScalerSelect(const QString& det)
     _model->getDims(rows, cols);
     std::string name = det.toStdString();
     data_struct::Scan_Info* scan_info = _model->getScanInfo();
-    for (const auto& itr : scan_info->scaler_maps)
-    {
-        if (itr.name == name)
-        {
-            scaler = &(itr.values);
-            break;
-        }
-    }
+	if (scan_info != nullptr)
+	{
+		for (const auto& itr : scan_info->scaler_maps)
+		{
+			if (itr.name == name)
+			{
+				scaler = &(itr.values);
+				break;
+			}
+		}
 
-    if (scaler != nullptr)
-    {
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
-                _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
-            }
-        }
-    }
+		if (scaler != nullptr)
+		{
+			for (int i = 0; i < rows; i++)
+			{
+				for (int j = 0; j < cols; j++)
+				{
+					_scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
+				}
+			}
+		}
+	}
 }
 
 /*---------------------------------------------------------------------------*/

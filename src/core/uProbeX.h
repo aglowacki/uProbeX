@@ -35,7 +35,7 @@ class QMdiArea;
 class QMdiSubWindow;
 class Solver;
 class SWSModel;
-class MDA_Model;
+class RAW_Model;
 
 namespace gstar
 {
@@ -133,7 +133,7 @@ private slots:
     * @brief makeMDAWindow
     * @param model
     */
-   void makeMDAWindow(MDA_Model* model);
+   void makeMDAWindow(RAW_Model* model);
 
    /**
     * @brief Open the data file at the given path. Triggered by acquisition controller

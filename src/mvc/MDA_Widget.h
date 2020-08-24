@@ -11,7 +11,7 @@
 #include <QComboBox>
 #include <QTableWidget>
 #include <gstar/AbstractImageWidget.h>
-#include <mvc/MDA_Model.h>
+#include <mvc/RAW_Model.h>
 #include <mvc/FitSpectraWidget.h>
 
 /*---------------------------------------------------------------------------*/
@@ -34,9 +34,9 @@ public:
    ~MDA_Widget();
 
    //void setModel(MapsH5Model* model);
-   void setModel(MDA_Model* model);
+   void setModel(RAW_Model* model);
 
-   MDA_Model *getModel(){return _model;}
+   RAW_Model *getModel(){return _model;}
 
 public slots:
 
@@ -56,7 +56,7 @@ protected:
 
    QTabWidget* _tab_widget;
 
-   MDA_Model *_model;
+   RAW_Model *_model;
 
    QComboBox* _cb_detector;
 

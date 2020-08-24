@@ -91,7 +91,7 @@ protected:
 
    map<QString, MapsH5Model*> _h5_model_map;
 
-   map<QString, MDA_Model*> _mda_model_map;
+   map<QString, RAW_Model*> _raw_model_map;
 
    map<QString, SWSModel*> _sws_model_map;
 

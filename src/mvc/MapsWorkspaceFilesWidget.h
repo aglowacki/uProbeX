@@ -23,7 +23,7 @@
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
 
-enum class MODEL_TYPE { MAPS_H5, MDA, SWS };
+enum class MODEL_TYPE { MAPS_H5, RAW, SWS };
 
 /*---------------------------------------------------------------------------*/
 /**
