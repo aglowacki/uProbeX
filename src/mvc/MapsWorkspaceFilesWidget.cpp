@@ -230,11 +230,6 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
                 if (model != nullptr)
                 {
-					for (int i = 0; i < model->getNumIntegratedSpectra(); i++)
-					{
-						data_struct::Params_Override* param_override = _model->getParamOverride(i);
-						model->setParamOverride(i, param_override);
-					}
                     emit loaded_model(name, mt);
                     load_status = LOADED;
                 }

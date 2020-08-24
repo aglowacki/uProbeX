@@ -235,6 +235,10 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
     if(_raw_fileinfo_list.count(name) > 0)
     {
         RAW_Model * model = new RAW_Model();
+        for(auto &itr : _fit_params_override_dict)
+        {
+            model->setParamOverride(itr.first, &(itr.second));
+        }
         QFileInfo fileInfo = _raw_fileinfo_list[name];
         if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {

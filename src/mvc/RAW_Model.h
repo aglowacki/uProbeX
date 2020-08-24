@@ -46,9 +46,9 @@ public:
 
 	unsigned int getNumIntegratedSpectra();
 
-	data_struct::ArrayXr* getIntegratedSpectra(unsigned int det);
+	data_struct::Spectra* getIntegratedSpectra(unsigned int det);
 
-    void getDims(int& rows, int& cols) { rows = _rows; cols = _cols; }
+    void getDims(int& rows, int& cols) { rows = _scan_info.meta_info.requested_rows; cols = _scan_info.meta_info.requested_cols; }
 
 	data_struct::Scan_Info* getScanInfo();
 
@@ -56,19 +56,17 @@ public:
 
     data_struct::Params_Override* getParamOverride(int idx);
 
-protected:
+    data_struct::Params_Override* getParamOverrideOrAvg(int idx);
 
-    data_struct::Params_Override* _param_override;
+    std::vector<unsigned int> getDetectorKeys();
 
 private:
 
+    data_struct::Scan_Info _scan_info;
+
     std::map<int, data_struct::Params_Override*> _fit_params_override_dict;
 
-    int _rows;
-
-    int _cols;
-
-    io::file::MDA_IO _mda_io;
+    std::unordered_map<unsigned int, data_struct::Spectra> _integrated_spectra_map;
 
     QString _filepath;
 

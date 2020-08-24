@@ -137,23 +137,29 @@ void MDA_Widget::model_updated()
 			_extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
 			i++;
 		}
-
-		disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
-
-		_cb_detector->clear();
-
-		for (unsigned int i = 0; i < _model->getNumIntegratedSpectra(); i++)
-		{
-			_cb_detector->addItem(QString::number(i));
-		}
-
-		connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
-
-		if (_model->getNumIntegratedSpectra() > 0)
-		{
-			onDetectorSelect("0");
-		}
 	}
+    disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+    _cb_detector->clear();
+    auto keys = _model->getDetectorKeys();
+    for (unsigned int i : keys)
+    {
+        if (i == -1)
+        {
+            _cb_detector->addItem("det_sum");
+        }
+        else
+        {
+            _cb_detector->addItem(QString::number(i));
+        }
+    }
+
+    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+    if (_model->getNumIntegratedSpectra() > 0)
+    {
+        onDetectorSelect("0");
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -163,7 +169,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
     unsigned int det = _cb_detector->currentText().toUInt();
     if (_model != nullptr)
     {
-        data_struct::Params_Override* po  = _model->getParamOverride(det);
+        data_struct::Params_Override* po  = _model->getParamOverrideOrAvg(det);
         if (po != nullptr)
         {
             QString save_path = _model->getPath();
@@ -197,12 +203,12 @@ void MDA_Widget::onDetectorSelect(const QString& det)
 {
     unsigned int detector = det.toUInt();
 
-    data_struct::Params_Override* po = _model->getParamOverride(detector);
+    data_struct::Params_Override* po = _model->getParamOverrideOrAvg(detector);
     if (po != nullptr)
     {
 		_spectra_widget->setParamOverride(po);
     }
-
+    
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));
 }
 
