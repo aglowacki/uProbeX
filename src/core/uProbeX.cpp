@@ -777,7 +777,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeMDAWindow(MDA_Model* model)
+void uProbeX::makeMDAWindow(RAW_Model* model)
 {
     MDA_Widget* widget = new MDA_Widget();
     widget->setModel(model);

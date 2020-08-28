@@ -132,13 +132,13 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 		_imageGrid->setModel(_h5_model_map[text]);
 		_imageGrid->show();
 	}
-	else if(_mda_model_map.count(text) > 0)
+	else if(_raw_model_map.count(text) > 0)
 	{
 		if (_sws_widget->isVisible())
 			_sws_widget->hide();
 		if(_imageGrid->isVisible())
 			_imageGrid->hide();
-		_mda_widget->setModel(_mda_model_map[text]);
+		_mda_widget->setModel(_raw_model_map[text]);
 		_mda_widget->show();
 	}
 	else if (_sws_model_map.count(text) > 0)
@@ -218,8 +218,8 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 		case MODEL_TYPE::MAPS_H5:
 			_h5_model_map[name] = _model->get_MapsH5_Model(name);
 			break;
-		case MODEL_TYPE::MDA:
-			_mda_model_map[name] = _model->get_MDA_Model(name);
+		case MODEL_TYPE::RAW:
+			_raw_model_map[name] = _model->get_RAW_Model(name);
 			break;
 		case MODEL_TYPE::SWS:
 			_sws_model_map[name] = _model->get_SWS_Model(name);
@@ -245,9 +245,9 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 			_h5_model_map.erase(s);
 			_model->unload_H5_Model(s);
 			break;
-		case MODEL_TYPE::MDA:
-			_mda_model_map.erase(s);
-			_model->unload_MDA_Model(s);
+		case MODEL_TYPE::RAW:
+			_raw_model_map.erase(s);
+			_model->unload_RAW_Model(s);
 			break;
 		case MODEL_TYPE::SWS:
 			_sws_model_map.erase(s);

@@ -42,11 +42,11 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 	}
 	_h5_models.clear();
 
-	for (auto & itr : _mda_models)
+	for (auto & itr : _raw_models)
 	{
 		delete itr.second;
 	}
-	_mda_models.clear();
+	_raw_models.clear();
 
 	for (auto & itr : _sws_models)
 	{
@@ -174,18 +174,11 @@ void MapsWorkspaceModel::unload()
     }
     _h5_models.clear();
 
-    for(auto &itr : _raw_hd5_models)
+    for(auto &itr : _raw_models)
     {
         delete itr.second;
     }
-    _raw_hd5_models.clear();
-
-
-    for(auto &itr : _mda_models)
-    {
-        delete itr.second;
-    }
-    _mda_models.clear();
+    _raw_models.clear();
 
     for(auto &itr : _sws_models)
     {
@@ -232,19 +225,24 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-MDA_Model* MapsWorkspaceModel::get_MDA_Model(QString name)
+RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 {
-    if(_mda_models.count(name) > 0)
+	
+    if(_raw_models.count(name) > 0)
     {
-        return _mda_models[name];
+        return _raw_models[name];
     }
     if(_raw_fileinfo_list.count(name) > 0)
     {
-        MDA_Model * model = new MDA_Model();
+        RAW_Model * model = new RAW_Model();
+        for(auto &itr : _fit_params_override_dict)
+        {
+            model->setParamOverride(itr.first, &(itr.second));
+        }
         QFileInfo fileInfo = _raw_fileinfo_list[name];
         if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {
-            _mda_models.insert( {fileInfo.fileName(), model} );
+            _raw_models.insert( {fileInfo.fileName(), model} );
             return model;
         }
         else
@@ -252,7 +250,7 @@ MDA_Model* MapsWorkspaceModel::get_MDA_Model(QString name)
             delete model;
         }
     }
-
+	
     return nullptr;
 }
 
@@ -296,12 +294,12 @@ void MapsWorkspaceModel::unload_H5_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceModel::unload_MDA_Model(QString name)
+void MapsWorkspaceModel::unload_RAW_Model(QString name)
 {
-    if(_mda_models.count(name) > 0)
+    if(_raw_models.count(name) > 0)
     {
-        MDA_Model* model = _mda_models[name];
-        _mda_models.erase(name);
+        RAW_Model* model = _raw_models[name];
+        _raw_models.erase(name);
         delete model;
     }
 }
