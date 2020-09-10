@@ -71,7 +71,7 @@ bool RAW_Model::load(QString directory, QString filename)
 
 			_scan_info = *(mda_io.get_scan_info());
 		}
-		if (filename.endsWith(".h5"))
+		if (filename.endsWith(".h5") || filename.endsWith(".hdf5"))
 		{
 			if (io::get_scalers_and_metadata_h5(directory.toStdString(), filename.toStdString(), &_scan_info))
 			{
