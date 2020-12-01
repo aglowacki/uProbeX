@@ -82,7 +82,11 @@ void Preferences::createValueKeyMap()
 
 QVariant Preferences::readValueKey(Preferences::ValueKey key)
 {
-   return readValueKey(m_mapValueKey[key]);
+	if (m_mapValueKey.count(key) > 0)
+	{
+		return readValueKey(m_mapValueKey[key]);
+	}
+	return QVariant();
 }
 
 /*---------------------------------------------------------------------------*/

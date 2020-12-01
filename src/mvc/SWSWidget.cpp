@@ -1602,7 +1602,7 @@ void SWSWidget::offsetReturnPressed()
 
    ok = false;
    valX = sxOff.toDouble(&ok);
-   if(ok)
+   if(ok && m_lightToMicroCoordModel != nullptr)
    {
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
@@ -1619,7 +1619,7 @@ void SWSWidget::offsetReturnPressed()
 
    ok = false;
    valY = syOff.toDouble(&ok);
-   if(ok)
+   if(ok && m_lightToMicroCoordModel != nullptr)
    {
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
@@ -1902,17 +1902,19 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 {
 
-   if(m_coordinateModel != nullptr)
-   {
-      disconnect(m_coordinateModel,
-                 SIGNAL(transformOutput(double, double, double)),
-                 this,
-                 SLOT(updatedPixelToLight(double,double,double)));
-   }
+	if (m_coordinateModel != nullptr)
+	{
+		disconnect(m_coordinateModel,
+			SIGNAL(transformOutput(double, double, double)),
+			this,
+			SLOT(updatedPixelToLight(double, double, double)));
+	}
 
-   m_coordinateModel = model;
-   m_coordinateModel->setTransformerPrecision(
-         m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+	m_coordinateModel = model;
+	if (m_preferences != nullptr)
+	{
+		m_coordinateModel->setTransformerPrecision(m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+	}
 
    if(m_imageViewWidget != nullptr)
    {
