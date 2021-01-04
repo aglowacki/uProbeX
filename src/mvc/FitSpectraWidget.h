@@ -180,6 +180,8 @@ private:
     QCheckBox* _chk_is_pileup;
 
     QComboBox* _cb_detector_element;
+
+    bool _display_detailed_fit_spectra;
 };
 
 

@@ -36,6 +36,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
 	_param_override = nullptr;
+    _display_detailed_fit_spectra = false;
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -523,7 +524,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
             replot_integrated_spectra(true);
 			
             //data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
-			data_struct::Spectra fit_spec = _fitting_dialog->get_fit_spectra();
+            unordered_map<string, data_struct::ArrayXr> labeled_spectras;
+			data_struct::Spectra fit_spec = _fitting_dialog->get_fit_spectra(&labeled_spectras);
             if (fit_spec.size() == _spectra_background.size())
             {
                 fit_spec += _spectra_background;
@@ -537,6 +539,13 @@ void FitSpectraWidget::Fit_Spectra_Click()
             }
 
             _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*) & _ev);
+            if (_display_detailed_fit_spectra)
+            {
+                for (auto& itr : labeled_spectras)
+                {
+                    _spectra_widget->append_spectra(QString(itr.first.c_str()), (Spectra*)&itr.second, (data_struct::Spectra*) & _ev);
+                }
+            }
             emit signal_finished_fit();		
         }
 
@@ -584,7 +593,7 @@ void FitSpectraWidget::Model_Spectra_Click()
         energy_range.max = _spectra_background.size() -1;
 
 
-        data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, energy_range);
+        data_struct::Spectra fit_spec = model.model_spectrum_mp(&fit_params, _elements_to_fit, energy_range);
 
         replot_integrated_spectra(true);
 

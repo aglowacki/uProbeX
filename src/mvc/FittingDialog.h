@@ -70,7 +70,7 @@ public:
 
     void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
 
-	data_struct::Spectra get_fit_spectra();
+	data_struct::Spectra get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras);
 
 	data_struct::Fit_Parameters* get_new_fit_params() { return &_new_out_fit_params; }
 

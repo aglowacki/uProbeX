@@ -27,7 +27,7 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _int_spec_max_x = 1;
     _int_spec_max_y = 1;
     createLayout();
-
+    /*
     _action_check_log10 = new QAction("Toggle Log10", this);
     _action_check_log10->setCheckable(true);
     _action_check_log10->setChecked(_display_log10);
@@ -37,10 +37,10 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _contextMenu->addAction(_action_check_log10);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-
+    
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(ShowContextMenu(const QPoint &)));
-
+            */
     connect(this, SIGNAL(trigger_connect_markers()),
             this, SLOT(connectMarkers()));
 
@@ -105,9 +105,13 @@ void SpectraWidget::createLayout()
     _line_series = nullptr;
 
     _chartView = new QtCharts::QChartView(_chart);
-    _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
+    _chartView->setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+
     //_chartView->setRenderHint(QPainter::Antialiasing);
    
+    // Toolbar zoom out action
+    _btnSsettings = new QPushButton(QIcon(":/images/gear.png"), "", this);
+    connect(_btnSsettings, &QPushButton::released, this, &SpectraWidget::onSettingsDialog);
 
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
     _display_eneergy_min->setMinimumWidth(100);
@@ -134,6 +138,8 @@ void SpectraWidget::createLayout()
     spectra_layout->addWidget(_chartView);
 
     QHBoxLayout* options_layout = new QHBoxLayout();
+    options_layout->addWidget(_btnSsettings);
+
     options_layout->addWidget(new QLabel("Display Energy Min:"));
     options_layout->addWidget(_display_eneergy_min);
     options_layout->addWidget(new QLabel("KeV  ,  "));
@@ -179,6 +185,18 @@ void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
     qreal maxRange = _display_height_max->text().toDouble();
     qreal minRange = _display_height_min->text().toDouble();
     _currentYAxis->setRange(minRange, maxRange);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::onSettingsDialog()
+{
+
+    SpectraWidgetSettingsDialog settings_dialog = new SpectraWidgetSettingsDialog();
+    settings_dialog.exec();
+    if (settings_dialog.isAccepted())
+    {
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -528,6 +546,7 @@ void SpectraWidget::mousePressEvent(QMouseEvent *event)
 {
     if (m_isTouching)
         return;
+
     QWidget::mousePressEvent(event);
 }
 

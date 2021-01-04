@@ -20,6 +20,7 @@
 #include <QPushButton>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
+#include "mvc/SpectraWidgetSettingsDialog.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -76,6 +77,8 @@ public slots:
     void set_element_lines(data_struct::Fit_Element_Map * element);
 
     void set_top_axis(std::map<std::string, float> elements);
+
+    void onSettingsDialog();
 
     void onResetChartView();
 
@@ -143,6 +146,8 @@ private:
     //std::map<QString, data_struct::Spectra> _spectra_map;
 
     QAction *_action_check_log10;
+
+    QPushButton* _btnSsettings;
 
     QMenu *_contextMenu;
 

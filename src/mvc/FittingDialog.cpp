@@ -145,9 +145,9 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Spectra FittingDialog::get_fit_spectra()
+data_struct::Spectra FittingDialog::get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
 {
-	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, _energy_range);
+	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
 }
 
 /*---------------------------------------------------------------------------*/
