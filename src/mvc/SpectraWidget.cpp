@@ -110,9 +110,6 @@ void SpectraWidget::createLayout()
     //_chartView->setRenderHint(QPainter::Antialiasing);
    
     // Toolbar zoom out action
-    _btnSsettings = new QPushButton(QIcon(":/images/gear.png"), "", this);
-    connect(_btnSsettings, &QPushButton::released, this, &SpectraWidget::onSettingsDialog);
-
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
     _display_eneergy_min->setMinimumWidth(100);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
@@ -138,8 +135,6 @@ void SpectraWidget::createLayout()
     spectra_layout->addWidget(_chartView);
 
     QHBoxLayout* options_layout = new QHBoxLayout();
-    options_layout->addWidget(_btnSsettings);
-
     options_layout->addWidget(new QLabel("Display Energy Min:"));
     options_layout->addWidget(_display_eneergy_min);
     options_layout->addWidget(new QLabel("KeV  ,  "));
@@ -185,18 +180,6 @@ void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
     qreal maxRange = _display_height_max->text().toDouble();
     qreal minRange = _display_height_min->text().toDouble();
     _currentYAxis->setRange(minRange, maxRange);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::onSettingsDialog()
-{
-
-    SpectraWidgetSettingsDialog settings_dialog = new SpectraWidgetSettingsDialog();
-    settings_dialog.exec();
-    if (settings_dialog.isAccepted())
-    {
-    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -451,12 +434,14 @@ void SpectraWidget::remove_spectra(QString name)
 
 void SpectraWidget::ShowContextMenu(const QPoint &pos)
 {
+
     _contextMenu->exec(mapToGlobal(pos));
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::_check_log10()
+void SpectraWidget::set_log10(bool val)
 {
 
     QList<QtCharts::QAbstractSeries*> series = _chart->series();
@@ -472,13 +457,15 @@ void SpectraWidget::_check_log10()
     }
     _chart->removeAxis(_currentYAxis);
 
+    _display_log10 = val;
+
     if(_display_log10) //if current one is log10, set to normal
     {
-        _currentYAxis = _axisY;
+        _currentYAxis = _axisYLog10;
     }
     else
     {
-        _currentYAxis = _axisYLog10;
+        _currentYAxis = _axisY;
     }
 
     _chart->addAxis(_currentYAxis, Qt::AlignLeft);
@@ -487,10 +474,6 @@ void SpectraWidget::_check_log10()
     {
         ser->attachAxis(_currentYAxis);
     }
-
-
-    _display_log10 = !_display_log10;
-    _action_check_log10->setChecked(_display_log10);
 
     emit(y_axis_changed(_display_log10));
 
@@ -697,3 +680,5 @@ void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
         _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
     } 
 }
+
+/*---------------------------------------------------------------------------*/

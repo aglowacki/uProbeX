@@ -42,6 +42,10 @@ public:
 
     bool isAccepted() { return _accepted; }
 
+    bool isLog10() { return _chkLog10->isChecked(); }
+
+    bool isDetailedFitSpectra() { return _chkDetailedFit->isChecked(); }
+
 public slots:
     
 	void onAccepted();
@@ -55,7 +59,11 @@ protected:
     */
    void createLayout();
 
-   QTextEdit *_textEdit;
+   QCheckBox* _chkLog10;
+
+   QCheckBox* _chkDetailedFit;
+
+   //QTextEdit *_textEdit;
 
    QPushButton *_btn_run;
 
