@@ -18,6 +18,7 @@
 
 #include "data_struct/element_info.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
+#include <preferences/Preferences.h>
 
 using namespace data_struct;
 
@@ -245,9 +246,9 @@ void FitSpectraWidget::onSettingsDialog()
     settings_dialog.exec();
     if (settings_dialog.isAccepted())
     {
-        _spectra_widget->set_log10(settings_dialog.isLog10());
+        _spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
 
-        _showDetailedFitSpec = settings_dialog.isDetailedFitSpectra();
+        _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool(); 
         if (_showDetailedFitSpec)
         {
 

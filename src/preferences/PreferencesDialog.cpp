@@ -136,72 +136,53 @@ void PreferencesDialog::accept()
 {
 
    // Accept changes in settings widget
-   if (m_preferences != nullptr)
-   {
+   
 
-      m_preferences->saveValueKey(Preferences::NMCoefficient,
-                                 m_solverOptionWidget->getNMCoefficientAttrs());
-      m_preferences->saveValueKey(Preferences::NMOptions,
-                                  m_solverOptionWidget->getNMOptionAttrs());
+    Preferences::inst()->setValue(STR_PRF_NMCoefficient, m_solverOptionWidget->getNMCoefficientAttrs());
+    Preferences::inst()->setValue(STR_PRF_NMOptions, m_solverOptionWidget->getNMOptionAttrs());
 /*
-      // Profile information
-      m_preferences->saveValueKey(Preferences::ProfileList,
-                                  m_solverOptionWidget->getPythonSolverPofile());
-      m_preferences->saveValueKey(Preferences::ProfilePythonSolverName,
-                                  m_solverOptionWidget->getPythonSolverName());
-      m_preferences->saveValueKey(Preferences::ProfilePythonCoefficient,
-                             m_solverOptionWidget->getPythonCoefficientAttrs());
-      m_preferences->saveValueKey(Preferences::ProfilePythonOptions,
-                                  m_solverOptionWidget->getPythonOptionAttrs());
+    // Profile information
+    Preferences::inst()->setValue(STR_PRF_ProfileList,
+                                m_solverOptionWidget->getPythonSolverPofile());
+    Preferences::inst()->setValue(STR_PRF_ProfilePythonSolverName,
+                                m_solverOptionWidget->getPythonSolverName());
+    Preferences::inst()->setValue(STR_PRF_ProfilePythonCoefficient,
+                            m_solverOptionWidget->getPythonCoefficientAttrs());
+    Preferences::inst()->setValue(STR_PRF_ProfilePythonOptions,
+                                m_solverOptionWidget->getPythonOptionAttrs());
 
-      // Current profile information
-      m_preferences->saveValueKey(Preferences::ProfileIndex,
-                             m_solverOptionWidget->getCurrentIndex());
-      m_preferences->saveValueKey(Preferences::PythonSolverName,
-                             m_solverOptionWidget->getCurrentFileName());
-      m_preferences->saveValueKey(Preferences::PythonCoefficient,
-                             m_solverOptionWidget->getCurrentCoefficientAttrs());
-      m_preferences->saveValueKey(Preferences::PythonOptions,
-                                  m_solverOptionWidget->getCurrentOptionAttrs());
+    // Current profile information
+    Preferences::inst()->setValue(STR_PRF_ProfileIndex,
+                            m_solverOptionWidget->getCurrentIndex());
+    Preferences::inst()->setValue(STR_PRF_PythonSolverName,
+                            m_solverOptionWidget->getCurrentFileName());
+    Preferences::inst()->setValue(STR_PRF_PythonCoefficient,
+                            m_solverOptionWidget->getCurrentCoefficientAttrs());
+    Preferences::inst()->setValue(STR_PRF_PythonOptions,
+                                m_solverOptionWidget->getCurrentOptionAttrs());
 */
-      m_preferences->saveValueKey(Preferences::SolverCheckedID,
-                                  m_solverOptionWidget->getCheckedID());
+    Preferences::inst()->setValue(STR_PRF_SolverCheckedID, m_solverOptionWidget->getCheckedID());
 
-      m_preferences->saveValueKey(Preferences::FontSize,
-                                  m_displaySettings->getFontSize());
-      m_preferences->saveValueKey(Preferences::WindowTitle,
-                                  m_displaySettings->getWindowTitle());
-      m_preferences->saveValueKey(Preferences::DecimalPrecision,
-                                  m_displaySettings->getDecimalPrecision());
+    Preferences::inst()->setValue(STR_PRF_FontSize, m_displaySettings->getFontSize());
+    Preferences::inst()->setValue(STR_PRF_WindowTitle, m_displaySettings->getWindowTitle());
+    Preferences::inst()->setValue(STR_PRF_DecimalPrecision,m_displaySettings->getDecimalPrecision());
 
-      m_preferences->saveValueKey(Preferences::RegionMenuList,
-                                  m_pythonFuncWidget->getGroupStringList());
+    Preferences::inst()->setValue(STR_PRF_RegionMenuList,m_pythonFuncWidget->getGroupStringList());
 
-      m_preferences->saveValueKey(Preferences::MicroProbeXPv,
-                                  m_microPvSettings->getMicroProbeXPv());
-      m_preferences->saveValueKey(Preferences::MicroProbeYPv,
-                                  m_microPvSettings->getMicroProbeYPv());
+    Preferences::inst()->setValue(STR_PRF_MicroProbeXPv,m_microPvSettings->getMicroProbeXPv());
+    Preferences::inst()->setValue(STR_PRF_MicroProbeYPv,m_microPvSettings->getMicroProbeYPv());
 
-      m_preferences->saveValueKey(Preferences::AutoSaveRecoveryEnable,
-                                  m_autoSaveOptionsWidget->getEnableRecoveryAutoSaveFunctionality());
-      m_preferences->saveValueKey(Preferences::AutoSaveRecoveryEveryMiliseconds,
-                                  m_autoSaveOptionsWidget->getRecoveryAutoSaveEveryMiliseconds());
-      m_preferences->saveValueKey(Preferences::AutoSaveOnExit,
-                                  m_autoSaveOptionsWidget->getEnableSaveOnExit());
+    Preferences::inst()->setValue(STR_PRF_AutoSaveRecoveryEnable,m_autoSaveOptionsWidget->getEnableRecoveryAutoSaveFunctionality());
+    Preferences::inst()->setValue(STR_PRF_AutoSaveRecoveryEveryMiliseconds,m_autoSaveOptionsWidget->getRecoveryAutoSaveEveryMiliseconds());
+    Preferences::inst()->setValue(STR_PRF_AutoSaveOnExit,m_autoSaveOptionsWidget->getEnableSaveOnExit());
 
-      m_preferences->saveValueKey(Preferences::ExportZoomToRegion,
-                                  m_exportOptionsWidget->getEnableZoomToRegionOnExport());
-      m_preferences->saveValueKey(Preferences::ExportDirectoryInDataset,
-                                  m_exportOptionsWidget->getExportToDirInDataset());
-      m_preferences->saveValueKey(Preferences::ExportPrintNameOnExportedImage,
-                                  m_exportOptionsWidget->getPrintNameOnExportedImage());
-      m_preferences->saveValueKey(Preferences::ExportPrintPxPyOnExportedImage,
-                                  m_exportOptionsWidget->getPrintPyPxOnExportedImage());
-      m_preferences->saveValueKey(Preferences::ExportPrintWidthHeightOnExportedImage,
-                                  m_exportOptionsWidget->getPrintWidthHeightOnExportedImage());
-      m_preferences->saveValueKey(Preferences::ExportSelectedXmlOption,
-                                  m_exportOptionsWidget->getSelectedXmlExportOption());
-   }
+    Preferences::inst()->setValue(STR_PRF_ExportZoomToRegion,m_exportOptionsWidget->getEnableZoomToRegionOnExport());
+    Preferences::inst()->setValue(STR_PRF_ExportDirectoryInDataset,m_exportOptionsWidget->getExportToDirInDataset());
+    Preferences::inst()->setValue(STR_PRF_ExportPrintNameOnExportedImage,m_exportOptionsWidget->getPrintNameOnExportedImage());
+    Preferences::inst()->setValue(STR_PRF_ExportPrintPxPyOnExportedImage,m_exportOptionsWidget->getPrintPyPxOnExportedImage());
+    Preferences::inst()->setValue(STR_PRF_ExportPrintWidthHeightOnExportedImage,m_exportOptionsWidget->getPrintWidthHeightOnExportedImage());
+    Preferences::inst()->setValue(STR_PRF_ExportSelectedXmlOption,m_exportOptionsWidget->getSelectedXmlExportOption());
+   
    // Close with accept
    QDialog::accept();
 
@@ -232,105 +213,76 @@ void PreferencesDialog::reject()
 
 /*---------------------------------------------------------------------------*/
 
-void PreferencesDialog::setPreferences(Preferences* preferences, bool passMode)
+void PreferencesDialog::setPreferences(bool passMode)
 {
 
    Q_UNUSED(passMode);
 
    // Assign preferences object
-   m_preferences = preferences;
 
    // Assign preferences to pages
-   if (m_preferences != nullptr)
-   {
-      // Solver check id and general attribute which would be used as default
-      m_solverOptionWidget->setCheckedID(
-            preferences->readValueKey(Preferences::SolverCheckedID).toInt());
+   
+    // Solver check id and general attribute which would be used as default
+    m_solverOptionWidget->setCheckedID(
+        Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt());
 
-      m_solverOptionWidget->setNMCoefficientAttrs(
-            preferences->readValueKey(
-                  Preferences::NMCoefficient).toStringList());
-      m_solverOptionWidget->setNMOptionAttrs(
-            preferences->readValueKey(
-                  Preferences::NMOptions).toStringList());
+    m_solverOptionWidget->setNMCoefficientAttrs(
+        Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList());
+    m_solverOptionWidget->setNMOptionAttrs(
+        Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList());
 /*
-      // Preference for all the profiles
-      m_solverOptionWidget->setPythonSolverPofile(
-            preferences->readValueKey(
-                  Preferences::ProfileList).toStringList());
-      m_solverOptionWidget->setPythonSolverName(
-            preferences->readValueKey(
-                  Preferences::ProfilePythonSolverName).toStringList());
-      m_solverOptionWidget->setPythonCoefficientAttrs(
-            preferences->readValueKey(
-                  Preferences::ProfilePythonCoefficient).toStringList());
-      m_solverOptionWidget->setPythonOptionAttrs(
-            preferences->readValueKey(
-                  Preferences::ProfilePythonOptions).toStringList());
+    // Preference for all the profiles
+    m_solverOptionWidget->setPythonSolverPofile(
+        preferences->readValueKey(
+                Preferences::ProfileList).toStringList());
+    m_solverOptionWidget->setPythonSolverName(
+        preferences->readValueKey(
+                Preferences::ProfilePythonSolverName).toStringList());
+    m_solverOptionWidget->setPythonCoefficientAttrs(
+        preferences->readValueKey(
+                Preferences::ProfilePythonCoefficient).toStringList());
+    m_solverOptionWidget->setPythonOptionAttrs(
+        preferences->readValueKey(
+                Preferences::ProfilePythonOptions).toStringList());
 
-      // Preference info for the current selected profile index
-      m_solverOptionWidget->setCurrentIndex(
-            preferences->readValueKey(Preferences::ProfileIndex).toInt());
-      m_solverOptionWidget->setCurrentFileName(
-            preferences->readValueKey(Preferences::PythonSolverName).toString());
-      m_solverOptionWidget->setCurrentCoefficientAttrs(
-            preferences->readValueKey(
-                  Preferences::PythonCoefficient).toStringList());
-      m_solverOptionWidget->setCurrentOptionAttrs(
-            preferences->readValueKey(
-                  Preferences::PythonOptions).toStringList());
+    // Preference info for the current selected profile index
+    m_solverOptionWidget->setCurrentIndex(
+        Preferences::inst()->getValue(STR_PRF_ProfileIndex).toInt());
+    m_solverOptionWidget->setCurrentFileName(
+        Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString());
+    m_solverOptionWidget->setCurrentCoefficientAttrs(
+        preferences->readValueKey(
+                Preferences::PythonCoefficient).toStringList());
+    m_solverOptionWidget->setCurrentOptionAttrs(
+        preferences->readValueKey(
+                Preferences::PythonOptions).toStringList());
 */
-      // General window attribute
-      m_displaySettings->setFontSize(
-         preferences->readValueKey(Preferences::FontSize).toInt());
-      m_displaySettings->setWindowTitle(
-         preferences->readValueKey(Preferences::WindowTitle).toString());
-      m_displaySettings->setDecimalPrecision(
-         preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+    // General window attribute
+    m_displaySettings->setFontSize(Preferences::inst()->getValue(STR_PRF_FontSize).toInt());
+    m_displaySettings->setWindowTitle(Preferences::inst()->getValue(STR_PRF_WindowTitle).toString());
+    m_displaySettings->setDecimalPrecision(Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
-      m_microPvSettings->setMicroProbeXPv(
-         preferences->readValueKey(Preferences::MicroProbeXPv).toString());
-      m_microPvSettings->setMicroProbeYPv(
-         preferences->readValueKey(Preferences::MicroProbeYPv).toString());
+    m_microPvSettings->setMicroProbeXPv(Preferences::inst()->getValue(STR_PRF_MicroProbeXPv).toString());
+    m_microPvSettings->setMicroProbeYPv(Preferences::inst()->getValue(STR_PRF_MicroProbeYPv).toString());
 
 
-      // load region actions
-      m_pythonFuncWidget->parseGroupStringList(
-         m_preferences->readValueKey(
-                  Preferences::RegionMenuList).toStringList());
+    // load region actions
+    m_pythonFuncWidget->parseGroupStringList(Preferences::inst()->getValue(STR_PRF_RegionMenuList).toStringList());
 
-      // Autosave
-      m_autoSaveOptionsWidget->setEnableRecoveryAutoSaveFunctionality(
-               m_preferences->readValueKey(
-                  Preferences::AutoSaveRecoveryEnable).toBool());
-      m_autoSaveOptionsWidget->setRecoveryAutoSaveEveryMiliseconds(
-               m_preferences->readValueKey(
-                  Preferences::AutoSaveRecoveryEveryMiliseconds).toInt());
-      m_autoSaveOptionsWidget->setEnableSaveOnExit(
-               m_preferences->readValueKey(
-                  Preferences::AutoSaveOnExit).toBool());
+    // Autosave
+    m_autoSaveOptionsWidget->setEnableRecoveryAutoSaveFunctionality(Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEnable).toBool());
+    m_autoSaveOptionsWidget->setRecoveryAutoSaveEveryMiliseconds(Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEveryMiliseconds).toInt());
+    m_autoSaveOptionsWidget->setEnableSaveOnExit(Preferences::inst()->getValue(STR_PRF_AutoSaveOnExit).toBool());
 
-      // Export
-      m_exportOptionsWidget->setEnabledZoomToRegionOnExport(
-               m_preferences->readValueKey(
-                  Preferences::ExportZoomToRegion).toBool());
-      m_exportOptionsWidget->setExportToDirInDataset(
-               m_preferences->readValueKey(
-                  Preferences::ExportDirectoryInDataset).toString());
-      m_exportOptionsWidget->setPrintNameOnExportedImage(
-               m_preferences->readValueKey(
-                  Preferences::ExportPrintNameOnExportedImage).toBool());
-      m_exportOptionsWidget->setPrintPyPxOnExportedImage(
-               m_preferences->readValueKey(
-                  Preferences::ExportPrintPxPyOnExportedImage).toBool());
-      m_exportOptionsWidget->setPrintWidthHeightOnExportedImage(
-               m_preferences->readValueKey(
-                  Preferences::ExportPrintWidthHeightOnExportedImage).toBool());
-      m_exportOptionsWidget->setSelectedXmlExportOption(
-               m_preferences->readValueKey(
-                  Preferences::ExportSelectedXmlOption).toInt());
+    // Export
+    m_exportOptionsWidget->setEnabledZoomToRegionOnExport(Preferences::inst()->getValue(STR_PRF_ExportZoomToRegion).toBool());
+    m_exportOptionsWidget->setExportToDirInDataset(Preferences::inst()->getValue(STR_PRF_ExportDirectoryInDataset).toString());
+    m_exportOptionsWidget->setPrintNameOnExportedImage(Preferences::inst()->getValue(STR_PRF_ExportPrintNameOnExportedImage).toBool());
+    m_exportOptionsWidget->setPrintPyPxOnExportedImage(Preferences::inst()->getValue(STR_PRF_ExportPrintPxPyOnExportedImage).toBool());
+    m_exportOptionsWidget->setPrintWidthHeightOnExportedImage(Preferences::inst()->getValue(STR_PRF_ExportPrintWidthHeightOnExportedImage).toBool());
+    m_exportOptionsWidget->setSelectedXmlExportOption(Preferences::inst()->getValue(STR_PRF_ExportSelectedXmlOption).toInt());
 
-   }
+   
 
 }
 

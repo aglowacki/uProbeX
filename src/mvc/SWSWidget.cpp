@@ -59,7 +59,7 @@ enum TabIndex{
 
 /*---------------------------------------------------------------------------*/
 
-SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
+SWSWidget::SWSWidget(Solver *solver, QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
 
@@ -71,7 +71,6 @@ SWSWidget::SWSWidget(Solver *solver, Preferences* pref, QWidget* parent)
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
    m_solver = solver;
-   m_preferences = pref;
    m_solverParameterParse = new SolverParameterParse();
 
    checkMicroProbePVs();
@@ -316,19 +315,14 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
          }
       }
 
-      if (m_preferences == nullptr)
-      {
-          return;
-      }
-
       // Gather all export configurations before proceeding.
-      bool zoomToRegion = m_preferences->readValueKey(Preferences::ExportZoomToRegion).toBool();
-      QString exportDirectoryName = m_preferences->readValueKey(Preferences::ExportDirectoryInDataset).toString();
+      bool zoomToRegion = Preferences::inst()->getValue(STR_PRF_ExportZoomToRegion).toBool();
+      QString exportDirectoryName = Preferences::inst()->getValue(STR_PRF_ExportDirectoryInDataset).toString();
 
-      bool printNameOnImage = m_preferences->readValueKey(Preferences::ExportPrintNameOnExportedImage).toBool();
-      bool printPredictedXYOnImage = m_preferences->readValueKey(Preferences::ExportPrintPxPyOnExportedImage).toBool();
-      bool printWidthHeightOnImage = m_preferences->readValueKey(Preferences::ExportPrintWidthHeightOnExportedImage).toBool();
-      int selectedXMLExportOption = m_preferences->readValueKey(Preferences::ExportSelectedXmlOption).toInt();
+      bool printNameOnImage = Preferences::inst()->getValue(STR_PRF_ExportPrintNameOnExportedImage).toBool();
+      bool printPredictedXYOnImage = Preferences::inst()->getValue(STR_PRF_ExportPrintPxPyOnExportedImage).toBool();
+      bool printWidthHeightOnImage = Preferences::inst()->getValue(STR_PRF_ExportPrintWidthHeightOnExportedImage).toBool();
+      int selectedXMLExportOption = Preferences::inst()->getValue(STR_PRF_ExportSelectedXmlOption).toInt();
       bool seperateXMLFile = selectedXMLExportOption == PreferencesExport::sepereateFileXMLExport;
       bool singleXmlFileExport = selectedXMLExportOption == PreferencesExport::singleFileXMLExport;
 
@@ -932,11 +926,8 @@ void SWSWidget::CallPythonFunc()
 
 void SWSWidget::createMicroProbeMenu()
 {
-    if (m_preferences == nullptr)
-    {
-        return;
-    }
-   QStringList rList = m_preferences->readValueKey(Preferences::RegionMenuList)
+  
+   QStringList rList = Preferences::inst()->getValue(STR_PRF_RegionMenuList)
          .toStringList();
 
    for(const QString &str : rList)
@@ -1199,8 +1190,8 @@ void SWSWidget::checkMicroProbePVs()
    try
    {
 
-      QString microX = m_preferences->readValueKey(Preferences::MicroProbeXPv).toString();
-      QString microY = m_preferences->readValueKey(Preferences::MicroProbeYPv).toString();
+      QString microX = Preferences::inst()->getValue(STR_PRF_MicroProbeXPv).toString();
+      QString microY = Preferences::inst()->getValue(STR_PRF_MicroProbeYPv).toString();
 
       if (microX.length() > 0 && microY.length() > 0)
       {
@@ -1663,9 +1654,9 @@ void SWSWidget::preferenceChanged()
 
    // Set the precision
    m_coordinateModel->setTransformerPrecision(
-         m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+         Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
    m_lightToMicroCoordModel->setTransformerPrecision(
-         m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+         Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
    // Set the value in the calibration text linedit box
    if(m_lightToMicroCoordModel != nullptr)
@@ -1874,7 +1865,7 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 
    m_lightToMicroCoordModel = model;
    m_lightToMicroCoordModel->setTransformerPrecision(
-         m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
+         Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
    m_lightToMicroCoordWidget->setModel(model);
 
@@ -1911,10 +1902,9 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 	}
 
 	m_coordinateModel = model;
-	if (m_preferences != nullptr)
-	{
-		m_coordinateModel->setTransformerPrecision(m_preferences->readValueKey(Preferences::DecimalPrecision).toInt());
-	}
+	
+	m_coordinateModel->setTransformerPrecision(Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
+	
 
    if(m_imageViewWidget != nullptr)
    {

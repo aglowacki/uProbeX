@@ -42,10 +42,6 @@ public:
 
     bool isAccepted() { return _accepted; }
 
-    bool isLog10() { return _chkLog10->isChecked(); }
-
-    bool isDetailedFitSpectra() { return _chkDetailedFit->isChecked(); }
-
 public slots:
     
 	void onAccepted();
