@@ -229,17 +229,11 @@ private slots:
     * @brief cleanUpAutoSafeData
     */
    void cleanUpAutoSafeData();
-
-   /**
-    * @brief savePreferencesDataInXML
-    */
+   /*
    void savePreferencesXMLData();
 
-   /**
-    * @brief loadPreferencesXMLData
-    */
    void loadPreferencesXMLData();
-
+   */
    void mapsControllerClosed(MapsWorkspaceController*);
 
 private:
@@ -351,11 +345,6 @@ private:
     * @brief Help menu
     */
    QMenu* m_menuHelp;
-
-   /**
-    * @brief Preferences
-    */
-   Preferences m_preferences;
 
    /**
     * @brief Splash screen

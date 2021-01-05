@@ -83,9 +83,8 @@ int main(int argc, char** argv)
 		}
 		if(arg1 == "--live")
 		{
-   			Preferences m_preferences;
-			QString strIp = m_preferences.readValueKey(Preferences::LastIP).toString();
-			QString strPort = m_preferences.readValueKey(Preferences::LastPort).toString();
+			QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
+			QString strPort = Preferences::inst()->getValue(STR_PRF_LastPort).toString();
 			LiveMapsElementsWidget *liveMapsViewer = new LiveMapsElementsWidget(strIp, strPort);
 			liveMapsViewer->show();
 			return app.exec();

@@ -56,7 +56,7 @@ public:
    /**
     * Constructor.
     */
-   SWSWidget(Solver *solver, Preferences* pref, QWidget* parent = nullptr);
+   SWSWidget(Solver *solver, QWidget* parent = nullptr);
 
 
    /**
@@ -612,12 +612,7 @@ private:
     * @brief m_mpSelectionModel
     */
    QItemSelectionModel* m_mpSelectionModel;
-
-   /**
-    * @brief m_preferences
-    */
-   Preferences* m_preferences;
-
+   
    /**
     * @brief m_solverWidget
     */

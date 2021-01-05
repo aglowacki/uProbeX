@@ -27,7 +27,7 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _int_spec_max_x = 1;
     _int_spec_max_y = 1;
     createLayout();
-
+    /*
     _action_check_log10 = new QAction("Toggle Log10", this);
     _action_check_log10->setCheckable(true);
     _action_check_log10->setChecked(_display_log10);
@@ -37,10 +37,10 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _contextMenu->addAction(_action_check_log10);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-
+    
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(ShowContextMenu(const QPoint &)));
-
+            */
     connect(this, SIGNAL(trigger_connect_markers()),
             this, SLOT(connectMarkers()));
 
@@ -105,10 +105,11 @@ void SpectraWidget::createLayout()
     _line_series = nullptr;
 
     _chartView = new QtCharts::QChartView(_chart);
-    _chartView->setRubberBand(QtCharts::QChartView::RectangleRubberBand);
+    _chartView->setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+
     //_chartView->setRenderHint(QPainter::Antialiasing);
    
-
+    // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
     _display_eneergy_min->setMinimumWidth(100);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
@@ -433,12 +434,14 @@ void SpectraWidget::remove_spectra(QString name)
 
 void SpectraWidget::ShowContextMenu(const QPoint &pos)
 {
+
     _contextMenu->exec(mapToGlobal(pos));
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::_check_log10()
+void SpectraWidget::set_log10(bool val)
 {
 
     QList<QtCharts::QAbstractSeries*> series = _chart->series();
@@ -454,13 +457,15 @@ void SpectraWidget::_check_log10()
     }
     _chart->removeAxis(_currentYAxis);
 
+    _display_log10 = val;
+
     if(_display_log10) //if current one is log10, set to normal
     {
-        _currentYAxis = _axisY;
+        _currentYAxis = _axisYLog10;
     }
     else
     {
-        _currentYAxis = _axisYLog10;
+        _currentYAxis = _axisY;
     }
 
     _chart->addAxis(_currentYAxis, Qt::AlignLeft);
@@ -469,10 +474,6 @@ void SpectraWidget::_check_log10()
     {
         ser->attachAxis(_currentYAxis);
     }
-
-
-    _display_log10 = !_display_log10;
-    _action_check_log10->setChecked(_display_log10);
 
     emit(y_axis_changed(_display_log10));
 
@@ -528,6 +529,7 @@ void SpectraWidget::mousePressEvent(QMouseEvent *event)
 {
     if (m_isTouching)
         return;
+
     QWidget::mousePressEvent(event);
 }
 
@@ -678,3 +680,5 @@ void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
         _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
     } 
 }
+
+/*---------------------------------------------------------------------------*/

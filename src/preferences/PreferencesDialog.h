@@ -62,7 +62,7 @@ public:
     *
     * @param preferences - preferences object
     */
-   void setPreferences(Preferences* preferences, bool passMode);
+   void setPreferences(bool passMode);
 
 protected slots:
 

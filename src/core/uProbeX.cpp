@@ -85,8 +85,8 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     // Create menu
     createMenuBar();
 
-    int w = m_preferences.readValueKey(Preferences::MainWindowSavedWidth).toInt();
-    int h = m_preferences.readValueKey(Preferences::MainWindowSavedHeight).toInt();
+    int w = Preferences::inst()->getValue(STR_PRF_MainWindowSavedWidth).toInt();
+    int h = Preferences::inst()->getValue(STR_PRF_MainWindowSavedHeight).toInt();
 
     if(w > 0 && h > 0)
     {
@@ -133,8 +133,8 @@ uProbeX::~uProbeX()
     {
         QString strIp = _liveMapsViewer->getIpAddress();
         QString strPort = _liveMapsViewer->getPort();
-        m_preferences.saveValueKey(Preferences::LastIP, strIp);
-        m_preferences.saveValueKey(Preferences::LastPort, strPort);
+        Preferences::inst()->setValue(STR_PRF_LastIP, strIp);
+        Preferences::inst()->setValue(STR_PRF_LastPort, strPort);
         delete _liveMapsViewer;
         _liveMapsViewer = nullptr;
     }
@@ -147,13 +147,8 @@ uProbeX::~uProbeX()
         delete m_lightToMicroCoordModel;
     m_lightToMicroCoordModel = nullptr;
 
-    disconnect(&m_preferences,
-               SIGNAL(preferenceSolverValueChanged()),
-               this,
-               SLOT(updatePreference()));
-
-    m_preferences.saveValueKey(Preferences::MainWindowSavedWidth, width());
-    m_preferences.saveValueKey(Preferences::MainWindowSavedHeight, height());
+    Preferences::inst()->setValue(STR_PRF_MainWindowSavedWidth, width());
+    Preferences::inst()->setValue(STR_PRF_MainWindowSavedHeight, height());
 
     // Close all open HDF5 files
     foreach(auto& i , m_subWindows.values())
@@ -173,7 +168,7 @@ void uProbeX::adjustDisplaySettings()
 {
 
     // Adjust font size
-    int fontSize = m_preferences.readValueKey(Preferences::FontSize).toInt();
+    int fontSize = Preferences::inst()->getValue(STR_PRF_FontSize).toInt();
     //TODO Remove hard-coded values.
     if (fontSize > 6 && fontSize < 40)
     {
@@ -223,7 +218,7 @@ void uProbeX::closeEvent(QCloseEvent* event)
 
     Q_UNUSED(event);
 
-    bool saveWithoutPrompt = m_preferences.readValueKey(Preferences::AutoSaveOnExit).toBool();
+    bool saveWithoutPrompt = Preferences::inst()->getValue(STR_PRF_AutoSaveOnExit).toBool();
     saveAllXML(!saveWithoutPrompt);
 
     cleanUpAutoSafeData();
@@ -272,8 +267,7 @@ void uProbeX::createLightToMicroCoords(int id)
 
     if(id == ID_NELDER_MEAD)
     {
-        QStringList coefList = m_preferences.readValueKey(
-                    Preferences::NMCoefficient).toStringList();
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
         if(false == m_solverParameterParse -> parseSolverCoefList(coefList))
         {
             allCoefs = CoordinateTransformGlobals::generateMap();
@@ -290,12 +284,11 @@ void uProbeX::createLightToMicroCoords(int id)
     }
     else
     {
-        QStringList coefList = m_preferences.readValueKey(
-                    Preferences::PythonCoefficient).toStringList();
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
 
         if(false == m_solverParameterParse -> parseSolverCoefList(coefList))
         {
-            m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
+            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
             createSolver();
             return;
         }
@@ -303,13 +296,12 @@ void uProbeX::createLightToMicroCoords(int id)
 
         if(lightTransformer == nullptr)
         {
-            QString pythonFileName = m_preferences.readValueKey(
-                        Preferences::PythonSolverName).toString();
+            QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
             if(pythonFileName.isEmpty())
             {
                 QMessageBox::critical(nullptr, "Error",
                                       "Must have a python script having a transform function, using default transformer right now.");
-                m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
+                Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
                 createSolver();
                 return;
             }
@@ -407,7 +399,7 @@ void uProbeX::createSolver()
     if(m_solver == nullptr)
         m_solver = new Solver();
 
-    int id = m_preferences.readValueKey(Preferences::SolverCheckedID).toInt();
+    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
 
     createLightToMicroCoords(id);
 
@@ -423,8 +415,7 @@ void uProbeX::createSolver()
         NelderMeadSolver* nm = new NelderMeadSolver();
 
         //todo read options and set them
-        QStringList optionList = m_preferences.readValueKey(
-                    Preferences::NMOptions).toStringList();
+        QStringList optionList = Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList();
         if(false == m_solverParameterParse -> parseSolverOptionList(optionList))
         {
             logE<<"Error reading options for NM solver\n";
@@ -442,12 +433,10 @@ void uProbeX::createSolver()
     {
         PythonSolver *ps = new PythonSolver();
 
-        QString pythonFileName = m_preferences.readValueKey(
-                    Preferences::PythonSolverName).toString();
+        QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
         QFileInfo fileInfo = QFileInfo(pythonFileName);
 
-        QStringList optionList = m_preferences.readValueKey(
-                    Preferences::PythonOptions).toStringList();
+        QStringList optionList = Preferences::inst()->getValue(STR_PRF_PythonOptions).toStringList();
 
         if(pythonFileName.isEmpty()
                 || false == m_solverParameterParse -> parseSolverOptionList(optionList)
@@ -457,7 +446,7 @@ void uProbeX::createSolver()
         {
             logE<<"Error reading options for python solver, reverting to NelderMeadSolver\n";
             QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
-            m_preferences.saveValueKey(Preferences::SolverCheckedID, 0);
+            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
             createSolver();
             return;
         }
@@ -476,8 +465,8 @@ void uProbeX::createSolver()
 
 void uProbeX::openLiveStreamViewer()
 {
-    QString strIp = m_preferences.readValueKey(Preferences::LastIP).toString();
-    QString strPort = m_preferences.readValueKey(Preferences::LastPort).toString();
+    QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
+    QString strPort = Preferences::inst()->getValue(STR_PRF_LastPort).toString();
 
     if (_liveMapsViewer == nullptr)
     {
@@ -494,8 +483,8 @@ void uProbeX::exitApplication()
     {
         QString strIp = _liveMapsViewer->getIpAddress();
         QString strPort = _liveMapsViewer->getPort();
-        m_preferences.saveValueKey(Preferences::LastIP, strIp);
-        m_preferences.saveValueKey(Preferences::LastPort, strPort);
+        Preferences::inst()->setValue(STR_PRF_LastIP, strIp);
+        Preferences::inst()->setValue(STR_PRF_LastPort, strPort);
         delete _liveMapsViewer;
         _liveMapsViewer = nullptr;
     }
@@ -512,24 +501,13 @@ void uProbeX::initialize()
     m_splashAbout = nullptr;
     m_mdiArea = nullptr;
 
-    connect(&m_preferences,
-            SIGNAL(preferenceSolverValueChanged()),
-            this,
-            SLOT(updatePreference()));
-
-    connect(&m_preferences,
-            SIGNAL(preferencesUpdatedInternally()),
-            this,
-            SLOT(processPreferencesUpdate()));
-
-
 }
 
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::adjustAutoSaveSettings()
 {
-    if (m_preferences.readValueKey(Preferences::AutoSaveRecoveryEnable).toBool())
+    if (Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEnable).toBool())
     {
         if (m_autosaveTimer == nullptr) {
             m_autosaveTimer = new QTimer(this);
@@ -540,13 +518,13 @@ void uProbeX::adjustAutoSaveSettings()
                     SLOT(performAutoSave()));
         }
 
-        int time = m_preferences.readValueKey(Preferences::AutoSaveRecoveryEveryMiliseconds).toInt();
+        int time = Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEveryMiliseconds).toInt();
 
         // Enforce a minimum time of 1 second.
         if (time < 1000)
         {
             time = 1000;
-            m_preferences.saveValueKey(Preferences::AutoSaveRecoveryEveryMiliseconds, time);
+            Preferences::inst()->setValue(STR_PRF_AutoSaveRecoveryEveryMiliseconds, time);
         }
 
         m_autosaveTimer->start(time);
@@ -573,7 +551,7 @@ void uProbeX::adjustAutoSaveSettings()
 
 void uProbeX::makeSWSWindow(SWSModel* swsModel)
 {
-    SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
+    SWSWidget* swsWidget = new SWSWidget(m_solver);
     swsWidget->resize(1027, 768);
 	swsWidget->setModel(swsModel);
     swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
@@ -622,7 +600,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
     if (newWindow == false) return;
     // Create general window view widget and image model
-    SWSWidget* swsWidget = new SWSWidget(m_solver, &m_preferences);
+    SWSWidget* swsWidget = new SWSWidget(m_solver);
     swsWidget->resize(800, 600);
 
     try
@@ -1100,7 +1078,7 @@ bool uProbeX::saveActivatedXmlRequired()
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void uProbeX::savePreferencesXMLData()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -1129,7 +1107,7 @@ void uProbeX::savePreferencesXMLData()
     xmlWriter.writeEndDocument();
 }
 
-/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------
 
 void uProbeX::loadPreferencesXMLData()
 {
@@ -1250,9 +1228,6 @@ void uProbeX::showPreferences()
                                                       this,
                                                       Qt::Dialog);
 
-    // Based on passive or active mode to show different preference dialog
-    dialog->setPreferences(&m_preferences, false);
-
     // Update with current settings
     if (dialog->exec() == QDialog::Accepted)
     {
@@ -1268,8 +1243,7 @@ void uProbeX::showPreferences()
 
 void uProbeX::processPreferencesUpdate()
 {
-    QString title = m_preferences.readValueKey(
-                Preferences::WindowTitle).toString();
+    QString title = Preferences::inst()->getValue(STR_PRF_WindowTitle).toString();
     if(title.isEmpty())
         title = "uProbeX";
     setWindowTitle(title);
@@ -1328,28 +1302,26 @@ void uProbeX::solverEnd()
 void uProbeX::solverVariableUpdate(double valX, double valY)
 {
 
-    int id = m_preferences.readValueKey(Preferences::SolverCheckedID).toInt();
+    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
 
     if (id == 0)
     {
-        QStringList coefList = m_preferences.readValueKey(
-                    Preferences::NMCoefficient).toStringList();
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
         QStringList newAttrs;
 
         saveXYToCoefficient(valX, valY, coefList, newAttrs);
 
-        m_preferences.saveValueKey(Preferences::NMCoefficient,
+        Preferences::inst()->setValue(STR_PRF_NMCoefficient,
                                    newAttrs);
     }
     else
     {
-        QStringList coefList = m_preferences.readValueKey(
-                    Preferences::PythonCoefficient).toStringList();
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
         QStringList newAttrs;
 
         saveXYToCoefficient(valX, valY, coefList, newAttrs);
 
-        m_preferences.saveValueKey(Preferences::PythonCoefficient,
+        Preferences::inst()->setValue(STR_PRF_PythonCoefficient,
                                    newAttrs);
     }
     solverEnd();

@@ -23,6 +23,7 @@
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 #include "data_struct/params_override.h"
+#include "mvc/SpectraWidgetSettingsDialog.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -97,6 +98,8 @@ public slots:
    void add_element();
 
    void del_element();
+
+   void onSettingsDialog();
 
 protected:
 
@@ -180,6 +183,12 @@ private:
     QCheckBox* _chk_is_pileup;
 
     QComboBox* _cb_detector_element;
+
+    QPushButton* _btnSsettings;
+
+    bool _showDetailedFitSpec;
+
+    unordered_map<string, data_struct::ArrayXr> _labeled_spectras;
 };
 
 

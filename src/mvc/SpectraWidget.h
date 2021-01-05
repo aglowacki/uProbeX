@@ -21,6 +21,7 @@
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 
+
 /*---------------------------------------------------------------------------*/
 
 /**
@@ -46,8 +47,6 @@ public:
     ~SpectraWidget();
 
     void append_spectra(QString name, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr *energy=nullptr);
-
-    //void remove_spectra(QString name);
 
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 
@@ -79,6 +78,8 @@ public slots:
 
     void onResetChartView();
 
+    void set_log10(bool val);
+
 protected:
 
     /**
@@ -105,8 +106,6 @@ protected:
     QtCharts::QLineSeries *_line_series;
 
 private slots:
-
-    void _check_log10();
 
     void onSpectraDisplayChanged(const QString &);
 
@@ -139,10 +138,6 @@ private:
     QtCharts::QAbstractAxis * _currentYAxis;
 
     bool m_isTouching;
-
-    //std::map<QString, data_struct::Spectra> _spectra_map;
-
-    QAction *_action_check_log10;
 
     QMenu *_contextMenu;
 
