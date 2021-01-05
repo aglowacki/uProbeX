@@ -37,7 +37,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
 	_param_override = nullptr;
-    _showDetailedFitSpec = false;
+    _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
