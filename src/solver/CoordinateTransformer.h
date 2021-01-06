@@ -11,6 +11,8 @@
 #include <gstar/ITransformer.h>
 #include <QString>
 #include <QMap>
+#include "preferences/Attribute.h"
+#include <unordered_map>
 
 /*---------------------------------------------------------------------------*/
 
@@ -52,7 +54,7 @@ public:
     * @param val
     * @return
     */
-   virtual bool getVariable(QString name, double *val);
+   virtual bool getVariable(QString name, double* val);
 
    /**
     * @brief setVariable
@@ -88,11 +90,6 @@ protected:
     * @brief m_2xfm_y
     */
    double m_2xfm_y;
-
-   /**
-    * @brief m_hasAllNeededGlobals
-    */
-   bool m_hasAllNeededGlobals;
 
    /**
     * @brief m_angleAlpha

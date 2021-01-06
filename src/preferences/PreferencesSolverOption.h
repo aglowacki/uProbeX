@@ -63,7 +63,6 @@ public:
     * @param parent - the Qt parent widget
     */
    PreferencesSolverOption(QList<gstar::AbstractImageWidget*> windowList,
-                           Solver* solver,
                            QWidget* parent = 0);
 
    /**
@@ -233,17 +232,6 @@ private:
 private slots:
 
    /**
-    * @brief runSolver
-    */
-   void runSolver();
-
-   /**
-    * @brief Solver option
-    * @param vals
-    */
-   //void solverOptionSelected(int value);
-
-   /**
     * @brief useUpdatedSolverVariables
     * @param vals
     */
@@ -289,7 +277,7 @@ private:
    /**
     * @brief m_solver
     */
-   Solver* m_solver;
+   //Solver* m_solver;
 
    /**
     * @brief m_solverParameterParse

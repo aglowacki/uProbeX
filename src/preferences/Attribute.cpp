@@ -3,6 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
+#include <QStringList>
 #include <preferences/Attribute.h>
 #include <preferences/AttributeGroup.h>
 
@@ -70,7 +71,7 @@ QString Attribute::getValue()
 
 /*---------------------------------------------------------------------------*/
 
-QString Attribute::getName()
+const QString Attribute::getName()
 {
 
    return m_name;
@@ -140,6 +141,28 @@ QString Attribute::toString()
                              .arg(m_value)
                              .arg(m_desc)
                              .arg(m_enabled);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void Attribute::fromString(QString val)
+{
+    QStringList sl = val.split(",");
+    if (sl.size() >= 4)
+    {
+        m_name = sl.at(0);
+        m_value = sl.at(1);
+        m_desc = sl.at(2);
+        if (sl.at(3) == "true")
+        {
+            m_enabled = true;
+        }
+        else
+        {
+            m_enabled = false;
+        }
+    }
 
 }
 

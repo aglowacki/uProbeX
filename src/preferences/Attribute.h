@@ -10,6 +10,21 @@
 
 #include <QString>
 
+#define STR_m2xfm_x "m2xfm_x"
+#define STR_m2xfm_y "2xfm_y"
+#define STR_angle_alpha "angle_alpha"
+#define STR_offset_a "offset_a"
+#define STR_offset_b "offset_b"
+#define STR_offset_c "offset_c"
+#define STR_offset_d "offset_d"
+#define STR_omega "omega"
+#define STR_omega_prime "omega_prime"
+#define STR_scaling_XFM_X "scaling_XFM_X"
+#define STR_scaling_XFM_Y "scaling_XFM_Y"
+#define STR_z_offset "z_offset"
+#define STR_z_lin_x "z_lin_x"
+#define STR_z_lin_y "z_lin_y"
+
 /*---------------------------------------------------------------------------*/
 
 class AttributeGroup;
@@ -69,7 +84,7 @@ public:
     *
     * @return Type of the Solver.
     */
-   QString getName();
+   const QString getName();
 
    /**
     * @brief getParent
@@ -109,6 +124,8 @@ public:
     * Get as a QVariant string type
     */
    QString toString();
+
+   void fromString(QString val);
 
 private:
 

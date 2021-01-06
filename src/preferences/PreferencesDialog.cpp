@@ -28,7 +28,6 @@
 /*---------------------------------------------------------------------------*/
 
 PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowList,
-                                     Solver* solver,
                                      QWidget* parent,
                                      Qt::WindowFlags f)
 : QDialog(parent, f)
@@ -62,9 +61,9 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    m_regionTableButton->setText(tr("MicroProbe Region Actions"));
    m_regionTableButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
-   m_solverOptionButton = new QListWidgetItem(m_contentsWidget);
-   m_solverOptionButton->setText(tr("Solver"));
-   m_solverOptionButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+   //m_solverOptionButton = new QListWidgetItem(m_contentsWidget);
+   //m_solverOptionButton->setText(tr("Solver"));
+   //m_solverOptionButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
    m_autoSaveOptionsButton = new QListWidgetItem(m_contentsWidget);
    m_autoSaveOptionsButton->setText(tr("Auto Save"));
@@ -84,8 +83,8 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    m_pagesWidget->addWidget(m_microPvSettings);
    m_pythonFuncWidget = new PreferencesPythonFunc();
    m_pagesWidget->addWidget(m_pythonFuncWidget);
-   m_solverOptionWidget = new PreferencesSolverOption(windowList, solver);
-   m_pagesWidget->addWidget(m_solverOptionWidget);
+   //m_solverOptionWidget = new PreferencesSolverOption(windowList);
+   //m_pagesWidget->addWidget(m_solverOptionWidget);
    m_autoSaveOptionsWidget = new PreferencesAutoSave();
    m_pagesWidget->addWidget(m_autoSaveOptionsWidget);
    m_exportOptionsWidget = new PreferencesExport();

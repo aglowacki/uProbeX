@@ -7,12 +7,9 @@
 #define SOLVER_ATTRIBUTES_GROUP_H
 
 /*---------------------------------------------------------------------------*/
-
-#include <preferences/Attribute.h>
-#include <preferences/CoordinateTransformGlobals.h>
-
 #include <QStringList>
-#include <QMap>
+#include <preferences/Attribute.h>
+#include <QList>
 
 /*---------------------------------------------------------------------------*/
 
@@ -52,15 +49,9 @@ public:
     *
     * @param type - One of the SolverKeys enum types.
     */
-   Attribute getAttribute(CoordinateTransformGlobals::ValueKey type) const;
+   Attribute getAttribute(QString name) const;
 
-   /**
-    * @brief getAttribute
-    * @param idx
-    * @return
-    */
-   Attribute getAttribute(int idx) const;
-
+   Attribute getAttribute(unsigned int idx) const;
    /**
     * Total number of solvers
     */
@@ -71,7 +62,7 @@ public:
     * @param type
     * @param attr
     */
-   void setAttribute(CoordinateTransformGlobals::ValueKey type, Attribute attr);
+   void setAttribute(unsigned int idx, Attribute attr);
 
    /**
     * Returns all solver attributes as a list of strings.
@@ -84,11 +75,6 @@ private:
     * Store key-value pairs of Solver-key and attribute
     */
    QList<Attribute> m_solverAttrs;
-
-   /**
-    * Maintains a mapping between Solvers
-    */
-   QMap<QString, int> m_internalSolverIndex;
 
 };
 

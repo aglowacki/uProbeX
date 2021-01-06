@@ -22,7 +22,11 @@
 
 #include <preferences/SolverParameterParse.h>
 //#include <SStar.h>
-
+#include <solver/Solver.h>
+#include <solver/NelderMeadSolver.h>
+#include <solver/PythonSolver.h>
+#include <solver/CoordinateTransformer.h>
+#include <solver/PythonTransformer.h>
 
 class QAbstractTableModel;
 class QPushButton;
@@ -56,7 +60,7 @@ public:
    /**
     * Constructor.
     */
-   SWSWidget(Solver *solver, QWidget* parent = nullptr);
+   SWSWidget(QWidget* parent = nullptr);
 
 
    /**
@@ -418,6 +422,10 @@ private:
     */
    gstar::UProbeRegionGraphicsItem* getSelectedRegion();
 
+   void _createLightToMicroCoords(int id);
+
+   void _createSolver();
+
 
    SWSModel* _model;
 
@@ -495,7 +503,6 @@ private:
     * @brief m_microProbePvSet
     */
    bool m_microProbePvSet;
-
    /*
    CAEventHandler* m_pvXHandler;
 
