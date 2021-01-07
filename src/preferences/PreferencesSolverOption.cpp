@@ -22,7 +22,6 @@ const static int PY_SELECTED = 1;
 
 PreferencesSolverOption::PreferencesSolverOption(
       QList<gstar::AbstractImageWidget*> windowList,
-      Solver* solver,
       QWidget* parent) : QWidget(parent)
 {
 
@@ -30,7 +29,7 @@ PreferencesSolverOption::PreferencesSolverOption(
    m_solverWidget = nullptr;
    m_transformer = new CoordinateTransformer();
    m_solverParameterParse = new SolverParameterParse();
-   m_solver = solver;
+   //m_solver = solver;
 
    createSolverGroup();
 
@@ -92,8 +91,7 @@ void PreferencesSolverOption::createLayOut()
 //   //mainLayout->addRow(m_openPythonButton,m_lePythonPath);
 //   //mainLayout->addRow(m_lblTitle);
 //   // mainLayout->addRow(m_pythonFuncName);
-//   mainLayout->addRow(
-//         new QLabel("The python solver must have solver and transform functions !"));
+//   mainLayout->addRow(new QLabel("The python solver must have solver and transform functions !"));
 //   mainLayout->addRow(m_pythonSolverProfileWidget);
 
    mainLayout->addRow(m_btnRunSolver);
@@ -237,108 +235,6 @@ void PreferencesSolverOption::getSolverPropertiesFromModel(
       return;
    }
    m_solverParameterParse -> getOptions(options);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void PreferencesSolverOption::runSolver()
-{
-
-   QMap<QString, double> minCoefs;
-   QMap<QString, double> newMinCoefs;
-   QMap<QString, double> allCoefs;
-   QMap<QString, double> options;
-   QList< QMap<QString,double> > coordPoints;
-
-   AbstractSolver *impl = m_solver->getImpl();
-   SolverParameterWidget* widget;
-
-   if(impl != nullptr)
-   {
-      m_solver->setImpl(nullptr);
-      delete impl;
-      impl = nullptr;
-   }
-
-   if (m_buttonGroup->checkedId() == NM_SELECTED)
-   {
-      widget = m_NMSolverWidget;
-
-      m_solver->setImpl(new NelderMeadSolver());
-
-   }
-   else if(m_buttonGroup->checkedId() == PY_SELECTED)
-   {
-      widget = m_pythonSolverWidget;
-
-      impl = new PythonSolver();
-/*      QFileInfo fileInfo = QFileInfo(getPythonSolverPath());
-      if(false ==((PythonSolver*)impl)->initialPythonSolver(fileInfo.path(),
-                                                            fileInfo.baseName(),
-                                                            "my_solver"))
-      {
-         delete impl;
-         logW<<"Error initializing python solver";
-         QMessageBox::critical(nullptr,"Error", "Error Initializing Python Solver!");
-         return;
-      }
-*/
-      m_solver->setImpl(impl);
-   }
-
-   getSolverPropertiesFromModel(widget,
-                                allCoefs,
-                                minCoefs,
-                                options);
-
-   m_transformer->Init(allCoefs);
-   m_solver->setTransformer(m_transformer);
-   m_solver->setAllCoef(allCoefs);
-   m_solver->setOptions(options);
-   m_solver->setMinCoef(minCoefs);
-
-   if(m_windowList.size() > 0)
-   {
-      SWSWidget* sws = (SWSWidget*)m_windowList.at(0);
-      sws->getMarkerCoordinatePoints(coordPoints);
-   }
-   else
-   {
-      QMessageBox::critical(nullptr, "Solver Error", "Could not find active SWS workspace!");
-      return;
-   }
-
-   m_solver->setCoordPoints(coordPoints);
-
-   QApplication::setOverrideCursor(Qt::WaitCursor);
-   bool retVal = m_solver->run();
-   QApplication::restoreOverrideCursor();
-
-   if(m_solverWidget != nullptr)
-      delete m_solverWidget;
-   m_solverWidget = nullptr;
-
-   m_solverWidget = new SolverWidget();
-   connect(m_solverWidget,
-     SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
-     this,
-     SLOT(useUpdatedSolverVariables(const QMap<QString, double> )));
-
-   newMinCoefs = m_solver->getMinCoef();
-   m_solverWidget->setCoefs(minCoefs, newMinCoefs);
-   m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
-
-   if(retVal)
-   {
-      m_solverWidget->setUseBtnEnabled(true);
-   }
-   else
-   {
-      m_solverWidget->setUseBtnEnabled(false);
-   }
-
-   m_solverWidget->show();
 
 }
 

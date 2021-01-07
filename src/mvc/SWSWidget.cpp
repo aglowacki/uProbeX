@@ -33,7 +33,6 @@
 #include <preferences/Preferences.h>
 #include <preferences/PreferencesExport.h>
 #include <preferences/AttributeGroup.h>
-#include <preferences/CoordinateTransformGlobals.h>
 #include <solver/Solver.h>
 
 #include <core/PythonRegionCaller.h>
@@ -57,9 +56,12 @@ enum TabIndex{
                MICROPROBE_IDX
              };
 
+static const int ID_NELDER_MEAD = 0;
+static const int ID_PYTHON = 1;
+
 /*---------------------------------------------------------------------------*/
 
-SWSWidget::SWSWidget(Solver *solver, QWidget* parent)
+SWSWidget::SWSWidget(QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
 
@@ -70,13 +72,14 @@ SWSWidget::SWSWidget(Solver *solver, QWidget* parent)
    m_coordinateModel = nullptr;
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
-   m_solver = solver;
+   m_solver = nullptr;
    m_solverParameterParse = new SolverParameterParse();
 
    checkMicroProbePVs();
    createLayout();
    createActions();
    createMicroProbeMenu();
+   _createSolver();
    m_imageViewWidget->clickFill(true);
 
    m_grabbingPvsX = false;
@@ -223,6 +226,163 @@ void SWSWidget::addMicroProbeRegion()
                              m_mpAnnoTreeView,
                              m_mpSelectionModel,
                              annotation);
+
+}
+
+
+
+/*---------------------------------------------------------------------------*/
+
+void SWSWidget::_createLightToMicroCoords(int id)
+{
+    ITransformer* lightTransformer = nullptr;
+    QMap<QString, double> allCoefs;
+
+    if (m_lightToMicroCoordModel != nullptr)
+    {
+        lightTransformer = m_lightToMicroCoordModel->getTransformer();
+        if (lightTransformer != nullptr)
+        {
+            delete lightTransformer;
+            m_lightToMicroCoordModel->setTransformer(nullptr);
+        }
+        lightTransformer = nullptr;
+    }
+
+    if (id == ID_NELDER_MEAD)
+    {
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
+        if (m_solverParameterParse->parseSolverCoefList(coefList))
+        {
+            m_solverParameterParse->getTransform(allCoefs);
+        }
+        else
+        {
+            //generate defaults
+            CoordinateTransformer c;
+            allCoefs = c.getAllCoef();
+        }
+        
+
+        if (lightTransformer == nullptr)
+        {
+            lightTransformer = new CoordinateTransformer();
+        }
+    }
+    else
+    {
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
+
+        if (false == m_solverParameterParse->parseSolverCoefList(coefList))
+        {
+            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+            _createSolver();
+            return;
+        }
+        m_solverParameterParse->getTransform(allCoefs);
+
+        if (lightTransformer == nullptr)
+        {
+            QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
+            if (pythonFileName.isEmpty())
+            {
+                QMessageBox::critical(nullptr, "Error",
+                    "Must have a python script having a transform function, using default transformer right now.");
+                Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+                _createSolver();
+                return;
+            }
+            QFileInfo fileInfo = QFileInfo(pythonFileName);
+            lightTransformer = new PythonTransformer(
+                fileInfo.path(),
+                fileInfo.baseName(),
+                QString("my_transform"));
+        }
+    }
+
+    if (lightTransformer->Init(allCoefs))
+    {
+        if (m_lightToMicroCoordModel != nullptr)
+        {
+            m_lightToMicroCoordModel->setTransformer(lightTransformer);
+        }
+        else
+        {
+            m_lightToMicroCoordModel = new gstar::CoordinateModel(lightTransformer);
+        }
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
+        logW << "Could not init Transformer\n";
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SWSWidget::_createSolver()
+{
+
+    QMap<QString, double> dict_options;
+
+    if (m_solver == nullptr)
+    {
+        m_solver = new Solver();
+    }
+
+    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
+
+    _createLightToMicroCoords(id);
+
+    if (id == ID_NELDER_MEAD)
+    {
+        NelderMeadSolver* nm = new NelderMeadSolver();
+
+        ///nm->setTransformer();
+        QStringList optionList = Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList();
+        if (false == m_solverParameterParse->parseSolverOptionList(optionList))
+        {
+            logE << "Error reading options for NM solver\n";
+            // Initialize with the default option
+            dict_options = nm->getOptions();
+        }
+        else
+        {
+            m_solverParameterParse->getOptions(dict_options);
+        }
+
+        m_solver->setImpl(nm);
+    }
+    else
+    {
+        PythonSolver* ps = new PythonSolver();
+
+        QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
+        QFileInfo fileInfo = QFileInfo(pythonFileName);
+
+        QStringList optionList = Preferences::inst()->getValue(STR_PRF_PythonOptions).toStringList();
+
+        if (pythonFileName.isEmpty()
+            || false == m_solverParameterParse->parseSolverOptionList(optionList)
+            || false == ps->initialPythonSolver(fileInfo.path(),
+                fileInfo.baseName(),
+                QString("my_solver")))
+        {
+            logE << "Error reading options for python solver, reverting to NelderMeadSolver\n";
+            QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
+            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+            _createSolver();
+            return;
+        }
+        m_solverParameterParse->getOptions(dict_options);
+        m_solver->setImpl(ps);
+
+    }
+    ITransformer* trans = m_lightToMicroCoordModel->getTransformer();
+    m_solver->setAllCoef(trans->getAllCoef());
+    m_solver->setOptions(dict_options);
+    m_solver->setTransformer(trans);
 
 }
 
@@ -1595,6 +1755,7 @@ void SWSWidget::offsetReturnPressed()
    valX = sxOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
+       /*
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_x), valX))
@@ -1602,6 +1763,7 @@ void SWSWidget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
+      */
    }
    else
    {
@@ -1612,6 +1774,7 @@ void SWSWidget::offsetReturnPressed()
    valY = syOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
+       /*
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_y), valY))
@@ -1621,6 +1784,7 @@ void SWSWidget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
+      */
    }
    else
    {
@@ -1695,6 +1859,12 @@ void SWSWidget::restoreMarkerLoaded()
 
 	auto markersLoaded = _model->getMarkers();
 
+    while (m_calTreeModel->rowCount() > 0)
+    {
+        QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
+        m_calTreeModel->removeRow(0, first);
+    }
+
    for(int i = markersLoaded.size()-1; i>=0; i--)
    {
 
@@ -1720,6 +1890,12 @@ void SWSWidget::restoreMarkerLoaded()
    tabIndexChanged(MICROPROBE_IDX);
 
    auto regionMarkersLoaded = _model->getRegionMarkers();
+
+   while (m_mpTreeModel->rowCount() > 0)
+   {
+       QModelIndex first = m_mpTreeModel->index(0, 0, QModelIndex());
+       m_mpTreeModel->removeRow(0, first);
+   }
 
    for(int i = regionMarkersLoaded.size()-1; i>=0; i--)
    {
@@ -1789,10 +1965,12 @@ void SWSWidget::runSolver()
    if(m_lightToMicroCoordModel != nullptr)
    {
       double val;
+      /*
       QString fmx = CoordinateTransformGlobals::keyToString(
                CoordinateTransformGlobals::m2xfm_x);
       QString fmy = CoordinateTransformGlobals::keyToString(
                CoordinateTransformGlobals::m2xfm_y);
+               
       if(m_lightToMicroCoordModel->getTransformerVariable(fmx, &val))
       {
          minCoefs.insert(fmx, val);
@@ -1811,6 +1989,7 @@ void SWSWidget::runSolver()
          QMessageBox::critical(0, "uProbeX", "Error: Could not find m2xfm_y variable in transfomer!");
          return;
       }
+      */
    }
    else
    {
@@ -1859,6 +2038,110 @@ void SWSWidget::runSolver()
 }
 
 /*---------------------------------------------------------------------------*/
+/*
+
+void PreferencesSolverOption::runSolver()
+{
+
+    QMap<QString, double> minCoefs;
+    QMap<QString, double> newMinCoefs;
+    QMap<QString, double> allCoefs;
+    QMap<QString, double> options;
+    QList< QMap<QString, double> > coordPoints;
+
+    AbstractSolver* impl = m_solver->getImpl();
+    SolverParameterWidget* widget;
+
+    if (impl != nullptr)
+    {
+        m_solver->setImpl(nullptr);
+        delete impl;
+        impl = nullptr;
+    }
+
+    if (m_buttonGroup->checkedId() == NM_SELECTED)
+    {
+        widget = m_NMSolverWidget;
+
+        m_solver->setImpl(new NelderMeadSolver());
+
+    }
+    else if (m_buttonGroup->checkedId() == PY_SELECTED)
+    {
+        widget = m_pythonSolverWidget;
+
+        impl = new PythonSolver();
+        //      QFileInfo fileInfo = QFileInfo(getPythonSolverPath());
+        //      if(false ==((PythonSolver*)impl)->initialPythonSolver(fileInfo.path(),
+        //                                                            fileInfo.baseName(),
+        //                                                            "my_solver"))
+        //      {
+        //         delete impl;
+        //         logW<<"Error initializing python solver";
+        //         QMessageBox::critical(nullptr,"Error", "Error Initializing Python Solver!");
+        //         return;
+        //      }
+        
+        m_solver->setImpl(impl);
+    }
+
+    getSolverPropertiesFromModel(widget,
+        allCoefs,
+        minCoefs,
+        options);
+
+    m_transformer->Init(allCoefs);
+    m_solver->setTransformer(m_transformer);
+    m_solver->setAllCoef(allCoefs);
+    m_solver->setOptions(options);
+    m_solver->setMinCoef(minCoefs);
+
+    if (m_windowList.size() > 0)
+    {
+        SWSWidget* sws = (SWSWidget*)m_windowList.at(0);
+        sws->getMarkerCoordinatePoints(coordPoints);
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Solver Error", "Could not find active SWS workspace!");
+        return;
+    }
+
+    m_solver->setCoordPoints(coordPoints);
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    bool retVal = m_solver->run();
+    QApplication::restoreOverrideCursor();
+
+    if (m_solverWidget != nullptr)
+        delete m_solverWidget;
+    m_solverWidget = nullptr;
+
+    m_solverWidget = new SolverWidget();
+    connect(m_solverWidget,
+        SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
+        this,
+        SLOT(useUpdatedSolverVariables(const QMap<QString, double>)));
+
+    newMinCoefs = m_solver->getMinCoef();
+    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
+    m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
+
+    if (retVal)
+    {
+        m_solverWidget->setUseBtnEnabled(true);
+    }
+    else
+    {
+        m_solverWidget->setUseBtnEnabled(false);
+    }
+
+    m_solverWidget->show();
+
+}
+*/
+
+/*---------------------------------------------------------------------------*/
 
 void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 {
@@ -1871,6 +2154,7 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 
    if(m_lightToMicroCoordModel != nullptr)
    {
+       /*
       double val;
       if(m_lightToMicroCoordModel->getTransformerVariable(
                CoordinateTransformGlobals::keyToString(
@@ -1884,6 +2168,7 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
       {
          m_yOffset->setText(QString::number(val));
       }
+      */
    }
 
 }
@@ -2175,7 +2460,7 @@ void SWSWidget::updatedPixelToLight(double x, double y, double z)
 
 void SWSWidget::useUpdatedSolverVariables(const QMap<QString, double> vars)
 {
-
+    /*
    if(vars.contains(CoordinateTransformGlobals::keyToString(
                        CoordinateTransformGlobals::m2xfm_x))
       && vars.contains(CoordinateTransformGlobals::keyToString(
@@ -2190,7 +2475,7 @@ void SWSWidget::useUpdatedSolverVariables(const QMap<QString, double> vars)
       m_yOffset->setText(QString::number(newY));
       offsetReturnPressed();
    }
-
+   */
 }
 
 /*--------------------------------------------------------------------------*/
@@ -2250,7 +2535,7 @@ void SWSWidget::windowChanged(Qt::WindowStates oldState,
 }
 
 /*--------------------------------------------------------------------------*/
-
+/*
 void SWSWidget::widgetChanged(bool enable)
 {
    // More widget change after solver run could be added here
@@ -2258,4 +2543,69 @@ void SWSWidget::widgetChanged(bool enable)
 
 }
 
-/*---------------------------------------------------------------------------*/
+void solverVariableUpdate(double valX, double valY);
+
+void uProbeX::solverVariableUpdate(double valX, double valY)
+{
+
+    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
+
+    if (id == 0)
+    {
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
+        QStringList newAttrs;
+
+        saveXYToCoefficient(valX, valY, coefList, newAttrs);
+
+        Preferences::inst()->setValue(STR_PRF_NMCoefficient,
+            newAttrs);
+    }
+    else
+    {
+        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
+        QStringList newAttrs;
+
+        saveXYToCoefficient(valX, valY, coefList, newAttrs);
+
+        Preferences::inst()->setValue(STR_PRF_PythonCoefficient,
+            newAttrs);
+    }
+    solverEnd();
+
+}
+
+
+void uProbeX::saveXYToCoefficient(double& valX,
+    double& valY,
+    QStringList& coefList,
+    QStringList& newAttrs)
+{
+
+    for (int i = 0; i < coefList.size(); i++)
+    {
+        QString attr = coefList.at(i);
+        QStringList l = attr.split(",");
+        if (l.size() != 4)  continue;
+
+        if (l.at(0) == "m2xfm_x")
+        {
+            newAttrs.append(QString("%1,%2,%3,%4").arg(l.at(0))
+                .arg(QString::number(valX))
+                .arg(l.at(2))
+                .arg(l.at(3)));
+        }
+        else if (l.at(0) == "m2xfm_y")
+        {
+            newAttrs.append(QString("%1,%2,%3,%4").arg(l.at(0))
+                .arg(QString::number(valY))
+                .arg(l.at(2))
+                .arg(l.at(3)));
+        }
+        else
+        {
+            newAttrs.append(attr);
+        }
+    }
+
+}
+*/

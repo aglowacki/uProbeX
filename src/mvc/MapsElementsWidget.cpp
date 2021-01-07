@@ -30,6 +30,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
 {
     
     _model = nullptr;
+    _normalizer = nullptr;
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -59,7 +60,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
 
 MapsElementsWidget::~MapsElementsWidget()
 {
-/*
+/* //this is done elsewhere . should refactor it to be smart pointer
     if(_model != nullptr)
     {
         delete _model;
@@ -125,9 +126,16 @@ void MapsElementsWidget::_createLayout()
 
 	connect(_grid_button, SIGNAL(pressed()), this, SLOT(onGridDialog()));
 
+    _cb_normalize = new QComboBox();
+    _cb_normalize->setMinimumContentsLength(20);
+    _cb_normalize->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    _cb_normalize->addItem("1");
+    connect(_cb_normalize, SIGNAL(currentIndexChanged(QString)), this, SLOT(onSelectNormalizer(QString)));
+
 	m_toolbar->addWidget(_grid_button);
 	m_toolbar->addWidget(_cb_analysis);
-    //m_toolbar->addWidget(_cb_element);
+    m_toolbar->addWidget(new QLabel("  Normalize By: "));
+    m_toolbar->addWidget(_cb_normalize);
 	
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -279,6 +287,29 @@ void MapsElementsWidget::onColormapSelect(QString name)
 	redrawCounts();
 }
 
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::onSelectNormalizer(QString name)
+{
+
+    if (name == "1")
+    {
+        _normalizer = nullptr;
+    }
+    else
+    {
+        if (_model != nullptr)
+        {
+            std::unordered_map<std::string, data_struct::ArrayXXr>* scalers = _model->getScalers();
+            if (scalers->count(name.toStdString()) > 0)
+            {
+                _normalizer = &(scalers->at(name.toStdString()));
+            }
+        }
+    }
+    redrawCounts();
+}
+
  /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::setModel(MapsH5Model* model)
@@ -375,6 +406,32 @@ void MapsElementsWidget::model_updated()
 
     QString current_analysis = _cb_analysis->currentText();
 
+    _cb_normalize->clear();
+    _cb_normalize->addItem("1");
+
+    std::unordered_map<std::string, data_struct::ArrayXXr>* scalers = _model->getScalers();
+    if (scalers->count(STR_DS_IC) > 0)
+    {
+        _cb_normalize->addItem(QString(STR_DS_IC.c_str()));
+    }
+    if (scalers->count(STR_US_IC) > 0)
+    {
+        _cb_normalize->addItem(QString(STR_US_IC.c_str()));
+    }
+    if (scalers->count(STR_SR_CURRENT) > 0)
+    {
+        _cb_normalize->addItem(QString(STR_SR_CURRENT.c_str()));
+    }
+
+    for (const auto& itr : *scalers)
+    {
+        if (itr.first == STR_DS_IC || itr.first == STR_US_IC || itr.first == STR_SR_CURRENT)
+        {
+            continue;
+        }
+        _cb_normalize->addItem(QString(itr.first.c_str()));
+    }
+    _cb_normalize->setMinimumWidth(_cb_normalize->minimumSizeHint().width());
 
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
@@ -589,7 +646,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
                 if(counts_lookup != nullptr)
                 {
-                    counts_lookup->setModel(_model);
+                    counts_lookup->setModel(_model, _normalizer);
                     counts_lookup->setAnalyaisElement(analysis_type, element);
                 }
                 m_imageViewWidget->resetCoordsToZero();
@@ -603,14 +660,26 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 
                 float counts_max;
                 float counts_min;
-                _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
+                ArrayXXr normalized = fit_counts->at(element);
+                if (_normalizer != nullptr)
+                {
+                    normalized /= (*_normalizer);
+                    float min_coef = normalized.minCoeff();
+                    if (std::isfinite(min_coef) == false)
+                    {
+                        min_coef = 0.0f;
+                    }
+                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                }
+                _get_min_max_vals(counts_min, counts_max, normalized);
+                
                 float max_min = counts_max - counts_min;
                 for (int row = 0; row < height; row++)
                 {
                     for (int col = 0; col < width; col++)
                     {
                         //first clamp the data to max min
-                        float cnts = fit_counts->at(element)(row, col);
+                        float cnts = normalized(row, col);
                         cnts = std::min(counts_max, cnts);
                         cnts = std::max(counts_min, cnts);
                         //convert to pixel
@@ -638,28 +707,37 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
                 if (counts_lookup != nullptr)
                 {
-                    counts_lookup->setModel(_model);
+                    counts_lookup->setModel(_model, _normalizer);
                     counts_lookup->setAnalyaisElement(analysis_type, element);
                 }
                 ////
 
                 int height = static_cast<int>(fit_counts->at(element).rows());
                 int width = static_cast<int>(fit_counts->at(element).cols());
-                //m_imageHeightDim->setCurrentText(QString::number(height));
-                //m_imageWidthDim->setCurrentText(QString::number(width));
                 QImage image(width, height, QImage::Format_Indexed8);
                 image.setColorTable(*_selected_colormap);
 
                 float counts_max;
                 float counts_min;
-                _get_min_max_vals(counts_min, counts_max, fit_counts->at(element));
+                ArrayXXr normalized = fit_counts->at(element);
+                if (_normalizer != nullptr)
+                {
+                    normalized /= (*_normalizer);
+                    float min_coef = normalized.minCoeff();
+                    if (std::isfinite(min_coef) == false)
+                    {
+                        min_coef = 0.0f;
+                    }
+                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                }
+                _get_min_max_vals(counts_min, counts_max, normalized);
                 float max_min = counts_max - counts_min;
                 for (int row = 0; row < height; row++)
                 {
                     for (int col = 0; col < width; col++)
                     {
                         //first clamp the data to max min
-                        float cnts = fit_counts->at(element)(row, col);
+                        float cnts = normalized(row, col);
                         cnts = std::min(counts_max, cnts);
                         cnts = std::max(counts_min, cnts);
                         //convert to pixel

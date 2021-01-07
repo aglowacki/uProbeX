@@ -53,7 +53,6 @@ public:
     */
 
    PreferencesDialog(QList<gstar::AbstractImageWidget*> windowList,
-                     Solver* solver,
                      QWidget* parent = 0,
                      Qt::WindowFlags f = 0);
 

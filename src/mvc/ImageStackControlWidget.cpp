@@ -47,7 +47,7 @@ void ImageStackControlWidget::createLayout()
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
-	_sws_widget = new SWSWidget(nullptr, nullptr); // todo , get good values 
+	_sws_widget = new SWSWidget();
 	_mda_widget = new MDA_Widget();
 
 	_mapsFilsWidget = new MapsWorkspaceFilesWidget();

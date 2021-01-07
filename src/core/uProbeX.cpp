@@ -3,29 +3,6 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/uProbeX.h>
-
-#include <mvc/AbstractWindowController.h>
-#include <core/SubWindow.h>
-#include <mvc/SWSModel.h>
-#include <mvc/TIFFController.h>
-#include <mvc/SWSWidget.h>
-#include <preferences/PreferencesDialog.h>
-#include <QFileDialog>
-#include <solver/CoordinateTransformer.h>
-#include <solver/PythonTransformer.h>
-#include <mvc/MapsElementsWidget.h>
-#include <mvc/MapsWorkspaceModel.h>
-#include <mvc/FitSpectraWidget.h>
-#include <mvc/MDA_Widget.h>
-#include <preferences/CoordinateTransformGlobals.h>
-
-#include <gstar/Splash.h>
-
-#include <solver/Solver.h>
-#include <solver/NelderMeadSolver.h>
-#include <solver/PythonSolver.h>
-
 #include <QAction>
 #include <QActionGroup>
 #include <QDateTime>
@@ -39,16 +16,23 @@
 #include <QMdiSubWindow>
 #include <QFileInfo>
 
+#include <core/uProbeX.h>
+#include <mvc/AbstractWindowController.h>
+#include <core/SubWindow.h>
+#include <mvc/SWSModel.h>
+#include <mvc/TIFFController.h>
+#include <mvc/SWSWidget.h>
+#include <preferences/PreferencesDialog.h>
+#include <QFileDialog>
+#include <mvc/MapsElementsWidget.h>
+#include <mvc/MapsWorkspaceModel.h>
+#include <mvc/FitSpectraWidget.h>
+#include <mvc/MDA_Widget.h>
+
+#include <gstar/Splash.h>
 
 #include <stdio.h>
-using gstar::Splash;
-using gstar::ImageViewWidget;
-using gstar::CoordinateModel;
-using gstar::ITransformer;
 
-
-static const int ID_NELDER_MEAD = 0;
-static const int ID_PYTHON = 1;
 static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
 QTextEdit * uProbeX::log_textedit = 0;
@@ -59,19 +43,12 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 {
 	
 	log_textedit = new QTextEdit();
-    m_lightToMicroCoordModel = nullptr;
-    m_solver = nullptr;
-    m_autosaveTimer = nullptr;
-    m_solverParameterParse = new SolverParameterParse();
+    //m_autosaveTimer = nullptr;
     _liveMapsViewer = nullptr;
-	//_mapsWorkspaceController = nullptr;
-
+	
     //////// HENKE and ELEMENT INFO /////////////
     std::string element_csv_filename = "../reference/xrf_library.csv";
     std::string element_henke_filename = "../reference/henke.xdr";
-
-    //connect(this, SIGNAL( loadMapsWorkspace(MapsWorkspaceController*, QString) ),
-    //        this, SLOT( onLoadMapsWorkspace(MapsWorkspaceController*, QString) ) );
 
     PythonLoader::inst()->safeCheck();
 
@@ -139,14 +116,6 @@ uProbeX::~uProbeX()
         _liveMapsViewer = nullptr;
     }
 
-    if(m_solverParameterParse != nullptr)
-        delete m_solverParameterParse;
-    m_solverParameterParse = nullptr;
-
-    if(m_lightToMicroCoordModel != nullptr)
-        delete m_lightToMicroCoordModel;
-    m_lightToMicroCoordModel = nullptr;
-
     Preferences::inst()->setValue(STR_PRF_MainWindowSavedWidth, width());
     Preferences::inst()->setValue(STR_PRF_MainWindowSavedHeight, height());
 
@@ -159,7 +128,6 @@ uProbeX::~uProbeX()
         }
     }
     m_subWindows.clear();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -175,15 +143,6 @@ void uProbeX::adjustDisplaySettings()
         QFont font("Sans", fontSize);
         QApplication::setFont(font);
     }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::cancelSolverVariableUpdate()
-{
-
-    solverEnd();
 
 }
 
@@ -225,110 +184,6 @@ void uProbeX::closeEvent(QCloseEvent* event)
 
     // Quit
     exitApplication();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::createLightToMicroCoords(int id)
-{
-
-    /*
-   map["2xfm_x"] = -64.1418;
-   map["2xfm_y"] = -41.8941;
-   map["angle_alpha"] = 1.19;
-   map["offset_a"] = 10.27;
-   map["offset_b"] = 2.13;
-   map["offset_c"] = 0.0;
-   map["offset_d"] = 0.0;
-   map["omega"] = 90.0;
-   map["omega_prime"] = 90.04;
-   map["scaling_XFM_X"] = 1.03;
-   map["scaling_XFM_Y"] = 1.0;
-   map["z_offset"] = 0.0;
-   map["z_lin_x"] = -0.18;
-   map["z_lin_y"] = 0.02;
-   */
-
-
-    ITransformer *lightTransformer = nullptr;
-    QMap<QString, double> allCoefs;
-
-    if(m_lightToMicroCoordModel != nullptr)
-    {
-        lightTransformer = m_lightToMicroCoordModel->getTransformer();
-        if (lightTransformer != nullptr)
-        {
-            delete lightTransformer;
-            m_lightToMicroCoordModel->setTransformer(nullptr);
-        }
-        lightTransformer = nullptr;
-    }
-
-    if(id == ID_NELDER_MEAD)
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
-        if(false == m_solverParameterParse -> parseSolverCoefList(coefList))
-        {
-            allCoefs = CoordinateTransformGlobals::generateMap();
-        }
-        else
-        {
-            m_solverParameterParse -> getTransform(allCoefs);
-        }
-
-        if(lightTransformer == nullptr)
-        {
-            lightTransformer = new CoordinateTransformer();
-        }
-    }
-    else
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
-
-        if(false == m_solverParameterParse -> parseSolverCoefList(coefList))
-        {
-            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-            createSolver();
-            return;
-        }
-        m_solverParameterParse -> getTransform(allCoefs);
-
-        if(lightTransformer == nullptr)
-        {
-            QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
-            if(pythonFileName.isEmpty())
-            {
-                QMessageBox::critical(nullptr, "Error",
-                                      "Must have a python script having a transform function, using default transformer right now.");
-                Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-                createSolver();
-                return;
-            }
-            QFileInfo fileInfo = QFileInfo(pythonFileName);
-            lightTransformer = new PythonTransformer(
-                        fileInfo.path(),
-                        fileInfo.baseName(),
-                        QString("my_transform"));
-        }
-    }
-
-    if(lightTransformer->Init(allCoefs))
-    {
-        if(m_lightToMicroCoordModel != nullptr)
-        {
-            m_lightToMicroCoordModel->setTransformer(lightTransformer);
-        }
-        else
-        {
-            m_lightToMicroCoordModel = new gstar::CoordinateModel(lightTransformer);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
-        logW<<"Could not init Transformer\n";
-    }
 
 }
 
@@ -391,78 +246,6 @@ void uProbeX::createMenuBar()
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::createSolver()
-{
-
-    QMap<QString, double> dict_options;
-
-    if(m_solver == nullptr)
-        m_solver = new Solver();
-
-    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
-
-    createLightToMicroCoords(id);
-
-    AbstractSolver *impl = m_solver->getImpl();
-    if(impl!=nullptr)
-    {
-        m_solver->setImpl(nullptr);
-        delete impl;
-    }
-
-    if(id == ID_NELDER_MEAD)
-    {
-        NelderMeadSolver* nm = new NelderMeadSolver();
-
-        //todo read options and set them
-        QStringList optionList = Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList();
-        if(false == m_solverParameterParse -> parseSolverOptionList(optionList))
-        {
-            logE<<"Error reading options for NM solver\n";
-            // Initialize with the default option
-            dict_options = nm ->getOptions();
-        }
-        else
-        {
-            m_solverParameterParse -> getOptions(dict_options);
-        }
-
-        m_solver->setImpl(nm);
-    }
-    else
-    {
-        PythonSolver *ps = new PythonSolver();
-
-        QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
-        QFileInfo fileInfo = QFileInfo(pythonFileName);
-
-        QStringList optionList = Preferences::inst()->getValue(STR_PRF_PythonOptions).toStringList();
-
-        if(pythonFileName.isEmpty()
-                || false == m_solverParameterParse -> parseSolverOptionList(optionList)
-                || false == ps->initialPythonSolver(fileInfo.path(),
-                                                    fileInfo.baseName(),
-                                                    QString("my_solver")))
-        {
-            logE<<"Error reading options for python solver, reverting to NelderMeadSolver\n";
-            QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
-            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-            createSolver();
-            return;
-        }
-        m_solverParameterParse -> getOptions(dict_options);
-        m_solver->setImpl(ps);
-
-    }
-    ITransformer *trans = m_lightToMicroCoordModel->getTransformer();
-    m_solver->setAllCoef(trans->getAllCoef());
-    m_solver->setOptions(dict_options);
-    m_solver->setTransformer(trans);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void uProbeX::openLiveStreamViewer()
 {
     QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
@@ -498,13 +281,12 @@ void uProbeX::exitApplication()
 void uProbeX::initialize()
 {
 
-    m_splashAbout = nullptr;
     m_mdiArea = nullptr;
 
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void uProbeX::adjustAutoSaveSettings()
 {
     if (Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEnable).toBool())
@@ -543,19 +325,16 @@ void uProbeX::adjustAutoSaveSettings()
             m_autosaveTimer = nullptr;
         }
     }
-
-
 }
-
+*/
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::makeSWSWindow(SWSModel* swsModel)
 {
-    SWSWidget* swsWidget = new SWSWidget(m_solver);
+    SWSWidget* swsWidget = new SWSWidget();
     swsWidget->resize(1027, 768);
 	swsWidget->setModel(swsModel);
-    swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-    
+   
     connect(swsWidget,
             SIGNAL(solverStart()),
             this,
@@ -600,7 +379,7 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
 
     if (newWindow == false) return;
     // Create general window view widget and image model
-    SWSWidget* swsWidget = new SWSWidget(m_solver);
+    SWSWidget* swsWidget = new SWSWidget();
     swsWidget->resize(800, 600);
 
     try
@@ -611,7 +390,6 @@ void uProbeX::makeSWSWindow(QString path, bool newWindow)
         if(swsModel->tiffLoaded())
         {
 			swsWidget->setModel(swsModel);
-            swsWidget->setLightToMicroCoordModel(m_lightToMicroCoordModel);
         }
         else
         {
@@ -691,7 +469,11 @@ void uProbeX::onLoadMapsWorkspace(MapsWorkspaceController* controller, QString p
 
 void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 {
-	delete controller;
+    if (controller != nullptr)
+    {
+        delete controller;
+    }
+    controller = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -807,15 +589,6 @@ void uProbeX::menuBarEnable()
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::openAcquisitionData(QString path)
-{
-
-    if (path.isNull() || path.isEmpty()) return;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void uProbeX::openSWSFile()
 {
 
@@ -879,42 +652,6 @@ void uProbeX::openHDFFile()
     QString filePath = QFileInfo(fileName).canonicalFilePath();
 
     makeHDFWindow(filePath);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::saveXYToCoefficient(double& valX,
-                                  double& valY,
-                                  QStringList& coefList,
-                                  QStringList& newAttrs)
-{
-
-    for(int i=0; i<coefList.size(); i++)
-    {
-        QString attr = coefList.at(i);
-        QStringList l = attr.split(",");
-        if (l.size() != 4)  continue;
-
-        if(l.at(0) == "m2xfm_x" )
-        {
-            newAttrs.append(QString("%1,%2,%3,%4").arg(l.at(0))
-                            .arg(QString::number(valX))
-                            .arg(l.at(2))
-                            .arg(l.at(3)));
-        }
-        else if(l.at(0) == "m2xfm_y")
-        {
-            newAttrs.append(QString("%1,%2,%3,%4").arg(l.at(0))
-                            .arg(QString::number(valY))
-                            .arg(l.at(2))
-                            .arg(l.at(3)));
-        }
-        else
-        {
-            newAttrs.append(attr);
-        }
-    }
 
 }
 
@@ -1181,30 +918,24 @@ void uProbeX::cleanUpAutoSafeData() {
 
 void uProbeX::showAbout()
 {
-
-    // New about screen
-    if (m_splashAbout == nullptr) {
-        m_splashAbout = new Splash(this, Qt::Popup, "uProbeX", true);
-    }
-
+    gstar::Splash* splashAbout = new gstar::Splash(this, Qt::Popup, "uProbeX", true);
     // Show and add message
-    m_splashAbout -> setWindowModality(Qt::ApplicationModal);
-    m_splashAbout -> show();
-    m_splashAbout -> clear();
-    m_splashAbout -> appendMessage(tr("Created by"));
-    m_splashAbout -> appendMessage(tr("Software Services Group"));
-    m_splashAbout -> appendMessage(tr("Advanced Photon Source"));
-    m_splashAbout -> appendMessage(tr("Argonne National Laboratory"));
-    m_splashAbout -> appendMessage(tr(""));
-    m_splashAbout -> appendMessage(tr("Copyright (c) 2014"));
-    m_splashAbout -> appendMessage(tr("UChicago Argonne, LLC"));
-    m_splashAbout -> appendMessage(tr(""));
-    m_splashAbout -> appendMessage(tr("Credits"));
-    m_splashAbout -> appendMessage(tr("Arthur Glowacki"));
-    m_splashAbout -> appendMessage(tr("Dariusz Jarosz"));
-    m_splashAbout -> appendMessage(tr("Nicholas Schwarz"));
-    m_splashAbout -> appendMessage(tr("Ke Yue"));
-
+    splashAbout->setWindowModality(Qt::ApplicationModal);
+    splashAbout->clear();
+    splashAbout->appendMessage(tr("Created by"));
+    splashAbout->appendMessage(tr("Software Services Group"));
+    splashAbout->appendMessage(tr("Advanced Photon Source"));
+    splashAbout->appendMessage(tr("Argonne National Laboratory"));
+    splashAbout->appendMessage(tr(""));
+    splashAbout->appendMessage(tr("Copyright (c) 2014"));
+    splashAbout->appendMessage(tr("UChicago Argonne, LLC"));
+    splashAbout->appendMessage(tr(""));
+    splashAbout->appendMessage(tr("Credits"));
+    splashAbout->appendMessage(tr("Arthur Glowacki"));
+    splashAbout->appendMessage(tr("Dariusz Jarosz"));
+    splashAbout->appendMessage(tr("Nicholas Schwarz"));
+    splashAbout->appendMessage(tr("Ke Yue"));
+    splashAbout->exec();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1224,7 +955,6 @@ void uProbeX::showPreferences()
 
     // Show preferences dialog with current settings
     PreferencesDialog* dialog = new PreferencesDialog(widgetList,
-                                                      m_solver,
                                                       this,
                                                       Qt::Dialog);
 
@@ -1250,82 +980,11 @@ void uProbeX::processPreferencesUpdate()
 
     adjustDisplaySettings();
 
-    adjustAutoSaveSettings();
-
-    createSolver();
+    //adjustAutoSaveSettings();
 
     updateContextMenus();
 
     updatePreference();
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::solverStart()
-{
-
-    SWSWidget* widget = nullptr;
-
-    for(SubWindow* con : m_subWindows.values())
-    {
-        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
-        {
-            widget = static_cast<SWSWidget*>(w);
-            widget->widgetChanged(false);
-        }
-    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::solverEnd()
-{
-
-    SWSWidget* widget = nullptr;
-
-    for(SubWindow* con : m_subWindows.values())
-    {
-        gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
-        {
-            widget = static_cast<SWSWidget*>(w);
-            widget->widgetChanged(true);
-        }
-    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void uProbeX::solverVariableUpdate(double valX, double valY)
-{
-
-    int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
-
-    if (id == 0)
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
-        QStringList newAttrs;
-
-        saveXYToCoefficient(valX, valY, coefList, newAttrs);
-
-        Preferences::inst()->setValue(STR_PRF_NMCoefficient,
-                                   newAttrs);
-    }
-    else
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
-        QStringList newAttrs;
-
-        saveXYToCoefficient(valX, valY, coefList, newAttrs);
-
-        Preferences::inst()->setValue(STR_PRF_PythonCoefficient,
-                                   newAttrs);
-    }
-    solverEnd();
-
 }
 
 /*---------------------------------------------------------------------------*/

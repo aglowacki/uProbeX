@@ -84,6 +84,8 @@ public slots:
 
    void on_export_fit_params(data_struct::Fit_Parameters fit_params);
 
+   void onSelectNormalizer(QString name);
+
 protected:
 
    /**
@@ -127,6 +129,9 @@ protected:
 
    ImageGridDialog iDiag;
 
+   QComboBox* _cb_normalize;
+
+   data_struct::ArrayXXr* _normalizer;
 };
 
 
@@ -135,3 +140,4 @@ protected:
 #endif /* MapsElementsWidget_H_ */
 
 /*---------------------------------------------------------------------------*/
+

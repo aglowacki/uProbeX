@@ -585,8 +585,6 @@ bool AnnotationTreeModel::removeRows(int row,
                                int count,
                                const QModelIndex& parent)
 {
-   return false;
-
    if (parent.isValid() == false)
       return false;
 

@@ -9,19 +9,15 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QMainWindow>
-
-#include <preferences/Preferences.h>
-#include <preferences/SolverParameterParse.h>
-#include <gstar/CoordinateModel.h>
-#include <mvc/MapsH5Model.h>
-#include <mvc/LiveMapsElementsWidget.h>
-#include <mvc/MapsWorkspaceController.h>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
 #include <QUuid>
-#include <thread>
-//#include <QtConcurrent>
+#include <preferences/Preferences.h>
+#include <mvc/MapsH5Model.h>
+#include <mvc/LiveMapsElementsWidget.h>
+#include <mvc/MapsWorkspaceController.h>
+
 
 class SubWindow;
 class AbstractWindowController;
@@ -33,16 +29,8 @@ class QMenuBar;
 class QToolBar;
 class QMdiArea;
 class QMdiSubWindow;
-class Solver;
 class SWSModel;
 class RAW_Model;
-
-namespace gstar
-{
-
-  class Splash;
-
-}
 
 /*---------------------------------------------------------------------------*/
 
@@ -71,15 +59,10 @@ public:
    static QTextEdit * log_textedit;
 
 signals:
+
    void loadMapsWorkspace(MapsWorkspaceController*, QString);
-   void FinishThread(std::thread*);
 
 private slots:
-
-   /**
-    * @brief cancelSolverVariableUpdate
-    */
-   void cancelSolverVariableUpdate();
 
    /**
     * @brief Reimplemented from QMainWindow. See Qt documentation.
@@ -136,13 +119,6 @@ private slots:
    void makeMDAWindow(RAW_Model* model);
 
    /**
-    * @brief Open the data file at the given path. Triggered by acquisition controller
-    *
-    * @param path - Path to the data file, can be empty. 
-    */
-   void openAcquisitionData(QString path);
-
-   /**
     * @brief Open the SWS workspace. Triggered from the menu.
     */
    void openSWSFile();
@@ -188,23 +164,6 @@ private slots:
    void processPreferencesUpdate();
 
    /**
-    * @brief solverStart
-    */
-   void solverStart();
-
-   /**
-    * @brief solverEnd
-    */
-   void solverEnd();
-
-   /**
-    * @brief solverVariableUpdate
-    * @param valX
-    * @param valY
-    */
-   void solverVariableUpdate(double valX, double valY);
-
-   /**
     * @brief Handle event when a child MDI window is closed.
     * @param subWindow
     */
@@ -241,7 +200,7 @@ private:
    /**
     * @brief adjustAutoSaveSettings
     */
-   void adjustAutoSaveSettings();
+   //void adjustAutoSaveSettings();
 
    /**
     * @briefAdjust displays settings (Font type, size etc).
@@ -258,43 +217,15 @@ private:
    bool checkSameFileWindow(QString& filePath);
 
    /**
-    * @brief createLightToMicroCoords
-    * @param id
-    */
-   void createLightToMicroCoords(int id);
-
-   /**
     * @brief Create menu bar
     */
    void createMenuBar();
 
    /**
-    * @brief createSolver
-    */
-   void createSolver();
-
-   /**
     * @brief Default initialization of variables such as setting pointers to nullptr
     */
    void initialize();
-
-   /**
-    * @brief saveSolver
-    */
-   //void saveSolver();
-
-   /**
-    * @brief saveXYToCoefficient
-    * @param valX
-    * @param valY
-    * @param coefList
-    * @param newAttrs
-    */
-   void saveXYToCoefficient(double& valX,
-                            double& valY,
-                            QStringList& coefList,
-                            QStringList& newAttrs );
-
+   
    /**
     * @brief updateContextMenus
     */
@@ -319,13 +250,6 @@ private:
 
 private:
 
-   //MapsWorkspaceController* _mapsWorkspaceController;
-
-   /**
-    * @brief m_lightToMicroCoordModel
-    */
-   gstar::CoordinateModel* m_lightToMicroCoordModel;
-
    /**
     * @brief Menu bar
     */
@@ -347,24 +271,9 @@ private:
    QMenu* m_menuHelp;
 
    /**
-    * @brief Splash screen
-    */
-   gstar::Splash* m_splashAbout;
-
-   /**
     * @brief MDI area that serves as a central widget
     */
    QMdiArea* m_mdiArea;
-
-   /**
-    * @brief m_solver
-    */
-   Solver *m_solver;
-
-   /**
-    * @brief m_solverParameterParse
-    */
-   SolverParameterParse* m_solverParameterParse;
 
    /**
     * @brief Keeps track of all open MDI child windows for hdf5 play-back.
@@ -372,14 +281,9 @@ private:
    QMap<QUuid, SubWindow*> m_subWindows;
 
    /**
-    * @brief _load_maps_workspace_thread
-    */
-   //std::thread* _load_maps_workspace_thread;
-
-   /**
     * @brief timer used to execute autosafe.
     */
-   QTimer* m_autosaveTimer;
+   //QTimer* m_autosaveTimer;
 
    /**
     * @brief _liveMapsViewer
