@@ -49,6 +49,8 @@ public:
 
     std::vector<std::string> count_names();
 
+    std::unordered_map<std::string, data_struct::ArrayXXr>* getScalers() { return &_scalers; }
+
     bool is_fully_loaded() {return _is_fully_loaded;}
 
     data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
@@ -126,6 +128,8 @@ protected:
     data_struct::Spectra _integrated_spectra;
 
     data_struct::Params_Override* _params_override;
+
+    std::unordered_map<std::string, data_struct::ArrayXXr> _scalers;
 
 private:
 

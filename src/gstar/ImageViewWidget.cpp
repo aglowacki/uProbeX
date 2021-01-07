@@ -62,7 +62,7 @@ ImageViewWidget::~ImageViewWidget()
     }
     _cb_image_label.clear();
 
-    //this memeory is deleted by the model, just need to clear the vector
+    //this memory is deleted by the model, just need to clear the vector
     _counts_lookup.clear();
 
     for (auto& itr : _counts_coord_model)

@@ -71,7 +71,7 @@ public:
 
    void setCounts(double x);
 
-   void setModel(MapsH5Model* model){ _model = model; }
+   void setModel(MapsH5Model* model, data_struct::ArrayXXr* norm) { _model = model; _normalizer = norm; }
 
    void setAnalyaisElement(std::string analysis_type, std::string element);
 
@@ -108,7 +108,11 @@ protected:
 
    int _cols;
 
-   Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> * _counts_ptr;
+   data_struct::ArrayXXr* _counts_ptr;
+
+   data_struct::ArrayXXr* _normalizer;
+
+   data_struct::ArrayXXr _normalized_counts;
 };
 
 }

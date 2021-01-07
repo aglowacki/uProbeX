@@ -143,11 +143,31 @@ void CountsLookupTransformer::setAnalyaisElement(std::string analysis_type, std:
         {
             if(fit_counts->count(_element) > 0)
             {
-                _min_counts = fit_counts->at(_element).minCoeff();
-                _max_counts = fit_counts->at(_element).maxCoeff();
-                _rows = fit_counts->at(_element).rows();
-                _cols = fit_counts->at(_element).cols();
-                _counts_ptr = &fit_counts->at(_element);
+                if (_normalizer != nullptr)
+                {
+                    _normalized_counts = fit_counts->at(_element) / (*_normalizer);
+                    float min_coef = _normalized_counts.minCoeff();
+                    if (std::isfinite(min_coef) == false)
+                    {
+                        min_coef = 0.0f;
+                    }
+                    _normalized_counts = _normalized_counts.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+
+                    _min_counts = _normalized_counts.minCoeff();
+                    _max_counts = _normalized_counts.maxCoeff();
+                    _rows = _normalized_counts.rows();
+                    _cols = _normalized_counts.cols();
+                    _counts_ptr = &_normalized_counts;
+
+                }
+                else
+                {
+                    _min_counts = fit_counts->at(_element).minCoeff();
+                    _max_counts = fit_counts->at(_element).maxCoeff();
+                    _rows = fit_counts->at(_element).rows();
+                    _cols = fit_counts->at(_element).cols();
+                    _counts_ptr = &fit_counts->at(_element);
+                }
             }
             else
             {
