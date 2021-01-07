@@ -1859,6 +1859,12 @@ void SWSWidget::restoreMarkerLoaded()
 
 	auto markersLoaded = _model->getMarkers();
 
+    while (m_calTreeModel->rowCount() > 0)
+    {
+        QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
+        m_calTreeModel->removeRow(0, first);
+    }
+
    for(int i = markersLoaded.size()-1; i>=0; i--)
    {
 
@@ -1884,6 +1890,12 @@ void SWSWidget::restoreMarkerLoaded()
    tabIndexChanged(MICROPROBE_IDX);
 
    auto regionMarkersLoaded = _model->getRegionMarkers();
+
+   while (m_mpTreeModel->rowCount() > 0)
+   {
+       QModelIndex first = m_mpTreeModel->index(0, 0, QModelIndex());
+       m_mpTreeModel->removeRow(0, first);
+   }
 
    for(int i = regionMarkersLoaded.size()-1; i>=0; i--)
    {
