@@ -85,9 +85,9 @@ Preferences* Preferences::inst()
 QVariant Preferences::getValue(QString key) const
 {
 
-    if (_pref_map.count(key) > 0)
+    if (_pref_map.count(key.toStdString()) > 0)
     {
-        return _pref_map.at(key);
+        return _pref_map.at(key.toStdString());
     }
     return QVariant();
 
@@ -98,7 +98,7 @@ QVariant Preferences::getValue(QString key) const
 void Preferences::setValue(QString key, QVariant value)
 {
 
-    _pref_map[key] = value;
+    _pref_map[key.toStdString()] = value;
 
 }
 
@@ -115,7 +115,7 @@ void Preferences::load()
     s.beginGroup("Values");
     for(const auto &itr : s.allKeys())
     {
-        _pref_map[itr] = s.value(itr);
+        _pref_map[itr.toStdString()] = s.value(itr);
     }
     s.endGroup();
 }
@@ -133,7 +133,7 @@ void Preferences::save()
     s.beginGroup("Values");
     for (const auto& itr : _pref_map)
     {
-        s.setValue(itr.first, itr.second);
+        s.setValue(QString(itr.first.c_str()), itr.second);
     }
     s.endGroup();
 }

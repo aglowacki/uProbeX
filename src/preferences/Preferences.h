@@ -105,7 +105,7 @@ private:
 
     static std::mutex _mutex;
 
-    std::unordered_map<QString, QVariant> _pref_map;
+    std::unordered_map<std::string, QVariant> _pref_map;
 };
 
 /*---------------------------------------------------------------------------*/
