@@ -73,7 +73,7 @@ public:
     * @param key - the ValueKey enum for the key to read
     * @return value for given key as a QVariant
     */
-   QVariant getValue(QString key);  
+   QVariant getValue(QString key) const;  
 
    /**
     * Save a ValueKey to persistent storage.
@@ -105,45 +105,7 @@ private:
 
     static std::mutex _mutex;
 
-    std::unordered_map<QString, QVariant> _pref_map {
-        {STR_PRF_NMCoefficient, QVariant()},
-        {STR_PRF_NMOptions, QVariant()},
-        {STR_PRF_ProfileList, QVariant()},
-        {STR_PRF_ProfilePythonSolverName, QVariant()},
-        {STR_PRF_ProfilePythonCoefficient, QVariant()},
-        {STR_PRF_ProfilePythonOptions, QVariant()},
-        {STR_PRF_ProfileIndex, QVariant()},
-        {STR_PRF_PythonSolverName, QVariant()},
-        {STR_PRF_PythonCoefficient, QVariant()},
-        {STR_PRF_PythonOptions, QVariant()},
-        {STR_PRF_SolverCheckedID, QVariant()},
-        {STR_PRF_FontSize, QVariant(14)},
-        {STR_PRF_RulerUnitLabel, QVariant()},
-        {STR_PRF_RulerUnitX, QVariant()},
-        {STR_PRF_RulerUnitY, QVariant()},
-        {STR_PRF_RegionMenuList, QVariant()},
-        {STR_PRF_MainWindowSavedWidth, QVariant(1024)},
-        {STR_PRF_MainWindowSavedHeight, QVariant(768)},
-        {STR_PRF_WindowTitle, QVariant()},
-        {STR_PRF_DecimalPrecision, QVariant()},
-        {STR_PRF_MicroProbeXPv, QVariant()},
-        {STR_PRF_MicroProbeYPv, QVariant()},
-        {STR_PRF_AutoSaveRecoveryEnable, QVariant()},
-        {STR_PRF_AutoSaveRecoveryEveryMiliseconds, QVariant()},
-        {STR_PRF_AutoSaveOnExit, QVariant()},
-        {STR_PRF_ExportZoomToRegion, QVariant()},
-        {STR_PRF_ExportDirectoryInDataset, QVariant()},
-        {STR_PRF_ExportPrintNameOnExportedImage, QVariant()},
-        {STR_PRF_ExportPrintPxPyOnExportedImage, QVariant()},
-        {STR_PRF_ExportPrintWidthHeightOnExportedImage, QVariant()},
-        {STR_PRF_ExportSelectedXmlOption, QVariant()},
-        {STR_PRF_LastIP, QVariant()},
-        {STR_PRF_LastPort, QVariant()},
-        {STR_PFR_LOG_10, QVariant(true)},
-        {STR_PFR_DETAILED_FIT_SPEC, QVariant()}
-    };
-
-
+    std::unordered_map<QString, QVariant> _pref_map;
 };
 
 /*---------------------------------------------------------------------------*/
