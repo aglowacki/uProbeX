@@ -146,6 +146,7 @@ void MapsElementsWidget::_createLayout()
     _tab_widget->addTab(window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
 
+
     layout->addItem(hbox2);
     layout->addWidget(_tab_widget);
 
@@ -314,24 +315,27 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
 
 void MapsElementsWidget::setModel(MapsH5Model* model)
 {
-    _model = model;
-    model_updated();
-    if (_model != nullptr)
+    if (_model != model)
     {
-        data_struct::Params_Override* po = _model->getParamOverride();
-        if (po != nullptr)
+        _model = model;
+        model_updated();
+        if (_model != nullptr)
         {
-			_spectra_widget->setParamOverride(po);
-        }
-        disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
-        //_spectra_widget->clearFitIntSpectra();
-        for (auto& itr : model->_fit_int_spec_dict)
-        {
-            _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
-        }
+            data_struct::Params_Override* po = _model->getParamOverride();
+            if (po != nullptr)
+            {
+                _spectra_widget->setParamOverride(po);
+            }
+            disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+            //_spectra_widget->clearFitIntSpectra();
+            for (auto& itr : model->_fit_int_spec_dict)
+            {
+                _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
+            }
 
-        _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
-        connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+            _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
+            connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+        }
     }
 }
 

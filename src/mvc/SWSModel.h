@@ -85,9 +85,9 @@ public:
     */
     int getRank();
 
-    virtual uchar* getBytes() { return m_tiffModel->getBytes(); }
+    virtual uchar* getBytes();
 
-    virtual QImage* getImage() { return m_tiffModel->getImage(); }
+    virtual QImage* getImage();
     /**
     * @brief tiffLoaded
     * @return whether the tiff is loaded

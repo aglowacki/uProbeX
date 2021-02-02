@@ -215,10 +215,10 @@ void uProbeX::createMenuBar()
     action = m_menuFile->addAction("Save All SWS DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
     m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save preferences");
-    connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
-    action = m_menuFile->addAction("Load preferences");
-    connect(action, SIGNAL(triggered()), this, SLOT(loadPreferencesXMLData()));
+    //action = m_menuFile->addAction("Save preferences");
+    //connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
+    //action = m_menuFile->addAction("Load preferences");
+    //connect(action, SIGNAL(triggered()), this, SLOT(loadPreferencesXMLData()));
     m_menuFile->addSeparator();
     action = m_menuFile->addAction("Preferences");
     connect(action, SIGNAL(triggered()), this, SLOT(showPreferences()));

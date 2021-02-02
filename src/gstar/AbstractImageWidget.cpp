@@ -765,9 +765,11 @@ void AbstractImageWidget::updateFrame(const Array* image)
 
 void AbstractImageWidget::updateFrame(QImage *img)
 {
-
-   // Create pixmap from image
-   m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
+    if (img != nullptr)
+    {
+        // Create pixmap from image
+        m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
+    }
 
 }
 

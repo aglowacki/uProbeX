@@ -92,13 +92,12 @@ void MDA_Widget::createLayout()
 
 void MDA_Widget::setModel(RAW_Model* model)
 {
-    if(_model == model)
+    if (_model != model)
     {
-        return;
+        _spectra_widget->clearAllSpectra();
+        _model = model;
+        model_updated();
     }
-    _spectra_widget->clearAllSpectra();
-    _model = model;
-    model_updated();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -109,7 +108,7 @@ void MDA_Widget::model_updated()
     {
         return;
     }
-    int rows, cols;
+    Eigen::Index rows, cols;
 
     _model->getDims(rows, cols);
     data_struct::Scan_Info* scan_info = _model->getScanInfo();
@@ -217,7 +216,7 @@ void MDA_Widget::onDetectorSelect(const QString& det)
 void MDA_Widget::onScalerSelect(const QString& det)
 {
     const data_struct::ArrayXXr* scaler = nullptr;
-    int rows, cols;
+    Eigen::Index rows, cols;
     _model->getDims(rows, cols);
     std::string name = det.toStdString();
     data_struct::Scan_Info* scan_info = _model->getScanInfo();
@@ -234,9 +233,11 @@ void MDA_Widget::onScalerSelect(const QString& det)
 
 		if (scaler != nullptr)
 		{
-			for (int i = 0; i < rows; i++)
+            int minrows = std::min(rows, scaler->rows());
+            int mincols = std::min(cols, scaler->cols());
+			for (int i = 0; i < minrows; i++)
 			{
-				for (int j = 0; j < cols; j++)
+				for (int j = 0; j < mincols; j++)
 				{
 					_scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
 				}
