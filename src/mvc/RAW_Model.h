@@ -16,8 +16,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-//typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
-
 /**
  * @brief Model for raw mda files
  */

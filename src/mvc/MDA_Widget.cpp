@@ -7,8 +7,6 @@
 
 #include <gstar/ImageViewWidget.h>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QSplitter>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -46,21 +44,11 @@ void MDA_Widget::createLayout()
     _cb_detector = new QComboBox(this);
     connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
 
-    _cb_scaler = new QComboBox(this);
-    connect(_cb_scaler, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onScalerSelect);
+    _scaler_widget = new Scaler_Widget(this);
 
-    QHBoxLayout* hbox = new QHBoxLayout();
     QVBoxLayout* vbox = new QVBoxLayout();
     QHBoxLayout* hbox2 = new QHBoxLayout();
-    QVBoxLayout* scalers_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
-
-    hbox->addWidget(new QLabel(" Scaler:"));
-    hbox->addWidget(_cb_scaler);
-    scalers_layout->addItem(hbox);
-
-    _scaler_table_widget = new QTableWidget(2,2);
-    scalers_layout->addWidget(_scaler_table_widget);
 
     hbox2->addWidget(new QLabel("Detector:"));
     hbox2->addWidget(_cb_detector);
@@ -71,15 +59,11 @@ void MDA_Widget::createLayout()
 
     _extra_pvs_table_widget = new QTableWidget(1, 4);
     _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
-    scalers_layout->addWidget(_extra_pvs_table_widget);
-
-    QWidget *window = new QWidget();
-    window->setLayout(scalers_layout);
 
     QWidget* window2 = new QWidget();
     window2->setLayout(vbox);
 
-    _tab_widget->addTab(window, "Scalers");
+    _tab_widget->addTab(_scaler_widget, "Scalers");
     _tab_widget->addTab(window2, "Integrated Spectra");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
@@ -113,19 +97,10 @@ void MDA_Widget::model_updated()
     _model->getDims(rows, cols);
     data_struct::Scan_Info* scan_info = _model->getScanInfo();
 
-    _scaler_table_widget->setRowCount(rows);
-    _scaler_table_widget->setColumnCount(cols);
-
+    _scaler_widget->setModel(_model);
+    
 	if (scan_info != nullptr)
 	{
-
-		for (const auto& itr : scan_info->scaler_maps)
-		{
-			_cb_scaler->addItem(QString::fromLatin1(itr.name.c_str(), itr.name.length()));
-		}
-
-		onScalerSelect(_cb_scaler->itemText(0));
-
 		_extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
 		int i = 0;
 		for (const auto& itr : scan_info->extra_pvs)
@@ -137,6 +112,7 @@ void MDA_Widget::model_updated()
 			i++;
 		}
 	}
+    
     disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
 
     _cb_detector->clear();
@@ -193,7 +169,6 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
             }
         }
     }
-    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -209,41 +184,6 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     }
     
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MDA_Widget::onScalerSelect(const QString& det)
-{
-    const data_struct::ArrayXXr* scaler = nullptr;
-    Eigen::Index rows, cols;
-    _model->getDims(rows, cols);
-    std::string name = det.toStdString();
-    data_struct::Scan_Info* scan_info = _model->getScanInfo();
-	if (scan_info != nullptr)
-	{
-		for (const auto& itr : scan_info->scaler_maps)
-		{
-			if (itr.name == name)
-			{
-				scaler = &(itr.values);
-				break;
-			}
-		}
-
-		if (scaler != nullptr)
-		{
-            int minrows = std::min(rows, scaler->rows());
-            int mincols = std::min(cols, scaler->cols());
-			for (int i = 0; i < minrows; i++)
-			{
-				for (int j = 0; j < mincols; j++)
-				{
-					_scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
-				}
-			}
-		}
-	}
 }
 
 /*---------------------------------------------------------------------------*/

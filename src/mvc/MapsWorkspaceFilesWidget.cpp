@@ -5,7 +5,7 @@
 
 #include <mvc/MapsWorkspaceFilesWidget.h>
 
-
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -210,6 +210,8 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             {
 				RAW_Model* model = nullptr;
 
+                QApplication::setOverrideCursor(Qt::WaitCursor);
+                
 				if (name.endsWith(".mda"))
 				{
 					QCoreApplication::processEvents();
@@ -227,7 +229,17 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
 					model = ret.get();
 				}
+                QApplication::restoreOverrideCursor();
+                /*
+                QCoreApplication::processEvents();
+                std::future< RAW_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_RAW_Model(name); });
+                while (ret._Is_ready() == false)
+                {
+                    QCoreApplication::processEvents();
+                }
 
+                model = ret.get();
+                */
                 if (model != nullptr)
                 {
                     emit loaded_model(name, mt);
