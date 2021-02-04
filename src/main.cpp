@@ -58,7 +58,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 /*---------------------------------------------------------------------------*/
-
+// This redirects console logs from DLL's to out log widget
 void readSTDOUT()
 {
 	std::string line;
@@ -83,6 +83,7 @@ int main(int argc, char** argv)
 {
 
 	QApplication app(argc, argv);
+	//TODO: read pref to see if dark or light theme
    //dark style
 //   QFile* file = new QFile(":/qss/dark2.qss");
 //   file->open(QFile::ReadOnly | QFile::Text);

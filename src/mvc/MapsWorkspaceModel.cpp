@@ -77,10 +77,10 @@ void MapsWorkspaceModel::load(QString filepath)
         {
             std::map<int, std::future<bool>> job_queue;
  
-            job_queue[0] = global_threadpool.enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
-            job_queue[1] = global_threadpool.enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
-            job_queue[2] = global_threadpool.enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
-            job_queue[3] = global_threadpool.enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+            job_queue[0] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
+            job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+            job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+            job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
 
             _is_fit_params_loaded = _load_fit_params();
             io::populate_netcdf_hdf5_files(filepath.toStdString());

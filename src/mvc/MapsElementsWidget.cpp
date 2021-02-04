@@ -532,7 +532,8 @@ void MapsElementsWidget::redrawCounts()
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
-            job_queue[vidx] = global_threadpool.enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), vidx); });
+            
+            job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), vidx); });
         }
 
         while (job_queue.size() > 0)
