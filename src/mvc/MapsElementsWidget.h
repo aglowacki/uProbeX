@@ -132,6 +132,8 @@ protected:
    QComboBox* _cb_normalize;
 
    data_struct::ArrayXXr* _normalizer;
+
+   //QTableWidget* _scaler_table_widget;
 };
 
 

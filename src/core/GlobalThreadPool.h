@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2021, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
@@ -7,9 +7,26 @@
 #define Global_Thread_Pool_H
 
 /*---------------------------------------------------------------------------*/
+#include "core/defines.h"
 #include "workflow/threadpool.h"
 
-static ThreadPool global_threadpool(std::thread::hardware_concurrency()-1);
+class DLL_EXPORT Global_Thread_Pool : public ThreadPool
+{
+public:
+
+    static Global_Thread_Pool* inst();
+
+    ~Global_Thread_Pool();
+
+private:
+
+    Global_Thread_Pool();
+
+    static Global_Thread_Pool* _this_inst;
+
+    static std::mutex _mutex;
+
+};
 
 #endif
 

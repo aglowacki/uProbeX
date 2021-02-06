@@ -5,7 +5,7 @@
 
 #include <mvc/MapsWorkspaceFilesWidget.h>
 
-
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -164,7 +164,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
             if (mt == MODEL_TYPE::MAPS_H5)
             {
-                std::future< MapsH5Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_MapsH5_Model(name); });
+                std::future< MapsH5Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
                 while (ret._Is_ready() == false)
                 {
                     QCoreApplication::processEvents();
@@ -209,7 +209,9 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             else if (mt == MODEL_TYPE::RAW)
             {
 				RAW_Model* model = nullptr;
-
+                
+                QApplication::setOverrideCursor(Qt::WaitCursor);
+                
 				if (name.endsWith(".mda"))
 				{
 					QCoreApplication::processEvents();
@@ -219,7 +221,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 				if (name.endsWith(".h5") || name.endsWith(".hdf5"))
 				{
 					QCoreApplication::processEvents();
-					std::future< RAW_Model*> ret = global_threadpool.enqueue([this, name] { return _model->get_RAW_Model(name); });
+					std::future< RAW_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
 					while (ret._Is_ready() == false)
 					{
 						QCoreApplication::processEvents();
@@ -227,7 +229,18 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
 					model = ret.get();
 				}
+                QApplication::restoreOverrideCursor();
+                /*
+                
+                QCoreApplication::processEvents();
+                std::future< RAW_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
+                while (ret._Is_ready() == false)
+                {
+                    QCoreApplication::processEvents();
+                }
 
+                model = ret.get();
+                */
                 if (model != nullptr)
                 {
                     emit loaded_model(name, mt);
@@ -241,7 +254,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             }
             else if (mt == MODEL_TYPE::SWS)
             {
-                std::future< SWSModel*> ret = global_threadpool.enqueue([this, name] { return _model->get_SWS_Model(name); });
+                std::future< SWSModel*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_SWS_Model(name); });
                 while (ret._Is_ready() == false)
                 {
                     QCoreApplication::processEvents();

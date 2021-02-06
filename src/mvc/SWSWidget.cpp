@@ -1802,13 +1802,16 @@ void SWSWidget::offsetReturnPressed()
 
 void SWSWidget::setModel(SWSModel* swsmodel)
 {
-	_model = swsmodel;
-	if (_model != nullptr)
-	{
-		updateFrame(_model->getImage());
-		setCoordinateModel(_model->getCoordModel());
-		restoreMarkerLoaded();
-	}
+    if (_model != swsmodel)
+    {
+        _model = swsmodel;
+        if (_model != nullptr)
+        {
+            updateFrame(_model->getImage());
+            setCoordinateModel(_model->getCoordModel());
+            restoreMarkerLoaded();
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -2187,9 +2190,10 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 	}
 
 	m_coordinateModel = model;
-	
-	m_coordinateModel->setTransformerPrecision(Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
-	
+    if (m_coordinateModel != nullptr)
+    {
+        m_coordinateModel->setTransformerPrecision(Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
+    }
 
    if(m_imageViewWidget != nullptr)
    {

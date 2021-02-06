@@ -54,6 +54,8 @@ void MapsWorkspaceController::setWorkingDir(QString path)
 
     _mapsWorkspaceModel->load(path);
 
+	_imgStackControllWidget->setWindowTitle(path);
+
 }
 /*---------------------------------------------------------------------------*/
 

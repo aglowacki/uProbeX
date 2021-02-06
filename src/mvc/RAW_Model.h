@@ -16,8 +16,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-//typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
-
 /**
  * @brief Model for raw mda files
  */
@@ -48,7 +46,7 @@ public:
 
 	data_struct::Spectra* getIntegratedSpectra(unsigned int det);
 
-    void getDims(int& rows, int& cols) { rows = _scan_info.meta_info.requested_rows; cols = _scan_info.meta_info.requested_cols; }
+    void getDims(Eigen::Index& rows, Eigen::Index& cols) { rows = _scan_info.meta_info.requested_rows; cols = _scan_info.meta_info.requested_cols; }
 
 	data_struct::Scan_Info* getScanInfo();
 

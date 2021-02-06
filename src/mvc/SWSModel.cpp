@@ -975,20 +975,23 @@ bool SWSModel::loadTiles()
 
    gscene->clearSelection();
    gscene->setSceneRect(gscene->itemsBoundingRect());
+   /* TODO: have a thread save in background
    QImage image(gscene->sceneRect().size().toSize(), QImage::Format_RGB888);  // Create the image with the exact size of the shrunk scene
    //image.fill(Qt::transparent);
 
    QPainter painter(&image);
    gscene->render(&painter);
+   
    if(false == image.save(m_datasetPath+".tif", "tif"))
    {
       logW<<"Failed to save mosaic image "<<m_datasetPath.toStdString()<<".tif\n";
    }
-
+   */
    QApplication::restoreOverrideCursor();
 
-   return loadTiff();
-
+   // TODO: check if exists in the beginning and load .
+   //return loadTiff();
+   return true;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1039,6 +1042,28 @@ bool SWSModel::loadXYZ()
 
    return loaded;
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+uchar* SWSModel::getBytes()
+{
+    if (m_tiffModel != nullptr)
+    {
+        return m_tiffModel->getBytes();
+    }
+    return nullptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
+QImage* SWSModel::getImage() 
+{
+    if (m_tiffModel != nullptr)
+    {
+        return m_tiffModel->getImage(); 
+    }
+    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/

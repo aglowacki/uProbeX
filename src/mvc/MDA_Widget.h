@@ -11,8 +11,8 @@
 #include <QComboBox>
 #include <QTableWidget>
 #include <gstar/AbstractImageWidget.h>
-#include <mvc/RAW_Model.h>
 #include <mvc/FitSpectraWidget.h>
+#include <mvc/Scaler_Widget.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -44,7 +44,7 @@ public slots:
 
    void onDetectorSelect(const QString& det);
 
-   void onScalerSelect(const QString& det);
+   //void onScalerSelect(const QString& det);
 
    void on_export_fit_params(data_struct::Fit_Parameters fit_params);
 
@@ -60,9 +60,11 @@ protected:
 
    QComboBox* _cb_detector;
 
-   QComboBox* _cb_scaler;
+   //QComboBox* _cb_scaler;
 
-   QTableWidget* _scaler_table_widget;
+   //QTableWidget* _scaler_table_widget;
+
+   Scaler_Widget* _scaler_widget;
 
    QTableWidget* _extra_pvs_table_widget;
 
