@@ -341,7 +341,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
+void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit)
 {
     if (_model != nullptr)
     {
@@ -378,7 +378,11 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
             {
                 data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
                 nfit_params->append_and_update(&fit_params);
-
+                param_overrides->elements_to_fit.clear();
+                for (const auto& itr : elements_to_fit)
+                {
+                    param_overrides->elements_to_fit[itr.first] = gen_element_map(itr.first);
+                }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
                 {
                     QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");

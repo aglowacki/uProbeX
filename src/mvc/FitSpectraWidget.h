@@ -69,7 +69,7 @@ signals:
 
    void vertical_element_line_changed(qreal, QString);
 
-   void export_fit_paramters(data_struct::Fit_Parameters fit_params);
+   void export_fit_paramters(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
 
 public slots:
 

@@ -139,12 +139,14 @@ void MDA_Widget::model_updated()
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
+void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit)
 {
     unsigned int det = _cb_detector->currentText().toUInt();
+    data_struct::Params_Override default_po;
     if (_model != nullptr)
     {
-        data_struct::Params_Override* po  = _model->getParamOverrideOrAvg(det);
+        data_struct::Params_Override* po = _model->getParamOverrideOrAvg(det);
+        
         if (po != nullptr)
         {
             QString save_path = _model->getPath();
@@ -153,11 +155,16 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params)
                 save_path.chop(3);
             }
             save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, "TXT"+ _cb_detector->currentText()+" (*.txt"+ _cb_detector->currentText()+" *.TXT"+_cb_detector->currentText()+")");
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, "TXT" + _cb_detector->currentText() + " (*.txt" + _cb_detector->currentText() + " *.TXT" + _cb_detector->currentText() + ")");
             if (!fileName.isEmpty() && !fileName.isNull())
             {
                 data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
                 nfit_params->append_and_update(&fit_params);
+                po->elements_to_fit.clear();
+                for (const auto& itr : elements_to_fit)
+                {
+                    po->elements_to_fit[itr.first] = gen_element_map(itr.first);
+                }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
                 {
                     QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");

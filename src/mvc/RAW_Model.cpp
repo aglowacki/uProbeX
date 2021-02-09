@@ -104,7 +104,11 @@ data_struct::Params_Override* RAW_Model::getParamOverride(int idx)
     {
         return _fit_params_override_dict.at(idx);
     }
-    return nullptr;
+	else
+	{
+		_fit_params_override_dict[idx] = new data_struct::Params_Override();
+		return _fit_params_override_dict.at(idx);
+	}
 }
 
 /*---------------------------------------------------------------------------*/
