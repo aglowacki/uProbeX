@@ -82,7 +82,7 @@ public slots:
 
    void onNewGridLayout(int rows, int cols);
 
-   void on_export_fit_params(data_struct::Fit_Parameters fit_params);
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
 
    void onSelectNormalizer(QString name);
 

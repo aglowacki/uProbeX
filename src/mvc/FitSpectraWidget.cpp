@@ -277,7 +277,7 @@ void FitSpectraWidget::on_export_fit_paramters()
     fit_params.append_and_update(&model_fit_params);
     fit_params.append_and_update(&element_fit_params);
 
-    emit export_fit_paramters(fit_params);
+    emit export_fit_paramters(fit_params, element_fit_params);
 }
 
 /*---------------------------------------------------------------------------*/
