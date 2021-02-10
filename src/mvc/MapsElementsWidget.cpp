@@ -31,6 +31,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     
     _model = nullptr;
     _normalizer = nullptr;
+    _calib_curve = nullptr;
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -144,7 +145,7 @@ void MapsElementsWidget::_createLayout()
     window->setLayout(counts_layout);
 
     _tab_widget->addTab(window, "Analyzed Counts");
-    _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
+    _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
 
 
     layout->addItem(hbox2);
@@ -207,12 +208,15 @@ void MapsElementsWidget::hotspotUpdated()
 void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
-    _addHotSpotMaskAction = new QAction("Add Hotspot Mask", this);
+    // TODO: change hotspot to spectra region and add back in
+    /*
+    _addHotSpotMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addHotSpotMaskAction,
             SIGNAL(triggered()),
             this,
             SLOT(addHotSpotMask()));
+            */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -256,9 +260,8 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
-
+    _calib_curve = _model->get_calibration_curve(name.toStdString(), _cb_normalize->currentText().toStdString());
     redrawCounts();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -292,10 +295,11 @@ void MapsElementsWidget::onColormapSelect(QString name)
 
 void MapsElementsWidget::onSelectNormalizer(QString name)
 {
-
     if (name == "1")
     {
         _normalizer = nullptr;
+        _calib_curve = nullptr;
+        m_imageViewWidget->setUnitLabels("cts/s");
     }
     else
     {
@@ -306,8 +310,24 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
             }
+            _calib_curve = _model->get_calibration_curve(_cb_analysis->currentText().toStdString(), name.toStdString());
         }
     }
+
+    if (_normalizer != nullptr && _calib_curve != nullptr)
+    {
+        int cnt = m_imageViewWidget->getViewCount();
+        for (int i = 0; i < cnt; i++)
+        {
+            QString label = m_imageViewWidget->getLabelAt(i);
+            if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
+            {
+                m_imageViewWidget->setUnitLabel(i, "ug/cm2");
+            }
+        }
+        
+    }
+
     redrawCounts();
 }
 
@@ -431,6 +451,7 @@ void MapsElementsWidget::model_updated()
         _cb_normalize->addItem(QString(STR_SR_CURRENT.c_str()));
     }
 
+    /* // only show sr current, ds_ic, and us_ic for now
     for (const auto& itr : *scalers)
     {
         if (itr.first == STR_DS_IC || itr.first == STR_US_IC || itr.first == STR_SR_CURRENT)
@@ -439,6 +460,7 @@ void MapsElementsWidget::model_updated()
         }
         _cb_normalize->addItem(QString(itr.first.c_str()));
     }
+    */
     _cb_normalize->setMinimumWidth(_cb_normalize->minimumSizeHint().width());
 
     _cb_analysis->clear();
@@ -652,12 +674,6 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 		{
             if (fit_counts->count(element) > 0)
             {
-                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
-                if(counts_lookup != nullptr)
-                {
-                    counts_lookup->setModel(_model, _normalizer);
-                    counts_lookup->setAnalyaisElement(analysis_type, element);
-                }
                 m_imageViewWidget->resetCoordsToZero();
 
                 int height = static_cast<int>(fit_counts->at(element).rows());
@@ -670,16 +686,28 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 float counts_max;
                 float counts_min;
                 ArrayXXr normalized = fit_counts->at(element);
-                if (_normalizer != nullptr)
+                if (_normalizer != nullptr && _calib_curve != nullptr)
                 {
-                    normalized /= (*_normalizer);
-                    float min_coef = normalized.minCoeff();
-                    if (std::isfinite(min_coef) == false)
+                    if(_calib_curve->calib_curve.count(element) > 0)
                     {
-                        min_coef = 0.0f;
+                        real_t calib_val = _calib_curve->calib_curve.at(element);
+                        normalized /= (*_normalizer);
+                        normalized /= calib_val;
+                        float min_coef = normalized.minCoeff();
+                        if (std::isfinite(min_coef) == false)
+                        {
+                            min_coef = 0.0f;
+                        }
+                        normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
                     }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
                 }
+
+                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+                if (counts_lookup != nullptr)
+                {
+                    counts_lookup->setCounts(normalized);
+                }
+
                 _get_min_max_vals(counts_min, counts_max, normalized);
                 
                 float max_min = counts_max - counts_min;
@@ -700,6 +728,11 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             }
 		}
 	}
+    if (m_imageViewWidget != nullptr)
+    {
+        m_imageViewWidget->resetCoordsToZero();
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -713,14 +746,6 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
         {
             if (fit_counts->count(element) > 0)
             {
-                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
-                if (counts_lookup != nullptr)
-                {
-                    counts_lookup->setModel(_model, _normalizer);
-                    counts_lookup->setAnalyaisElement(analysis_type, element);
-                }
-                ////
-
                 int height = static_cast<int>(fit_counts->at(element).rows());
                 int width = static_cast<int>(fit_counts->at(element).cols());
                 QImage image(width, height, QImage::Format_Indexed8);
@@ -729,16 +754,28 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 float counts_max;
                 float counts_min;
                 ArrayXXr normalized = fit_counts->at(element);
-                if (_normalizer != nullptr)
+                if (_normalizer != nullptr && _calib_curve != nullptr)
                 {
-                    normalized /= (*_normalizer);
-                    float min_coef = normalized.minCoeff();
-                    if (std::isfinite(min_coef) == false)
+                    if (_calib_curve->calib_curve.count(element) > 0)
                     {
-                        min_coef = 0.0f;
+                        real_t calib_val = _calib_curve->calib_curve.at(element);
+                        normalized /= (*_normalizer);
+                        normalized /= calib_val;
+                        float min_coef = normalized.minCoeff();
+                        if (std::isfinite(min_coef) == false)
+                        {
+                            min_coef = 0.0f;
+                        }
+                        normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
                     }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
                 }
+
+                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+                if (counts_lookup != nullptr)
+                {
+                    counts_lookup->setCounts(normalized);
+                }
+
                 _get_min_max_vals(counts_min, counts_max, normalized);
                 float max_min = counts_max - counts_min;
                 for (int row = 0; row < height; row++)

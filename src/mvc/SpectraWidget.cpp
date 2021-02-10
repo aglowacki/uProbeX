@@ -166,6 +166,18 @@ void SpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void SpectraWidget::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
+{
+    _display_eneergy_min->setText(wmin);
+    _display_eneergy_max->setText(wmax);
+    _display_height_min->setText(hmin);
+    _display_height_max->setText(hmax);
+    onSpectraDisplayChanged(wmin);
+    onSpectraDisplayHeightChanged(hmin);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::onSpectraDisplayChanged(const QString &)
 {
     qreal maxRange = _display_eneergy_max->text().toDouble();
@@ -235,7 +247,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         }
     }
 
-    if (name == "Integrated Spectra")
+    if (name == DEF_STR_INT_SPECTRA)
     {
         _int_spec_max_x = energy->maxCoeff();
         _int_spec_max_y = spectra->maxCoeff();
@@ -276,6 +288,28 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spe
         _display_eneergy_max->setText(QString::number(_axisX->max()));
 
         series->attachAxis(_currentYAxis);
+        QPen pen = series->pen();
+        int r, g, b, a;
+        if (name == DEF_STR_INT_SPECTRA)
+        {
+            pen.setColor(QColor::fromRgb(INT_SPEC_R, INT_SPEC_G, INT_SPEC_B));
+            series->setPen(pen);
+        }
+        else if (name == DEF_STR_FIT_INT_SPECTRA)
+        {
+            pen.setColor(QColor::fromRgb(FIT_SPEC_R, FIT_SPEC_G, FIT_SPEC_B));
+            series->setPen(pen);
+        }
+        if (name == DEF_STR_BACK_SPECTRA)
+        {
+            pen.setColor(QColor::fromRgb(BAK_SPEC_R, BAK_SPEC_G, BAK_SPEC_B));
+            series->setPen(pen);
+        }
+        if (name == DEF_STR_MODEL_SPECTRA)
+        {
+            pen.setColor(QColor::fromRgb(MOD_SPEC_R, MOD_SPEC_G, MOD_SPEC_B));
+            series->setPen(pen);
+        }
         //series->attachAxis(_top_axis_elements);
     }
     else

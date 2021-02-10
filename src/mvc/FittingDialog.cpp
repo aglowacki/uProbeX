@@ -93,6 +93,12 @@ void FittingDialog::_createLayout()
     buttonlayout->addWidget(_btn_accept);
     buttonlayout->addWidget(_btn_cancel);
 
+    _spectra_widget = new SpectraWidget();
+    _new_spectra_widget = new SpectraWidget();
+    QHBoxLayout* hbox_spectra = new QHBoxLayout();
+    hbox_spectra->addWidget(_spectra_widget);
+    hbox_spectra->addWidget(_new_spectra_widget);
+
     QHBoxLayout* hbox_tables = new QHBoxLayout();
     hbox_tables->addWidget(_fit_params_table);
     hbox_tables->addWidget(_new_fit_params_table);
@@ -196,6 +202,7 @@ void FittingDialog::_createLayout()
     optimizerLayout->addWidget(_mp_fit_ctrl_grp, 1, 6, Qt::AlignLeft);
     
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->addItem(hbox_spectra);
     layout->addItem(hbox_tables);
     layout->addWidget(new QLabel("Hover over optimization options for descriptions."));
     layout->addItem(optimizerLayout);
@@ -306,9 +313,18 @@ void  FittingDialog::_updateOptimizerOptions()
 
 /*---------------------------------------------------------------------------*/
 
-void FittingDialog::setSpectra(data_struct::Spectra* spectra)
+void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy)
 {
     _int_spec = spectra;
+    _ev = energy;
+    if (spectra != nullptr)
+    {
+        _energy_range;
+        _energy_range.min = 0;
+        _energy_range.max = _int_spec->rows() - 1;
+        _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
+        _new_spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -316,6 +332,26 @@ void FittingDialog::setSpectra(data_struct::Spectra* spectra)
 void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit)
 {
     _elements_to_fit = elements_to_fit;
+    if (_elements_to_fit != nullptr)
+    {
+        unordered_map<string, data_struct::ArrayXr> labeled_spectras;
+        data_struct::Spectra fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        /*
+        if (fit_spec.size() == _spectra_background.size())
+        {
+            fit_spec += _spectra_background;
+        }
+        */
+        for (int i = 0; i < fit_spec.size(); i++)
+        {
+            if (fit_spec[i] <= 0.0)
+            {
+                fit_spec[i] = 0.1;
+            }
+        }
+        
+        _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, &_ev);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -323,6 +359,14 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements
 data_struct::Spectra FittingDialog::get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
 {
 	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
+{
+    _spectra_widget->setDisplayRange(wmin, wmax, hmin, hmax);
+    _new_spectra_widget->setDisplayRange(wmin, wmax, hmin, hmax);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -429,6 +473,24 @@ void FittingDialog::runProcessing()
         _new_fit_params_table_model->only_keep_these_keys(_out_fit_params);
 
 		_progressBarBlocks->setValue(_total_itr);
+
+        unordered_map<string, data_struct::ArrayXr> labeled_spectras;
+        data_struct::Spectra fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        /*
+        if (fit_spec.size() == _spectra_background.size())
+        {
+            fit_spec += _spectra_background;
+        }
+        */
+        for (int i = 0; i < fit_spec.size(); i++)
+        {
+            if (fit_spec[i] <= 0.0)
+            {
+                fit_spec[i] = 0.1;
+            }
+        }
+
+        _new_spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, &_ev);
 
         _running = false;
 		_btn_accept->setEnabled(true);

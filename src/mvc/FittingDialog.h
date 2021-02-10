@@ -30,6 +30,7 @@
 #include <QGroupBox>
 #include "mvc/ComboBoxDelegate.h"
 #include "mvc/FitParamsTableModel.h"
+#include "mvc/SpectraWidget.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
@@ -68,7 +69,7 @@ public:
 
     bool accepted_fit() { return _accepted; }
 
-    void FittingDialog::setSpectra(data_struct::Spectra* spectra);
+    void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy);
 
     void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
 
@@ -77,6 +78,8 @@ public:
 	data_struct::Fit_Parameters* get_new_fit_params() { return &_new_out_fit_params; }
 
     void waitToFinishRunning();
+
+    void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
 signals:
 
@@ -107,6 +110,10 @@ protected:
    FitParamsTableModel* _fit_params_table_model;
 
    FitParamsTableModel* _new_fit_params_table_model;
+
+   SpectraWidget* _spectra_widget;
+
+   SpectraWidget* _new_spectra_widget;
 
    fitting::models::Range _energy_range;
    
@@ -169,6 +176,10 @@ protected:
    QSpinBox* _opt_lm_scale_diag;
 
    QDoubleSpinBox* _opt_mp_covtol;
+
+   // energy vector
+   data_struct::ArrayXr _ev;
+
 };
 
 

@@ -99,8 +99,6 @@ protected:
 
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
 
-   std::unordered_map<std::string, std::unordered_map<std::string, gstar::ImageViewWidget*> > _imagesWidgets;
-
    MapsH5Model *_model;
 
    FitSpectraWidget* _spectra_widget;
@@ -133,6 +131,7 @@ protected:
 
    data_struct::ArrayXXr* _normalizer;
 
+   Calibration_curve* _calib_curve;
    //QTableWidget* _scaler_table_widget;
 };
 

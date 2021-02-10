@@ -281,6 +281,26 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::setUnitLabel(int idx, QString label)
+{
+    if (idx > -1 && idx < _counts_coord_widget.size())
+    {
+        _counts_coord_widget[idx]->setUnitsLabel(label);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setUnitLabels(QString label)
+{
+    for (auto& itr : _counts_coord_widget)
+    {
+        itr->setUnitsLabel(label);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::newGridLayout(int rows, int cols)
 {
 
