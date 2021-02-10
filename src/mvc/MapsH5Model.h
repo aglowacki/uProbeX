@@ -23,7 +23,7 @@
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
-const string QUANT_V9_LOC_MATRIX_STR = "XRF_fit_quant";
+const string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
 const string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
 const string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
 
@@ -36,6 +36,13 @@ const string STR_CALIB_US_IC = "Calibration_Curve_US_IC";
 const string STR_CALIB_DS_IC = "Calibration_Curve_DS_IC";
 const string STR_CALIB_Labels = "Calibration_Curve_Labels";
 
+const string STR_SR_CURRENT_V9 = "SRcurrent";
+const string STR_US_IC_V9 = "us_ic";
+const string STR_DS_IC_V9 = "ds_ic";
+
+const string STR_ROI_V9 = "XRF_roi";
+const string STR_ROI_PLUS_V9 = "XRF_roi_plus";
+const string STR_FITS_V9 = "XRF_fits";
 
 struct Calibration_curve
 {

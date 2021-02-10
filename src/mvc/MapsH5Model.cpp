@@ -475,6 +475,20 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
         H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
+        // switch v9 names to v10
+        if (el_name == STR_SR_CURRENT_V9)
+        {
+            el_name = STR_SR_CURRENT;
+        }
+        else if (el_name == STR_US_IC_V9)
+        {
+            el_name = STR_US_IC;
+        }
+        else if (el_name == STR_DS_IC_V9)
+        {
+            el_name = STR_DS_IC;
+        }
+
         _scalers.emplace(std::pair<std::string, EMatrixF>(el_name, EMatrixF()));
         _scalers.at(el_name).resize(count[1], count[2]);
 
@@ -561,11 +575,6 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_counts_9(hid_t maps_grp_id)
 {
-
-    // XRF_roi
-    // XRF_roi_plus
-    // XRF_fits
-
     hid_t analyzed_grp_id;
 
     std::string analyzed_groups[] = {"XRF_roi", "XRF_roi_plus", "XRF_fits"};
@@ -632,6 +641,19 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     count[0] = 1;
 
     data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
+    // convert v9 to v10
+    if (group_name == STR_FITS_V9)
+    {
+        group_name = STR_FIT_GAUSS_MATRIX;
+    }
+    else if (group_name == STR_ROI_PLUS_V9)
+    {
+        group_name = STR_FIT_NNLS;
+    }
+    else if (group_name == STR_ROI_V9)
+    {
+        group_name = STR_FIT_ROI;
+    }
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, nullptr);

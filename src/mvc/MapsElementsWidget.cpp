@@ -292,7 +292,6 @@ void MapsElementsWidget::onColormapSelect(QString name)
 
 void MapsElementsWidget::onSelectNormalizer(QString name)
 {
-
     if (name == "1")
     {
         _normalizer = nullptr;
@@ -448,6 +447,7 @@ void MapsElementsWidget::model_updated()
     {
         _cb_normalize->addItem(QString(STR_SR_CURRENT.c_str()));
     }
+
     /* // only show sr current, ds_ic, and us_ic for now
     for (const auto& itr : *scalers)
     {
