@@ -145,7 +145,7 @@ void MapsElementsWidget::_createLayout()
     window->setLayout(counts_layout);
 
     _tab_widget->addTab(window, "Analyzed Counts");
-    _tab_widget->addTab(_spectra_widget, "Integrated Spectra");
+    _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
 
 
     layout->addItem(hbox2);
@@ -208,12 +208,15 @@ void MapsElementsWidget::hotspotUpdated()
 void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
-    _addHotSpotMaskAction = new QAction("Add Hotspot Mask", this);
+    // TODO: change hotspot to spectra region and add back in
+    /*
+    _addHotSpotMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addHotSpotMaskAction,
             SIGNAL(triggered()),
             this,
             SLOT(addHotSpotMask()));
+            */
 }
 
 /*---------------------------------------------------------------------------*/

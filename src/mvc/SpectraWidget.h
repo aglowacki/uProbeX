@@ -22,6 +22,28 @@
 #include "data_struct/fit_element_map.h"
 
 
+#define DEF_STR_FIT_INT_SPECTRA "Fit Spectra"
+#define DEF_STR_INT_SPECTRA "Integrated Spectra"
+#define DEF_STR_BACK_SPECTRA "Background"
+#define DEF_STR_MODEL_SPECTRA "Model Spectra"
+
+#define INT_SPEC_R 32
+#define INT_SPEC_G 159
+#define INT_SPEC_B 212
+
+#define BAK_SPEC_R 153
+#define BAK_SPEC_G 202
+#define BAK_SPEC_B 83
+
+#define MOD_SPEC_R 246
+#define MOD_SPEC_G 166
+#define MOD_SPEC_B 37
+
+#define FIT_SPEC_R 246
+#define FIT_SPEC_G 37
+#define FIT_SPEC_B 37
+
+
 /*---------------------------------------------------------------------------*/
 
 /**
@@ -51,6 +73,16 @@ public:
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 
     void clearAllSpectra();
+
+    QString getDisplayEnergyMin() { return _display_eneergy_min->text(); }
+
+    QString getDisplayEnergyMax() { return _display_eneergy_max->text(); }
+
+    QString getDisplayHeightMin() { return _display_height_min->text(); }
+    
+    QString getDisplayHeightMax() { return _display_height_max->text(); }
+
+    void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
 signals:
 

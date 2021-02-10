@@ -296,7 +296,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 
         _ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, (real_t)2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
 
-        _spectra_widget->append_spectra("Integrated Spectra", _int_spec, (data_struct::Spectra*) & _ev);
+        _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra*) & _ev);
         if (snipback)
         {
             _spectra_background = snip_background((Spectra*)_int_spec,
@@ -308,7 +308,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
                 0, //spectra energy start range
                 _int_spec->size() - 1);
 
-            _spectra_widget->append_spectra("Background", &_spectra_background, (data_struct::Spectra*) & _ev);
+            _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra*) & _ev);
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
@@ -468,8 +468,12 @@ void FitSpectraWidget::Fit_Spectra_Click()
         }
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
         _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
-        _fitting_dialog->setSpectra((Spectra*)_int_spec);
+        _fitting_dialog->setSpectra((Spectra*)_int_spec, _ev);
         _fitting_dialog->setElementsToFit(_elements_to_fit);
+        _fitting_dialog->setDisplayRange(_spectra_widget->getDisplayEnergyMin(),
+            _spectra_widget->getDisplayEnergyMax(),
+            _spectra_widget->getDisplayHeightMin(),
+            _spectra_widget->getDisplayHeightMax());
         _fitting_dialog->exec();
 
         //Range of energy in spectra to fit
@@ -569,7 +573,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
                 }
             }
 
-            _spectra_widget->append_spectra("Fit Spectra", &fit_spec, (data_struct::Spectra*) & _ev);
+            _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, (data_struct::Spectra*) & _ev);
             
             if (_showDetailedFitSpec)
             {
@@ -638,7 +642,7 @@ void FitSpectraWidget::Model_Spectra_Click()
             if(fit_spec[i] <= 0.0)
                 fit_spec[i] = 0.1;
         }
-        _spectra_widget->append_spectra("Model Spectra", &fit_spec, (data_struct::Spectra*)&_ev);
+        _spectra_widget->append_spectra(DEF_STR_MODEL_SPECTRA, &fit_spec, (data_struct::Spectra*)&_ev);
     }
     emit signal_finished_fit();
 
