@@ -304,9 +304,107 @@ bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 
 /*---------------------------------------------------------------------------*/
 
+bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >&quant)
+{
+    hid_t dset_id, channels_dset_id, dspace_id, channels_dspace_id;
+    hid_t memoryspace_id, memoryspace_name_id, error;
+    hsize_t offset[3] = { 0,0,0 };
+    hsize_t count[3] = { 1,1,1 };
+    hsize_t offset_name[1] = { 0 };
+    hsize_t count_name[1] = { 1 };
+    char tmp_name[255] = { 0 };
+    hid_t   filetype, memtype, status;
+    real_t values[3] = { 0., 0., 0. };
+
+    dset_id = H5Dopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
+    if (dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/"<<path<<"\n";
+        return false;
+    }
+    dspace_id = H5Dget_space(dset_id);
+
+    channels_dset_id = H5Dopen(maps_grp_id, "channel_names", H5P_DEFAULT);
+    if (channels_dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/channel_names\n";
+        return false;
+    }
+    channels_dspace_id = H5Dget_space(channels_dset_id);
+
+    int rank = H5Sget_simple_extent_ndims(dspace_id);
+    if (rank != 3)
+    {
+        logW << path << " rank is not equal to 3, unknown format!\n";
+        return false;
+    }
+    hsize_t* dims_out = new hsize_t[rank];
+    unsigned int status_n = H5Sget_simple_extent_dims(dspace_id, &dims_out[0], nullptr);
+
+    filetype = H5Tcopy(H5T_C_S1);
+    H5Tset_size(filetype, 256);
+    memtype = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(memtype, 255);
+
+    for (int i = 0; i < 3; i++)
+    {
+        offset[i] = 0;
+        count[i] = dims_out[i];
+    }
+
+    count[2] = 1;
+
+    memoryspace_id = H5Screate_simple(3, count, nullptr);
+    memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
+    H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+
+    Calibration_curve sr_current_curve(STR_SR_CURRENT);
+    Calibration_curve us_ic_curve(STR_US_IC);
+    Calibration_curve ds_ic_curve(STR_DS_IC);
+
+    for (hsize_t el_idx = 0; el_idx < dims_out[2]; el_idx++)
+    {
+        offset[2] = el_idx;
+        offset_name[0] = el_idx;
+        memset(&tmp_name[0], 0, 254);
+        H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+        error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+        std::string el_name = std::string(tmp_name);
+        H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+        error = H5Dread(dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
+        if (error > -1)
+        {
+            sr_current_curve.calib_curve[el_name] = values[0];
+            us_ic_curve.calib_curve[el_name] = values[1];
+            ds_ic_curve.calib_curve[el_name] = values[2];
+        }
+    }
+
+    quant[STR_SR_CURRENT] = sr_current_curve;
+    quant[STR_US_IC] = us_ic_curve;
+    quant[STR_DS_IC] = ds_ic_curve;
+
+    delete[]dims_out;
+
+    H5Sclose(memoryspace_name_id);
+    H5Sclose(memoryspace_id);
+    H5Sclose(channels_dspace_id);
+    H5Dclose(channels_dset_id);
+    H5Sclose(dspace_id);
+    H5Dclose(dset_id);
+
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool MapsH5Model::_load_quantification_9(hid_t maps_grp_id)
 {
-
+    _load_quantification_9_single(maps_grp_id, QUANT_V9_LOC_MATRIX_STR, _quant_map_matrix);
+    _load_quantification_9_single(maps_grp_id, QUANT_V9_LOC_NNLS_STR, _quant_map_nnls);
+    _load_quantification_9_single(maps_grp_id, QUANT_V9_LOC_ROI_STR, _quant_map_roi);
     return true;
 }
 
@@ -595,9 +693,165 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 /*---------------------------------------------------------------------------*/
 
+
+bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant)
+{
+    hid_t channels_dset_id, channels_dspace_id;
+    hid_t sr_dset_id, sr_dspace_id;
+    hid_t us_dset_id, us_dspace_id;
+    hid_t ds_dset_id, ds_dspace_id;
+    hid_t grp_id;
+    hid_t memoryspace_id, memoryspace_name_id;
+    hid_t error;
+    hid_t sr_error;
+    hid_t us_error;
+    hid_t ds_error;
+    hsize_t offset[2] = { 0,0 };
+    hsize_t count[2] = { 1,1 };
+    hsize_t offset_name[2] = { 0, 0 };
+    hsize_t count_name[2] = { 1, 1 };
+    char tmp_name[255] = { 0 };
+    hid_t   filetype, memtype, status;
+    real_t sr_values[3] = { 0., 0., 0. };
+    real_t us_values[3] = { 0., 0., 0. };
+    real_t ds_values[3] = { 0., 0., 0. };
+
+    grp_id = H5Gopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
+    if (grp_id < 0)
+    {
+        logW << "Error opening group /MAPS/" << path << "\n";
+        return false;
+    }
+    
+
+    sr_dset_id = H5Dopen(grp_id, STR_CALIB_SR_CURRENT.c_str(), H5P_DEFAULT);
+    if (sr_dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/" << STR_CALIB_SR_CURRENT << "\n";
+        return false;
+    }
+    sr_dspace_id = H5Dget_space(sr_dset_id);
+
+    us_dset_id = H5Dopen(grp_id, STR_CALIB_US_IC.c_str(), H5P_DEFAULT);
+    if (us_dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/" << STR_CALIB_US_IC << "\n";
+        return false;
+    }
+    us_dspace_id = H5Dget_space(us_dset_id);
+
+    ds_dset_id = H5Dopen(grp_id, STR_CALIB_DS_IC.c_str(), H5P_DEFAULT);
+    if (ds_dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/" << STR_CALIB_DS_IC << "\n";
+        return false;
+    }
+    ds_dspace_id = H5Dget_space(ds_dset_id);
+
+    channels_dset_id = H5Dopen(grp_id, STR_CALIB_Labels.c_str(), H5P_DEFAULT);
+    if (channels_dset_id < 0)
+    {
+        logW << "Error opening group /MAPS/"<< STR_CALIB_Labels<<"\n";
+        return false;
+    }
+    channels_dspace_id = H5Dget_space(channels_dset_id);
+
+    int rank = H5Sget_simple_extent_ndims(sr_dspace_id);
+    if (rank != 2)
+    {
+        logW << path << " rank is not equal to 3, unknown format!\n";
+        return false;
+    }
+    hsize_t* dims_out = new hsize_t[rank];
+    unsigned int status_n = H5Sget_simple_extent_dims(sr_dspace_id, &dims_out[0], nullptr);
+
+    filetype = H5Tcopy(H5T_C_S1);
+    H5Tset_size(filetype, 256);
+    memtype = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(memtype, 255);
+
+    for (int i = 0; i < rank; i++)
+    {
+        offset[i] = 0;
+        count[i] = dims_out[i];
+    }
+
+    count[1] = 1;
+
+    memoryspace_id = H5Screate_simple(rank, count, nullptr);
+    memoryspace_name_id = H5Screate_simple(rank, count_name, nullptr);
+    H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+
+    Calibration_curve sr_current_curve(STR_SR_CURRENT);
+    Calibration_curve us_ic_curve(STR_US_IC);
+    Calibration_curve ds_ic_curve(STR_DS_IC);
+
+    for (hsize_t el_idx = 0; el_idx < dims_out[1]; el_idx++)
+    {
+        offset[1] = el_idx;
+        offset_name[1] = el_idx;
+        memset(&tmp_name[0], 0, 254);
+        H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+        error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+        std::string el_name = std::string(tmp_name);
+        H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+        sr_error = H5Dread(sr_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
+
+        H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+        us_error = H5Dread(us_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
+
+        H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+        ds_error = H5Dread(ds_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
+        if (error > -1 && sr_error > -1)
+        {
+            sr_current_curve.calib_curve[el_name] = sr_values[0];
+            sr_current_curve.calib_curve[el_name + "_L"] = sr_values[1];
+            sr_current_curve.calib_curve[el_name + "_M"] = sr_values[2];
+        }
+        if (error > -1 && us_error > -1)
+        {
+            us_ic_curve.calib_curve[el_name] = us_values[0];
+            us_ic_curve.calib_curve[el_name + "_L"] = us_values[1];
+            us_ic_curve.calib_curve[el_name + "_M"] = us_values[2];
+        }
+        if (error > -1 && ds_error > -1)
+        {
+            ds_ic_curve.calib_curve[el_name] = ds_values[0];
+            ds_ic_curve.calib_curve[el_name + "_L"] = ds_values[1];
+            ds_ic_curve.calib_curve[el_name + "_M"] = ds_values[2];
+        }
+    }
+
+    quant[STR_SR_CURRENT] = sr_current_curve;
+    quant[STR_US_IC] = us_ic_curve;
+    quant[STR_DS_IC] = ds_ic_curve;
+
+    delete[]dims_out;
+
+    H5Sclose(memoryspace_name_id);
+    H5Sclose(memoryspace_id);
+    H5Sclose(channels_dspace_id);
+    H5Dclose(channels_dset_id);
+    H5Sclose(us_dspace_id);
+    H5Dclose(us_dset_id);
+    H5Sclose(ds_dspace_id);
+    H5Dclose(ds_dset_id);
+    H5Sclose(sr_dspace_id);
+    H5Dclose(sr_dset_id);
+    H5Gclose(grp_id);
+
+
+    return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
 {
-
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_MATRIX_STR, _quant_map_matrix);
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_NNLS_STR, _quant_map_nnls);
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_ROI_STR, _quant_map_roi);
     return true;
 }
 
@@ -882,6 +1136,35 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     }
 
     return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+Calibration_curve* MapsH5Model::get_calibration_curve(string analysis_type, string scaler_name)
+{
+    if (analysis_type == STR_FIT_GAUSS_MATRIX)
+    {
+        if (_quant_map_matrix.count(scaler_name) > 0)
+        {
+            return &_quant_map_matrix[scaler_name];
+        }
+    }
+    else if (analysis_type == STR_FIT_NNLS)
+    {
+        if (_quant_map_nnls.count(scaler_name) > 0)
+        {
+            return &_quant_map_nnls[scaler_name];
+        }
+    }
+    else if (analysis_type == STR_FIT_ROI)
+    {
+        if (_quant_map_roi.count(scaler_name) > 0)
+        {
+            return &_quant_map_roi[scaler_name];
+        }
+    }
+
+    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/

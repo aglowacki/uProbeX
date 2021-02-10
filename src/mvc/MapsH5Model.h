@@ -23,6 +23,36 @@
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
+const string QUANT_V9_LOC_MATRIX_STR = "XRF_fit_quant";
+const string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
+const string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
+
+const string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
+const string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
+const string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
+
+const string STR_CALIB_SR_CURRENT = "Calibration_Curve_SR_Current";
+const string STR_CALIB_US_IC = "Calibration_Curve_US_IC";
+const string STR_CALIB_DS_IC = "Calibration_Curve_DS_IC";
+const string STR_CALIB_Labels = "Calibration_Curve_Labels";
+
+
+struct Calibration_curve
+{
+    Calibration_curve()
+    {
+    }
+
+    Calibration_curve(string name)
+    {
+        scaler_name = name;
+    }
+
+    string scaler_name;
+    //            el_name   value
+    unordered_map<string, real_t> calib_curve;
+};
+
 /**
  * @brief Model for Maps analyzed hdf5 files
  */
@@ -79,6 +109,8 @@ public:
 
     void set_fit_parameters_override(data_struct::Params_Override* override);
 
+    Calibration_curve* get_calibration_curve(string analysis_type, string scaler_name);
+
     data_struct::Params_Override* getParamOverride(){return _params_override;}
 
 	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
@@ -92,6 +124,8 @@ protected:
 
     //Version 9
     bool _load_version_9(hid_t maps_grp_id);
+    //                                                           scaler_name       
+    bool _load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant);
 
     bool _load_quantification_9(hid_t maps_grp_id);
 
@@ -108,6 +142,8 @@ protected:
     //Version 10
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
+
+    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant);
 
     bool _load_quantification_10(hid_t maps_grp_id);
 
@@ -136,6 +172,12 @@ private:
     QString _filepath;
 
     QString _datset_name;
+
+    std::unordered_map<std::string, Calibration_curve > _quant_map_matrix;
+
+    std::unordered_map<std::string, Calibration_curve > _quant_map_nnls;
+
+    std::unordered_map<std::string, Calibration_curve > _quant_map_roi;
 
     bool _initialized_by_stream_block;
 

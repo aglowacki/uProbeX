@@ -142,6 +142,11 @@ public:
     */
    void setZoomPercentWidget(QComboBox* zoomPercent);
 
+
+   void setUnitLabel(int idx, QString label);
+
+   void setUnitLabels(QString label);
+
    /**
     * @ brief view
     *

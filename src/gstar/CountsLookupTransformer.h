@@ -49,11 +49,6 @@ public:
    virtual QMap<QString, double> getAllCoef();
 
    /**
-    * Get scale X
-    */
-   double getCounts();
-
-   /**
     * @brief getVariable
     * @param name
     * @param val
@@ -69,11 +64,7 @@ public:
     */
    virtual bool setVariable(QString name, double val);
 
-   void setCounts(double x);
-
-   void setModel(MapsH5Model* model, data_struct::ArrayXXr* norm) { _model = model; _normalizer = norm; }
-
-   void setAnalyaisElement(std::string analysis_type, std::string element);
+   void setCounts(const data_struct::ArrayXXr &counts);
 
    /**
     * @brief transformCommand
@@ -98,21 +89,11 @@ protected:
 
    double _max_counts;
 
-   MapsH5Model* _model;
-
-   std::string _analysis_type;
-
-   std::string _element;
-
    int _rows;
 
    int _cols;
 
-   data_struct::ArrayXXr* _counts_ptr;
-
-   data_struct::ArrayXXr* _normalizer;
-
-   data_struct::ArrayXXr _normalized_counts;
+   data_struct::ArrayXXr _counts_arr;
 };
 
 }
