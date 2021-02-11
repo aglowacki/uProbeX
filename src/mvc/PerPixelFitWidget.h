@@ -86,6 +86,8 @@ protected:
    QCheckBox* _save_avg;
 
    QCheckBox* _save_v9;
+
+   QCheckBox* _save_csv;
    
    QCheckBox* _save_exchange;
 

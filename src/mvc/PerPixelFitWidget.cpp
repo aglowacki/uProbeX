@@ -73,6 +73,7 @@ void PerPixelFitWidget::createLayout()
     _save_avg = new QCheckBox("Generate Avg H5");
     _save_v9 = new QCheckBox("Add v9 soft links");
     _save_exchange = new QCheckBox("Add Exchange format");
+    _save_csv = new QCheckBox("Save CVS of integrated fits");
 
     _detector_model = new QStandardItemModel();
     //_detector_model->setItem(0, 0, new QStandardItem("Detector 0"));
@@ -93,6 +94,7 @@ void PerPixelFitWidget::createLayout()
     v_save_layout->addWidget(_save_avg);
     v_save_layout->addWidget(_save_v9);
     v_save_layout->addWidget(_save_exchange);
+    v_save_layout->addWidget(_save_csv);
 
     saving_grp->setLayout(v_save_layout);
     saving_grp->setTitle("Export Options");
@@ -225,6 +227,13 @@ void PerPixelFitWidget::runProcessing()
         analysis_job.add_exchange_layout = true;
     }
     
+    //export csv
+    if (_save_csv->isChecked())
+    {
+        analysis_job.export_int_fitted_to_csv = true;
+    }
+   
+
     interate_datasets_and_update(analysis_job);
 
     _btn_run->setEnabled(true);
