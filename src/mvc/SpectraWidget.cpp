@@ -514,6 +514,15 @@ void SpectraWidget::set_log10(bool val)
 }
 
 /*---------------------------------------------------------------------------*/
+
+QPixmap SpectraWidget::getPngofChart()
+{
+
+    return _chartView->grab();
+
+}
+
+/*---------------------------------------------------------------------------*/
 /*
 void SpectraWidget::_update_series()
 {

@@ -84,6 +84,8 @@ public:
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
+    QPixmap getPngofChart();
+
 signals:
 
     void trigger_connect_markers();

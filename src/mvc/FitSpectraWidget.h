@@ -70,6 +70,8 @@ signals:
    void vertical_element_line_changed(qreal, QString);
 
    void export_fit_paramters(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
+                                                    //ev                           int spec                  back                 fit              detailed fit
+   void export_csv_and_png(QPixmap, data_struct::ArrayXr *, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr> *);
 
 public slots:
 
@@ -100,6 +102,8 @@ public slots:
    void del_element();
 
    void onSettingsDialog();
+
+   void on_export_csv();
 
 protected:
 
@@ -154,6 +158,8 @@ private:
 
     QPushButton* _btn_export_parameters;
 
+    QPushButton* _btn_export_csv;
+
     QPushButton* _btn_add_element;
 
     QPushButton* _btn_del_element;
@@ -163,6 +169,8 @@ private:
     data_struct::ArrayXr _spectra_background;
 
     data_struct::ArrayXr _ev;
+
+    data_struct::Spectra _fit_spec;
 
     data_struct::Params_Override* _param_override;
 
