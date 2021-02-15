@@ -64,9 +64,13 @@ public:
 
    QImage* image_mask() { return _mask; }
 
+   std::vector<QPoint> get_mask_list();
+
+   QString getName();
+
 signals:
 
-   void mask_updated();
+   void mask_updated(HotSpotMaskGraphicsItem* ano, bool reload);
 
 public slots:
    /**

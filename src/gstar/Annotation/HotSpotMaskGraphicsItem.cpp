@@ -63,9 +63,25 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
 
 }
 
+/*---------------------------------------------------------------------------*/
+
 HotSpotMaskGraphicsItem::~HotSpotMaskGraphicsItem()
 {
-    emit (mask_updated());
+    emit (mask_updated(this, false));
+}
+
+/*---------------------------------------------------------------------------*/
+
+QString HotSpotMaskGraphicsItem::getName()
+{
+
+    for (const auto& itr : m_data)
+    {
+        if (itr->getName() == DEF_STR_DISPLAY_NAME)
+            return itr->getValue().toString();
+    }
+    return "";
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -135,7 +151,7 @@ void HotSpotMaskGraphicsItem::updateView()
         }
     }
     update();
-    emit(mask_updated());
+    emit(mask_updated(this, false));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -148,6 +164,25 @@ void HotSpotMaskGraphicsItem::drawmask_changed()
         _erase_mask->setValue(false);
         updateModel();
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+std::vector<QPoint> HotSpotMaskGraphicsItem::get_mask_list()
+{
+    std::vector<QPoint> roi_list;
+    for (int w = 0; w < _mask->width(); w++)
+    {
+        for (int h = 0; h < _mask->height(); h++)
+        {
+            QColor c = _mask->pixelColor(w, h);
+            if (c.green() > 0)
+            {
+                roi_list.push_back(QPoint(w,h));
+            }
+        }
+    }
+    return roi_list;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -185,7 +220,7 @@ QRectF HotSpotMaskGraphicsItem::boundingRectMarker() const
 const QString HotSpotMaskGraphicsItem::displayName() const
 {
 
-   const QString name = QString("Hotspot Mask");
+   const QString name = QString("ROI Spectra");
    return name;
 
 }
@@ -289,7 +324,7 @@ void HotSpotMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
    // Queue an update
    //update();
-    emit(mask_updated());
+    emit(mask_updated(this, true));
 
    // Pass mouse event
    QGraphicsItem::mouseReleaseEvent(event);

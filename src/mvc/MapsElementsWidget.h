@@ -76,7 +76,7 @@ public slots:
 
    void addHotSpotMask();
 
-   void hotspotUpdated();
+   void roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload);
 
    void onGridDialog();
 
@@ -95,7 +95,7 @@ protected:
     */
    void _createLayout();
 
-   void _get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts);
+   void _roi_loader_thread();
 
    virtual void createActions();
 
@@ -134,7 +134,18 @@ protected:
    data_struct::ArrayXXr* _normalizer;
 
    Calibration_curve* _calib_curve;
+
+   unordered_map<string, data_struct::Spectra> _roi_spectra;
+
    //QTableWidget* _scaler_table_widget;
+
+   bool _widget_running;
+
+   std::future<void> _roi_thread_future;
+
+   std::mutex _roi_mutex;
+
+   std::queue<gstar::HotSpotMaskGraphicsItem* > _roi_queue;
 };
 
 

@@ -63,6 +63,8 @@ public:
 
    void appendFitIntSpectra(string, data_struct::ArrayXr*);
 
+   void appendROISpectra(string, data_struct::ArrayXr*);
+
 signals:
 
    void signal_finished_fit();
@@ -175,6 +177,8 @@ private:
     data_struct::Params_Override* _param_override;
 
     unordered_map<string, data_struct::ArrayXr*> _fit_int_spec_map;
+
+    unordered_map<string, data_struct::ArrayXr*> _roi_spec_map;
 
     std::string _detector_element;
 
