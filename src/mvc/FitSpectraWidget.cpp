@@ -37,6 +37,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
 	_param_override = nullptr;
+    _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -150,6 +151,9 @@ void FitSpectraWidget::createLayout()
     _btn_export_parameters = new QPushButton("Export Fit Parameters");
     connect(_btn_export_parameters, &QPushButton::released, this, &FitSpectraWidget::on_export_fit_paramters);
 
+    _btn_export_csv = new QPushButton("Export CSV");
+    connect(_btn_export_csv, &QPushButton::released, this, &FitSpectraWidget::on_export_csv);
+
     _btn_add_element = new QPushButton("Add Element");
     connect(_btn_add_element, &QPushButton::released, this, &FitSpectraWidget::add_element);
 
@@ -202,7 +206,8 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_chk_auto_model, 0, 3);
     grid_layout->addWidget(_btn_model_spectra, 0, 4);
     grid_layout->addWidget(_btn_export_parameters, 0, 5);
-    grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 6);
+    grid_layout->addWidget(_btn_export_csv, 0, 6);
+    grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 77);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
@@ -278,6 +283,13 @@ void FitSpectraWidget::on_export_fit_paramters()
     fit_params.append_and_update(&element_fit_params);
 
     emit export_fit_paramters(fit_params, element_fit_params);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::on_export_csv()
+{
+    emit export_csv_and_png(_spectra_widget->getPngofChart(), &_ev, _int_spec, &_spectra_background, &_fit_spec, &_labeled_spectras);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -560,20 +572,20 @@ void FitSpectraWidget::Fit_Spectra_Click()
             replot_integrated_spectra(true);
 			
             //data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
-			data_struct::Spectra fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
-            if (fit_spec.size() == _spectra_background.size())
+			_fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
+            if (_fit_spec.size() == _spectra_background.size())
             {
-                fit_spec += _spectra_background;
+                _fit_spec += _spectra_background;
             }
-            for (int i = 0; i < fit_spec.size(); i++)
+            for (int i = 0; i < _fit_spec.size(); i++)
             {
-                if (fit_spec[i] <= 0.0)
+                if (_fit_spec[i] <= 0.0)
                 {
-                    fit_spec[i] = 0.1;
+                    _fit_spec[i] = 0.1;
                 }
             }
 
-            _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, (data_struct::Spectra*) & _ev);
+            _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &_fit_spec, (data_struct::Spectra*) & _ev);
             
             if (_showDetailedFitSpec)
             {

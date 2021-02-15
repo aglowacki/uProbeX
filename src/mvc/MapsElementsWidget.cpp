@@ -18,6 +18,7 @@
 #include <gstar/CountsLookupTransformer.h>
 #include <limits>
 #include "core/GlobalThreadPool.h"
+#include "io/file/csv_io.h"
 
 
 using gstar::AbstractImageWidget;
@@ -85,6 +86,7 @@ void MapsElementsWidget::_createLayout()
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
+    connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MapsElementsWidget::on_export_csv_and_png);
 
     _cb_analysis = new QComboBox(this);
 
@@ -357,6 +359,77 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr* ev, data_struct::ArrayXr* int_spec, data_struct::ArrayXr* back_spec , data_struct::ArrayXr* fit_spec, unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
+{
+    QDir save_path = QDir(_dataset_directory->text());
+    QFileInfo file_info = QFileInfo(_dataset_directory->text());
+    QString file_name = file_info.fileName();
+    QString save_png;
+    QString save_csv;
+    save_path.cdUp();
+    QString mesg = "";
+    bool found = false;
+    if (save_path.cd("output"))
+    {
+        found = true;
+    }
+    else
+    {
+        save_path.cdUp();
+        if (save_path.cd("output"))
+        {
+            found = true;
+        }
+    }
+
+    if (false == found)
+    {
+        QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
+
+        // Dialog returns a nullptr string if user press cancel.
+        if (dirName.isNull() || dirName.isEmpty()) return;
+
+        save_path = QDir(dirName);
+
+    }
+
+    save_png = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.png");
+    save_csv = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.csv");
+
+    
+    if (false == png.save(save_png, "PNG"))
+    {
+        mesg.append("Failed to save PNG of spectra: ");
+        mesg.append(save_png);
+        mesg.append("  ");
+    }
+    else
+    {
+        mesg.append("Saved PNG of spectra: ");
+        mesg.append(save_png);
+        mesg.append("  ");
+    }
+
+    
+    //bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
+    if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
+    {
+        mesg.append("Failed to save CSV of spectra: ");
+        mesg.append(save_csv);
+    }
+    else
+    {
+        mesg.append("Saved CSV of spectra: ");
+        mesg.append(save_csv);
+    }
+    
+
+
+    QMessageBox::information(nullptr, "Export to CSV", mesg);
 }
 
 /*---------------------------------------------------------------------------*/

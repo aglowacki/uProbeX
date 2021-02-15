@@ -86,6 +86,8 @@ public slots:
 
    void onSelectNormalizer(QString name);
 
+   void on_export_csv_and_png(QPixmap, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr>*);
+
 protected:
 
    /**
