@@ -11,6 +11,8 @@
 #include <QObject>
 #include <QVariant>
 
+#define DEF_STR_DISPLAY_NAME "DisplayName"
+
 namespace gstar
 {
 

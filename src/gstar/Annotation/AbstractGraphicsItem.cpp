@@ -364,7 +364,7 @@ QTransform AbstractGraphicsItem::getFirstViewTransform() const
 void AbstractGraphicsItem::initializePropertyName()
 {
 
-   const QString UPROBECOLOR = "Color";
+   //const QString UPROBECOLOR = "Color";
 
 }
 

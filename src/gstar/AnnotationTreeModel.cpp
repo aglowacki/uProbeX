@@ -64,8 +64,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
    QString dName = QString("%1%2")
                    .arg(displayName)
          .arg(m_groupsCnt[item->classId()]);
-   item->prependProperty(new AnnotationProperty("DisplayName",
-                                              dName));
+   item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
    item->setParent(groupRoot);
 
    int row = groupRoot->childCount();

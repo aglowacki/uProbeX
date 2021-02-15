@@ -91,6 +91,8 @@ protected:
    
    QCheckBox* _save_exchange;
 
+   QCheckBox* _perform_quantification;
+
    std::string _directory;
 
    size_t _cur_file;

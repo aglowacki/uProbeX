@@ -330,6 +330,11 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&_ev);
         }
         
+        for (auto& itr : _roi_spec_map)
+        {
+            _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra*) & _ev);
+        }
+
     }
 }
 
@@ -338,6 +343,11 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 void FitSpectraWidget::appendFitIntSpectra(string name, data_struct::ArrayXr* spec)
 {
     _fit_int_spec_map[name] = spec;
+}
+
+void FitSpectraWidget::appendROISpectra(string name, data_struct::ArrayXr* spec)
+{
+    _roi_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -168,7 +168,7 @@ void SWSWidget::addTopWindowPoints()
                              m_calSelectionModel,
                              annotation);
    QPointF p = annotation->pos();
-   annotation->setPropertyValue("DisplayName", btmRight);
+   annotation->setPropertyValue(DEF_STR_DISPLAY_NAME, btmRight);
    annotation->setPos(QPointF(p.x()+offset, p.y()+offset));
 
    //Add B
@@ -182,7 +182,7 @@ void SWSWidget::addTopWindowPoints()
                              annotation);
    p = annotation->pos();
    annotation->setPos(QPointF(p.x()-offset, p.y()+offset));
-   annotation->setPropertyValue("DisplayName", btmLeft);
+   annotation->setPropertyValue(DEF_STR_DISPLAY_NAME, btmLeft);
 
    //Add C
    annotation = new UProbeMarkerGraphicsItem();
@@ -195,7 +195,7 @@ void SWSWidget::addTopWindowPoints()
                              annotation);
    p = annotation->pos();
    annotation->setPos(QPoint(p.x()+offset, p.y()-offset));
-   annotation->setPropertyValue("DisplayName", topRight);
+   annotation->setPropertyValue(DEF_STR_DISPLAY_NAME, topRight);
 
    //Add D
    annotation = new UProbeMarkerGraphicsItem();
@@ -208,7 +208,7 @@ void SWSWidget::addTopWindowPoints()
                              annotation);
    p = annotation->pos();
    annotation->setPos(QPoint(p.x()-offset, p.y()-offset));
-   annotation->setPropertyValue("DisplayName", topLeft);
+   annotation->setPropertyValue(DEF_STR_DISPLAY_NAME, topLeft);
 
 
 }
@@ -1643,7 +1643,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
          QVariant vmx = child->propertyValue(UPROBE_MICRO_POS_X);
          QVariant vmy = child->propertyValue(UPROBE_MICRO_POS_Y);
 
-         QVariant vname = child->propertyValue("DisplayName");
+         QVariant vname = child->propertyValue(DEF_STR_DISPLAY_NAME);
          QString name = vname.toString();
 
          if(vlx.isValid() && vly.isValid() && vlz.isValid() &&

@@ -24,6 +24,7 @@
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 
+
 /*---------------------------------------------------------------------------*/
 
 MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
@@ -33,6 +34,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
+    _widget_running = true;
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -55,6 +57,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     }
 	_selected_colormap = &_gray_colormap;
     _createLayout();
+    //start background roi loader thread
+    _roi_thread_future = Global_Thread_Pool::inst()->enqueue([this] { return this->_roi_loader_thread(); });
 
 }
 
@@ -69,6 +73,9 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
+
+    _widget_running = false;
+    _roi_thread_future.get();
 
     if(_spectra_widget != nullptr)
     {
@@ -167,6 +174,35 @@ void MapsElementsWidget::_createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsElementsWidget::_roi_loader_thread()
+{
+    logI << "ROI Loader Thread started\n";
+    while (_widget_running)
+    {
+        gstar::HotSpotMaskGraphicsItem* annotation = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(_roi_mutex);
+            if (_roi_queue.size() > 0)
+            {
+                annotation = _roi_queue.front();
+                _roi_queue.pop();
+            }
+        }
+        if (annotation != nullptr && _model != nullptr)
+        {
+            // load roi 
+            //data_struct Spectra = _model->load_roi(annotation->getROI());
+        }
+        else
+        {
+            std::this_thread::sleep_for(20ms);
+        }
+    }
+    logI << "ROI Loader Thread ended\n";
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsElementsWidget::onGridDialog()
 {
 	
@@ -194,15 +230,25 @@ void MapsElementsWidget::addHotSpotMask()
    gstar::HotSpotMaskGraphicsItem* annotation = new gstar::HotSpotMaskGraphicsItem(w, h);
    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
 
-   connect(annotation, SIGNAL(mask_updated()), this, SLOT(hotspotUpdated()));
+   //QString name = ano->getName();
+   //_spectra_widget->appendROISpectra()
+
+   connect(annotation, &gstar::HotSpotMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::hotspotUpdated()
+void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload)
 {
-    redrawCounts();
+    if (ano != nullptr && reload)
+    {
+        {
+            std::lock_guard<std::mutex> lk(_roi_mutex);
+            _roi_queue.push(ano);
+        }
+    }
+    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -211,14 +257,14 @@ void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
     // TODO: change hotspot to spectra region and add back in
-    /*
+    
     _addHotSpotMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addHotSpotMaskAction,
             SIGNAL(triggered()),
             this,
             SLOT(addHotSpotMask()));
-            */
+            
 }
 
 /*---------------------------------------------------------------------------*/
@@ -270,6 +316,24 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
 
 void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 {
+    // update label on element select since it could be scaler
+    if (_normalizer != nullptr && _calib_curve != nullptr)
+    {
+        int cnt = m_imageViewWidget->getViewCount();
+        for (int i = 0; i < cnt; i++)
+        {
+            QString label = m_imageViewWidget->getLabelAt(i);
+            if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
+            {
+                m_imageViewWidget->setUnitLabel(i, "ug/cm2");
+            }
+            else
+            {
+                m_imageViewWidget->setUnitLabel(i, "cts/s");
+            }
+        }
+    }
+
     QString analysisName = _cb_analysis->currentText();
     if(analysisName.length() > 0 && name.length() > 0)
     {
@@ -552,7 +616,6 @@ void MapsElementsWidget::model_updated()
         }
     }
 
-
     //create save ordered vector by element Z number with K , L, M lines
     std::vector<std::string> element_lines;
     for (std::string el_name : data_struct::Element_Symbols)
@@ -588,12 +651,18 @@ void MapsElementsWidget::model_updated()
                 QString val = QString(el_name.c_str());
                 m_imageViewWidget->addLabel(val);
             }
+
         }
 //        for(auto& itr: *element_counts)
 //        {
 //            QString val = QString(itr.first.c_str());
 //            m_imageViewWidget->addLabel(val);
 //        }
+    }
+
+    for (auto& itr : *scalers)
+    {
+        m_imageViewWidget->addLabel(QString(itr.first.c_str()));
     }
 
     if(false == found_analysis)
@@ -661,9 +730,10 @@ void MapsElementsWidget::redrawCounts()
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
 {
+    
     gstar::HotSpotMaskGraphicsItem item(0,0);
 
     QList<gstar::AbstractGraphicsItem*>  hotspots;
@@ -671,7 +741,7 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
     {
         hotspots = m_treeModel->get_all_of_type( item.classId() );
     }
-
+    
     QImage *sum_of_masks = nullptr;
     if(hotspots.size() > 0)
     {
@@ -702,7 +772,7 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
             }
         }
     }
-
+    
     if(sum_of_masks != nullptr)
     {
         max_val = std::numeric_limits<float>::min();
@@ -734,6 +804,7 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
         max_val = element_counts.maxCoeff();
         min_val = element_counts.minCoeff();
     }
+    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -743,63 +814,83 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 	if (_model != nullptr)
 	{
 		data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
-		if (fit_counts != nullptr)
-		{
+        data_struct::Fit_Count_Dict* scalers = _model->getScalers();
+        ArrayXXr normalized;
+        bool draw = false;
+        int height = 0;
+        int width = 0;
+        if (fit_counts != nullptr)
+        {
             if (fit_counts->count(element) > 0)
             {
-                m_imageViewWidget->resetCoordsToZero();
-
-                int height = static_cast<int>(fit_counts->at(element).rows());
-                int width = static_cast<int>(fit_counts->at(element).cols());
-                m_imageHeightDim->setCurrentText(QString::number(height));
-                m_imageWidthDim->setCurrentText(QString::number(width));
-                QImage image(width, height, QImage::Format_Indexed8);
-                image.setColorTable(*_selected_colormap);
-
-                float counts_max;
-                float counts_min;
-                ArrayXXr normalized = fit_counts->at(element);
-                if (_normalizer != nullptr && _calib_curve != nullptr)
-                {
-                    if(_calib_curve->calib_curve.count(element) > 0)
-                    {
-                        real_t calib_val = _calib_curve->calib_curve.at(element);
-                        normalized /= (*_normalizer);
-                        normalized /= calib_val;
-                        float min_coef = normalized.minCoeff();
-                        if (std::isfinite(min_coef) == false)
-                        {
-                            min_coef = 0.0f;
-                        }
-                        normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
-                    }
-                }
-
-                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
-                if (counts_lookup != nullptr)
-                {
-                    counts_lookup->setCounts(normalized);
-                }
-
-                _get_min_max_vals(counts_min, counts_max, normalized);
-                
-                float max_min = counts_max - counts_min;
-                for (int row = 0; row < height; row++)
-                {
-                    for (int col = 0; col < width; col++)
-                    {
-                        //first clamp the data to max min
-                        float cnts = normalized(row, col);
-                        cnts = std::min(counts_max, cnts);
-                        cnts = std::max(counts_min, cnts);
-                        //convert to pixel
-                        uint data = (uint)(((cnts - counts_min) / max_min) * 255);
-                        image.setPixel(col, row, data);
-                    }
-                }
-                m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+                height = static_cast<int>(fit_counts->at(element).rows());
+                width = static_cast<int>(fit_counts->at(element).cols());
+                normalized = fit_counts->at(element);
+                draw = true;
             }
-		}
+        }
+        if (false == draw && scalers != nullptr)
+        {
+            if (scalers->count(element) > 0)
+            {
+                height = static_cast<int>(scalers->at(element).rows());
+                width = static_cast<int>(scalers->at(element).cols());
+                normalized = scalers->at(element);
+                draw = true;
+            }
+        }
+
+        if (draw)
+        {
+            m_imageViewWidget->resetCoordsToZero();
+            m_imageHeightDim->setCurrentText(QString::number(height));
+            m_imageWidthDim->setCurrentText(QString::number(width));
+            QImage image(width, height, QImage::Format_Indexed8);
+            image.setColorTable(*_selected_colormap);
+
+            float counts_max;
+            float counts_min;
+            if (_normalizer != nullptr && _calib_curve != nullptr)
+            {
+                if (_calib_curve->calib_curve.count(element) > 0)
+                {
+                    real_t calib_val = _calib_curve->calib_curve.at(element);
+                    normalized /= (*_normalizer);
+                    normalized /= calib_val;
+                    float min_coef = normalized.minCoeff();
+                    if (std::isfinite(min_coef) == false)
+                    {
+                        min_coef = 0.0f;
+                    }
+                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                }
+            }
+
+            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            if (counts_lookup != nullptr)
+            {
+                counts_lookup->setCounts(normalized);
+            }
+
+            counts_max = normalized.maxCoeff();
+            counts_min = normalized.minCoeff();
+
+            float max_min = counts_max - counts_min;
+            for (int row = 0; row < height; row++)
+            {
+                for (int col = 0; col < width; col++)
+                {
+                    //first clamp the data to max min
+                    float cnts = normalized(row, col);
+                    cnts = std::min(counts_max, cnts);
+                    cnts = std::max(counts_min, cnts);
+                    //convert to pixel
+                    uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                    image.setPixel(col, row, data);
+                }
+            }
+            m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+        }
 	}
     if (m_imageViewWidget != nullptr)
     {
@@ -815,57 +906,78 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
     if (_model != nullptr)
     {
         data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+        data_struct::Fit_Count_Dict* scalers = _model->getScalers();
+        ArrayXXr normalized;
+        bool draw = false;
+        int height = 0;
+        int width = 0;
         if (fit_counts != nullptr)
         {
             if (fit_counts->count(element) > 0)
             {
-                int height = static_cast<int>(fit_counts->at(element).rows());
-                int width = static_cast<int>(fit_counts->at(element).cols());
-                QImage image(width, height, QImage::Format_Indexed8);
-                image.setColorTable(*_selected_colormap);
-
-                float counts_max;
-                float counts_min;
-                ArrayXXr normalized = fit_counts->at(element);
-                if (_normalizer != nullptr && _calib_curve != nullptr)
-                {
-                    if (_calib_curve->calib_curve.count(element) > 0)
-                    {
-                        real_t calib_val = _calib_curve->calib_curve.at(element);
-                        normalized /= (*_normalizer);
-                        normalized /= calib_val;
-                        float min_coef = normalized.minCoeff();
-                        if (std::isfinite(min_coef) == false)
-                        {
-                            min_coef = 0.0f;
-                        }
-                        normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
-                    }
-                }
-
-                gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
-                if (counts_lookup != nullptr)
-                {
-                    counts_lookup->setCounts(normalized);
-                }
-
-                _get_min_max_vals(counts_min, counts_max, normalized);
-                float max_min = counts_max - counts_min;
-                for (int row = 0; row < height; row++)
-                {
-                    for (int col = 0; col < width; col++)
-                    {
-                        //first clamp the data to max min
-                        float cnts = normalized(row, col);
-                        cnts = std::min(counts_max, cnts);
-                        cnts = std::max(counts_min, cnts);
-                        //convert to pixel
-                        uint data = (uint)(((cnts - counts_min) / max_min) * 255);
-                        image.setPixel(col, row, data);
-                    }
-                }
-                return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
+                height = static_cast<int>(fit_counts->at(element).rows());
+                width = static_cast<int>(fit_counts->at(element).cols());
+                normalized = fit_counts->at(element);
+                draw = true;
             }
+        }
+        if (false == draw && scalers != nullptr)
+        {
+            if (scalers->count(element) > 0)
+            {
+                height = static_cast<int>(scalers->at(element).rows());
+                width = static_cast<int>(scalers->at(element).cols());
+                normalized = scalers->at(element);
+                draw = true;
+            }
+        }
+
+        if (draw)
+        {
+            QImage image(width, height, QImage::Format_Indexed8);
+            image.setColorTable(*_selected_colormap);
+
+            float counts_max;
+            float counts_min;
+            if (_normalizer != nullptr && _calib_curve != nullptr)
+            {
+                if (_calib_curve->calib_curve.count(element) > 0)
+                {
+                    real_t calib_val = _calib_curve->calib_curve.at(element);
+                    normalized /= (*_normalizer);
+                    normalized /= calib_val;
+                    float min_coef = normalized.minCoeff();
+                    if (std::isfinite(min_coef) == false)
+                    {
+                        min_coef = 0.0f;
+                    }
+                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                }
+            }
+
+            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            if (counts_lookup != nullptr)
+            {
+                counts_lookup->setCounts(normalized);
+            }
+
+            counts_max = normalized.maxCoeff();
+            counts_min = normalized.minCoeff();
+            float max_min = counts_max - counts_min;
+            for (int row = 0; row < height; row++)
+            {
+                for (int col = 0; col < width; col++)
+                {
+                    //first clamp the data to max min
+                    float cnts = normalized(row, col);
+                    cnts = std::min(counts_max, cnts);
+                    cnts = std::max(counts_min, cnts);
+                    //convert to pixel
+                    uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                    image.setPixel(col, row, data);
+                }
+            }
+            return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
         }
     }
     return nullptr;

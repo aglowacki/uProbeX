@@ -12,7 +12,7 @@ MapsH5Model::MapsH5Model() : QObject()
 
     _filepath = "";
     _is_fully_loaded = false;
-
+    _version = 0.0f;
     _loaded_scalers = false;
     _loaded_quantification = false;
     _loaded_scan = false;
@@ -212,7 +212,6 @@ bool MapsH5Model::load(QString filepath)
 
         //logW<<" MapsH5Model loading "<< filepath.toStdString() << "\n";
 
-        float version = 0.0;
         hid_t    file_id, dset_id, dataspace_id, maps_grp_id, memoryspace_id;
         herr_t   error;
         //hsize_t offset[1] = {0};
@@ -245,14 +244,14 @@ bool MapsH5Model::load(QString filepath)
 
         memoryspace_id = H5Screate_simple(1, count, nullptr);
 
-        error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&version);
+        error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&_version);
 
         if(error != 0)
         {
             return false;
         }
 
-        if(version < 10.0)
+        if(_version < 10.0)
         {
             _is_fully_loaded = _load_version_9(maps_grp_id);
         }
@@ -284,6 +283,19 @@ bool MapsH5Model::load(QString filepath)
 }
 
 /*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra& spec)
+{
+    if (_version < 10.0)
+    {
+        return _load_roi_9(roi_list, spec);
+    }
+    return _load_roi_10(roi_list, spec);
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------Version 10---------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
 bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 {
@@ -694,7 +706,18 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     return true;
 }
 
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra& spec)
+{
+    return false;
+
+}
+
+
+//------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------Version 10---------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
 bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 {
@@ -1158,6 +1181,14 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     }
 
     return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra& spec)
+{
+
+    return false;
 }
 
 /*---------------------------------------------------------------------------*/

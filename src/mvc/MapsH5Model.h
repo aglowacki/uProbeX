@@ -120,6 +120,8 @@ public:
 
     data_struct::Params_Override* getParamOverride(){return _params_override;}
 
+    bool load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
+
 	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
 
 signals:
@@ -146,6 +148,8 @@ protected:
 
     bool _load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name);
 
+    bool _load_roi_9(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
+
     //Version 10
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
@@ -163,6 +167,8 @@ protected:
     bool _load_counts_10(hid_t maps_grp_id);
 
     bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
+
+    bool _load_roi_10(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
 
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
@@ -185,6 +191,8 @@ private:
     std::unordered_map<std::string, Calibration_curve > _quant_map_nnls;
 
     std::unordered_map<std::string, Calibration_curve > _quant_map_roi;
+
+    float _version;
 
     bool _initialized_by_stream_block;
 
