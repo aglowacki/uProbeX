@@ -34,7 +34,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
-    _widget_running = true;
+
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -57,9 +57,6 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     }
 	_selected_colormap = &_gray_colormap;
     _createLayout();
-    //start background roi loader thread
-    _roi_thread_future = Global_Thread_Pool::inst()->enqueue([this] { return this->_roi_loader_thread(); });
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -73,9 +70,6 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
-
-    _widget_running = false;
-    _roi_thread_future.get();
 
     if(_spectra_widget != nullptr)
     {
@@ -174,35 +168,6 @@ void MapsElementsWidget::_createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::_roi_loader_thread()
-{
-    logI << "ROI Loader Thread started\n";
-    while (_widget_running)
-    {
-        gstar::HotSpotMaskGraphicsItem* annotation = nullptr;
-        {
-            std::lock_guard<std::mutex> lk(_roi_mutex);
-            if (_roi_queue.size() > 0)
-            {
-                annotation = _roi_queue.front();
-                _roi_queue.pop();
-            }
-        }
-        if (annotation != nullptr && _model != nullptr)
-        {
-            // load roi 
-            //data_struct Spectra = _model->load_roi(annotation->getROI());
-        }
-        else
-        {
-            std::this_thread::sleep_for(20ms);
-        }
-    }
-    logI << "ROI Loader Thread ended\n";
-}
-
-/*---------------------------------------------------------------------------*/
-
 void MapsElementsWidget::onGridDialog()
 {
 	
@@ -232,6 +197,7 @@ void MapsElementsWidget::addHotSpotMask()
 
    //QString name = ano->getName();
    //_spectra_widget->appendROISpectra()
+   //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
    connect(annotation, &gstar::HotSpotMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
 
@@ -244,8 +210,8 @@ void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool re
     if (ano != nullptr && reload)
     {
         {
-            std::lock_guard<std::mutex> lk(_roi_mutex);
-            _roi_queue.push(ano);
+            //std::lock_guard<std::mutex> lk(_roi_mutex);
+            //_roi_queue.push(ano);
         }
     }
     

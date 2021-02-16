@@ -139,13 +139,6 @@ protected:
 
    //QTableWidget* _scaler_table_widget;
 
-   bool _widget_running;
-
-   std::future<void> _roi_thread_future;
-
-   std::mutex _roi_mutex;
-
-   std::queue<gstar::HotSpotMaskGraphicsItem* > _roi_queue;
 };
 
 
