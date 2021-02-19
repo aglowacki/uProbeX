@@ -398,7 +398,7 @@ bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString>
         {
             //QString warn_msg = "Cannot find the "+sub_dir_name+" directory";
             //qWarning(warn_msg.toStdString().c_str());
-            logW<< "Cannot find the " << sub_dir_name.toStdString() << " directory";
+            //logW<< "Cannot find the " << sub_dir_name.toStdString() << " directory";
             return false;
         }
     }
@@ -411,7 +411,7 @@ bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString>
         QFileInfo fileInfo = list.at(i);
         if (suffex.contains(fileInfo.suffix()))
         {
-            //if (chk_func(fileInfo))
+            //if (chk_func(fileInfo)) //TODO: maybe have option for checks 
             {
                 fileinfo_list->emplace(fileInfo.fileName(), fileInfo);
             }
@@ -496,7 +496,7 @@ bool check_raw_h5(QFileInfo fileInfo)
 
 bool check_vlm(QFileInfo fileInfo)
 {
-
+    // TODO:
        return false;
 
 }
