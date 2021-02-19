@@ -282,6 +282,42 @@ SWSModel* MapsWorkspaceModel::get_SWS_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
+vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
+{
+    vector<QString>  ret;
+    for (auto& itr : _raw_models)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
+vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
+{
+    vector<QString>  ret;
+    for (auto& itr : _h5_models)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
+vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
+{
+    vector<QString>  ret;
+    for (auto& itr : _sws_models)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceModel::unload_H5_Model(QString name)
 {
     if(_h5_models.count(name) > 0)

@@ -94,9 +94,9 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 {
 	if (_model != nullptr)
 	{
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updated);
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updated);
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updated);
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
+        disconnect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
         disconnect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
         disconnect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
 	}
@@ -110,9 +110,9 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 			_lbl_workspace->setText(path);
 		}
 
-        connect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updated);
-        connect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updated);
-        connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updated);
+        connect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
+        connect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
+        connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
         connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
         connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
         connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
@@ -124,13 +124,37 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::updated()
+void MapsWorkspaceFilesWidget::updatedMDA()
 {
-
     _mda_tab_widget->set_file_list(_model->get_raw_file_list());
-    _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
+    vector<QString> loaded_names = _model->get_loaded_raw_names();
+    for (const auto& itr : loaded_names)
+    {
+        _mda_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
+    }
+}
 
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::updatedVLM()
+{
+    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
+    vector<QString> loaded_names = _model->get_loaded_vlm_names();
+    for (const auto& itr : loaded_names)
+    {
+        _sws_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
+    }
+}
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::updatedHDF()
+{
+    _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
+    vector<QString> loaded_names = _model->get_loaded_h5_names();
+    for (const auto& itr : loaded_names)
+    {
+        _h5_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

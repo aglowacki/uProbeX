@@ -70,7 +70,6 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
-
     if(_spectra_widget != nullptr)
     {
         delete _spectra_widget;
@@ -210,8 +209,7 @@ void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool re
     if (ano != nullptr && reload)
     {
         {
-            //std::lock_guard<std::mutex> lk(_roi_mutex);
-            //_roi_queue.push(ano);
+
         }
     }
     
@@ -541,6 +539,7 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->addItem("1");
 
     std::unordered_map<std::string, data_struct::ArrayXXr>* scalers = _model->getScalers();
+    
     if (scalers->count(STR_DS_IC) > 0)
     {
         _cb_normalize->addItem(QString(STR_DS_IC.c_str()));

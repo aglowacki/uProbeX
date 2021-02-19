@@ -95,8 +95,6 @@ protected:
     */
    void _createLayout();
 
-   void _roi_loader_thread();
-
    virtual void createActions();
 
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);

@@ -82,6 +82,12 @@ public:
 
     const map<QString, QFileInfo>& get_sws_file_list() { return _sws_fileinfo_list; }
 
+    vector<QString> get_loaded_raw_names();
+
+    vector<QString> get_loaded_h5_names();
+
+    vector<QString> get_loaded_vlm_names();
+
 signals:
 
     void doneLoadingMDA();
