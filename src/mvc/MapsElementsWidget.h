@@ -95,8 +95,6 @@ protected:
     */
    void _createLayout();
 
-   void _roi_loader_thread();
-
    virtual void createActions();
 
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
@@ -138,14 +136,6 @@ protected:
    unordered_map<string, data_struct::Spectra> _roi_spectra;
 
    //QTableWidget* _scaler_table_widget;
-
-   bool _widget_running;
-
-   std::future<void> _roi_thread_future;
-
-   std::mutex _roi_mutex;
-
-   std::queue<gstar::HotSpotMaskGraphicsItem* > _roi_queue;
 };
 
 

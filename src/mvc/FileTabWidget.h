@@ -39,6 +39,8 @@ class FileTabWidget : public QWidget
 
     void set_file_list(const map<QString, QFileInfo>& fileinfo_list);
 
+    void update_file_list(const map<QString, QFileInfo>& fileinfo_list);
+
     void unload_all();
 
     void appendFilterHelpAction(QAction * action) { _filterHelpMenu->addAction(action); }

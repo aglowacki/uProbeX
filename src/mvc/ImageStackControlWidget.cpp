@@ -270,4 +270,16 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 
 
 /*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::update_file_list()
+{
+	if (_mapsFilsWidget != nullptr) 
+	{
+		_mapsFilsWidget->updatedMDA(); 
+		_mapsFilsWidget->updatedHDF();
+		_mapsFilsWidget->updatedVLM();
+	} 
+}
+
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

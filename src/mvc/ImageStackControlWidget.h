@@ -46,7 +46,7 @@ public:
 
    void setModel(MapsWorkspaceModel* model);
 
-   void update_file_list() { if(_mapsFilsWidget != nullptr) {_mapsFilsWidget->updated();}}
+   void update_file_list();
 
 signals:
 

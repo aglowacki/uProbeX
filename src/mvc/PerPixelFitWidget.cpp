@@ -138,6 +138,9 @@ void PerPixelFitWidget::createLayout()
 
 void PerPixelFitWidget::updateFileList(QStringList file_list)
 {
+    _progressBarFiles->setValue(0);
+    _progressBarBlocks->setValue(0);
+
     _file_list_model->clear();
     for(auto & itr : file_list)
     {

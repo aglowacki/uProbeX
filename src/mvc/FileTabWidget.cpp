@@ -140,6 +140,31 @@ void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
 
 /*---------------------------------------------------------------------------*/
 
+void FileTabWidget::update_file_list(const map<QString, QFileInfo>& fileinfo_list)
+{
+    int rows = _file_list_model->rowCount();
+    for (const auto& itr : fileinfo_list)
+    {
+        bool found = false;
+        for(int i=0; i<rows; i++)
+        {
+            QStandardItem* item = _file_list_model->item(i);
+            if (item->text() == itr.first)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (false == found)
+        {
+            _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr.first));
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FileTabWidget::ShowContextMenu(const QPoint &pos)
 {
     _contextMenu->exec(mapToGlobal(pos));

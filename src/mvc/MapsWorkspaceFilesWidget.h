@@ -62,7 +62,11 @@ signals:
 
 public slots:
 
-    void updated();
+    void updatedMDA();
+
+    void updatedVLM();
+
+    void updatedHDF();
 
     void clearLists();
 
