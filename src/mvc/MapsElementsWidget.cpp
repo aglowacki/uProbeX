@@ -34,6 +34,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
+
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -195,6 +196,7 @@ void MapsElementsWidget::addHotSpotMask()
 
    //QString name = ano->getName();
    //_spectra_widget->appendROISpectra()
+   //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
    connect(annotation, &gstar::HotSpotMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
 
@@ -207,8 +209,7 @@ void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool re
     if (ano != nullptr && reload)
     {
         {
-           // std::lock_guard<std::mutex> lk(_roi_mutex);
-           // _roi_queue.push(ano);
+
         }
     }
     

@@ -136,6 +136,10 @@ protected:
    unordered_map<string, data_struct::Spectra> _roi_spectra;
 
    //QTableWidget* _scaler_table_widget;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1f85fbdf0bcd97d181b5d3309ddc723d38901f5d
 };
 
 
