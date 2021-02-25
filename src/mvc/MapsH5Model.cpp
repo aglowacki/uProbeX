@@ -1151,7 +1151,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
 
-
+    // TODO: load max 10 
 	fit_int_spec_dset_id = H5Dopen(sub_grp_id, "Fitted_Integrated_Spectra", H5P_DEFAULT);
 	if (fit_int_spec_dset_id > -1)
 	{

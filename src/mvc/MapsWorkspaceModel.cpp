@@ -28,6 +28,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _mda_suffex.append("mda");
     _raw_suffex.append("h5");
     _raw_suffex.append("hdf5");
+    _raw_suffex.append("emd");
 
     _sws_suffex.append("sws");
 }
