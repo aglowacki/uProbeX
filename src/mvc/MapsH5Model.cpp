@@ -540,9 +540,12 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 {
     //   /MAPS/int_spec
     hid_t counts_dset_id, counts_dspace_id;
+    hid_t max_chan_spec_id, max_chan_dspace_id;
     hid_t memoryspace_id, error;
     hsize_t offset[1] = {0};
     hsize_t count[1] = {1};
+    hsize_t offset2[2] = { 0, 0 };
+    hsize_t count2[2] = { 1, 1 };
     hid_t   filetype, memtype, status;
 
     counts_dset_id = H5Dopen(maps_grp_id, "int_spec", H5P_DEFAULT);
@@ -574,8 +577,71 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
 
     delete []dims_out;
-
     H5Sclose(memoryspace_id);
+
+    max_chan_spec_id = H5Dopen(maps_grp_id, "max_chan_spec", H5P_DEFAULT);
+    if (max_chan_spec_id > -1)
+    {
+        max_chan_dspace_id = H5Dget_space(max_chan_spec_id);
+        rank = H5Sget_simple_extent_ndims(max_chan_dspace_id);
+        hsize_t* dims_out = new hsize_t[rank];
+        unsigned int status_n = H5Sget_simple_extent_dims(max_chan_dspace_id, &dims_out[0], nullptr);
+
+        for (int i = 0; i < rank; i++)
+        {
+            offset2[i] = 0;
+            count2[i] = dims_out[i];
+        }
+        count2[0] = 1;
+
+        memoryspace_id = H5Screate_simple(1, &count2[1], nullptr);
+
+        data_struct::ArrayXr* fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        if (error > -1)
+        {
+            _fit_int_spec_dict.insert({ "Max_Channels", fit_int_spec });
+            
+        }
+        else
+        {
+            delete fit_int_spec;
+        }
+
+        offset2[0] = 1;
+        fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        if (error > -1)
+        {
+            _fit_int_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
+            
+        }
+        else
+        {
+            delete fit_int_spec;
+        }
+
+        offset2[0] = 2;
+        fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        if (error > -1)
+        {
+            _fit_int_spec_dict.insert({ STR_FIT_GAUSS_MATRIX, fit_int_spec });
+        }
+        else
+        {
+            delete fit_int_spec;
+        }
+
+        delete[]dims_out;
+        H5Sclose(memoryspace_id);
+        H5Sclose(max_chan_dspace_id);
+        H5Dclose(max_chan_spec_id);
+    }
+
     H5Sclose(counts_dspace_id);
     H5Dclose(counts_dset_id);
 
@@ -1085,7 +1151,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
 
-
+    // TODO: load max 10 
 	fit_int_spec_dset_id = H5Dopen(sub_grp_id, "Fitted_Integrated_Spectra", H5P_DEFAULT);
 	if (fit_int_spec_dset_id > -1)
 	{

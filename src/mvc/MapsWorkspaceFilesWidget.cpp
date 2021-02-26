@@ -242,7 +242,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 					// loading through background thread on windows seems to lock up on fopen
 					model = _model->get_RAW_Model(name);
 				}
-				if (name.endsWith(".h5") || name.endsWith(".hdf5"))
+				if (name.endsWith(".h5") || name.endsWith(".hdf5") || name.endsWith(".emd"))
 				{
 					QCoreApplication::processEvents();
 					std::future< RAW_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
