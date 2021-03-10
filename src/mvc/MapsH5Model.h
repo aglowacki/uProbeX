@@ -21,7 +21,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
+typedef Eigen::Matrix<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
 const string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
 const string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";

@@ -244,7 +244,7 @@ bool MapsH5Model::load(QString filepath)
 
         memoryspace_id = H5Screate_simple(1, count, nullptr);
 
-        error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&_version);
+        error = H5Dread (dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&_version);
 
         if(error != 0)
         {
@@ -384,7 +384,7 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
         H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread(dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
+        error = H5Dread(dset_id, H5T_NATIVE_REAL, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
         if (error > -1)
         {
             sr_current_curve.calib_curve[el_name] = values[0];
@@ -505,7 +505,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
         _scalers.at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+        error = H5Dread(counts_dset_id, H5T_NATIVE_REAL, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
     }
 
     delete[]dims_out;
@@ -520,7 +520,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
     //nan to 0.f
     for (auto& itr : _scalers)
     {
-        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
+        itr.second = itr.second.unaryExpr([](real_t v) { return std::isfinite(v) ? v : 0.0f; });
     }
 
     return true;
@@ -574,7 +574,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     memoryspace_id = H5Screate_simple(1, count, nullptr);
     H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-    error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
+    error = H5Dread (counts_dset_id, H5T_NATIVE_REAL, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
 
     delete []dims_out;
     H5Sclose(memoryspace_id);
@@ -598,7 +598,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 
         data_struct::ArrayXr* fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_REAL, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ "Max_Channels", fit_int_spec });
@@ -612,7 +612,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         offset2[0] = 1;
         fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_REAL, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
@@ -626,7 +626,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         offset2[0] = 2;
         fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_REAL, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ STR_FIT_GAUSS_MATRIX, fit_int_spec });
@@ -751,7 +751,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
+        error = H5Dread (counts_dset_id, H5T_NATIVE_REAL, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 
     delete []dims_out;
@@ -766,7 +766,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     //nan to 0.f
     for(auto& itr : *xrf_counts)
     {
-        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v)? v : 0.0f; });
+        itr.second = itr.second.unaryExpr([](real_t v) { return std::isfinite(v)? v : 0.0f; });
     }
 
     return true;
@@ -907,13 +907,13 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
         H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        sr_error = H5Dread(sr_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
+        sr_error = H5Dread(sr_dset_id, H5T_NATIVE_REAL, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
 
         H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        us_error = H5Dread(us_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
+        us_error = H5Dread(us_dset_id, H5T_NATIVE_REAL, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
 
         H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        ds_error = H5Dread(ds_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
+        ds_error = H5Dread(ds_dset_id, H5T_NATIVE_REAL, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
         if (error > -1 && sr_error > -1)
         {
             sr_current_curve.calib_curve[el_name] = sr_values[0];
@@ -1045,7 +1045,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
         _scalers.at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+        error = H5Dread(counts_dset_id, H5T_NATIVE_REAL, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
     }
 
     delete[]dims_out;
@@ -1061,7 +1061,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     //nan to 0.f
     for (auto& itr : _scalers)
     {
-        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
+        itr.second = itr.second.unaryExpr([](real_t v) { return std::isfinite(v) ? v : 0.0f; });
     }
 
     return true;
@@ -1227,7 +1227,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
+        error = H5Dread (counts_dset_id, H5T_NATIVE_REAL, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
     }
 
     delete []dims_out;
@@ -1243,7 +1243,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     //nan to 0.f
     for(auto& itr : *xrf_counts)
     {
-        itr.second = itr.second.unaryExpr([](float v) { return std::isfinite(v)? v : 0.0f; });
+        itr.second = itr.second.unaryExpr([](real_t v) { return std::isfinite(v)? v : 0.0f; });
     }
 
     return true;

@@ -813,8 +813,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             QImage image(width, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
-            float counts_max;
-            float counts_min;
+            real_t counts_max;
+            real_t counts_min;
             if (_normalizer != nullptr && _calib_curve != nullptr)
             {
                 if (_calib_curve->calib_curve.count(element) > 0)
@@ -822,12 +822,12 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                     real_t calib_val = _calib_curve->calib_curve.at(element);
                     normalized /= (*_normalizer);
                     normalized /= calib_val;
-                    float min_coef = normalized.minCoeff();
+                    real_t min_coef = normalized.minCoeff();
                     if (std::isfinite(min_coef) == false)
                     {
                         min_coef = 0.0f;
                     }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                    normalized = normalized.unaryExpr([min_coef](real_t v) { return std::isfinite(v) ? v : min_coef; });
                 }
             }
 
@@ -840,13 +840,13 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
 
-            float max_min = counts_max - counts_min;
+            real_t max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {
                 for (int col = 0; col < width; col++)
                 {
                     //first clamp the data to max min
-                    float cnts = normalized(row, col);
+                    real_t cnts = normalized(row, col);
                     cnts = std::min(counts_max, cnts);
                     cnts = std::max(counts_min, cnts);
                     //convert to pixel
@@ -902,8 +902,8 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
             QImage image(width, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
-            float counts_max;
-            float counts_min;
+            real_t counts_max;
+            real_t counts_min;
             if (_normalizer != nullptr && _calib_curve != nullptr)
             {
                 if (_calib_curve->calib_curve.count(element) > 0)
@@ -911,12 +911,12 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     real_t calib_val = _calib_curve->calib_curve.at(element);
                     normalized /= (*_normalizer);
                     normalized /= calib_val;
-                    float min_coef = normalized.minCoeff();
+                    real_t min_coef = normalized.minCoeff();
                     if (std::isfinite(min_coef) == false)
                     {
                         min_coef = 0.0f;
                     }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                    normalized = normalized.unaryExpr([min_coef](real_t v) { return std::isfinite(v) ? v : min_coef; });
                 }
             }
 
@@ -928,13 +928,13 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
-            float max_min = counts_max - counts_min;
+            real_t max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {
                 for (int col = 0; col < width; col++)
                 {
                     //first clamp the data to max min
-                    float cnts = normalized(row, col);
+                    real_t cnts = normalized(row, col);
                     cnts = std::min(counts_max, cnts);
                     cnts = std::max(counts_min, cnts);
                     //convert to pixel

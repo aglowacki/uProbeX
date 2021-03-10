@@ -189,7 +189,7 @@ private:
            //child->itemData.push_back(QVariant(element->width_multi()));
            //childItems.append(child);
 
-           std::vector<float> multi_vec = element->energy_ratio_multipliers();
+           std::vector<real_t> multi_vec = element->energy_ratio_multipliers();
            int i =0;
             for(auto& itr : element->energy_ratios())
             {

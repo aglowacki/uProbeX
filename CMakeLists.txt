@@ -57,7 +57,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(PREC _REAL_FLOAT)
+#set(PREC _REAL_FLOAT) #get this from xrf_maps
 
 # If compiled on some intel mahcines this causes crashes so let user set it for compile
 option(AVX2 "Compule with arch AVX2 on MSVC" OFF)
