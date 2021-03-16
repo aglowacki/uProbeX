@@ -393,6 +393,8 @@ void FittingDialog::onCancel()
 
 void FittingDialog::runProcessing()
 {
+    fitting::optimizers::OPTIMIZER_OUTCOME outcome;
+
     if (_elements_to_fit != nullptr && _int_spec != nullptr)
     {
         _running = true;
@@ -428,7 +430,7 @@ void FittingDialog::runProcessing()
         Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         try
         {
-            _new_out_fit_params = _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, &cb_func);
+            outcome = _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params , &cb_func);
         }
         catch (int e)
         {
