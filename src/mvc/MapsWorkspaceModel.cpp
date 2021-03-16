@@ -92,7 +92,9 @@ void MapsWorkspaceModel::load(QString filepath)
                 std::vector<int> to_delete;
                 for (auto& itr : job_queue)
                 {
-                    if (itr.second._Is_ready())
+                    std::future_status status = itr.second.wait_for(std::chrono::milliseconds(100));
+
+                    if (status == std::future_status::ready)
                     {
                         switch (itr.first)
                         {

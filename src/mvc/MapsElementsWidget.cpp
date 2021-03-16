@@ -674,15 +674,12 @@ void MapsElementsWidget::redrawCounts()
             std::vector<int> to_delete;
             for (auto& itr : job_queue)
             {
-                if (itr.second._Is_ready())
-                {
-                    m_imageViewWidget->resetCoordsToZero();
-                    m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
+                m_imageViewWidget->resetCoordsToZero();
+                m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
 
-                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
-                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
-                    to_delete.push_back(itr.first);
-                }
+                m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
+                m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                to_delete.push_back(itr.first);
             }
 
             for (const auto& itr : to_delete)
@@ -945,7 +942,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
             return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
         }
     }
-    return nullptr;
+    return QPixmap();
 }
 
 /*---------------------------------------------------------------------------*/

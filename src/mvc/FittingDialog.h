@@ -65,13 +65,13 @@ public:
 
     void status_callback(size_t cur_block, size_t total_blocks);
 
-    void FittingDialog::setOptimizer(QString opt);
+    void setOptimizer(QString opt);
 
     bool accepted_fit() { return _accepted; }
 
-    void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy);
+    void setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy);
 
-    void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
+    void setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
 
 	data_struct::Spectra get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras);
 

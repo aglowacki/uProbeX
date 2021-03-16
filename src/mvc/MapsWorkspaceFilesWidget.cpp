@@ -189,10 +189,12 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             if (mt == MODEL_TYPE::MAPS_H5)
             {
                 std::future< MapsH5Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
-                while (ret._Is_ready() == false)
+                std::future_status status;
+                do
                 {
+                    status = ret.wait_for(std::chrono::milliseconds(100));
                     QCoreApplication::processEvents();
-                }
+                } while (status != std::future_status::ready);
 
                 MapsH5Model* h5Model = ret.get();
                 if (h5Model != nullptr)
@@ -246,10 +248,12 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 				{
 					QCoreApplication::processEvents();
 					std::future< RAW_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
-					while (ret._Is_ready() == false)
-					{
-						QCoreApplication::processEvents();
-					}
+                    std::future_status status;
+                    do
+                    {
+                        status = ret.wait_for(std::chrono::milliseconds(100));
+                        QCoreApplication::processEvents();
+                    } while (status != std::future_status::ready);
 
 					model = ret.get();
 				}
@@ -279,10 +283,12 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             else if (mt == MODEL_TYPE::SWS)
             {
                 std::future< SWSModel*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_SWS_Model(name); });
-                while (ret._Is_ready() == false)
+                std::future_status status;
+                do
                 {
+                    status = ret.wait_for(std::chrono::milliseconds(100));
                     QCoreApplication::processEvents();
-                }
+                } while (status != std::future_status::ready);
 
                 SWSModel* Model = ret.get();
                 if (Model != nullptr)
