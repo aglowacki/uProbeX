@@ -247,9 +247,9 @@ void FitSpectraWidget::setParamOverride(data_struct::Params_Override* po)
 void FitSpectraWidget::onSettingsDialog()
 {
 
-    SpectraWidgetSettingsDialog settings_dialog = new SpectraWidgetSettingsDialog();
-    settings_dialog.exec();
-    if (settings_dialog.isAccepted())
+    SpectraWidgetSettingsDialog *settings_dialog = new SpectraWidgetSettingsDialog();
+    settings_dialog->exec();
+    if (settings_dialog->isAccepted())
     {
         _spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
 

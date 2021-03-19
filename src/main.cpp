@@ -118,9 +118,9 @@ int main(int argc, char** argv)
 			return app.exec();
 		}
 	}
-
+#if defined _WIN32 || defined __CYGWIN__
 	FreeConsole();
-
+#endif
 	// Startup application
 	uProbeX* widget = new uProbeX(nullptr);
 	//widget->setAttribute(Qt::WA_DeleteOnClose);
