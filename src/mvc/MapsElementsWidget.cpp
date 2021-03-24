@@ -601,6 +601,7 @@ void MapsElementsWidget::model_updated()
     element_lines.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
     element_lines.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
     element_lines.push_back(STR_NUM_ITR);
+    element_lines.push_back(STR_RESIDUAL);
 
     data_struct::Fit_Count_Dict* element_counts = _model->getAnalyzedCounts(current_a);
 

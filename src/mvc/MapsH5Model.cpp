@@ -1151,8 +1151,8 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
 
-    // TODO: load max 10 
-	fit_int_spec_dset_id = H5Dopen(sub_grp_id, "Fitted_Integrated_Spectra", H5P_DEFAULT);
+    
+	fit_int_spec_dset_id = H5Dopen(sub_grp_id, STR_FIT_INT_SPEC.c_str(), H5P_DEFAULT);
 	if (fit_int_spec_dset_id > -1)
 	{
 		hid_t dataspace_id = H5Dget_space(fit_int_spec_dset_id);
@@ -1183,6 +1183,36 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 		}
 	}
 	
+    fit_int_spec_dset_id = H5Dopen(sub_grp_id, STR_FIT_INT_BACKGROUND.c_str(), H5P_DEFAULT);
+	if (fit_int_spec_dset_id > -1)
+	{
+		hid_t dataspace_id = H5Dget_space(fit_int_spec_dset_id);
+		int rank = H5Sget_simple_extent_ndims(dataspace_id);
+		if (rank == 1)
+		{
+			hsize_t dims_in[1] = { 0 };
+			int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+			if (status_n > -1)
+			{
+				for (int i = 0; i < rank; i++)
+				{
+					offset[i] = 0;
+					count[i] = dims_in[i];
+				}
+
+				data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+
+				count[0] = dims_in[0];
+
+				memoryspace_id = H5Screate_simple(1, count, nullptr);
+				H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+				_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+			}
+		}
+	}
 
 
 
