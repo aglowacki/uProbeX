@@ -256,7 +256,7 @@ void  FittingDialog::_updateGUIOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt = _optimizer->get_options();
+        unordered_map<string, real_t> opt = _optimizer->get_options();
         if (opt.count(STR_OPT_FTOL) > 0)
         {
             _opt_ftol->setValue(opt.at(STR_OPT_FTOL));
@@ -298,7 +298,7 @@ void  FittingDialog::_updateOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt;
+        unordered_map<string, real_t> opt;
         opt[STR_OPT_FTOL] = _opt_ftol->value();
         opt[STR_OPT_XTOL] = _opt_xtol->value();
         opt[STR_OPT_GTOL] = _opt_gtol->value();
