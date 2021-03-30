@@ -212,7 +212,7 @@ bool MapsH5Model::load(QString filepath)
 
         //logW<<" MapsH5Model loading "<< filepath.toStdString() << "\n";
 
-        hid_t    file_id, dset_id, dataspace_id, maps_grp_id, memoryspace_id;
+        hid_t    file_id, dset_id, dataspace_id, maps_grp_id, memoryspace_id, analyzed_grp_id;
         herr_t   error;
         //hsize_t offset[1] = {0};
         hsize_t count[1] = {1};
@@ -232,6 +232,18 @@ bool MapsH5Model::load(QString filepath)
             return false;
         }
 
+        analyzed_grp_id = H5Gopen(maps_grp_id, "XRF_Analyzed", H5P_DEFAULT);
+        if (analyzed_grp_id < 0)
+        {
+            _version = 9.0;
+            logI << "/MAPS/XRF_Analyzed not found. Attempting to open V9 layout";
+        }
+        else
+        {
+            _version = 10.0;
+        }
+
+        /*
         dset_id = H5Dopen2(maps_grp_id, "version", H5P_DEFAULT);
         if(dset_id < 0)
         {
@@ -245,12 +257,12 @@ bool MapsH5Model::load(QString filepath)
         memoryspace_id = H5Screate_simple(1, count, nullptr);
 
         error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&_version);
-
+        
         if(error != 0)
         {
             return false;
         }
-
+        */
         if(_version < 10.0)
         {
             _is_fully_loaded = _load_version_9(maps_grp_id);
@@ -437,7 +449,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
     counts_dset_id = H5Dopen(maps_grp_id, "scalers", H5P_DEFAULT);
     if (counts_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/scalers";
+        logW << "Error opening group /MAPS/scalers\n";
         return false;
     }
     counts_dspace_id = H5Dget_space(counts_dset_id);
@@ -447,7 +459,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
     {
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
-        logW << "Error opening group /MAPS/scaler_names";
+        logW << "Error opening group /MAPS/scaler_names\n";
         return false;
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
@@ -456,7 +468,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
     if (rank != 3)
     {
-        logW << "Error getting rank for /MAPS/scalers";
+        logW << "Error getting rank for /MAPS/scalers\n";
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
@@ -551,7 +563,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     counts_dset_id = H5Dopen(maps_grp_id, "int_spec", H5P_DEFAULT);
     if(counts_dset_id < 0)
     {
-        logW<<"Error opening group /MAPS/int_spec";
+        logW<<"Error opening group /MAPS/int_spec\n";
         return false;
     }
     counts_dspace_id = H5Dget_space(counts_dset_id);
@@ -559,7 +571,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
     if (rank != 1)
     {
-        logW<<"Error opening group /MAPS/int_spec";
+        logW<<"Error opening group /MAPS/int_spec\n";
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
@@ -682,7 +694,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     counts_dset_id = H5Dopen(analyzed_grp_id, group_name.c_str(), H5P_DEFAULT);
     if(counts_dset_id < 0)
     {
-        logW<<"Error opening group /MAPS/"<<group_name.c_str();
+        logW<<"Error opening group /MAPS/"<<group_name.c_str()<<"\n";
         return false;
     }
     counts_dspace_id = H5Dget_space(counts_dset_id);
@@ -692,7 +704,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     {
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
-        logW<<"Error opening group /MAPS/"<<group_name.c_str();
+        logW<<"Error opening group /MAPS/"<<group_name.c_str() << "\n";
         return false;
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
@@ -700,7 +712,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
     if (rank != 3)
     {
-        logW<<"Error opening group /MAPS/"<<group_name.c_str();
+        logW<<"Error opening group /MAPS/"<<group_name.c_str() << "\n";
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
@@ -982,7 +994,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     sub_grp_id = H5Gopen(maps_grp_id, "Scalers", H5P_DEFAULT);
     if (sub_grp_id < 0)
     {
-        logW << "Error opening group /MAPS/Scalers";
+        logW << "Error opening group /MAPS/Scalers\n";
         return false;
     }
 
@@ -990,7 +1002,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     if (counts_dset_id < 0)
     {
         H5Gclose(sub_grp_id);
-        logW << "Error opening group /MAPS/Scalers/Values";
+        logW << "Error opening group /MAPS/Scalers/Values\n";
         return false;
     }
     counts_dspace_id = H5Dget_space(counts_dset_id);
@@ -1001,7 +1013,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
         H5Gclose(sub_grp_id);
-        logW << "Error opening group /MAPS/Scalers/Names";
+        logW << "Error opening group /MAPS/Scalers/Names\n";
         return false;
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
@@ -1010,7 +1022,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
     if (rank != 3)
     {
-        logW << "Error getting rank for /MAPS/Scalers/Values";
+        logW << "Error getting rank for /MAPS/Scalers/Values\n";
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
@@ -1096,7 +1108,7 @@ bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
     analyzed_grp_id = H5Gopen(maps_grp_id, "XRF_Analyzed", H5P_DEFAULT);
     if(analyzed_grp_id < 0)
     {
-        logW<<"Error opening group /MAPS/XRF_Analyzed";
+        logW<<"Error opening group /MAPS/XRF_Analyzed\n";
         return false;
     }
 
@@ -1127,7 +1139,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     sub_grp_id = H5Gopen(analyzed_grp_id, group_name.c_str(), H5P_DEFAULT);
     if(sub_grp_id < 0)
     {
-        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str();
+        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str() << "\n";
         return false;
     }
 
@@ -1135,7 +1147,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     if(counts_dset_id < 0)
     {
         H5Gclose(sub_grp_id);
-        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Counts_Per_Sec";
+        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Counts_Per_Sec\n";
         return false;
     }
     counts_dspace_id = H5Dget_space(counts_dset_id);
@@ -1146,7 +1158,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
         H5Gclose(sub_grp_id);
-        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Channel_Names";
+        logW<<"Error opening group /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Channel_Names\n";
         return false;
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
@@ -1219,7 +1231,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
     if (rank != 3)
     {
-        logW<<"Error getting rank for  /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Channel_Names";
+        logW<<"Error getting rank for  /MAPS/XRF_Analyzed/"<<group_name.c_str()<<"/Channel_Names\n";
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
