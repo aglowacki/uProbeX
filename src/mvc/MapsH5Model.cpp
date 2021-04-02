@@ -1091,6 +1091,97 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 {
+    hid_t dset_id;
+    hid_t memoryspace_id, error;
+    hsize_t offset[1] = { 0,};
+    hsize_t count[1] = { 1 };
+
+    string max_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX_CHANNELS_INT_SPEC;
+    string max_10_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX10_INT_SPEC;
+
+    dset_id = H5Dopen(file_id, max_path.c_str(), H5P_DEFAULT);
+    if (dset_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(dset_id);
+        int rank = H5Sget_simple_extent_ndims(dataspace_id);
+        if (rank == 1)
+        {
+            hsize_t dims_in[1] = { 0 };
+            int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+            if (status_n > -1)
+            {
+                for (int i = 0; i < rank; i++)
+                {
+                    offset[i] = 0;
+                    count[i] = dims_in[i];
+                }
+
+                data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+
+                count[0] = dims_in[0];
+
+                memoryspace_id = H5Screate_simple(1, count, nullptr);
+                H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+                error = H5Dread(dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                if (error > -1)
+                {
+                    _fit_int_spec_dict.insert({ "Max_Channels", spectra });
+
+                }
+                else
+                {
+                    delete spectra;
+                }
+                H5Sclose(memoryspace_id);
+            }
+        }
+        H5Sclose(dataspace_id);
+        H5Dclose(dset_id);
+    }
+
+    dset_id = H5Dopen(file_id, max_10_path.c_str(), H5P_DEFAULT);
+    if (dset_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(dset_id);
+        int rank = H5Sget_simple_extent_ndims(dataspace_id);
+        if (rank == 1)
+        {
+            hsize_t dims_in[1] = { 0 };
+            int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+            if (status_n > -1)
+            {
+                for (int i = 0; i < rank; i++)
+                {
+                    offset[i] = 0;
+                    count[i] = dims_in[i];
+                }
+
+                data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+
+                count[0] = dims_in[0];
+
+                memoryspace_id = H5Screate_simple(1, count, nullptr);
+                H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+                error = H5Dread(dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                if (error > -1)
+                {
+                    _fit_int_spec_dict.insert({ "Max_10_Channels", spectra });
+
+                }
+                else
+                {
+                    delete spectra;
+                }
+                H5Sclose(memoryspace_id);
+            }
+        }
+        H5Sclose(dataspace_id);
+        H5Dclose(dset_id);
+    }
 
     return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(_filepath.toStdString(), &_integrated_spectra);
 
