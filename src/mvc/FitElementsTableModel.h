@@ -31,10 +31,9 @@ public:
     */
    enum HEADERS {
       SYMBOL,
-   //   CENTER,
-//      WIDTH,
-//      WIDTH_MULTI,
       COUNTS,
+      RATIO_MULTI,
+      RATIO,
       NUM_PROPS
    };
 
@@ -170,9 +169,11 @@ private:
            itemData.push_back(QVariant(symb.c_str()));
            //count
            itemData.push_back(QVariant(0.0));
+           itemData.push_back(QVariant(" "));
+           itemData.push_back(QVariant(" "));
 
            TreeItem* child;
-
+           /*
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Center"));
            child->itemData.push_back(QVariant(element->center()));
@@ -183,7 +184,7 @@ private:
            child->itemData.push_back(QVariant(element->width()));
            child->itemData.push_back(QVariant(element->width_multi()));
            childItems.push_back(child);
-
+           */
            //child = new TreeItem(this, true);
            //child->itemData.push_back(QVariant("Width Multiplier"));
            //child->itemData.push_back(QVariant(element->width_multi()));
@@ -197,8 +198,7 @@ private:
                 child->itemData.push_back(QVariant(QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str())));
                 child->itemData.push_back(QVariant(itr.energy));
                 child->itemData.push_back(QVariant(multi_vec[i]));
-                //child->itemData.push_back(QVariant(itr.mu_fraction));
-                //child->itemData.push_back(QVariant(itr.ratio));
+                child->itemData.push_back(QVariant(itr.ratio));
                 childItems.push_back(child);
                 i++;
             }

@@ -11,10 +11,9 @@ FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractItemMod
 {
     // Initialize header data
     m_headers[HEADERS::SYMBOL] = tr("Symbol");
-   // m_headers[HEADERS::CENTER] = tr("Center");
-    //m_headers[HEADERS::WIDTH] = tr("Width");
-    //m_headers[HEADERS::WIDTH_MULTI] = tr("Width Multiplier");
     m_headers[HEADERS::COUNTS] = tr("Counts");
+    m_headers[HEADERS::RATIO_MULTI] = tr("Multiplier");
+    m_headers[HEADERS::RATIO] = tr("Ratio");
 }
 
 /*---------------------------------------------------------------------------*/
