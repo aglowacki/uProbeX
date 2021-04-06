@@ -399,22 +399,11 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 	}
 	_element_lines.clear();
 
-    float line_min = 0;
+    float line_min = 0.1;
     float line_max = 9999;
-    //QAbstractAxis doesn't support max and min so we have to cast
-    if(_display_log10)
-    {
-        line_min = std::max(0.0, ((QtCharts::QLogValueAxis*)_currentYAxis)->min());
-        line_max = ((QtCharts::QLogValueAxis*)_currentYAxis)->max();
-    }
-    else
-    {
-        line_min = std::max(0.0, ((QtCharts::QValueAxis*)_currentYAxis)->min());
-        line_max = ((QtCharts::QValueAxis*)_currentYAxis)->max();
-    }
 
-
-
+    line_min = std::max(0.1, ((QtCharts::QValueAxis*)_currentYAxis)->min());
+    line_max = ((QtCharts::QValueAxis*)_currentYAxis)->max();
 
     if(element != nullptr)
     {
@@ -424,14 +413,24 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
         {
             QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
             line->append(itr.energy, line_min);
-            float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
+            //float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
+            float line_ratio = itr.ratio;
 			if (itr.ratio == 0)
 			{
 				line->append(itr.energy, (line_min));
 			}
 			else
 			{
-				line->append(itr.energy, (line_max * line_ratio));
+                float line_height = 1.0;
+                if (_display_log10)
+                {
+                    line_height = pow(10.0, (log10(line_max) * line_ratio) );
+                }
+                else
+                {
+                    line_height = line_max * line_ratio;
+                }
+				line->append(itr.energy, line_height);
 			}
 			QString eName = QString(element->full_name().c_str());
             eName = QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str());

@@ -107,6 +107,8 @@ public slots:
 
    void on_export_csv();
 
+   void on_braching_ratio_update(data_struct::Fit_Element_Map* element);
+
 protected:
 
    SpectraWidget* _spectra_widget;

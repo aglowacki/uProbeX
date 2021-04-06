@@ -42,7 +42,7 @@ public:
     *
     * @param parent - parent Qt widget
     */
-   FitElementsTableModel(QObject* parent = 0);
+   FitElementsTableModel(std::string detector_element, QObject* parent = 0);
 
    ~FitElementsTableModel();
 
@@ -129,6 +129,9 @@ public:
                       int role = Qt::EditRole);
 
    void appendElement(data_struct::Fit_Element_Map* element);
+
+signals:
+   void braching_ratio_changed(data_struct::Fit_Element_Map* element);
 
 public slots:
    void update_counts_log10(bool is_log10);
@@ -306,6 +309,8 @@ private:
    std::vector<int> _row_indicies;
    //indexed by Z
    std::map<int, TreeItem*> _nodes;
+
+   std::string _detector_element;
 
 };
 
