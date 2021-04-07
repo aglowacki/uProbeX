@@ -55,8 +55,7 @@
 #define STR_COLORMAP "ColorMap"
 #define STR_COLORMAP_GRAY "Grayscale"
 #define STR_COLORMAP_HEAT "Heatmap"
-
-
+#define STR_RECENT_MAPS_WORKSPACES "Recent_MAPS_Workspaces"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

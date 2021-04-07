@@ -201,6 +201,10 @@ void uProbeX::createMenuBar()
     m_menuFile = new QMenu(tr("File"));
     action = m_menuFile->addAction("Open Maps Workspace");
     connect(action, SIGNAL(triggered()), this, SLOT(openMapsWorkspace()));
+
+    _recentWorkspaceMenu = m_menuFile->addMenu("Open Recent Workspace");
+    updateRecentMapsWorkspaces();
+
     m_menuFile->addSeparator();
     action = m_menuFile->addAction("Open SWS Workspace");
     connect(action, SIGNAL(triggered()), this, SLOT(openSWSFile()));
@@ -616,12 +620,42 @@ void uProbeX::openSWSFile()
 
 }
 
+void uProbeX::updateRecentMapsWorkspaces()
+{
+    _recentWorkspaceMenu->clear();
+
+    QStringList recentPaths = Preferences::inst()->getValue(STR_RECENT_MAPS_WORKSPACES).toStringList();
+    foreach(QString path, recentPaths)
+    {
+        QAction* action = _recentWorkspaceMenu->addAction(path);
+        connect(action, &QAction::triggered, this, &uProbeX::openRecentMapsWorkspace);
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::openMapsWorkspace()
 {
 
     QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
+
+    openMapsWorkspace(dirName);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::openRecentMapsWorkspace()
+{
+    QAction* act = qobject_cast<QAction*>(sender());
+    QVariant v = act->text();
+    openMapsWorkspace(v.toString());
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::openMapsWorkspace(QString dirName)
+{
 
     // Dialog returns a nullptr string if user press cancel.
     if (dirName.isNull() || dirName.isEmpty()) return;
@@ -630,7 +664,19 @@ void uProbeX::openMapsWorkspace()
     dir.mkdir("img.dat");
     dir.mkdir("output");
 
-    MapsWorkspaceController *mapsWorkspaceController = new MapsWorkspaceController(this);
+    QStringList recentPaths = Preferences::inst()->getValue(STR_RECENT_MAPS_WORKSPACES).toStringList();
+    recentPaths.removeAll(dirName);
+    recentPaths.prepend(dirName);
+    while (recentPaths.size() > 20)
+    {
+        recentPaths.removeLast();
+    }
+    
+    Preferences::inst()->setValue(STR_RECENT_MAPS_WORKSPACES, recentPaths);
+    Preferences::inst()->save();
+    updateRecentMapsWorkspaces();
+
+    MapsWorkspaceController* mapsWorkspaceController = new MapsWorkspaceController(this);
     connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
 
     mapsWorkspaceController->setWorkingDir(dirName);
