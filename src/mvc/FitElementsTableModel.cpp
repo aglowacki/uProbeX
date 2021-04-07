@@ -336,12 +336,13 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
     TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
     if(node->parentItem == nullptr)
     {
-        if(index.column() == NUM_PROPS-1)
+        if(index.column() == HEADERS::COUNTS)
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
     else
     {
-        if(index.column() > 0 && node->props_editable)
+        //if(index.column() > 0 && node->props_editable)
+        if (index.column() == HEADERS::RATIO_MULTI)
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
 
