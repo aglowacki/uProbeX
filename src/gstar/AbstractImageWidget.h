@@ -11,17 +11,14 @@
 #include <QWidget>
 
 #include "gstar/AnnotationTreeModel.h"
-
-namespace gstar
-{
-   class AbstractGraphicsItem;
-   class AnnotationToolBarWidget;
-   class Array;
-   class ImageViewWidget;
-   class ImageViewToolBar;
-   class RangeWidget;
-   class CoordinateModel;
-}
+#include "gstar/Annotation/AbstractGraphicsItem.h"
+#include "gstar/Annotation/MarkerGraphicsItem.h"
+#include "gstar/Annotation/RulerGraphicsItem.h"
+#include "gstar/AnnotationToolBarWidget.h"
+#include "gstar/ImageViewWidget.h"
+#include "gstar/ImageViewToolBar.h"
+#include "gstar/RangeWidget.h"
+#include "gstar/RulerUnitsDialog.h"
 
 class QAbstractTableModel;
 class QComboBox;
@@ -267,11 +264,6 @@ protected:
    virtual void createToolBar(ImageViewWidget* imageViewWidget);
 
    /**
-    * Create tool bar
-    */
-   virtual void createScanToolBar();
-
-   /**
     * @brief createAnnotationToolBar
     */
    void createAnnotationToolBar();
@@ -359,11 +351,6 @@ protected:
     * Toolbar contains action for manipulating image settings such as zoom.
     */
    ImageViewToolBar* m_imageWidgetToolBar;
-
-   /**
-    * Toolbar contains action for manipulating image settings such as zoom.
-    */
-   ImageViewToolBar* m_imageScanToolBar;
 
    /**
     * Widget for viewing/manipulating image

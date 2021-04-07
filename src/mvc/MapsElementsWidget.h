@@ -18,6 +18,7 @@
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
+#include "preferences/Preferences.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;

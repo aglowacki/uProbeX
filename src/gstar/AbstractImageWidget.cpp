@@ -5,15 +5,6 @@
 
 #include "gstar/AbstractImageWidget.h"
 
-#include "gstar/Annotation/AbstractGraphicsItem.h"
-#include "gstar/Annotation/MarkerGraphicsItem.h"
-#include "gstar/Annotation/RulerGraphicsItem.h"
-#include "gstar/AnnotationToolBarWidget.h"
-#include "gstar/ImageViewWidget.h"
-#include "gstar/ImageViewToolBar.h"
-#include "gstar/RangeWidget.h"
-#include "gstar/RulerUnitsDialog.h"
-
 #include <QAction>
 #include <QActionGroup>
 #include <QColorDialog>
@@ -227,22 +218,6 @@ void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget)
    m_imageWidthDimAction = m_toolbar -> addWidget(m_imageWidthDim);
    m_labelHeightAction = m_toolbar -> addWidget(new QLabel(" Height :"));
    m_imageHeightDimAction = m_toolbar -> addWidget(m_imageHeightDim);
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void AbstractImageWidget::createScanToolBar()
-{
-
-//   m_scanToolbar = new QToolBar(this);
-//   m_scanToolbar->setFloatable(false);
-//   m_scanToolbar->setMovable(false);
-
-//   m_imageScanToolBar = new ImageViewToolBar(m_imageViewWidget);
-
-
-//   m_scanToolbar->addWidget(m_imageScanToolBar->getToolBar());
 
 }
 

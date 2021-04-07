@@ -116,8 +116,8 @@ void MapsElementsWidget::_createLayout()
 
 
 	_cb_colormap = new QComboBox();
-	_cb_colormap->addItem("Grayscale");
-	_cb_colormap->addItem("Heatmap");
+	_cb_colormap->addItem(STR_COLORMAP_GRAY);
+	_cb_colormap->addItem(STR_COLORMAP_HEAT);
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
@@ -161,6 +161,21 @@ void MapsElementsWidget::_createLayout()
 
     createActions();
 
+    int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
+    int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
+    if (rows < 1)
+        rows = 1;
+    if (cols < 1)
+        cols = 1;
+    onNewGridLayout(rows, cols);
+
+    QString colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
+    if (colormap.length() > 0)
+    {
+        _cb_colormap->setCurrentText(colormap);
+    }
+    //onColormapSelect(colormap);
+
     setLayout(layout);
 
 }
@@ -183,6 +198,9 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     model_updated();
     m_imageViewWidget->restoreLabels(element_view_list);
     redrawCounts();
+    Preferences::inst()->setValue(STR_GRID_ROWS,rows);
+    Preferences::inst()->setValue(STR_GRID_COLS,cols);
+    Preferences::inst()->save();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -307,18 +325,21 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::onColormapSelect(QString name)
+void MapsElementsWidget::onColormapSelect(QString colormap)
 {
-    QString colormap = _cb_colormap->currentText();
-	if(colormap == "Grayscale")
+	if(colormap == STR_COLORMAP_GRAY)
 	{
 		_selected_colormap = &_gray_colormap;
+        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
 	}
-	else
+	else if(colormap == STR_COLORMAP_HEAT)
 	{
 		_selected_colormap = &_heat_colormap;
+        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_HEAT);
 	}
 	redrawCounts();
+    
+    Preferences::inst()->save();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -386,6 +407,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         }
+        m_imageWidgetToolBar->clickFill();
     }
 }
 
@@ -568,7 +590,6 @@ void MapsElementsWidget::model_updated()
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
-    //m_imageWidgetToolBar->clearImageViewWidget();
     bool found_analysis = false;
     for(auto& itr: analysis_types)
     {
