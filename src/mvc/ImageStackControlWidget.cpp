@@ -48,6 +48,8 @@ void ImageStackControlWidget::createLayout()
 	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
 	_sws_widget = new SWSWidget();
+	connect(_sws_widget, &SWSWidget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
+
 	_mda_widget = new MDA_Widget();
 
 	_mapsFilsWidget = new MapsWorkspaceFilesWidget();
@@ -103,7 +105,6 @@ void ImageStackControlWidget::createLayout()
 	mainLayout->addWidget(splitter);
 	mainLayout->addWidget(_load_progress);
 	
-
 	//_imageGrid->hide();
 	_sws_widget->hide();
 	_mda_widget->hide();
@@ -279,6 +280,28 @@ void ImageStackControlWidget::update_file_list()
 		_mapsFilsWidget->updatedHDF();
 		_mapsFilsWidget->updatedVLM();
 	} 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString sws_file_path, QImage image)
+{
+	if (_model != nullptr)
+	{
+		map<QString, QFileInfo> raw_file_map = _model->get_raw_file_list();
+		QStringList raw_file_list;
+		for (auto& itr : raw_file_map)
+		{
+			raw_file_list.append(itr.first);
+		}
+		//TODO: display dialog with raw dataset names for user to select one to link to.
+		/*
+		_raw_list_widget->clear();
+		_raw_list_widget->addItems(raw_file_list);
+		
+		_raw_file_dialog.show();
+		*/
+	}
 }
 
 /*---------------------------------------------------------------------------*/

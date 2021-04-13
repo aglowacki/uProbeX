@@ -178,8 +178,11 @@ int PreferencesSolverOption::getCheckedID()
 
 QStringList PreferencesSolverOption::getNMCoefficientAttrs()
 {
-
-   return m_NMSolverWidget->getCoefficientAttrs();
+    if (m_NMSolverWidget != nullptr)
+    {
+        return m_NMSolverWidget->getCoefficientAttrs();
+    }
+    return QStringList();
 
 }
 
@@ -187,9 +190,11 @@ QStringList PreferencesSolverOption::getNMCoefficientAttrs()
 
 QStringList PreferencesSolverOption::getNMOptionAttrs()
 {
-
-   return m_NMSolverWidget->getOptionAttrs();
-
+    if (m_NMSolverWidget != nullptr)
+    {
+         return m_NMSolverWidget->getOptionAttrs();
+    }
+    return QStringList();
 }
 
 /*---------------------------------------------------------------------------*/

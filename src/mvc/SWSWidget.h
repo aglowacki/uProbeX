@@ -279,6 +279,8 @@ protected slots:
     */
    void useUpdatedSolverVariables(const QMap<QString, double> vars);
 
+   void linkRegionToDataset();
+
 protected:
 
    /**
@@ -378,6 +380,8 @@ signals:
     */
    void cancelSolverVariableUpdate();
 
+   void onLinkRegionToDataset(QString, QString, QImage);
+
 private:     
 
    /**
@@ -453,6 +457,8 @@ private:
     * @brief m_exportMicroProbeRegionInfoAction
     */
    QAction* m_exportMicroProbeRegionInfoAction;
+
+   QAction* _linkRegionToDatasetAction;
 
    ///**
    // * @brief m_markersLoaded

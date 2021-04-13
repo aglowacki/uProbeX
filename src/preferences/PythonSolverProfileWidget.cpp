@@ -23,6 +23,7 @@ PythonSolverProfileWidget::PythonSolverProfileWidget(QWidget* parent) : QDialog(
    m_currentProfileIndex = 0;
     m_coordPoints = nullptr;
     m_solverWidget = nullptr;
+    m_solver = nullptr;
    createCompontent();
 
    createLayOut();
