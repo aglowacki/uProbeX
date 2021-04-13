@@ -7,14 +7,14 @@
 
 /*---------------------------------------------------------------------------*/
 
-FitElementsTableModel::FitElementsTableModel(QObject* parent) : QAbstractItemModel(parent)
+FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObject* parent) : QAbstractItemModel(parent)
 {
     // Initialize header data
     m_headers[HEADERS::SYMBOL] = tr("Symbol");
-   // m_headers[HEADERS::CENTER] = tr("Center");
-    //m_headers[HEADERS::WIDTH] = tr("Width");
-    //m_headers[HEADERS::WIDTH_MULTI] = tr("Width Multiplier");
     m_headers[HEADERS::COUNTS] = tr("Counts");
+    m_headers[HEADERS::RATIO_MULTI] = tr("Multiplier");
+    m_headers[HEADERS::RATIO] = tr("Ratio");
+    _detector_element = detector_element;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -66,6 +66,20 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 void FitElementsTableModel::update_counts_log10(bool is_log10)
 {
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+data_struct::Fit_Element_Map_Dict FitElementsTableModel::getElementsToFit()
+{
+	data_struct::Fit_Element_Map_Dict elements_to_fit;
+	for (auto& itr : _nodes)
+	{
+		TreeItem* node = itr.second;
+		data_struct::Fit_Element_Map *element = node->element_data;
+		elements_to_fit[element->full_name()] = element;
+	}
+	return elements_to_fit;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -336,12 +350,13 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
     TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
     if(node->parentItem == nullptr)
     {
-        if(index.column() == NUM_PROPS-1)
+        if(index.column() == HEADERS::COUNTS)
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
     else
     {
-        if(index.column() > 0 && node->props_editable)
+        //if(index.column() > 0 && node->props_editable)
+        if (index.column() == HEADERS::RATIO_MULTI)
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
 
@@ -510,10 +525,26 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
         {
             if(node->itemData.count() > index.column())
             {
-                node->itemData[index.column()] = value;
+                if (index.column() == RATIO_MULTI)
+                {
+                    node->itemData[index.column()] = value;
+                    if (node->parentItem != nullptr)
+                    {
+                        if (node->parentItem->element_data != nullptr)
+                        {
+                            node->parentItem->element_data->set_custom_multiply_ratio(index.row(), value.toFloat());
+                            node->parentItem->element_data->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
+                            auto ratio_vec = node->parentItem->element_data->energy_ratios();
+                            if (index.row() > 0 && index.row() < ratio_vec.size())
+                            {
+                                node->itemData[RATIO] = QVariant(ratio_vec[index.row()].ratio);
+                            }
+                            emit (braching_ratio_changed(node->parentItem->element_data));
+                        }
+                    }
+                }
             }
         }
-
     }
     // Emit dataChanged signal
     emit(dataChanged(index, index));

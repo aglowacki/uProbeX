@@ -18,6 +18,7 @@
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
+#include "preferences/Preferences.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -82,7 +83,7 @@ public slots:
 
    void onNewGridLayout(int rows, int cols);
 
-   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit);
 
    void onSelectNormalizer(QString name);
 

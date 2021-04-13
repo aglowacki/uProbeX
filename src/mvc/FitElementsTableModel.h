@@ -31,10 +31,9 @@ public:
     */
    enum HEADERS {
       SYMBOL,
-   //   CENTER,
-//      WIDTH,
-//      WIDTH_MULTI,
       COUNTS,
+      RATIO_MULTI,
+      RATIO,
       NUM_PROPS
    };
 
@@ -43,11 +42,13 @@ public:
     *
     * @param parent - parent Qt widget
     */
-   FitElementsTableModel(QObject* parent = 0);
+   FitElementsTableModel(std::string detector_element, QObject* parent = 0);
 
    ~FitElementsTableModel();
 
    void setDisplayHeaderMinMax(bool val);
+   
+   data_struct::Fit_Element_Map_Dict getElementsToFit();
 
    data_struct::Fit_Parameters getAsFitParams();
 
@@ -131,6 +132,9 @@ public:
 
    void appendElement(data_struct::Fit_Element_Map* element);
 
+signals:
+   void braching_ratio_changed(data_struct::Fit_Element_Map* element);
+
 public slots:
    void update_counts_log10(bool is_log10);
 
@@ -170,9 +174,11 @@ private:
            itemData.push_back(QVariant(symb.c_str()));
            //count
            itemData.push_back(QVariant(0.0));
+           itemData.push_back(QVariant(" "));
+           itemData.push_back(QVariant(" "));
 
            TreeItem* child;
-
+           /*
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Center"));
            child->itemData.push_back(QVariant(element->center()));
@@ -183,7 +189,7 @@ private:
            child->itemData.push_back(QVariant(element->width()));
            child->itemData.push_back(QVariant(element->width_multi()));
            childItems.push_back(child);
-
+           */
            //child = new TreeItem(this, true);
            //child->itemData.push_back(QVariant("Width Multiplier"));
            //child->itemData.push_back(QVariant(element->width_multi()));
@@ -197,8 +203,7 @@ private:
                 child->itemData.push_back(QVariant(QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str())));
                 child->itemData.push_back(QVariant(itr.energy));
                 child->itemData.push_back(QVariant(multi_vec[i]));
-                //child->itemData.push_back(QVariant(itr.mu_fraction));
-                //child->itemData.push_back(QVariant(itr.ratio));
+                child->itemData.push_back(QVariant(itr.ratio));
                 childItems.push_back(child);
                 i++;
             }
@@ -306,6 +311,8 @@ private:
    std::vector<int> _row_indicies;
    //indexed by Z
    std::map<int, TreeItem*> _nodes;
+
+   std::string _detector_element;
 
 };
 

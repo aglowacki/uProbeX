@@ -128,6 +128,12 @@ private slots:
     */
    void openMapsWorkspace();
 
+   void openRecentMapsWorkspace();
+
+   void openMapsWorkspace(QString dirName);
+
+   void updateRecentMapsWorkspaces();
+
    /**
     * @brief openHDFFile
     */
@@ -254,6 +260,8 @@ private:
     * @brief Menu bar
     */
    QMenuBar* m_menu;
+
+   QMenu* _recentWorkspaceMenu;
 
    /**
     * @brief File menu

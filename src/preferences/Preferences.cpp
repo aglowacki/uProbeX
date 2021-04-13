@@ -55,7 +55,9 @@ Preferences::Preferences()
         {STR_PRF_LastIP, QVariant()},
         {STR_PRF_LastPort, QVariant()},
         {STR_PFR_LOG_10, QVariant(true)},
-        {STR_PFR_DETAILED_FIT_SPEC, QVariant()}
+        {STR_PFR_DETAILED_FIT_SPEC, QVariant()},
+        {STR_GRID_ROWS, QVariant()},
+        {STR_GRID_COLS, QVariant()}
     };
    load();
 }

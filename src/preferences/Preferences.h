@@ -50,6 +50,12 @@
 #define STR_PRF_LastPort "LastPort"
 #define STR_PFR_LOG_10 "Log10YAxis"
 #define STR_PFR_DETAILED_FIT_SPEC "DetailedFitSpectra"
+#define STR_GRID_ROWS "GridRows"
+#define STR_GRID_COLS "GridCols"
+#define STR_COLORMAP "ColorMap"
+#define STR_COLORMAP_GRAY "Grayscale"
+#define STR_COLORMAP_HEAT "Heatmap"
+#define STR_RECENT_MAPS_WORKSPACES "Recent_MAPS_Workspaces"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

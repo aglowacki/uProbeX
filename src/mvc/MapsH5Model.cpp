@@ -272,9 +272,9 @@ bool MapsH5Model::load(QString filepath)
             _is_fully_loaded = _load_version_10(file_id, maps_grp_id);
         }
 
-        H5Sclose(memoryspace_id);
-        H5Sclose(dataspace_id);
-        H5Dclose(dset_id);
+        //H5Sclose(memoryspace_id);
+        //H5Sclose(dataspace_id);
+        //H5Dclose(dset_id);
         H5Gclose(maps_grp_id);
         H5Fclose(file_id);
 

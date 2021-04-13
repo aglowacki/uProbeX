@@ -116,8 +116,8 @@ void MapsElementsWidget::_createLayout()
 
 
 	_cb_colormap = new QComboBox();
-	_cb_colormap->addItem("Grayscale");
-	_cb_colormap->addItem("Heatmap");
+	_cb_colormap->addItem(STR_COLORMAP_GRAY);
+	_cb_colormap->addItem(STR_COLORMAP_HEAT);
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
@@ -161,6 +161,21 @@ void MapsElementsWidget::_createLayout()
 
     createActions();
 
+    int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
+    int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
+    if (rows < 1)
+        rows = 1;
+    if (cols < 1)
+        cols = 1;
+    onNewGridLayout(rows, cols);
+
+    QString colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
+    if (colormap.length() > 0)
+    {
+        _cb_colormap->setCurrentText(colormap);
+    }
+    //onColormapSelect(colormap);
+
     setLayout(layout);
 
 }
@@ -183,6 +198,9 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     model_updated();
     m_imageViewWidget->restoreLabels(element_view_list);
     redrawCounts();
+    Preferences::inst()->setValue(STR_GRID_ROWS,rows);
+    Preferences::inst()->setValue(STR_GRID_COLS,cols);
+    Preferences::inst()->save();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -307,18 +325,21 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::onColormapSelect(QString name)
+void MapsElementsWidget::onColormapSelect(QString colormap)
 {
-    QString colormap = _cb_colormap->currentText();
-	if(colormap == "Grayscale")
+	if(colormap == STR_COLORMAP_GRAY)
 	{
 		_selected_colormap = &_gray_colormap;
+        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
 	}
-	else
+	else if(colormap == STR_COLORMAP_HEAT)
 	{
 		_selected_colormap = &_heat_colormap;
+        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_HEAT);
 	}
 	redrawCounts();
+    
+    Preferences::inst()->save();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -386,6 +407,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         }
+        m_imageWidgetToolBar->clickFill();
     }
 }
 
@@ -462,32 +484,38 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit)
+void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
 {
     if (_model != nullptr)
     {
         
         QString dataset_path = _model->getFilePath();
-        /*
-        QString dataset_name = _model->getDatasetName();
-        QString end_idx = "";
-        if(dataset_name.endsWith("0"))
-        {
-            end_idx = "0";
-        }
-        else if(dataset_name.endsWith("1"))
-        {
-            end_idx = "1";
-        }
-        else if(dataset_name.endsWith("2"))
-        {
-            end_idx = "2";
-        }
-        else if(dataset_name.endsWith("3"))
-        {
-            end_idx = "3";
-        }
-        */
+
+		QStringList path_list = dataset_path.split("img.dat");
+		dataset_path = path_list[0];
+		dataset_path += "maps_fit_parameters_override.txt";
+
+		if (path_list.size() > 1)
+		{
+				QString dataset_leftover = path_list[1];
+				if (dataset_leftover.endsWith("h50"))
+				{
+					dataset_path += "0";
+				}
+				else if (dataset_leftover.endsWith("h51"))
+				{
+					dataset_path += "1";
+				}
+				else if (dataset_leftover.endsWith("h52"))
+				{
+					dataset_path += "2";
+				}
+				else if (dataset_leftover.endsWith("h53"))
+				{
+					dataset_path += "3";
+				}
+		}
+
         data_struct::Params_Override* param_overrides = _model->getParamOverride();
 
         //check if file exists and warn user
@@ -502,7 +530,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
                 param_overrides->elements_to_fit.clear();
                 for (const auto& itr : elements_to_fit)
                 {
-                    param_overrides->elements_to_fit[itr.first] = gen_element_map(itr.first);
+					param_overrides->elements_to_fit[itr.first] = itr.second;
                 }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
                 {
@@ -568,7 +596,6 @@ void MapsElementsWidget::model_updated()
     _cb_analysis->clear();
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
-    //m_imageWidgetToolBar->clearImageViewWidget();
     bool found_analysis = false;
     for(auto& itr: analysis_types)
     {

@@ -139,7 +139,7 @@ void MDA_Widget::model_updated()
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit)
+void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
 {
     unsigned int det = _cb_detector->currentText().toUInt();
     data_struct::Params_Override default_po;
@@ -163,7 +163,8 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
                 po->elements_to_fit.clear();
                 for (const auto& itr : elements_to_fit)
                 {
-                    po->elements_to_fit[itr.first] = gen_element_map(itr.first);
+                    //po->elements_to_fit[itr.first] = gen_element_map(itr.first);
+					po->elements_to_fit[itr.first] = itr.second;
                 }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
                 {

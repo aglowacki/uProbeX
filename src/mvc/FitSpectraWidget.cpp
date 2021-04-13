@@ -123,9 +123,10 @@ void FitSpectraWidget::createLayout()
             this,
             SLOT(fit_params_customMenuRequested(QPoint)));
 
-    _fit_elements_table_model = new FitElementsTableModel();
+    _fit_elements_table_model = new FitElementsTableModel(_detector_element);
 
     connect(_spectra_widget, SIGNAL(y_axis_changed(bool)), _fit_elements_table_model, SLOT(update_counts_log10(bool)));
+    connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
 
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
@@ -244,6 +245,16 @@ void FitSpectraWidget::setParamOverride(data_struct::Params_Override* po)
 
 /*---------------------------------------------------------------------------*/
 
+void FitSpectraWidget::on_braching_ratio_update(data_struct::Fit_Element_Map* element)
+{
+    if (element != nullptr)
+    {
+        _spectra_widget->set_element_lines(element);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::onSettingsDialog()
 {
 
@@ -278,11 +289,12 @@ void FitSpectraWidget::on_export_fit_paramters()
 {
     data_struct::Fit_Parameters fit_params;
     data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-    data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+	data_struct::Fit_Element_Map_Dict element_to_fit = _fit_elements_table_model->getElementsToFit();
+	
     fit_params.append_and_update(&model_fit_params);
-    fit_params.append_and_update(&element_fit_params);
+    //fit_params.append_and_update(&element_fit_params);
 
-    emit export_fit_paramters(fit_params, element_fit_params);
+    emit export_fit_paramters(fit_params, element_to_fit);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -382,7 +394,7 @@ void FitSpectraWidget::add_element()
 			map<int, float> ratios = _param_override->get_custom_factor(el_name.toStdString());
 			for (const auto &itr : ratios)
 			{
-				fit_element->set_custom_multiply_ratio(itr.first, itr.second);
+				fit_element->multiply_custom_multiply_ratio(itr.first, itr.second);
 			}
 		}
 
@@ -782,7 +794,7 @@ void FitSpectraWidget::element_selection_changed(int index)
 		map<int, float> ratios = _param_override->get_custom_factor(full_name.toStdString());
 		for (const auto &itr : ratios)
 		{
-			em.set_custom_multiply_ratio(itr.first, itr.second);
+			em.multiply_custom_multiply_ratio(itr.first, itr.second);
 		}
 	}
 
@@ -846,7 +858,7 @@ void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_
 			map<int, float> ratios = _param_override->get_custom_factor(itr);
 			for (const auto &itr : ratios)
 			{
-				em.set_custom_multiply_ratio(itr.first, itr.second);
+				em.multiply_custom_multiply_ratio(itr.first, itr.second);
 			}
 		}
 
