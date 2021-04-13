@@ -484,32 +484,38 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit)
+void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
 {
     if (_model != nullptr)
     {
         
         QString dataset_path = _model->getFilePath();
-        /*
-        QString dataset_name = _model->getDatasetName();
-        QString end_idx = "";
-        if(dataset_name.endsWith("0"))
-        {
-            end_idx = "0";
-        }
-        else if(dataset_name.endsWith("1"))
-        {
-            end_idx = "1";
-        }
-        else if(dataset_name.endsWith("2"))
-        {
-            end_idx = "2";
-        }
-        else if(dataset_name.endsWith("3"))
-        {
-            end_idx = "3";
-        }
-        */
+
+		QStringList path_list = dataset_path.split("img.dat");
+		dataset_path = path_list[0];
+		dataset_path += "maps_fit_parameters_override.txt";
+
+		if (path_list.size() > 1)
+		{
+				QString dataset_leftover = path_list[1];
+				if (dataset_leftover.endsWith("h50"))
+				{
+					dataset_path += "0";
+				}
+				else if (dataset_leftover.endsWith("h51"))
+				{
+					dataset_path += "1";
+				}
+				else if (dataset_leftover.endsWith("h52"))
+				{
+					dataset_path += "2";
+				}
+				else if (dataset_leftover.endsWith("h53"))
+				{
+					dataset_path += "3";
+				}
+		}
+
         data_struct::Params_Override* param_overrides = _model->getParamOverride();
 
         //check if file exists and warn user
@@ -524,7 +530,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
                 param_overrides->elements_to_fit.clear();
                 for (const auto& itr : elements_to_fit)
                 {
-                    param_overrides->elements_to_fit[itr.first] = gen_element_map(itr.first);
+					param_overrides->elements_to_fit[itr.first] = itr.second;
                 }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
                 {

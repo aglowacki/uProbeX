@@ -46,7 +46,7 @@ public slots:
 
    //void onScalerSelect(const QString& det);
 
-   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
+   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit);
 
 protected:
 

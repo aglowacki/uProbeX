@@ -289,11 +289,12 @@ void FitSpectraWidget::on_export_fit_paramters()
 {
     data_struct::Fit_Parameters fit_params;
     data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
-    data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
+	data_struct::Fit_Element_Map_Dict element_to_fit = _fit_elements_table_model->getElementsToFit();
+	
     fit_params.append_and_update(&model_fit_params);
-    fit_params.append_and_update(&element_fit_params);
+    //fit_params.append_and_update(&element_fit_params);
 
-    emit export_fit_paramters(fit_params, element_fit_params);
+    emit export_fit_paramters(fit_params, element_to_fit);
 }
 
 /*---------------------------------------------------------------------------*/

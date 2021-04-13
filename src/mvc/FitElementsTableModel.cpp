@@ -70,6 +70,20 @@ void FitElementsTableModel::update_counts_log10(bool is_log10)
 
 /*---------------------------------------------------------------------------*/
 
+data_struct::Fit_Element_Map_Dict FitElementsTableModel::getElementsToFit()
+{
+	data_struct::Fit_Element_Map_Dict elements_to_fit;
+	for (auto& itr : _nodes)
+	{
+		TreeItem* node = itr.second;
+		data_struct::Fit_Element_Map *element = node->element_data;
+		elements_to_fit[element->full_name()] = element;
+	}
+	return elements_to_fit;
+}
+
+/*---------------------------------------------------------------------------*/
+
 data_struct::Fit_Parameters FitElementsTableModel::getAsFitParams()
 {
     data_struct::Fit_Parameters fit_params;

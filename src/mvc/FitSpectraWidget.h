@@ -71,7 +71,7 @@ signals:
 
    void vertical_element_line_changed(qreal, QString);
 
-   void export_fit_paramters(data_struct::Fit_Parameters fit_params, data_struct::Fit_Parameters elements_to_fit);
+   void export_fit_paramters(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit);
                                                     //ev                           int spec                  back                 fit              detailed fit
    void export_csv_and_png(QPixmap, data_struct::ArrayXr *, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr> *);
 
