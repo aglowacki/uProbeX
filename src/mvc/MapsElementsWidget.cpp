@@ -398,7 +398,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _spectra_widget->setParamOverride(po);
             }
             disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
-            //_spectra_widget->clearFitIntSpectra();
+            _spectra_widget->clearFitIntSpectra();
+            _spectra_widget->clearROISpectra();
             for (auto& itr : model->_fit_int_spec_dict)
             {
                 _spectra_widget->appendFitIntSpectra(itr.first, itr.second);

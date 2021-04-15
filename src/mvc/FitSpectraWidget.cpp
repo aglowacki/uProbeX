@@ -357,9 +357,34 @@ void FitSpectraWidget::appendFitIntSpectra(string name, data_struct::ArrayXr* sp
     _fit_int_spec_map[name] = spec;
 }
 
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::appendROISpectra(string name, data_struct::ArrayXr* spec)
 {
     _roi_spec_map[name] = spec;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::clearFitIntSpectra()
+{
+    for (auto& itr : _fit_int_spec_map)
+    {
+        QString name = "Fitted_Int_" + QString(itr.first.c_str());
+        _spectra_widget->remove_spectra(name);
+    }
+    _fit_int_spec_map.clear();
+
+}
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::clearROISpectra()
+{
+    for (auto& itr : _roi_spec_map)
+    {
+        _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+    }
+    _roi_spec_map.clear();
 }
 
 /*---------------------------------------------------------------------------*/
