@@ -826,9 +826,9 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
     hid_t grp_id;
     hid_t memoryspace_id, memoryspace_name_id;
     hid_t error;
-    hid_t sr_error;
-    hid_t us_error;
-    hid_t ds_error;
+    hid_t sr_error = -1;
+    hid_t us_error = -1;
+    hid_t ds_error = -1;
     hsize_t offset[2] = { 0,0 };
     hsize_t count[2] = { 1,1 };
     hsize_t offset_name[2] = { 0, 0 };
@@ -845,48 +845,75 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
         logW << "Error opening group /MAPS/" << path << "\n";
         return false;
     }
-    
 
-    sr_dset_id = H5Dopen(grp_id, STR_CALIB_SR_CURRENT.c_str(), H5P_DEFAULT);
+
+    sr_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_SR_CUR.c_str(), H5P_DEFAULT);
     if (sr_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/" << STR_CALIB_SR_CURRENT << "\n";
-        return false;
+        logI << "Error opening group /MAPS/" << STR_CALIB_CURVE_SR_CUR << "\n";
+        //return false;
     }
-    sr_dspace_id = H5Dget_space(sr_dset_id);
+    else
+    {
+        sr_dspace_id = H5Dget_space(sr_dset_id);
+    }
 
-    us_dset_id = H5Dopen(grp_id, STR_CALIB_US_IC.c_str(), H5P_DEFAULT);
+    us_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_US_IC.c_str(), H5P_DEFAULT);
     if (us_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/" << STR_CALIB_US_IC << "\n";
-        return false;
+        logI << "Error opening group /MAPS/" << STR_CALIB_CURVE_US_IC << "\n";
+        //return false;
     }
-    us_dspace_id = H5Dget_space(us_dset_id);
+    else
+    {
+        us_dspace_id = H5Dget_space(us_dset_id);
+    }
 
-    ds_dset_id = H5Dopen(grp_id, STR_CALIB_DS_IC.c_str(), H5P_DEFAULT);
+    ds_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_DS_IC.c_str(), H5P_DEFAULT);
     if (ds_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/" << STR_CALIB_DS_IC << "\n";
-        return false;
+        logI << "Error opening group /MAPS/" << STR_CALIB_CURVE_DS_IC << "\n";
+        //return false;
     }
-    ds_dspace_id = H5Dget_space(ds_dset_id);
+    else
+    {
+        ds_dspace_id = H5Dget_space(ds_dset_id);
+    }
 
-    channels_dset_id = H5Dopen(grp_id, STR_CALIB_Labels.c_str(), H5P_DEFAULT);
+    channels_dset_id = H5Dopen(grp_id, STR_CALIB_LABELS.c_str(), H5P_DEFAULT);
     if (channels_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/"<< STR_CALIB_Labels<<"\n";
+        logW << "Error opening group /MAPS/" << STR_CALIB_LABELS << "\n";
         return false;
     }
     channels_dspace_id = H5Dget_space(channels_dset_id);
 
-    int rank = H5Sget_simple_extent_ndims(sr_dspace_id);
+    hid_t found_space_id = -1;
+    if (sr_dspace_id > -1)
+    {
+        found_space_id = sr_dspace_id;
+    }
+    else if (us_dset_id > -1)
+    {
+        found_space_id = us_dset_id;
+    }
+    else if (ds_dset_id > -1)
+    {
+        found_space_id = ds_dset_id;
+    }
+    else
+    {
+        return false;
+    }
+
+    int rank = H5Sget_simple_extent_ndims(found_space_id);
     if (rank != 2)
     {
         logW << path << " rank is not equal to 3, unknown format!\n";
         return false;
     }
     hsize_t* dims_out = new hsize_t[rank];
-    unsigned int status_n = H5Sget_simple_extent_dims(sr_dspace_id, &dims_out[0], nullptr);
+    unsigned int status_n = H5Sget_simple_extent_dims(found_space_id, &dims_out[0], nullptr);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -918,14 +945,21 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
         H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
-        H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        sr_error = H5Dread(sr_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
-
-        H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        us_error = H5Dread(us_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
-
-        H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        ds_error = H5Dread(ds_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
+        if (sr_dset_id > -1)
+        {
+            H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            sr_error = H5Dread(sr_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
+        }
+        if (us_dset_id > -1)
+        {
+            H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            us_error = H5Dread(us_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
+        }
+        if (ds_dset_id > -1)
+        {
+            H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            ds_error = H5Dread(ds_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
+        }
         if (error > -1 && sr_error > -1)
         {
             sr_current_curve.calib_curve[el_name] = sr_values[0];

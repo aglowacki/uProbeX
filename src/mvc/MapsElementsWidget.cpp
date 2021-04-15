@@ -563,6 +563,8 @@ void MapsElementsWidget::model_updated()
 
     QString current_analysis = _cb_analysis->currentText();
 
+    QString save_normal_val = _cb_normalize->currentText();
+    
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
@@ -665,6 +667,14 @@ void MapsElementsWidget::model_updated()
     _cb_analysis->setCurrentText(current_analysis);
 
     m_imageViewWidget->restoreLabels(element_view_list);
+
+    for (int cntr = 0; cntr < _cb_normalize->count(); cntr++)
+    {
+        if (save_normal_val == _cb_normalize->itemText(cntr))
+        {
+            _cb_normalize->setCurrentText(save_normal_val);
+        }
+    }
 
     redrawCounts();
 

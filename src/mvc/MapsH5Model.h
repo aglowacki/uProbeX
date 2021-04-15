@@ -13,6 +13,7 @@
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
+#include "core/defines.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/optimizers/mpfit_optimizer.h"
@@ -30,11 +31,6 @@ const string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
 const string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
 const string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
 const string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
-
-const string STR_CALIB_SR_CURRENT = "Calibration_Curve_SR_Current";
-const string STR_CALIB_US_IC = "Calibration_Curve_US_IC";
-const string STR_CALIB_DS_IC = "Calibration_Curve_DS_IC";
-const string STR_CALIB_Labels = "Calibration_Curve_Labels";
 
 const string STR_SR_CURRENT_V9 = "SRcurrent";
 const string STR_US_IC_V9 = "us_ic";
