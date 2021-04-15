@@ -398,7 +398,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _spectra_widget->setParamOverride(po);
             }
             disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
-            //_spectra_widget->clearFitIntSpectra();
+            _spectra_widget->clearFitIntSpectra();
+            _spectra_widget->clearROISpectra();
             for (auto& itr : model->_fit_int_spec_dict)
             {
                 _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
@@ -563,6 +564,8 @@ void MapsElementsWidget::model_updated()
 
     QString current_analysis = _cb_analysis->currentText();
 
+    QString save_normal_val = _cb_normalize->currentText();
+    
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
@@ -665,6 +668,14 @@ void MapsElementsWidget::model_updated()
     _cb_analysis->setCurrentText(current_analysis);
 
     m_imageViewWidget->restoreLabels(element_view_list);
+
+    for (int cntr = 0; cntr < _cb_normalize->count(); cntr++)
+    {
+        if (save_normal_val == _cb_normalize->itemText(cntr))
+        {
+            _cb_normalize->setCurrentText(save_normal_val);
+        }
+    }
 
     redrawCounts();
 

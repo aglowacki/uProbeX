@@ -65,6 +65,10 @@ public:
 
    void appendROISpectra(string, data_struct::ArrayXr*);
 
+   void clearFitIntSpectra();
+
+   void clearROISpectra();
+
 signals:
 
    void signal_finished_fit();

@@ -83,6 +83,7 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    m_pagesWidget->addWidget(m_microPvSettings);
    m_pythonFuncWidget = new PreferencesPythonFunc();
    m_pagesWidget->addWidget(m_pythonFuncWidget);
+   m_solverOptionWidget = nullptr;
    //m_solverOptionWidget = new PreferencesSolverOption(windowList);
    //m_pagesWidget->addWidget(m_solverOptionWidget);
    m_autoSaveOptionsWidget = new PreferencesAutoSave();
@@ -106,6 +107,8 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    btnLayout->addStretch();
    btnLayout->addWidget(m_btnOK);
    btnLayout->addWidget(m_btnCancel);
+
+   setPreferences(false);
 
    // Connect button signals/slots
    connect(m_btnOK, SIGNAL(clicked()), this, SLOT(accept()));
@@ -136,9 +139,12 @@ void PreferencesDialog::accept()
 
    // Accept changes in settings widget
    
-
-    Preferences::inst()->setValue(STR_PRF_NMCoefficient, m_solverOptionWidget->getNMCoefficientAttrs());
-    Preferences::inst()->setValue(STR_PRF_NMOptions, m_solverOptionWidget->getNMOptionAttrs());
+    if (m_solverOptionWidget != nullptr)
+    {
+        Preferences::inst()->setValue(STR_PRF_NMCoefficient, m_solverOptionWidget->getNMCoefficientAttrs());
+        Preferences::inst()->setValue(STR_PRF_NMOptions, m_solverOptionWidget->getNMOptionAttrs());
+        Preferences::inst()->setValue(STR_PRF_SolverCheckedID, m_solverOptionWidget->getCheckedID());
+    }
 /*
     // Profile information
     Preferences::inst()->setValue(STR_PRF_ProfileList,
@@ -160,12 +166,13 @@ void PreferencesDialog::accept()
     Preferences::inst()->setValue(STR_PRF_PythonOptions,
                                 m_solverOptionWidget->getCurrentOptionAttrs());
 */
-    Preferences::inst()->setValue(STR_PRF_SolverCheckedID, m_solverOptionWidget->getCheckedID());
-
-    Preferences::inst()->setValue(STR_PRF_FontSize, m_displaySettings->getFontSize());
-    Preferences::inst()->setValue(STR_PRF_WindowTitle, m_displaySettings->getWindowTitle());
-    Preferences::inst()->setValue(STR_PRF_DecimalPrecision,m_displaySettings->getDecimalPrecision());
-
+    
+    if (m_displaySettings != nullptr)
+    {
+        Preferences::inst()->setValue(STR_PRF_FontSize, m_displaySettings->getFontSize());
+        Preferences::inst()->setValue(STR_PRF_WindowTitle, m_displaySettings->getWindowTitle());
+        Preferences::inst()->setValue(STR_PRF_DecimalPrecision, m_displaySettings->getDecimalPrecision());
+    }
     Preferences::inst()->setValue(STR_PRF_RegionMenuList,m_pythonFuncWidget->getGroupStringList());
 
     Preferences::inst()->setValue(STR_PRF_MicroProbeXPv,m_microPvSettings->getMicroProbeXPv());
@@ -182,6 +189,7 @@ void PreferencesDialog::accept()
     Preferences::inst()->setValue(STR_PRF_ExportPrintWidthHeightOnExportedImage,m_exportOptionsWidget->getPrintWidthHeightOnExportedImage());
     Preferences::inst()->setValue(STR_PRF_ExportSelectedXmlOption,m_exportOptionsWidget->getSelectedXmlExportOption());
    
+    Preferences::inst()->save();
    // Close with accept
    QDialog::accept();
 
@@ -222,13 +230,16 @@ void PreferencesDialog::setPreferences(bool passMode)
    // Assign preferences to pages
    
     // Solver check id and general attribute which would be used as default
-    m_solverOptionWidget->setCheckedID(
-        Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt());
+   if (m_solverOptionWidget != nullptr)
+   {
+       m_solverOptionWidget->setCheckedID(
+           Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt());
 
-    m_solverOptionWidget->setNMCoefficientAttrs(
-        Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList());
-    m_solverOptionWidget->setNMOptionAttrs(
-        Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList());
+       m_solverOptionWidget->setNMCoefficientAttrs(
+           Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList());
+       m_solverOptionWidget->setNMOptionAttrs(
+           Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList());
+   }
 /*
     // Preference for all the profiles
     m_solverOptionWidget->setPythonSolverPofile(

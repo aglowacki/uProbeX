@@ -924,11 +924,63 @@ void SWSWidget::createActions()
            this,
            SLOT(exportSelectedRegionInformation()));
 
+   _linkRegionToDatasetAction = new QAction("Link to Dataset", this);
+   connect(_linkRegionToDatasetAction, &QAction::triggered, this, &SWSWidget::linkRegionToDataset);
+
    m_grabMicroProbePVAction = new QAction("Grab MicroProbe PV", this);
    connect(m_grabMicroProbePVAction,
            SIGNAL(triggered()),
            this,
            SLOT(grabMicroProbePV()));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SWSWidget::linkRegionToDataset()
+{
+    QModelIndexList selectedIndexes = m_mpSelectionModel->selectedRows();
+    if (selectedIndexes.size() == 1)
+    {
+        // When sum
+        for (const QModelIndex& index : selectedIndexes)
+        {
+            if (index.isValid()) 
+            {
+                AbstractGraphicsItem* abstractItem = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+                UProbeRegionGraphicsItem* item = dynamic_cast<UProbeRegionGraphicsItem*>(abstractItem);
+                if (item != nullptr)
+                {
+                    QGraphicsScene* scene = item->scene();
+                   
+                    QPoint pp = item->pos().toPoint();
+                    QRect rr = item->boundingRectMarker().toRect();
+                    pp.setX(pp.x() + rr.x());
+                    pp.setY(pp.y() + rr.y());
+                    QSize size(rr.width(), rr.height());
+                    QRect rect = QRect(pp, size);
+                    QRectF saved_recft = scene->sceneRect();
+                    scene->setSceneRect(rect);
+                    QImage image(size, QImage::Format_ARGB32);
+                    image.fill(Qt::transparent);
+                    QPainter painter(&image);
+                    scene->render(&painter);
+                    //QString filepath = _model->getDataPath();
+                    //QString fileName = "c:\\temp\\file_name.png"; 
+                    //if (false == image.save("c:\\temp\\file_name.png"))
+                    //{
+                    //    QMessageBox::critical(this, "Error saving", "Error saving pixmap");
+                    //}
+
+                    scene->setSceneRect(saved_recft);
+                    emit onLinkRegionToDataset(item->displayName(), _model->getDataPath(), image);
+                }
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "Select 1 region", "Please select only 1 region to link.");
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1295,6 +1347,7 @@ void SWSWidget::displayContextMenu(QWidget* parent,
                menu.addSeparator();
                menu.addAction(m_zoomMicroProbeRegionAction);
                menu.addAction(m_exportMicroProbeRegionInfoAction);
+               menu.addAction(_linkRegionToDatasetAction);
             }
          } else if (selectedIndexes.count() > 1)
          {

@@ -65,6 +65,8 @@ public slots:
 
    void update_progress_bar(int val, int amt);
 
+   void onLinkRegionToDataset(QString item_name, QString sws_file_path, QImage image);
+
 protected:
 
 	void closeEvent(QCloseEvent *event);
@@ -96,6 +98,9 @@ protected:
    map<QString, SWSModel*> _sws_model_map;
 
    QProgressBar* _load_progress;
+
+   //QDialog _raw_file_dialog;
+
 };
 
 
