@@ -71,6 +71,8 @@ public:
 
     void setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy);
 
+    void setFitSpectra(data_struct::Spectra* spectra);
+
     void setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
 
 	data_struct::Spectra get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras);
@@ -112,8 +114,6 @@ protected:
    FitParamsTableModel* _new_fit_params_table_model;
 
    SpectraWidget* _spectra_widget;
-
-   SpectraWidget* _new_spectra_widget;
 
    fitting::models::Range _energy_range;
    

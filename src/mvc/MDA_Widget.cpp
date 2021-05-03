@@ -154,6 +154,10 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
             {
                 save_path.chop(3);
             }
+            if (false == save_path.endsWith("/") || false == save_path.endsWith("\\"))
+            {
+                save_path += "/";
+            }
             save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
             QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, "TXT" + _cb_detector->currentText() + " (*.txt" + _cb_detector->currentText() + " *.TXT" + _cb_detector->currentText() + ")");
             if (!fileName.isEmpty() && !fileName.isNull())
