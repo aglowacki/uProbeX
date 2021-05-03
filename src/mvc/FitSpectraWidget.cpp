@@ -529,6 +529,10 @@ void FitSpectraWidget::Fit_Spectra_Click()
         _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
         _fitting_dialog->setSpectra((Spectra*)_int_spec, _ev);
         _fitting_dialog->setElementsToFit(_elements_to_fit);
+        if (_fit_spec.size() > 0)
+        {
+            _fitting_dialog->setFitSpectra(&_fit_spec);
+        }
         _fitting_dialog->setDisplayRange(_spectra_widget->getDisplayEnergyMin(),
             _spectra_widget->getDisplayEnergyMax(),
             _spectra_widget->getDisplayHeightMin(),

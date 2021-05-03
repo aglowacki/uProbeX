@@ -6,6 +6,7 @@
 #include <mvc/FittingDialog.h>
 #include <QApplication>
 #include <QGroupBox>
+#include <QSplitter>
 
  /*---------------------------------------------------------------------------*/
 
@@ -94,11 +95,7 @@ void FittingDialog::_createLayout()
     buttonlayout->addWidget(_btn_cancel);
 
     _spectra_widget = new SpectraWidget();
-    _new_spectra_widget = new SpectraWidget();
-    QHBoxLayout* hbox_spectra = new QHBoxLayout();
-    hbox_spectra->addWidget(_spectra_widget);
-    hbox_spectra->addWidget(_new_spectra_widget);
-
+    
     QHBoxLayout* hbox_tables = new QHBoxLayout();
     hbox_tables->addWidget(_fit_params_table);
     hbox_tables->addWidget(_new_fit_params_table);
@@ -202,8 +199,17 @@ void FittingDialog::_createLayout()
     optimizerLayout->addWidget(_mp_fit_ctrl_grp, 1, 6, Qt::AlignLeft);
     
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addItem(hbox_spectra);
-    layout->addItem(hbox_tables);
+
+    QWidget* bottomWidget = new QWidget;
+    bottomWidget->setLayout(hbox_tables);
+
+
+    QSplitter* splitter = new QSplitter();
+    splitter->setOrientation(Qt::Vertical);
+    splitter->addWidget(_spectra_widget);
+    splitter->setStretchFactor(0, 1);
+    splitter->addWidget(bottomWidget);
+    layout->addWidget(splitter);
     layout->addWidget(new QLabel("Hover over optimization options for descriptions."));
     layout->addItem(optimizerLayout);
     layout->addItem(buttonlayout);
@@ -323,8 +329,14 @@ void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::Array
         _energy_range.min = 0;
         _energy_range.max = _int_spec->rows() - 1;
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
-        _new_spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::setFitSpectra(data_struct::Spectra* spectra)
+{
+    _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, spectra, &_ev);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -366,7 +378,6 @@ data_struct::Spectra FittingDialog::get_fit_spectra(unordered_map<string, data_s
 void FittingDialog::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
 {
     _spectra_widget->setDisplayRange(wmin, wmax, hmin, hmax);
-    _new_spectra_widget->setDisplayRange(wmin, wmax, hmin, hmax);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -492,11 +503,11 @@ void FittingDialog::runProcessing()
             }
         }
 
-        _new_spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, &_ev);
+        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &fit_spec, &_ev);
 
         _running = false;
 		_btn_accept->setEnabled(true);
-        //_btn_run->setEnabled(true);
+        _btn_run->setEnabled(true);
     }
 }
 

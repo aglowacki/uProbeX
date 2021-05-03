@@ -23,6 +23,7 @@
 
 
 #define DEF_STR_FIT_INT_SPECTRA "Fit Spectra"
+#define DEF_STR_NEW_FIT_INT_SPECTRA "New Fit Spectra"
 #define DEF_STR_INT_SPECTRA "Integrated Spectra"
 #define DEF_STR_BACK_SPECTRA "Background"
 #define DEF_STR_MODEL_SPECTRA "Model Spectra"
