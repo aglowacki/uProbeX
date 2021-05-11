@@ -39,6 +39,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 	_param_override = nullptr;
     _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
+	_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -280,6 +281,23 @@ void FitSpectraWidget::onSettingsDialog()
                 _spectra_widget->remove_spectra(QString(itr.first.c_str()));
             }
         }
+		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+		if (_showFitIntSpec)
+		{
+			for (auto &itr : _fit_int_spec_map)
+			{
+				QString name = "Fitted_Int_" + QString(itr.first.c_str());
+				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&_ev);
+			}
+		}
+		else
+		{
+			for (auto& itr : _fit_int_spec_map)
+			{
+				QString name = "Fitted_Int_" + QString(itr.first.c_str());
+				_spectra_widget->remove_spectra(name);
+			}
+		}
     }
 }
 
@@ -336,12 +354,16 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
-        for (auto &itr : _fit_int_spec_map)
-        {
-            QString name = "Fitted_Int_" + QString(itr.first.c_str());
-            _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&_ev);
-        }
-        
+		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+		if (_showFitIntSpec)
+		{
+			for (auto &itr : _fit_int_spec_map)
+			{
+				QString name = "Fitted_Int_" + QString(itr.first.c_str());
+				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra*)&_ev);
+			}
+		}
+		
         for (auto& itr : _roi_spec_map)
         {
             _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra*) & _ev);
@@ -636,8 +658,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
                 }
             }
 
-            _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &_fit_spec, (data_struct::Spectra*) & _ev);
-            
+            _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &_fit_spec, (data_struct::Spectra*) & _ev); 
             if (_showDetailedFitSpec)
             {
                 for (auto& itr : _labeled_spectras)

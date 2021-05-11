@@ -59,6 +59,8 @@ protected:
 
    QCheckBox* _chkDetailedFit;
 
+   QCheckBox* _chkFit_Int;
+
    //QTextEdit *_textEdit;
 
    QPushButton *_btn_run;

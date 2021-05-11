@@ -648,6 +648,32 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
             delete fit_int_spec;
         }
 
+		offset2[0] = 3;
+		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		if (error > -1)
+		{
+			_fit_int_spec_dict.insert({ "SVD", fit_int_spec });
+		}
+		else
+		{
+			delete fit_int_spec;
+		}
+
+		offset2[0] = 4;
+		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		if (error > -1)
+		{
+			_fit_int_spec_dict.insert({ "Background", fit_int_spec });
+		}
+		else
+		{
+			delete fit_int_spec;
+		}
+
         delete[]dims_out;
         H5Sclose(memoryspace_id);
         H5Sclose(max_chan_dspace_id);
@@ -1346,7 +1372,8 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
-				_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+				//_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+				_fit_int_spec_dict.insert({ "Background" , spectra });
 			}
 		}
 	}

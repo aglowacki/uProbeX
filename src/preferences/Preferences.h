@@ -50,6 +50,7 @@
 #define STR_PRF_LastPort "LastPort"
 #define STR_PFR_LOG_10 "Log10YAxis"
 #define STR_PFR_DETAILED_FIT_SPEC "DetailedFitSpectra"
+#define STR_PFR_SHOW_FIT_INT_SPEC "ShowFitIntSpectra"
 #define STR_GRID_ROWS "GridRows"
 #define STR_GRID_COLS "GridCols"
 #define STR_COLORMAP "ColorMap"
