@@ -143,11 +143,17 @@ void MapsElementsWidget::_createLayout()
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
 
+    QStringList extra_pv_header = { "Name", "Value", "Unit", "Description" };
+
+    _extra_pvs_table_widget = new QTableWidget(1, 4);
+    _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
+
     QWidget *window = new QWidget();
     window->setLayout(counts_layout);
 
     _tab_widget->addTab(window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
+    _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
 
     layout->addItem(hbox2);
@@ -407,6 +413,23 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
             _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+
+            const data_struct::Scan_Info* scan_info = _model->getScanInfo();
+
+            if (scan_info != nullptr)
+            {
+                _extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
+                int i = 0;
+                for (const auto& itr : scan_info->extra_pvs)
+                {
+                    _extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
+                    _extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
+                    _extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
+                    _extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
+                    i++;
+                }
+            }
+
         }
         m_imageWidgetToolBar->clickFill();
     }

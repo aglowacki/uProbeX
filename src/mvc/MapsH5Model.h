@@ -120,6 +120,8 @@ public:
 
 	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
 
+    const data_struct::Scan_Info* getScanInfo() { return &_scan_info; }
+
 signals:
     void model_data_updated();
 
@@ -187,6 +189,8 @@ private:
     std::unordered_map<std::string, Calibration_curve > _quant_map_nnls;
 
     std::unordered_map<std::string, Calibration_curve > _quant_map_roi;
+
+    data_struct::Scan_Info _scan_info;
 
     float _version;
 
