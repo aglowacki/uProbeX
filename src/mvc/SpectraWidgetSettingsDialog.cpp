@@ -30,15 +30,19 @@ void SpectraWidgetSettingsDialog::createLayout()
 {
     bool log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
     bool detailed = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
+	bool fit_int = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
     
     _chkLog10 = new QCheckBox("Display Y axis in Log10");
     _chkLog10->setChecked(log10);
     _chkDetailedFit = new QCheckBox("Show Details Fit Spectra (Ka, Kb, L, M lines)");
     _chkDetailedFit->setChecked(detailed);
+	_chkFit_Int = new QCheckBox("Show Fit_Int_Spectras (Summed per pixel fitting)");
+	_chkFit_Int->setChecked(fit_int);
 
     QVBoxLayout* chklayout = new QVBoxLayout();
     chklayout->addWidget(_chkLog10);
     chklayout->addWidget(_chkDetailedFit);
+	chklayout->addWidget(_chkFit_Int);
 
 
     _btn_accept = new QPushButton("Accept");
@@ -66,6 +70,7 @@ void SpectraWidgetSettingsDialog::onAccepted()
 	_accepted = true;
     Preferences::inst()->setValue(STR_PFR_LOG_10, _chkLog10->isChecked());
     Preferences::inst()->setValue(STR_PFR_DETAILED_FIT_SPEC, _chkDetailedFit->isChecked());
+	Preferences::inst()->setValue(STR_PFR_SHOW_FIT_INT_SPEC, _chkFit_Int->isChecked());
     Preferences::inst()->save();
 	close();
 }

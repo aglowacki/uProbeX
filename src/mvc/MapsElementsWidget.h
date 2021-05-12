@@ -10,6 +10,7 @@
 
 #include <gstar/AbstractImageWidget.h>
 
+#include <QTableWidget>
 #include <mvc/MapsH5Model.h>
 #include <mvc/FitSpectraWidget.h>
 #include <QComboBox>
@@ -135,6 +136,8 @@ protected:
    Calibration_curve* _calib_curve;
 
    unordered_map<string, data_struct::Spectra> _roi_spectra;
+
+   QTableWidget* _extra_pvs_table_widget;
 
    //QTableWidget* _scaler_table_widget;
 

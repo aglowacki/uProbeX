@@ -542,7 +542,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
 {
-
+//    _scan_info.
     return true;
 }
 
@@ -647,6 +647,32 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         {
             delete fit_int_spec;
         }
+
+		offset2[0] = 3;
+		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		if (error > -1)
+		{
+			_fit_int_spec_dict.insert({ "SVD", fit_int_spec });
+		}
+		else
+		{
+			delete fit_int_spec;
+		}
+
+		offset2[0] = 4;
+		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		if (error > -1)
+		{
+			_fit_int_spec_dict.insert({ "Background", fit_int_spec });
+		}
+		else
+		{
+			delete fit_int_spec;
+		}
 
         delete[]dims_out;
         H5Sclose(memoryspace_id);
@@ -1117,7 +1143,89 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
+    hid_t desc_id, name_id, unit_id, val_id;
+    string extra_pvs_desc = "Scan/Extra_PVs/Description";
+    string extra_pvs_name = "Scan/Extra_PVs/Names";
+    string extra_pvs_unit = "Scan/Extra_PVs/Unit";
+    string extra_pvs_val = "Scan/Extra_PVs/Values";
+    hsize_t offset[1] = { 0, };
+    hsize_t count[1] = { 1 };
+    hid_t   filetype, memtype, status;
+    char tmp_name[255];
 
+    desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
+    name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
+    unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
+    val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
+
+    filetype = H5Tcopy(H5T_C_S1);
+    H5Tset_size(filetype, 256);
+    memtype = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(memtype, 255);
+
+    if (desc_id > -1 && name_id > -1 && unit_id > -1 && val_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(desc_id);
+        int rank = H5Sget_simple_extent_ndims(dataspace_id);
+        if (rank == 1)
+        {
+            hsize_t dims_in[1] = { 0 };
+            int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+            if (status_n > -1)
+            {
+
+                hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+                for (hsize_t i = 0; i < dims_in[0]; i++)
+                {
+                    data_struct::Extra_PV epv;
+                    offset[0] = i;
+                    H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    H5Sselect_hyperslab(name_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    H5Sselect_hyperslab(unit_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    H5Sselect_hyperslab(val_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+
+                    memset(&tmp_name[0], 0, 254);
+                    hid_t error = H5Dread(desc_id, memtype, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+                    epv.description = std::string(tmp_name);
+
+                    
+                    memset(&tmp_name[0], 0, 254);
+                    error = H5Dread(name_id, memtype, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+                    epv.name = std::string(tmp_name);
+
+                    
+                    memset(&tmp_name[0], 0, 254);
+                    error = H5Dread(unit_id, memtype, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+                    epv.unit = std::string(tmp_name);
+
+                    
+                    memset(&tmp_name[0], 0, 254);
+                    error = H5Dread(val_id, memtype, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+                    epv.value = std::string(tmp_name);
+
+
+                    _scan_info.extra_pvs.push_back(epv);
+                }
+            }
+        }
+    }
+    if (desc_id > -1)
+    {
+        H5Dclose(desc_id);
+    }
+    if (name_id > -1)
+    {
+        H5Dclose(name_id);
+    }
+    if (unit_id > -1)
+    {
+        H5Dclose(unit_id);
+    }
+    if (val_id > -1)
+    {
+        H5Dclose(val_id);
+    }
     return true;
 }
 
@@ -1346,7 +1454,8 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
-				_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+				//_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+				_fit_int_spec_dict.insert({ "Background" , spectra });
 			}
 		}
 	}
