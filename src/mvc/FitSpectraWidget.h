@@ -206,6 +206,8 @@ private:
 
     bool _showDetailedFitSpec;
 
+	bool _showFitIntSpec;
+
     unordered_map<string, data_struct::ArrayXr> _labeled_spectras;
 };
 
