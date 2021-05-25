@@ -28,7 +28,6 @@ SWSModel::SWSModel()
 {
     m_tiffModel = nullptr;
     m_samples = nullptr;
-    m_model = nullptr;
     m_numSamples = 0;
     m_numXSamples = 0;
     m_numYSamples = 0;
@@ -45,11 +44,6 @@ SWSModel::~SWSModel()
    {
       delete [] m_samples;
       m_samples = nullptr;
-   }
-   if(m_model != nullptr)
-   {
-      delete m_model;
-      m_model = nullptr;
    }
 
    if(m_tiffModel != nullptr)
@@ -69,11 +63,11 @@ bool SWSModel::load(QString filepath)
    {
 
       QFileInfo info1(filepath);
-      m_pathFile = filepath;
+      _pathFile = filepath;
 
       m_datasetName = info1.completeBaseName();
-      m_datasetPath = info1.path() + QDir::separator() + m_datasetName;
-      logW<<m_datasetPath.toStdString()<<"\n";
+      _datasetPath = info1.path() + QDir::separator() + m_datasetName;
+      logW<<_datasetPath.toStdString()<<"\n";
       logW<<m_datasetName.toStdString() << "\n";
 
       logW<<info1.suffix().toStdString() << "\n";
@@ -92,7 +86,7 @@ bool SWSModel::load(QString filepath)
       m_numSamples = swsData.value(NUM_SAMPLES_STR).toInt();
 
 	  //load xml markers and regions
-	  load_xml_markers_and_regions();
+	  _load_xml_markers_and_regions();
 
       //Load directory files
       return loadDirectory();
@@ -112,78 +106,19 @@ bool SWSModel::load(QString filepath)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSModel::load_xml_markers_and_regions()
-{
-
-	QFile* file = new QFile(m_datasetPath + ".xml");
-
-	if (!file->exists())
-	{
-		return;
-	}
-
-	if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		QMessageBox::critical(nullptr,	"SWSWidget::parseXML", "Couldn't open maker xml", QMessageBox::Ok);
-		return;
-	}
-
-	QXmlStreamReader xml(file);
-
-	while (!xml.atEnd() && !xml.hasError())
-	{
-		// Read next element
-		QXmlStreamReader::TokenType token = xml.readNext();
-
-		// If token is just StartDocument, we'll go to next
-		if (token == QXmlStreamReader::StartDocument)
-		{
-			continue;
-		}
-
-		if (token == QXmlStreamReader::StartElement)
-		{
-			if (xml.name() == "markers")
-			{
-				continue;
-			}
-			if (xml.name() == "marker")
-			{
-				m_markersLoaded.prepend(parseMarker(xml));
-				continue;
-			}
-			if (xml.name() == "regionmarker")
-			{
-				m_regionMarkersLoaded.prepend(parseRegionMarker(xml));
-			}
-		}
-	}
-
-	// Error handling.
-	if (xml.hasError())
-	{
-		QMessageBox::critical(nullptr,"SWSWidget::parseXML",xml.errorString(),QMessageBox::Ok);
-	}
-
-	xml.clear();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void SWSModel::check_and_load_autosave()
 {
 	QString originalPath;
 
 	try
 	{
-		QStringList slist = m_pathFile.split('.');
+		QStringList slist = _pathFile.split('.');
 		if (slist.length() > 0)
 		{
-			m_datasetPath = slist[0] + ".xml";
-			originalPath = m_datasetPath;
+			_datasetPath = slist[0] + ".xml";
+			originalPath = _datasetPath;
 
-			QString autosavedTemporaryFile = m_pathFile + ".tmp";
+			QString autosavedTemporaryFile = _pathFile + ".tmp";
 			QFile autosavedTmpFile(autosavedTemporaryFile);
 			if (autosavedTmpFile.exists()) {
 				QFileInfo fileInfo(autosavedTmpFile);
@@ -199,7 +134,7 @@ void SWSModel::check_and_load_autosave()
 
 				if (ret == QMessageBox::Yes)
 				{
-					m_datasetPath = autosavedTemporaryFile;
+					_datasetPath = autosavedTemporaryFile;
 				}
 			}
 		}
@@ -216,141 +151,7 @@ void SWSModel::check_and_load_autosave()
 	}
 
 
-	m_datasetPath = originalPath;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QMap<QString, QString> SWSModel::parseMarker(QXmlStreamReader& xml)
-{
-
-	QMap<QString, QString> marker;
-
-	QXmlStreamAttributes attributes = xml.attributes();
-
-	if (attributes.hasAttribute(gstar::UPROBE_COLOR))
-	{
-		marker.insert(gstar::UPROBE_COLOR, attributes.value(gstar::UPROBE_COLOR).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_LIGHT_POS_X))
-	{
-		marker.insert(gstar::UPROBE_LIGHT_POS_X,
-			attributes.value(gstar::UPROBE_LIGHT_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_REAL_POS_X))
-	{
-		marker.insert(gstar::UPROBE_REAL_POS_X,
-			attributes.value(gstar::UPROBE_REAL_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_LIGHT_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_LIGHT_POS_Y,
-			attributes.value(gstar::UPROBE_LIGHT_POS_Y).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_REAL_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_REAL_POS_Y,
-			attributes.value(gstar::UPROBE_REAL_POS_Y).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_LIGHT_POS_Z))
-	{
-		marker.insert(gstar::UPROBE_LIGHT_POS_Z,
-			attributes.value(gstar::UPROBE_LIGHT_POS_Z).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_MICRO_POS_X))
-	{
-		marker.insert(gstar::UPROBE_MICRO_POS_X,
-			attributes.value(gstar::UPROBE_MICRO_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_MICRO_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_MICRO_POS_Y,
-			attributes.value(gstar::UPROBE_MICRO_POS_Y).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_PRED_POS_X))
-	{
-		marker.insert(gstar::UPROBE_PRED_POS_X,
-			attributes.value(gstar::UPROBE_PRED_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_PRED_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_PRED_POS_Y,
-			attributes.value(gstar::UPROBE_PRED_POS_Y).toString());
-	}
-
-	xml.readNext();
-	if (xml.tokenType() == QXmlStreamReader::Characters)
-	{
-		marker.insert(gstar::UPROBE_NAME, xml.text().toString());
-	}
-
-	return marker;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QMap<QString, QString> SWSModel::parseRegionMarker(QXmlStreamReader& xml)
-{
-
-
-	QMap<QString, QString> marker;
-
-	QXmlStreamAttributes attributes = xml.attributes();
-
-	if (attributes.hasAttribute(gstar::UPROBE_COLOR))
-	{
-		marker.insert(gstar::UPROBE_COLOR, attributes.value(gstar::UPROBE_COLOR).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_REAL_POS_X))
-	{
-		marker.insert(gstar::UPROBE_REAL_POS_X,
-			attributes.value(gstar::UPROBE_REAL_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_REAL_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_REAL_POS_Y,
-			attributes.value(gstar::UPROBE_REAL_POS_Y).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_PRED_POS_X))
-	{
-		marker.insert(gstar::UPROBE_PRED_POS_X,
-			attributes.value(gstar::UPROBE_PRED_POS_X).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_PRED_POS_Y))
-	{
-		marker.insert(gstar::UPROBE_PRED_POS_Y,
-			attributes.value(gstar::UPROBE_PRED_POS_Y).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_RECT_TLX))
-	{
-		marker.insert(gstar::UPROBE_RECT_TLX,
-			attributes.value(gstar::UPROBE_RECT_TLX).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_RECT_TLY))
-	{
-		marker.insert(gstar::UPROBE_RECT_TLY,
-			attributes.value(gstar::UPROBE_RECT_TLY).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_RECT_W))
-	{
-		marker.insert(gstar::UPROBE_RECT_W,
-			attributes.value(gstar::UPROBE_RECT_W).toString());
-	}
-	if (attributes.hasAttribute(gstar::UPROBE_RECT_H))
-	{
-		marker.insert(gstar::UPROBE_RECT_H,
-			attributes.value(gstar::UPROBE_RECT_H).toString());
-	}
-
-	xml.readNext();
-	if (xml.tokenType() == QXmlStreamReader::Characters)
-	{
-		marker.insert(gstar::UPROBE_NAME, xml.text().toString());
-	}
-
-	return marker;
+	_datasetPath = originalPath;
 
 }
 
@@ -359,7 +160,7 @@ QMap<QString, QString> SWSModel::parseRegionMarker(QXmlStreamReader& xml)
 gstar::CoordinateModel* SWSModel::getCoordModel()
 {
 
-   return m_model;
+   return _coord_model;
 
 }
 
@@ -371,15 +172,6 @@ int SWSModel::getPixelByteSize()
    if(m_tiffModel != nullptr)
       return m_tiffModel->getPixelByteSize();
    return 1;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-QString SWSModel::getDataPath()
-{
-
-   return m_pathFile;
 
 }
 
@@ -430,7 +222,7 @@ int SWSModel::getRank()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSModel::initializeCoordModel()
+void SWSModel::_initializeCoordModel()
 {
 
    vec2 topLeft;
@@ -461,7 +253,7 @@ void SWSModel::initializeCoordModel()
           lt->setTopLeft(0, 0);
           lt->setScale(xScale, yScale, 1.0);
           lt->setDivider(1000.0, 1000.0, 1.0);
-          m_model = new gstar::CoordinateModel(lt);
+          _coord_model = new gstar::CoordinateModel(lt);
        }
    }
    if(m_numSamples == 2)
@@ -479,7 +271,7 @@ void SWSModel::initializeCoordModel()
           lt->setTopLeft(topLeft.x, topLeft.y);
           lt->setScale(xScale, yScale, 1.0);
           lt->setDivider(1000.0, 1000.0, 1.0);
-          m_model = new gstar::CoordinateModel(lt);
+          _coord_model = new gstar::CoordinateModel(lt);
        }
    }
    if(m_numSamples > 1)
@@ -611,7 +403,7 @@ void SWSModel::initializeCoordModel()
          lt->setTopLeft(topLeft.x, topLeft.y);
          lt->setScale(xScale, yScale, 1.0);
          lt->setDivider(1000.0, 1000.0, 1.0);
-         m_model = new gstar::CoordinateModel(lt);
+         _coord_model = new gstar::CoordinateModel(lt);
 
       }
 
@@ -625,7 +417,7 @@ bool SWSModel::loadDirectory()
 
    bool loaded = true;
 
-   if(QDir(m_datasetPath).exists())
+   if(QDir(_datasetPath).exists())
    {
       //Search for Tiles.dat, XYZPositions.txt and dsetname.pmg
       if( loadXYZ() && loadPMG() )
@@ -645,7 +437,7 @@ bool SWSModel::loadDirectory()
          }
          if(loaded)
          {
-            initializeCoordModel();
+            _initializeCoordModel();
          }
       }
 
@@ -760,7 +552,7 @@ bool SWSModel::loadPMG()
    int tmpNumSamples = 0;
    double tmpDoubles[2] = {0.0, 0.0};
    QString tmpStr = "";
-   QFile pmgFile(m_datasetPath+QDir::separator()+m_datasetName+".pmg");
+   QFile pmgFile(_datasetPath+QDir::separator()+m_datasetName+".pmg");
 
    if(pmgFile.exists())
    {
@@ -858,13 +650,13 @@ bool SWSModel::loadPMG()
      else
      {
         loaded = false;
-        QMessageBox::warning(0, "Error", "Could not read file"+m_datasetPath+QDir::separator()+m_datasetName+".pmg");
+        QMessageBox::warning(0, "Error", "Could not read file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
      }
    }
    else
    {
       loaded = false;
-      QMessageBox::warning(0, "Error", "Could not find file"+m_datasetPath+QDir::separator()+m_datasetName+".pmg");
+      QMessageBox::warning(0, "Error", "Could not find file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
    }
 
 
@@ -888,17 +680,17 @@ bool SWSModel::loadTiff()
 
    try
    {
-      QFile file1(m_datasetPath+".tiff");
-      QFile file2(m_datasetPath+".tif");
+      QFile file1(_datasetPath+".tiff");
+      QFile file2(_datasetPath+".tif");
 
       if(file1.exists() == true)
       {
-         m_tiffModel = new TIFFModel(m_datasetPath+".tiff", "");
+         m_tiffModel = new TIFFModel(_datasetPath+".tiff", "");
          m_tiffLoaded = true;
       }
       else if(file2.exists() == true)
       {
-         m_tiffModel = new TIFFModel(m_datasetPath+".tif", "");
+         m_tiffModel = new TIFFModel(_datasetPath+".tif", "");
          m_tiffLoaded = true;
       }
       else
@@ -932,7 +724,7 @@ bool SWSModel::loadTiles()
    for(unsigned int i=0; i<m_numSamples; i++)
    {
       //m_samples[i].m_tiffModel = nullptr;
-      QString fileName = m_datasetPath+QDir::separator()+m_samples[i].path;
+      QString fileName = _datasetPath+QDir::separator()+m_samples[i].path;
       QFileInfo tiffFileInfo(fileName);
       if(false == tiffFileInfo.exists())
       {
@@ -982,9 +774,9 @@ bool SWSModel::loadTiles()
    QPainter painter(&image);
    gscene->render(&painter);
    
-   if(false == image.save(m_datasetPath+".tif", "tif"))
+   if(false == image.save(_datasetPath+".tif", "tif"))
    {
-      logW<<"Failed to save mosaic image "<<m_datasetPath.toStdString()<<".tif\n";
+      logW<<"Failed to save mosaic image "<<_datasetPath.toStdString()<<".tif\n";
    }
    */
    QApplication::restoreOverrideCursor();
@@ -1001,7 +793,7 @@ bool SWSModel::loadXYZ()
 
    bool loaded = true;
 
-   QFile xyzFile(m_datasetPath+QDir::separator()+"XYZPositions.txt");
+   QFile xyzFile(_datasetPath+QDir::separator()+"XYZPositions.txt");
 
    if(xyzFile.exists())
    {

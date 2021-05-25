@@ -20,7 +20,6 @@
 #include <mvc/AbstractWindowController.h>
 #include <core/SubWindow.h>
 #include <mvc/SWSModel.h>
-#include <mvc/TIFFController.h>
 #include <mvc/SWSWidget.h>
 #include <preferences/PreferencesDialog.h>
 #include <QFileDialog>

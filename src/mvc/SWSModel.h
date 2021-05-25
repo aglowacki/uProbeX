@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <mvc/AbstractWindowModel.h>
+#include <mvc/VLM_Model.h>
 #include <mvc/TIFFModel.h>
 
 #include <QSettings>
@@ -21,7 +21,7 @@
 /**
  * @brief Model for SWS workspace. Used with SWSWidget
  */
-class SWSModel : public AbstractWindowModel
+class SWSModel : public VLM_Model
 {
 
 public:
@@ -41,13 +41,7 @@ public:
      * @param filepath
      * @return
      */
-    bool load(QString filepath);
-
-    /**
-     * @brief getFilePath
-     * @return
-     */
-    QString getFilePath(){return m_pathFile;}
+    virtual bool load(QString filepath);
 
     /**
     * @brief getCoordModel
@@ -58,32 +52,23 @@ public:
     /**
     * @brief Get data type
     */
-    int getPixelByteSize();
-
-    /**
-    * @brief Get tiff path
-    */
-    QString getDataPath();
+    virtual int getPixelByteSize();
 
     /**
     * @brief Get image dims
     * @param imageIndex
     */
-    int getImageDims(int imageIndex);
+    virtual int getImageDims(int imageIndex);
 
     /**
     * @brief Get total number of images in the data-set.
     */
-    int getNumberOfImages();
-
-	const QList< QMap<QString, QString> >& getMarkers() { return m_markersLoaded; }
-
-	const QList< QMap<QString, QString> >& getRegionMarkers() {return m_regionMarkersLoaded;}
+    virtual int getNumberOfImages();
 
     /**
     * @brief Get the total number of dimensions in the dataset.
     */
-    int getRank();
+    virtual int getRank();
 
     virtual uchar* getBytes();
 
@@ -99,7 +84,7 @@ protected:
     /**
     * @brief initializeCoordModel
     */
-    void initializeCoordModel();
+    virtual void _initializeCoordModel();
 
     /**
     * @brief loadDirectory
@@ -125,13 +110,9 @@ protected:
     */
     bool loadTiles();
 
-	void load_xml_markers_and_regions();
+	//void load_xml_markers_and_regions();
 
 	void check_and_load_autosave();
-
-	QMap<QString, QString> parseMarker(QXmlStreamReader& xml);
-
-	QMap<QString, QString> parseRegionMarker(QXmlStreamReader& xml);
 
     /**
     * @brief loadXYZ
@@ -194,29 +175,9 @@ private:
     };
 
     /**
-    * @brief m_model
-    */
-    gstar::CoordinateModel* m_model;
-
-    /**
-    * @brief m_datasetPath
-    */
-    QString m_datasetPath;
-
-    /**
     * @brief m_datasetName
     */
     QString m_datasetName;
-
-	/**
-	* @brief m_markersLoaded
-	*/
-	QList< QMap<QString, QString> > m_markersLoaded;
-
-	/**
-	 * @brief m_markersLoaded
-	 */
-	QList< QMap<QString, QString> > m_regionMarkersLoaded;
 
     /**
     * @brief m_mapValueKey
@@ -239,11 +200,6 @@ private:
     unsigned int m_numYSamples;
 
     /**
-    * Opened by the playback window.
-    */
-    QString m_pathFile;
-
-    /**
     * @brief m_pmgScale
     */
     double m_pmgScale;
@@ -257,6 +213,7 @@ private:
     * Tiff model
     */
     TIFFModel *m_tiffModel;
+    //QImageReader* _img_reader;
 
     /**
     * @brief m_tiffLoaded
