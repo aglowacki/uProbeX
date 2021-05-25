@@ -9,7 +9,6 @@
 /*---------------------------------------------------------------------------*/
 
 #include <mvc/VLM_Model.h>
-#include <mvc/TIFFModel.h>
 
 #include <QSettings>
 #include <QString>
@@ -209,11 +208,8 @@ private:
     */
     double m_pmgImageReduction;
 
-    /**
-    * Tiff model
-    */
-    TIFFModel *m_tiffModel;
-    //QImageReader* _img_reader;
+    // For tiff
+    QImage _tif_img;
 
     /**
     * @brief m_tiffLoaded

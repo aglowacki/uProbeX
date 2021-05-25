@@ -26,7 +26,7 @@ const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\
 /*----------------src/mvc/SWSModel.cpp \-----------------------------------------------------------*/
 SWSModel::SWSModel()
 {
-    m_tiffModel = nullptr;
+
     m_samples = nullptr;
     m_numSamples = 0;
     m_numXSamples = 0;
@@ -44,12 +44,6 @@ SWSModel::~SWSModel()
    {
       delete [] m_samples;
       m_samples = nullptr;
-   }
-
-   if(m_tiffModel != nullptr)
-   {
-      delete m_tiffModel;
-      m_tiffModel = nullptr;
    }
 
 }
@@ -169,9 +163,7 @@ gstar::CoordinateModel* SWSModel::getCoordModel()
 int SWSModel::getPixelByteSize()
 {
 
-   if(m_tiffModel != nullptr)
-      return m_tiffModel->getPixelByteSize();
-   return 1;
+    return _tif_img.bitPlaneCount();
 
 }
 
@@ -179,33 +171,25 @@ int SWSModel::getPixelByteSize()
 
 int SWSModel::getImageDims(int imageIndex)
 {
-
-   if(m_tiffModel != nullptr)
-      return m_tiffModel->getImageDims(imageIndex);
-   return 0;
-
+    switch (imageIndex)
+    {
+    case 0:
+        return 1;
+    case 1:
+        return _tif_img.height();
+    case 2:
+        return _tif_img.width();
+    default:
+        return 0;
+    }
 }
 
-/*---------------------------------------------------------------------------*/
-/*
-Selection SWSModel::getImageSelection()
-{
-
-   Selection s;
-   if(m_tiffModel != nullptr)
-      return m_tiffModel->getImageSelection();
-   return s;
-
-}
-*/
 /*---------------------------------------------------------------------------*/
 
 int SWSModel::getNumberOfImages()
 {
 
-   if(m_tiffModel != nullptr)
-      return m_tiffModel->getNumberOfImages();
-   return 0;
+    return 1;
 
 }
 
@@ -214,9 +198,7 @@ int SWSModel::getNumberOfImages()
 int SWSModel::getRank()
 {
 
-   if(m_tiffModel != nullptr)
-      return m_tiffModel->getRank();
-   return -1;
+   return 2;
 
 }
 
@@ -240,39 +222,37 @@ void SWSModel::_initializeCoordModel()
 
    if(m_numSamples == 1)
    {
-       if(m_tiffModel != nullptr)
-       {
-          imgWidth = m_tiffModel->getImageDims(2);
-          imgHeight = m_tiffModel->getImageDims(1);
+       
+        imgWidth = _tif_img.width();
+        imgHeight = _tif_img.height();
 
-          xScale = (m_samples[0].x * 2.0) / imgWidth;
-          yScale = (m_samples[0].y * 2.0) / imgHeight;
+        xScale = (m_samples[0].x * 2.0) / imgWidth;
+        yScale = (m_samples[0].y * 2.0) / imgHeight;
 
 
-          LinearTransformer* lt = new LinearTransformer();
-          lt->setTopLeft(0, 0);
-          lt->setScale(xScale, yScale, 1.0);
-          lt->setDivider(1000.0, 1000.0, 1.0);
-          _coord_model = new gstar::CoordinateModel(lt);
-       }
+        LinearTransformer* lt = new LinearTransformer();
+        lt->setTopLeft(0, 0);
+        lt->setScale(xScale, yScale, 1.0);
+        lt->setDivider(1000.0, 1000.0, 1.0);
+        _coord_model = new gstar::CoordinateModel(lt);
+       
    }
    if(m_numSamples == 2)
    {
-       if(m_tiffModel != nullptr)
-       {
-          imgWidth = m_tiffModel->getImageDims(2);
-          imgHeight = m_tiffModel->getImageDims(1);
+       
+        imgWidth = _tif_img.width();
+        imgHeight = _tif_img.height();
 
-          xScale = abs(m_samples[1].location.x - m_samples[0].location.x) / imgWidth;
-          yScale = abs(m_samples[1].location.y - m_samples[0].location.y) / imgHeight;
+        xScale = abs(m_samples[1].location.x - m_samples[0].location.x) / imgWidth;
+        yScale = abs(m_samples[1].location.y - m_samples[0].location.y) / imgHeight;
 
 
-          LinearTransformer* lt = new LinearTransformer();
-          lt->setTopLeft(topLeft.x, topLeft.y);
-          lt->setScale(xScale, yScale, 1.0);
-          lt->setDivider(1000.0, 1000.0, 1.0);
-          _coord_model = new gstar::CoordinateModel(lt);
-       }
+        LinearTransformer* lt = new LinearTransformer();
+        lt->setTopLeft(topLeft.x, topLeft.y);
+        lt->setScale(xScale, yScale, 1.0);
+        lt->setDivider(1000.0, 1000.0, 1.0);
+        _coord_model = new gstar::CoordinateModel(lt);
+       
    }
    if(m_numSamples > 1)
    {
@@ -387,25 +367,24 @@ void SWSModel::_initializeCoordModel()
          topRight.y = m_samples[topRightIdx].y - yStride0;
       }
 
-      bottomLeft.x = m_samples[bottomLeftIdx].x - xStride0;
-      bottomLeft.y = m_samples[bottomLeftIdx].y + yStride0;
+        bottomLeft.x = m_samples[bottomLeftIdx].x - xStride0;
+        bottomLeft.y = m_samples[bottomLeftIdx].y + yStride0;
 
-      if(m_tiffModel != nullptr)
-      {
-         imgWidth = m_tiffModel->getImageDims(2);
-         imgHeight = m_tiffModel->getImageDims(1);
+      
+        imgWidth = _tif_img.width();
+        imgHeight = _tif_img.height();
 
-         xScale = (topRight.x - topLeft.x) / imgWidth;
-         yScale = (bottomLeft.y - topLeft.y) / imgHeight;
+        xScale = (topRight.x - topLeft.x) / imgWidth;
+        yScale = (bottomLeft.y - topLeft.y) / imgHeight;
 
 
-         LinearTransformer* lt = new LinearTransformer();
-         lt->setTopLeft(topLeft.x, topLeft.y);
-         lt->setScale(xScale, yScale, 1.0);
-         lt->setDivider(1000.0, 1000.0, 1.0);
-         _coord_model = new gstar::CoordinateModel(lt);
+        LinearTransformer* lt = new LinearTransformer();
+        lt->setTopLeft(topLeft.x, topLeft.y);
+        lt->setScale(xScale, yScale, 1.0);
+        lt->setDivider(1000.0, 1000.0, 1.0);
+        _coord_model = new gstar::CoordinateModel(lt);
 
-      }
+      
 
    }
 }
@@ -685,13 +664,15 @@ bool SWSModel::loadTiff()
 
       if(file1.exists() == true)
       {
-         m_tiffModel = new TIFFModel(_datasetPath+".tiff", "");
-         m_tiffLoaded = true;
+          QImageReader img_reader(_datasetPath + ".tiff");
+          _tif_img = img_reader.read();
+          m_tiffLoaded = true;
       }
       else if(file2.exists() == true)
       {
-         m_tiffModel = new TIFFModel(_datasetPath+".tif", "");
-         m_tiffLoaded = true;
+          QImageReader img_reader(_datasetPath + ".tif");
+          _tif_img = img_reader.read();
+          m_tiffLoaded = true;
       }
       else
       {
@@ -723,7 +704,7 @@ bool SWSModel::loadTiles()
 
    for(unsigned int i=0; i<m_numSamples; i++)
    {
-      //m_samples[i].m_tiffModel = nullptr;
+      //m_samples[i]._tif_img = nullptr;
       QString fileName = _datasetPath+QDir::separator()+m_samples[i].path;
       QFileInfo tiffFileInfo(fileName);
       if(false == tiffFileInfo.exists())
@@ -739,7 +720,7 @@ bool SWSModel::loadTiles()
       }
 
 
-      //m_samples[i].m_tiffModel = new TIFFModel(fileName);
+      //m_samples[i]._tif_img = new TIFFModel(fileName);
 
       QImage *tiffImage = new QImage();
       if (tiffImage->load(fileName, "tif"))
@@ -840,22 +821,18 @@ bool SWSModel::loadXYZ()
 
 uchar* SWSModel::getBytes()
 {
-    if (m_tiffModel != nullptr)
-    {
-        return m_tiffModel->getBytes();
-    }
-    return nullptr;
+
+    return _tif_img.bits();
+    
 }
 
 /*---------------------------------------------------------------------------*/
 
 QImage* SWSModel::getImage() 
 {
-    if (m_tiffModel != nullptr)
-    {
-        return m_tiffModel->getImage(); 
-    }
-    return nullptr;
+
+    return &_tif_img; 
+   
 }
 
 /*---------------------------------------------------------------------------*/
