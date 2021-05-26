@@ -623,12 +623,12 @@ private:
    /**
     * @brief m_xOffset
     */
-   QLineEdit* m_xOffset;
+   //QLineEdit* m_xOffset;
 
    /**
     * @brief m_xyffset
     */
-   QLineEdit* m_yOffset;
+   //QLineEdit* m_yOffset;
 
    /**
     * @brief m_pathFile

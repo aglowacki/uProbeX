@@ -69,7 +69,6 @@ VLM_Widget::VLM_Widget(QWidget* parent)
 //   m_pvXHandler = nullptr;
 //   m_pvYHandler = nullptr;
    m_solverWidget = nullptr;
-   m_coordinateModel = nullptr;
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
    m_solver = nullptr;
@@ -1045,12 +1044,12 @@ void VLM_Widget::createCalibrationTab()
            this,
            SLOT(addTopWindowPoints()));
 
-   m_btnRunSolver = new QPushButton("Open Solver");
+   m_btnRunSolver = new QPushButton("Update Transform");
    connect(m_btnRunSolver,
            SIGNAL(clicked()),
            this,
            SLOT(openSolver()));
-
+/*
    QLabel* lblXOffset = new QLabel("2xfm:X ");
    m_xOffset = new QLineEdit();
    connect(m_xOffset,
@@ -1072,15 +1071,15 @@ void VLM_Widget::createCalibrationTab()
            SIGNAL(returnPressed()),
            this,
            SLOT(offsetReturnPressed()));
-
+*/
    QVBoxLayout* infoLayout = new QVBoxLayout();
    QHBoxLayout* buttonLayout = new QHBoxLayout();
    QHBoxLayout* buttonLayout2 = new QHBoxLayout();
    QHBoxLayout* offsetLayout = new QHBoxLayout();
-   offsetLayout->addWidget(lblXOffset);
-   offsetLayout->addWidget(m_xOffset);
-   offsetLayout->addWidget(lblYOffset);
-   offsetLayout->addWidget(m_yOffset);
+//   offsetLayout->addWidget(lblXOffset);
+//   offsetLayout->addWidget(m_xOffset);
+//   offsetLayout->addWidget(lblYOffset);
+//   offsetLayout->addWidget(m_yOffset);
    buttonLayout->addWidget(m_btnAddCalibration);
    buttonLayout->addWidget(m_btnRunSolver);
    buttonLayout2->addWidget(m_btnAddTopWindowPoints);
@@ -1794,7 +1793,7 @@ void VLM_Widget::microModelDataChanged(const QModelIndex& topLeft,
 
 void VLM_Widget::offsetReturnPressed()
 {
-
+    /*
    bool ok;
    double valX, valY;
 
@@ -1808,7 +1807,7 @@ void VLM_Widget::offsetReturnPressed()
    valX = sxOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
-       /*
+      
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_x), valX))
@@ -1816,7 +1815,7 @@ void VLM_Widget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
-      */
+      
    }
    else
    {
@@ -1827,7 +1826,7 @@ void VLM_Widget::offsetReturnPressed()
    valY = syOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
-       /*
+       
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_y), valY))
@@ -1837,7 +1836,7 @@ void VLM_Widget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
-      */
+      
    }
    else
    {
@@ -1848,7 +1847,7 @@ void VLM_Widget::offsetReturnPressed()
    emit solverVariableUpdate(valX, valY);
 
    updateTreeView();
-
+*/
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1877,7 +1876,7 @@ void VLM_Widget::preferenceChanged()
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
    m_lightToMicroCoordModel->setTransformerPrecision(
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
-
+   /*
    // Set the value in the calibration text linedit box
    if(m_lightToMicroCoordModel != nullptr)
    {
@@ -1896,7 +1895,7 @@ void VLM_Widget::preferenceChanged()
       updateTreeView();
 
    }
-
+   */
    checkMicroProbePVs();
 
 }

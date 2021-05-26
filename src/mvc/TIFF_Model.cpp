@@ -45,6 +45,7 @@ bool TIFF_Model::load(QString filepath)
         _img = img_reader.read();
         //load xml markers and regions
         _load_xml_markers_and_regions();
+        _initializeCoordModel();
         _loaded = true;
 
     }
@@ -97,7 +98,7 @@ void TIFF_Model::_initializeCoordModel()
     LinearTransformer* lt = new LinearTransformer();
     lt->setTopLeft(0, 0);
     lt->setScale(xScale, yScale, 1.0);
-    lt->setDivider(1000.0, 1000.0, 1.0);
+    lt->setDivider(1.0, 1.0, 1.0);
     _coord_model = new gstar::CoordinateModel(lt);
 
 }
