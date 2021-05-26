@@ -30,7 +30,9 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _raw_suffex.append("hdf5");
     _raw_suffex.append("emd");
 
-    _sws_suffex.append("sws");
+    _vlm_suffex.append("sws");
+    _vlm_suffex.append("tif");
+    _vlm_suffex.append("tiff");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -49,11 +51,11 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
 	}
 	_raw_models.clear();
 
-	for (auto & itr : _sws_models)
+	for (auto & itr : _vlm_models)
 	{
 		delete itr.second;
 	}
-	_sws_models.clear();
+	_vlm_models.clear();
 
     if(_dir != nullptr)
     {
@@ -80,7 +82,7 @@ void MapsWorkspaceModel::load(QString filepath)
  
             job_queue[0] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
             job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
-            job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+            job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
             job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
 
             _is_fit_params_loaded = _load_fit_params();
@@ -109,7 +111,7 @@ void MapsWorkspaceModel::load(QString filepath)
                             emit doneLoadingMDA();
                             break;
                         case 2:
-                            _is_sws_loaded = itr.second.get();
+                            _is_vlm_loaded = itr.second.get();
                             to_delete.push_back(itr.first);
                             emit doneLoadingVLM();
                             break;
@@ -162,7 +164,7 @@ void MapsWorkspaceModel::reload_analyzed()
 
 void MapsWorkspaceModel::reload_vlm()
 {
-    _is_sws_loaded = get_filesnames_in_directory(*_dir, "vlm", _sws_suffex, &_sws_fileinfo_list, check_vlm);
+    _is_vlm_loaded = get_filesnames_in_directory(*_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
     emit doneLoadingVLM();
 }
 
@@ -183,20 +185,20 @@ void MapsWorkspaceModel::unload()
     }
     _raw_models.clear();
 
-    for(auto &itr : _sws_models)
+    for(auto &itr : _vlm_models)
     {
         delete itr.second;
     }
-    _sws_models.clear();
+    _vlm_models.clear();
 
     _fit_params_override_dict.clear();
     _raw_fileinfo_list.clear();
-    _sws_fileinfo_list.clear();
+    _vlm_fileinfo_list.clear();
     _h5_fileinfo_list.clear();
 
     _is_fit_params_loaded = false;
     _is_raw_loaded = false;
-    _is_sws_loaded = false;
+    _is_vlm_loaded = false;
     _is_imgdat_loaded = false;
     //_dir = new QDir(filepath);
 
@@ -259,19 +261,28 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-SWSModel* MapsWorkspaceModel::get_SWS_Model(QString name)
+VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
 {
-    if(_sws_models.count(name) > 0)
+    if(_vlm_models.count(name) > 0)
     {
-        return _sws_models[name];
+        return _vlm_models[name];
     }
-    if(_sws_fileinfo_list.count(name) > 0)
+    if(_vlm_fileinfo_list.count(name) > 0)
     {
-        SWSModel * model = new SWSModel();
-        QFileInfo fileInfo = _sws_fileinfo_list[name];
+        VLM_Model * model;
+        QFileInfo fileInfo = _vlm_fileinfo_list[name];
+        QString ext = fileInfo.suffix().toLower();
+        if (ext == "tif" || ext == "tiff")
+        {
+            model = new TIFF_Model();
+        }
+        else if (ext == "sws")
+        {
+            model = new SWSModel();
+        }
         if(model->load(fileInfo.absoluteFilePath()))
         {
-            _sws_models.insert( {fileInfo.fileName(), model} );
+            _vlm_models.insert( {fileInfo.fileName(), model} );
             return model;
         }
         else
@@ -312,7 +323,7 @@ vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
 vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
 {
     vector<QString>  ret;
-    for (auto& itr : _sws_models)
+    for (auto& itr : _vlm_models)
     {
         ret.push_back(itr.first);
     }
@@ -345,12 +356,12 @@ void MapsWorkspaceModel::unload_RAW_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceModel::unload_SWS_Model(QString name)
+void MapsWorkspaceModel::unload_VLM_Model(QString name)
 {
-    if(_sws_models.count(name) > 0)
+    if(_vlm_models.count(name) > 0)
     {
-        SWSModel* model = _sws_models[name];
-        _sws_models.erase(name);
+        VLM_Model* model = _vlm_models[name];
+        _vlm_models.erase(name);
         delete model;
     }
 }

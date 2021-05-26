@@ -145,7 +145,7 @@ void VLM_Model::check_and_load_autosave()
 	}
 	catch (...)
 	{
-		throw std::string("Failed to open SWS workspace!");
+		throw std::string("Failed to open VLM workspace!");
 	}
 
 
@@ -413,7 +413,7 @@ void VLM_Model::_initializeCoordModel()
 
       if (!found)
       {
-         throw std::string("Error: Could not find bounds for SWS workspace!");
+         throw std::string("Error: Could not find bounds for VLM workspace!");
       }
 
       *

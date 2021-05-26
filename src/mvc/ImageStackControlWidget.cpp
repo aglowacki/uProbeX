@@ -142,13 +142,13 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 		_mda_widget->setModel(_raw_model_map[text]);
 		_mda_widget->show();
 	}
-	else if (_sws_model_map.count(text) > 0)
+	else if (_vlm_model_map.count(text) > 0)
 	{
 		if (_mda_widget->isVisible())
 			_mda_widget->hide();
 		if (_imageGrid->isVisible())
 			_imageGrid->hide();
-		_vlm_widget->setModel(_sws_model_map[text]);
+		_vlm_widget->setModel(_vlm_model_map[text]);
 		_vlm_widget->show();
 	}
 }
@@ -222,8 +222,8 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 		case MODEL_TYPE::RAW:
 			_raw_model_map[name] = _model->get_RAW_Model(name);
 			break;
-		case MODEL_TYPE::SWS:
-			_sws_model_map[name] = _model->get_SWS_Model(name);
+		case MODEL_TYPE::VLM:
+			_vlm_model_map[name] = _model->get_VLM_Model(name);
 			break;
 		}
 		
@@ -250,9 +250,9 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 			_raw_model_map.erase(s);
 			_model->unload_RAW_Model(s);
 			break;
-		case MODEL_TYPE::SWS:
-			_sws_model_map.erase(s);
-			_model->unload_SWS_Model(s);
+		case MODEL_TYPE::VLM:
+			_vlm_model_map.erase(s);
+			_model->unload_VLM_Model(s);
 			break;
 		}
        
@@ -284,7 +284,7 @@ void ImageStackControlWidget::update_file_list()
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString sws_file_path, QImage image)
+void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image)
 {
 	if (_model != nullptr)
 	{

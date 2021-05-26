@@ -11,6 +11,7 @@
 #include <QString>
 #include "RawH5Model.h"
 #include "MapsH5Model.h"
+#include "TIFF_Model.h"
 #include "SWSModel.h"
 #include "RAW_Model.h"
 #include "io/file/hl_file_io.h"
@@ -62,13 +63,13 @@ public:
 
     RAW_Model* get_RAW_Model(QString name);
 
-    SWSModel* get_SWS_Model(QString name);
+    VLM_Model* get_VLM_Model(QString name);
 
     void unload_H5_Model(QString name);
 
     void unload_RAW_Model(QString name);
 
-    void unload_SWS_Model(QString name);
+    void unload_VLM_Model(QString name);
 
     data_struct::Fit_Parameters* getFitParameters(int idx);
 
@@ -80,7 +81,7 @@ public:
 
     const map<QString, QFileInfo>& get_raw_file_list() { return _raw_fileinfo_list; }
 
-    const map<QString, QFileInfo>& get_sws_file_list() { return _sws_fileinfo_list; }
+    const map<QString, QFileInfo>& get_vlm_file_list() { return _vlm_fileinfo_list; }
 
     vector<QString> get_loaded_raw_names();
 
@@ -120,7 +121,7 @@ protected:
 
     std::map<QString, MapsH5Model*> _h5_models;
     std::map<QString, RAW_Model*> _raw_models;
-    std::map<QString, SWSModel*> _sws_models;
+    std::map<QString, VLM_Model*> _vlm_models;
 
     std::map<int, data_struct::Params_Override> _fit_params_override_dict;
 
@@ -129,15 +130,15 @@ private:
     QList <QString> _all_h5_suffex;
     QList <QString> _mda_suffex;
     QList <QString> _raw_suffex;
-    QList <QString> _sws_suffex;
+    QList <QString> _vlm_suffex;
 
     map<QString, QFileInfo> _h5_fileinfo_list;
     map<QString, QFileInfo> _raw_fileinfo_list;
-    map<QString, QFileInfo> _sws_fileinfo_list;
+    map<QString, QFileInfo> _vlm_fileinfo_list;
 
     QDir* _dir;
 
-    bool _is_sws_loaded;
+    bool _is_vlm_loaded;
     bool _is_raw_loaded;
     bool _is_fit_params_loaded;
     bool _is_imgdat_loaded;

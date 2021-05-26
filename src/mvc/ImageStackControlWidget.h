@@ -65,7 +65,7 @@ public slots:
 
    void update_progress_bar(int val, int amt);
 
-   void onLinkRegionToDataset(QString item_name, QString sws_file_path, QImage image);
+   void onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image);
 
 protected:
 
@@ -95,7 +95,7 @@ protected:
 
    map<QString, RAW_Model*> _raw_model_map;
 
-   map<QString, SWSModel*> _sws_model_map;
+   map<QString, VLM_Model*> _vlm_model_map;
 
    QProgressBar* _load_progress;
 

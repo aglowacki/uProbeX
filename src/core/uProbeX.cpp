@@ -213,9 +213,9 @@ void uProbeX::createMenuBar()
     action = m_menuFile->addAction("Save Screen Shot");
     connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
     m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Activated SWS DATA");
+    action = m_menuFile->addAction("Save Activated VLM DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveActivatedXML()));
-    action = m_menuFile->addAction("Save All SWS DATA");
+    action = m_menuFile->addAction("Save All VLM DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
     m_menuFile->addSeparator();
     //action = m_menuFile->addAction("Save preferences");
@@ -424,7 +424,7 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
 
             // Display error to user
             QMessageBox::critical(this, tr("uProbeX"),
-                tr("Failed to open recorded SWS file.\n\n") + tr("Error:  ") +
+                tr("Failed to open recorded VLM file.\n\n") + tr("Error:  ") +
                 QString(s.c_str()));
 
             return;
@@ -737,7 +737,7 @@ void uProbeX::saveScreenShot()
             else
             {
                 QMessageBox::critical(this, tr("Warning"),
-                                      tr("Not SWS Window Activated\n\n"));
+                                      tr("Not VLM Window Activated\n\n"));
             }
         }
     }
@@ -773,7 +773,7 @@ void uProbeX::saveActivatedXML()
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 msgBox.setDefaultButton(QMessageBox::No);
                 msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("Do you want to save the activated SWS workspace?");
+                msgBox.setText("Do you want to save the activated VLM workspace?");
                 int ret = msgBox.exec();
 
                 if (ret == QMessageBox::Yes)
@@ -810,7 +810,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setIcon(QMessageBox::Question);
-        msgBox.setText("Do you want to save all SWS workspace?");
+        msgBox.setText("Do you want to save all VLM workspace?");
 
         ret = msgBox.exec();
     } else {
