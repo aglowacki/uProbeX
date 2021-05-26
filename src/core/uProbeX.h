@@ -17,7 +17,10 @@
 #include <mvc/MapsH5Model.h>
 #include <mvc/LiveMapsElementsWidget.h>
 #include <mvc/MapsWorkspaceController.h>
-
+#include <mvc/SWSModel.h>
+#include <mvc/RAW_Model.h>
+#include <mvc/TIFF_Model.h>
+#include <mvc/VLM_Widget.h>
 
 class SubWindow;
 class AbstractWindowController;
@@ -29,8 +32,6 @@ class QMenuBar;
 class QToolBar;
 class QMdiArea;
 class QMdiSubWindow;
-class SWSModel;
-class RAW_Model;
 
 /*---------------------------------------------------------------------------*/
 
@@ -85,13 +86,13 @@ private slots:
     * @param path
     * @param newWindow
     */
-   void makeSWSWindow(QString path, bool newWindow = false);
+   void make_VLM_Window(QString path, bool newWindow = false);
 
    /**
     * @brief makeSWSWindow
     * @param swsModel
     */
-   void makeSWSWindow(SWSModel* swsModel);
+   void make_VLM_Window(VLM_Model* model);
 
    /**
     * @brief laodMapsWorkspace
@@ -104,24 +105,24 @@ private slots:
     * @param path
     * @param newWindow
     */
-   void makeHDFWindow(QString path);
+   void make_HDF_Window(QString path);
 
    /**
     * @brief makeHDFWindow
     * @param model
     */
-   void makeHDFWindow(MapsH5Model* model);
+   void make_HDF_Window(MapsH5Model* model);
 
    /**
     * @brief makeMDAWindow
     * @param model
     */
-   void makeMDAWindow(RAW_Model* model);
+   void make_MDA_Window(RAW_Model* model);
 
    /**
     * @brief Open the SWS workspace. Triggered from the menu.
     */
-   void openSWSFile();
+   void open_VLM_File();
 
    /**
     * @brief openMAPSWorkspace
@@ -137,7 +138,7 @@ private slots:
    /**
     * @brief openHDFFile
     */
-   void openHDFFile();
+   void open_HDF_File();
 
    /**
     * @brief Save the screen shot. Triggered from the menu.

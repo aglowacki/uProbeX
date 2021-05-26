@@ -1,9 +1,9 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2021, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/TIFFModel.h>
+#include <mvc/TIFF_Model.h>
 
 #include <string>
 #include <queue>
@@ -15,41 +15,58 @@ using std::string;
 
 /*---------------------------------------------------------------------------*/
 
-TIFFModel::TIFFModel(QString filepath, std::string datapath)
+TIFF_Model::TIFF_Model() : VLM_Model()
+{
+    _loaded = false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+TIFF_Model::~TIFF_Model()
 {
 
-    Q_UNUSED(datapath);
+}
 
+/*---------------------------------------------------------------------------*/
+
+bool TIFF_Model::load(QString filepath)
+{
     m_pathtiffFile = filepath;
-
+    _loaded = false;
     try
     {
-
+        QFileInfo info1(filepath);
+        _pathFile = filepath;
+        _datasetPath = info1.path() + QDir::separator() + info1.completeBaseName();
         QImageReader img_reader(filepath);
         _img = img_reader.read();
+        _loaded = true;
 
     }
     catch (std::string& s)
     {
-        throw s;
+        return false;
     }
     catch (...)
     {
-        throw std::string("Failed to open TIFF file!");
+        return false;
     }
 
+    return true;
 }
 
 /*---------------------------------------------------------------------------*/
 
-TIFFModel::~TIFFModel()
+bool TIFF_Model::loaded()
 {
+    
+    return _loaded;
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-int TIFFModel::getPixelByteSize()
+int TIFF_Model::getPixelByteSize()
 {
 
     return _img.bitPlaneCount();
@@ -58,7 +75,14 @@ int TIFFModel::getPixelByteSize()
 
 /*---------------------------------------------------------------------------*/
 
-QString TIFFModel::getDataPath()
+void TIFF_Model::_initializeCoordModel()
+{
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+QString TIFF_Model::getDataPath()
 {
 
     return m_pathtiffFile;
@@ -67,7 +91,7 @@ QString TIFFModel::getDataPath()
 
 /*---------------------------------------------------------------------------*/
 
-int TIFFModel::getImageDims(int imageIndex)
+int TIFF_Model::getImageDims(int imageIndex)
 {
 
     switch (imageIndex)
@@ -84,7 +108,7 @@ return 0;
 
 /*---------------------------------------------------------------------------*/
 
-int TIFFModel::getNumberOfImages()
+int TIFF_Model::getNumberOfImages()
 {
 
     return 1;
@@ -93,7 +117,7 @@ int TIFFModel::getNumberOfImages()
 
 /*---------------------------------------------------------------------------*/
 
-int TIFFModel::getRank()
+int TIFF_Model::getRank()
 {
 
     return 2;

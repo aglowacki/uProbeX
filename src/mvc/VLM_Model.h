@@ -40,6 +40,8 @@ public:
      */
     virtual bool load(QString filepath) = 0;
 
+    virtual bool loaded() = 0;
+
     /**
      * @brief getFilePath
      * @return

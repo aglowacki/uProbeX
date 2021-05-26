@@ -23,7 +23,7 @@
 //#include <preferences/PythonSolverProfileWidget.h>
 #include <solver/PythonSolver.h>
 #include <solver/NelderMeadSolver.h>
-#include <mvc/SWSWidget.h>
+#include <mvc/VLM_Widget.h>
 #include <mvc/SolverWidget.h>
 #include <solver/CoordinateTransformer.h>
 

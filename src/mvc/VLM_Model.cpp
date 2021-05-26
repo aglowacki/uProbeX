@@ -95,7 +95,7 @@ void VLM_Model::_load_xml_markers_and_regions()
 	// Error handling.
 	if (xml.hasError())
 	{
-		QMessageBox::critical(nullptr,"SWSWidget::parseXML",xml.errorString(),QMessageBox::Ok);
+		QMessageBox::critical(nullptr,"VLM_Widget::parseXML",xml.errorString(),QMessageBox::Ok);
 	}
 
 	xml.clear();

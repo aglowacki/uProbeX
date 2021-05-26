@@ -24,7 +24,7 @@ const char NUM_SAMPLES_STR[] = {"Mosaic/Count"};
 const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\n"};
 
 /*----------------src/mvc/SWSModel.cpp \-----------------------------------------------------------*/
-SWSModel::SWSModel()
+SWSModel::SWSModel() : VLM_Model()
 {
 
     m_samples = nullptr;
@@ -645,7 +645,7 @@ bool SWSModel::loadPMG()
 
 /*---------------------------------------------------------------------------*/
 
-bool SWSModel::tiffLoaded()
+bool SWSModel::loaded()
 {
 
    return m_tiffLoaded;

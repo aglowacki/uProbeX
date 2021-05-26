@@ -8,7 +8,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <mvc/AbstractWindowModel.h>
+#include <mvc/VLM_Model.h>
 
 #include <QString>
 #include <QImageReader>
@@ -19,8 +19,7 @@
  * @brief Model to manipulate the image path behavior, such as get
  * and set path.
  */
-class TIFFModel
-        :  public AbstractWindowModel
+class TIFF_Model :  public VLM_Model
 {
 
 public:
@@ -28,13 +27,16 @@ public:
     /**
     * Constructor
     */
-    TIFFModel(QString filepath, std::string datapath);
+    TIFF_Model();
 
     /**
     * Destructor
     */
-    ~TIFFModel();
+    ~TIFF_Model();
 
+    virtual bool load(QString filepath);
+
+    virtual bool loaded();
     /**
     * @brief getPixelByteSize
     * @return
@@ -74,6 +76,10 @@ public:
      */
     virtual QImage* getImage() { return &_img; }
 
+protected:
+
+    virtual void _initializeCoordModel();
+
 private:
 
     /**
@@ -82,6 +88,8 @@ private:
     void computeImageDims();
 
     QImage _img;
+
+    bool _loaded;
 
     /**
     * @brief HDF5 opened by the playback window.
@@ -93,6 +101,6 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* TIFFMODEL_H_ */
+#endif /* TIFF_Model_H_ */
 
 /*---------------------------------------------------------------------------*/

@@ -15,7 +15,7 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include "mvc/SWSWidget.h"
+#include "mvc/VLM_Widget.h"
 #include "mvc/MDA_Widget.h"
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/MapsWorkspaceFilesWidget.h"
@@ -79,7 +79,7 @@ protected:
 
    MapsElementsWidget* _imageGrid;
 
-   SWSWidget *_sws_widget;
+   VLM_Widget *_vlm_widget;
 
    MDA_Widget* _mda_widget;
 

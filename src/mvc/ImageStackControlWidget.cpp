@@ -47,8 +47,8 @@ void ImageStackControlWidget::createLayout()
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
-	_sws_widget = new SWSWidget();
-	connect(_sws_widget, &SWSWidget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
+	_vlm_widget = new VLM_Widget();
+	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 
 	_mda_widget = new MDA_Widget();
 
@@ -79,7 +79,7 @@ void ImageStackControlWidget::createLayout()
 
     vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
-	vlayout->addWidget(_sws_widget);
+	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
 
 	hlayout2->addWidget(_mapsFilsWidget);
@@ -106,7 +106,7 @@ void ImageStackControlWidget::createLayout()
 	mainLayout->addWidget(_load_progress);
 	
 	//_imageGrid->hide();
-	_sws_widget->hide();
+	_vlm_widget->hide();
 	_mda_widget->hide();
 
 	setLayout(mainLayout);
@@ -128,15 +128,15 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 	{
 		if (_mda_widget->isVisible())
 			_mda_widget->hide();
-		if (_sws_widget->isVisible())
-			_sws_widget->hide();
+		if (_vlm_widget->isVisible())
+			_vlm_widget->hide();
 		_imageGrid->setModel(_h5_model_map[text]);
 		_imageGrid->show();
 	}
 	else if(_raw_model_map.count(text) > 0)
 	{
-		if (_sws_widget->isVisible())
-			_sws_widget->hide();
+		if (_vlm_widget->isVisible())
+			_vlm_widget->hide();
 		if(_imageGrid->isVisible())
 			_imageGrid->hide();
 		_mda_widget->setModel(_raw_model_map[text]);
@@ -148,8 +148,8 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 			_mda_widget->hide();
 		if (_imageGrid->isVisible())
 			_imageGrid->hide();
-		_sws_widget->setModel(_sws_model_map[text]);
-		_sws_widget->show();
+		_vlm_widget->setModel(_sws_model_map[text]);
+		_vlm_widget->show();
 	}
 }
 

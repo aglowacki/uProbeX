@@ -76,7 +76,7 @@ public:
     * @brief tiffLoaded
     * @return whether the tiff is loaded
     */
-    bool tiffLoaded();
+    virtual bool loaded();
 
 protected:
 
