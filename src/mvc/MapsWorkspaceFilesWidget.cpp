@@ -64,8 +64,17 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     _vlm_tab_widget = new FileTabWidget();
     _vlm_tab_widget->setProcessButtonVisible(false);
+    QAction* sws_file = new QAction("SWS | *.sws", this);
+    connect(sws_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.sws"); });
+    QAction* tiff_file = new QAction("TIFF | *.tiff", this);
+    connect(tiff_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tiff"); });
+    QAction* tif_file = new QAction("TIF | *.tif", this);
+    connect(tif_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tif"); });
     connect(_vlm_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::VLM); });
     connect(_vlm_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::VLM); });
+    _vlm_tab_widget->appendFilterHelpAction(sws_file);
+    _vlm_tab_widget->appendFilterHelpAction(tiff_file);
+    _vlm_tab_widget->appendFilterHelpAction(tif_file);
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);

@@ -9,6 +9,9 @@
 #include <queue>
 #include <vector>
 
+#include <gstar/LinearTransformer.h>
+using gstar::LinearTransformer;
+
 using std::vector;
 using std::pair;
 using std::string;
@@ -40,6 +43,8 @@ bool TIFF_Model::load(QString filepath)
         _datasetPath = info1.path() + QDir::separator() + info1.completeBaseName();
         QImageReader img_reader(filepath);
         _img = img_reader.read();
+        //load xml markers and regions
+        _load_xml_markers_and_regions();
         _loaded = true;
 
     }
@@ -77,6 +82,23 @@ int TIFF_Model::getPixelByteSize()
 
 void TIFF_Model::_initializeCoordModel()
 {
+    double xScale = 1.0;
+    double yScale = 1.0;
+    double imgWidth;
+    double imgHeight;
+
+    int topLeftIdx = 0;
+    int topRightIdx;
+    int bottomLeftIdx;
+
+    imgWidth = _img.width();
+    imgHeight = _img.height();
+
+    LinearTransformer* lt = new LinearTransformer();
+    lt->setTopLeft(0, 0);
+    lt->setScale(xScale, yScale, 1.0);
+    lt->setDivider(1000.0, 1000.0, 1.0);
+    _coord_model = new gstar::CoordinateModel(lt);
 
 }
 

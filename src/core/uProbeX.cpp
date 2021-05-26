@@ -384,13 +384,16 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
         return;
 
     VLM_Model* model = nullptr;
-    if (0 == path.compare("sws") || 0 == path.compare("SWS"))
-    {
-        model = new SWSModel();
-    }
-    else if (0 == path.compare("tiff") || 0 == path.compare("tif"))
+    QFileInfo fileinfo(path);
+
+    QString ext = fileinfo.suffix().toLower();
+    if (ext == "tif" || ext == "tiff")
     {
         model = new TIFF_Model();
+    }
+    else if (ext == "sws")
+    {
+        model = new SWSModel();
     }
 
     if (model != nullptr)
@@ -614,7 +617,7 @@ void uProbeX::open_VLM_File()
 
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open Visible Light Microscope Workspace", ".",
-                                                    tr("TIFF (*.tiff *.tif), SWS (*.sws *.SWS)"));
+                                                    "VLM (*.tiff *.tif *.sws)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
