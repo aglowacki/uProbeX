@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef PYTHONSOLVERPROFILEWIDGET_H_
-#define PYTHONSOLVERPROFILEWIDGET_H_
+#ifndef SOLVER_PROFILE_WIDGET_H_
+#define SOLVER_PROFILE_WIDGET_H_
 
 #include <QApplication>
 #include <QLabel>
@@ -28,7 +28,7 @@
 /**
  * @brief
  */
-class PythonSolverProfileWidget
+class SolverProfileWidget
 : public QDialog
 {
 
@@ -41,12 +41,12 @@ public:
     *
     * @param parent - the Qt parent widget
     */
-   PythonSolverProfileWidget(QWidget* parent = 0);
+   SolverProfileWidget(QWidget* parent = 0);
 
    /**
     * Default destructor
     */
-   ~PythonSolverProfileWidget();
+   ~SolverProfileWidget();
 
    /**
     * @brief getCurrentIndex

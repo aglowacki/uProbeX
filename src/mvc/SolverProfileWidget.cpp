@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <preferences/PythonSolverProfileWidget.h>
+#include <mvc/SolverProfileWidget.h>
 #include <solver/NelderMeadSolver.h>
 
 #include <QSpinBox>
@@ -17,29 +17,29 @@
 
 /*---------------------------------------------------------------------------*/
 
-PythonSolverProfileWidget::PythonSolverProfileWidget(QWidget* parent) : QDialog(parent)
+SolverProfileWidget::SolverProfileWidget(QWidget* parent) : QDialog(parent)
 {
 
-   m_currentProfileIndex = 0;
+    m_currentProfileIndex = 0;
     m_coordPoints = nullptr;
     m_solverWidget = nullptr;
     m_solver = nullptr;
-   createCompontent();
+    createCompontent();
 
-   createLayOut();
+    createLayOut();
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-PythonSolverProfileWidget::~PythonSolverProfileWidget()
+SolverProfileWidget::~SolverProfileWidget()
 {
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::addProfileItem(QString name, QString desc)
+void SolverProfileWidget::addProfileItem(QString name, QString desc)
 {
 
    m_currentProfileIndex = m_profiles.size();
@@ -58,7 +58,7 @@ void PythonSolverProfileWidget::addProfileItem(QString name, QString desc)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::coefficientItemChanged()
+void SolverProfileWidget::coefficientItemChanged()
 {
     if(m_profiles.size() > 0)
     {
@@ -69,7 +69,7 @@ void PythonSolverProfileWidget::coefficientItemChanged()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::createCompontent()
+void SolverProfileWidget::createCompontent()
 {
 
    m_profileTable = new ProfileTable();
@@ -129,7 +129,7 @@ void PythonSolverProfileWidget::createCompontent()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::createLayOut()
+void SolverProfileWidget::createLayOut()
 {
 
    QFormLayout* mainLayout = new QFormLayout();
@@ -178,7 +178,7 @@ void PythonSolverProfileWidget::createLayOut()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::editProfileItem(int position, QString editValue)
+void SolverProfileWidget::editProfileItem(int position, QString editValue)
 {
 
    if(position == 0)
@@ -195,7 +195,7 @@ void PythonSolverProfileWidget::editProfileItem(int position, QString editValue)
 
 /*---------------------------------------------------------------------------*/
 
-int PythonSolverProfileWidget::getCurrentIndex()
+int SolverProfileWidget::getCurrentIndex()
 {
 
    return m_currentProfileIndex;
@@ -204,7 +204,7 @@ int PythonSolverProfileWidget::getCurrentIndex()
 
 /*---------------------------------------------------------------------------*/
 
-QStringList PythonSolverProfileWidget::getPythonSolverName()
+QStringList SolverProfileWidget::getPythonSolverName()
 {
 
    QStringList str;
@@ -222,7 +222,7 @@ QStringList PythonSolverProfileWidget::getPythonSolverName()
 
 /*---------------------------------------------------------------------------*/
 
-QString PythonSolverProfileWidget::getCurrentFileName()
+QString SolverProfileWidget::getCurrentFileName()
 {
 
    return m_filePath;
@@ -231,7 +231,7 @@ QString PythonSolverProfileWidget::getCurrentFileName()
 
 /*---------------------------------------------------------------------------*/
 
-QStringList PythonSolverProfileWidget::getProfileAttrs()
+QStringList SolverProfileWidget::getProfileAttrs()
 {
 
    return m_profileTable->toStringList();
@@ -240,7 +240,7 @@ QStringList PythonSolverProfileWidget::getProfileAttrs()
 
 /*---------------------------------------------------------------------------*/
 
-QStringList PythonSolverProfileWidget::getProfileCoefficientAttrs()
+QStringList SolverProfileWidget::getProfileCoefficientAttrs()
 {
 
    QStringList sList;
@@ -256,7 +256,7 @@ QStringList PythonSolverProfileWidget::getProfileCoefficientAttrs()
 
 /*---------------------------------------------------------------------------*/
 
-QStringList PythonSolverProfileWidget::getProfileOptionAttrs()
+QStringList SolverProfileWidget::getProfileOptionAttrs()
 {
 
    QStringList sList;
@@ -272,7 +272,7 @@ QStringList PythonSolverProfileWidget::getProfileOptionAttrs()
 
 /*---------------------------------------------------------------------------*/
 
-SolverParameterWidget* PythonSolverProfileWidget::getPythonSolverProfileWiget()
+SolverParameterWidget* SolverProfileWidget::getPythonSolverProfileWiget()
 {
 
    return m_pythonSolverWidget;
@@ -280,7 +280,7 @@ SolverParameterWidget* PythonSolverProfileWidget::getPythonSolverProfileWiget()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::openPythonFile()
+void SolverProfileWidget::openPythonFile()
 {
 
    m_fileName = QFileDialog::getOpenFileName(this,
@@ -370,7 +370,7 @@ void PythonSolverProfileWidget::openPythonFile()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::optionItemChanged()
+void SolverProfileWidget::optionItemChanged()
 {
     if(m_profiles.size() > 0)
     {
@@ -381,7 +381,7 @@ void PythonSolverProfileWidget::optionItemChanged()
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::removeProfileItem(int selectRow)
+void SolverProfileWidget::removeProfileItem(int selectRow)
 {
 
    m_pythonSolverWidget -> removeCoefficientItems();
@@ -417,7 +417,7 @@ void PythonSolverProfileWidget::removeProfileItem(int selectRow)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setCoefficientAttrs(QStringList attrs)
+void SolverProfileWidget::setCoefficientAttrs(QStringList attrs)
 {
 
    for (int i = 0 ; i < attrs.length() ; i++)
@@ -431,7 +431,7 @@ void PythonSolverProfileWidget::setCoefficientAttrs(QStringList attrs)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setCurrentIndex(int index)
+void SolverProfileWidget::setCurrentIndex(int index)
 {
 
    m_currentProfileIndex = index;
@@ -441,7 +441,7 @@ void PythonSolverProfileWidget::setCurrentIndex(int index)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setPythonOptionAttrs(QStringList attrs)
+void SolverProfileWidget::setPythonOptionAttrs(QStringList attrs)
 {
 
    for (int i = 0 ; i < attrs.length() ; i++)
@@ -456,7 +456,7 @@ void PythonSolverProfileWidget::setPythonOptionAttrs(QStringList attrs)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setPythonSolverNameList(QStringList fileNameList)
+void SolverProfileWidget::setPythonSolverNameList(QStringList fileNameList)
 {
 
    for (int i = 0 ; i < fileNameList.length() ; i++)
@@ -478,7 +478,7 @@ void PythonSolverProfileWidget::setPythonSolverNameList(QStringList fileNameList
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setPythonSolverPofileList(QStringList list)
+void SolverProfileWidget::setPythonSolverPofileList(QStringList list)
 {
 
    m_profileTable->fromStringList(list);
@@ -496,7 +496,7 @@ void PythonSolverProfileWidget::setPythonSolverPofileList(QStringList list)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::setPythonSolverName(QString fileName)
+void SolverProfileWidget::setPythonSolverName(QString fileName)
 {
 
    m_fileName = fileName;
@@ -513,7 +513,7 @@ void PythonSolverProfileWidget::setPythonSolverName(QString fileName)
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::switchProfileItem(const QItemSelection& selected,
+void SolverProfileWidget::switchProfileItem(const QItemSelection& selected,
                                                   const QItemSelection& deselected)
 {
 
@@ -547,7 +547,7 @@ void PythonSolverProfileWidget::switchProfileItem(const QItemSelection& selected
 
 /*---------------------------------------------------------------------------*/
 
-void PythonSolverProfileWidget::runSolver()
+void SolverProfileWidget::runSolver()
 {
     if(m_coordPoints == nullptr)
     {

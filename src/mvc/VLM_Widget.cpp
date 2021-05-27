@@ -40,7 +40,7 @@
 //#include <core/CAEmitDataChangeHandler.h>
 
 #include <mvc/SolverWidget.h>
-#include <preferences/PythonSolverProfileWidget.h>
+#include <mvc/SolverProfileWidget.h>
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -1992,7 +1992,7 @@ void VLM_Widget::openSolver()
 
         return;
     }
-    PythonSolverProfileWidget solverWidget;
+    SolverProfileWidget solverWidget;
     solverWidget.setCoordinatePoints(&coordPoints);
 
     if (solverWidget.exec() == QDialog::Accepted)
