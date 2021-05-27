@@ -316,6 +316,8 @@ void VLM_Widget::_createLightToMicroCoords(int id)
         logW << "Could not init Transformer\n";
     }
 
+    m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel);
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -2206,10 +2208,10 @@ void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
    m_lightToMicroCoordWidget->setModel(model);
-
+   /*
    if(m_lightToMicroCoordModel != nullptr)
    {
-       /*
+       
       double val;
       if(m_lightToMicroCoordModel->getTransformerVariable(
                CoordinateTransformGlobals::keyToString(
@@ -2223,9 +2225,9 @@ void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
       {
          m_yOffset->setText(QString::number(val));
       }
-      */
+      
    }
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
