@@ -288,12 +288,22 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 {
 	if (_model != nullptr)
 	{
+		QMenu menu(this);
+
 		map<QString, QFileInfo> raw_file_map = _model->get_raw_file_list();
 		QStringList raw_file_list;
 		for (auto& itr : raw_file_map)
 		{
-			raw_file_list.append(itr.first);
+			menu.addAction(new QAction(itr.first));
 		}
+		QPoint globalCursorPos = QCursor::pos();
+		QAction* result = menu.exec(globalCursorPos);
+		if (result != nullptr)
+		{
+			logI << result->text().toStdString() << "\n";
+			//result->text();
+		}
+
 		//TODO: display dialog with raw dataset names for user to select one to link to.
 		/*
 		_raw_list_widget->clear();
