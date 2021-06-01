@@ -1679,7 +1679,7 @@ bool VLM_Widget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
          (gstar::AbstractGraphicsItem*)first.internalPointer();
    if(groupPtr == nullptr)
    {
-      QMessageBox::critical(0, "uProbeX", "No Points to run solver on!");
+      logW<<"No Points to run solver on!\n";
       return false;
    }
 
@@ -1985,15 +1985,13 @@ void VLM_Widget::restoreMarkerLoaded()
 
 void VLM_Widget::openSolver()
 {
+    
     QList< QMap<QString, double> > coordPoints;
-    if (!getMarkerCoordinatePoints(coordPoints))
-    {
-        QMessageBox::warning(nullptr, "Warning", "You need to add coordinate points before running solver");
-
-        return;
-    }
     SolverProfileWidget solverWidget;
-    solverWidget.setCoordinatePoints(&coordPoints);
+    if (getMarkerCoordinatePoints(coordPoints))
+    {
+        solverWidget.setCoordinatePoints(&coordPoints);
+    }
 
     if (solverWidget.exec() == QDialog::Accepted)
     {
