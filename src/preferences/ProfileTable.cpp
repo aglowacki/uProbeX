@@ -42,26 +42,29 @@ void ProfileTable::acceptChanges()
 
 /*---------------------------------------------------------------------------*/
 
+void ProfileTable::addNewItem(QString name, QString desc)
+{
+    // Check valid model
+    if (m_solverModel == nullptr) return;
+
+    // Get row number for new item
+    int row = m_solverModel->rowCount(QModelIndex()) + 1;
+
+    // Add item
+    m_solverModel->addSolverAttr(name, "0.0", desc, true);
+
+    // Enable remove button
+    if (m_solverModel->rowCount(QModelIndex()) > 0) m_btnRemove->setEnabled(true);
+
+    emit addItem(name, desc);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ProfileTable::addItem()
 {
 
-   // Check valid model
-   if (m_solverModel == nullptr) return;
-
-   // Get row number for new item
-   int row = m_solverModel->rowCount(QModelIndex()) + 1;
-
-   // Add item
-   m_solverModel -> addSolverAttr(tr("name"), tr("0.0"), tr("desc"), true);
-
-   // Enable remove button
-   if (m_solverModel->rowCount(QModelIndex()) > 0) m_btnRemove->setEnabled(true);
-
-   emit addItem(tr("name"), tr("desc"));
-
-   // Select newly added pair
-//   m_solverTable->selectionModel()->clearSelection();
-//   m_solverTable->selectRow(row - 1);
+    addNewItem("Name", "Desc");
 
 }
 

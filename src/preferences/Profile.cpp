@@ -20,6 +20,18 @@ Profile::Profile()
 
 /*---------------------------------------------------------------------------*/
 
+Profile::Profile(const Profile &p)
+{
+    m_name = p.m_name;
+    m_desc = p.m_desc;
+    m_filePath = p.m_filePath;
+    m_attrsCoefficient = p.m_attrsCoefficient;
+    m_attrsOption = p.m_attrsOption;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 Profile::~Profile()
 {
 

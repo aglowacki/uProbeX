@@ -23,7 +23,7 @@
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
 
-enum class MODEL_TYPE { MAPS_H5, RAW, SWS };
+enum class MODEL_TYPE { MAPS_H5, RAW, VLM };
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -97,7 +97,7 @@ private:
 
    FileTabWidget* _mda_tab_widget;
 
-   FileTabWidget* _sws_tab_widget;
+   FileTabWidget* _vlm_tab_widget;
 
    QLabel* _lbl_workspace;
 

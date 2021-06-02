@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/SWSWidget.h>
+#include <mvc/VLM_Widget.h>
 
 #include <gstar/ImageViewWidget.h>
 
@@ -40,7 +40,7 @@
 //#include <core/CAEmitDataChangeHandler.h>
 
 #include <mvc/SolverWidget.h>
-#include <preferences/PythonSolverProfileWidget.h>
+#include <mvc/SolverProfileWidget.h>
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -61,7 +61,7 @@ static const int ID_PYTHON = 1;
 
 /*---------------------------------------------------------------------------*/
 
-SWSWidget::SWSWidget(QWidget* parent)
+VLM_Widget::VLM_Widget(QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
 
@@ -69,7 +69,6 @@ SWSWidget::SWSWidget(QWidget* parent)
 //   m_pvXHandler = nullptr;
 //   m_pvYHandler = nullptr;
    m_solverWidget = nullptr;
-   m_coordinateModel = nullptr;
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
    m_solver = nullptr;
@@ -89,7 +88,7 @@ SWSWidget::SWSWidget(QWidget* parent)
 
 /*---------------------------------------------------------------------------*/
 
-SWSWidget::~SWSWidget()
+VLM_Widget::~VLM_Widget()
 {
 
    if(m_solverParameterParse != nullptr)
@@ -121,7 +120,7 @@ SWSWidget::~SWSWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::addCalibration()
+void VLM_Widget::addCalibration()
 {
 
    UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem();
@@ -137,7 +136,7 @@ void SWSWidget::addCalibration()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::addTopWindowPoints()
+void VLM_Widget::addTopWindowPoints()
 {
 
     QString btmRight = "A";
@@ -215,7 +214,7 @@ void SWSWidget::addTopWindowPoints()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::addMicroProbeRegion()
+void VLM_Widget::addMicroProbeRegion()
 {
 
    UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
@@ -233,7 +232,7 @@ void SWSWidget::addMicroProbeRegion()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::_createLightToMicroCoords(int id)
+void VLM_Widget::_createLightToMicroCoords(int id)
 {
     ITransformer* lightTransformer = nullptr;
     QMap<QString, double> allCoefs;
@@ -317,11 +316,13 @@ void SWSWidget::_createLightToMicroCoords(int id)
         logW << "Could not init Transformer\n";
     }
 
+    m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel);
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::_createSolver()
+void VLM_Widget::_createSolver()
 {
 
     QMap<QString, double> dict_options;
@@ -388,7 +389,7 @@ void SWSWidget::_createSolver()
 
 /*---------------------------------------------------------------------------*/
 
-UProbeRegionGraphicsItem* SWSWidget::getSelectedRegion()
+UProbeRegionGraphicsItem* VLM_Widget::getSelectedRegion()
 {
    QModelIndexList selectedIndexes = m_mpSelectionModel->selectedRows();
    if (selectedIndexes.size() == 1)
@@ -407,7 +408,7 @@ UProbeRegionGraphicsItem* SWSWidget::getSelectedRegion()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::zoomMicroProbeRegion()
+void VLM_Widget::zoomMicroProbeRegion()
 {
    UProbeRegionGraphicsItem* item = getSelectedRegion();
    if (item != nullptr) {
@@ -417,7 +418,7 @@ void SWSWidget::zoomMicroProbeRegion()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformation, QList<QString>* summaryWarnings)
+void VLM_Widget::exportSelectedRegionInformation(QList<QString>* summaryInformation, QList<QString>* summaryWarnings)
 {
    QModelIndexList selectedIndexes = m_mpSelectionModel->selectedRows();
    if (selectedIndexes.size() > 0)
@@ -623,7 +624,7 @@ void SWSWidget::exportSelectedRegionInformation(QList<QString>* summaryInformati
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
+void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
                                         QString filePathToSave,
                                         bool zoomToRegion,
                                         bool printNameOnImage,
@@ -800,7 +801,7 @@ void SWSWidget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::callbackPvXUpdatedFloat(float val)
+void VLM_Widget::callbackPvXUpdatedFloat(float val)
 {
 
    logW<<"float x val = "<<val;
@@ -810,7 +811,7 @@ void SWSWidget::callbackPvXUpdatedFloat(float val)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::callbackPvYUpdatedFloat(float val)
+void VLM_Widget::callbackPvYUpdatedFloat(float val)
 {
 
    logW<<"float y val = "<<val;
@@ -820,7 +821,7 @@ void SWSWidget::callbackPvYUpdatedFloat(float val)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::callbackPvXUpdatedDouble(double val)
+void VLM_Widget::callbackPvXUpdatedDouble(double val)
 {
 
    if(m_calSelectionModel == nullptr || m_grabbingPvsX == false)
@@ -851,7 +852,7 @@ void SWSWidget::callbackPvXUpdatedDouble(double val)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::callbackPvYUpdatedDouble(double val)
+void VLM_Widget::callbackPvYUpdatedDouble(double val)
 {
 
    if(m_calSelectionModel == nullptr || m_grabbingPvsY == false)
@@ -882,7 +883,7 @@ void SWSWidget::callbackPvYUpdatedDouble(double val)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::calModelDataChanged(const QModelIndex& topLeft,
+void VLM_Widget::calModelDataChanged(const QModelIndex& topLeft,
                                     const QModelIndex& bottomRight)
 {
 
@@ -893,7 +894,7 @@ void SWSWidget::calModelDataChanged(const QModelIndex& topLeft,
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::createActions()
+void VLM_Widget::createActions()
 {
 
    m_addCalibrationAction = new QAction("Add Point", this);
@@ -925,7 +926,7 @@ void SWSWidget::createActions()
            SLOT(exportSelectedRegionInformation()));
 
    _linkRegionToDatasetAction = new QAction("Link to Dataset", this);
-   connect(_linkRegionToDatasetAction, &QAction::triggered, this, &SWSWidget::linkRegionToDataset);
+   connect(_linkRegionToDatasetAction, &QAction::triggered, this, &VLM_Widget::linkRegionToDataset);
 
    m_grabMicroProbePVAction = new QAction("Grab MicroProbe PV", this);
    connect(m_grabMicroProbePVAction,
@@ -936,7 +937,7 @@ void SWSWidget::createActions()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::linkRegionToDataset()
+void VLM_Widget::linkRegionToDataset()
 {
     QModelIndexList selectedIndexes = m_mpSelectionModel->selectedRows();
     if (selectedIndexes.size() == 1)
@@ -985,7 +986,7 @@ void SWSWidget::linkRegionToDataset()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::cancelUpdatedSolverVariables()
+void VLM_Widget::cancelUpdatedSolverVariables()
 {
 
    emit cancelSolverVariableUpdate();
@@ -994,7 +995,7 @@ void SWSWidget::cancelUpdatedSolverVariables()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::createCalibrationTab()
+void VLM_Widget::createCalibrationTab()
 {
 
    m_calTreeModel = new gstar::AnnotationTreeModel();
@@ -1045,12 +1046,12 @@ void SWSWidget::createCalibrationTab()
            this,
            SLOT(addTopWindowPoints()));
 
-   m_btnRunSolver = new QPushButton("Open Solver");
+   m_btnRunSolver = new QPushButton("Update Transform");
    connect(m_btnRunSolver,
            SIGNAL(clicked()),
            this,
            SLOT(openSolver()));
-
+/*
    QLabel* lblXOffset = new QLabel("2xfm:X ");
    m_xOffset = new QLineEdit();
    connect(m_xOffset,
@@ -1072,15 +1073,15 @@ void SWSWidget::createCalibrationTab()
            SIGNAL(returnPressed()),
            this,
            SLOT(offsetReturnPressed()));
-
+*/
    QVBoxLayout* infoLayout = new QVBoxLayout();
    QHBoxLayout* buttonLayout = new QHBoxLayout();
    QHBoxLayout* buttonLayout2 = new QHBoxLayout();
    QHBoxLayout* offsetLayout = new QHBoxLayout();
-   offsetLayout->addWidget(lblXOffset);
-   offsetLayout->addWidget(m_xOffset);
-   offsetLayout->addWidget(lblYOffset);
-   offsetLayout->addWidget(m_yOffset);
+//   offsetLayout->addWidget(lblXOffset);
+//   offsetLayout->addWidget(m_xOffset);
+//   offsetLayout->addWidget(lblYOffset);
+//   offsetLayout->addWidget(m_yOffset);
    buttonLayout->addWidget(m_btnAddCalibration);
    buttonLayout->addWidget(m_btnRunSolver);
    buttonLayout2->addWidget(m_btnAddTopWindowPoints);
@@ -1098,7 +1099,7 @@ void SWSWidget::createCalibrationTab()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::CallPythonFunc()
+void VLM_Widget::CallPythonFunc()
 {
 
    QAction *action = (QAction *)sender();
@@ -1136,7 +1137,7 @@ void SWSWidget::CallPythonFunc()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::createMicroProbeMenu()
+void VLM_Widget::createMicroProbeMenu()
 {
   
    QStringList rList = Preferences::inst()->getValue(STR_PRF_RegionMenuList)
@@ -1208,7 +1209,7 @@ void SWSWidget::createMicroProbeMenu()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::createMicroProbeTab()
+void VLM_Widget::createMicroProbeTab()
 {
 
    m_mpTreeModel = new gstar::AnnotationTreeModel();
@@ -1257,7 +1258,7 @@ void SWSWidget::createMicroProbeTab()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::createLayout()
+void VLM_Widget::createLayout()
 {
 
    connect(m_tabWidget,
@@ -1299,7 +1300,7 @@ void SWSWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::displayContextMenu(QWidget* parent,
+void VLM_Widget::displayContextMenu(QWidget* parent,
                                    const QPoint& pos)
 {
 
@@ -1397,7 +1398,7 @@ void SWSWidget::displayContextMenu(QWidget* parent,
 
 /*--------------------------------------------------------------------------*/
 
-void SWSWidget::checkMicroProbePVs()
+void VLM_Widget::checkMicroProbePVs()
 {
 /*
    try
@@ -1418,27 +1419,27 @@ void SWSWidget::checkMicroProbePVs()
          switch(m_pvX->getType())
          {
          case DBR_FLOAT:
-            m_pvXHandler = new CAEmitDataChangeHandler<float, SWSWidget>(
-                                         this, &SWSWidget::callbackPvXUpdatedFloat);
-            m_pvYHandler = new CAEmitDataChangeHandler<float, SWSWidget>(
-                                         this, &SWSWidget::callbackPvYUpdatedFloat);
+            m_pvXHandler = new CAEmitDataChangeHandler<float, VLM_Widget>(
+                                         this, &VLM_Widget::callbackPvXUpdatedFloat);
+            m_pvYHandler = new CAEmitDataChangeHandler<float, VLM_Widget>(
+                                         this, &VLM_Widget::callbackPvYUpdatedFloat);
             m_pvX->subscribeDataChangeEvent(
-                     (CAEmitDataChangeHandler<float, SWSWidget>*)m_pvXHandler);
+                     (CAEmitDataChangeHandler<float, VLM_Widget>*)m_pvXHandler);
             m_pvY->subscribeDataChangeEvent(
-                     (CAEmitDataChangeHandler<float, SWSWidget>*)m_pvYHandler);
+                     (CAEmitDataChangeHandler<float, VLM_Widget>*)m_pvYHandler);
             //pvType = FLOAT
             m_microProbePvSet = true;
             logW<<"Set micro pv true";
             break;
          case DBR_DOUBLE:
-            m_pvXHandler = new CAEmitDataChangeHandler<double, SWSWidget>(
-                                         this, &SWSWidget::callbackPvXUpdatedDouble);
-            m_pvYHandler = new CAEmitDataChangeHandler<double, SWSWidget>(
-                                         this, &SWSWidget::callbackPvYUpdatedDouble);
+            m_pvXHandler = new CAEmitDataChangeHandler<double, VLM_Widget>(
+                                         this, &VLM_Widget::callbackPvXUpdatedDouble);
+            m_pvYHandler = new CAEmitDataChangeHandler<double, VLM_Widget>(
+                                         this, &VLM_Widget::callbackPvYUpdatedDouble);
             m_pvX->subscribeDataChangeEvent(
-                     (CAEmitDataChangeHandler<double, SWSWidget>*)m_pvXHandler);
+                     (CAEmitDataChangeHandler<double, VLM_Widget>*)m_pvXHandler);
             m_pvY->subscribeDataChangeEvent(
-                     (CAEmitDataChangeHandler<double, SWSWidget>*)m_pvYHandler);
+                     (CAEmitDataChangeHandler<double, VLM_Widget>*)m_pvYHandler);
             //pvType = DOUBLE
             m_microProbePvSet = true;
             logW<<"Set micro pv true";
@@ -1448,8 +1449,8 @@ void SWSWidget::checkMicroProbePVs()
             logW<<"Set micro pv false";
          }
 
-         m_pvX->asynGet(1, (CAEmitDataChangeHandler<int, SWSWidget>*)m_pvXHandler);
-         m_pvY->asynGet(1, (CAEmitDataChangeHandler<int, SWSWidget>*)m_pvYHandler);
+         m_pvX->asynGet(1, (CAEmitDataChangeHandler<int, VLM_Widget>*)m_pvXHandler);
+         m_pvY->asynGet(1, (CAEmitDataChangeHandler<int, VLM_Widget>*)m_pvYHandler);
       }
    }
    catch(...)
@@ -1461,7 +1462,7 @@ void SWSWidget::checkMicroProbePVs()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::deleteItem()
+void VLM_Widget::deleteItem()
 {
 
    gstar::AnnotationTreeModel* treeModel;
@@ -1508,7 +1509,7 @@ void SWSWidget::deleteItem()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::duplicateItem()
+void VLM_Widget::duplicateItem()
 {
 
    gstar::AnnotationTreeModel* treeModel;
@@ -1545,7 +1546,7 @@ void SWSWidget::duplicateItem()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
+void VLM_Widget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
 {
 
    QModelIndex first = m_calTreeModel->index(0,0,QModelIndex());
@@ -1602,7 +1603,7 @@ void SWSWidget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
+void VLM_Widget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
 {
 
    QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
@@ -1656,7 +1657,7 @@ void SWSWidget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
 
 /*---------------------------------------------------------------------------*/
 
-QString SWSWidget::getModelFileName()
+QString VLM_Widget::getModelFileName()
 {
 
    return m_pathFile;
@@ -1665,7 +1666,7 @@ QString SWSWidget::getModelFileName()
 
 /*---------------------------------------------------------------------------*/
 
-bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
+bool VLM_Widget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
                                           listCoordPoints)
 {
    bool ok = false;
@@ -1678,7 +1679,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
          (gstar::AbstractGraphicsItem*)first.internalPointer();
    if(groupPtr == nullptr)
    {
-      QMessageBox::critical(0, "uProbeX", "No Points to run solver on!");
+      logW<<"No Points to run solver on!\n";
       return false;
    }
 
@@ -1760,7 +1761,7 @@ bool SWSWidget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::grabMicroProbePV()
+void VLM_Widget::grabMicroProbePV()
 {
 /*
    try
@@ -1769,8 +1770,8 @@ void SWSWidget::grabMicroProbePV()
       m_grabbingPvsX = true;
       m_grabbingPvsY = true;
 
-      m_pvX->asynGet(1, (CAEmitDataChangeHandler<double, SWSWidget>*)m_pvXHandler);
-      m_pvY->asynGet(1, (CAEmitDataChangeHandler<double, SWSWidget>*)m_pvYHandler);
+      m_pvX->asynGet(1, (CAEmitDataChangeHandler<double, VLM_Widget>*)m_pvXHandler);
+      m_pvY->asynGet(1, (CAEmitDataChangeHandler<double, VLM_Widget>*)m_pvYHandler);
    }
    catch(...)
    {
@@ -1781,7 +1782,7 @@ void SWSWidget::grabMicroProbePV()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::microModelDataChanged(const QModelIndex& topLeft,
+void VLM_Widget::microModelDataChanged(const QModelIndex& topLeft,
                                       const QModelIndex& bottomRight)
 {
 
@@ -1792,9 +1793,9 @@ void SWSWidget::microModelDataChanged(const QModelIndex& topLeft,
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::offsetReturnPressed()
+void VLM_Widget::offsetReturnPressed()
 {
-
+    /*
    bool ok;
    double valX, valY;
 
@@ -1808,7 +1809,7 @@ void SWSWidget::offsetReturnPressed()
    valX = sxOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
-       /*
+      
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_x), valX))
@@ -1816,7 +1817,7 @@ void SWSWidget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
-      */
+      
    }
    else
    {
@@ -1827,7 +1828,7 @@ void SWSWidget::offsetReturnPressed()
    valY = syOff.toDouble(&ok);
    if(ok && m_lightToMicroCoordModel != nullptr)
    {
-       /*
+       
       if(false == m_lightToMicroCoordModel->setTransformerVariable(
                CoordinateTransformGlobals::keyToString(
                   CoordinateTransformGlobals::m2xfm_y), valY))
@@ -1837,7 +1838,7 @@ void SWSWidget::offsetReturnPressed()
          msgBox.setText("Error setting value!");
          msgBox.exec();
       }
-      */
+      
    }
    else
    {
@@ -1848,16 +1849,16 @@ void SWSWidget::offsetReturnPressed()
    emit solverVariableUpdate(valX, valY);
 
    updateTreeView();
-
+*/
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::setModel(SWSModel* swsmodel)
+void VLM_Widget::setModel(VLM_Model* model)
 {
-    if (_model != swsmodel)
+    if (_model != model)
     {
-        _model = swsmodel;
+        _model = model;
         if (_model != nullptr)
         {
             updateFrame(_model->getImage());
@@ -1869,7 +1870,7 @@ void SWSWidget::setModel(SWSModel* swsmodel)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::preferenceChanged()
+void VLM_Widget::preferenceChanged()
 {
 
    // Set the precision
@@ -1877,7 +1878,7 @@ void SWSWidget::preferenceChanged()
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
    m_lightToMicroCoordModel->setTransformerPrecision(
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
-
+   /*
    // Set the value in the calibration text linedit box
    if(m_lightToMicroCoordModel != nullptr)
    {
@@ -1896,14 +1897,14 @@ void SWSWidget::preferenceChanged()
       updateTreeView();
 
    }
-
+   */
    checkMicroProbePVs();
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::restoreMarkerLoaded()
+void VLM_Widget::restoreMarkerLoaded()
 {
 
    // get from model
@@ -1982,17 +1983,15 @@ void SWSWidget::restoreMarkerLoaded()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::openSolver()
+void VLM_Widget::openSolver()
 {
+    
     QList< QMap<QString, double> > coordPoints;
-    if (!getMarkerCoordinatePoints(coordPoints))
+    SolverProfileWidget solverWidget;
+    if (getMarkerCoordinatePoints(coordPoints))
     {
-        QMessageBox::warning(nullptr, "Warning", "You need to add coordinate points before running solver");
-
-        return;
+        solverWidget.setCoordinatePoints(&coordPoints);
     }
-    PythonSolverProfileWidget solverWidget;
-    solverWidget.setCoordinatePoints(&coordPoints);
 
     if (solverWidget.exec() == QDialog::Accepted)
     {
@@ -2002,7 +2001,7 @@ void SWSWidget::openSolver()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::runSolver()
+void VLM_Widget::runSolver()
 {
    emit solverStart();
 
@@ -2154,7 +2153,7 @@ void PreferencesSolverOption::runSolver()
 
     if (m_windowList.size() > 0)
     {
-        SWSWidget* sws = (SWSWidget*)m_windowList.at(0);
+        VLM_Widget* sws = (VLM_Widget*)m_windowList.at(0);
         sws->getMarkerCoordinatePoints(coordPoints);
     }
     else
@@ -2199,7 +2198,7 @@ void PreferencesSolverOption::runSolver()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
+void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 {
 
    m_lightToMicroCoordModel = model;
@@ -2207,10 +2206,10 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
    m_lightToMicroCoordWidget->setModel(model);
-
+   /*
    if(m_lightToMicroCoordModel != nullptr)
    {
-       /*
+       
       double val;
       if(m_lightToMicroCoordModel->getTransformerVariable(
                CoordinateTransformGlobals::keyToString(
@@ -2224,14 +2223,14 @@ void SWSWidget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
       {
          m_yOffset->setText(QString::number(val));
       }
-      */
+      
    }
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
+void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
 {
 
 	if (m_coordinateModel != nullptr)
@@ -2262,7 +2261,7 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 
 /*---------------------------------------------------------------------------*/
 
-//void SWSWidget::setMarker(QString filepath)
+//void VLM_Widget::setMarker(QString filepath)
 //{
 //
 //   m_pathFile = filepath;
@@ -2315,7 +2314,7 @@ void SWSWidget::setCoordinateModel(gstar::CoordinateModel *model)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::saveScreenShot()
+void VLM_Widget::saveScreenShot()
 {
 
    QString filePath = QFileInfo(m_pathFile).absolutePath();
@@ -2347,14 +2346,14 @@ void SWSWidget::saveScreenShot()
 
 /*---------------------------------------------------------------------------*/
 
-QString SWSWidget::getTemporaryDatasetPath()
+QString VLM_Widget::getTemporaryDatasetPath()
 {
    return m_datasetPath + ".tmp";
 }
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::cleanUpTemoraryXMLFiles()
+void VLM_Widget::cleanUpTemoraryXMLFiles()
 {
    QString temporaryDatasetPath = getTemporaryDatasetPath();
 
@@ -2365,7 +2364,7 @@ void SWSWidget::cleanUpTemoraryXMLFiles()
 
 /*---------------------------------------------------------------------------*/
 
-bool SWSWidget::verifySaveIsRequired()
+bool VLM_Widget::verifySaveIsRequired()
 {
    bool saveRequired = true;
 
@@ -2403,7 +2402,7 @@ bool SWSWidget::verifySaveIsRequired()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::saveTemporaryXMLCoordinateInfo()
+void VLM_Widget::saveTemporaryXMLCoordinateInfo()
 {
    QString tempDatasetPath = getTemporaryDatasetPath();
 
@@ -2412,7 +2411,7 @@ void SWSWidget::saveTemporaryXMLCoordinateInfo()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::saveXMLCoordinateInfo()
+void VLM_Widget::saveXMLCoordinateInfo()
 {
    saveXMLCoordinateInfo(m_datasetPath);
 
@@ -2422,7 +2421,7 @@ void SWSWidget::saveXMLCoordinateInfo()
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::saveXMLCoordinateInfo(QString path)
+void VLM_Widget::saveXMLCoordinateInfo(QString path)
 {
    QFile file(path);
 
@@ -2438,7 +2437,7 @@ void SWSWidget::saveXMLCoordinateInfo(QString path)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::writeXMLSaveData(QIODevice* device)
+void VLM_Widget::writeXMLSaveData(QIODevice* device)
 {
    QXmlStreamWriter* xmlWriter = new QXmlStreamWriter();
    xmlWriter->setDevice(device);
@@ -2459,7 +2458,7 @@ void SWSWidget::writeXMLSaveData(QIODevice* device)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::tabIndexChanged(int index)
+void VLM_Widget::tabIndexChanged(int index)
 {
 
    switch(index)
@@ -2482,7 +2481,7 @@ void SWSWidget::tabIndexChanged(int index)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::treeContextMenu(const QPoint& pos)
+void VLM_Widget::treeContextMenu(const QPoint& pos)
 {
 
    switch(m_tabWidget->currentIndex())
@@ -2503,7 +2502,7 @@ void SWSWidget::treeContextMenu(const QPoint& pos)
 
 /*---------------------------------------------------------------------------*/
 
-void SWSWidget::updatedPixelToLight(double x, double y, double z)
+void VLM_Widget::updatedPixelToLight(double x, double y, double z)
 {
 
    if(false == m_imageViewWidget->getMouseLeaveState())
@@ -2515,7 +2514,7 @@ void SWSWidget::updatedPixelToLight(double x, double y, double z)
 
 /*--------------------------------------------------------------------------*/
 
-void SWSWidget::useUpdatedSolverVariables(const QMap<QString, double> vars)
+void VLM_Widget::useUpdatedSolverVariables(const QMap<QString, double> vars)
 {
     /*
    if(vars.contains(CoordinateTransformGlobals::keyToString(
@@ -2537,7 +2536,7 @@ void SWSWidget::useUpdatedSolverVariables(const QMap<QString, double> vars)
 
 /*--------------------------------------------------------------------------*/
 
-void SWSWidget::updateTreeView()
+void VLM_Widget::updateTreeView()
 {
 
    switch(m_tabWidget->currentIndex())
@@ -2564,7 +2563,7 @@ void SWSWidget::updateTreeView()
 
 /*--------------------------------------------------------------------------*/
 
-void SWSWidget::updateContextMenus()
+void VLM_Widget::updateContextMenus()
 {
 
    for(RegionCaller *prc : m_actionMap.values())
@@ -2578,7 +2577,7 @@ void SWSWidget::updateContextMenus()
 
 /*--------------------------------------------------------------------------*/
 
-void SWSWidget::windowChanged(Qt::WindowStates oldState,
+void VLM_Widget::windowChanged(Qt::WindowStates oldState,
                                Qt::WindowStates newState)
 {
 
@@ -2593,7 +2592,7 @@ void SWSWidget::windowChanged(Qt::WindowStates oldState,
 
 /*--------------------------------------------------------------------------*/
 /*
-void SWSWidget::widgetChanged(bool enable)
+void VLM_Widget::widgetChanged(bool enable)
 {
    // More widget change after solver run could be added here
    m_btnRunSolver -> setEnabled(enable);

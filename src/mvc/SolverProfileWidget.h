@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef PYTHONSOLVERPROFILEWIDGET_H_
-#define PYTHONSOLVERPROFILEWIDGET_H_
+#ifndef SOLVER_PROFILE_WIDGET_H_
+#define SOLVER_PROFILE_WIDGET_H_
 
 #include <QApplication>
 #include <QLabel>
@@ -22,13 +22,21 @@
 #include <preferences/SolverParameterWidget.h>
 #include <solver/PythonSolver.h>
 #include <mvc/SolverWidget.h>
+#include <solver/CoordinateTransformer.h>
+#include <gstar/LinearTransformer.h>
+
+
+const QString QSTR_2IDE_COORD_TRANS = "2IDE Coordinate Transform";
+const QString QSTR_2IDE_COORD_TRANS_DESC = "Coordiante transform for translating from Visible light microscope to X-Ray microprobe.";
+const QString QSTR_LINEAR_COORD_TRANS = "Linear Coordinate Transform";
+const QString QSTR_LINEAR_COORD_TRANS_DESC = "General Linear Coordinate Transform";
 
 /*---------------------------------------------------------------------------*/
 
 /**
  * @brief
  */
-class PythonSolverProfileWidget
+class SolverProfileWidget
 : public QDialog
 {
 
@@ -41,12 +49,12 @@ public:
     *
     * @param parent - the Qt parent widget
     */
-   PythonSolverProfileWidget(QWidget* parent = 0);
+   SolverProfileWidget(QWidget* parent = 0);
 
    /**
     * Default destructor
     */
-   ~PythonSolverProfileWidget();
+   ~SolverProfileWidget();
 
    /**
     * @brief getCurrentIndex
@@ -119,6 +127,8 @@ public:
 
    void setCoordinatePoints( QList< QMap<QString, double> > * points){m_coordPoints = points;}
 
+   void addProfile(QString name, QString desc, QMap<QString, double> coef);
+
 signals:
 
    /**
@@ -151,6 +161,8 @@ private:
    void createLayOut();
 
 private slots:
+
+    void addDefaultTransformers();
 
    /**
     * @brief addProfileItem
@@ -234,7 +246,7 @@ private:
    /**
     * @brief m_profiles
     */
-   QList<Profile> m_profiles;
+   vector<Profile> m_profiles;
 
    /**
     * @brief m_fileName

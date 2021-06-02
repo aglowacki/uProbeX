@@ -62,10 +62,19 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
     _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
 
-    _sws_tab_widget = new FileTabWidget();
-    _sws_tab_widget->setProcessButtonVisible(false);
-    connect(_sws_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::SWS); });
-    connect(_sws_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::SWS); });
+    _vlm_tab_widget = new FileTabWidget();
+    _vlm_tab_widget->setProcessButtonVisible(false);
+    QAction* sws_file = new QAction("SWS | *.sws", this);
+    connect(sws_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.sws"); });
+    QAction* tiff_file = new QAction("TIFF | *.tiff", this);
+    connect(tiff_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tiff"); });
+    QAction* tif_file = new QAction("TIF | *.tif", this);
+    connect(tif_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tif"); });
+    connect(_vlm_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::VLM); });
+    connect(_vlm_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::VLM); });
+    _vlm_tab_widget->appendFilterHelpAction(sws_file);
+    _vlm_tab_widget->appendFilterHelpAction(tiff_file);
+    _vlm_tab_widget->appendFilterHelpAction(tif_file);
 
     _fit_params_table_model = new FitParamsTableModel();
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
@@ -82,7 +91,7 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
     _tab_widget->insertTab(1, _mda_tab_widget, "Raw Data");
-    _tab_widget->insertTab(2, _sws_tab_widget, "Light Microscope");
+    _tab_widget->insertTab(2, _vlm_tab_widget, "Light Microscope");
 
     vlayout->addWidget(_tab_widget);
     setLayout(vlayout);
@@ -116,7 +125,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
         connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
         connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
         connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
-        connect(_sws_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_vlm);
+        connect(_vlm_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_vlm);
         connect(_mda_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_raw);
 	}
 
@@ -138,11 +147,11 @@ void MapsWorkspaceFilesWidget::updatedMDA()
 
 void MapsWorkspaceFilesWidget::updatedVLM()
 {
-    _sws_tab_widget->set_file_list(_model->get_sws_file_list());
+    _vlm_tab_widget->set_file_list(_model->get_vlm_file_list());
     vector<QString> loaded_names = _model->get_loaded_vlm_names();
     for (const auto& itr : loaded_names)
     {
-        _sws_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
+        _vlm_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
     }
 }
 /*---------------------------------------------------------------------------*/
@@ -280,9 +289,9 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 }
                 emit _mda_tab_widget->loaded_file_status_changed(load_status, name);
             }
-            else if (mt == MODEL_TYPE::SWS)
+            else if (mt == MODEL_TYPE::VLM)
             {
-                std::future< SWSModel*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_SWS_Model(name); });
+                std::future< VLM_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_VLM_Model(name); });
                 std::future_status status;
                 do
                 {
@@ -290,7 +299,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     QCoreApplication::processEvents();
                 } while (status != std::future_status::ready);
 
-                SWSModel* Model = ret.get();
+                VLM_Model* Model = ret.get();
                 if (Model != nullptr)
                 {
                     load_status = LOADED;
@@ -300,7 +309,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 {
                     load_status = FAILED_LOADING;
                 }
-                _sws_tab_widget->loaded_file_status_changed(load_status, name);
+                _vlm_tab_widget->loaded_file_status_changed(load_status, name);
             }
 
             cur++;
@@ -329,9 +338,9 @@ void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL
                 _model->unload_RAW_Model(name);
                 _mda_tab_widget->loaded_file_status_changed(load_status, name);
                 break;
-            case MODEL_TYPE::SWS:
-                _model->unload_SWS_Model(name);
-                _sws_tab_widget->loaded_file_status_changed(load_status, name);
+            case MODEL_TYPE::VLM:
+                _model->unload_VLM_Model(name);
+                _vlm_tab_widget->loaded_file_status_changed(load_status, name);
                 break;
             }
         }
@@ -345,7 +354,7 @@ void MapsWorkspaceFilesWidget::clearLists()
 {
 	_h5_tab_widget->unload_all();
 	_mda_tab_widget->unload_all();
-	_sws_tab_widget->unload_all();
+	_vlm_tab_widget->unload_all();
 }
 
 /*---------------------------------------------------------------------------*/

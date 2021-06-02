@@ -37,6 +37,8 @@ public:
     */
    Profile();
 
+   Profile(const Profile &p);
+
    /**
     * Destructor
     */

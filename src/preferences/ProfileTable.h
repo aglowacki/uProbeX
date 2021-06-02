@@ -84,6 +84,8 @@ public:
     */
    QStringList toStringList();
 
+   void addNewItem(QString name, QString desc);
+
 signals:
 
    /**

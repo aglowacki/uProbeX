@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef SWS_WIDGET_H
-#define SWS_WIDGET_H
+#ifndef VLM_WIDGET_H
+#define VLM_WIDGET_H
 
 /*---------------------------------------------------------------------------*/
 
@@ -18,10 +18,9 @@
 #include <QMapIterator>
 #include <QXmlStreamReader>
 #include <QGraphicsView>
-#include <mvc/SWSModel.h>
+#include <mvc/VLM_Model.h>
 
 #include <preferences/SolverParameterParse.h>
-//#include <SStar.h>
 #include <solver/Solver.h>
 #include <solver/NelderMeadSolver.h>
 #include <solver/PythonSolver.h>
@@ -47,9 +46,9 @@ namespace gstar
 /*---------------------------------------------------------------------------*/
 
 /**
- * @brief Widget used to display SWS workspaces. Used with SWSModel.
+ * @brief Widget used to display VLM workspaces. Used with VLM_Model.
  */
-class SWSWidget
+class VLM_Widget
 : public gstar::AbstractImageWidget
 {
 
@@ -60,13 +59,13 @@ public:
    /**
     * Constructor.
     */
-   SWSWidget(QWidget* parent = nullptr);
+   VLM_Widget(QWidget* parent = nullptr);
 
 
    /**
     * Destructor.
     */
-   ~SWSWidget();
+   ~VLM_Widget();
 
    /**
     * @brief setCoordinateModel: Model is displayed at the bottom of the screen
@@ -140,7 +139,7 @@ public:
     */
    bool verifySaveIsRequired();
 
-   void setModel(SWSModel* swsmodel);
+   void setModel(VLM_Model* model);
 
    /**
     * @brief widgetChanged
@@ -431,7 +430,7 @@ private:
    void _createSolver();
 
 
-   SWSModel* _model;
+   VLM_Model* _model;
 
    /**
     * @brief m_addCalibrationAction
@@ -459,16 +458,6 @@ private:
    QAction* m_exportMicroProbeRegionInfoAction;
 
    QAction* _linkRegionToDatasetAction;
-
-   ///**
-   // * @brief m_markersLoaded
-   // */
-   //QList< QMap<QString,QString> > m_markersLoaded;
-
-   ///**
-   // * @brief m_markersLoaded
-   // */
-   //QList< QMap<QString,QString> > m_regionMarkersLoaded;
 
    /**
     * @brief m_colorValue
@@ -634,12 +623,12 @@ private:
    /**
     * @brief m_xOffset
     */
-   QLineEdit* m_xOffset;
+   //QLineEdit* m_xOffset;
 
    /**
     * @brief m_xyffset
     */
-   QLineEdit* m_yOffset;
+   //QLineEdit* m_yOffset;
 
    /**
     * @brief m_pathFile
@@ -661,7 +650,7 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* SWSWidget_H_ */
+#endif /* VLM_Widget_H_ */
 
 /*---------------------------------------------------------------------------*/
 

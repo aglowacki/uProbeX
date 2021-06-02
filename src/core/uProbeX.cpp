@@ -20,8 +20,7 @@
 #include <mvc/AbstractWindowController.h>
 #include <core/SubWindow.h>
 #include <mvc/SWSModel.h>
-#include <mvc/TIFFController.h>
-#include <mvc/SWSWidget.h>
+#include <mvc/VLM_Widget.h>
 #include <preferences/PreferencesDialog.h>
 #include <QFileDialog>
 #include <mvc/MapsElementsWidget.h>
@@ -154,9 +153,9 @@ bool uProbeX::checkSameFileWindow(QString& filePath)
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            SWSWidget* widget = static_cast<SWSWidget*>(w);
+            VLM_Widget* widget = static_cast<VLM_Widget*>(w);
             if(widget->getModelFileName()  == filePath)
             {
                 QMessageBox::critical(nullptr, "SWS Window",
@@ -206,17 +205,17 @@ void uProbeX::createMenuBar()
     updateRecentMapsWorkspaces();
 
     m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Open SWS Workspace");
-    connect(action, SIGNAL(triggered()), this, SLOT(openSWSFile()));
+    action = m_menuFile->addAction("Open VLM Workspace");
+    connect(action, SIGNAL(triggered()), this, SLOT(open_VLM_File()));
     action = m_menuFile->addAction("Open HDF5 Analyzed");
-    connect(action, SIGNAL(triggered()), this, SLOT(openHDFFile()));
+    connect(action, SIGNAL(triggered()), this, SLOT(open_HDF_File()));
     m_menuFile->addSeparator();
     action = m_menuFile->addAction("Save Screen Shot");
     connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
     m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Activated SWS DATA");
+    action = m_menuFile->addAction("Save Activated VLM DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveActivatedXML()));
-    action = m_menuFile->addAction("Save All SWS DATA");
+    action = m_menuFile->addAction("Save All VLM DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
     m_menuFile->addSeparator();
     //action = m_menuFile->addAction("Save preferences");
@@ -333,23 +332,23 @@ void uProbeX::adjustAutoSaveSettings()
 */
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeSWSWindow(SWSModel* swsModel)
+void uProbeX::make_VLM_Window(VLM_Model* model)
 {
-    SWSWidget* swsWidget = new SWSWidget();
-    swsWidget->resize(1027, 768);
-	swsWidget->setModel(swsModel);
+    VLM_Widget* widget = new VLM_Widget();
+    widget->resize(1027, 768);
+    widget->setModel(model);
    
-    connect(swsWidget,
+    connect(widget,
             SIGNAL(solverStart()),
             this,
             SLOT(solverStart()));
 
-    connect(swsWidget,
+    connect(widget,
             SIGNAL(solverVariableUpdate(double, double)),
             this,
             SLOT(solverVariableUpdate(double, double)));
 
-    connect(swsWidget,
+    connect(widget,
             SIGNAL(cancelSolverVariableUpdate()),
             this,
             SLOT(cancelSolverVariableUpdate()));
@@ -363,101 +362,121 @@ void uProbeX::makeSWSWindow(SWSModel* swsModel)
 
 
     m_mdiArea->addSubWindow(w);
-    w->setWidget(swsWidget);
+    w->setWidget(widget);
     w->resize(1024, 768);
-    w->setWindowTitle(swsModel->getFilePath());
+    w->setWindowTitle(model->getFilePath());
     w->showMaximized();
 
     m_subWindows[w->getUuid()] = w;
 
     connect(w,
             SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            swsWidget,
+            widget,
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 }
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeSWSWindow(QString path, bool newWindow)
+void uProbeX::make_VLM_Window(QString path, bool newWindow)
 {
 
-    if (newWindow == false) return;
-    // Create general window view widget and image model
-    SWSWidget* swsWidget = new SWSWidget();
-    swsWidget->resize(800, 600);
+    if (newWindow == false) 
+        return;
 
-    try
+    VLM_Model* model = nullptr;
+    QFileInfo fileinfo(path);
+
+    QString ext = fileinfo.suffix().toLower();
+    if (ext == "tif" || ext == "tiff")
     {
-        //this->setCursor(Qt::WaitCursor);
-        SWSModel* swsModel = new SWSModel();
-        swsModel->load(path);
-        if(swsModel->tiffLoaded())
+        model = new TIFF_Model();
+    }
+    else if (ext == "sws")
+    {
+        model = new SWSModel();
+    }
+
+    if (model != nullptr)
+    {
+        // Create general window view widget and image model
+        VLM_Widget* widget = new VLM_Widget();
+        widget->resize(800, 600);
+
+        try
         {
-			swsWidget->setModel(swsModel);
+            //this->setCursor(Qt::WaitCursor);
+            model->load(path);
+            if (model->loaded())
+            {
+                widget->setModel(model);
+            }
+            else
+            {
+                delete model;
+                delete widget;
+                return;
+            }
         }
-        else
+        catch (std::string& s)
         {
-            delete swsModel;
-            delete swsWidget;
+            delete widget;
+            //delete tiffController;
+
+            // Restore cursor
+            QApplication::restoreOverrideCursor();
+
+            // Display error to user
+            QMessageBox::critical(this, tr("uProbeX"),
+                tr("Failed to open recorded VLM file.\n\n") + tr("Error:  ") +
+                QString(s.c_str()));
+
             return;
         }
-    }
-    catch(std::string& s)
-    {
-        delete swsWidget;
-        //delete tiffController;
 
-        // Restore cursor
-        QApplication::restoreOverrideCursor();
-
-        // Display error to user
-        QMessageBox::critical(this, tr("uProbeX"),
-                              tr("Failed to open recorded SWS file.\n\n") + tr("Error:  ") +
-                              QString(s.c_str()));
-
-        return;
-    }
-
-    connect(swsWidget,
+        connect(widget,
             SIGNAL(solverStart()),
             this,
             SLOT(solverStart()));
 
-    connect(swsWidget,
+        connect(widget,
             SIGNAL(solverVariableUpdate(double, double)),
             this,
             SLOT(solverVariableUpdate(double, double)));
 
-    connect(swsWidget,
+        connect(widget,
             SIGNAL(cancelSolverVariableUpdate()),
             this,
             SLOT(cancelSolverVariableUpdate()));
 
 
-    SubWindow* w = nullptr;
-    if (newWindow == true)
-    {
-        w = new SubWindow(m_mdiArea);
-        connect(w,
+        SubWindow* w = nullptr;
+        if (newWindow == true)
+        {
+            w = new SubWindow(m_mdiArea);
+            connect(w,
                 SIGNAL(windowClosing(SubWindow*)),
                 this,
                 SLOT(subWindowClosed(SubWindow*)));
 
-    }
+        }
 
-    m_mdiArea->addSubWindow(w);
-    w->setWidget(swsWidget);
-    w->resize(1024, 768);
-    w->setWindowTitle(path);
-    w->showMaximized();
+        m_mdiArea->addSubWindow(w);
+        w->setWidget(widget);
+        w->resize(1024, 768);
+        w->setWindowTitle(path);
+        w->showMaximized();
 
-    m_subWindows[w->getUuid()] = w;
+        m_subWindows[w->getUuid()] = w;
 
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            swsWidget,
+        connect(w,
+            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates)),
+            widget,
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
-
+    }
+    else
+    {
+        QMessageBox::warning(this, "Error opening file", "Error opening file" + path);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -482,7 +501,7 @@ void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeHDFWindow(QString path)
+void uProbeX::make_HDF_Window(QString path)
 {
 
     MapsH5Model* model = new MapsH5Model();
@@ -502,12 +521,12 @@ void uProbeX::makeHDFWindow(QString path)
 
         return;
     }
-    makeHDFWindow(model);
+    make_HDF_Window(model);
 }
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeHDFWindow(MapsH5Model* model)
+void uProbeX::make_HDF_Window(MapsH5Model* model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
     widget->setModel(model);
@@ -541,7 +560,7 @@ void uProbeX::makeHDFWindow(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::makeMDAWindow(RAW_Model* model)
+void uProbeX::make_MDA_Window(RAW_Model* model)
 {
     MDA_Widget* widget = new MDA_Widget();
     widget->setModel(model);
@@ -593,12 +612,12 @@ void uProbeX::menuBarEnable()
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::openSWSFile()
+void uProbeX::open_VLM_File()
 {
 
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Open SWS workspace", ".",
-                                                    tr("SWS (*.sws *.SWS)"));
+                                                    "Open Visible Light Microscope Workspace", ".",
+                                                    "VLM (*.tiff *.tif *.sws)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -607,18 +626,15 @@ void uProbeX::openSWSFile()
 
 
     QString fileSuffix = QFileInfo(fileName).suffix();
+    
+    if(true == checkSameFileWindow(filePath))
+        return;
 
-    if (0==fileSuffix.compare("sws")||0==fileSuffix.compare("SWS"))
-    {
-        // Check if the image has been opened
-        if(true == checkSameFileWindow(filePath))
-            return;
-
-        makeSWSWindow(filePath, true);
-
-    }
+    make_VLM_Window(filePath, true);
 
 }
+
+/*---------------------------------------------------------------------------*/
 
 void uProbeX::updateRecentMapsWorkspaces()
 {
@@ -685,7 +701,7 @@ void uProbeX::openMapsWorkspace(QString dirName)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::openHDFFile()
+void uProbeX::open_HDF_File()
 {
 
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -697,7 +713,7 @@ void uProbeX::openHDFFile()
 
     QString filePath = QFileInfo(fileName).canonicalFilePath();
 
-    makeHDFWindow(filePath);
+    make_HDF_Window(filePath);
 
 }
 
@@ -716,15 +732,15 @@ void uProbeX::saveScreenShot()
         {
             gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
 
-            if(typeid(*imageWidget) == typeid(SWSWidget))
+            if(typeid(*imageWidget) == typeid(VLM_Widget))
             {
-                SWSWidget* swsWidget = dynamic_cast<SWSWidget*>(imageWidget);
-                swsWidget->saveScreenShot();
+                VLM_Widget* widget = dynamic_cast<VLM_Widget*>(imageWidget);
+                widget->saveScreenShot();
             }
             else
             {
                 QMessageBox::critical(this, tr("Warning"),
-                                      tr("Not SWS Window Activated\n\n"));
+                                      tr("Not VLM Window Activated\n\n"));
             }
         }
     }
@@ -741,12 +757,13 @@ void uProbeX::saveActivatedXML()
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
         if (w == nullptr) return;
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
-        SWSWidget* swsWidget;
-        if(typeid(*imageWidget) == typeid(SWSWidget))
+        VLM_Widget* widget;
+        if(typeid(*imageWidget) == typeid(VLM_Widget))
         {
-            swsWidget = dynamic_cast<SWSWidget*>(imageWidget);
-        } else {
-
+             widget = dynamic_cast<VLM_Widget*>(imageWidget);
+        } 
+        else
+        {
             return;
         }
 
@@ -759,16 +776,16 @@ void uProbeX::saveActivatedXML()
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 msgBox.setDefaultButton(QMessageBox::No);
                 msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("Do you want to save the activated SWS workspace?");
+                msgBox.setText("Do you want to save the activated VLM workspace?");
                 int ret = msgBox.exec();
 
                 if (ret == QMessageBox::Yes)
                 {
-                    swsWidget->saveXMLCoordinateInfo();
+                    widget->saveXMLCoordinateInfo();
                 }
             }
         }
-        swsWidget->cleanUpTemoraryXMLFiles();
+        widget->cleanUpTemoraryXMLFiles();
     }
 
 }
@@ -796,7 +813,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setIcon(QMessageBox::Question);
-        msgBox.setText("Do you want to save all SWS workspace?");
+        msgBox.setText("Do you want to save all VLM workspace?");
 
         ret = msgBox.exec();
     } else {
@@ -805,14 +822,14 @@ void uProbeX::saveAllXML(bool verifyWithUser)
 
     if (ret == QMessageBox::Yes)
     {
-        SWSWidget* widget = nullptr;
+        VLM_Widget* widget = nullptr;
 
         for(SubWindow* con : m_subWindows.values())
         {
             gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-            if(typeid(*w) == typeid(SWSWidget))
+            if(typeid(*w) == typeid(VLM_Widget))
             {
-                widget = static_cast<SWSWidget*>(w);
+                widget = static_cast<VLM_Widget*>(w);
                 widget->saveXMLCoordinateInfo();
             }
         }
@@ -824,14 +841,14 @@ void uProbeX::saveAllXML(bool verifyWithUser)
 bool uProbeX::saveAllXMLRequired()
 {
 return false;
-    SWSWidget* widget = nullptr;
+    VLM_Widget* widget = nullptr;
 
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            widget = static_cast<SWSWidget*>(w);
+            widget = static_cast<VLM_Widget*>(w);
             bool saveRequired = widget->verifySaveIsRequired();
             if (saveRequired)
             {
@@ -851,10 +868,10 @@ bool uProbeX::saveActivatedXmlRequired()
     SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
     if (w != nullptr) {
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
-        if(typeid(*imageWidget) == typeid(SWSWidget))
+        if(typeid(*imageWidget) == typeid(VLM_Widget))
         {
-            SWSWidget* swsWidget = dynamic_cast<SWSWidget*>(imageWidget);
-            return swsWidget->verifySaveIsRequired();
+            VLM_Widget* widget = dynamic_cast<VLM_Widget*>(imageWidget);
+            return widget->verifySaveIsRequired();
         }
     }
     return false;
@@ -931,14 +948,14 @@ void uProbeX::loadPreferencesXMLData()
 
 void uProbeX::performAutoSave()
 {
-    SWSWidget* widget = nullptr;
+    VLM_Widget* widget = nullptr;
 
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = dynamic_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            widget = static_cast<SWSWidget*>(w);
+            widget = static_cast<VLM_Widget*>(w);
             widget->saveTemporaryXMLCoordinateInfo();
         }
     }
@@ -947,14 +964,14 @@ void uProbeX::performAutoSave()
 /*---------------------------------------------------------------------------*/
 
 void uProbeX::cleanUpAutoSafeData() {
-    SWSWidget* widget = nullptr;
+    VLM_Widget* widget = nullptr;
 
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = dynamic_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            widget = static_cast<SWSWidget*>(w);
+            widget = static_cast<VLM_Widget*>(w);
             widget->cleanUpTemoraryXMLFiles();
         }
     }
@@ -993,7 +1010,7 @@ void uProbeX::showPreferences()
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
             widgetList.append(w);
         }
@@ -1064,14 +1081,14 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
 void uProbeX::updatePreference()
 {
 
-    SWSWidget* widget = nullptr;
+    VLM_Widget* widget = nullptr;
 
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            widget = static_cast<SWSWidget*>(w);
+            widget = static_cast<VLM_Widget*>(w);
             widget->preferenceChanged();
         }
     }
@@ -1083,14 +1100,14 @@ void uProbeX::updatePreference()
 void uProbeX::updateContextMenus()
 {
 
-    SWSWidget* widget = nullptr;
+    VLM_Widget* widget = nullptr;
 
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = static_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(SWSWidget))
+        if(typeid(*w) == typeid(VLM_Widget))
         {
-            widget = static_cast<SWSWidget*>(w);
+            widget = static_cast<VLM_Widget*>(w);
             widget->updateContextMenus();
         }
     }

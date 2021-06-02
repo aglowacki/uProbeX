@@ -47,8 +47,8 @@ void ImageStackControlWidget::createLayout()
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
-	_sws_widget = new SWSWidget();
-	connect(_sws_widget, &SWSWidget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
+	_vlm_widget = new VLM_Widget();
+	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 
 	_mda_widget = new MDA_Widget();
 
@@ -79,7 +79,7 @@ void ImageStackControlWidget::createLayout()
 
     vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
-	vlayout->addWidget(_sws_widget);
+	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
 
 	hlayout2->addWidget(_mapsFilsWidget);
@@ -106,7 +106,7 @@ void ImageStackControlWidget::createLayout()
 	mainLayout->addWidget(_load_progress);
 	
 	//_imageGrid->hide();
-	_sws_widget->hide();
+	_vlm_widget->hide();
 	_mda_widget->hide();
 
 	setLayout(mainLayout);
@@ -128,28 +128,28 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 	{
 		if (_mda_widget->isVisible())
 			_mda_widget->hide();
-		if (_sws_widget->isVisible())
-			_sws_widget->hide();
+		if (_vlm_widget->isVisible())
+			_vlm_widget->hide();
 		_imageGrid->setModel(_h5_model_map[text]);
 		_imageGrid->show();
 	}
 	else if(_raw_model_map.count(text) > 0)
 	{
-		if (_sws_widget->isVisible())
-			_sws_widget->hide();
+		if (_vlm_widget->isVisible())
+			_vlm_widget->hide();
 		if(_imageGrid->isVisible())
 			_imageGrid->hide();
 		_mda_widget->setModel(_raw_model_map[text]);
 		_mda_widget->show();
 	}
-	else if (_sws_model_map.count(text) > 0)
+	else if (_vlm_model_map.count(text) > 0)
 	{
 		if (_mda_widget->isVisible())
 			_mda_widget->hide();
 		if (_imageGrid->isVisible())
 			_imageGrid->hide();
-		_sws_widget->setModel(_sws_model_map[text]);
-		_sws_widget->show();
+		_vlm_widget->setModel(_vlm_model_map[text]);
+		_vlm_widget->show();
 	}
 }
 
@@ -222,8 +222,8 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 		case MODEL_TYPE::RAW:
 			_raw_model_map[name] = _model->get_RAW_Model(name);
 			break;
-		case MODEL_TYPE::SWS:
-			_sws_model_map[name] = _model->get_SWS_Model(name);
+		case MODEL_TYPE::VLM:
+			_vlm_model_map[name] = _model->get_VLM_Model(name);
 			break;
 		}
 		
@@ -250,9 +250,9 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 			_raw_model_map.erase(s);
 			_model->unload_RAW_Model(s);
 			break;
-		case MODEL_TYPE::SWS:
-			_sws_model_map.erase(s);
-			_model->unload_SWS_Model(s);
+		case MODEL_TYPE::VLM:
+			_vlm_model_map.erase(s);
+			_model->unload_VLM_Model(s);
 			break;
 		}
        
@@ -284,16 +284,26 @@ void ImageStackControlWidget::update_file_list()
 
 /*---------------------------------------------------------------------------*/
 
-void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString sws_file_path, QImage image)
+void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image)
 {
 	if (_model != nullptr)
 	{
+		QMenu menu(this);
+
 		map<QString, QFileInfo> raw_file_map = _model->get_raw_file_list();
 		QStringList raw_file_list;
 		for (auto& itr : raw_file_map)
 		{
-			raw_file_list.append(itr.first);
+			menu.addAction(new QAction(itr.first));
 		}
+		QPoint globalCursorPos = QCursor::pos();
+		QAction* result = menu.exec(globalCursorPos);
+		if (result != nullptr)
+		{
+			logI << result->text().toStdString() << "\n";
+			//result->text();
+		}
+
 		//TODO: display dialog with raw dataset names for user to select one to link to.
 		/*
 		_raw_list_widget->clear();
