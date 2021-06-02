@@ -32,14 +32,20 @@ RAW_Model::~RAW_Model()
 
 bool RAW_Model::load(QString directory, QString filename)
 {
+	_path = directory;
+	_filepath = directory + "/" + filename;
+	return load(_filepath);
+}
+
+bool RAW_Model::load(QString filename)
+{
     try
     {
-        _path = directory;
-        _filepath = directory + "/" + filename;
+        _filepath = filename;
 		io::file::MDA_IO mda_io;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
-        logW<<" RAW_Model loading "<< _filepath.toStdString() << "\n";
+        logI<<" RAW_Model loading "<< _filepath.toStdString() << "\n";
 
 		if (filename.endsWith(".mda"))
 		{
@@ -49,14 +55,14 @@ bool RAW_Model::load(QString directory, QString filename)
 			}
 			if (mda_io.get_num_integreated_spectra() == 0) // probably fly scan
 			{
-				if (directory.endsWith("\\mda") || directory.endsWith("/mda"))
+				if (_path.endsWith("\\mda") || _path.endsWith("/mda"))
 				{
-					directory = directory.left(directory.length() - 3);
+					_path = _path.left(_path.length() - 3);
 				}
 
 				for (int i = 0; i < DEFAULT_NUM_DETECTORXS; i++)
 				{
-					io::load_and_integrate_spectra_volume(directory.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
+					io::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
 				}
 			}
 			else
@@ -71,16 +77,28 @@ bool RAW_Model::load(QString directory, QString filename)
 
 			_scan_info = *(mda_io.get_scan_info());
 		}
-		if (filename.endsWith(".h5") || filename.endsWith(".hdf5") || filename.endsWith(".emd") )
+		else if (filename.endsWith(".h5") || filename.endsWith(".hdf5") || filename.endsWith(".emd") )
 		{
-			if (io::get_scalers_and_metadata_h5(directory.toStdString(), filename.toStdString(), &_scan_info))
+			if (io::get_scalers_and_metadata_h5(_path.toStdString(), filename.toStdString(), &_scan_info))
 			{
 				// todo: update scaler names from override file
 
 				for (auto &i : _scan_info.meta_info.detectors)
 				{
-					io::load_and_integrate_spectra_volume(directory.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
+					io::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
 				}
+			}
+		}
+		else if (filename.endsWith(".csv"))
+		{
+			if (false == io::file::csv::load_raw_spectra(_filepath.toStdString(), _csv_data))
+			{
+
+				return false;
+			}
+			if (_csv_data.count("Spectrum") > 0)
+			{
+				_integrated_spectra_map[-1] = _csv_data["Spectrum"];
 			}
 		}
 	}

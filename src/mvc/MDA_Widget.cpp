@@ -63,8 +63,8 @@ void MDA_Widget::createLayout()
     QWidget* window2 = new QWidget();
     window2->setLayout(vbox);
 
-    _tab_widget->addTab(_scaler_widget, "Scalers");
     _tab_widget->addTab(window2, "Integrated Spectra");
+    _tab_widget->addTab(_scaler_widget, "Scalers");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
     layout->addWidget(_tab_widget);
@@ -133,7 +133,7 @@ void MDA_Widget::model_updated()
 
     if (_model->getNumIntegratedSpectra() > 0)
     {
-        onDetectorSelect("0");
+        onDetectorSelectIdx(0);
     }
 }
 
@@ -141,43 +141,55 @@ void MDA_Widget::model_updated()
 
 void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
 {
+
+    data_struct::Params_Override generic_po;
     unsigned int det = _cb_detector->currentText().toUInt();
     data_struct::Params_Override default_po;
     if (_model != nullptr)
     {
         data_struct::Params_Override* po = _model->getParamOverrideOrAvg(det);
         
-        if (po != nullptr)
+        QString save_path = _model->getPath();
+        QString ext = "TXT";
+        if (save_path.endsWith("/mda") || save_path.endsWith("\\mda"))
         {
-            QString save_path = _model->getPath();
-            if (save_path.endsWith("/mda") || save_path.endsWith("\\mda"))
-            {
-                save_path.chop(3);
-            }
-            if (false == save_path.endsWith("/") || false == save_path.endsWith("\\"))
-            {
-                save_path += "/";
-            }
+            save_path.chop(3);
+        }
+        if (false == save_path.endsWith("/") || false == save_path.endsWith("\\"))
+        {
+            save_path += "/";
+        }
+        if (_cb_detector->currentText() == "det_sum")
+        {
+            save_path += "maps_fit_parameters_override.txt";
+        }
+        else
+        {
             save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, "TXT" + _cb_detector->currentText() + " (*.txt" + _cb_detector->currentText() + " *.TXT" + _cb_detector->currentText() + ")");
-            if (!fileName.isEmpty() && !fileName.isNull())
+            ext += _cb_detector->currentText();
+        }
+        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, ext + " (*."+ext+")");
+        if (!fileName.isEmpty() && !fileName.isNull())
+        {
+            if (po == nullptr)
             {
-                data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
-                nfit_params->append_and_update(&fit_params);
-                po->elements_to_fit.clear();
-                for (const auto& itr : elements_to_fit)
-                {
-                    //po->elements_to_fit[itr.first] = gen_element_map(itr.first);
-					po->elements_to_fit[itr.first] = itr.second;
-                }
-                if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
-                {
-                    QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
-                }
-                else
-                {
-                    QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
-                }
+                po = &generic_po;
+            }
+            data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
+            nfit_params->append_and_update(&fit_params);
+            po->elements_to_fit.clear();
+            for (const auto& itr : elements_to_fit)
+            {
+                //po->elements_to_fit[itr.first] = gen_element_map(itr.first);
+                po->elements_to_fit[itr.first] = itr.second;
+            }
+            if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
+            {
+                QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Export Fit Parameters", "Failed to Saved");
             }
         }
     }
@@ -187,8 +199,16 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
 
 void MDA_Widget::onDetectorSelect(const QString& det)
 {
-    unsigned int detector = det.toUInt();
-
+    unsigned int detector;
+    
+    if (det == "det_sum")
+    {
+        detector = -1;
+    }
+    else
+    {
+        detector = det.toUInt();
+    }
     data_struct::Params_Override* po = _model->getParamOverrideOrAvg(detector);
     if (po != nullptr)
     {
@@ -196,6 +216,17 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     }
     
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MDA_Widget::onDetectorSelectIdx(int idx)
+{
+    if (_cb_detector->count() > idx )
+    {
+        QString det = _cb_detector->itemText(idx);
+        onDetectorSelect(det);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

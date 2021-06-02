@@ -209,6 +209,10 @@ void uProbeX::createMenuBar()
     connect(action, SIGNAL(triggered()), this, SLOT(open_VLM_File()));
     action = m_menuFile->addAction("Open HDF5 Analyzed");
     connect(action, SIGNAL(triggered()), this, SLOT(open_HDF_File()));
+    action = m_menuFile->addAction("Open Raw Spectra");
+    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_file()));
+    action = m_menuFile->addAction("Open Raw Spectra and Override");
+    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_and_override_file()));
     m_menuFile->addSeparator();
     action = m_menuFile->addAction("Save Screen Shot");
     connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
@@ -476,6 +480,70 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
     else
     {
         QMessageBox::warning(this, "Error opening file", "Error opening file" + path);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::open_spectra_file()
+{
+
+    QString fileName = QFileDialog::getOpenFileName(this,
+        "Open Spectra", ".",
+        "RAW Spectra (*.csv *.mda)");
+
+    // Dialog returns a nullptr string if user press cancel.
+    if (fileName.isNull() || fileName.isEmpty()) return;
+
+    QString filePath = QFileInfo(fileName).canonicalFilePath();
+
+    make_spectra_window(filePath, nullptr);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::open_spectra_and_override_file()
+{
+
+    QString fileName = QFileDialog::getOpenFileName(this,
+        "Open Spectra", ".",
+        "RAW Spectra (*.csv *.mda)");
+
+    // Dialog returns a nullptr string if user press cancel.
+    if (fileName.isNull() || fileName.isEmpty()) return;
+
+    QString filePath = QFileInfo(fileName).canonicalFilePath();
+
+    QString po_fileName = QFileDialog::getOpenFileName(this,
+        "Override Params", ".",
+        "TXT (*.txt *.txt0 *.txt1 *.txt2 *.txt3)");
+
+    data_struct::Params_Override* po = nullptr;
+    if (false == (fileName.isNull() || fileName.isEmpty()))
+    {
+        po = new data_struct::Params_Override();
+        if (false == io::load_override_params(po_fileName.toStdString(), -1, po, false))
+        {
+            delete po;
+            po = nullptr;
+        }
+    }
+    make_spectra_window(filePath, po);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::make_spectra_window(QString path, data_struct::Params_Override* po)
+{
+    RAW_Model* model = new RAW_Model();
+    if (model->load(path))
+    {
+        model->setParamOverride(-1, po);
+        make_MDA_Window(model);
+    }
+    else
+    {
+        QMessageBox::warning(this, "Error opening", "Could not open " + path);
     }
 }
 
@@ -969,10 +1037,13 @@ void uProbeX::cleanUpAutoSafeData() {
     for(SubWindow* con : m_subWindows.values())
     {
         gstar::AbstractImageWidget* w = dynamic_cast<gstar::AbstractImageWidget*>(con->widget());
-        if(typeid(*w) == typeid(VLM_Widget))
+        if (w != nullptr)
         {
-            widget = static_cast<VLM_Widget*>(w);
-            widget->cleanUpTemoraryXMLFiles();
+            if (typeid(*w) == typeid(VLM_Widget))
+            {
+                widget = static_cast<VLM_Widget*>(w);
+                widget->cleanUpTemoraryXMLFiles();
+            }
         }
     }
 }
