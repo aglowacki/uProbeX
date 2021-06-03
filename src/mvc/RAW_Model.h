@@ -38,6 +38,8 @@ public:
 
     bool load(QString directory, QString filename);
 
+    bool load(QString filename);
+
     QString getPath() { return _path; }
 
     QString getFilePath(){return _filepath;}
@@ -69,6 +71,8 @@ private:
     QString _filepath;
 
     QString _path;
+
+    unordered_map<string, data_struct::ArrayXr> _csv_data;
 };
 
 

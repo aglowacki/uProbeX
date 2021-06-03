@@ -2591,14 +2591,14 @@ void VLM_Widget::windowChanged(Qt::WindowStates oldState,
 }
 
 /*--------------------------------------------------------------------------*/
-/*
+
 void VLM_Widget::widgetChanged(bool enable)
 {
    // More widget change after solver run could be added here
-   m_btnRunSolver -> setEnabled(enable);
+   //m_btnRunSolver -> setEnabled(enable);
 
 }
-
+/*
 void solverVariableUpdate(double valX, double valY);
 
 void uProbeX::solverVariableUpdate(double valX, double valY)

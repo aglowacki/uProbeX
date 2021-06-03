@@ -713,7 +713,9 @@ void FitSpectraWidget::Model_Spectra_Click()
         energy_range.max = _spectra_background.size() -1;
 
 
-        data_struct::Spectra fit_spec = model.model_spectrum_mp(&fit_params, _elements_to_fit, energy_range);
+        //data_struct::Spectra fit_spec = model.model_spectrum_mp(&fit_params, _elements_to_fit, energy_range);
+        unordered_map<string, ArrayXr> labeled_spectras;
+        data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, &labeled_spectras, energy_range);
 
         replot_integrated_spectra(true);
 

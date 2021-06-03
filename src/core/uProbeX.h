@@ -119,9 +119,12 @@ private slots:
     */
    void make_MDA_Window(RAW_Model* model);
 
-   /**
-    * @brief Open the SWS workspace. Triggered from the menu.
-    */
+   void open_spectra_file();
+
+   void open_spectra_and_override_file();
+
+   void make_spectra_window(QString path, data_struct::Params_Override* po);
+   
    void open_VLM_File();
 
    /**
