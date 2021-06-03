@@ -5,7 +5,9 @@
 
 #include <mvc/RAW_Model.h>
 #include "core/defines.h"
+#include <QFileInfo>
 #include "io/file/hl_file_io.h"
+#include "io/file/mca_io.h"
 
 #define DEFAULT_NUM_DETECTORXS 4
 
@@ -41,6 +43,7 @@ bool RAW_Model::load(QString filename)
 {
     try
     {
+		QFileInfo finfo = QFileInfo(filename);
         _filepath = filename;
 		io::file::MDA_IO mda_io;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -93,12 +96,27 @@ bool RAW_Model::load(QString filename)
 		{
 			if (false == io::file::csv::load_raw_spectra(_filepath.toStdString(), _csv_data))
 			{
-
 				return false;
 			}
 			if (_csv_data.count("Spectrum") > 0)
 			{
 				_integrated_spectra_map[-1] = _csv_data["Spectrum"];
+			}
+		}
+		else if (finfo.suffix().startsWith("mca"))
+		{
+			int det = filename[filename.length() - 1].digitValue();
+			_integrated_spectra_map[det] = data_struct::Spectra();
+			unordered_map<string, string> pv_map;
+			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
+			for (const auto& itr : pv_map)
+			{
+				data_struct::Extra_PV pv;
+				pv.name = itr.first;
+				pv.value = itr.second;
+				pv.description = "";
+				pv.unit = "";					
+				_scan_info.extra_pvs.push_back(pv);
 			}
 		}
 	}

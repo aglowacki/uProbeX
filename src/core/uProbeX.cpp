@@ -490,7 +490,7 @@ void uProbeX::open_spectra_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda)");
+        "RAW Spectra (*.csv *.mda *.mca);;All Files (*.*)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -507,7 +507,7 @@ void uProbeX::open_spectra_and_override_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda)");
+        "RAW Spectra (*.csv *.mda *.mca);;All Files (*.*)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -825,35 +825,40 @@ void uProbeX::saveActivatedXML()
         SubWindow* w = dynamic_cast<SubWindow*>(m_mdiArea->activeSubWindow());
         if (w == nullptr) return;
         gstar::AbstractImageWidget* imageWidget = dynamic_cast<gstar::AbstractImageWidget*>(w->widget());
-        VLM_Widget* widget;
-        if(typeid(*imageWidget) == typeid(VLM_Widget))
+        VLM_Widget* widget = nullptr;
+        if (imageWidget != nullptr)
         {
-             widget = dynamic_cast<VLM_Widget*>(imageWidget);
-        } 
-        else
-        {
-            return;
-        }
-
-        if (saveActivatedXmlRequired()) {
-            QUuid id = w->getUuid();
-
-            if(m_subWindows.contains(id))
+            if (typeid(*imageWidget) == typeid(VLM_Widget))
             {
-                QMessageBox msgBox;
-                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                msgBox.setDefaultButton(QMessageBox::No);
-                msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("Do you want to save the activated VLM workspace?");
-                int ret = msgBox.exec();
+                widget = dynamic_cast<VLM_Widget*>(imageWidget);
+            }
+            else
+            {
+                return;
+            }
+            if (widget != nullptr)
+            {
+                if (saveActivatedXmlRequired()) {
+                    QUuid id = w->getUuid();
 
-                if (ret == QMessageBox::Yes)
-                {
-                    widget->saveXMLCoordinateInfo();
+                    if (m_subWindows.contains(id))
+                    {
+                        QMessageBox msgBox;
+                        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                        msgBox.setDefaultButton(QMessageBox::No);
+                        msgBox.setIcon(QMessageBox::Question);
+                        msgBox.setText("Do you want to save the activated VLM workspace?");
+                        int ret = msgBox.exec();
+
+                        if (ret == QMessageBox::Yes)
+                        {
+                            widget->saveXMLCoordinateInfo();
+                        }
+                    }
                 }
+                widget->cleanUpTemoraryXMLFiles();
             }
         }
-        widget->cleanUpTemoraryXMLFiles();
     }
 
 }

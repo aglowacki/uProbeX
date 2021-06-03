@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "io/file/aps/aps_fit_params_import.h"
+#include "io/file/csv_io.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -40,6 +41,7 @@ void MDA_Widget::createLayout()
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MDA_Widget::on_export_fit_params);
+    connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MDA_Widget::on_export_csv);
 
     _cb_detector = new QComboBox(this);
     connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
@@ -168,7 +170,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
             save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
             ext += _cb_detector->currentText();
         }
-        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, ext + " (*."+ext+")");
+        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, ext + " (*."+ext+");;All Files (*.*)");
         if (!fileName.isEmpty() && !fileName.isNull())
         {
             if (po == nullptr)
@@ -193,6 +195,56 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
             }
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MDA_Widget::on_export_csv(QPixmap png, data_struct::ArrayXr* ev, data_struct::ArrayXr* int_spec, data_struct::ArrayXr* back_spec, data_struct::ArrayXr* fit_spec, unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
+{
+
+    //QString path = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");
+
+    QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
+
+    // Dialog returns a nullptr string if user press cancel.
+    if (dirName.isNull() || dirName.isEmpty() || _model == nullptr) return;
+
+    QDir save_path = QDir(dirName);
+    QString model_file_path = _model->getFilePath();
+    QFileInfo model_file = QFileInfo(model_file_path);
+    QString file_name = model_file.fileName();
+
+    QString save_png = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.png");
+    QString save_csv = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.csv");
+    QString mesg = "";
+
+    if (false == png.save(save_png, "PNG"))
+    {
+        mesg.append("Failed to save PNG of spectra: ");
+        mesg.append(save_png);
+        mesg.append("  ");
+    }
+    else
+    {
+        mesg.append("Saved PNG of spectra: ");
+        mesg.append(save_png);
+        mesg.append("  ");
+    }
+
+
+    //bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
+    if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
+    {
+        mesg.append("Failed to save CSV of spectra: ");
+        mesg.append(save_csv);
+    }
+    else
+    {
+        mesg.append("Saved CSV of spectra: ");
+        mesg.append(save_csv);
+    }
+
+    QMessageBox::information(nullptr, "Export to CSV", mesg);
 }
 
 /*---------------------------------------------------------------------------*/
