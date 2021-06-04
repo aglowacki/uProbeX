@@ -65,7 +65,7 @@ bool RAW_Model::load(QString filename)
 
 				for (int i = 0; i < DEFAULT_NUM_DETECTORXS; i++)
 				{
-					io::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
+					io::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
 				}
 			}
 			else
@@ -82,15 +82,22 @@ bool RAW_Model::load(QString filename)
 		}
 		else if (filename.endsWith(".h5") || filename.endsWith(".hdf5") || filename.endsWith(".emd") )
 		{
+			if (_path.isEmpty())
+			{
+				_path = finfo.path();
+				filename = finfo.fileName();
+			}
+			
 			if (io::get_scalers_and_metadata_h5(_path.toStdString(), filename.toStdString(), &_scan_info))
 			{
 				// todo: update scaler names from override file
 
-				for (auto &i : _scan_info.meta_info.detectors)
+				for (auto& i : _scan_info.meta_info.detectors)
 				{
 					io::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
 				}
 			}
+		
 		}
 		else if (filename.endsWith(".csv"))
 		{
