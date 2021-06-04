@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <data_struct/analysis_job.h>
 #include <core/process_whole.h>
+#include <QScrollArea>
 
 /*---------------------------------------------------------------------------*/
 
@@ -129,9 +130,8 @@ void PerPixelFitWidget::createLayout()
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
     layout->addItem(hbox_progresss_files);
-
+    
     setLayout(layout);
-
 }
 
 /*---------------------------------------------------------------------------*/

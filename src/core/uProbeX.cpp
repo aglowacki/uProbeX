@@ -490,7 +490,7 @@ void uProbeX::open_spectra_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda *.mca);;All Files (*.*)");
+        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -507,7 +507,7 @@ void uProbeX::open_spectra_and_override_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda *.mca);;All Files (*.*)");
+        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)");
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;

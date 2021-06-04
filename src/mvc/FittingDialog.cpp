@@ -215,7 +215,21 @@ void FittingDialog::_createLayout()
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
 
-    setLayout(layout);
+    //setLayout(layout);
+
+    setGeometry(100, 100, 1024, 768);
+
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setBackgroundRole(QPalette::Dark);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setLayout(layout);
+
+    QLayout* l = new QVBoxLayout();
+    l->addWidget(scrollArea);
+
+    setLayout(l);
+
+    
 
 }
 
