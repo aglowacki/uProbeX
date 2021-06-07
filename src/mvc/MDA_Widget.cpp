@@ -20,10 +20,7 @@ using gstar::ImageViewWidget;
 
 MDA_Widget::MDA_Widget(QWidget* parent) : QWidget(parent)
 {
-
-    _model = nullptr;
     createLayout();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -76,9 +73,9 @@ void MDA_Widget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::setModel(RAW_Model* model)
+void MDA_Widget::setModel(std::shared_ptr<RAW_Model> model)
 {
-    if (_model != model)
+    if (model)
     {
         _spectra_widget->clearAllSpectra();
         _model = model;
@@ -90,53 +87,53 @@ void MDA_Widget::setModel(RAW_Model* model)
 
 void MDA_Widget::model_updated()
 {
-    if(_model == nullptr)
-    {
-        return;
-    }
-    Eigen::Index rows, cols;
-
-    _model->getDims(rows, cols);
-    data_struct::Scan_Info* scan_info = _model->getScanInfo();
-
-    _scaler_widget->setModel(_model);
-    
-	if (scan_info != nullptr)
+	if (_model)
 	{
-		_extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
-		int i = 0;
-		for (const auto& itr : scan_info->extra_pvs)
+
+		Eigen::Index rows, cols;
+
+		_model->getDims(rows, cols);
+		data_struct::Scan_Info* scan_info = _model->getScanInfo();
+
+		_scaler_widget->setModel(_model);
+
+		if (scan_info != nullptr)
 		{
-			_extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
-			_extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
-			_extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
-			_extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
-			i++;
+			_extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
+			int i = 0;
+			for (const auto& itr : scan_info->extra_pvs)
+			{
+				_extra_pvs_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
+				_extra_pvs_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.value.c_str(), itr.value.length())));
+				_extra_pvs_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
+				_extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
+				i++;
+			}
+		}
+
+		disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+		_cb_detector->clear();
+		auto keys = _model->getDetectorKeys();
+		for (unsigned int i : keys)
+		{
+			if (i == -1)
+			{
+				_cb_detector->addItem("det_sum");
+			}
+			else
+			{
+				_cb_detector->addItem(QString::number(i));
+			}
+		}
+
+		connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+
+		if (_model->getNumIntegratedSpectra() > 0)
+		{
+			onDetectorSelectIdx(0);
 		}
 	}
-    
-    disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
-
-    _cb_detector->clear();
-    auto keys = _model->getDetectorKeys();
-    for (unsigned int i : keys)
-    {
-        if (i == -1)
-        {
-            _cb_detector->addItem("det_sum");
-        }
-        else
-        {
-            _cb_detector->addItem(QString::number(i));
-        }
-    }
-
-    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
-
-    if (_model->getNumIntegratedSpectra() > 0)
-    {
-        onDetectorSelectIdx(0);
-    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -147,7 +144,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
     data_struct::Params_Override generic_po;
     unsigned int det = _cb_detector->currentText().toUInt();
     data_struct::Params_Override default_po;
-    if (_model != nullptr)
+    if (_model)
     {
         data_struct::Params_Override* po = _model->getParamOverrideOrAvg(det);
         
@@ -207,44 +204,47 @@ void MDA_Widget::on_export_csv(QPixmap png, data_struct::ArrayXr* ev, data_struc
     QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
 
     // Dialog returns a nullptr string if user press cancel.
-    if (dirName.isNull() || dirName.isEmpty() || _model == nullptr) return;
+    if (dirName.isNull() || dirName.isEmpty()) return;
+	if (_model)
+	{
 
-    QDir save_path = QDir(dirName);
-    QString model_file_path = _model->getFilePath();
-    QFileInfo model_file = QFileInfo(model_file_path);
-    QString file_name = model_file.fileName();
+		QDir save_path = QDir(dirName);
+		QString model_file_path = _model->getFilePath();
+		QFileInfo model_file = QFileInfo(model_file_path);
+		QString file_name = model_file.fileName();
 
-    QString save_png = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.png");
-    QString save_csv = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.csv");
-    QString mesg = "";
+		QString save_png = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.png");
+		QString save_csv = QDir::cleanPath(save_path.absolutePath() + QDir::separator() + file_name + "_int_spec.csv");
+		QString mesg = "";
 
-    if (false == png.save(save_png, "PNG"))
-    {
-        mesg.append("Failed to save PNG of spectra: ");
-        mesg.append(save_png);
-        mesg.append("  ");
-    }
-    else
-    {
-        mesg.append("Saved PNG of spectra: ");
-        mesg.append(save_png);
-        mesg.append("  ");
-    }
+		if (false == png.save(save_png, "PNG"))
+		{
+			mesg.append("Failed to save PNG of spectra: ");
+			mesg.append(save_png);
+			mesg.append("  ");
+		}
+		else
+		{
+			mesg.append("Saved PNG of spectra: ");
+			mesg.append(save_png);
+			mesg.append("  ");
+		}
 
 
-    //bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
-    if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
-    {
-        mesg.append("Failed to save CSV of spectra: ");
-        mesg.append(save_csv);
-    }
-    else
-    {
-        mesg.append("Saved CSV of spectra: ");
-        mesg.append(save_csv);
-    }
+		//bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
+		if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
+		{
+			mesg.append("Failed to save CSV of spectra: ");
+			mesg.append(save_csv);
+		}
+		else
+		{
+			mesg.append("Saved CSV of spectra: ");
+			mesg.append(save_csv);
+		}
 
-    QMessageBox::information(nullptr, "Export to CSV", mesg);
+		QMessageBox::information(nullptr, "Export to CSV", mesg);
+	}
 }
 
 /*---------------------------------------------------------------------------*/

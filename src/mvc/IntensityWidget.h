@@ -3,17 +3,17 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef MULTI_LAYER_WIDGET_H
-#define MULTI_LAYER_WIDGET_H
+#ifndef IntensityWidget_H
+#define IntensityWidget_H
+
+#include <QWidget>
 
 /*---------------------------------------------------------------------------*/
 
-#include <QComboBox>
-#include <gstar/AbstractImageWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
-class Multi_Layer_Widget : public QWidget
+class IntensityWidget : public QWidget
 {
 
    Q_OBJECT
@@ -23,21 +23,17 @@ public:
    /**
     * Constructor.
     */
-   Multi_Layer_Widget(QWidget* parent = nullptr);
+   IntensityWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
-   ~Multi_Layer_Widget();
+   ~IntensityWidget();
 
 
 protected:
 
    void createLayout();
-
-   gstar::ImageViewToolBar* m_imageWidgetToolBar;
-
-   gstar::ImageViewWidget* m_imageViewWidget;
 
 };
 

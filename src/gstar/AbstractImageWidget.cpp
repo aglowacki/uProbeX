@@ -586,7 +586,7 @@ void AbstractImageWidget::setRangeWidgetStartIndex(int index)
 
 /*---------------------------------------------------------------------------*/
 
-int AbstractImageWidget::getRangeWidgetStartIndex()
+int AbstractImageWidget::getRangeWidgetStartIndex() const
 {
 
     return m_range->value();

@@ -37,6 +37,22 @@ SWSModel::SWSModel() : VLM_Model()
 
 /*---------------------------------------------------------------------------*/
 
+SWSModel::SWSModel(const SWSModel& s)
+{
+	m_datasetName = s.m_datasetName;
+	m_mapValueKey = s.m_mapValueKey;
+	m_numSamples = s.m_numSamples;
+	m_numXSamples = s.m_numXSamples;
+	m_numYSamples = s.m_numYSamples;
+	m_pmgScale = s.m_pmgScale;
+	m_pmgImageReduction = s.m_pmgImageReduction;
+	_tif_img = s._tif_img;
+	m_tiffLoaded = s.m_tiffLoaded;
+	*m_samples = *(s.m_samples);
+}
+
+/*---------------------------------------------------------------------------*/
+
 SWSModel::~SWSModel()
 {
 

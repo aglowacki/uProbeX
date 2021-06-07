@@ -33,10 +33,9 @@ public:
     */
    ~MDA_Widget();
 
-   //void setModel(MapsH5Model* model);
-   void setModel(RAW_Model* model);
+   void setModel(std::shared_ptr<RAW_Model> model);
 
-   RAW_Model *getModel(){return _model;}
+   std::shared_ptr<RAW_Model> getModel(){return _model;}
 
 public slots:
 
@@ -60,7 +59,7 @@ protected:
 
    QTabWidget* _tab_widget;
 
-   RAW_Model *_model;
+   std::shared_ptr<RAW_Model> _model;
 
    QComboBox* _cb_detector;
 

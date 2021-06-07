@@ -18,6 +18,18 @@ VLM_Model::VLM_Model()
 
 /*---------------------------------------------------------------------------*/
 
+VLM_Model::VLM_Model(const VLM_Model& v)
+{
+	_coord_model = v._coord_model;
+	_datasetPath = v._datasetPath;
+	_pathFile = v._pathFile;
+	_markersLoaded = v._markersLoaded;
+	_regionMarkersLoaded = v._regionMarkersLoaded;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 VLM_Model::~VLM_Model()
 {
 

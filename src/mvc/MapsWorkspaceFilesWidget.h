@@ -38,17 +38,11 @@ class MapsWorkspaceFilesWidget : public QWidget
 
 public:
 
-   /**
-    * Constructor.
-    */
    MapsWorkspaceFilesWidget(QWidget* parent = nullptr);
 
-   /**
-    * Destructor.
-    */
    ~MapsWorkspaceFilesWidget();
 
-   void setModel(MapsWorkspaceModel* model);
+   void setModel(std::shared_ptr<MapsWorkspaceModel> model);
 
    void setLabelWorkspacePath(QString path) {_lbl_workspace->setText(path);}
 
@@ -101,7 +95,7 @@ private:
 
    QLabel* _lbl_workspace;
 
-   MapsWorkspaceModel* _model;
+   std::shared_ptr<MapsWorkspaceModel> _model;
 
    QTableView* _fit_params_table;
 

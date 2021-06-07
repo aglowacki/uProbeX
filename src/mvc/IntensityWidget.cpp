@@ -3,41 +3,32 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef INTENSITY_WIDGET_H
-#define INTENSITY_WIDGET_H
+#include <mvc/IntensityWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
-
-/*---------------------------------------------------------------------------*/
-
-class Intensity_Widget : public QWidget
+IntensityWidget::IntensityWidget(QWidget* parent) : QWidget(parent)
 {
 
-   Q_OBJECT
+    createLayout();
 
-public:
-
-   /**
-    * Constructor.
-    */
-   Intensity_Widget(QWidget* parent = nullptr);
-
-   /**
-    * Destructor.
-    */
-   ~Intensity_Widget();
-
-
-protected:
-
-   void createLayout();
-
-};
-
+}
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* MapsElementsWidget_H_ */
+IntensityWidget::~IntensityWidget()
+{
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void IntensityWidget::createLayout()
+{
+
+
+    
+}
+
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

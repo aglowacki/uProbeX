@@ -39,22 +39,26 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
 MapsWorkspaceModel::~MapsWorkspaceModel()
 {
+	/*
 	for (auto & itr : _h5_models)
 	{
 		delete itr.second;
 	}
+	*/
 	_h5_models.clear();
-
+	/*
 	for (auto & itr : _raw_models)
 	{
 		delete itr.second;
 	}
+	*/
 	_raw_models.clear();
-
+	/*
 	for (auto & itr : _vlm_models)
 	{
 		delete itr.second;
 	}
+	*/
 	_vlm_models.clear();
 
     if(_dir != nullptr)
@@ -172,23 +176,25 @@ void MapsWorkspaceModel::reload_vlm()
 
 void MapsWorkspaceModel::unload()
 {
-
+	/*
     for(auto &itr : _h5_models)
     {
         delete itr.second;
     }
+	*/
     _h5_models.clear();
-
+	/*
     for(auto &itr : _raw_models)
     {
         delete itr.second;
     }
+	*/
     _raw_models.clear();
-
+	/*
     for(auto &itr : _vlm_models)
     {
         delete itr.second;
-    }
+    }*/
     _vlm_models.clear();
 
     _fit_params_override_dict.clear();
@@ -207,7 +213,7 @@ void MapsWorkspaceModel::unload()
 
 /*---------------------------------------------------------------------------*/
 
-MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
+std::shared_ptr<MapsH5Model> MapsWorkspaceModel::get_MapsH5_Model(QString name)
 {
     if(_h5_models.count(name) > 0)
     {
@@ -215,7 +221,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     }
     if(_h5_fileinfo_list.count(name) > 0)
     {
-        MapsH5Model * model = new MapsH5Model();
+		std::shared_ptr<MapsH5Model> model(new MapsH5Model());
         QFileInfo fileInfo = _h5_fileinfo_list[name];
         model->load(fileInfo.absoluteFilePath());
         if(model->is_counts_loaded())
@@ -230,7 +236,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
+std::shared_ptr<RAW_Model> MapsWorkspaceModel::get_RAW_Model(QString name)
 {
 	
     if(_raw_models.count(name) > 0)
@@ -239,7 +245,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
     }
     if(_raw_fileinfo_list.count(name) > 0)
     {
-        RAW_Model * model = new RAW_Model();
+		std::shared_ptr<RAW_Model> model( new RAW_Model());
         for(auto &itr : _fit_params_override_dict)
         {
             model->setParamOverride(itr.first, &(itr.second));
@@ -252,7 +258,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
         }
         else
         {
-            delete model;
+            //delete model;
         }
     }
 	
@@ -261,7 +267,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
+std::shared_ptr<VLM_Model> MapsWorkspaceModel::get_VLM_Model(QString name)
 {
     if(_vlm_models.count(name) > 0)
     {
@@ -269,16 +275,16 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
     }
     if(_vlm_fileinfo_list.count(name) > 0)
     {
-        VLM_Model * model;
+		std::shared_ptr<VLM_Model> model;
         QFileInfo fileInfo = _vlm_fileinfo_list[name];
         QString ext = fileInfo.suffix().toLower();
         if (ext == "tif" || ext == "tiff")
         {
-            model = new TIFF_Model();
+            model = std::make_shared<TIFF_Model>();
         }
         else if (ext == "sws")
         {
-            model = new SWSModel();
+			model = std::make_shared<SWSModel>();
         }
         if(model->load(fileInfo.absoluteFilePath()))
         {
@@ -287,7 +293,7 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
         }
         else
         {
-            delete model;
+            //delete model;
         }
     }
 
@@ -334,36 +340,42 @@ vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
 
 void MapsWorkspaceModel::unload_H5_Model(QString name)
 {
+	/*
     if(_h5_models.count(name) > 0)
     {
         MapsH5Model* model = _h5_models[name];
         _h5_models.erase(name);
         delete model;
     }
+	*/
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsWorkspaceModel::unload_RAW_Model(QString name)
 {
+	/*
     if(_raw_models.count(name) > 0)
     {
         RAW_Model* model = _raw_models[name];
         _raw_models.erase(name);
         delete model;
     }
+	*/
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsWorkspaceModel::unload_VLM_Model(QString name)
 {
+	/*
     if(_vlm_models.count(name) > 0)
     {
         VLM_Model* model = _vlm_models[name];
         _vlm_models.erase(name);
         delete model;
     }
+	*/
 }
 
 /*---------------------------------------------------------------------------*/

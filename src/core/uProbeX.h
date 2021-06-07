@@ -92,7 +92,7 @@ private slots:
     * @brief makeSWSWindow
     * @param swsModel
     */
-   void make_VLM_Window(VLM_Model* model);
+   void make_VLM_Window(std::shared_ptr<VLM_Model> model);
 
    /**
     * @brief laodMapsWorkspace
@@ -111,13 +111,13 @@ private slots:
     * @brief makeHDFWindow
     * @param model
     */
-   void make_HDF_Window(MapsH5Model* model);
+   void make_HDF_Window(std::shared_ptr<MapsH5Model> model);
 
    /**
     * @brief makeMDAWindow
     * @param model
     */
-   void make_MDA_Window(RAW_Model* model);
+   void make_MDA_Window(std::shared_ptr<RAW_Model> model);
 
    void open_spectra_file();
 

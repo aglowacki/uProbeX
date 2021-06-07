@@ -20,7 +20,6 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 {
 
     _per_pixel_fit_widget = nullptr;
-	_model = nullptr;
     createLayout();
 
 }
@@ -99,19 +98,19 @@ void MapsWorkspaceFilesWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
+void MapsWorkspaceFilesWidget::setModel(std::shared_ptr<MapsWorkspaceModel> model)
 {
-	if (_model != nullptr)
+	if (_model)
 	{
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
-        disconnect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
-        disconnect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
-        disconnect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
+        disconnect(_model.get(), &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
+        disconnect(_model.get(), &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
+        disconnect(_model.get(), &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
+        disconnect(_model.get(), &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
+        disconnect(_model.get(), &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
 	}
 	
 	_model = model;
-	if (_model != nullptr)
+	if (_model)
 	{
 		QString path = _model->get_directory_name();
 		if (path.length() > 0)
@@ -119,14 +118,14 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 			_lbl_workspace->setText(path);
 		}
 
-        connect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
-        connect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
-        connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
-        connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
-        connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
-        connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
-        connect(_vlm_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_vlm);
-        connect(_mda_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_raw);
+        connect(_model.get(), &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
+        connect(_model.get(), &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
+        connect(_model.get(), &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
+        connect(_model.get(), &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
+        connect(_model.get(), &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
+        connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model.get(), &MapsWorkspaceModel::reload_analyzed);
+        connect(_vlm_tab_widget, &FileTabWidget::onRefresh, _model.get(), &MapsWorkspaceModel::reload_vlm);
+        connect(_mda_tab_widget, &FileTabWidget::onRefresh, _model.get(), &MapsWorkspaceModel::reload_raw);
 	}
 
 }
@@ -185,7 +184,7 @@ void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_TYPE mt)
 {
 
-    if (_model != nullptr)
+    if (_model)
     {
 
         int amt = names_list.count();
@@ -197,7 +196,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
             if (mt == MODEL_TYPE::MAPS_H5)
             {
-                std::future< MapsH5Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
+                std::future< std::shared_ptr<MapsH5Model> > ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
                 std::future_status status;
                 do
                 {
@@ -205,7 +204,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     QCoreApplication::processEvents();
                 } while (status != std::future_status::ready);
 
-                MapsH5Model* h5Model = ret.get();
+				std::shared_ptr<MapsH5Model> h5Model = ret.get();
                 if (h5Model != nullptr)
                 {
                     int idx = -1;
@@ -243,7 +242,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             }
             else if (mt == MODEL_TYPE::RAW)
             {
-				RAW_Model* model = nullptr;
+				std::shared_ptr<RAW_Model> model;
                 
                 QApplication::setOverrideCursor(Qt::WaitCursor);
                 
@@ -256,7 +255,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 				if (name.endsWith(".h5") || name.endsWith(".hdf5") || name.endsWith(".emd"))
 				{
 					QCoreApplication::processEvents();
-					std::future< RAW_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
+					std::future< std::shared_ptr<RAW_Model> > ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_RAW_Model(name); });
                     std::future_status status;
                     do
                     {
@@ -291,7 +290,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             }
             else if (mt == MODEL_TYPE::VLM)
             {
-                std::future< VLM_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_VLM_Model(name); });
+                std::future< std::shared_ptr<VLM_Model> > ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_VLM_Model(name); });
                 std::future_status status;
                 do
                 {
@@ -299,8 +298,8 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     QCoreApplication::processEvents();
                 } while (status != std::future_status::ready);
 
-                VLM_Model* Model = ret.get();
-                if (Model != nullptr)
+				std::shared_ptr<VLM_Model> Model = ret.get();
+                if (Model)
                 {
                     load_status = LOADED;
                     emit loaded_model(name, mt);
@@ -324,7 +323,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL_TYPE mt)
 {
     File_Loaded_Status load_status = UNLOADED;
-    if (_model != nullptr)
+    if (_model)
     {
         foreach(QString name, names_list)
         {
@@ -383,7 +382,7 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
 
 void MapsWorkspaceFilesWidget::onProcessed_list_update()
 {
-    if (_model != nullptr)
+    if (_model)
     {
         _model->reload_analyzed();
     }

@@ -336,7 +336,7 @@ void uProbeX::adjustAutoSaveSettings()
 */
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::make_VLM_Window(VLM_Model* model)
+void uProbeX::make_VLM_Window(std::shared_ptr<VLM_Model> model)
 {
     VLM_Widget* widget = new VLM_Widget();
     widget->resize(1027, 768);
@@ -387,20 +387,20 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
     if (newWindow == false) 
         return;
 
-    VLM_Model* model = nullptr;
+	std::shared_ptr<VLM_Model> model;
     QFileInfo fileinfo(path);
 
     QString ext = fileinfo.suffix().toLower();
     if (ext == "tif" || ext == "tiff")
     {
-        model = new TIFF_Model();
+        model = std::make_shared<TIFF_Model>();
     }
     else if (ext == "sws")
     {
-        model = new SWSModel();
+		model = std::make_shared<SWSModel>();
     }
 
-    if (model != nullptr)
+    if (model)
     {
         // Create general window view widget and image model
         VLM_Widget* widget = new VLM_Widget();
@@ -416,7 +416,7 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
             }
             else
             {
-                delete model;
+                //delete model;
                 delete widget;
                 return;
             }
@@ -535,7 +535,7 @@ void uProbeX::open_spectra_and_override_file()
 
 void uProbeX::make_spectra_window(QString path, data_struct::Params_Override* po)
 {
-    RAW_Model* model = new RAW_Model();
+    std::shared_ptr<RAW_Model> model( new RAW_Model());
     if (model->load(path))
     {
         model->setParamOverride(-1, po);
@@ -572,9 +572,9 @@ void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 void uProbeX::make_HDF_Window(QString path)
 {
 
-    MapsH5Model* model = new MapsH5Model();
+	std::shared_ptr<MapsH5Model> model(new MapsH5Model());
     try
-    {
+	{
         model->load(path);
     }
     catch(std::string& s)
@@ -594,7 +594,7 @@ void uProbeX::make_HDF_Window(QString path)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::make_HDF_Window(MapsH5Model* model)
+void uProbeX::make_HDF_Window(std::shared_ptr<MapsH5Model> model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
     widget->setModel(model);
@@ -628,7 +628,7 @@ void uProbeX::make_HDF_Window(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::make_MDA_Window(RAW_Model* model)
+void uProbeX::make_MDA_Window(std::shared_ptr<RAW_Model> model)
 {
     MDA_Widget* widget = new MDA_Widget();
     widget->setModel(model);

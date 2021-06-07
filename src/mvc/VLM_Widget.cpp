@@ -1854,18 +1854,15 @@ void VLM_Widget::offsetReturnPressed()
 
 /*---------------------------------------------------------------------------*/
 
-void VLM_Widget::setModel(VLM_Model* model)
+void VLM_Widget::setModel(std::shared_ptr<VLM_Model> model)
 {
-    if (_model != model)
+    if (model)
     {
         _model = model;
-        if (_model != nullptr)
-        {
-            updateFrame(_model->getImage());
-            setCoordinateModel(_model->getCoordModel());
-            restoreMarkerLoaded();
-        }
-    }
+        updateFrame(_model->getImage());
+        setCoordinateModel(_model->getCoordModel());
+		restoreMarkerLoaded();
+	}
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1909,76 +1906,75 @@ void VLM_Widget::restoreMarkerLoaded()
 
    // get from model
   // parseXML();
-	if (_model == nullptr)
+	if (_model)
 	{
-		return;
+
+
+		auto markersLoaded = _model->getMarkers();
+
+		while (m_calTreeModel->rowCount() > 0)
+		{
+			QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
+			m_calTreeModel->removeRow(0, first);
+		}
+
+		for (int i = markersLoaded.size() - 1; i >= 0; i--)
+		{
+
+			QMap<QString, QString> marker = markersLoaded.at(i);
+
+			UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
+			annotation->setMouseOverPixelCoordModel(m_coordinateModel);
+			annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+
+			reloadAndSelectAnnotation(m_calTreeModel,
+				m_calAnnoTreeView,
+				m_calSelectionModel,
+				annotation,
+				QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+					marker[UPROBE_REAL_POS_Y].toDouble()));
+			annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+				marker[UPROBE_REAL_POS_Y].toDouble()));
+			annotation->setPropertyValue(UPROBE_NAME, QVariant(marker[UPROBE_NAME]));
+			annotation->setPropertyValue(UPROBE_LIGHT_POS_X, marker[UPROBE_LIGHT_POS_X]);
+			annotation->setPropertyValue(UPROBE_LIGHT_POS_Y, marker[UPROBE_LIGHT_POS_Y]);
+		}
+
+		tabIndexChanged(MICROPROBE_IDX);
+
+		auto regionMarkersLoaded = _model->getRegionMarkers();
+
+		while (m_mpTreeModel->rowCount() > 0)
+		{
+			QModelIndex first = m_mpTreeModel->index(0, 0, QModelIndex());
+			m_mpTreeModel->removeRow(0, first);
+		}
+
+		for (int i = regionMarkersLoaded.size() - 1; i >= 0; i--)
+		{
+
+			QMap<QString, QString> marker = regionMarkersLoaded.at(i);
+
+			UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem(marker);
+			annotation->setMouseOverPixelCoordModel(m_coordinateModel);
+			annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+
+			reloadAndSelectAnnotation(m_mpTreeModel,
+				m_mpAnnoTreeView,
+				m_mpSelectionModel,
+				annotation,
+				QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+					marker[UPROBE_REAL_POS_Y].toDouble()));
+
+			annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+				marker[UPROBE_REAL_POS_Y].toDouble()));
+			annotation->setPropertyValue(UPROBE_NAME, QVariant(marker[UPROBE_NAME]));
+			annotation->setPropertyValue(UPROBE_PRED_POS_X, marker[UPROBE_PRED_POS_X]);
+			annotation->setPropertyValue(UPROBE_PRED_POS_Y, marker[UPROBE_PRED_POS_Y]);
+		}
+
+		tabIndexChanged(CALIBRATION_IDX);
 	}
-
-	auto markersLoaded = _model->getMarkers();
-
-    while (m_calTreeModel->rowCount() > 0)
-    {
-        QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
-        m_calTreeModel->removeRow(0, first);
-    }
-
-   for(int i = markersLoaded.size()-1; i>=0; i--)
-   {
-
-      QMap<QString, QString> marker = markersLoaded.at(i);
-
-      UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
-      annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-      annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-
-      reloadAndSelectAnnotation(m_calTreeModel,
-                                m_calAnnoTreeView,
-                                m_calSelectionModel,
-                                annotation,
-                                QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                                        marker[UPROBE_REAL_POS_Y].toDouble()));
-      annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                         marker[UPROBE_REAL_POS_Y].toDouble()));
-      annotation->setPropertyValue(UPROBE_NAME,QVariant(marker[UPROBE_NAME]));
-      annotation->setPropertyValue(UPROBE_LIGHT_POS_X,marker[UPROBE_LIGHT_POS_X]);
-      annotation->setPropertyValue(UPROBE_LIGHT_POS_Y,marker[UPROBE_LIGHT_POS_Y]);
-   }
-
-   tabIndexChanged(MICROPROBE_IDX);
-
-   auto regionMarkersLoaded = _model->getRegionMarkers();
-
-   while (m_mpTreeModel->rowCount() > 0)
-   {
-       QModelIndex first = m_mpTreeModel->index(0, 0, QModelIndex());
-       m_mpTreeModel->removeRow(0, first);
-   }
-
-   for(int i = regionMarkersLoaded.size()-1; i>=0; i--)
-   {
-
-      QMap<QString, QString> marker = regionMarkersLoaded.at(i);
-
-      UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem(marker);
-      annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-      annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-
-      reloadAndSelectAnnotation(m_mpTreeModel,
-                                m_mpAnnoTreeView,
-                                m_mpSelectionModel,
-                                annotation,
-                                QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                                marker[UPROBE_REAL_POS_Y].toDouble()));
-
-      annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                         marker[UPROBE_REAL_POS_Y].toDouble()));
-      annotation->setPropertyValue(UPROBE_NAME,QVariant(marker[UPROBE_NAME]));
-      annotation->setPropertyValue(UPROBE_PRED_POS_X,marker[UPROBE_PRED_POS_X]);
-      annotation->setPropertyValue(UPROBE_PRED_POS_Y,marker[UPROBE_PRED_POS_Y]);
-   }
-
-   tabIndexChanged(CALIBRATION_IDX);
-
 }
 
 /*---------------------------------------------------------------------------*/

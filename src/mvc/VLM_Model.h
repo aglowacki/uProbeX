@@ -23,14 +23,10 @@ class VLM_Model : public AbstractWindowModel
 
 public:
 
-    /**
-    * Constructor
-    */
     VLM_Model();
 
-    /**
-    * Destructor
-    */
+	VLM_Model(const VLM_Model& v);
+
     virtual ~VLM_Model();
 
     /**

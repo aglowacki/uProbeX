@@ -70,9 +70,9 @@ protected:
 
    QPushButton *_btn_update;
 
-   std::vector<MapsH5Model*> _maps_h5_models;
+   std::vector<std::shared_ptr<MapsH5Model> > _maps_h5_models;
 
-   MapsH5Model *_currentModel;
+   std::shared_ptr<MapsH5Model> _currentModel;
 
    data_struct::Stream_Block *_last_packet;
 

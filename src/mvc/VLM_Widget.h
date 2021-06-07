@@ -90,8 +90,7 @@ public:
     * @param listCoordPoints
     * @return
     */
-   bool getMarkerCoordinatePoints(
-         QList < QMap<QString,double> >& listCoordPoints);
+   bool getMarkerCoordinatePoints(QList < QMap<QString,double> >& listCoordPoints);
 
    /**
     * @brief getModelFileName
@@ -139,7 +138,7 @@ public:
     */
    bool verifySaveIsRequired();
 
-   void setModel(VLM_Model* model);
+   void setModel(std::shared_ptr<VLM_Model> model);
 
    /**
     * @brief widgetChanged
@@ -430,7 +429,7 @@ private:
    void _createSolver();
 
 
-   VLM_Model* _model;
+   std::shared_ptr<VLM_Model> _model;
 
    /**
     * @brief m_addCalibrationAction

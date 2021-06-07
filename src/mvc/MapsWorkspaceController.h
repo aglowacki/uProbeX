@@ -48,7 +48,7 @@ protected:
 
 	ImageStackControlWidget* _imgStackControllWidget;
 
-	MapsWorkspaceModel* _mapsWorkspaceModel;
+	std::shared_ptr<MapsWorkspaceModel> _mapsWorkspaceModel;
 
 	QDockWidget *_maps_workspace_dock;
 

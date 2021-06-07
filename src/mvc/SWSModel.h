@@ -30,6 +30,8 @@ public:
     */
     SWSModel();
 
+	SWSModel(const SWSModel& s);
+
     /**
     * Destructor
     */

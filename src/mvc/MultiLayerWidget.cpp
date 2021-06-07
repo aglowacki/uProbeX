@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/Multi_Layer_Widget.h>
+#include <mvc/MultiLayerWidget.h>
 
 #include <gstar/ImageViewWidget.h>
 
@@ -12,7 +12,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-Multi_Layer_Widget::Multi_Layer_Widget(QWidget* parent) : QWidget(parent)
+MultiLayerWidget::MultiLayerWidget(QWidget* parent) : QWidget(parent)
 {
 
     createLayout();
@@ -21,14 +21,14 @@ Multi_Layer_Widget::Multi_Layer_Widget(QWidget* parent) : QWidget(parent)
 
 /*---------------------------------------------------------------------------*/
 
-Multi_Layer_Widget::~Multi_Layer_Widget()
+MultiLayerWidget::~MultiLayerWidget()
 {
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void Multi_Layer_Widget::createLayout()
+void MultiLayerWidget::createLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout();
     m_imageViewWidget = new gstar::ImageViewWidget(1,1);
@@ -46,11 +46,11 @@ void Multi_Layer_Widget::createLayout()
 /*
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
-    connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &Multi_Layer_Widget::on_export_fit_params);
-    connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &Multi_Layer_Widget::on_export_csv);
+    connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MultiLayerWidget::on_export_fit_params);
+    connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MultiLayerWidget::on_export_csv);
 
     _cb_detector = new QComboBox(this);
-    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &Multi_Layer_Widget::onDetectorSelect);
+    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MultiLayerWidget::onDetectorSelect);
 
     _scaler_widget = new Scaler_Widget(this);
 

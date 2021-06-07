@@ -24,14 +24,16 @@ class TIFF_Model :  public VLM_Model
 
 public:
 
-    /**
-    * Constructor
-    */
     TIFF_Model();
 
-    /**
-    * Destructor
-    */
+	TIFF_Model(const TIFF_Model&);
+
+	TIFF_Model(TIFF_Model && t) noexcept :
+		_loaded(std::exchange(t._loaded, false)),
+		_img(std::move(t._img)),
+		m_pathtiffFile(std::move(t.m_pathtiffFile))
+		{ };
+
     ~TIFF_Model();
 
     virtual bool load(QString filepath);

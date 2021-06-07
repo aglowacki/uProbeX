@@ -25,6 +25,26 @@ MapsH5Model::MapsH5Model() : QObject()
 
 /*---------------------------------------------------------------------------*/
 
+MapsH5Model::MapsH5Model(const MapsH5Model& m)
+{
+	_filepath = m._filepath;
+	_datset_name = m._datset_name;
+	_quant_map_matrix = m._quant_map_matrix;
+	_quant_map_nnls = m._quant_map_nnls;
+	_quant_map_roi = m._quant_map_roi;
+	_scan_info = m._scan_info;
+	_version = m._version;
+	_initialized_by_stream_block = m._initialized_by_stream_block;
+	_loaded_scalers = m._loaded_scalers;
+	_loaded_quantification = m._loaded_quantification;
+	_loaded_scan = m._loaded_scan;
+	_loaded_integrated_spectra = m._loaded_integrated_spectra;
+	_loaded_counts = m._loaded_counts;
+	_is_fully_loaded = m._is_fully_loaded;
+}
+
+/*---------------------------------------------------------------------------*/
+
 MapsH5Model::~MapsH5Model()
 {
 

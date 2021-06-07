@@ -25,6 +25,15 @@ TIFF_Model::TIFF_Model() : VLM_Model()
 
 /*---------------------------------------------------------------------------*/
 
+TIFF_Model::TIFF_Model(const TIFF_Model&t)
+{
+	_loaded = t._loaded;
+	_img = t._img;
+	m_pathtiffFile = t.m_pathtiffFile;
+}
+
+/*---------------------------------------------------------------------------*/
+
 TIFF_Model::~TIFF_Model()
 {
 

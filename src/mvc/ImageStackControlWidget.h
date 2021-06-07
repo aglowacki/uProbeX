@@ -44,7 +44,7 @@ public:
     */
    ~ImageStackControlWidget();
 
-   void setModel(MapsWorkspaceModel* model);
+   void setModel(std::shared_ptr<MapsWorkspaceModel> model);
 
    void update_file_list();
 
@@ -75,7 +75,7 @@ protected:
 
    MapsWorkspaceFilesWidget* _mapsFilsWidget;
 
-   MapsWorkspaceModel* _model;
+   std::shared_ptr<MapsWorkspaceModel> _model;
 
    MapsElementsWidget* _imageGrid;
 
@@ -91,11 +91,11 @@ protected:
 
    QPushButton *_right_btn;
 
-   map<QString, MapsH5Model*> _h5_model_map;
+   map<QString, std::shared_ptr<MapsH5Model> > _h5_model_map;
 
-   map<QString, RAW_Model*> _raw_model_map;
+   map<QString, std::shared_ptr<RAW_Model> > _raw_model_map;
 
-   map<QString, VLM_Model*> _vlm_model_map;
+   map<QString, std::shared_ptr<VLM_Model> > _vlm_model_map;
 
    QProgressBar* _load_progress;
 

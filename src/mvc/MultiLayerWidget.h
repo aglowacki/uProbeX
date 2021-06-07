@@ -3,19 +3,17 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef SCALER_WIDGET_H
-#define SCALER_WIDGET_H
+#ifndef MultiLayerWidget_H
+#define MultiLayerWidget_H
 
 /*---------------------------------------------------------------------------*/
 
 #include <QComboBox>
-#include <QTableWidget>
-#include <QLabel>
-#include <mvc/RAW_Model.h>
+#include <gstar/AbstractImageWidget.h>
 
 /*---------------------------------------------------------------------------*/
 
-class Scaler_Widget : public QWidget
+class MultiLayerWidget : public QWidget
 {
 
    Q_OBJECT
@@ -25,36 +23,27 @@ public:
    /**
     * Constructor.
     */
-   Scaler_Widget(QWidget* parent = nullptr);
+   MultiLayerWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
-   ~Scaler_Widget();
+   ~MultiLayerWidget();
 
-   void setModel(std::shared_ptr<RAW_Model> model);
-
-   std::shared_ptr<RAW_Model> getModel(){return _model;}
-
-public slots:
-
-   void onScalerSelect(const QString& det);
 
 protected:
 
    void createLayout();
 
-   QComboBox* _cb_scaler;
+   gstar::ImageViewToolBar* m_imageWidgetToolBar;
 
-   QTableWidget* _scaler_table_widget;
-
-   std::shared_ptr<RAW_Model> _model;
+   gstar::ImageViewWidget* m_imageViewWidget;
 
 };
 
 
 /*---------------------------------------------------------------------------*/
 
-#endif /* SCALER_WIDGET_H */
+#endif /* MapsElementsWidget_H_ */
 
 /*---------------------------------------------------------------------------*/

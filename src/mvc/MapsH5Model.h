@@ -65,15 +65,10 @@ class MapsH5Model : public QObject
     Q_OBJECT
 
 public:
-
-    /**
-    * Constructor
-    */
     MapsH5Model();
 
-    /**
-    * Destructor
-    */
+	MapsH5Model(const MapsH5Model& m);
+
     ~MapsH5Model();
 
     void clear_analyzed_counts();

@@ -7,7 +7,7 @@
 
 MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
-	_mapsWorkspaceModel = new MapsWorkspaceModel();
+	_mapsWorkspaceModel = std::make_shared< MapsWorkspaceModel>();
 	_imgStackControllWidget = new ImageStackControlWidget();
 	
 	_imgStackControllWidget->setModel(_mapsWorkspaceModel);
@@ -29,9 +29,9 @@ MapsWorkspaceController::~MapsWorkspaceController()
 		delete _imgStackControllWidget;
 	}
 
-	if (_mapsWorkspaceModel != nullptr)
+	if (_mapsWorkspaceModel)
 	{
-		delete _mapsWorkspaceModel;
+		_mapsWorkspaceModel.reset();
 	}
 }
 

@@ -47,17 +47,16 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 
     if(_currentModel != nullptr)
 	{
- 	   disconnect(_currentModel,
+ 	   disconnect(_currentModel.get(),
 	            SIGNAL(model_data_updated()),
 	            _mapsElementsWidget,
 	            SLOT(model_updated()));
 	}
 
-    if(_currentModel != nullptr)
+    if(_currentModel)
     {
-        delete _currentModel;
+        _currentModel.reset();
     }
-    _currentModel = nullptr;
 
     if(_streamWorker != nullptr)
     {
@@ -96,7 +95,7 @@ void LiveMapsElementsWidget::createLayout()
  //   _textEdit = new QTextEdit(this);
  //   _textEdit->resize(1024, 800);
  //   _textEdit->scrollBarWidgets(Qt::AlignRight);
-    _mapsElementsWidget = new MapsElementsWidget(1,1,this);
+    _mapsElementsWidget = new MapsElementsWidget(this);
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
  //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 
@@ -107,7 +106,7 @@ void LiveMapsElementsWidget::createLayout()
 
 	if(_currentModel != nullptr)
 	{
-	    connect(_currentModel,
+	    connect(_currentModel.get(),
 	            SIGNAL(model_data_updated()),
 	            _mapsElementsWidget,
 	            SLOT(model_updated()));
@@ -179,32 +178,36 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
     if (start_new_image)
     {
         _prev_dataset_name = *new_packet->dataset_name;
-        if (_currentModel != nullptr)
+        if (_currentModel)
         {
-            disconnect(_currentModel,
+            disconnect(_currentModel.get(),
                 SIGNAL(model_data_updated()),
                 _mapsElementsWidget,
                 SLOT(model_updated()));
         }
-        _currentModel = new MapsH5Model();
+        _currentModel = std::make_shared<MapsH5Model>();
         _currentModel->initialize_from_stream_block(new_packet);
         _progressBar->setRange(0, new_packet->height() - 1);
         _maps_h5_models.push_back(_currentModel);
 
-        int cur = _mapsElementsWidget->getRangeWidgetStartIndex();
-        _num_images++;
-        _mapsElementsWidget->setNumberOfImages(_num_images);
-        
-        if (cur == _num_images - 1)
-        {
-            _mapsElementsWidget->setModel(_currentModel);
-            connect(_currentModel,
-                SIGNAL(model_data_updated()),
-                _mapsElementsWidget,
-                SLOT(model_updated()));
-            _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
-        }
-    }
+		MultiElementsWidget * element_widget = _mapsElementsWidget->multi_element_widget();
+		if (element_widget != nullptr)
+		{
+			int cur = element_widget->getRangeWidgetStartIndex();
+			_num_images++;
+			element_widget->setNumberOfImages(_num_images);
+
+			if (cur == _num_images - 1)
+			{
+				_mapsElementsWidget->setModel(_currentModel);
+				connect(_currentModel.get(),
+					SIGNAL(model_data_updated()),
+					_mapsElementsWidget,
+					SLOT(model_updated()));
+				element_widget->setRangeWidgetStartIndex(_num_images);
+			}
+		}
+	}
 
     _currentModel->update_from_stream_block(new_packet);
     if(_last_packet != nullptr && _last_packet->row() != new_packet->row())
@@ -212,8 +215,11 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         QString str = ">" + QString::number(new_packet->row()) + " " + QString::number(new_packet->col()) + " : " + QString::number(new_packet->height()) + " " + QString::number(new_packet->width()) ;
 //        _textEdit->append(str);
 
-        _mapsElementsWidget->redrawCounts();
-
+		MultiElementsWidget * element_widget = _mapsElementsWidget->multi_element_widget();
+		if (element_widget != nullptr)
+		{
+			element_widget->redrawCounts();
+		}
         _progressBar->setValue(new_packet->row());
         //_textEdit->clear();
         _progressBar->update();
