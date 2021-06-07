@@ -162,6 +162,10 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
 void ImageViewScene::enableAnnotations(bool state)
 {
 
+    if (m_model == nullptr)
+    {
+        return;
+    }
    if (typeid(*m_model) != typeid(AnnotationTreeModel))
    {
       return;

@@ -20,6 +20,8 @@
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
+#include "mvc/Multi_Layer_Widget.h"
+#include "mvc/Intensity_Widget.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -138,6 +140,10 @@ protected:
    unordered_map<string, data_struct::Spectra> _roi_spectra;
 
    QTableWidget* _extra_pvs_table_widget;
+
+   Multi_Layer_Widget* _multi_layer_widget;
+
+   Intensity_Widget* _intensity_widget;
 
    //QTableWidget* _scaler_table_widget;
 

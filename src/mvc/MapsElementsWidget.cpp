@@ -34,7 +34,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
-
+    _multi_layer_widget = nullptr;
 	int r = 0;
     for (int i = 0; i < 256; ++i)
     {
@@ -76,6 +76,11 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _spectra_widget = nullptr;
 
+    if (_multi_layer_widget != nullptr)
+    {
+        delete _multi_layer_widget;
+    }
+    _multi_layer_widget = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -87,6 +92,8 @@ void MapsElementsWidget::_createLayout()
     _spectra_widget = new FitSpectraWidget();
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
     connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MapsElementsWidget::on_export_csv_and_png);
+
+    _multi_layer_widget = new Multi_Layer_Widget();
 
     _cb_analysis = new QComboBox(this);
 
@@ -154,6 +161,7 @@ void MapsElementsWidget::_createLayout()
     _tab_widget->addTab(window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
+    _tab_widget->addTab(_multi_layer_widget, "Multi-Element");
 
 
     layout->addItem(hbox2);

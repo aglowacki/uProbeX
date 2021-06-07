@@ -16,8 +16,11 @@
 
 ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(parent)
 {
+	_mda_widget = nullptr;
+	_vlm_widget = nullptr;
+	_mapsFilsWidget = nullptr;
+	_imageGrid = nullptr;
 	createLayout();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -34,9 +37,29 @@ ImageStackControlWidget::~ImageStackControlWidget()
 	if (_mapsFilsWidget != nullptr)
 	{
 		delete _mapsFilsWidget;
-		_mapsFilsWidget = nullptr;
 	}
 
+	if (_mda_widget != nullptr)
+	{
+		delete _mda_widget;
+	}
+
+
+	if (_vlm_widget != nullptr)
+	{
+		delete _vlm_widget;
+	}
+
+	if (_imageGrid != nullptr)
+	{
+		delete _imageGrid;
+	}
+
+	_mapsFilsWidget = nullptr;
+	_mda_widget = nullptr;
+	_vlm_widget = nullptr;
+	_mapsFilsWidget = nullptr;
+	_imageGrid = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -51,7 +74,7 @@ void ImageStackControlWidget::createLayout()
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 
 	_mda_widget = new MDA_Widget();
-
+	
 	_mapsFilsWidget = new MapsWorkspaceFilesWidget();
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_model, this, &ImageStackControlWidget::onLoad_Model);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::unloadList_model, this, &ImageStackControlWidget::onUnloadList_Model);
