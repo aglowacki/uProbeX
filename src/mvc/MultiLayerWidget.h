@@ -13,7 +13,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-class MultiLayerWidget : public QWidget
+class MultiLayerWidget : public gstar::AbstractImageWidget
 {
 
    Q_OBJECT
@@ -34,10 +34,6 @@ public:
 protected:
 
    void createLayout();
-
-   gstar::ImageViewToolBar* m_imageWidgetToolBar;
-
-   gstar::ImageViewWidget* m_imageViewWidget;
 
 };
 
