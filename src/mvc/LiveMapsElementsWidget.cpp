@@ -165,7 +165,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         {
             start_new_image = true;
         }
-        if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
+        if(new_packet->dataset_name().compare((_last_packet->dataset_name())) != 0)
         {
             start_new_image = true;
         }
@@ -177,7 +177,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
 
     if (start_new_image)
     {
-        _prev_dataset_name = *new_packet->dataset_name;
+        _prev_dataset_name = new_packet->dataset_name();
         if (_currentModel)
         {
             disconnect(_currentModel.get(),
