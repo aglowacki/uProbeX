@@ -411,7 +411,9 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
             }
 
-            _spectra_widget->setIntegratedSpectra((data_struct::ArrayXr*)_model->getIntegratedSpectra());
+
+            _model->getIntegratedSpectra(_int_spec);
+            _spectra_widget->setIntegratedSpectra(&_int_spec);
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
 
             const data_struct::Scan_Info* scan_info = _model->getScanInfo();
@@ -656,28 +658,27 @@ void MapsElementsWidget::model_updated()
     element_lines.push_back(STR_NUM_ITR);
     element_lines.push_back(STR_RESIDUAL);
 
-    data_struct::Fit_Count_Dict* element_counts = _model->getAnalyzedCounts(current_a);
+    data_struct::Fit_Count_Dict element_counts;
+    _model->getAnalyzedCounts(current_a, element_counts);
 
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
-    if(element_counts != nullptr)
+    
+    m_imageViewWidget->clearLabels();
+    //insert in z order
+    for (std::string el_name : element_lines)
     {
-        m_imageViewWidget->clearLabels();
-        //insert in z order
-        for (std::string el_name : element_lines)
+        if(element_counts.count(el_name) > 0)
         {
-            if(element_counts->count(el_name) > 0)
-            {
-                QString val = QString(el_name.c_str());
-                m_imageViewWidget->addLabel(val);
-            }
-
+            QString val = QString(el_name.c_str());
+            m_imageViewWidget->addLabel(val);
         }
+
+    }
 //        for(auto& itr: *element_counts)
 //        {
 //            QString val = QString(itr.first.c_str());
 //            m_imageViewWidget->addLabel(val);
 //        }
-    }
 
     for (auto& itr : *scalers)
     {
@@ -837,22 +838,22 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 {
 	if (_model != nullptr)
 	{
-		data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+        data_struct::Fit_Count_Dict fit_counts;
+        _model->getAnalyzedCounts(analysis_type, fit_counts);
         data_struct::Fit_Count_Dict* scalers = _model->getScalers();
         ArrayXXr normalized;
         bool draw = false;
         int height = 0;
         int width = 0;
-        if (fit_counts != nullptr)
+        
+        if (fit_counts.count(element) > 0)
         {
-            if (fit_counts->count(element) > 0)
-            {
-                height = static_cast<int>(fit_counts->at(element).rows());
-                width = static_cast<int>(fit_counts->at(element).cols());
-                normalized = fit_counts->at(element);
-                draw = true;
-            }
+            height = static_cast<int>(fit_counts.at(element).rows());
+            width = static_cast<int>(fit_counts.at(element).cols());
+            normalized = fit_counts.at(element);
+            draw = true;
         }
+        
         if (false == draw && scalers != nullptr)
         {
             if (scalers->count(element) > 0)
@@ -929,22 +930,22 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 {
     if (_model != nullptr)
     {
-        data_struct::Fit_Count_Dict* fit_counts = _model->getAnalyzedCounts(analysis_type);
+        data_struct::Fit_Count_Dict fit_counts; 
+        _model->getAnalyzedCounts(analysis_type, fit_counts);
         data_struct::Fit_Count_Dict* scalers = _model->getScalers();
         ArrayXXr normalized;
         bool draw = false;
         int height = 0;
         int width = 0;
-        if (fit_counts != nullptr)
+
+        if (fit_counts.count(element) > 0)
         {
-            if (fit_counts->count(element) > 0)
-            {
-                height = static_cast<int>(fit_counts->at(element).rows());
-                width = static_cast<int>(fit_counts->at(element).cols());
-                normalized = fit_counts->at(element);
-                draw = true;
-            }
+            height = static_cast<int>(fit_counts.at(element).rows());
+            width = static_cast<int>(fit_counts.at(element).cols());
+            normalized = fit_counts.at(element);
+            draw = true;
         }
+
         if (false == draw && scalers != nullptr)
         {
             if (scalers->count(element) > 0)

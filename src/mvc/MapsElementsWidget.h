@@ -139,6 +139,7 @@ protected:
 
    QTableWidget* _extra_pvs_table_widget;
 
+   data_struct::Spectra _int_spec;
    //QTableWidget* _scaler_table_widget;
 
 };
