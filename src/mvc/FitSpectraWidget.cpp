@@ -103,7 +103,7 @@ void FitSpectraWidget::createLayout()
     std::vector<std::string> bound_types {"Not Initialized", "Fixed", "Limited Low High", "Limited Low", "Limited High", "Fit"};
 
     _spectra_widget = new SpectraWidget();
-
+    _spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
     _fit_params_tab_widget = new QTabWidget();
 
     fitting::models::Gaussian_Model g_model;
