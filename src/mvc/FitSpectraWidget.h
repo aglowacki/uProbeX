@@ -14,6 +14,7 @@
 #include <QComboBox>
 #include <QTreeView>
 #include <QPushButton>
+#include <mutex>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
@@ -153,6 +154,8 @@ private slots:
    void on_export_fit_paramters();
 
 private:
+
+	std::mutex _mutex;
 
     QCheckBox *_chk_auto_model;
 
