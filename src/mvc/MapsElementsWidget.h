@@ -149,6 +149,9 @@ protected:
 
    gstar::MinMaxSlider* _contrast_widget;
 
+   real_t _min_contrast_perc;
+
+   real_t _max_contrast_perc;
 };
 
 

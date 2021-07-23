@@ -34,6 +34,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
+	_min_contrast_perc = 0;
+	_max_contrast_perc = 1.0;
 
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -142,8 +144,8 @@ void MapsElementsWidget::_createLayout()
 
     m_toolbar->addWidget(new QLabel(" Contrast :"));
     _contrast_widget = new gstar::MinMaxSlider();
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, on_min_contrast_changed);
-    connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, on_max_contrast_changed);
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, &MapsElementsWidget::on_min_contrast_changed);
+    connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, &MapsElementsWidget::on_max_contrast_changed);
     m_toolbar->addWidget(_contrast_widget);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
@@ -205,7 +207,9 @@ void MapsElementsWidget::onGridDialog()
 void MapsElementsWidget::on_min_contrast_changed(int val)
 {
 
-    m_imageViewWidget->set_min_contrast_perc(val);
+    //m_imageViewWidget->set_min_contrast_perc(val);
+	_min_contrast_perc = (real_t)val / 100.0;
+	redrawCounts();
 
 }
 
@@ -214,7 +218,9 @@ void MapsElementsWidget::on_min_contrast_changed(int val)
 void MapsElementsWidget::on_max_contrast_changed(int val)
 {
 
-    m_imageViewWidget->set_max_contrast_perc(val);
+    //m_imageViewWidget->set_max_contrast_perc(val);
+	_max_contrast_perc = (real_t)val / 100.0;
+	redrawCounts();
 
 }
 
@@ -922,6 +928,10 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
 
+			// normalize contrast
+			counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+			counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {
@@ -1010,6 +1020,11 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
+
+			// normalize contrast
+			counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+			counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {
