@@ -95,6 +95,8 @@ public slots:
 
    void on_max_contrast_changed(int);
 
+   void on_global_contrast_changed(int);
+
 protected:
 
    /**
@@ -148,6 +150,8 @@ protected:
    //QTableWidget* _scaler_table_widget;
 
    gstar::MinMaxSlider* _contrast_widget;
+
+   QCheckBox* _global_contrast_chk;
 
    real_t _min_contrast_perc;
 

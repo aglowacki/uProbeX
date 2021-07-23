@@ -142,7 +142,10 @@ void MapsElementsWidget::_createLayout()
     m_toolbar->addWidget(new QLabel("  Normalize By: "));
     m_toolbar->addWidget(_cb_normalize);
 
-    m_toolbar->addWidget(new QLabel(" Contrast :"));
+    _global_contrast_chk = new QCheckBox("Global Contrast");
+    _global_contrast_chk->setChecked(true);
+    connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
+    m_toolbar->addWidget(_global_contrast_chk);
     _contrast_widget = new gstar::MinMaxSlider();
     connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, &MapsElementsWidget::on_min_contrast_changed);
     connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, &MapsElementsWidget::on_max_contrast_changed);
@@ -202,6 +205,21 @@ void MapsElementsWidget::onGridDialog()
 	iDiag.show();
 
 }
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_global_contrast_changed(int state)
+{
+    if (state == Qt::CheckState::Checked)
+    {
+        _contrast_widget->setEnabled(true);
+    }
+    else
+    {
+        _contrast_widget->setEnabled(false);
+    }
+    redrawCounts();
+}
+
 /*---------------------------------------------------------------------------*/
 
 void MapsElementsWidget::on_min_contrast_changed(int val)
@@ -928,9 +946,16 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
 
-			// normalize contrast
-			counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
-			counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            if (_global_contrast_chk->isChecked())
+            {
+                // normalize contrast
+                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            }
+            else
+            {
+
+            }
 
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
@@ -1020,10 +1045,17 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
-
-			// normalize contrast
-			counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
-			counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            
+            if (_global_contrast_chk->isChecked())
+            {
+                // normalize contrast
+                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            }
+            else
+            {
+                //get individual min max contrast
+            }
 
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)

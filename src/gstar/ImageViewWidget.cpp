@@ -186,19 +186,6 @@ void ImageViewWidget::clickZoomOut()
 	   itr->viewport()->setCursor(m_zoomOutCursor);
    }
 }
-/*---------------------------------------------------------------------------*/
-
-void ImageViewWidget::set_min_contrast_perc(int perc)
-{
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ImageViewWidget::set_max_contrast_perc(int perc)
-{
-
-}
 
 /*---------------------------------------------------------------------------*/
 
