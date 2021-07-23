@@ -123,7 +123,7 @@ void MapsElementsWidget::_createLayout()
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
     m_toolbar->addWidget(_cb_colormap);
 
-	_grid_button = new QPushButton();
+    _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
 	_grid_button->setIconSize(QSize(15, 15)); 
 
@@ -139,7 +139,13 @@ void MapsElementsWidget::_createLayout()
 	m_toolbar->addWidget(_cb_analysis);
     m_toolbar->addWidget(new QLabel("  Normalize By: "));
     m_toolbar->addWidget(_cb_normalize);
-	
+
+    m_toolbar->addWidget(new QLabel(" Contrast :"));
+    _contrast_widget = new gstar::MinMaxSlider();
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, on_min_contrast_changed);
+    connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, on_max_contrast_changed);
+    m_toolbar->addWidget(_contrast_widget);
+
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
 
@@ -192,6 +198,23 @@ void MapsElementsWidget::onGridDialog()
 {
 	
 	iDiag.show();
+
+}
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_min_contrast_changed(int val)
+{
+
+    m_imageViewWidget->set_min_contrast_perc(val);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_max_contrast_changed(int val)
+{
+
+    m_imageViewWidget->set_max_contrast_perc(val);
 
 }
 

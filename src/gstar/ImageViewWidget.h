@@ -199,6 +199,10 @@ public slots:
     */
    void clickZoomOut();
 
+   void set_min_contrast_perc(int perc);
+
+   void set_max_contrast_perc(int perc);
+
 //protected:
 
    /**

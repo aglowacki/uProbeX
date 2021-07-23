@@ -20,6 +20,7 @@
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
+#include "gstar/MinMaxSlider.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -90,6 +91,10 @@ public slots:
 
    void on_export_csv_and_png(QPixmap, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr>*);
 
+   void on_min_contrast_changed(int);
+
+   void on_max_contrast_changed(int);
+
 protected:
 
    /**
@@ -141,6 +146,8 @@ protected:
 
    data_struct::Spectra _int_spec;
    //QTableWidget* _scaler_table_widget;
+
+   gstar::MinMaxSlider* _contrast_widget;
 
 };
 
