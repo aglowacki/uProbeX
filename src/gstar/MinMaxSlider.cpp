@@ -8,7 +8,7 @@
 using namespace gstar;
 /*---------------------------------------------------------------------------*/
 
-MinMaxSlider::MinMaxSlider(QWidget* parent)
+MinMaxSlider::MinMaxSlider(bool is_prec, QWidget* parent)
 : QWidget(parent)
 {
 	_min_val = 0;
@@ -45,10 +45,16 @@ MinMaxSlider::MinMaxSlider(QWidget* parent)
 	vlay->addWidget(_max_slider);
 
 	layout->addWidget(_min_lineedit);
-	layout->addWidget(new QLabel("%"));
+	if (is_prec)
+	{
+		layout->addWidget(new QLabel("%"));
+	}
 	layout->addItem(vlay);
 	layout->addWidget(_max_lineedit);
-	layout->addWidget(new QLabel("%"));
+	if (is_prec)
+	{
+		layout->addWidget(new QLabel("%"));
+	}
 	setLayout(layout);
 }
 

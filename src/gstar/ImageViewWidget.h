@@ -28,6 +28,8 @@
 #include <QListView>
 
 #include <gstar/CountsLookupTransformer.h>
+#include "gstar/SubImageWindow.h"
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -323,64 +325,6 @@ private:
 
 private:
 
-    struct Sub_Image_Window
-    {
-        Sub_Image_Window()
-        {
-            // Initialize scene
-            scene = new ImageViewScene();
-            //// scene->setSceneRect(scene->itemsBoundingRect());
-
-            // Initialize view
-            view = new QGraphicsView();
-            view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-            view->setScene(scene);
-
-            cb_image_label = new QComboBox();
-
-            counts_lookup = new gstar::CountsLookupTransformer();
-            counts_coord_model = new gstar::CoordinateModel(counts_lookup);
-            counts_coord_widget = new gstar::CoordinateWidget();
-            counts_coord_widget->setModel(counts_coord_model);
-            counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
-            counts_coord_widget->setUnitsLabel("cts/s");
-
-            btn_contrast = new QPushButton("C");
-            btn_contrast->setEnabled(false);
-
-            QHBoxLayout* hbox = new QHBoxLayout();
-            hbox->addWidget(counts_coord_widget);
-            hbox->addWidget(btn_contrast);
-
-            layout = new QVBoxLayout();
-
-            layout->addItem(hbox);
-            layout->addWidget(view);
-            layout->addWidget(cb_image_label);
-
-        }
-
-        ~Sub_Image_Window()
-        {
-            delete scene;
-            delete view;
-            delete cb_image_label;
-            delete counts_coord_model;
-            delete counts_coord_widget;
-            delete btn_contrast;
-        }
-
-        QGraphicsView* view;
-        ImageViewScene* scene;
-        QComboBox* cb_image_label;
-        gstar::CountsLookupTransformer* counts_lookup;
-        gstar::CoordinateModel* counts_coord_model;
-        gstar::CoordinateWidget* counts_coord_widget;
-        QPushButton* btn_contrast;
-        
-        QVBoxLayout* layout;
-    };
-
    /**
     * Coordinate widget
     */
@@ -391,7 +335,7 @@ private:
     */
    QWidget* m_widget;
 
-   std::vector<struct Sub_Image_Window> _sub_windows;
+   std::vector<SubImageWindow> _sub_windows;
 
    /**
     * Zoom in cursor

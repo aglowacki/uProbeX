@@ -1,0 +1,88 @@
+/*-----------------------------------------------------------------------------
+ * Copyright (c) 2021, UChicago Argonne, LLC
+ * See LICENSE file.
+ *---------------------------------------------------------------------------*/
+
+#include <gstar/SubImageWindow.h>
+
+using namespace gstar;
+
+/*---------------------------------------------------------------------------*/
+
+SubImageWindow::SubImageWindow() : QObject()
+{
+    _contrast_dialog = nullptr;
+
+    // Initialize scene
+    scene = new ImageViewScene();
+    //// scene->setSceneRect(scene->itemsBoundingRect());
+
+    // Initialize view
+    view = new QGraphicsView();
+    view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    view->setScene(scene);
+
+    cb_image_label = new QComboBox();
+
+    counts_lookup = new gstar::CountsLookupTransformer();
+    counts_coord_model = new gstar::CoordinateModel(counts_lookup);
+    counts_coord_widget = new gstar::CoordinateWidget();
+    counts_coord_widget->setModel(counts_coord_model);
+    counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
+    counts_coord_widget->setUnitsLabel("cts/s");
+
+    btn_contrast = new QPushButton("C");
+    connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
+    btn_contrast->setEnabled(false);
+
+    QHBoxLayout* hbox = new QHBoxLayout();
+    hbox->addWidget(counts_coord_widget);
+    hbox->addWidget(btn_contrast);
+
+    layout = new QVBoxLayout();
+
+    layout->addItem(hbox);
+    layout->addWidget(view);
+    layout->addWidget(cb_image_label);
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+SubImageWindow::SubImageWindow(const SubImageWindow& win)
+{
+
+    scene = win.scene;
+    view = win.view;
+    cb_image_label = win.cb_image_label;
+    counts_coord_model = win.counts_coord_model;
+    counts_coord_widget = win.counts_coord_widget;
+    btn_contrast = win.btn_contrast;
+    counts_lookup = win.counts_lookup;
+    layout = win.layout;
+    _contrast_dialog = win._contrast_dialog;
+}
+
+/*---------------------------------------------------------------------------*/
+
+SubImageWindow::~SubImageWindow()
+{
+    delete scene;
+    delete view;
+    delete cb_image_label;
+    delete counts_coord_model;
+    delete counts_coord_widget;
+    delete btn_contrast;
+}
+/*---------------------------------------------------------------------------*/
+
+void SubImageWindow::on_contrast_show()
+{
+    if (_contrast_dialog == nullptr)
+    {
+        _contrast_dialog = new ContrastDialog();
+        _contrast_dialog->show();
+    }
+}
+
+/*---------------------------------------------------------------------------*/

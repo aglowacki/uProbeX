@@ -18,19 +18,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-/**
- * @brief The RangeWidget class provides a Qt range widget, similar to a
- * spin box.
- *
- * RangeWidget is designed to handle integer values.
- *
- * RangeWidget allows the user to choose a value by clicking the previous/next
- * buttons, or the first/last buttons. The user can also type the value in
- * manually.
- *
- * Every time the value changes RangeWidget emits the valueChanged() signal.
- */
-
 namespace gstar
 {
 
@@ -41,7 +28,7 @@ namespace gstar
 
 public:
 
-    MinMaxSlider(QWidget* parent = 0);
+    MinMaxSlider(bool is_prec=true, QWidget* parent = 0);
 
    ~MinMaxSlider();
 
