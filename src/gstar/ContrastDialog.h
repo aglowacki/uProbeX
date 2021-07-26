@@ -30,8 +30,15 @@ public:
 
     ~ContrastDialog();
 
-//signals:
+signals:
+	void on_min_max_update(float min, float max);
 
+public slots:
+	void min_max_update(int val);
+
+	void on_accepted();
+
+	void on_rejected();
 
 private:
     HistogramPlot* _historgram;
@@ -40,6 +47,10 @@ private:
 
     MinMaxSlider* _min_max_slider;
     
+	QPushButton* _btn_accept;
+
+	QPushButton* _btn_cancel;
+
     const data_struct::ArrayXXr* _arr;
 
    };
@@ -49,5 +60,5 @@ private:
 /*---------------------------------------------------------------------------*/
 
 
-#endif /* RANGEWIDGET_H_ */
+#endif /* _H_ */
 

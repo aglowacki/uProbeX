@@ -54,15 +54,10 @@ public:
 
    MapsH5Model *getModel(){return _model;}
 
-   void redrawCounts();
-
 public slots:
 
-   /**
-    * @brief Accept the window change state
-    * @param oldState
-    * @param newState
-    */
+	void redrawCounts();
+
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
    void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);

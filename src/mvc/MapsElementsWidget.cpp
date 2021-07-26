@@ -174,6 +174,9 @@ void MapsElementsWidget::_createLayout()
     m_imageViewWidget->set_null_mouse_pos = false;
     connect(m_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
 
+	connect(m_imageViewWidget, &ImageViewWidget::parent_redraw, this, &MapsElementsWidget::redrawCounts);
+
+
     appendAnnotationTab();
 
     createActions();
@@ -957,7 +960,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             }
             else
             {
-
+				//get user min max from contrast control
+				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
             }
 
             float max_min = counts_max - counts_min;
@@ -1057,7 +1061,8 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
             }
             else
             {
-                //get individual min max contrast
+				//get user min max from contrast control
+				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
             }
 
             float max_min = counts_max - counts_min;

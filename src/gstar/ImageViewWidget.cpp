@@ -197,6 +197,8 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
         connect(itr.scene, SIGNAL(mouseOverPixel(int, int)), this, SLOT(mouseOverPixel(int, int)));
        
         connect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+
+		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
 }
 
@@ -224,6 +226,17 @@ void ImageViewWidget::setUnitLabels(QString label)
 
 void ImageViewWidget::newGridLayout(int rows, int cols)
 {
+
+	for (auto &itr : _sub_windows)
+	{
+		disconnect(itr.scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
+		disconnect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
+		disconnect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+		disconnect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
+		disconnect(itr.scene, SIGNAL(mouseOverPixel(int, int)), this, SLOT(mouseOverPixel(int, int)));
+		disconnect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
+	}
     _sub_windows.clear();
 
     delete m_coordWidget;
@@ -414,7 +427,7 @@ void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 {
 
     m_zoomPercent  = zoomPercent;
-    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged()));
+    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
     updateZoomPercentage();
 
 }
@@ -428,11 +441,11 @@ void ImageViewWidget::updateZoomPercentage()
 
     qreal wp = getCurrentZoomPercent();
 
-    disconnect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged));
+    disconnect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
 
     m_zoomPercent->setEditText(QString("%1").arg(wp, 0, 'f',  0));
 
-    connect(m_zoomPercent, SIGNAL(currentIndexChanged), this, SLOT(zoomValueChanged));
+    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
 
 }
 
@@ -660,4 +673,17 @@ void ImageViewWidget::resetCoordsToZero()
 }
 
 /*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
+{
+	if (grid_idx < _sub_windows.size())
+	{
+		if (_sub_windows[grid_idx].contrast_updated())
+		{
+			counts_min = _sub_windows[grid_idx].contrast_min();
+			counts_max = _sub_windows[grid_idx].contrast_max();
+		}
+	}
+}
+
 /*---------------------------------------------------------------------------*/

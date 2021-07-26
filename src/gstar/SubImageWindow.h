@@ -37,6 +37,12 @@ namespace gstar
 
         ~SubImageWindow();
 
+		bool contrast_updated() { return _contrast_updated; }
+
+		float contrast_min() { return _contrast_min; }
+		
+		float contrast_max() { return _contrast_max; }
+
         QGraphicsView* view;
         ImageViewScene* scene;
         QComboBox* cb_image_label;
@@ -47,13 +53,26 @@ namespace gstar
 
         QVBoxLayout* layout;
 
+	signals:
+		void redraw_event();
+
     public slots:
         void on_contrast_show();
+		
+		void on_update_min_max(float minCoef, float maxCoef);
 
-    protected:
+		void on_accept_contrast();
+
+		void on_cancel_contrast();
+
+	protected:
         ContrastDialog* _contrast_dialog;
+
+		bool _contrast_updated;
+
         float _contrast_min;
-        float _contrast_max;
+        
+		float _contrast_max;
     };
 
 }

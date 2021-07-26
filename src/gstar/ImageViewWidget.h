@@ -178,6 +178,8 @@ public:
 
    void setGlobalContrast(bool val);
 
+   void getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
+
 public slots:
 
    /**
@@ -246,6 +248,8 @@ signals:
    void resetZoomToolBar();
 
    void cbLabelChanged(QString value, int viewIdx);
+
+   void parent_redraw();
 
 protected slots:
 

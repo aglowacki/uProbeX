@@ -34,6 +34,10 @@ public:
 
    void setMinMax(float min, float max);
 
+   float getUserMin() { return _min_slider->value(); }
+
+   float getUserMax() { return _max_slider->value(); }
+
 signals:
     void min_val_changed(int);
 
