@@ -11,14 +11,11 @@ using namespace gstar;
 MinMaxSlider::MinMaxSlider(bool is_prec, QWidget* parent)
 : QWidget(parent)
 {
-	_min_val = 0;
-	_max_val = 100;
-
 	QHBoxLayout* layout = new QHBoxLayout();
 	QVBoxLayout* vlay = new QVBoxLayout();
 	
 	_min_lineedit = new QLineEdit();
-	_min_lineedit->setMaximumWidth(25);
+	_min_lineedit->setMaximumWidth(35);
 	_min_lineedit->setText("0");
 	connect(_min_lineedit, &QLineEdit::textChanged, this, &MinMaxSlider::min_lineedit_changed);
 
@@ -37,7 +34,7 @@ MinMaxSlider::MinMaxSlider(bool is_prec, QWidget* parent)
 	connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
 
 	_max_lineedit = new QLineEdit();
-	_max_lineedit->setMaximumWidth(25);
+	_max_lineedit->setMaximumWidth(35);
 	_max_lineedit->setText("100");
 	connect(_max_lineedit, &QLineEdit::textChanged, this, &MinMaxSlider::max_lineedit_changed);
 
@@ -67,27 +64,20 @@ MinMaxSlider::~MinMaxSlider()
 
 /*---------------------------------------------------------------------------*/
 
-void MinMaxSlider::setMin(float min)
+void MinMaxSlider::setMinMax(float min, float max)
 {
+	_min_val = min;
+	_max_val = max;
+	_min_slider->setMinimum(_min_val);
+	_min_slider->setMaximum(_max_val -1);
+	_min_slider->setValue(_min_val);
 
-   
+	_max_slider->setMinimum(_min_val +1);
+	_max_slider->setMaximum(_max_val);
+	_max_slider->setValue(_max_val);
 
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MinMaxSlider::setMax(float max)
-{
-
-   
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MinMaxSlider::setVal(float val)
-{
-
-
+	_min_lineedit->setText(QString::number(_min_val));
+	_max_lineedit->setText(QString::number(_max_val));
 }
 
 /*---------------------------------------------------------------------------*/

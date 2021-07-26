@@ -10,11 +10,10 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QLabel>
-#include <QPushButton>
 #include <QDialog>
 #include "gstar/HistogramPlot.h"
 #include "gstar/MinMaxSlider.h"
+#include "data_struct/fit_parameters.h"
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
@@ -27,9 +26,12 @@ namespace gstar
 
 public:
 
-    ContrastDialog(QWidget* parent = 0);
+    ContrastDialog(const data_struct::ArrayXXr* arr , QWidget* parent = 0);
 
-   ~ContrastDialog();
+    ~ContrastDialog();
+
+//signals:
+
 
 private:
     HistogramPlot* _historgram;
@@ -38,6 +40,7 @@ private:
 
     MinMaxSlider* _min_max_slider;
     
+    const data_struct::ArrayXXr* _arr;
 
    };
 

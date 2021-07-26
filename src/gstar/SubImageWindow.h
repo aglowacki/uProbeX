@@ -52,6 +52,8 @@ namespace gstar
 
     protected:
         ContrastDialog* _contrast_dialog;
+        float _contrast_min;
+        float _contrast_max;
     };
 
 }

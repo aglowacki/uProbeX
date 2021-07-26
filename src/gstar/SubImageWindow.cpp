@@ -80,7 +80,7 @@ void SubImageWindow::on_contrast_show()
 {
     if (_contrast_dialog == nullptr)
     {
-        _contrast_dialog = new ContrastDialog();
+        _contrast_dialog = new ContrastDialog(counts_lookup->get_count_array());
         _contrast_dialog->show();
     }
 }

@@ -32,11 +32,7 @@ public:
 
    ~MinMaxSlider();
 
-   void setMin(float min);
-
-   void setMax(float max);
-
-   void setVal(float val);
+   void setMinMax(float min, float max);
 
 signals:
     void min_val_changed(int);
