@@ -24,6 +24,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QLabel>
+#include <QComboBox>
+#include <QListView>
+
 #include <gstar/CountsLookupTransformer.h>
 
 /*---------------------------------------------------------------------------*/
@@ -171,6 +174,8 @@ public:
 
    void addLabel(QString lbl);
 
+   void setGlobalContrast(bool val);
+
 public slots:
 
    /**
@@ -288,7 +293,7 @@ private slots:
    /**
     * Called when zoom percentage is updated by the user.
     */
-   void zoomValueChanged();
+   void zoomValueChanged(int val);
 
    void onComboBoxChange(QString lbl);
 
@@ -318,6 +323,64 @@ private:
 
 private:
 
+    struct Sub_Image_Window
+    {
+        Sub_Image_Window()
+        {
+            // Initialize scene
+            scene = new ImageViewScene();
+            //// scene->setSceneRect(scene->itemsBoundingRect());
+
+            // Initialize view
+            view = new QGraphicsView();
+            view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+            view->setScene(scene);
+
+            cb_image_label = new QComboBox();
+
+            counts_lookup = new gstar::CountsLookupTransformer();
+            counts_coord_model = new gstar::CoordinateModel(counts_lookup);
+            counts_coord_widget = new gstar::CoordinateWidget();
+            counts_coord_widget->setModel(counts_coord_model);
+            counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
+            counts_coord_widget->setUnitsLabel("cts/s");
+
+            btn_contrast = new QPushButton("C");
+            btn_contrast->setEnabled(false);
+
+            QHBoxLayout* hbox = new QHBoxLayout();
+            hbox->addWidget(counts_coord_widget);
+            hbox->addWidget(btn_contrast);
+
+            layout = new QVBoxLayout();
+
+            layout->addItem(hbox);
+            layout->addWidget(view);
+            layout->addWidget(cb_image_label);
+
+        }
+
+        ~Sub_Image_Window()
+        {
+            delete scene;
+            delete view;
+            delete cb_image_label;
+            delete counts_coord_model;
+            delete counts_coord_widget;
+            delete btn_contrast;
+        }
+
+        QGraphicsView* view;
+        ImageViewScene* scene;
+        QComboBox* cb_image_label;
+        gstar::CountsLookupTransformer* counts_lookup;
+        gstar::CoordinateModel* counts_coord_model;
+        gstar::CoordinateWidget* counts_coord_widget;
+        QPushButton* btn_contrast;
+        
+        QVBoxLayout* layout;
+    };
+
    /**
     * Coordinate widget
     */
@@ -328,12 +391,7 @@ private:
     */
    QWidget* m_widget;
 
-   std::vector<QGraphicsView*> m_view;
-   std::vector<ImageViewScene*> m_scene;
-   std::vector<QComboBox *> _cb_image_label;
-   std::vector<gstar::CountsLookupTransformer*> _counts_lookup;
-   std::vector<gstar::CoordinateModel*> _counts_coord_model;
-   std::vector<gstar::CoordinateWidget*> _counts_coord_widget;
+   std::vector<struct Sub_Image_Window> _sub_windows;
 
    /**
     * Zoom in cursor

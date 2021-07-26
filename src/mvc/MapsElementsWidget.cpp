@@ -212,11 +212,14 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
     if (state == Qt::CheckState::Checked)
     {
         _contrast_widget->setEnabled(true);
+        m_imageViewWidget->setGlobalContrast(false);
     }
     else
     {
         _contrast_widget->setEnabled(false);
+        m_imageViewWidget->setGlobalContrast(true);
     }
+    
     redrawCounts();
 }
 

@@ -4,11 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <gstar/ImageViewWidget.h>
-#include <QLabel>
-#include <QComboBox>
-#include <QListView>
-#include <QGraphicsView>
-#include <QResizeEvent>
 
 using namespace gstar;
 
@@ -44,38 +39,7 @@ ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
 ImageViewWidget::~ImageViewWidget()
 {
 
-	for (auto& itr : m_scene)
-	{
-		delete itr;
-	}
-	m_scene.clear();
-
-	for (auto& itr : m_view)
-	{
-		delete itr;
-	}
-	m_view.clear();
-
-    for (auto& itr : _cb_image_label)
-    {
-        delete itr;
-    }
-    _cb_image_label.clear();
-
-    //this memory is deleted by the model, just need to clear the vector
-    _counts_lookup.clear();
-
-    for (auto& itr : _counts_coord_model)
-    {
-        delete itr;
-    }
-    _counts_coord_model.clear();
-
-    for (auto& itr : _counts_coord_widget)
-    {
-        delete itr;
-    }
-    _counts_coord_widget.clear();
+    _sub_windows.clear();
 
 }
 
@@ -90,20 +54,26 @@ bool ImageViewWidget::getMouseLeaveState()
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::setGlobalContrast(bool val)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.btn_contrast->setEnabled(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::clickCursor()
 {
 
    // Set scene mode
-	for (auto& itr : m_scene)
+    for (auto& itr : _sub_windows)
 	{
-		itr->setZoomModeToNone();
+		itr.scene->setZoomModeToNone();
+        itr.view->viewport()->setCursor(Qt::ArrowCursor);
 	}
 
-   // Set regular cursor
-   for (auto& itr : m_view)
-   {
-	   itr->viewport()->setCursor(Qt::ArrowCursor);
-   }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -111,29 +81,27 @@ void ImageViewWidget::clickCursor()
 void ImageViewWidget::clickFill(bool checked)
 {
 
-   // State is used by the resizeEvent raised below.
-   //  Make sure state is set before calling resizeEvent method.
-   m_fillState = checked;
+    // State is used by the resizeEvent raised below.
+    //  Make sure state is set before calling resizeEvent method.
+    m_fillState = checked;
    
-   // Get out of zoom mode
-   clickCursor();
+    // Get out of zoom mode
+    clickCursor();
 
-   // Set scene mode
-   if (checked == true) 
-   {
-	   for (auto& itr : m_scene)
-	   {
-		   itr->setZoomModeToFit();
-	   }
-		resizeEvent(nullptr);
-		m_zoomPercent->setCurrentIndex(-1);
-   }
-   
-   // Set regular cursor
-   for (auto &itr : m_view)
-   {
-	   itr->viewport()->setCursor(Qt::ArrowCursor);
-   }
+    for (auto& itr : _sub_windows)
+    {
+        // Set scene mode
+        if (checked == true) 
+        {
+            itr.scene->setZoomModeToFit();
+        }
+
+        // Set regular cursor
+        itr.view->viewport()->setCursor(Qt::ArrowCursor);
+    }
+
+    resizeEvent(nullptr);
+    m_zoomPercent->setCurrentIndex(-1);
 
 }
 
@@ -142,15 +110,11 @@ void ImageViewWidget::clickFill(bool checked)
 void ImageViewWidget::clickZoomIn()
 {
 
-	for (auto& itr : m_scene)
-	{
-		itr->setZoomModeToZoomIn();
-	}
-
-	for (auto& itr : m_view)
-	{
-		itr->viewport()->setCursor(m_zoomInCursor);
-	}
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setZoomModeToZoomIn();
+        itr.view->viewport()->setCursor(m_zoomInCursor);
+    }
 
 }
 
@@ -159,11 +123,11 @@ void ImageViewWidget::clickZoomIn()
 void ImageViewWidget::clickZoomOriginal()
 {
 
-	for (auto& itr : m_view)
+    for (auto& itr : _sub_windows)
 	{
-		itr->resetMatrix();
-		itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-		itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr.view->resetMatrix();
+		itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	}
   
 
@@ -176,15 +140,13 @@ void ImageViewWidget::clickZoomOriginal()
 void ImageViewWidget::clickZoomOut()
 {
 
-   // Set zoom out mode
-	for (auto& itr : m_scene)
-	{
-		itr->setZoomModeToZoomOut();
-	}
-   for (auto& itr : m_view)
-   {
-	   itr->viewport()->setCursor(m_zoomOutCursor);
-   }
+    // Set zoom out mode
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setZoomModeToZoomOut();
+        itr.view->viewport()->setCursor(m_zoomOutCursor);
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -203,15 +165,9 @@ void ImageViewWidget::createLayout()
    {
 	   for (int j = 0; j < _grid_cols; j++)
 	   {
-           QVBoxLayout *vb = new QVBoxLayout();
-           int idx = (i*_grid_cols) + j;
-
-           vb->addWidget(_counts_coord_widget[idx]);
-           vb->addWidget(m_view[idx]);
-           vb->addWidget(_cb_image_label[idx]);
-
+           int idx = (i * _grid_cols) + j;
            //_cb_image_label
-           _image_view_grid_layout->addItem(vb, i, j);
+           _image_view_grid_layout->addItem(_sub_windows[idx].layout, i, j);
 	   }
    }
    
@@ -230,52 +186,17 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 	_grid_rows = rows;
 	_grid_cols = cols;
 
-	m_view.resize(_grid_rows*_grid_cols);
-	m_scene.resize(_grid_rows*_grid_cols);
+    _sub_windows.resize(_grid_rows * _grid_cols);
 
-    _cb_image_label.resize(_grid_rows*_grid_cols);
-    _counts_lookup.resize(_grid_rows*_grid_cols);
-    _counts_coord_model.resize(_grid_rows*_grid_cols);
-    _counts_coord_widget.resize(_grid_rows*_grid_cols);
-
-	for (int i = 0; i < _grid_rows * _grid_cols; i++)
+	for (auto &itr : _sub_windows)
 	{
-		// Initialize scene
-		ImageViewScene* scene = new ImageViewScene();
-        // scene->setSceneRect(scene->itemsBoundingRect());
-
-
-		connect(scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
-		connect(scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
-		connect(scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-		connect(scene, SIGNAL(sceneRectChanged(const QRectF&)),
-			this, SLOT(sceneRectUpdated(const QRectF&)));
-
-		connect(scene, SIGNAL(mouseOverPixel(int, int)),
-			this, SLOT(mouseOverPixel(int, int)));
-
-		// Initialize view
-		QGraphicsView *view = new QGraphicsView();
-		view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-		view->setScene(scene);
-
-		m_scene[i] = scene;
-		m_view[i] = view;
-
-        QComboBox *cb_label = new QComboBox(this);
-        connect(cb_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
-
-        CountsLookupTransformer* counts_lookup = new gstar::CountsLookupTransformer();
-        CoordinateModel* counts_coord_model = new gstar::CoordinateModel(counts_lookup);
-        gstar::CoordinateWidget *counts_coord_widget = new gstar::CoordinateWidget();
-        counts_coord_widget->setModel(counts_coord_model);
-        counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
-        counts_coord_widget->setUnitsLabel("cts/s");
-
-        _cb_image_label[i] = cb_label;
-        _counts_lookup[i] = counts_lookup;
-        _counts_coord_model[i] = counts_coord_model;
-        _counts_coord_widget[i] = counts_coord_widget;
+		connect(itr.scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
+		connect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
+		connect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+		connect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
+        connect(itr.scene, SIGNAL(mouseOverPixel(int, int)), this, SLOT(mouseOverPixel(int, int)));
+       
+        connect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
 	}
 }
 
@@ -283,9 +204,9 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 void ImageViewWidget::setUnitLabel(int idx, QString label)
 {
-    if (idx > -1 && idx < _counts_coord_widget.size())
+    if (idx > -1 && idx < _sub_windows.size())
     {
-        _counts_coord_widget[idx]->setUnitsLabel(label);
+        _sub_windows[idx].counts_coord_widget->setUnitsLabel(label);
     }
 }
 
@@ -293,9 +214,9 @@ void ImageViewWidget::setUnitLabel(int idx, QString label)
 
 void ImageViewWidget::setUnitLabels(QString label)
 {
-    for (auto& itr : _counts_coord_widget)
+    for (auto& itr : _sub_windows)
     {
-        itr->setUnitsLabel(label);
+        itr.counts_coord_widget->setUnitsLabel(label);
     }
 }
 
@@ -303,22 +224,7 @@ void ImageViewWidget::setUnitLabels(QString label)
 
 void ImageViewWidget::newGridLayout(int rows, int cols)
 {
-
-    for (int i = 0; i < _grid_rows * _grid_cols; i++)
-    {
-        delete m_scene[i];
-        delete m_view[i];
-        delete _cb_image_label[i];
-        //delete _counts_lookup[i]; // deleted in coord_model
-        delete _counts_coord_model[i];
-        delete _counts_coord_widget[i];
-    }
-    m_scene.clear();
-    m_view.clear();
-    _cb_image_label.clear();
-    _counts_lookup.clear();
-    _counts_coord_model.clear();
-    _counts_coord_widget.clear();
+    _sub_windows.clear();
 
     delete m_coordWidget;
     delete _main_layout;
@@ -351,9 +257,9 @@ void ImageViewWidget::enterEvent(QEvent * event)
 void ImageViewWidget::onComboBoxChange(QString lbl)
 {
     QObject* obj = sender();
-    for(int i =0; i< _cb_image_label.size(); i++)
+    for(int i =0; i< _sub_windows.size(); i++)
     {
-        if(_cb_image_label[i] == obj)
+        if(_sub_windows[i].cb_image_label == obj)
         {
             emit cbLabelChanged(lbl, i);
             break;
@@ -365,9 +271,9 @@ void ImageViewWidget::onComboBoxChange(QString lbl)
 
 void ImageViewWidget::clearLabels()
 {
-    for(auto &itr : _cb_image_label)
+    for(auto &itr : _sub_windows)
     {
-        itr->clear();
+        itr.cb_image_label->clear();
     }
 }
 
@@ -375,9 +281,9 @@ void ImageViewWidget::clearLabels()
 
 void ImageViewWidget::addLabel(QString lbl)
 {
-    for(auto &itr : _cb_image_label)
+    for(auto &itr : _sub_windows)
     {
-        itr->addItem(lbl);
+        itr.cb_image_label->addItem(lbl);
     }
 }
 
@@ -385,23 +291,27 @@ void ImageViewWidget::addLabel(QString lbl)
 
 qreal ImageViewWidget::getCurrentZoomPercent()
 {
+    qreal wp = 0;
+    if (_sub_windows.size() > 0)
+    {
+        QTransform t = _sub_windows[0].view->transform();
+        QRectF tImage = t.mapRect(_sub_windows[0].scene->pixRect());
 
-   QTransform t = m_view[0]->transform();
-   QRectF tImage = t.mapRect(m_scene[0]->pixRect());
-
-   qreal wp = tImage.width() / m_scene[0]->pixRect().width() * 100.0;
-
-   return wp;
+        wp = tImage.width() / _sub_windows[0].scene->pixRect().width() * 100.0;
+    }
+    return wp;
 }
 
 /*---------------------------------------------------------------------------*/
 
 QPointF ImageViewWidget::getCenterPoint() const
 {
-
-   const QRectF centerRect = m_view[0]->mapToScene(m_view[0]->viewport()->geometry()).boundingRect();
-
-   return centerRect.center();
+    const QRectF centerRect;
+    if (_sub_windows.size() > 0)
+    {
+        return _sub_windows[0].view->mapToScene(_sub_windows[0].view->viewport()->geometry()).boundingRect().center();
+    }
+    return centerRect.center();
 
 }
 
@@ -440,9 +350,9 @@ void ImageViewWidget::mouseOverPixel(int x, int y)
 {
 
     m_coordWidget -> setCoordinate(x,y);
-    for(auto &itr : _counts_coord_widget)
+    for(auto &itr : _sub_windows)
     {
-        itr->setCoordinate(x, y, 0);
+        itr.counts_coord_widget->setCoordinate(x, y, 0);
     }
 
 }
@@ -456,14 +366,17 @@ void ImageViewWidget::resizeEvent(QResizeEvent* event)
 
    if (m_fillState == false) return;
    
-   // Get image size
-   QRectF r(0, 0, (m_scene[0]->sceneRect()).width(), (m_scene[0]->sceneRect()).height());
-   for (auto &itr : m_view)
+   if (_sub_windows.size() > 0)
    {
-	   itr->fitInView(r, Qt::KeepAspectRatio);
+       // Get image size
+       QRectF r(0, 0, (_sub_windows[0].scene->sceneRect()).width(), (_sub_windows[0].scene->sceneRect()).height());
+       for (auto& itr : _sub_windows)
+       {
+           itr.view->fitInView(r, Qt::KeepAspectRatio);
 
-	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+           itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+           itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+       }
    }
    updateZoomPercentage();
    update();
@@ -475,9 +388,9 @@ ImageViewScene* ImageViewWidget::scene(int grid_idx)
 {
 
    // Return current scene
-    if(m_scene.size() > grid_idx)
+    if(_sub_windows.size() > grid_idx)
     {
-        return m_scene[grid_idx];
+        return _sub_windows[grid_idx].scene;
     }
     return nullptr;
 
@@ -500,14 +413,9 @@ void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
 void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 {
 
-   m_zoomPercent  = zoomPercent;
-
-   connect(m_zoomPercent,
-           SIGNAL(currentIndexChanged(int)),
-           this,
-           SLOT(zoomValueChanged()));
-
-   updateZoomPercentage();
+    m_zoomPercent  = zoomPercent;
+    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged()));
+    updateZoomPercentage();
 
 }
 
@@ -516,22 +424,15 @@ void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 void ImageViewWidget::updateZoomPercentage()
 {
 
-   if (m_zoomPercent == nullptr) return;
+    if (m_zoomPercent == nullptr) return;
 
-   qreal wp = getCurrentZoomPercent();
+    qreal wp = getCurrentZoomPercent();
 
+    disconnect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged));
 
-   disconnect(m_zoomPercent,
-              SIGNAL(currentIndexChanged(int)),
-              this,
-              SLOT(zoomValueChanged()));
+    m_zoomPercent->setEditText(QString("%1").arg(wp, 0, 'f',  0));
 
-   m_zoomPercent->setEditText(QString("%1").arg(wp, 0, 'f',  0));
-
-   connect(m_zoomPercent,
-           SIGNAL(currentIndexChanged(int)),
-           this,
-           SLOT(zoomValueChanged()));
+    connect(m_zoomPercent, SIGNAL(currentIndexChanged), this, SLOT(zoomValueChanged));
 
 }
 
@@ -540,8 +441,12 @@ void ImageViewWidget::updateZoomPercentage()
 QGraphicsView* ImageViewWidget::view()
 {
 
-   // Return current scene
-   return m_view[0];
+    if (_sub_windows.size() > 0)
+    {
+        return _sub_windows[0].view;
+    }
+    // Return current scene
+    return nullptr;
 
 }
 
@@ -549,13 +454,13 @@ QGraphicsView* ImageViewWidget::view()
 
 void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
 {
-	for (auto & itr : m_view)
+	for (auto & itr : _sub_windows)
 	{
-		itr->fitInView(zoomObject, Qt::KeepAspectRatio);
+		itr.view->fitInView(zoomObject, Qt::KeepAspectRatio);
 
 		// Force update scroll bars
-		itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-		itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	}
    updateZoomPercentage();
 
@@ -569,57 +474,56 @@ void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
 void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
 {
 
-   qreal wp = getCurrentZoomPercent();
-   if (wp >= 800) return;
+    qreal wp = getCurrentZoomPercent();
+    if (wp >= 800) return;
 
-   //int zoomRecPer = 500 - wp;
-   int zoomWidth = zoomRect.normalized().width();
-   int zoomHeight = zoomRect.normalized().height();
-      // Zoom in
-   
-   if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty())
-       && (zoomWidth > 10 && zoomHeight > 10) )
-   {
-	   for (auto & itr : m_view)
-	   {
-		   itr->fitInView(QRectF(itr->mapToScene(zoomRect.topLeft().toPoint()), itr->mapToScene(zoomRect.bottomRight().toPoint())),   Qt::KeepAspectRatio);
-	   }
-      /*
-      QRect viewport = m_view -> rect();
+    //int zoomRecPer = 500 - wp;
+    int zoomWidth = zoomRect.normalized().width();
+    int zoomHeight = zoomRect.normalized().height();
+    // Zoom in
 
-      float xscale = viewport.width()  / zoomRect.normalized().width();
-      float yscale = viewport.height() / zoomRect.normalized().height();
+    for (auto& itr : _sub_windows)
+    {
+        if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty()) && (zoomWidth > 10 && zoomHeight > 10))
+        {
+            
+            itr.view->fitInView(QRectF(itr.view->mapToScene(zoomRect.topLeft().toPoint()), itr.view->mapToScene(zoomRect.bottomRight().toPoint())), Qt::KeepAspectRatio);
+            
+            /*
+            QRect viewport = m_view -> rect();
 
-      // To preserve aspect ratio in the scaled image,
-      // pick the smallest of two dimensions as scaling factor.
-      float scalev = xscale;
-      if (xscale > yscale) {
-         scalev = yscale;
-      }
+            float xscale = viewport.width()  / zoomRect.normalized().width();
+            float yscale = viewport.height() / zoomRect.normalized().height();
 
-      m_view -> scale(scalev, scalev);
+            // To preserve aspect ratio in the scaled image,
+            // pick the smallest of two dimensions as scaling factor.
+            float scalev = xscale;
+            if (xscale > yscale) {
+               scalev = yscale;
+            }
 
-      // Center the zoomed-in image at the center of zoom selection
-      QPointF imageonScene = m_view -> mapToScene(zoomRect.normalized().topLeft().toPoint());
-      m_view -> centerOn(imageonScene);
-      */
-   }
+            m_view -> scale(scalev, scalev);
 
-   else
-   {
-      // Without zoom rectangle, scale using fixed value
-	   for (auto & itr : m_view)
-	   {
-		   itr->scale(1.50, 1.50);
-		   itr->centerOn(event->lastScenePos());
-	   }
-   }
-   for (auto & itr : m_view)
-   {
-	   // Force update scroll bars
-	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   }
+            // Center the zoomed-in image at the center of zoom selection
+            QPointF imageonScene = m_view -> mapToScene(zoomRect.normalized().topLeft().toPoint());
+            m_view -> centerOn(imageonScene);
+            */
+        }
+
+        else
+        {
+            // Without zoom rectangle, scale using fixed value
+            itr.view->scale(1.50, 1.50);
+            itr.view->centerOn(event->lastScenePos());
+            
+        }
+        
+        // Force update scroll bars
+        itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        
+    }
+
    updateZoomPercentage();
 
 }
@@ -632,13 +536,13 @@ void ImageViewWidget::zoomOut()
    qreal wp = getCurrentZoomPercent();
 
    if (wp <= 12.5) return;
-   for (auto & itr : m_view)
+   for (auto & itr : _sub_windows)
    {
-	   itr->scale(.66, .66);
+	   itr.view->scale(.66, .66);
 
 	   // Force update scroll bars
-	   itr->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	   itr->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	   itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	   itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
    }
    updateZoomPercentage();
 
@@ -646,7 +550,7 @@ void ImageViewWidget::zoomOut()
 
 /*---------------------------------------------------------------------------*/
 
-void ImageViewWidget::zoomValueChanged()
+void ImageViewWidget::zoomValueChanged(int val)
 {
 
    bool isOK = false;
@@ -657,19 +561,22 @@ void ImageViewWidget::zoomValueChanged()
       return;
    }
 
-   QTransform t = m_view[0]->transform();
-   QRectF image = m_scene[0]->pixRect();
-   QRectF tImage = t.mapRect(image);
-
-   qreal sx = (value/100 * image.width()) / tImage.width();
-   qreal sy = (value/100 * image.height()) / tImage.height();
-
-   qreal s = sx;
-   if (sy < sx) s = sy;
-
-   for (auto & itr : m_view)
+   if (_sub_windows.size() > 0)
    {
-	   itr->scale(s, s);
+       QTransform t = _sub_windows[0].view->transform();
+       QRectF image = _sub_windows[0].scene->pixRect();
+       QRectF tImage = t.mapRect(image);
+
+       qreal sx = (value / 100 * image.width()) / tImage.width();
+       qreal sy = (value / 100 * image.height()) / tImage.height();
+
+       qreal s = sx;
+       if (sy < sx) s = sy;
+
+       for (auto& itr : _sub_windows)
+       {
+           itr.view->scale(s, s);
+       }
    }
 }
 
@@ -677,9 +584,9 @@ void ImageViewWidget::zoomValueChanged()
 
 QString ImageViewWidget::getLabelAt(int idx)
 {
-    if(idx < _cb_image_label.size())
+    if(idx < _sub_windows.size())
     {
-        return _cb_image_label[idx]->currentText();
+        return _sub_windows[idx].cb_image_label->currentText();
     }
     return QString();
 }
@@ -688,9 +595,9 @@ QString ImageViewWidget::getLabelAt(int idx)
 
 CountsLookupTransformer* ImageViewWidget::getMouseTrasnformAt(int idx)
 {
-    if(idx < _counts_lookup.size())
+    if(idx < _sub_windows.size())
     {
-        return _counts_lookup[idx];
+        return _sub_windows[idx].counts_lookup;
     }
     return nullptr;
 }
@@ -700,9 +607,9 @@ CountsLookupTransformer* ImageViewWidget::getMouseTrasnformAt(int idx)
 std::vector<QString> ImageViewWidget::getLabelList()
 {
     std::vector<QString> label_list;
-    for( auto& itr : _cb_image_label)
+    for( auto& itr : _sub_windows)
     {
-        label_list.push_back(itr->currentText());
+        label_list.push_back(itr.cb_image_label->currentText());
     }
     return label_list;
 }
@@ -712,10 +619,10 @@ std::vector<QString> ImageViewWidget::getLabelList()
 void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
 {
 
-    for(int i=0; i< _cb_image_label.size(); i++)
+    for(int i=0; i< _sub_windows.size(); i++)
     {
         bool found = false;
-        QComboBox* cb = _cb_image_label[i];
+        QComboBox* cb = _sub_windows[i].cb_image_label;
         if(i < labels.size())
         {
             QString ilabel = labels[i];
@@ -746,9 +653,9 @@ void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
 void ImageViewWidget::resetCoordsToZero()
 {
 
-    for( auto& itr : _counts_coord_widget)
+    for( auto& itr : _sub_windows)
     {
-        itr->setCoordinate(0, 0, 0);
+        itr.counts_coord_widget->setCoordinate(0, 0, 0);
     }
 }
 
