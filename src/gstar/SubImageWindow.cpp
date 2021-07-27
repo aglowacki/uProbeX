@@ -89,6 +89,7 @@ void SubImageWindow::on_contrast_show()
 	_contrast_dialog->show();
 	_contrast_dialog->raise();
 	_contrast_dialog->activateWindow();
+    _contrast_dialog->min_max_update(0);
 }
 
 /*---------------------------------------------------------------------------*/

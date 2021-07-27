@@ -74,6 +74,7 @@ void ContrastDialog::min_max_update(int val)
 
 void ContrastDialog::on_accepted()
 {
+	min_max_update(0);
 	emit accepted();
 	accept();
 }
