@@ -34,6 +34,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
     _model = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
+	_min_contrast_perc = 0;
+	_max_contrast_perc = 1.0;
 
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -123,7 +125,7 @@ void MapsElementsWidget::_createLayout()
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
     m_toolbar->addWidget(_cb_colormap);
 
-	_grid_button = new QPushButton();
+    _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
 	_grid_button->setIconSize(QSize(15, 15)); 
 
@@ -139,7 +141,16 @@ void MapsElementsWidget::_createLayout()
 	m_toolbar->addWidget(_cb_analysis);
     m_toolbar->addWidget(new QLabel("  Normalize By: "));
     m_toolbar->addWidget(_cb_normalize);
-	
+
+    _global_contrast_chk = new QCheckBox("Global Contrast");
+    _global_contrast_chk->setChecked(true);
+    connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
+    m_toolbar->addWidget(_global_contrast_chk);
+    _contrast_widget = new gstar::MinMaxSlider();
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, &MapsElementsWidget::on_min_contrast_changed);
+    connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, &MapsElementsWidget::on_max_contrast_changed);
+    m_toolbar->addWidget(_contrast_widget);
+
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
 
@@ -162,6 +173,9 @@ void MapsElementsWidget::_createLayout()
     //don't erase counts when mouse is off scene
     m_imageViewWidget->set_null_mouse_pos = false;
     connect(m_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
+
+	connect(m_imageViewWidget, &ImageViewWidget::parent_redraw, this, &MapsElementsWidget::redrawCounts);
+
 
     appendAnnotationTab();
 
@@ -192,6 +206,45 @@ void MapsElementsWidget::onGridDialog()
 {
 	
 	iDiag.show();
+
+}
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_global_contrast_changed(int state)
+{
+    if (state == Qt::CheckState::Checked)
+    {
+        _contrast_widget->setEnabled(true);
+        m_imageViewWidget->setGlobalContrast(false);
+    }
+    else
+    {
+        _contrast_widget->setEnabled(false);
+        m_imageViewWidget->setGlobalContrast(true);
+    }
+    
+    redrawCounts();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_min_contrast_changed(int val)
+{
+
+    //m_imageViewWidget->set_min_contrast_perc(val);
+	_min_contrast_perc = (real_t)val / 100.0;
+	redrawCounts();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_max_contrast_changed(int val)
+{
+
+    //m_imageViewWidget->set_max_contrast_perc(val);
+	_max_contrast_perc = (real_t)val / 100.0;
+	redrawCounts();
 
 }
 
@@ -899,6 +952,18 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
 
+            if (_global_contrast_chk->isChecked())
+            {
+                // normalize contrast
+                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            }
+            else
+            {
+				//get user min max from contrast control
+				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
+            }
+
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {
@@ -987,6 +1052,19 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
+            
+            if (_global_contrast_chk->isChecked())
+            {
+                // normalize contrast
+                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
+                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
+            }
+            else
+            {
+				//get user min max from contrast control
+				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
+            }
+
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
             {

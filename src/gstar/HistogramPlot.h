@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QtGui>
+#include "data_struct/spectra.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -41,7 +42,7 @@ public slots:
    /**
     * Update points
     */
-   void updatePoints(QList<int> pts);
+   void updatePoints(const data_struct::ArrayXr& pts);
 
 private:
    /**
@@ -55,20 +56,14 @@ private:
    qreal ymap(const qreal& value);
 
 private:
-   /**
-    * Widget
-    */
-   QWidget* m_widget;
 
-   /**
-    * Values
-    */
-   QList<int> m_values;
+    QWidget* m_widget;
 
-   /**
-    * Max
-    */
-   int m_max;
+   std::vector<int> _bins;
+
+   int _n_bins;
+
+   int  _max_bin_val;
 
 };
 

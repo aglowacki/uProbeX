@@ -81,6 +81,8 @@ public:
                                  double *outY,
                                  double *outZ);
 
+   const data_struct::ArrayXXr* get_count_array() { return &_counts_arr; }
+
 protected:
 
    double _counts;

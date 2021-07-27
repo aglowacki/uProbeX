@@ -20,6 +20,7 @@
 #include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
+#include "gstar/MinMaxSlider.h"
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -53,15 +54,10 @@ public:
 
    MapsH5Model *getModel(){return _model;}
 
-   void redrawCounts();
-
 public slots:
 
-   /**
-    * @brief Accept the window change state
-    * @param oldState
-    * @param newState
-    */
+	void redrawCounts();
+
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
    void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);
@@ -89,6 +85,12 @@ public slots:
    void onSelectNormalizer(QString name);
 
    void on_export_csv_and_png(QPixmap, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr>*);
+
+   void on_min_contrast_changed(int);
+
+   void on_max_contrast_changed(int);
+
+   void on_global_contrast_changed(int);
 
 protected:
 
@@ -142,6 +144,13 @@ protected:
    data_struct::Spectra _int_spec;
    //QTableWidget* _scaler_table_widget;
 
+   gstar::MinMaxSlider* _contrast_widget;
+
+   QCheckBox* _global_contrast_chk;
+
+   real_t _min_contrast_perc;
+
+   real_t _max_contrast_perc;
 };
 
 
