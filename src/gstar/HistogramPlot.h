@@ -38,6 +38,8 @@ public:
     */
    bool eventFilter(QObject* object, QEvent* event);
 
+   void set_min_max_lines(qreal minCoef, qreal maxCoef);
+
 public slots:
    /**
     * Update points
@@ -65,6 +67,21 @@ private:
 
    int  _max_bin_val;
 
+   qreal _min_line;
+
+   qreal _max_line;
+
+   QPen _default_pen;
+
+   QPen _min_pen;
+
+   QPen _max_pen;
+
+   real_t _minCoef;
+
+   real_t _maxCoef;
+
+   real_t _bin_width;
 };
 
 }
