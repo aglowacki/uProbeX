@@ -8,12 +8,17 @@
 using namespace gstar;
 /*---------------------------------------------------------------------------*/
 
-MinMaxSlider::MinMaxSlider(bool is_prec, QWidget* parent)
+MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 : QWidget(parent)
 {
 	QHBoxLayout* layout = new QHBoxLayout();
 	QVBoxLayout* vlay = new QVBoxLayout();
-	
+	_min_label = nullptr;
+	_max_label = nullptr;
+
+	_min_val = 0;
+	_max_val = 100;
+
 	_min_lineedit = new QLineEdit();
 	_min_lineedit->setMaximumWidth(35);
 	_min_lineedit->setText("0");
@@ -41,17 +46,39 @@ MinMaxSlider::MinMaxSlider(bool is_prec, QWidget* parent)
 	vlay->addWidget(_min_slider);
 	vlay->addWidget(_max_slider);
 
-	layout->addWidget(_min_lineedit);
-	if (is_prec)
-	{
+	if(is_glob)
+	{ 
+		layout->addWidget(_min_lineedit);
 		layout->addWidget(new QLabel("%"));
 	}
+	else
+	{
+		QVBoxLayout* vlay2 = new QVBoxLayout();
+		_min_label = new QLabel();
+		vlay2->addWidget(new QLabel("Min"));
+		vlay2->addWidget(_min_lineedit);
+		vlay2->addWidget(_min_label);
+		layout->addItem(vlay2);
+	}
+	
 	layout->addItem(vlay);
-	layout->addWidget(_max_lineedit);
-	if (is_prec)
+
+	if (is_glob)
 	{
+		layout->addWidget(_max_lineedit);
 		layout->addWidget(new QLabel("%"));
 	}
+	else
+	{
+		QVBoxLayout* vlay2 = new QVBoxLayout();
+		_max_label = new QLabel();
+		vlay2->addWidget(new QLabel("Max"));
+		vlay2->addWidget(_max_lineedit);
+		vlay2->addWidget(_max_label);
+		layout->addItem(vlay2);
+	}
+	
+
 	setLayout(layout);
 }
 
@@ -78,6 +105,15 @@ void MinMaxSlider::setMinMax(float min, float max)
 
 	_min_lineedit->setText(QString::number(_min_val));
 	_max_lineedit->setText(QString::number(_max_val));
+
+	if (_min_label != nullptr)
+	{
+		_min_label->setText(QString::number(_min_val));
+	}
+	if (_max_label != nullptr)
+	{
+		_max_label->setText(QString::number(_max_val));
+	}
 }
 
 /*---------------------------------------------------------------------------*/

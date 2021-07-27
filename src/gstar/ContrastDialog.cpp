@@ -24,6 +24,19 @@ ContrastDialog::ContrastDialog(const data_struct::ArrayXXr* arr, QWidget* parent
 	{
 		_arr = arr;
 		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
+
+		data_struct::ArrayXr pts; 
+		int w = arr->rows();
+		int h = arr->cols();
+		pts.resize(w * h);
+		for (int i = 0; i < w; i++)
+		{
+			for (int j = 0; j < h; j++)
+			{
+				pts((i*w) + j) = ((*arr)(i, j));
+			}
+		}
+		_historgram->updatePoints(pts);
 	}
 
 	QHBoxLayout* hbox = new QHBoxLayout();

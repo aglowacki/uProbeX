@@ -17,6 +17,12 @@ HistogramPlot::HistogramPlot(QWidget* parent)
 
    m_widget = parent;
    m_widget->installEventFilter(this);
+   _n_bins = 128;
+   _bins.resize(_n_bins);
+   for (int i = 0; i < _n_bins; i++)
+   {
+       _bins[i] = 0;
+   }
 
 }
 
@@ -69,28 +75,28 @@ bool HistogramPlot::eventFilter(QObject* source, QEvent* event)
 void HistogramPlot::drawHistogram()
 {
 
-   QPainter painter(m_widget);
-   painter.setPen( QPen(QColor(158, 157, 162, 200), 1));
-   painter.setBrush(QBrush(QColor(158, 157, 162, 90)));
-   painter.setRenderHint(QPainter::Antialiasing, true);
-   painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    QPainter painter(m_widget);
+    painter.setPen( QPen(QColor(188, 187, 192, 200), 1));
+    painter.setBrush(QBrush(QColor(188, 187, 192, 90)));
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-   if (m_values.size() <= 0) return;
+    float y = 0.0;
 
-   float y = 0.0;
+    QPolygonF polylinePoints;
+    int i=0, index = 0;
+    polylinePoints.insert(0, QPointF(0, ymap(0)));
 
-   QPolygonF polylinePoints;
-   int i=0, index = 0;
-   polylinePoints.insert(0, QPointF(0, ymap(0)));
-   for (; i<m_widget->width(); i++)
-   {
-      index = (int)(i * m_values.size() / m_widget->width());
-      y = ymap(m_values.at(index));
-      polylinePoints.insert(i+1, QPointF(i, y));
-   }
-   polylinePoints.insert(i+1, QPointF(i, ymap(0)));
+    qreal bins = (qreal)_n_bins;
+    for (; i< m_widget->width(); i++)
+    {
+        int bin = std::floor(( (qreal)(i) / (qreal)(m_widget->width()) ) * bins);
+        y = ymap(_bins[bin]);
+        polylinePoints.insert(i+1, QPointF(i, y));
+    }
+    polylinePoints.insert(i+1, QPointF(i, ymap(0)));
 
-   painter.drawPolygon(polylinePoints, Qt::OddEvenFill);
+    painter.drawPolygon(polylinePoints, Qt::OddEvenFill);
 
 }
 
@@ -105,7 +111,7 @@ qreal HistogramPlot::ymap(const qreal& value)
                                     // the widget, for display purposes that is
                                     //  the minimum Y.
    qreal newRange = ymin - ymax;
-   qreal res = m_widget->height() - ( ( value  / m_max ) * newRange );
+   qreal res = m_widget->height() - ( ( value  / _max_bin_val) * newRange );
 
    // If data point is too big, just make it point to the top.
    if (res < 0) res = ymax;
@@ -116,53 +122,27 @@ qreal HistogramPlot::ymap(const qreal& value)
 
 /*---------------------------------------------------------------------------*/
 
-void HistogramPlot::updatePoints(QList<int> pts)
+void HistogramPlot::updatePoints(const data_struct::ArrayXr& pts)
 {
 
-   QList<int> tmp = m_values;
-   m_values = pts;
+    real_t minCoef = pts.minCoeff();
+    real_t maxCoef = pts.maxCoeff();
 
-   m_max = 0;
-   int max2 = 0;
+    real_t bin_width = (maxCoef - minCoef) / (real_t)(_n_bins-1);
+    for (int i = 0; i < pts.size(); i++)
+    {
+        int bin = std::floor( (pts(i) - minCoef) / bin_width);
+        _bins[bin] = _bins[bin] + 1;
+    }
 
-   bool shouldUpdate = false;
+    _max_bin_val = 0;
+    for (int i = 0; i < _n_bins; i++)
+    {
+        _max_bin_val  = std::max(_bins[i], _max_bin_val);
+    }
 
-   for (int i=0; i<m_values.size(); i++)
-   {
-      if (tmp.size() == m_values.size())
-      {
-         if (m_values.at(i) != tmp.at(i))
-         {
-            shouldUpdate = true;
-         }
-      }
-      else
-      {
-         shouldUpdate = true;
-      }
-
-      if (m_values.at(i) > m_max)
-      {
-         max2 = m_max;
-         m_max = m_values.at(i);
-      }
-      else if (m_values.at(i) > max2)
-      {
-         max2 = m_values.at(i);
-      }
-
-   }
-
-   if ( (m_max > (2 * max2)) && max2 != 0.0 )
-   {
-      m_max = (int) (max2 * 1.5);
-   }
-
-   if (shouldUpdate)
-   {
-      m_widget->update();
-   }
-
+    m_widget->update();
+   
 }
 
 /*---------------------------------------------------------------------------*/

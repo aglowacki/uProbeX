@@ -28,7 +28,7 @@ namespace gstar
 
 public:
 
-    MinMaxSlider(bool is_prec=true, QWidget* parent = 0);
+    MinMaxSlider(bool is_glob=true, QWidget* parent = 0);
 
    ~MinMaxSlider();
 
@@ -54,6 +54,10 @@ public slots:
    void max_lineedit_changed(QString);
 
 private:
+    QLabel* _min_label;
+
+    QLabel* _max_label;
+
     QLineEdit* _min_lineedit;
 
     QLineEdit* _max_lineedit;
