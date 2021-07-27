@@ -16,8 +16,8 @@ ContrastDialog::ContrastDialog(QWidget* parent) : QDialog(parent)
 	_historgram = new HistogramPlot(_historgram_widget);
 
 	_min_max_slider = new MinMaxSlider(false);
-	connect(_min_max_slider, &MinMaxSlider::min_val_changed, this, &ContrastDialog::min_max_update);
-	connect(_min_max_slider, &MinMaxSlider::max_val_changed, this, &ContrastDialog::min_max_update);
+	connect(_min_max_slider, &MinMaxSlider::min_max_val_changed, this, &ContrastDialog::min_max_updated);
+	connect(_min_max_slider, &MinMaxSlider::min_max_val_changed, this, &ContrastDialog::min_max_updated);
 	QVBoxLayout* layout = new QVBoxLayout();
 
 	QHBoxLayout* hbox = new QHBoxLayout();
@@ -31,7 +31,11 @@ ContrastDialog::ContrastDialog(QWidget* parent) : QDialog(parent)
 	layout->addWidget(_historgram_widget);
 	layout->addWidget(_min_max_slider);
 	layout->addItem(hbox);
+	
 	setLayout(layout);
+
+	_btn_accept->setAutoDefault(false);
+	_btn_cancel->setAutoDefault(false);
 
 }
 
@@ -66,7 +70,7 @@ void ContrastDialog::set_array(const data_struct::ArrayXXr* arr)
 
 /*---------------------------------------------------------------------------*/
 
-void ContrastDialog::min_max_update(int val)
+void ContrastDialog::min_max_updated()
 {
 	float minCoef = _min_max_slider->getUserMin();
 	float maxCoef = _min_max_slider->getUserMax();
@@ -79,7 +83,7 @@ void ContrastDialog::min_max_update(int val)
 
 void ContrastDialog::on_accepted()
 {
-	min_max_update(0);
+	min_max_updated();
 	emit accepted();
 	accept();
 }
