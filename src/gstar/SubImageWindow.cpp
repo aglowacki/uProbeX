@@ -80,7 +80,7 @@ void SubImageWindow::on_contrast_show()
 {
     if (_contrast_dialog == nullptr)
     {
-        _contrast_dialog = new ContrastDialog(counts_lookup->get_count_array());
+        _contrast_dialog = new ContrastDialog();
 		_contrast_dialog->setWindowTitle("Contrast");
 		connect(_contrast_dialog, &ContrastDialog::on_min_max_update, this, &SubImageWindow::on_update_min_max);
 		connect(_contrast_dialog, &ContrastDialog::accepted, this, &SubImageWindow::on_accept_contrast);
@@ -89,6 +89,7 @@ void SubImageWindow::on_contrast_show()
 	_contrast_dialog->show();
 	_contrast_dialog->raise();
 	_contrast_dialog->activateWindow();
+    _contrast_dialog->set_array(counts_lookup->get_count_array());
     _contrast_dialog->min_max_update(0);
 }
 

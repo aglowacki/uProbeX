@@ -26,9 +26,11 @@ namespace gstar
 
 public:
 
-    ContrastDialog(const data_struct::ArrayXXr* arr , QWidget* parent = 0);
+    ContrastDialog(QWidget* parent = 0);
 
     ~ContrastDialog();
+    
+    void set_array(const data_struct::ArrayXXr* arr);
 
 signals:
 	void on_min_max_update(float min, float max);

@@ -8,7 +8,7 @@
 using namespace gstar;
 /*---------------------------------------------------------------------------*/
 
-ContrastDialog::ContrastDialog(const data_struct::ArrayXXr* arr, QWidget* parent) : QDialog(parent)
+ContrastDialog::ContrastDialog(QWidget* parent) : QDialog(parent)
 {
 
 	_historgram_widget = new QWidget(this);
@@ -19,25 +19,6 @@ ContrastDialog::ContrastDialog(const data_struct::ArrayXXr* arr, QWidget* parent
 	connect(_min_max_slider, &MinMaxSlider::min_val_changed, this, &ContrastDialog::min_max_update);
 	connect(_min_max_slider, &MinMaxSlider::max_val_changed, this, &ContrastDialog::min_max_update);
 	QVBoxLayout* layout = new QVBoxLayout();
-
-	if (arr != nullptr)
-	{
-		_arr = arr;
-		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
-
-		data_struct::ArrayXr pts; 
-		int w = arr->rows();
-		int h = arr->cols();
-		pts.resize(w * h);
-		for (int i = 0; i < w; i++)
-		{
-			for (int j = 0; j < h; j++)
-			{
-				pts((i*w) + j) = ((*arr)(i, j));
-			}
-		}
-		_historgram->updatePoints(pts);
-	}
 
 	QHBoxLayout* hbox = new QHBoxLayout();
 	_btn_accept = new QPushButton("Accept");
@@ -59,6 +40,28 @@ ContrastDialog::ContrastDialog(const data_struct::ArrayXXr* arr, QWidget* parent
 ContrastDialog::~ContrastDialog()
 {
 
+}
+
+void ContrastDialog::set_array(const data_struct::ArrayXXr* arr)
+{
+	if (arr != nullptr)
+	{
+		_arr = arr;
+		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
+
+		data_struct::ArrayXr pts;
+		int w = arr->rows();
+		int h = arr->cols();
+		pts.resize(w * h);
+		for (int i = 0; i < w; i++)
+		{
+			for (int j = 0; j < h; j++)
+			{
+				pts((i * w) + j) = ((*arr)(i, j));
+			}
+		}
+		_historgram->updatePoints(pts);
+	}
 }
 
 /*---------------------------------------------------------------------------*/
