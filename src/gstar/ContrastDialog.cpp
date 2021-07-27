@@ -68,6 +68,7 @@ void ContrastDialog::min_max_update(int val)
 	float minCoef = _min_max_slider->getUserMin();
 	float maxCoef = _min_max_slider->getUserMax();
 	_historgram->set_min_max_lines(minCoef, maxCoef);
+	_historgram_widget->update();
 	emit on_min_max_update(minCoef, maxCoef);
 }
 
