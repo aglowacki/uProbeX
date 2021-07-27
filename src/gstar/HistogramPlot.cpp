@@ -24,6 +24,12 @@ HistogramPlot::HistogramPlot(QWidget* parent)
        _bins[i] = 0;
    }
 
+
+   _default_pen = QPen(QColor(188, 187, 192, 200),1);
+   _min_pen = QPen(QColor(255, 107, 102, 200));
+   _max_pen = QPen(QColor(255, 107, 102, 200));
+
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -76,7 +82,7 @@ void HistogramPlot::drawHistogram()
 {
 
     QPainter painter(m_widget);
-    painter.setPen( QPen(QColor(188, 187, 192, 200), 1));
+    painter.setPen( _default_pen);
     painter.setBrush(QBrush(QColor(188, 187, 192, 90)));
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
@@ -84,20 +90,32 @@ void HistogramPlot::drawHistogram()
     float y = 0.0;
 
     QPolygonF polylinePoints;
-    int i=0, index = 0;
-    polylinePoints.insert(0, QPointF(0, ymap(0)));
 
     qreal bins = (qreal)_n_bins;
-    for (; i< m_widget->width(); i++)
+    for (int i = 0; i< m_widget->width(); i++)
     {
         int bin = std::floor(( (qreal)(i) / (qreal)(m_widget->width()) ) * bins);
-        y = ymap(_bins[bin]);
-        polylinePoints.insert(i+1, QPointF(i, y));
+        polylinePoints.append(QPointF(i, ymap(0)));
+        polylinePoints.append(QPointF(i, ymap(_bins[bin])));
     }
-    polylinePoints.insert(i+1, QPointF(i, ymap(0)));
 
     painter.drawPolygon(polylinePoints, Qt::OddEvenFill);
+    
+    // draw min and max lines
+    polylinePoints.clear();
+    painter.setPen(_min_pen);
+    int pos = std::floor(((_min_line - _minCoef) / (_maxCoef - _minCoef)) * (qreal)(m_widget->width()));
+    polylinePoints.insert(0, QPointF(pos, ymap(0)));
+    polylinePoints.insert(1, QPointF(pos, ymap(_max_bin_val)));
+    painter.drawPolygon(polylinePoints, Qt::OddEvenFill);
 
+    polylinePoints.clear();
+    painter.setPen(_max_pen);
+    pos = std::floor(((_max_line - _minCoef) / (_maxCoef - _minCoef)) * (qreal)(m_widget->width()));
+    polylinePoints.insert(0, QPointF(pos, ymap(0)));
+    polylinePoints.insert(1, QPointF(pos, ymap(_max_bin_val)));
+    painter.drawPolygon(polylinePoints, Qt::OddEvenFill);
+    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -125,13 +143,16 @@ qreal HistogramPlot::ymap(const qreal& value)
 void HistogramPlot::updatePoints(const data_struct::ArrayXr& pts)
 {
 
-    real_t minCoef = pts.minCoeff();
-    real_t maxCoef = pts.maxCoeff();
+    _minCoef = pts.minCoeff();
+    _maxCoef = pts.maxCoeff();
 
-    real_t bin_width = (maxCoef - minCoef) / (real_t)(_n_bins-1);
+    _min_line = _minCoef;
+    _max_line = _maxCoef;
+
+    _bin_width = (_maxCoef - _minCoef) / (real_t)(_n_bins-1);
     for (int i = 0; i < pts.size(); i++)
     {
-        int bin = std::floor( (pts(i) - minCoef) / bin_width);
+        int bin = std::floor( (pts(i) - _minCoef) / _bin_width);
         _bins[bin] = _bins[bin] + 1;
     }
 
@@ -143,6 +164,17 @@ void HistogramPlot::updatePoints(const data_struct::ArrayXr& pts)
 
     m_widget->update();
    
+}
+
+/*---------------------------------------------------------------------------*/
+
+void HistogramPlot::set_min_max_lines(qreal minCoef, qreal maxCoef)
+{
+
+    _min_line = minCoef;
+    _max_line = maxCoef;
+    drawHistogram();
+
 }
 
 /*---------------------------------------------------------------------------*/
