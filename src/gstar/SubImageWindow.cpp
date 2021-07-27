@@ -90,7 +90,7 @@ void SubImageWindow::on_contrast_show()
 	_contrast_dialog->raise();
 	_contrast_dialog->activateWindow();
     _contrast_dialog->set_array(counts_lookup->get_count_array());
-    _contrast_dialog->min_max_update(0);
+    _contrast_dialog->min_max_updated();
 }
 
 /*---------------------------------------------------------------------------*/

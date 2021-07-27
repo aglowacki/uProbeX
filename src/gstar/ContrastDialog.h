@@ -36,7 +36,7 @@ signals:
 	void on_min_max_update(float min, float max);
 
 public slots:
-	void min_max_update(int val);
+	void min_max_updated();
 
 	void on_accepted();
 

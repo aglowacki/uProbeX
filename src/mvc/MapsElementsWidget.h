@@ -86,9 +86,7 @@ public slots:
 
    void on_export_csv_and_png(QPixmap, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr>*);
 
-   void on_min_contrast_changed(int);
-
-   void on_max_contrast_changed(int);
+   void on_min_max_contrast_changed();
 
    void on_global_contrast_changed(int);
 

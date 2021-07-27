@@ -147,8 +147,7 @@ void MapsElementsWidget::_createLayout()
     connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
     m_toolbar->addWidget(_global_contrast_chk);
     _contrast_widget = new gstar::MinMaxSlider();
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_val_changed, this, &MapsElementsWidget::on_min_contrast_changed);
-    connect(_contrast_widget, &gstar::MinMaxSlider::max_val_changed, this, &MapsElementsWidget::on_max_contrast_changed);
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
     m_toolbar->addWidget(_contrast_widget);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
@@ -228,22 +227,11 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_min_contrast_changed(int val)
+void MapsElementsWidget::on_min_max_contrast_changed()
 {
 
-    //m_imageViewWidget->set_min_contrast_perc(val);
-	_min_contrast_perc = (real_t)val / 100.0;
-	redrawCounts();
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void MapsElementsWidget::on_max_contrast_changed(int val)
-{
-
-    //m_imageViewWidget->set_max_contrast_perc(val);
-	_max_contrast_perc = (real_t)val / 100.0;
+	_min_contrast_perc = _contrast_widget->getUserMin() / 100.0;
+    _max_contrast_perc = _contrast_widget->getUserMax() / 100.0;
 	redrawCounts();
 
 }

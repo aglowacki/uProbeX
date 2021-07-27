@@ -34,14 +34,12 @@ public:
 
    void setMinMax(float min, float max);
 
-   float getUserMin() { return _min_slider->value(); }
+   float getUserMin();
 
-   float getUserMax() { return _max_slider->value(); }
+   float getUserMax();
 
 signals:
-    void min_val_changed(int);
-
-    void max_val_changed(int);
+    void min_max_val_changed();
 
 public slots:
 
@@ -49,9 +47,9 @@ public slots:
 
    void max_slider_changed(int);
 
-   void min_lineedit_changed(QString);
+   void min_lineedit_changed();
 
-   void max_lineedit_changed(QString);
+   void max_lineedit_changed();
 
 private:
     QLabel* _min_label;
@@ -66,9 +64,9 @@ private:
 
     QSlider* _max_slider;
 
-    int _min_val;
+    qreal _min_val;
 
-    int _max_val;
+    qreal _max_val;
 
    };
 
