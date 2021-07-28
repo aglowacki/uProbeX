@@ -27,7 +27,7 @@ using gstar::ImageViewWidget;
 
 /*---------------------------------------------------------------------------*/
 
-MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
+MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, QWidget* parent)
     : AbstractImageWidget(rows, cols, parent)
 {
     
@@ -58,7 +58,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, QWidget* parent)
 		}
     }
 	_selected_colormap = &_gray_colormap;
-    _createLayout();
+    _createLayout(create_image_nav);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -82,7 +82,7 @@ MapsElementsWidget::~MapsElementsWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::_createLayout()
+void MapsElementsWidget::_createLayout(bool create_image_nav)
 {
 
     _tab_widget = new QTabWidget();
@@ -112,7 +112,7 @@ void MapsElementsWidget::_createLayout()
     splitter->setStretchFactor(0, 1);
     splitter->addWidget(m_tabWidget);
 
-    createToolBar(m_imageViewWidget);
+    createToolBar(m_imageViewWidget, create_image_nav);
     counts_layout->addWidget(m_toolbar);
     counts_layout->addWidget(splitter);
 
@@ -779,9 +779,11 @@ void MapsElementsWidget::redrawCounts()
             {
                 m_imageViewWidget->resetCoordsToZero();
                 m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
-
-                m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
-                m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+                {
+                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
+                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                }
                 to_delete.push_back(itr.first);
             }
 
@@ -908,8 +910,11 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
         if (draw)
         {
             m_imageViewWidget->resetCoordsToZero();
-            m_imageHeightDim->setCurrentText(QString::number(height));
-            m_imageWidthDim->setCurrentText(QString::number(width));
+            if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+            {
+                m_imageHeightDim->setCurrentText(QString::number(height));
+                m_imageWidthDim->setCurrentText(QString::number(width));
+            }
             QImage image(width, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
