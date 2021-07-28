@@ -24,7 +24,12 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QLabel>
+#include <QComboBox>
+#include <QListView>
+
 #include <gstar/CountsLookupTransformer.h>
+#include "gstar/SubImageWindow.h"
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -171,6 +176,10 @@ public:
 
    void addLabel(QString lbl);
 
+   void setGlobalContrast(bool val);
+
+   void getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
+
 public slots:
 
    /**
@@ -240,6 +249,8 @@ signals:
 
    void cbLabelChanged(QString value, int viewIdx);
 
+   void parent_redraw();
+
 protected slots:
 
    /**
@@ -288,7 +299,7 @@ private slots:
    /**
     * Called when zoom percentage is updated by the user.
     */
-   void zoomValueChanged();
+   void zoomValueChanged(int val);
 
    void onComboBoxChange(QString lbl);
 
@@ -328,12 +339,7 @@ private:
     */
    QWidget* m_widget;
 
-   std::vector<QGraphicsView*> m_view;
-   std::vector<ImageViewScene*> m_scene;
-   std::vector<QComboBox *> _cb_image_label;
-   std::vector<gstar::CountsLookupTransformer*> _counts_lookup;
-   std::vector<gstar::CoordinateModel*> _counts_coord_model;
-   std::vector<gstar::CoordinateWidget*> _counts_coord_widget;
+   std::vector<SubImageWindow> _sub_windows;
 
    /**
     * Zoom in cursor

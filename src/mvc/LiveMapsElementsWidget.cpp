@@ -95,7 +95,7 @@ void LiveMapsElementsWidget::createLayout()
  //   _textEdit = new QTextEdit(this);
  //   _textEdit->resize(1024, 800);
  //   _textEdit->scrollBarWidgets(Qt::AlignRight);
-    _mapsElementsWidget = new MapsElementsWidget(this);
+    _mapsElementsWidget = new MapsElementsWidget(1,1,true,this);
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
  //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 
@@ -165,10 +165,14 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packe
         {
             start_new_image = true;
         }
-        if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
-        {
-            start_new_image = true;
-        }
+		size_t dlen = new_packet->dataset_name->length();
+		if (new_packet->dataset_name->at(dlen - 3) != '.' && new_packet->dataset_name->at(dlen - 2) != 'n' && new_packet->dataset_name->at(dlen - 1) != 'c')
+		{
+			if(new_packet->dataset_name->compare((*_last_packet->dataset_name)) != 0)
+			{
+			    start_new_image = true;
+			}
+		}
     }
     if(_currentModel == nullptr)
     {

@@ -328,6 +328,8 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
     {
+		std::lock_guard<std::mutex> lock(_mutex);
+
         data_struct::Fit_Parameters fit_params = _fit_params_table_model->getFitParams();
 
         fitting::models::Range energy_range;
@@ -341,16 +343,18 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra*) & _ev);
         if (snipback)
         {
-            _spectra_background = snip_background((Spectra*)_int_spec,
-                fit_params[STR_ENERGY_OFFSET].value,
-                fit_params[STR_ENERGY_SLOPE].value,
-                fit_params[STR_ENERGY_QUADRATIC].value,
-                0, //spectral binning
-                fit_params[STR_SNIP_WIDTH].value,
-                0, //spectra energy start range
-                _int_spec->size() - 1);
+			/* TODO: Look into why memory access violation happens when streaming
+				_spectra_background = snip_background((Spectra*)_int_spec,
+					fit_params[STR_ENERGY_OFFSET].value,
+					fit_params[STR_ENERGY_SLOPE].value,
+					fit_params[STR_ENERGY_QUADRATIC].value,
+					0, //spectral binning
+					fit_params[STR_SNIP_WIDTH].value,
+					0, //spectra energy start range
+					_int_spec->size() - 1);
 
-            _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra*) & _ev);
+				_spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra*) & _ev);
+			*/
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
@@ -532,8 +536,10 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
     
 
-    if(_elements_to_fit != nullptr)
+    if(_elements_to_fit != nullptr && _int_spec != nullptr)
     {
+		std::lock_guard<std::mutex> lock(_mutex);
+
         //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
         //fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
         //fitting::models::Gaussian_Model model;
@@ -876,7 +882,10 @@ void FitSpectraWidget::optimizer_changed(QString val)
 
 void FitSpectraWidget::setIntegratedSpectra(data_struct::ArrayXr* int_spec)
 {
-    _int_spec = int_spec;
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		_int_spec = int_spec;
+	}
     replot_integrated_spectra(true);
     _spectra_widget->onResetChartView();
 }

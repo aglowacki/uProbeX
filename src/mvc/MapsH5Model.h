@@ -13,6 +13,7 @@
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
+#include <mutex>
 #include "core/defines.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
@@ -81,9 +82,11 @@ public:
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
-    data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
+    //data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
+    void getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict& out_counts);
 
-    const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    //const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    void getIntegratedSpectra(data_struct::Spectra& out_spectra);
 
     QString getFilePath() { return _filepath; }
 
@@ -174,6 +177,7 @@ protected:
     std::unordered_map<std::string, data_struct::ArrayXXr> _scalers;
 
 private:
+    std::mutex _mutex;
 
     QString _filepath;
 

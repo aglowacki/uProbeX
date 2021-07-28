@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QtGui>
+#include "data_struct/spectra.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -37,11 +38,13 @@ public:
     */
    bool eventFilter(QObject* object, QEvent* event);
 
+   void set_min_max_lines(qreal minCoef, qreal maxCoef);
+
 public slots:
    /**
     * Update points
     */
-   void updatePoints(QList<int> pts);
+   void updatePoints(const data_struct::ArrayXr& pts);
 
 private:
    /**
@@ -55,21 +58,30 @@ private:
    qreal ymap(const qreal& value);
 
 private:
-   /**
-    * Widget
-    */
-   QWidget* m_widget;
 
-   /**
-    * Values
-    */
-   QList<int> m_values;
+    QWidget* m_widget;
 
-   /**
-    * Max
-    */
-   int m_max;
+   std::vector<int> _bins;
 
+   int _n_bins;
+
+   int  _max_bin_val;
+
+   qreal _min_line;
+
+   qreal _max_line;
+
+   QPen _default_pen;
+
+   QPen _min_pen;
+
+   QPen _max_pen;
+
+   real_t _minCoef;
+
+   real_t _maxCoef;
+
+   real_t _bin_width;
 };
 
 }

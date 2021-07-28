@@ -67,19 +67,26 @@ void MapsH5Model::clear_analyzed_counts()
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Fit_Count_Dict* MapsH5Model::getAnalyzedCounts(std::string analysis_type)
+void MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict& out_counts)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+    out_counts.clear();
+
     if(analysis_type.length() > 0 && _analyzed_counts.count(analysis_type) > 0)
     {
-        return _analyzed_counts[analysis_type];
+        for (const auto& itr : *(_analyzed_counts[analysis_type]))
+        {
+            out_counts[itr.first] = itr.second;
+        }
+
     }
-    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
 
 std::vector<std::string> MapsH5Model::count_names()
 {
+    std::lock_guard<std::mutex> lock(_mutex);
     std::vector<std::string> count_names;
 
     for(auto& itr1 : _analyzed_counts)
@@ -98,6 +105,7 @@ std::vector<std::string> MapsH5Model::count_names()
 
 std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 {
+    std::lock_guard<std::mutex> lock(_mutex);
     std::vector<std::string> keys;
     for(auto &itr : _analyzed_counts)
     {
@@ -180,6 +188,8 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     if(block->spectra != nullptr)
     {
         _integrated_spectra.add( *(block->spectra) );
@@ -217,6 +227,12 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
             }
         }
     }
+}
+
+void MapsH5Model::getIntegratedSpectra(data_struct::Spectra& out_spectra)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    out_spectra = _integrated_spectra;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -1271,11 +1271,11 @@ void VLM_Widget::createLayout()
 
    QLayout* layout = generateDefaultLayout();
 
-   m_range->setRangeWidgetVisible(false);
-   m_labelWidthAction->setVisible(false);
-   m_imageWidthDimAction->setVisible(false);
-   m_labelHeightAction->setVisible(false);
-   m_imageHeightDimAction->setVisible(false);
+   //m_range->setRangeWidgetVisible(false);
+   //m_labelWidthAction->setVisible(false);
+   //m_imageWidthDimAction->setVisible(false);
+   //m_labelHeightAction->setVisible(false);
+   //m_imageHeightDimAction->setVisible(false);
 
    m_tabWidget->addTab(m_calibrationTabWidget, QIcon(), "Calibration");
    m_tabWidget->addTab(m_microProbeTabWidget, QIcon(), "MicroProbe");

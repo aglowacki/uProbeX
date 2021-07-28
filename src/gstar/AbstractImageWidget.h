@@ -261,7 +261,7 @@ protected:
    /**
     * Create tool bar
     */
-   virtual void createToolBar(ImageViewWidget* imageViewWidget);
+   virtual void createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav = false);
 
    /**
     * @brief createAnnotationToolBar
