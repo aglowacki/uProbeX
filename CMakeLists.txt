@@ -50,8 +50,8 @@ project(uProbeX)
 
 #include(${PROJECT_SOURCE_DIR}/../XRF-Maps/build/XRF_MapsConfig.cmake)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../libs/zmq/ ${PROJECT_SOURCE_DIR}/../XRF-Maps/build ${PROJECT_SOURCE_DIR}/../libs/libzmq/build)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt5" "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
+#set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../XRF-Maps/build )
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -68,12 +68,12 @@ IF (UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
 ENDIF()
 
-find_package(XRF_Maps REQUIRED COMPONENTS libxrf_io libxrf_fit)
-find_package(NetCDF REQUIRED)
 find_package(Threads)
-find_package(HDF5 REQUIRED COMPONENTS C)
+find_package(hdf5 CONFIG REQUIRED)
+find_package(netCDF CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZeroMQ REQUIRED libzmq-static)
-
+find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -190,32 +190,31 @@ IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
-  target_link_libraries(uProbeX LINK_PUBLIC ws2_32.lib )
-  target_link_libraries (uProbeX LINK_PUBLIC 
-                        libxrf_fit
-						libxrf_io
+    target_link_libraries (uProbeX PRIVATE 
+                        yaml-cpp
                         libzmq-static
-						ws2_32.lib
-						rpcrt4.lib
-						iphlpapi.lib
+            						ws2_32.lib
+            						rpcrt4.lib
+            						iphlpapi.lib
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
-                        ${NETCDF_LIBRARIES}
-                        ${HDF5_LIBRARIES}
-                        ${CMAKE_THREAD_LIBS_INIT} )
+                        netCDF::netcdf
+                        hdf5::hdf5-shared
+                        libxrf_fit
+						            libxrf_io
+                        ${CMAKE_THREAD_LIBS_INIT}
+                        ws2_32.lib )
 ELSEIF (UNIX)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
 
-  target_link_libraries (uProbeX PUBLIC libxrf_fit PUBLIC libxrf_io)
-
-  target_link_libraries (uProbeX LINK_PUBLIC
-                        ${ZeroMQ_LIBRARIES}
+    target_link_libraries (uProbeX PRIVATE
+                        libzmq-static
+                        yaml-cpp
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
-                        ${NETCDF_LIBRARIES}
-                        ${HDF5_LIBRARIES}
+                        netCDF::netcdf
+                        hdf5::hdf5-shared
+                        libxrf_fit
+                        libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
-
-#${ZeroMQ_STATIC_LIBRARY}
-
