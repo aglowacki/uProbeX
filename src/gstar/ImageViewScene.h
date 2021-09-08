@@ -8,8 +8,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include "gstar/Array.h"
-
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>

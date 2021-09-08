@@ -688,44 +688,6 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 
 /*---------------------------------------------------------------------------*/
 
-void AbstractImageWidget::updateFrame(const Array* image)
-{
-
-   if (image == nullptr)
-      return;
-
-   // Get type
-   Array::DataType type = image->getType();
-
-   // Get rank
-   unsigned long rank = image->getRank();
-
-   if (type != Array::BGRA32)
-      return;
-
-   // Get dimensions
-   unsigned long long dims[2];
-   image->getDims(dims, 2);
-
-   // Check image properties; only process BGRA32 images
-   if (rank != 2)
-      return;
-
-   if (dims[0] <= 0 || dims[1] <= 0)
-      return;
-
-   // Create image
-   QImage img = QImage((uchar*) image->getBuffer(), dims[1], dims[0],
-            QImage::Format_ARGB32);
-
-   // Create pixmap from image
-   m_imageViewWidget->scene()->setPixmap(
-            QPixmap::fromImage(img.convertToFormat(QImage::Format_RGB32)));
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 void AbstractImageWidget::updateFrame(QImage *img)
 {
     if (img != nullptr)

@@ -198,19 +198,6 @@ void ImageViewScene::enableAnnotations(bool state)
 
 /*---------------------------------------------------------------------------*/
 /*
-void ImageViewScene::getROIMask(int i, Array& mask)
-{
-
-   // Get graphics item
-   RectItem* item = m_rois.at(i);
-
-   // Get actual mask
-   item -> getMask(mask);
-
-}
-*/
-/*---------------------------------------------------------------------------*/
-/*
 void ImageViewScene::lockROIs(bool state)
 {
 

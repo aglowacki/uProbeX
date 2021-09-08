@@ -19,8 +19,6 @@
 #include <QStyle>
 #include <QStyleOptionGraphicsItem>
 
-#include "gstar/Array.h"
-
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
@@ -65,16 +63,6 @@ public:
     */
    char* getMask();
 
-   /**
-    * Get a mask for the ROI.
-    *
-    * The mask image is the same size as the bounding item. The mask is one
-    * byte per pixel with values of 255 where the ROI overlaps. The mask is
-    * in row major order.
-    *
-    * @return ROI mask
-    */
-   void getMask(Array& mask) const;
 
    /**
     * Draw the item. Reimplemented from QGraphicsItem. See Qt documentation.
