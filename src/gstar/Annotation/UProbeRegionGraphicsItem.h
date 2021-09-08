@@ -19,9 +19,6 @@
 #include <QStyle>
 #include <QStyleOptionGraphicsItem>
 #include <QPixmap>
-
-#include <gstar/Array.h>
-
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/AnnotationProperty.h"
 #include "gstar/CoordinateModel.h"

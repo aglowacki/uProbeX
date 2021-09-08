@@ -6,7 +6,6 @@
 #include <mvc/AbstractWindowController.h>
 
 using gstar::ImageViewWidget;
-using gstar::Array;
 
 /*---------------------------------------------------------------------------*/
 

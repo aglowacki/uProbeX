@@ -139,12 +139,6 @@ public slots:
    void setWidthDims(int w);
 
    /**
-    * Updat the frame when new image shows.
-    *
-    */
-   void updateFrame(const Array* image);
-
-   /**
     * @brief updateFrame
     * @param img
     */
@@ -261,7 +255,7 @@ protected:
    /**
     * Create tool bar
     */
-   virtual void createToolBar(ImageViewWidget* imageViewWidget);
+   virtual void createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav = false);
 
    /**
     * @brief createAnnotationToolBar

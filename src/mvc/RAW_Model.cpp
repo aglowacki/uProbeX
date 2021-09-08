@@ -114,7 +114,7 @@ bool RAW_Model::load(QString filename)
 		{
 			int det = filename[filename.length() - 1].digitValue();
 			_integrated_spectra_map[det] = data_struct::Spectra();
-			unordered_map<string, string> pv_map;
+			unordered_map<string, real_t> pv_map;
 			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
 			for (const auto& itr : pv_map)
 			{

@@ -96,7 +96,7 @@ void LiveMapsElementsWidget::createLayout()
  //   _textEdit = new QTextEdit(this);
  //   _textEdit->resize(1024, 800);
  //   _textEdit->scrollBarWidgets(Qt::AlignRight);
-    _mapsElementsWidget = new MapsElementsWidget(1,1,this);
+    _mapsElementsWidget = new MapsElementsWidget(1,1,true,this);
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
  //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 

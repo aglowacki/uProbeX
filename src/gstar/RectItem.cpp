@@ -81,60 +81,6 @@ char* RectItem::getMask()
 
 /*---------------------------------------------------------------------------*/
 
-void RectItem::getMask(Array& mask) const
-{
-
-   // Get bounding rectangle
-   QRectF boundRect = ((ImageViewScene*) scene()) -> pixRect();
-
-   // Get image dimensions
-   int w = boundRect.width();
-   int h = boundRect.height();
-
-   // Check image dimensions
-   if (w <= 0 || h <= 0) {
-      return;
-   }
-
-   // Memory allocated to mask array is too small
-   if (mask.getBytes() < (w * h)) {
-      return;
-   }
-
-   // Get buffer from array
-   uchar* buffer = mask.getBuffer();
-   if (buffer == nullptr) {
-      return;
-   }
-
-   // Set array properties
-   unsigned long long dims[2];
-   dims[0] = h;
-   dims[1] = w;
-   mask.setRank(2);
-   mask.setType(Array::UINT8);
-   mask.setDimensions(dims, 2);
-
-   // Loop through each pixel in image
-   for (int r = 0 ; r < h ; r++) {
-      for (int c = 0 ; c < w ; c++) {
-
-         // Test if pixel is within ROI. If it is, set value to 255,
-         // 0 otherwise.
-         if (contains(mapFromScene(QPointF((float) c, (float) r)))) {
-            buffer[r * w + c] = 255;
-         }
-         else {
-            buffer[r * w + c] = 0;
-         }
-
-      }
-   }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
 double RectItem::getSceneScale()
 {
 

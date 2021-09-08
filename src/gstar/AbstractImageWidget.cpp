@@ -32,6 +32,9 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    m_annotationToolbar = nullptr;
    m_coordinateModel = nullptr;
    m_imageWidgetToolBar = nullptr;
+   m_range = nullptr;
+   m_imageWidthDim = nullptr;
+   m_imageHeightDim = nullptr;
    //QPalette pal = this->palette();
    //pal.setColor(this->backgroundRole(), Qt::white);
    //this->setPalette(pal);
@@ -198,27 +201,29 @@ void AbstractImageWidget::createActions()
 
 /*---------------------------------------------------------------------------*/
 
-void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget)
+void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav)
 {
 
-   m_toolbar = new QToolBar(this);
-   m_toolbar->setFloatable(false);
-   m_toolbar->setMovable(false);
+    m_toolbar = new QToolBar(this);
+    m_toolbar->setFloatable(true);
+    m_toolbar->setMovable(true);
 
-   m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
+    m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
 
+    m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
+    m_toolbar->addSeparator();
+    if (create_image_nav)
+    {
 
-   m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
-   m_toolbar->addSeparator();
+        createRangeWidget();
+        m_toolbar->addWidget(m_range);
 
-   createRangeWidget();
-
-   m_toolbar -> addWidget(m_range);
-   m_labelWidthAction = m_toolbar -> addWidget(new QLabel(" Width :"));
-   m_imageWidthDimAction = m_toolbar -> addWidget(m_imageWidthDim);
-   m_labelHeightAction = m_toolbar -> addWidget(new QLabel(" Height :"));
-   m_imageHeightDimAction = m_toolbar -> addWidget(m_imageHeightDim);
-
+        m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
+        m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
+        m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
+        m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
+    }
+    
 }
 
 /*---------------------------------------------------------------------------*/
@@ -252,25 +257,16 @@ void AbstractImageWidget::createRangeWidget()
    m_range = new RangeWidget();
    m_range->setMaximum(0);
    m_range->setMinimum(0);
-   connect(m_range, 
-           SIGNAL(valueChanged(int, int)),
-           this, 
-           SIGNAL(rangeChanged(int, int)));
+   connect(m_range, SIGNAL(valueChanged(int, int)), this, SIGNAL(rangeChanged(int, int)));
 
    m_imageHeightDim = new QComboBox();
    m_imageHeightDim->setEditable(true);
 
-   connect(m_imageHeightDim, 
-           SIGNAL(activated(int)),
-           this, 
-           SIGNAL(imageHeightDimChanged(int)));
+   connect(m_imageHeightDim, SIGNAL(activated(int)), this, SIGNAL(imageHeightDimChanged(int)));
 
    m_imageWidthDim = new QComboBox();
    m_imageWidthDim->setEditable(true);
-   connect(m_imageWidthDim, 
-           SIGNAL(activated(int)),
-           this, 
-           SIGNAL(imageWidthDimChanged(int)));
+   connect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
 
 }
 
@@ -522,30 +518,25 @@ void AbstractImageWidget::setCoordinateModel(CoordinateModel *model)
 void AbstractImageWidget::setHeightDims(int h)
 {
 
-   if (h > (m_imageHeightDim->count() - 1)) return;
+    if (m_imageHeightDim != nullptr)
+    {
+        if (h > (m_imageHeightDim->count() - 1)) return;
 
-   disconnect(m_imageHeightDim, 
-             SIGNAL(activated(int)),
-             this, 
-             SLOT(imageHeightDimChanged(int)));
-
-   m_imageHeightDim->setCurrentIndex(h);
-
-   connect(m_imageHeightDim, 
-           SIGNAL(activated(int)),
-           this, 
-           SIGNAL(imageHeightDimChanged(int)));
-
+        disconnect(m_imageHeightDim,SIGNAL(activated(int)),this,SLOT(imageHeightDimChanged(int)));
+        m_imageHeightDim->setCurrentIndex(h);
+        connect(m_imageHeightDim,SIGNAL(activated(int)),this,SIGNAL(imageHeightDimChanged(int)));
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 void AbstractImageWidget::setNumberOfImages(int images)
 {
-
-   m_range->setMinimum(1);
-   m_range->setMaximum(images);
-
+    if (m_range != nullptr)
+    {
+        m_range->setMinimum(1);
+        m_range->setMaximum(images);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -563,43 +554,49 @@ void AbstractImageWidget::setAnnotationsEnabled(bool value)
 
 void AbstractImageWidget::setRank(int m_rankDim)
 {
-   
-   m_imageWidthDim->clear();
-   m_imageHeightDim->clear();
+    if (m_imageWidthDim != nullptr && m_imageHeightDim != nullptr)
+    {
+        m_imageWidthDim->clear();
 
-   for (int i = 0 ; i < m_rankDim ; i++) 
-   {
-        m_imageWidthDim->addItem(tr("dim %1").arg(i));
-        m_imageHeightDim->addItem(tr("dim %1").arg(i));
-   }
+        m_imageHeightDim->clear();
 
+        for (int i = 0; i < m_rankDim; i++)
+        {
+            m_imageWidthDim->addItem(tr("dim %1").arg(i));
+            m_imageHeightDim->addItem(tr("dim %1").arg(i));
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 void AbstractImageWidget::setRangeWidgetStartIndex(int index)
 {
-
-   m_range->setValue(index);
-
+    if (m_range != nullptr)
+    {
+        m_range->setValue(index);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 int AbstractImageWidget::getRangeWidgetStartIndex()
 {
-
-    return m_range->value();
-
+    if (m_range != nullptr)
+    {
+        return m_range->value();
+    }
+    return 0;
 }
 
 /*---------------------------------------------------------------------------*/
 
 void AbstractImageWidget::setRangeWidgetVisible(bool m_rangeVisible)
 {
-
-   m_range->setRangeWidgetVisible(false);
-
+    if (m_range != nullptr)
+    {
+        m_range->setRangeWidgetVisible(false);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -615,23 +612,14 @@ void AbstractImageWidget::setToolBarVisible(bool visible)
 
 void AbstractImageWidget::setWidthDims(int w)
 {
+    if (m_imageWidthDim != nullptr)
+    {
+        if (w > (m_imageWidthDim->count() - 1)) return;
 
-   if (w > (m_imageWidthDim->count() - 1)) return;
-
-
-   disconnect(m_imageWidthDim, 
-              SIGNAL(activated(int)),
-              this,
-              SIGNAL(imageWidthDimChanged(int)));
-
-   m_imageWidthDim->setCurrentIndex(w);
-
-
-   connect(m_imageWidthDim, 
-           SIGNAL(activated(int)),
-           this, 
-           SIGNAL(imageWidthDimChanged(int)));
-
+        disconnect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
+        m_imageWidthDim->setCurrentIndex(w);
+        connect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -695,44 +683,6 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
          }
       }
    }
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void AbstractImageWidget::updateFrame(const Array* image)
-{
-
-   if (image == nullptr)
-      return;
-
-   // Get type
-   Array::DataType type = image->getType();
-
-   // Get rank
-   unsigned long rank = image->getRank();
-
-   if (type != Array::BGRA32)
-      return;
-
-   // Get dimensions
-   unsigned long long dims[2];
-   image->getDims(dims, 2);
-
-   // Check image properties; only process BGRA32 images
-   if (rank != 2)
-      return;
-
-   if (dims[0] <= 0 || dims[1] <= 0)
-      return;
-
-   // Create image
-   QImage img = QImage((uchar*) image->getBuffer(), dims[1], dims[0],
-            QImage::Format_ARGB32);
-
-   // Create pixmap from image
-   m_imageViewWidget->scene()->setPixmap(
-            QPixmap::fromImage(img.convertToFormat(QImage::Format_RGB32)));
 
 }
 

@@ -46,8 +46,9 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     _liveMapsViewer = nullptr;
 	
     //////// HENKE and ELEMENT INFO /////////////
-    std::string element_csv_filename = "../reference/xrf_library.csv";
-    std::string element_henke_filename = "../reference/henke.xdr";
+    const std::string element_csv_filename = "../reference/xrf_library.csv";
+    const std::string element_henke_filename = "../reference/henke.xdr";
+    const std::string scaler_lookup_yaml = "../reference/Scaler_to_PV_map.yaml";
 
     PythonLoader::inst()->safeCheck();
 
@@ -76,6 +77,11 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
     // Update preferences; also creates solver
     processPreferencesUpdate();
+
+    if (false == io::load_scalers_lookup(scaler_lookup_yaml))
+    {
+        logE << " Could not load " << scaler_lookup_yaml << ". Won't be able to translate from PV to Label for scalers!\n";
+    }
 
 
     if (false == io::load_element_info(element_henke_filename, element_csv_filename ) )
