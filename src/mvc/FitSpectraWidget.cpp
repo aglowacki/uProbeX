@@ -328,7 +328,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
     {
-		std::lock_guard<std::mutex> lock(_mutex);
+		//std::lock_guard<std::mutex> lock(_mutex);
 
         data_struct::Fit_Parameters fit_params = _fit_params_table_model->getFitParams();
 
@@ -343,7 +343,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra*) & _ev);
         if (snipback)
         {
-			/* TODO: Look into why memory access violation happens when streaming
+			// TODO: Look into why memory access violation happens when streaming
 				_spectra_background = snip_background((Spectra*)_int_spec,
 					fit_params[STR_ENERGY_OFFSET].value,
 					fit_params[STR_ENERGY_SLOPE].value,
@@ -354,7 +354,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 					_int_spec->size() - 1);
 
 				_spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra*) & _ev);
-			*/
+			
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
@@ -538,7 +538,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
     if(_elements_to_fit != nullptr && _int_spec != nullptr)
     {
-		std::lock_guard<std::mutex> lock(_mutex);
+		////std::lock_guard<std::mutex> lock(_mutex);
 
         //fitting::optimizers::LMFit_Optimizer lmfit_optimizer;
         //fitting::optimizers::MPFit_Optimizer mpfit_optimizer;
@@ -697,7 +697,7 @@ void FitSpectraWidget::Model_Spectra_Click()
     _btn_model_spectra->setEnabled(false);
 
 
-    if(_elements_to_fit != nullptr)
+    if(_elements_to_fit != nullptr && _int_spec != nullptr)
     {
         fitting::models::Gaussian_Model model;
         //Range of energy in spectra to fit
@@ -707,19 +707,11 @@ void FitSpectraWidget::Model_Spectra_Click()
         data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
         fit_params.append_and_update(&model_fit_params);
         fit_params.append_and_update(&element_fit_params);
-/*
-        fitting::models::Range energy_range = data_struct::get_energy_range(sub_struct->fit_params_override_dict.min_energy,
-                                                                                    sub_struct->fit_params_override_dict.max_energy,
-                                                                                    _spectra_background.size(),
-                                                                                    model_fit_params[STR_ENERGY_OFFSET].value,
-                                                                                    model_fit_params[STR_ENERGY_SLOPE].value);
-*/
+
         fitting::models::Range energy_range;
         energy_range.min = 0;
-        energy_range.max = _spectra_background.size() -1;
+        energy_range.max = _int_spec->size()-1;
 
-
-        //data_struct::Spectra fit_spec = model.model_spectrum_mp(&fit_params, _elements_to_fit, energy_range);
         unordered_map<string, ArrayXr> labeled_spectras;
         data_struct::Spectra fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, &labeled_spectras, energy_range);
 
@@ -883,7 +875,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 void FitSpectraWidget::setIntegratedSpectra(data_struct::ArrayXr* int_spec)
 {
 	{
-		std::lock_guard<std::mutex> lock(_mutex);
+		///std::lock_guard<std::mutex> lock(_mutex);
 		_int_spec = int_spec;
 	}
     replot_integrated_spectra(true);
