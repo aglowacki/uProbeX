@@ -60,9 +60,9 @@ public slots:
 
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
-   void displayCounts(const std::string analysis_type, const std::string element, int grid_idx = 0);
+   void displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx = 0);
 
-   QPixmap generate_pixmap(const std::string analysis_type, const std::string element, int grid_idx);
+   QPixmap generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx);
 
    void onAnalysisSelect(QString name);
 
@@ -89,6 +89,8 @@ public slots:
    void on_min_max_contrast_changed();
 
    void on_global_contrast_changed(int);
+
+   void on_log_color_changed(int);
 
 protected:
 
@@ -145,6 +147,8 @@ protected:
    gstar::MinMaxSlider* _contrast_widget;
 
    QCheckBox* _global_contrast_chk;
+
+   QCheckBox* _chk_log_color;
 
    real_t _min_contrast_perc;
 
