@@ -125,6 +125,11 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
     m_toolbar->addWidget(_cb_colormap);
 
+    _chk_log_color = new QCheckBox("Log scale");
+    _chk_log_color->setChecked(false);
+    connect(_chk_log_color, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
+    m_toolbar->addWidget(_chk_log_color);
+
     _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
 	_grid_button->setIconSize(QSize(15, 15)); 
@@ -222,6 +227,13 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
         m_imageViewWidget->setGlobalContrast(true);
     }
     
+    redrawCounts();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_log_color_changed(int state)
+{
     redrawCounts();
 }
 
@@ -366,7 +378,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
     QString analysisName = _cb_analysis->currentText();
     if(analysisName.length() > 0 && name.length() > 0)
     {
-        displayCounts(analysisName.toStdString() , name.toStdString(), viewIdx);
+        displayCounts(analysisName.toStdString() , name.toStdString(), _chk_log_color->isChecked(), viewIdx);
     }
 }
 
@@ -758,7 +770,7 @@ void MapsElementsWidget::redrawCounts()
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
-            displayCounts(analysis_text, element.toStdString(), vidx);
+            displayCounts(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx);
         }
     }
     else
@@ -769,7 +781,7 @@ void MapsElementsWidget::redrawCounts()
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
             
-            job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), vidx); });
+            job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
         }
 
         while (job_queue.size() > 0)
@@ -876,7 +888,7 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, int grid_idx)
+void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
 	if (_model != nullptr)
 	{
@@ -909,6 +921,12 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 
         if (draw)
         {
+            if (log_color)
+            {
+                normalized = normalized.log10();
+                normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
+            }
+
             m_imageViewWidget->resetCoordsToZero();
             if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
             {
@@ -983,7 +1001,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 
 /*---------------------------------------------------------------------------*/
 
-QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, const std::string element, int grid_idx)
+QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
     if (_model != nullptr)
     {
@@ -1016,6 +1034,12 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 
         if (draw)
         {
+            if (log_color)
+            {
+                normalized = normalized.log10();
+                normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
+            }
+
             QImage image(width, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 

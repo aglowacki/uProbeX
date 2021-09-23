@@ -155,7 +155,7 @@ private slots:
 
 private:
 
-	std::mutex _mutex;
+	//std::mutex _mutex;
 
     QCheckBox *_chk_auto_model;
 
