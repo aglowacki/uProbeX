@@ -209,21 +209,13 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 if (h5Model != nullptr)
                 {
                     int idx = -1;
-                    if (name.endsWith('0'))
+                    for (byte b = '0'; b < '7'; b++)
                     {
-                        idx = 0;
-                    }
-                    else if (name.endsWith('1'))
-                    {
-                        idx = 1;
-                    }
-                    else if (name.endsWith('2'))
-                    {
-                        idx = 2;
-                    }
-                    else if (name.endsWith('3'))
-                    {
-                        idx = 3;
+                        if (name.endsWith(b))
+                        {
+                            idx = (int)b;
+                            break;
+                        }
                     }
                     data_struct::Params_Override* param_override = _model->getParamOverride(idx);
                     //if we can't find override for specific detector, try to use the avg one.
