@@ -9,7 +9,7 @@
 #include "io/file/hl_file_io.h"
 #include "io/file/mca_io.h"
 
-#define DEFAULT_NUM_DETECTORXS 4
+#define DEFAULT_NUM_DETECTORXS 8
 
 /*----------------src/mvc/RAW_Model.cpp \-----------------------------------------------------------*/
 

@@ -592,6 +592,22 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
 				{
 					dataset_path += "3";
 				}
+				else if (dataset_leftover.endsWith("h54"))
+				{
+					dataset_path += "4";
+				}
+				else if (dataset_leftover.endsWith("h55"))
+				{
+					dataset_path += "5";
+				}
+				else if (dataset_leftover.endsWith("h56"))
+				{
+					dataset_path += "6";
+				}
+				else if (dataset_leftover.endsWith("h57"))
+				{
+					dataset_path += "7";
+				}
 		}
 
         data_struct::Params_Override* param_overrides = _model->getParamOverride();

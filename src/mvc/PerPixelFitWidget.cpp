@@ -45,6 +45,10 @@ void PerPixelFitWidget::createLayout()
     detectors.append("1");
     detectors.append("2");
     detectors.append("3");
+	detectors.append("4");
+	detectors.append("5");
+	detectors.append("6");
+	detectors.append("7");
 
     _progressBarBlocks = new QProgressBar();
     _progressBarBlocks->setRange(0,100);
