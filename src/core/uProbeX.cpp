@@ -544,7 +544,10 @@ void uProbeX::make_spectra_window(QString path, data_struct::Params_Override* po
     RAW_Model* model = new RAW_Model();
     if (model->load(path))
     {
-        model->setParamOverride(-1, po);
+        if (po != nullptr)
+        {
+            model->setParamOverride(-1, po);
+        }
         make_MDA_Window(model);
     }
     else

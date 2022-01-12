@@ -620,7 +620,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
             if (fileName.length() > 0)
             {
                 data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
-                nfit_params->append_and_update(&fit_params);
+                nfit_params->append_and_update(fit_params);
                 param_overrides->elements_to_fit.clear();
                 for (const auto& itr : elements_to_fit)
                 {

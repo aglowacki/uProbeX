@@ -178,7 +178,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
                 po = &generic_po;
             }
             data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
-            nfit_params->append_and_update(&fit_params);
+            nfit_params->append_and_update(fit_params);
             po->elements_to_fit.clear();
             for (const auto& itr : elements_to_fit)
             {

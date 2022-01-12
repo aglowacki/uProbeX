@@ -309,7 +309,7 @@ void FitSpectraWidget::on_export_fit_paramters()
     data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
 	data_struct::Fit_Element_Map_Dict element_to_fit = _fit_elements_table_model->getElementsToFit();
 	
-    fit_params.append_and_update(&model_fit_params);
+    fit_params.append_and_update(model_fit_params);
     //fit_params.append_and_update(&element_fit_params);
 
     emit export_fit_paramters(fit_params, element_to_fit);
@@ -348,7 +348,6 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 					fit_params[STR_ENERGY_OFFSET].value,
 					fit_params[STR_ENERGY_SLOPE].value,
 					fit_params[STR_ENERGY_QUADRATIC].value,
-					0, //spectral binning
 					fit_params[STR_SNIP_WIDTH].value,
 					0, //spectra energy start range
 					_int_spec->size() - 1);
@@ -705,8 +704,8 @@ void FitSpectraWidget::Model_Spectra_Click()
         data_struct::Fit_Parameters fit_params;
         data_struct::Fit_Parameters model_fit_params = _fit_params_table_model->getFitParams();
         data_struct::Fit_Parameters element_fit_params = _fit_elements_table_model->getAsFitParams();
-        fit_params.append_and_update(&model_fit_params);
-        fit_params.append_and_update(&element_fit_params);
+        fit_params.append_and_update(model_fit_params);
+        fit_params.append_and_update(element_fit_params);
 
         fitting::models::Range energy_range;
         energy_range.min = 0;
