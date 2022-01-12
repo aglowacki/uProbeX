@@ -116,14 +116,39 @@ bool RAW_Model::load(QString filename)
 			_integrated_spectra_map[det] = data_struct::Spectra();
 			unordered_map<string, real_t> pv_map;
 			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
+			// add fit params
+			data_struct::Params_Override* po = nullptr;
+			if (_fit_params_override_dict.count(det) > 0)
+			{
+				po = _fit_params_override_dict.at(det);
+			}
+
+			if (po == nullptr)
+			{
+				po = new data_struct::Params_Override();
+				_fit_params_override_dict[det] = po;
+			}
+			
 			for (const auto& itr : pv_map)
 			{
 				data_struct::Extra_PV pv;
 				pv.name = itr.first;
-				pv.value = itr.second;
+				pv.value = std::to_string(itr.second);
 				pv.description = "";
 				pv.unit = "";					
 				_scan_info.extra_pvs.push_back(pv);
+				if (pv.name == "CAL_OFFSET")
+				{
+					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_OFFSET, itr.second));
+				}
+				if (pv.name == "CAL_SLOPE")
+				{
+					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_SLOPE, itr.second));
+				}
+				if (pv.name == "CAL_QUAD")
+				{
+					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_QUADRATIC, itr.second));
+				}
 			}
 		}
 	}
