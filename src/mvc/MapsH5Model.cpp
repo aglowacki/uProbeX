@@ -168,8 +168,6 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-
     if(block->spectra != nullptr)
     {
         _integrated_spectra.add( *(block->spectra) );
@@ -191,12 +189,19 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
                 data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
                 for(auto& itr2 : itr.second.fit_counts)
                 {
+					if (xrf_counts->count(itr2.first) < 1)
+					{
+						initialize_from_stream_block(block);
+						break;
+					}
                     if (std::isfinite(itr2.second))
                     {
+						std::lock_guard<std::mutex> lock(_mutex);
                         xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
                     }
                     else
                     {
+						std::lock_guard<std::mutex> lock(_mutex);
                         xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
                     }
                 }
