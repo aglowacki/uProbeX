@@ -9,6 +9,7 @@
 #include <data_struct/analysis_job.h>
 #include <core/process_whole.h>
 #include <QScrollArea>
+#include <QMessageBox>
 
 /*---------------------------------------------------------------------------*/
 
@@ -39,16 +40,6 @@ PerPixelFitWidget::~PerPixelFitWidget()
 
 void PerPixelFitWidget::createLayout()
 {
-
-    QStringList detectors;
-    detectors.append("0");
-    detectors.append("1");
-    detectors.append("2");
-    detectors.append("3");
-	detectors.append("4");
-	detectors.append("5");
-	detectors.append("6");
-	detectors.append("7");
 
     _progressBarBlocks = new QProgressBar();
     _progressBarBlocks->setRange(0,100);
@@ -81,21 +72,7 @@ void PerPixelFitWidget::createLayout()
     _save_csv = new QCheckBox("Save CVS of integrated fits");
     _perform_quantification = new QCheckBox("Perform Quantification (maps_standardinfo.txt)");
 
-    _detector_model = new QStandardItemModel();
-    //_detector_model->setItem(0, 0, new QStandardItem("Detector 0"));
-    // create check box item
-    for (int i = 0; i < 4; i++)
-    {
-        QStandardItem* item0 = new QStandardItem(true);
-        item0->setCheckable(true);
-        item0->setCheckState(Qt::Checked);
-        item0->setText("Detector " + QString::number(i));
-        item0->setData(i);
-        _detector_model->setItem(i, 0, item0);
-    }
-    // set model
-    _detector_list_view = new QListView();
-    _detector_list_view->setModel(_detector_model);
+    _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
 
     v_save_layout->addWidget(_save_avg);
     v_save_layout->addWidget(_save_v9);
@@ -128,7 +105,7 @@ void PerPixelFitWidget::createLayout()
     hbox_progresss_files->addWidget(_progressBarFiles);
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(_detector_list_view);
+    layout->addWidget(_le_detectors);
     layout->addItem(proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
@@ -174,15 +151,54 @@ void PerPixelFitWidget::runProcessing()
         analysis_job.fitting_routines.push_back(data_struct::Fitting_Routines::GAUSS_MATRIX);
     }
 
-    for (int i = 0; i < _detector_model->rowCount(); i++)
+    QString dstring = _le_detectors->text();
+    if (dstring.length() > 0)
     {
-        QStandardItem* item = _detector_model->item(i, 0);
-        if (item->checkState() == Qt::CheckState::Checked)
+        if (dstring.count(",") > 0)
         {
-            analysis_job.detector_num_arr.push_back(item->data().toInt());
+            QStringList dlist = dstring.split(",");
+            foreach(QString str, dlist)
+            {
+                analysis_job.detector_num_arr.push_back(str.toInt());
+            }
+        }
+        else if (dstring.count(":") > 0)
+        {
+            QStringList dlist = dstring.split(":");
+            try
+            {
+                int low = dlist[0].toInt();
+                int high = dlist[1].toInt();
+                for (int i = low; i < high + 1; i++)
+                {
+                    analysis_job.detector_num_arr.push_back(i);
+                }
+            }
+            catch (...)
+            {
+                QMessageBox::warning(this, "Bad detectors", "Could not parse detectors. For range use 'num:max' ");
+                return;
+            }
+        }
+        else
+        {
+            try
+            {
+                analysis_job.detector_num_arr.push_back(dstring.toInt());
+            }
+            catch (...)
+            {
+                QMessageBox::warning(this, "Bad detectors", "Could not parse detectors. Please enter number for single detector, or use ',' for list of detectors. ");
+                return;
+            }
         }
     }
-
+    else
+    {
+        QMessageBox::warning(this, "No detectors listed", "Please enter detctors ',' separated");
+        return;
+    }
+    
     QModelIndex parent = QModelIndex();
     for (int r = 0; r < _file_list_model->rowCount(parent); ++r)
     {
