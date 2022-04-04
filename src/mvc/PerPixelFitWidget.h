@@ -22,6 +22,7 @@
 #include <QStandardItemModel>
 #include <QCheckBox>
 #include <QEventLoop>
+#include <QLineEdit>
 #include <thread>
 
 /*---------------------------------------------------------------------------*/
@@ -99,10 +100,8 @@ protected:
 
    size_t _cur_block;
    
-   QListView* _detector_list_view;
-
-   QStandardItemModel* _detector_model;
-
+   QLineEdit* _le_detectors;
+   
    size_t _total_blocks;
 };
 
