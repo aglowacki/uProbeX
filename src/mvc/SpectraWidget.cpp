@@ -66,9 +66,11 @@ void SpectraWidget::createLayout()
 
     _axisX = new QtCharts::QValueAxis();
     _axisX->setTitleText("Energy (keV)");
-    _axisX->setLabelFormat("%1.0f");
-    //_axisX->setTickCount(series->count());
-    //_axisX->setRange(0, 2048);
+    _axisX->setLabelFormat("%.2f");
+    _axisX->setTickAnchor(0.0);
+    _axisX->setTickInterval(0.5);
+    _axisX->setTickType(QtCharts::QValueAxis::TicksDynamic);
+
     _axisX->setTickCount(20);
 
     _top_axis_elements = new QtCharts::QCategoryAxis();
