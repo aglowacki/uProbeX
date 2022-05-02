@@ -209,11 +209,11 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 if (h5Model != nullptr)
                 {
                     int idx = -1;
-                    for (byte b = '0'; b < '7'; b++)
+                    for (unsigned char b = '0'; b < '7'; b++)
                     {
                         if (name.endsWith(b))
                         {
-                            idx = (int)b;
+                            idx = b - '0';
                             break;
                         }
                     }
