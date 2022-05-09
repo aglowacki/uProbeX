@@ -385,7 +385,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 {
 
     std::string dataset_dir = _dir->absolutePath().toStdString() + "/";
-    for(size_t detector_num = 0; detector_num <= 3; detector_num++)
+    for(size_t detector_num = 0; detector_num <= 7; detector_num++)
     {
         data_struct::Params_Override params_override(dataset_dir, detector_num);
         if( io::load_override_params(dataset_dir, detector_num, &params_override) )
