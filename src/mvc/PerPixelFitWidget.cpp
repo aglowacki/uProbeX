@@ -135,7 +135,7 @@ void PerPixelFitWidget::runProcessing()
 {
     _btn_run->setEnabled(false);
     //run in thread
-    data_struct::Analysis_Job analysis_job;
+    data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
     
     if (_proc_roi->isChecked())
@@ -261,7 +261,7 @@ void PerPixelFitWidget::runProcessing()
     }
    
 
-    interate_datasets_and_update(analysis_job);
+    iterate_datasets_and_update(analysis_job);
 
     _btn_run->setEnabled(true);
     emit processed_list_update();

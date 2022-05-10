@@ -60,7 +60,7 @@ QMap<QString, double> CountsLookupTransformer::getAllCoef()
 
 /*---------------------------------------------------------------------------*/
 
-void CountsLookupTransformer::setCounts(const data_struct::ArrayXXr& counts)
+void CountsLookupTransformer::setCounts(const data_struct::ArrayXXr<float>& counts)
 {
     _counts_arr = counts;
     _min_counts = _counts_arr.minCoeff();

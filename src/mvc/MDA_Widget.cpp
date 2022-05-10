@@ -97,7 +97,7 @@ void MDA_Widget::model_updated()
     Eigen::Index rows, cols;
 
     _model->getDims(rows, cols);
-    data_struct::Scan_Info* scan_info = _model->getScanInfo();
+    data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
 
     _scaler_widget->setModel(_model);
     
@@ -141,15 +141,15 @@ void MDA_Widget::model_updated()
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
+void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit)
 {
 
-    data_struct::Params_Override generic_po;
+    data_struct::Params_Override<double> generic_po;
     unsigned int det = _cb_detector->currentText().toUInt();
-    data_struct::Params_Override default_po;
+    data_struct::Params_Override<double> default_po;
     if (_model != nullptr)
     {
-        data_struct::Params_Override* po = _model->getParamOverrideOrAvg(det);
+        data_struct::Params_Override<double>* po = _model->getParamOverrideOrAvg(det);
         
         QString save_path = _model->getPath();
         QString ext = "TXT";
@@ -177,7 +177,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
             {
                 po = &generic_po;
             }
-            data_struct::Fit_Parameters* nfit_params = &(po->fit_params);
+            data_struct::Fit_Parameters<double>* nfit_params = &(po->fit_params);
             nfit_params->append_and_update(fit_params);
             po->elements_to_fit.clear();
             for (const auto& itr : elements_to_fit)
@@ -199,7 +199,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters fit_params, da
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::on_export_csv(QPixmap png, data_struct::ArrayXr* ev, data_struct::ArrayXr* int_spec, data_struct::ArrayXr* back_spec, data_struct::ArrayXr* fit_spec, unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
+void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec, ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
 {
 
     //QString path = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");
@@ -232,8 +232,8 @@ void MDA_Widget::on_export_csv(QPixmap png, data_struct::ArrayXr* ev, data_struc
     }
 
 
-    //bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
-    if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
+    //bool save_fit_and_int_spectra(const std::string fullpath, const ArrayDr* energy, const ArrayDr* spectra, const ArrayDr* spectra_model, const ArrayDr* background, const unordered_map<string, ArrayDr*>* fit_int_def_spec)
+    if (false == io::file::csv::save_fit_and_int_spectra_labeled(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
     {
         mesg.append("Failed to save CSV of spectra: ");
         mesg.append(save_csv);
@@ -261,7 +261,7 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     {
         detector = det.toUInt();
     }
-    data_struct::Params_Override* po = _model->getParamOverrideOrAvg(detector);
+    data_struct::Params_Override<double>* po = _model->getParamOverrideOrAvg(detector);
     if (po != nullptr)
     {
 		_spectra_widget->setParamOverride(po);

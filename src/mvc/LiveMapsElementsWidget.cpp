@@ -143,7 +143,7 @@ void LiveMapsElementsWidget::updateIp()
 
 /*---------------------------------------------------------------------------*/
 
-void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block *new_packet)
+void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* new_packet)
 {
 	if (new_packet == nullptr)
 	{

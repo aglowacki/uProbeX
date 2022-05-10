@@ -41,6 +41,7 @@ const string STR_ROI_V9 = "XRF_roi";
 const string STR_ROI_PLUS_V9 = "XRF_roi_plus";
 const string STR_FITS_V9 = "XRF_fits";
 
+template <typename T_real>
 struct Calibration_curve
 {
     Calibration_curve()
@@ -54,8 +55,10 @@ struct Calibration_curve
 
     string scaler_name;
     //            el_name   value
-    unordered_map<string, real_t> calib_curve;
+    unordered_map<string, T_real> calib_curve;
 };
+
+using ArrayDr = data_struct::ArrayTr<double>;
 
 /**
  * @brief Model for Maps analyzed hdf5 files
@@ -83,23 +86,23 @@ public:
 
     std::vector<std::string> count_names();
 
-    std::unordered_map<std::string, data_struct::ArrayXXr>* getScalers() { return &_scalers; }
+    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* getScalers() { return &_scalers; }
 
     bool is_fully_loaded() {return _is_fully_loaded;}
 
     //data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
-    void getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict& out_counts);
+    void getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts);
 
     //const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
-    void getIntegratedSpectra(data_struct::Spectra& out_spectra);
+    void getIntegratedSpectra(data_struct::Spectra<double>& out_spectra);
 
     QString getFilePath() { return _filepath; }
 
     QString getDatasetName() { return _datset_name; }
 
-    void initialize_from_stream_block(data_struct::Stream_Block* block);
+    void initialize_from_stream_block(data_struct::Stream_Block<float>* block);
 
-    void update_from_stream_block(data_struct::Stream_Block* block);
+    void update_from_stream_block(data_struct::Stream_Block<float>* block);
 
     bool is_scalers_loaded() { return _loaded_scalers; }
 
@@ -113,17 +116,17 @@ public:
 
     std::vector<std::string> getAnalyzedTypes();
 
-    void set_fit_parameters_override(data_struct::Params_Override* override);
+    void set_fit_parameters_override(data_struct::Params_Override<double>* override);
 
-    Calibration_curve* get_calibration_curve(string analysis_type, string scaler_name);
+    Calibration_curve<double>* get_calibration_curve(string analysis_type, string scaler_name);
 
-    data_struct::Params_Override* getParamOverride(){return _params_override;}
+    data_struct::Params_Override<double>* getParamOverride(){return _params_override;}
 
-    bool load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
+    bool load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra<double>&spec);
 
-	std::unordered_map<std::string, data_struct::ArrayXr*> _fit_int_spec_dict;
+	std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
 
-    const data_struct::Scan_Info* getScanInfo() { return &_scan_info; }
+    const data_struct::Scan_Info<double>* getScanInfo() { return &_scan_info; }
 
 signals:
     void model_data_updated();
@@ -135,7 +138,7 @@ protected:
     //Version 9
     bool _load_version_9(hid_t maps_grp_id);
     //                                                           scaler_name       
-    bool _load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant);
+    bool _load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant);
 
     bool _load_quantification_9(hid_t maps_grp_id);
 
@@ -149,13 +152,13 @@ protected:
 
     bool _load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_9(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
+    bool _load_roi_9(const std::vector<QPoint> &roi_list, data_struct::Spectra<double> &spec);
 
     //Version 10
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
 
-    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant);
+    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant);
 
     bool _load_quantification_10(hid_t maps_grp_id);
 
@@ -169,17 +172,17 @@ protected:
 
     bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_10(const std::vector<QPoint> &roi_list, data_struct::Spectra &spec);
+    bool _load_roi_10(const std::vector<QPoint> &roi_list, data_struct::Spectra<double> &spec);
 
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
-    std::unordered_map<std::string, data_struct::Fit_Count_Dict*> _analyzed_counts;
+    std::unordered_map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
 
-    data_struct::Spectra _integrated_spectra;
+    data_struct::Spectra<double> _integrated_spectra;
 
-    data_struct::Params_Override* _params_override;
+    data_struct::Params_Override<double>* _params_override;
 
-    std::unordered_map<std::string, data_struct::ArrayXXr> _scalers;
+    std::unordered_map<std::string, data_struct::ArrayXXr<float>> _scalers;
 
 private:
     std::mutex _mutex;
@@ -188,13 +191,13 @@ private:
 
     QString _datset_name;
 
-    std::unordered_map<std::string, Calibration_curve > _quant_map_matrix;
+    std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 
-    std::unordered_map<std::string, Calibration_curve > _quant_map_nnls;
+    std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
 
-    std::unordered_map<std::string, Calibration_curve > _quant_map_roi;
+    std::unordered_map<std::string, Calibration_curve<double> > _quant_map_roi;
 
-    data_struct::Scan_Info _scan_info;
+    data_struct::Scan_Info<double> _scan_info;
 
     float _version;
 

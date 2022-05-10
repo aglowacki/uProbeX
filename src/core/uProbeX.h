@@ -123,7 +123,7 @@ private slots:
 
    void open_spectra_and_override_file();
 
-   void make_spectra_window(QString path, data_struct::Params_Override* po);
+   void make_spectra_window(QString path, data_struct::Params_Override<double>* po);
    
    void open_VLM_File();
 

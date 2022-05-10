@@ -30,7 +30,7 @@ public:
 
     ~ContrastDialog();
     
-    void set_array(const data_struct::ArrayXXr* arr);
+    void set_array(const data_struct::ArrayXXr<float>* arr);
 
 signals:
 	void on_min_max_update(float min, float max);
@@ -53,7 +53,7 @@ private:
 
 	QPushButton* _btn_cancel;
 
-    const data_struct::ArrayXXr* _arr;
+    const data_struct::ArrayXXr<float>* _arr;
 
    };
 

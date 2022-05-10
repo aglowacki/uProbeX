@@ -71,11 +71,11 @@ public:
 
     void unload_VLM_Model(QString name);
 
-    data_struct::Fit_Parameters* getFitParameters(int idx);
+    data_struct::Fit_Parameters<double>* getFitParameters(int idx);
 
-    data_struct::Fit_Element_Map_Dict *getElementToFit(int idx);
+    data_struct::Fit_Element_Map_Dict<double>* getElementToFit(int idx);
 
-    data_struct::Params_Override* getParamOverride(int idx);
+    data_struct::Params_Override<double>* getParamOverride(int idx);
 
     const map<QString, QFileInfo>& get_hdf5_file_list() { return _h5_fileinfo_list; }
 
@@ -123,7 +123,7 @@ protected:
     std::map<QString, RAW_Model*> _raw_models;
     std::map<QString, VLM_Model*> _vlm_models;
 
-    std::map<int, data_struct::Params_Override> _fit_params_override_dict;
+    std::map<int, data_struct::Params_Override<double>> _fit_params_override_dict;
 
 private:
 

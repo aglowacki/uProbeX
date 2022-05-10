@@ -62,7 +62,7 @@ public slots:
     void run() override
     {
         _running = true;
-        data_struct::Stream_Block *new_packet;
+        data_struct::Stream_Block<float> *new_packet;
         zmq::message_t token, message;
         while(_running)
         {
@@ -98,7 +98,7 @@ public slots:
     void stop() {_running = false;}
 
 signals:
-    void newData(data_struct::Stream_Block *new_packet);
+    void newData(data_struct::Stream_Block<float> *new_packet);
 
 protected:
 
@@ -108,7 +108,7 @@ protected:
 
     zmq::socket_t *_zmq_socket;
 
-    io::net::Basic_Serializer _serializer;
+    io::net::Basic_Serializer<float> _serializer;
 
 };
 

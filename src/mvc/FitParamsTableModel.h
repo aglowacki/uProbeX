@@ -49,15 +49,15 @@ public:
 
    void setOptimizerSupportsMinMax(bool val);
 
-   void setFitParams(data_struct::Fit_Parameters fit_params);
+   void setFitParams(data_struct::Fit_Parameters<double> fit_params);
 
-   void updateFitParams(data_struct::Fit_Parameters* fit_params);
+   void updateFitParams(data_struct::Fit_Parameters<double>* fit_params);
 
-   void only_keep_these_keys(data_struct::Fit_Parameters fit_params);
+   void only_keep_these_keys(data_struct::Fit_Parameters<double> fit_params);
 
-   data_struct::Fit_Parameters getFitParams() { return _fit_parameters; }
+   data_struct::Fit_Parameters<double> getFitParams() { return _fit_parameters; }
 
-   float getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
+   double getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
 
 
    /**
@@ -138,7 +138,7 @@ private:
     */
    QString m_headers[NUM_PROPS];
 
-   data_struct::Fit_Parameters _fit_parameters;
+   data_struct::Fit_Parameters<double> _fit_parameters;
 
    std::vector<std::string> _row_indicies;
 

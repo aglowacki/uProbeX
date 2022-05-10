@@ -45,7 +45,7 @@ bool RAW_Model::load(QString filename)
     {
 		QFileInfo finfo = QFileInfo(filename);
         _filepath = filename;
-		io::file::MDA_IO mda_io;
+		io::file::MDA_IO<double> mda_io;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
         logI<<" RAW_Model loading "<< _filepath.toStdString() << "\n";
@@ -73,7 +73,7 @@ bool RAW_Model::load(QString filename)
 				// copy from mda_io to this model
 				for (int i = 0; i < mda_io.get_num_integreated_spectra(); i++)
 				{
-					_integrated_spectra_map[i] = (data_struct::Spectra)*(mda_io.get_integrated_spectra(i));
+					_integrated_spectra_map[i] = (data_struct::Spectra<double>)*(mda_io.get_integrated_spectra(i));
 				}
 				mda_io.unload_int_spectra();
 			}
@@ -113,11 +113,11 @@ bool RAW_Model::load(QString filename)
 		else if (finfo.suffix().startsWith("mca"))
 		{
 			int det = filename[filename.length() - 1].digitValue();
-			_integrated_spectra_map[det] = data_struct::Spectra();
-			unordered_map<string, real_t> pv_map;
+			_integrated_spectra_map[det] = data_struct::Spectra<double>();
+			unordered_map<string, double> pv_map;
 			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
 			// add fit params
-			data_struct::Params_Override* po = nullptr;
+			data_struct::Params_Override<double>* po = nullptr;
 			if (_fit_params_override_dict.count(det) > 0)
 			{
 				po = _fit_params_override_dict.at(det);
@@ -125,7 +125,7 @@ bool RAW_Model::load(QString filename)
 
 			if (po == nullptr)
 			{
-				po = new data_struct::Params_Override();
+				po = new data_struct::Params_Override<double>();
 				_fit_params_override_dict[det] = po;
 			}
 			
@@ -139,15 +139,15 @@ bool RAW_Model::load(QString filename)
 				_scan_info.extra_pvs.push_back(pv);
 				if (pv.name == "CAL_OFFSET")
 				{
-					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_OFFSET, itr.second));
+					po->fit_params.add_parameter(data_struct::Fit_Param<double>(STR_ENERGY_OFFSET, itr.second));
 				}
 				if (pv.name == "CAL_SLOPE")
 				{
-					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_SLOPE, itr.second));
+					po->fit_params.add_parameter(data_struct::Fit_Param<double>(STR_ENERGY_SLOPE, itr.second));
 				}
 				if (pv.name == "CAL_QUAD")
 				{
-					po->fit_params.add_parameter(data_struct::Fit_Param(STR_ENERGY_QUADRATIC, itr.second));
+					po->fit_params.add_parameter(data_struct::Fit_Param<double>(STR_ENERGY_QUADRATIC, itr.second));
 				}
 			}
 		}
@@ -166,7 +166,7 @@ bool RAW_Model::load(QString filename)
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Params_Override* RAW_Model::getParamOverride(int idx)
+data_struct::Params_Override<double>* RAW_Model::getParamOverride(int idx)
 {
     if (_fit_params_override_dict.count(idx) > 0)
     {
@@ -174,14 +174,14 @@ data_struct::Params_Override* RAW_Model::getParamOverride(int idx)
     }
 	else
 	{
-		_fit_params_override_dict[idx] = new data_struct::Params_Override();
+		_fit_params_override_dict[idx] = new data_struct::Params_Override<double>();
 		return _fit_params_override_dict.at(idx);
 	}
 }
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Params_Override* RAW_Model::getParamOverrideOrAvg(int idx)
+data_struct::Params_Override<double>* RAW_Model::getParamOverrideOrAvg(int idx)
 {
 	if (_fit_params_override_dict.count(idx) > 0)
 	{
@@ -222,7 +222,7 @@ std::vector<unsigned int> RAW_Model::getDetectorKeys()
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Spectra* RAW_Model::getIntegratedSpectra(unsigned int det) 
+data_struct::Spectra<double>* RAW_Model::getIntegratedSpectra(unsigned int det)
 {
 	if (_integrated_spectra_map.count(det) > 0)
 	{
@@ -233,7 +233,7 @@ data_struct::Spectra* RAW_Model::getIntegratedSpectra(unsigned int det)
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Scan_Info* RAW_Model::getScanInfo()
+data_struct::Scan_Info<double>* RAW_Model::getScanInfo()
 {
 	return &_scan_info;
 }

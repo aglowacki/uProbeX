@@ -64,7 +64,7 @@ public:
     */
    virtual bool setVariable(QString name, double val);
 
-   void setCounts(const data_struct::ArrayXXr &counts);
+   void setCounts(const data_struct::ArrayXXr<float> &counts);
 
    /**
     * @brief transformCommand
@@ -81,7 +81,7 @@ public:
                                  double *outY,
                                  double *outZ);
 
-   const data_struct::ArrayXXr* get_count_array() { return &_counts_arr; }
+   const data_struct::ArrayXXr<float>* get_count_array() { return &_counts_arr; }
 
 protected:
 
@@ -95,7 +95,7 @@ protected:
 
    int _cols;
 
-   data_struct::ArrayXXr _counts_arr;
+   data_struct::ArrayXXr<float> _counts_arr;
 };
 
 }
