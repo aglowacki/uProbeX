@@ -219,9 +219,9 @@ void PerPixelFitWidget::runProcessing()
     }
     _progressBarFiles->setRange(0, total_file_range);
 
-    if (io::init_analysis_job_detectors(&analysis_job))
+    if (io::file::init_analysis_job_detectors(&analysis_job))
     {
-        io::populate_netcdf_hdf5_files(_directory);
+        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
         Callback_Func_Status_Def cb_func = std::bind(&PerPixelFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&PerPixelFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         if (_perform_quantification->isChecked())

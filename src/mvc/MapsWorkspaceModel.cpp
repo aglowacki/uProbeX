@@ -90,7 +90,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
 
             _is_fit_params_loaded = _load_fit_params();
-            io::populate_netcdf_hdf5_files(filepath.toStdString());
+            io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
 
             while (job_queue.size() > 0)
             {
@@ -388,14 +388,14 @@ bool MapsWorkspaceModel::_load_fit_params()
     for(size_t detector_num = 0; detector_num <= 7; detector_num++)
     {
         data_struct::Params_Override<double> params_override(dataset_dir, detector_num);
-        if( io::load_override_params(dataset_dir, detector_num, &params_override) )
+        if( io::file::load_override_params(dataset_dir, detector_num, &params_override) )
         {
             _fit_params_override_dict[detector_num] = params_override;
             emit newFitParamsFileLoaded(detector_num);
         }
     }
     data_struct::Params_Override<double> params(dataset_dir, -1);
-    if( io::load_override_params(dataset_dir, -1, &params) )
+    if( io::file::load_override_params(dataset_dir, -1, &params) )
     {
         _fit_params_override_dict[-1] = params;
         emit newFitParamsFileLoaded(-1);

@@ -78,13 +78,13 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     // Update preferences; also creates solver
     processPreferencesUpdate();
 
-    if (false == io::load_scalers_lookup(scaler_lookup_yaml))
+    if (false == io::file::load_scalers_lookup(scaler_lookup_yaml))
     {
         logE << " Could not load " << scaler_lookup_yaml << ". Won't be able to translate from PV to Label for scalers!\n";
     }
 
 
-    if (false == io::load_element_info<double>(element_henke_filename, element_csv_filename ) )
+    if (false == io::file::load_element_info<double>(element_henke_filename, element_csv_filename ) )
     {
         QString msg = QString("Error loading ");
         msg += QString(element_henke_filename.c_str());
@@ -527,7 +527,7 @@ void uProbeX::open_spectra_and_override_file()
     if (false == (fileName.isNull() || fileName.isEmpty()))
     {
         po = new data_struct::Params_Override<double>();
-        if (false == io::load_override_params(po_fileName.toStdString(), -1, po, false))
+        if (false == io::file::load_override_params(po_fileName.toStdString(), -1, po, false))
         {
             delete po;
             po = nullptr;
