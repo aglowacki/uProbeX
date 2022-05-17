@@ -53,6 +53,16 @@ project(uProbeX)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt5" "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../XRF-Maps/build )
 
+option(BUILD_WITH_TIRPC "Build tripc library for libxrpc (RedHat 8)" OFF)
+
+IF(UNIX)
+  IF(BUILD_WITH_TIRPC)
+    set(GCC_INCLUDE_DIR "/usr/include/tirpc/" CACHE PATH "include folder for xrpc (red hat)") 
+    include_directories(${GCC_INCLUDE_DIR})
+  ENDIF()
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
+ENDIF()
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -71,7 +81,7 @@ find_package(Threads)
 find_package(hdf5 CONFIG REQUIRED)
 find_package(netCDF CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(ZeroMQ REQUIRED libzmq-static)
+find_package(ZeroMQ CONFIG REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 
 if (libxrf_fit_FOUND)
@@ -207,7 +217,7 @@ ELSEIF (UNIX)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
 
     target_link_libraries (uProbeX PRIVATE
-                        libzmq-static
+                        libzmq
                         yaml-cpp
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
