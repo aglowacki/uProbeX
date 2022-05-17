@@ -172,7 +172,7 @@ void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 {
     if(idx == -1) //avg fit params
     {
-        data_struct::Fit_Parameters* fit_params = _model->getFitParameters(idx);
+        data_struct::Fit_Parameters<double>* fit_params = _model->getFitParameters(idx);
         if(fit_params != nullptr)
         {
             _fit_params_table_model->setFitParams(*fit_params);
@@ -217,7 +217,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                             break;
                         }
                     }
-                    data_struct::Params_Override* param_override = _model->getParamOverride(idx);
+                    data_struct::Params_Override<double>* param_override = _model->getParamOverride(idx);
                     //if we can't find override for specific detector, try to use the avg one.
                     if (param_override == nullptr)
                     {

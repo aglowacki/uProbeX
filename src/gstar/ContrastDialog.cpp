@@ -46,14 +46,14 @@ ContrastDialog::~ContrastDialog()
 
 }
 
-void ContrastDialog::set_array(const data_struct::ArrayXXr* arr)
+void ContrastDialog::set_array(const data_struct::ArrayXXr<float>* arr)
 {
 	if (arr != nullptr)
 	{
 		_arr = arr;
 		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
 
-		data_struct::ArrayXr pts;
+		data_struct::ArrayTr<float> pts;
 		int w = arr->rows();
 		int h = arr->cols();
 		pts.resize(w * h);

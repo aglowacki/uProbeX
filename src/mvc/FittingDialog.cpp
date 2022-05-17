@@ -235,7 +235,7 @@ void FittingDialog::_createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void FittingDialog::updateFitParams(data_struct::Fit_Parameters out_fit_params, data_struct::Fit_Parameters element_fit_params)
+void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_params, data_struct::Fit_Parameters<double> element_fit_params)
 {
     _out_fit_params = out_fit_params;
     _element_fit_params = element_fit_params;
@@ -276,7 +276,7 @@ void  FittingDialog::_updateGUIOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, real_t> opt = _optimizer->get_options();
+        unordered_map<string, double> opt = _optimizer->get_options();
         if (opt.count(STR_OPT_FTOL) > 0)
         {
             _opt_ftol->setValue(opt.at(STR_OPT_FTOL));
@@ -318,7 +318,7 @@ void  FittingDialog::_updateOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, real_t> opt;
+        unordered_map<string, double> opt;
         opt[STR_OPT_FTOL] = _opt_ftol->value();
         opt[STR_OPT_XTOL] = _opt_xtol->value();
         opt[STR_OPT_GTOL] = _opt_gtol->value();
@@ -333,7 +333,7 @@ void  FittingDialog::_updateOptimizerOptions()
 
 /*---------------------------------------------------------------------------*/
 
-void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy)
+void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr energy)
 {
     _int_spec = spectra;
     _ev = energy;
@@ -348,20 +348,20 @@ void FittingDialog::setSpectra(data_struct::Spectra* spectra, data_struct::Array
 
 /*---------------------------------------------------------------------------*/
 
-void FittingDialog::setFitSpectra(data_struct::Spectra* spectra)
+void FittingDialog::setFitSpectra(data_struct::Spectra<double>* spectra)
 {
     _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, spectra, &_ev);
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit)
+void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
     _elements_to_fit = elements_to_fit;
     if (_elements_to_fit != nullptr)
     {
-        unordered_map<string, data_struct::ArrayXr> labeled_spectras;
-        data_struct::Spectra fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        unordered_map<string, ArrayDr> labeled_spectras;
+        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         /*
         if (fit_spec.size() == _spectra_background.size())
         {
@@ -382,7 +382,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict* elements
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Spectra FittingDialog::get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
+data_struct::Spectra<double> FittingDialog::get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras)
 {
 	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
 }
@@ -465,15 +465,15 @@ void FittingDialog::runProcessing()
             return;
         }
         /*
-        //std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &_model, _int_spec, _elements_to_fit, &_cb_func);
-        std::future<data_struct::Fit_Parameters> ret = global_threadpool.enqueue([&](){
+        //std::future<data_struct::Fit_Parameters<double>> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &_model, _int_spec, _elements_to_fit, &_cb_func);
+        std::future<data_struct::Fit_Parameters<double>> ret = global_threadpool.enqueue([&](){
             try
             {
                 return _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, &cb_func);
             }
             catch (int e)
             {
-                data_struct::Fit_Parameters f;
+                data_struct::Fit_Parameters<double> f;
                 return f;
             }
         });
@@ -501,8 +501,8 @@ void FittingDialog::runProcessing()
 
 		_progressBarBlocks->setValue(_total_itr);
 
-        unordered_map<string, data_struct::ArrayXr> labeled_spectras;
-        data_struct::Spectra fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        unordered_map<string, ArrayDr> labeled_spectras;
+        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         /*
         if (fit_spec.size() == _spectra_background.size())
         {

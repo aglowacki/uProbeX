@@ -70,13 +70,13 @@ void FitElementsTableModel::update_counts_log10(bool is_log10)
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Fit_Element_Map_Dict FitElementsTableModel::getElementsToFit()
+data_struct::Fit_Element_Map_Dict<double> FitElementsTableModel::getElementsToFit()
 {
-	data_struct::Fit_Element_Map_Dict elements_to_fit;
+	data_struct::Fit_Element_Map_Dict<double> elements_to_fit;
 	for (auto& itr : _nodes)
 	{
 		TreeItem* node = itr.second;
-		data_struct::Fit_Element_Map *element = node->element_data;
+		data_struct::Fit_Element_Map<double>*element = node->element_data;
 		elements_to_fit[element->full_name()] = element;
 	}
 	return elements_to_fit;
@@ -84,27 +84,27 @@ data_struct::Fit_Element_Map_Dict FitElementsTableModel::getElementsToFit()
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Fit_Parameters FitElementsTableModel::getAsFitParams()
+data_struct::Fit_Parameters<double> FitElementsTableModel::getAsFitParams()
 {
-    data_struct::Fit_Parameters fit_params;
+    data_struct::Fit_Parameters<double> fit_params;
     for(auto& itr : _nodes)
     {
         TreeItem* node = itr.second;
-        data_struct::Fit_Element_Map *element = node->element_data;
-        fit_params.add_parameter(data_struct::Fit_Param(element->full_name(), node->itemData[1].toFloat(), data_struct::E_Bound_Type::FIT));
+        data_struct::Fit_Element_Map<double>* element = node->element_data;
+        fit_params.add_parameter(data_struct::Fit_Param<double>(element->full_name(), node->itemData[1].toDouble(), data_struct::E_Bound_Type::FIT));
     }
     return fit_params;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters *fit_params)
+void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters<double>*fit_params)
 {
 
     for(auto& itr : _nodes)
     {
         TreeItem* node = itr.second;
-        data_struct::Fit_Element_Map *element = node->element_data;
+        data_struct::Fit_Element_Map<double>* element = node->element_data;
         if(fit_params->contains(element->full_name()))
         {
             node->itemData[1] = QVariant(fit_params->at(element->full_name()).value);
@@ -127,7 +127,7 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict * elements_to_fit)
+void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
     if(elements_to_fit != nullptr)
     {
@@ -139,14 +139,14 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict 
         _nodes.clear();
         for(auto& itr : *elements_to_fit)
         {
-            data_struct::Fit_Element_Map* element = itr.second;
-            if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
+            data_struct::Fit_Element_Map<double>* element = itr.second;
+            if(data_struct::Element_Info_Map<double>::inst()->contains(element->symbol()))
             {
                 int idx = element->Z();
                 const std::string el_name = element->full_name();
                 int found_L = el_name.find("_L");
                 int found_M = el_name.find("_M");
-                const data_struct::Element_Info* pileup = element->pileup_element();
+                const data_struct::Element_Info<double>* pileup = element->pileup_element();
                 if(found_L > 0)
                 {
                     idx += 1000;
@@ -193,15 +193,15 @@ QString FitElementsTableModel::element_at_row(int row)
 
 /*---------------------------------------------------------------------------*/
 
-void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map* element)
+void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* element)
 {
-    if(data_struct::Element_Info_Map::inst()->contains(element->symbol()))
+    if(data_struct::Element_Info_Map<double>::inst()->contains(element->symbol()))
     {
         int idx = element->Z();
         const std::string el_name = element->full_name();
         int found_L = el_name.find("_L");
         int found_M = el_name.find("_M");
-        const data_struct::Element_Info* pileup = element->pileup_element();
+        const data_struct::Element_Info<double>* pileup = element->pileup_element();
         if(found_L > 0)
         {
             idx += 1000;
@@ -444,7 +444,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Fit_Element_Map* FitElementsTableModel::getElementByIndex(QModelIndex index) const
+data_struct::Fit_Element_Map<double>* FitElementsTableModel::getElementByIndex(QModelIndex index) const
 {
     if (index.isValid())
     {
@@ -532,8 +532,8 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
                     {
                         if (node->parentItem->element_data != nullptr)
                         {
-                            node->parentItem->element_data->set_custom_multiply_ratio(index.row(), value.toFloat());
-                            node->parentItem->element_data->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map::inst()->get_element(_detector_element));
+                            node->parentItem->element_data->set_custom_multiply_ratio(index.row(), value.toDouble());
+                            node->parentItem->element_data->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
                             auto ratio_vec = node->parentItem->element_data->energy_ratios();
                             if (index.row() > 0 && index.row() < ratio_vec.size())
                             {

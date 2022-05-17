@@ -78,13 +78,13 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     // Update preferences; also creates solver
     processPreferencesUpdate();
 
-    if (false == io::load_scalers_lookup(scaler_lookup_yaml))
+    if (false == io::file::load_scalers_lookup(scaler_lookup_yaml))
     {
         logE << " Could not load " << scaler_lookup_yaml << ". Won't be able to translate from PV to Label for scalers!\n";
     }
 
 
-    if (false == io::load_element_info(element_henke_filename, element_csv_filename ) )
+    if (false == io::file::load_element_info<double>(element_henke_filename, element_csv_filename ) )
     {
         QString msg = QString("Error loading ");
         msg += QString(element_henke_filename.c_str());
@@ -93,7 +93,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
         QMessageBox::critical(this, "Warning", msg);
     }
-
 
     // Creat MDI window
     m_mdiArea = new QMdiArea();
@@ -524,11 +523,11 @@ void uProbeX::open_spectra_and_override_file()
         "Override Params", ".",
         "TXT (*.txt *.txt0 *.txt1 *.txt2 *.txt3)");
 
-    data_struct::Params_Override* po = nullptr;
+    data_struct::Params_Override<double>* po = nullptr;
     if (false == (fileName.isNull() || fileName.isEmpty()))
     {
-        po = new data_struct::Params_Override();
-        if (false == io::load_override_params(po_fileName.toStdString(), -1, po, false))
+        po = new data_struct::Params_Override<double>();
+        if (false == io::file::load_override_params(po_fileName.toStdString(), -1, po, false))
         {
             delete po;
             po = nullptr;
@@ -539,7 +538,7 @@ void uProbeX::open_spectra_and_override_file()
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::make_spectra_window(QString path, data_struct::Params_Override* po)
+void uProbeX::make_spectra_window(QString path, data_struct::Params_Override<double>* po)
 {
     RAW_Model* model = new RAW_Model();
     if (model->load(path))

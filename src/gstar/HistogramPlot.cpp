@@ -140,7 +140,7 @@ qreal HistogramPlot::ymap(const qreal& value)
 
 /*---------------------------------------------------------------------------*/
 
-void HistogramPlot::updatePoints(const data_struct::ArrayXr& pts)
+void HistogramPlot::updatePoints(const data_struct::ArrayTr<float>& pts)
 {
 
     _minCoef = pts.minCoeff();
@@ -149,7 +149,7 @@ void HistogramPlot::updatePoints(const data_struct::ArrayXr& pts)
     _min_line = _minCoef;
     _max_line = _maxCoef;
 
-    _bin_width = (_maxCoef - _minCoef) / (real_t)(_n_bins-1);
+    _bin_width = (_maxCoef - _minCoef) / (_n_bins-1);
     for (int i = 0; i < pts.size(); i++)
     {
         int bin = std::floor( (pts(i) - _minCoef) / _bin_width);

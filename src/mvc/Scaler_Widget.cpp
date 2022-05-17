@@ -62,7 +62,7 @@ void Scaler_Widget::setModel(RAW_Model* model)
 
         _scaler_table_widget->setRowCount(rows);
         _scaler_table_widget->setColumnCount(cols);
-        data_struct::Scan_Info* scan_info = _model->getScanInfo();
+        data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
         if (scan_info != nullptr)
         {
             for (const auto& itr : scan_info->scaler_maps)
@@ -78,11 +78,11 @@ void Scaler_Widget::setModel(RAW_Model* model)
 
 void Scaler_Widget::onScalerSelect(const QString& det)
 {
-    const data_struct::ArrayXXr* scaler = nullptr;
+    const data_struct::ArrayXXr<double>* scaler = nullptr;
     Eigen::Index rows, cols;
     _model->getDims(rows, cols);
     std::string name = det.toStdString();
-    data_struct::Scan_Info* scan_info = _model->getScanInfo();
+    data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
     if (scan_info != nullptr)
     {
         for (const auto& itr : scan_info->scaler_maps)

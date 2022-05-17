@@ -80,11 +80,11 @@ public slots:
 
    void onNewGridLayout(int rows, int cols);
 
-   void on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit);
+   void on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit);
 
    void onSelectNormalizer(QString name);
 
-   void on_export_csv_and_png(QPixmap, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr>*);
+   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr>*);
 
    void on_min_max_contrast_changed();
 
@@ -133,15 +133,15 @@ protected:
 
    QComboBox* _cb_normalize;
 
-   data_struct::ArrayXXr* _normalizer;
+   data_struct::ArrayXXr<float>* _normalizer;
 
-   Calibration_curve* _calib_curve;
+   Calibration_curve<double>* _calib_curve;
 
-   unordered_map<string, data_struct::Spectra> _roi_spectra;
+   unordered_map<string, data_struct::Spectra<double>> _roi_spectra;
 
    QTableWidget* _extra_pvs_table_widget;
 
-   data_struct::Spectra _int_spec;
+   data_struct::Spectra<double> _int_spec;
    //QTableWidget* _scaler_table_widget;
 
    gstar::MinMaxSlider* _contrast_widget;
@@ -150,9 +150,9 @@ protected:
 
    QCheckBox* _chk_log_color;
 
-   real_t _min_contrast_perc;
+   float _min_contrast_perc;
 
-   real_t _max_contrast_perc;
+   float _max_contrast_perc;
 };
 
 

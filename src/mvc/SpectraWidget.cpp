@@ -228,7 +228,7 @@ void SpectraWidget::onUpdateChartLineEdits()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::append_spectra(QString name, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr *energy)
+void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy)
 {
     if (spectra == nullptr)
         return;
@@ -389,7 +389,7 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
+void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* element)
 {
 	//clear old one
 	for (QtCharts::QLineSeries* itr : _element_lines)
@@ -409,7 +409,7 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map * element)
 
     if(element != nullptr)
     {
-        const std::vector<data_struct::Element_Energy_Ratio>& energy_ratios = element->energy_ratios();
+        const std::vector<data_struct::Element_Energy_Ratio<double>>& energy_ratios = element->energy_ratios();
 
         for(auto& itr : energy_ratios)
         {

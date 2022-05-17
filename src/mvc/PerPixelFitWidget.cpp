@@ -135,7 +135,7 @@ void PerPixelFitWidget::runProcessing()
 {
     _btn_run->setEnabled(false);
     //run in thread
-    data_struct::Analysis_Job analysis_job;
+    data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
     
     if (_proc_roi->isChecked())
@@ -219,9 +219,9 @@ void PerPixelFitWidget::runProcessing()
     }
     _progressBarFiles->setRange(0, total_file_range);
 
-    if (io::init_analysis_job_detectors(&analysis_job))
+    if (io::file::init_analysis_job_detectors(&analysis_job))
     {
-        io::populate_netcdf_hdf5_files(_directory);
+        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
         Callback_Func_Status_Def cb_func = std::bind(&PerPixelFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&PerPixelFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         if (_perform_quantification->isChecked())
@@ -261,7 +261,7 @@ void PerPixelFitWidget::runProcessing()
     }
    
 
-    interate_datasets_and_update(analysis_job);
+    iterate_datasets_and_update(analysis_job);
 
     _btn_run->setEnabled(true);
     emit processed_list_update();

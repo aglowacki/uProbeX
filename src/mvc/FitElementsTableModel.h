@@ -48,15 +48,15 @@ public:
 
    void setDisplayHeaderMinMax(bool val);
    
-   data_struct::Fit_Element_Map_Dict getElementsToFit();
+   data_struct::Fit_Element_Map_Dict<double> getElementsToFit();
 
-   data_struct::Fit_Parameters getAsFitParams();
+   data_struct::Fit_Parameters<double> getAsFitParams();
 
-   void updateFitElements(data_struct::Fit_Element_Map_Dict * elements_to_fit);
+   void updateFitElements(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
-   void updateElementValues(data_struct::Fit_Parameters *fit_params);
+   void updateElementValues(data_struct::Fit_Parameters<double>*fit_params);
 
-   data_struct::Fit_Element_Map *getElementByIndex(QModelIndex index) const;
+   data_struct::Fit_Element_Map<double>* getElementByIndex(QModelIndex index) const;
 
    /**
     * @brief Clear all
@@ -130,10 +130,10 @@ public:
                       const QVariant &value,
                       int role = Qt::EditRole);
 
-   void appendElement(data_struct::Fit_Element_Map* element);
+   void appendElement(data_struct::Fit_Element_Map<double>* element);
 
 signals:
-   void braching_ratio_changed(data_struct::Fit_Element_Map* element);
+   void braching_ratio_changed(data_struct::Fit_Element_Map<double>* element);
 
 public slots:
    void update_counts_log10(bool is_log10);
@@ -162,7 +162,7 @@ private:
            props_editable = false;
        }
 
-       void set_root(data_struct::Fit_Element_Map* element)
+       void set_root(data_struct::Fit_Element_Map<double>* element)
        {
            element_data = element;
            parentItem = nullptr;
@@ -195,7 +195,7 @@ private:
            //child->itemData.push_back(QVariant(element->width_multi()));
            //childItems.append(child);
 
-           std::vector<float> multi_vec = element->energy_ratio_multipliers();
+           std::vector<double> multi_vec = element->energy_ratio_multipliers();
            int i =0;
             for(auto& itr : element->energy_ratios())
             {
@@ -293,7 +293,7 @@ private:
            return true;
        }
 
-       data_struct::Fit_Element_Map* element_data;
+       data_struct::Fit_Element_Map<double>* element_data;
        std::vector<TreeItem*> childItems;
        QVector<QVariant> itemData;
        TreeItem *parentItem;

@@ -35,6 +35,7 @@
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/models/gaussian_model.h"
+#include <mvc/MapsH5Model.h>
 #include "core/GlobalThreadPool.h"
 
 /*---------------------------------------------------------------------------*/
@@ -61,7 +62,7 @@ public:
      */
     ~FittingDialog();
 
-    void updateFitParams(data_struct::Fit_Parameters out_fit_params, data_struct::Fit_Parameters element_fit_params);
+    void updateFitParams(data_struct::Fit_Parameters<double> out_fit_params, data_struct::Fit_Parameters<double> element_fit_params);
 
     void status_callback(size_t cur_block, size_t total_blocks);
 
@@ -69,15 +70,15 @@ public:
 
     bool accepted_fit() { return _accepted; }
 
-    void setSpectra(data_struct::Spectra* spectra, data_struct::ArrayXr energy);
+    void setSpectra(data_struct::Spectra<double>* spectra, ArrayDr energy);
 
-    void setFitSpectra(data_struct::Spectra* spectra);
+    void setFitSpectra(data_struct::Spectra<double>* spectra);
 
-    void setElementsToFit(data_struct::Fit_Element_Map_Dict* elements_to_fit);
+    void setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
-	data_struct::Spectra get_fit_spectra(unordered_map<string, data_struct::ArrayXr>* labeled_spectras);
+	data_struct::Spectra<double> get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras);
 
-	data_struct::Fit_Parameters* get_new_fit_params() { return &_new_out_fit_params; }
+	data_struct::Fit_Parameters<double>* get_new_fit_params() { return &_new_out_fit_params; }
 
     void waitToFinishRunning();
 
@@ -117,7 +118,7 @@ protected:
 
    fitting::models::Range _energy_range;
    
-   fitting::models::Gaussian_Model _model;
+   fitting::models::Gaussian_Model<double> _model;
 
    QTextEdit *_textEdit;
 
@@ -135,13 +136,13 @@ protected:
 
    QGroupBox* _mp_fit_ctrl_grp;
 
-   fitting::optimizers::LMFit_Optimizer _lmfit_optimizer;
+   fitting::optimizers::LMFit_Optimizer<double> _lmfit_optimizer;
 
-   fitting::optimizers::MPFit_Optimizer _mpfit_optimizer;
+   fitting::optimizers::MPFit_Optimizer<double> _mpfit_optimizer;
 
-   fitting::optimizers::Optimizer *_optimizer;
+   fitting::optimizers::Optimizer<double>*_optimizer;
 
-   fitting::routines::Param_Optimized_Fit_Routine _fit_routine;
+   fitting::routines::Param_Optimized_Fit_Routine<double> _fit_routine;
 
    size_t _total_itr;
 
@@ -151,15 +152,15 @@ protected:
 
    bool _running;
 
-   data_struct::Spectra* _int_spec;
+   data_struct::Spectra<double>* _int_spec;
 
-   data_struct::Fit_Element_Map_Dict* _elements_to_fit;
+   data_struct::Fit_Element_Map_Dict<double>* _elements_to_fit;
 
-   data_struct::Fit_Parameters _out_fit_params;
+   data_struct::Fit_Parameters<double> _out_fit_params;
 
-   data_struct::Fit_Parameters _element_fit_params;
+   data_struct::Fit_Parameters<double> _element_fit_params;
 
-   data_struct::Fit_Parameters _new_out_fit_params;
+   data_struct::Fit_Parameters<double> _new_out_fit_params;
 
    QDoubleSpinBox* _opt_ftol;
 
@@ -178,7 +179,7 @@ protected:
    QDoubleSpinBox* _opt_mp_covtol;
 
    // energy vector
-   data_struct::ArrayXr _ev;
+   ArrayDr _ev;
 
 };
 

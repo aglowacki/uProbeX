@@ -415,7 +415,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     {
         if (_model != nullptr)
         {
-            std::unordered_map<std::string, data_struct::ArrayXXr>* scalers = _model->getScalers();
+            std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
             if (scalers->count(name.toStdString()) > 0)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
@@ -451,7 +451,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         model_updated();
         if (_model != nullptr)
         {
-            data_struct::Params_Override* po = _model->getParamOverride();
+            data_struct::Params_Override<double>* po = _model->getParamOverride();
             if (po != nullptr)
             {
                 _spectra_widget->setParamOverride(po);
@@ -468,7 +468,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 			_spectra_widget->setIntegratedSpectra(&_int_spec);
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
 
-            const data_struct::Scan_Info* scan_info = _model->getScanInfo();
+            const data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
 
             if (scan_info != nullptr)
             {
@@ -491,7 +491,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr* ev, data_struct::ArrayXr* int_spec, data_struct::ArrayXr* back_spec , data_struct::ArrayXr* fit_spec, unordered_map<string, data_struct::ArrayXr>* labeled_spectras)
+void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
 {
     QDir save_path = QDir(_dataset_directory->text());
     QFileInfo file_info = QFileInfo(_dataset_directory->text());
@@ -543,8 +543,8 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr
     }
 
     
-    //bool save_fit_and_int_spectra(const std::string fullpath, const data_struct::ArrayXr* energy, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr* spectra_model, const data_struct::ArrayXr* background, const unordered_map<string, data_struct::ArrayXr*>* fit_int_def_spec)
-    if (false == io::file::csv::save_fit_and_int_spectra(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
+    //bool save_fit_and_int_spectra(const std::string fullpath, const ArrayDr* energy, const ArrayDr* spectra, const ArrayDr* spectra_model, const ArrayDr* background, const unordered_map<string, ArrayDr*>* fit_int_def_spec)
+    if (false == io::file::csv::save_fit_and_int_spectra_labeled(save_csv.toStdString(), ev, int_spec, fit_spec, back_spec, labeled_spectras))
     {
         mesg.append("Failed to save CSV of spectra: ");
         mesg.append(save_csv);
@@ -562,7 +562,7 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, data_struct::ArrayXr
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit)
+void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit)
 {
     if (_model != nullptr)
     {
@@ -610,7 +610,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
 				}
 		}
 
-        data_struct::Params_Override* param_overrides = _model->getParamOverride();
+        data_struct::Params_Override<double>* param_overrides = _model->getParamOverride();
 
         //check if file exists and warn user
         if (param_overrides != nullptr)
@@ -619,12 +619,12 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters fit_pa
             QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT);;All Files (*.*)"));
             if (fileName.length() > 0)
             {
-                data_struct::Fit_Parameters* nfit_params = &(param_overrides->fit_params);
+                data_struct::Fit_Parameters<double>* nfit_params = &(param_overrides->fit_params);
                 nfit_params->append_and_update(fit_params);
                 param_overrides->elements_to_fit.clear();
                 for (const auto& itr : elements_to_fit)
                 {
-					param_overrides->elements_to_fit[itr.first] = itr.second;
+                    param_overrides->elements_to_fit[itr.first] = itr.second;
                 }
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
                 {
@@ -662,7 +662,7 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
-    std::unordered_map<std::string, data_struct::ArrayXXr>* scalers = _model->getScalers();
+    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
     
     if (scalers->count(STR_DS_IC) > 0)
     {
@@ -726,7 +726,7 @@ void MapsElementsWidget::model_updated()
     element_lines.push_back(STR_NUM_ITR);
     element_lines.push_back(STR_RESIDUAL);
 
-    data_struct::Fit_Count_Dict element_counts;
+    data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
@@ -826,7 +826,7 @@ void MapsElementsWidget::redrawCounts()
 
 /*---------------------------------------------------------------------------*/
 /*
-void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
+void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
 {
     
     gstar::HotSpotMaskGraphicsItem item(0,0);
@@ -908,10 +908,10 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 {
 	if (_model != nullptr)
 	{
-        data_struct::Fit_Count_Dict fit_counts;
+        data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict* scalers = _model->getScalers();
-        ArrayXXr normalized;
+        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
         int width = 0;
@@ -958,7 +958,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             {
                 if (_calib_curve->calib_curve.count(element) > 0)
                 {
-                    real_t calib_val = _calib_curve->calib_curve.at(element);
+                    double calib_val = _calib_curve->calib_curve.at(element);
                     normalized /= (*_normalizer);
                     normalized /= calib_val;
                     float min_coef = normalized.minCoeff();
@@ -1021,10 +1021,10 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
 {
     if (_model != nullptr)
     {
-        data_struct::Fit_Count_Dict fit_counts; 
+        data_struct::Fit_Count_Dict<float> fit_counts; 
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict* scalers = _model->getScalers();
-        ArrayXXr normalized;
+        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
         int width = 0;
@@ -1065,7 +1065,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
             {
                 if (_calib_curve->calib_curve.count(element) > 0)
                 {
-                    real_t calib_val = _calib_curve->calib_curve.at(element);
+                    double calib_val = _calib_curve->calib_curve.at(element);
                     normalized /= (*_normalizer);
                     normalized /= calib_val;
                     float min_coef = normalized.minCoeff();

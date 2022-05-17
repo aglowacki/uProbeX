@@ -25,7 +25,7 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
 
 /*---------------------------------------------------------------------------*/
 
-void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters fit_params)
+void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters<double> fit_params)
 {
 
     _fit_parameters = fit_params;
@@ -64,7 +64,7 @@ void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
 
 /*---------------------------------------------------------------------------*/
 
-void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters* fit_params)
+void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters<double>* fit_params)
 {
     if(fit_params != nullptr)
     {
@@ -84,7 +84,7 @@ void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters* fit_param
 
 /*---------------------------------------------------------------------------*/
 
-void FitParamsTableModel::only_keep_these_keys(data_struct::Fit_Parameters fit_params)
+void FitParamsTableModel::only_keep_these_keys(data_struct::Fit_Parameters<double> fit_params)
 {
     std::vector<std::string> to_remove;
 
@@ -150,7 +150,7 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
     // Return values for display and edit roles
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        data_struct::Fit_Param fitp = _fit_parameters.at(_row_indicies[row]);
+        data_struct::Fit_Param<double> fitp = _fit_parameters.at(_row_indicies[row]);
         // Insert data
         if (index.column() == NAME) return QString(fitp.name.c_str());
         else if (index.column() == VALUE) return fitp.value;

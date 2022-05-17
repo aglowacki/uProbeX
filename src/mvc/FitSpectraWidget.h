@@ -50,21 +50,21 @@ public:
     */
    ~FitSpectraWidget();
 
-   void setIntegratedSpectra(data_struct::ArrayXr* int_spec);
+   void setIntegratedSpectra(ArrayDr* int_spec);
 
-   void setParamOverride(data_struct::Params_Override* po);
+   void setParamOverride(data_struct::Params_Override<double>* po);
 
    void setElementDetector(std::string e) {_detector_element = e;}
 
-   void setFitParams(data_struct::Fit_Parameters* fit_params);
+   void setFitParams(data_struct::Fit_Parameters<double>* fit_params);
 
-   void setElementsToFit(data_struct::Fit_Element_Map_Dict *elements_to_fit);
+   void setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
    void clearAllSpectra() { _spectra_widget->clearAllSpectra(); }
 
-   void appendFitIntSpectra(string, data_struct::ArrayXr*);
+   void appendFitIntSpectra(string, ArrayDr*);
 
-   void appendROISpectra(string, data_struct::ArrayXr*);
+   void appendROISpectra(string, ArrayDr*);
 
    void clearFitIntSpectra();
 
@@ -76,9 +76,9 @@ signals:
 
    void vertical_element_line_changed(qreal, QString);
 
-   void export_fit_paramters(data_struct::Fit_Parameters fit_params, data_struct::Fit_Element_Map_Dict elements_to_fit);
+   void export_fit_paramters(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit);
                                                     //ev                           int spec                  back                 fit              detailed fit
-   void export_csv_and_png(QPixmap, data_struct::ArrayXr *, data_struct::ArrayXr*, data_struct::ArrayXr*, data_struct::ArrayXr*, unordered_map<string, data_struct::ArrayXr> *);
+   void export_csv_and_png(QPixmap, ArrayDr *, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr> *);
 
 public slots:
 
@@ -112,7 +112,7 @@ public slots:
 
    void on_export_csv();
 
-   void on_braching_ratio_update(data_struct::Fit_Element_Map* element);
+   void on_braching_ratio_update(data_struct::Fit_Element_Map<double>* element);
 
 protected:
 
@@ -122,7 +122,7 @@ protected:
 
    FitElementsTableModel* _fit_elements_table_model;
 
-   data_struct::Fit_Element_Map_Dict *_elements_to_fit;
+   data_struct::Fit_Element_Map_Dict<double>* _elements_to_fit;
 
    //MapsH5Model* _h5_model;
 
@@ -175,19 +175,19 @@ private:
 
     QPushButton* _btn_del_element;
 
-    data_struct::ArrayXr* _int_spec;
+    ArrayDr* _int_spec;
 
-    data_struct::ArrayXr _spectra_background;
+    ArrayDr _spectra_background;
 
-    data_struct::ArrayXr _ev;
+    ArrayDr _ev;
 
-    data_struct::Spectra _fit_spec;
+    data_struct::Spectra<double> _fit_spec;
 
-    data_struct::Params_Override* _param_override;
+    data_struct::Params_Override<double>* _param_override;
 
-    unordered_map<string, data_struct::ArrayXr*> _fit_int_spec_map;
+    unordered_map<string, ArrayDr*> _fit_int_spec_map;
 
-    unordered_map<string, data_struct::ArrayXr*> _roi_spec_map;
+    unordered_map<string, ArrayDr*> _roi_spec_map;
 
     std::string _detector_element;
 
@@ -211,7 +211,7 @@ private:
 
 	bool _showFitIntSpec;
 
-    unordered_map<string, data_struct::ArrayXr> _labeled_spectras;
+    unordered_map<string, ArrayDr> _labeled_spectras;
 };
 
 

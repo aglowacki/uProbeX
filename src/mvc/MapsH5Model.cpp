@@ -47,7 +47,7 @@ void MapsH5Model::clear_analyzed_counts()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict& out_counts)
+void MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_counts.clear();
@@ -123,14 +123,14 @@ std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::set_fit_parameters_override(data_struct::Params_Override* override)
+void MapsH5Model::set_fit_parameters_override(data_struct::Params_Override<double>* override)
 {
     _params_override = override;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
+void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>* block)
 {
     clear_analyzed_counts();
 
@@ -141,7 +141,7 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
     {
         _integrated_spectra.resize(block->spectra->size());
         _integrated_spectra.setZero(block->spectra->size());
-        _integrated_spectra.add( *(block->spectra) );
+        _integrated_spectra.add( block->spectra );
         _loaded_integrated_spectra = true;
         //emit model_int_spec_updated(false);
     }
@@ -150,7 +150,7 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
     {
         std::string group_name = _analysis_enum_to_str(itr.first);
 
-        data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
+        data_struct::Fit_Count_Dict<float>* xrf_counts = new data_struct::Fit_Count_Dict<float>();
         _analyzed_counts.insert( {group_name, xrf_counts} );
 
         for(auto& itr2 : itr.second.fit_counts)
@@ -166,11 +166,11 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block* block)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
+void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* block)
 {
     if(block->spectra != nullptr)
     {
-        _integrated_spectra.add( *(block->spectra) );
+        _integrated_spectra.add( block->spectra );
         //wait until the FitSpectraWidget has a thread to update int spec
         //emit model_int_spec_updated(false);
     }
@@ -186,7 +186,7 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
             std::string group_name = _analysis_enum_to_str(itr.first);
             if(_analyzed_counts.count(group_name) > 0)
             {
-                data_struct::Fit_Count_Dict* xrf_counts = _analyzed_counts[group_name];
+                data_struct::Fit_Count_Dict<float>* xrf_counts = _analyzed_counts[group_name];
                 for(auto& itr2 : itr.second.fit_counts)
                 {
 					if (xrf_counts->count(itr2.first) < 1)
@@ -214,7 +214,7 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block* block)
     }
 }
 
-void MapsH5Model::getIntegratedSpectra(data_struct::Spectra& out_spectra)
+void MapsH5Model::getIntegratedSpectra(data_struct::Spectra<double>& out_spectra)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_spectra = _integrated_spectra;
@@ -317,7 +317,7 @@ bool MapsH5Model::load(QString filepath)
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsH5Model::load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra& spec)
+bool MapsH5Model::load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra<double>& spec)
 {
     if (_version < 10.0)
     {
@@ -349,7 +349,7 @@ bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >&quant)
+bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >&quant)
 {
     hid_t dset_id, channels_dset_id, dspace_id, channels_dspace_id;
     hid_t memoryspace_id, memoryspace_name_id, error;
@@ -359,7 +359,7 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
     hsize_t count_name[1] = { 1 };
     char tmp_name[255] = { 0 };
     hid_t   filetype, memtype, status;
-    real_t values[3] = { 0., 0., 0. };
+    double values[3] = { 0., 0., 0. };
 
     dset_id = H5Dopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
     if (dset_id < 0)
@@ -404,9 +404,9 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
     H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
-    Calibration_curve sr_current_curve(STR_SR_CURRENT);
-    Calibration_curve us_ic_curve(STR_US_IC);
-    Calibration_curve ds_ic_curve(STR_DS_IC);
+    Calibration_curve<double> sr_current_curve(STR_SR_CURRENT);
+    Calibration_curve<double> us_ic_curve(STR_US_IC);
+    Calibration_curve<double> ds_ic_curve(STR_DS_IC);
 
     for (hsize_t el_idx = 0; el_idx < dims_out[2]; el_idx++)
     {
@@ -417,7 +417,7 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
         H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread(dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
+        error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
         if (error > -1)
         {
             sr_current_curve.calib_curve[el_name] = values[0];
@@ -607,7 +607,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     memoryspace_id = H5Screate_simple(1, count, nullptr);
     H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-    error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
+    error = H5Dread (counts_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
 
     delete []dims_out;
     H5Sclose(memoryspace_id);
@@ -629,9 +629,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 
         memoryspace_id = H5Screate_simple(1, &count2[1], nullptr);
 
-        data_struct::ArrayXr* fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        ArrayDr* fit_int_spec = new ArrayDr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ "Max_Channels", fit_int_spec });
@@ -643,9 +643,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         }
 
         offset2[0] = 1;
-        fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        fit_int_spec = new ArrayDr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
@@ -657,9 +657,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         }
 
         offset2[0] = 2;
-        fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+        fit_int_spec = new ArrayDr(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-        error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+        error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ STR_FIT_GAUSS_MATRIX, fit_int_spec });
@@ -670,9 +670,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         }
 
 		offset2[0] = 3;
-		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		fit_int_spec = new ArrayDr(dims_out[1]);
 		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
 		if (error > -1)
 		{
 			_fit_int_spec_dict.insert({ "SVD", fit_int_spec });
@@ -683,9 +683,9 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 		}
 
 		offset2[0] = 4;
-		fit_int_spec = new data_struct::ArrayXr(dims_out[1]);
+		fit_int_spec = new ArrayDr(dims_out[1]);
 		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
-		error = H5Dread(max_chan_spec_id, H5T_NATIVE_FLOAT, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
+		error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
 		if (error > -1)
 		{
 			_fit_int_spec_dict.insert({ "Background", fit_int_spec });
@@ -777,7 +777,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
 
     count[0] = 1;
 
-    data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
+    data_struct::Fit_Count_Dict<float>* xrf_counts = new data_struct::Fit_Count_Dict<float>();
     // convert v9 to v10
     if (group_name == STR_FITS_V9)
     {
@@ -833,7 +833,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra& spec)
+bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
 {
     return false;
 
@@ -864,7 +864,7 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 /*---------------------------------------------------------------------------*/
 
 
-bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve >& quant)
+bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant)
 {
     hid_t channels_dset_id, channels_dspace_id;
     hid_t sr_dset_id, sr_dspace_id;
@@ -882,9 +882,9 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
     hsize_t count_name[2] = { 1, 1 };
     char tmp_name[255] = { 0 };
     hid_t   filetype, memtype, status;
-    real_t sr_values[3] = { 0., 0., 0. };
-    real_t us_values[3] = { 0., 0., 0. };
-    real_t ds_values[3] = { 0., 0., 0. };
+    double sr_values[3] = { 0., 0., 0. };
+    double us_values[3] = { 0., 0., 0. };
+    double ds_values[3] = { 0., 0., 0. };
 
     grp_id = H5Gopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
     if (grp_id < 0)
@@ -980,9 +980,9 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
     H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
-    Calibration_curve sr_current_curve(STR_SR_CURRENT);
-    Calibration_curve us_ic_curve(STR_US_IC);
-    Calibration_curve ds_ic_curve(STR_DS_IC);
+    Calibration_curve<double> sr_current_curve(STR_SR_CURRENT);
+    Calibration_curve<double> us_ic_curve(STR_US_IC);
+    Calibration_curve<double> ds_ic_curve(STR_DS_IC);
 
     for (hsize_t el_idx = 0; el_idx < dims_out[1]; el_idx++)
     {
@@ -995,17 +995,17 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
         if (sr_dset_id > -1)
         {
             H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            sr_error = H5Dread(sr_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
+            sr_error = H5Dread(sr_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
         }
         if (us_dset_id > -1)
         {
             H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            us_error = H5Dread(us_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
+            us_error = H5Dread(us_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
         }
         if (ds_dset_id > -1)
         {
             H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            ds_error = H5Dread(ds_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
+            ds_error = H5Dread(ds_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
         }
         if (error > -1 && sr_error > -1)
         {
@@ -1279,7 +1279,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     count[i] = dims_in[i];
                 }
 
-                data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+                ArrayDr* spectra = new ArrayDr(dims_in[0]);
 
                 count[0] = dims_in[0];
 
@@ -1287,7 +1287,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
                 H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
-                error = H5Dread(dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
                     _fit_int_spec_dict.insert({ "Max_Channels", spectra });
@@ -1321,7 +1321,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     count[i] = dims_in[i];
                 }
 
-                data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+                ArrayDr* spectra = new ArrayDr(dims_in[0]);
 
                 count[0] = dims_in[0];
 
@@ -1329,7 +1329,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
                 H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
-                error = H5Dread(dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
                     _fit_int_spec_dict.insert({ "Max_10_Channels", spectra });
@@ -1435,7 +1435,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 					count[i] = dims_in[i];
 				}
 
-				data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+				ArrayDr* spectra = new ArrayDr(dims_in[0]);
 
 				count[0] = dims_in[0];
 
@@ -1443,7 +1443,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
-				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
 				_fit_int_spec_dict.insert({ group_name , spectra });
 			}
 		}
@@ -1466,7 +1466,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 					count[i] = dims_in[i];
 				}
 
-				data_struct::ArrayXr* spectra = new data_struct::ArrayXr(dims_in[0]);
+				ArrayDr* spectra = new ArrayDr(dims_in[0]);
 
 				count[0] = dims_in[0];
 
@@ -1474,7 +1474,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
-				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_REAL, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
 				//_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
 				_fit_int_spec_dict.insert({ "Background" , spectra });
 			}
@@ -1504,7 +1504,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
     count[0] = 1;
 
-    data_struct::Fit_Count_Dict* xrf_counts = new data_struct::Fit_Count_Dict();
+    data_struct::Fit_Count_Dict<float> *xrf_counts = new data_struct::Fit_Count_Dict<float>();
     _analyzed_counts.insert( {group_name, xrf_counts} );
 
     memoryspace_id = H5Screate_simple(3, count, nullptr);
@@ -1548,7 +1548,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
 /*---------------------------------------------------------------------------*/
 
-bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra& spec)
+bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
 {
 
     return false;
@@ -1556,7 +1556,7 @@ bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct:
 
 /*---------------------------------------------------------------------------*/
 
-Calibration_curve* MapsH5Model::get_calibration_curve(string analysis_type, string scaler_name)
+Calibration_curve<double>* MapsH5Model::get_calibration_curve(string analysis_type, string scaler_name)
 {
     if (analysis_type == STR_FIT_GAUSS_MATRIX)
     {

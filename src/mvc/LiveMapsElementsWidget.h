@@ -43,7 +43,7 @@ public:
 
 public slots:
 
-   void newDataArrived(data_struct::Stream_Block *new_packet);
+   void newDataArrived(data_struct::Stream_Block<float>* new_packet);
 
    void updateIp();
 
@@ -74,7 +74,7 @@ protected:
 
    MapsH5Model *_currentModel;
 
-   data_struct::Stream_Block *_last_packet;
+   data_struct::Stream_Block<float>* _last_packet;
 
    std::string _prev_dataset_name;
 

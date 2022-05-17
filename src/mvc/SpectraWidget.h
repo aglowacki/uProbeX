@@ -69,7 +69,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, const data_struct::ArrayXr* spectra, const data_struct::ArrayXr *energy=nullptr);
+    void append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy=nullptr);
 
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 
@@ -107,7 +107,7 @@ public slots:
 
     void set_vertical_line(qreal x_center, QString label="Element");
 
-    void set_element_lines(data_struct::Fit_Element_Map * element);
+    void set_element_lines(data_struct::Fit_Element_Map<double>* element);
 
     void set_top_axis(std::map<std::string, float> elements);
 

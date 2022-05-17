@@ -46,33 +46,33 @@ public:
 
 	unsigned int getNumIntegratedSpectra();
 
-	data_struct::Spectra* getIntegratedSpectra(unsigned int det);
+	data_struct::Spectra<double>* getIntegratedSpectra(unsigned int det);
 
     void getDims(Eigen::Index& rows, Eigen::Index& cols) { rows = _scan_info.meta_info.requested_rows; cols = _scan_info.meta_info.requested_cols; }
 
-	data_struct::Scan_Info* getScanInfo();
+	data_struct::Scan_Info<double>* getScanInfo();
 
-    void setParamOverride(int idx, data_struct::Params_Override* params) { if (params != nullptr) { _fit_params_override_dict[idx] = params; } }
+    void setParamOverride(int idx, data_struct::Params_Override<double>* params) { if (params != nullptr) { _fit_params_override_dict[idx] = params; } }
 
-    data_struct::Params_Override* getParamOverride(int idx);
+    data_struct::Params_Override<double>* getParamOverride(int idx);
 
-    data_struct::Params_Override* getParamOverrideOrAvg(int idx);
+    data_struct::Params_Override<double>* getParamOverrideOrAvg(int idx);
 
     std::vector<unsigned int> getDetectorKeys();
 
 private:
 
-    data_struct::Scan_Info _scan_info;
+    data_struct::Scan_Info<double> _scan_info;
 
-    std::map<int, data_struct::Params_Override*> _fit_params_override_dict;
+    std::map<int, data_struct::Params_Override<double>*> _fit_params_override_dict;
 
-    std::unordered_map<unsigned int, data_struct::Spectra> _integrated_spectra_map;
+    std::unordered_map<unsigned int, data_struct::Spectra<double>> _integrated_spectra_map;
 
     QString _filepath;
 
     QString _path;
 
-    unordered_map<string, data_struct::ArrayXr> _csv_data;
+    unordered_map<string, data_struct::ArrayTr<double> > _csv_data;
 };
 
 

@@ -44,7 +44,7 @@ public slots:
    /**
     * Update points
     */
-   void updatePoints(const data_struct::ArrayXr& pts);
+   void updatePoints(const data_struct::ArrayTr<float>& pts);
 
 private:
    /**
@@ -77,11 +77,11 @@ private:
 
    QPen _max_pen;
 
-   real_t _minCoef;
+   float _minCoef;
 
-   real_t _maxCoef;
+   float _maxCoef;
 
-   real_t _bin_width;
+   float _bin_width;
 };
 
 }
