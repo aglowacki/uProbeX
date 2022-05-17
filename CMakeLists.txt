@@ -222,7 +222,6 @@ ELSEIF (UNIX)
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
                         netCDF::netcdf
-                        hdf5::hdf5-shared
                         libxrf_fit
                         libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT} )
