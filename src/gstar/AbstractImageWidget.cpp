@@ -72,8 +72,8 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
            SLOT(treeDoubleClicked(const QModelIndex &)));
 
    m_imageViewWidget = new ImageViewWidget(rows, cols);
-   m_imageViewWidget->scene()->setModel(m_treeModel);
-   m_imageViewWidget->scene()->setSelectionModel(m_selectionModel);
+   m_imageViewWidget->setSceneModel(m_treeModel);
+   m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
    connect(m_imageViewWidget,
           SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -497,7 +497,7 @@ void AbstractImageWidget::setAnnotationModel(AnnotationTreeModel *model)
 
    m_treeModel = model;
    m_annoTreeView->setModel(m_treeModel);
-   m_imageViewWidget->scene()->setModel(m_treeModel);
+   m_imageViewWidget->setSceneModel(m_treeModel);
 
 }
 
@@ -545,7 +545,7 @@ void AbstractImageWidget::setAnnotationsEnabled(bool value)
 {
 
    m_annoTreeView->setEnabled(value);
-   m_imageViewWidget->scene()->enableAnnotations(value);
+   m_imageViewWidget->sceneEnableAnnotations(value);
    m_annotationsEnabled = value;
 
 }
@@ -636,10 +636,10 @@ void AbstractImageWidget::showRulerUnitsDialog()
    // Update with current settings
    if (dialog->exec() == QDialog::Accepted)
    {
-      m_imageViewWidget->scene()->setUnitsLabel(dialog->getUnitLabel());
-      m_imageViewWidget->scene()->setUnitsPerPixelX(dialog->getUnitsPerPixelX());
-      m_imageViewWidget->scene()->setUnitsPerPixelY(dialog->getUnitsPerPixelY());
-      m_imageViewWidget->scene()->updateModel();
+      m_imageViewWidget->setSceneUnitsLabel(dialog->getUnitLabel());
+      m_imageViewWidget->setSceneUnitsPerPixelX(dialog->getUnitsPerPixelX());
+      m_imageViewWidget->setSceneUnitsPerPixelY(dialog->getUnitsPerPixelY());
+      m_imageViewWidget->sceneUpdateModel();
       emit rulerUnitsChanged(dialog->getUnitLabel(),
                              dialog->getUnitsPerPixelX(),
                              dialog->getUnitsPerPixelY());
@@ -693,7 +693,7 @@ void AbstractImageWidget::updateFrame(QImage *img)
     if (img != nullptr)
     {
         // Create pixmap from image
-        m_imageViewWidget->scene()->setPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setScenetPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
     }
 
 }
@@ -707,4 +707,5 @@ void AbstractImageWidget::viewContextMenu(const QPoint& pos)
 
 }
 
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

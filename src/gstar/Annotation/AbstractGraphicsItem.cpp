@@ -62,17 +62,20 @@ AbstractGraphicsItem::~AbstractGraphicsItem()
 void AbstractGraphicsItem::appendChild(AbstractGraphicsItem* child)
 {
 
-   m_children.append(child);
-
+    if (child != nullptr)
+    {
+        m_children.append(child);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 void AbstractGraphicsItem::appendProperty(AnnotationProperty* prop)
 {
-
-   m_data.push_back(prop);
-
+    if (prop != nullptr)
+    {
+        m_data.push_back(prop);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

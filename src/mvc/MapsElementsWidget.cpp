@@ -253,6 +253,7 @@ void MapsElementsWidget::on_min_max_contrast_changed()
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
     m_imageViewWidget->newGridLayout(rows, cols);
     model_updated();
     m_imageViewWidget->restoreLabels(element_view_list);
@@ -821,7 +822,9 @@ void MapsElementsWidget::redrawCounts()
             }
         }
     }
-
+    //redraw annotations
+    m_selectionModel->clear();
+    m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
 }
 
 /*---------------------------------------------------------------------------*/

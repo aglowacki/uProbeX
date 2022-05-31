@@ -392,12 +392,15 @@ QRectF ImageViewScene::pixRect()
 void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
 {
 
-   addItem(item);
-   foreach(AbstractGraphicsItem* cItem, item->childList())
-   {
-      recursiveAddAnnotation(cItem);
-   }
+    if (item != nullptr)
+    {
+        addItem(item);
 
+        foreach(AbstractGraphicsItem * cItem, item->childList())
+        {
+            recursiveAddAnnotation(cItem);
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -445,56 +448,58 @@ void ImageViewScene::removeAllGraphicsItems()
 
 void ImageViewScene::sceneSelectionChanged()
 {
-   if (m_model != nullptr && m_selectionModel != nullptr)
-   {
+    if (m_model != nullptr && m_selectionModel != nullptr)
+    {
 
-    disconnect(m_selectionModel,
-               SIGNAL(selectionChanged(const QItemSelection &,
-                                       const QItemSelection &)),
-               this,
-               SLOT(modelSelectionChanged(const QItemSelection &,
-                                          const QItemSelection &)));
+        disconnect(m_selectionModel,
+            SIGNAL(selectionChanged(const QItemSelection&,
+                const QItemSelection&)),
+            this,
+            SLOT(modelSelectionChanged(const QItemSelection&,
+                const QItemSelection&)));
 
-    disconnect(this,
-               SIGNAL(selectionChanged()),
-               this,
-               SLOT(sceneSelectionChanged()));
+        disconnect(this,
+            SIGNAL(selectionChanged()),
+            this,
+            SLOT(sceneSelectionChanged()));
 
-   m_selectionModel->clear();
+        m_selectionModel->clear();
 
-   QList<QGraphicsItem*> sItems = selectedItems();
-   foreach (QGraphicsItem* item, sItems)
-   {
-      AbstractGraphicsItem* tItem = (AbstractGraphicsItem*)item;
-      AbstractGraphicsItem* parent = tItem->parent();
-      if (parent != nullptr)
-      {
-         QModelIndex groupIndex =
-                 m_model->index(parent->row(), 0, QModelIndex());
-         if (groupIndex.isValid())
-         {
-            QModelIndex cIndex = groupIndex.child(tItem->row(), 0);
-            if (cIndex.isValid())
+        QList<QGraphicsItem*> sItems = selectedItems();
+        foreach(QGraphicsItem * item, sItems)
+        {
+            AbstractGraphicsItem* tItem = (AbstractGraphicsItem*)item;
+            AbstractGraphicsItem* parent = tItem->parent();
+            if (parent != nullptr)
             {
-               for (int i = 0; i < tItem->columnCount(); i++)
-               {
-               cIndex = groupIndex.child(tItem->row(), i);
-               m_selectionModel->select(cIndex, QItemSelectionModel::Select);
-               }
+                QModelIndex groupIndex =
+                    m_model->index(parent->row(), 0, QModelIndex());
+                if (groupIndex.isValid())
+                {
+                    QModelIndex cIndex = groupIndex.child(tItem->row(), 0);
+                    if (cIndex.isValid())
+                    {
+                        for (int i = 0; i < tItem->columnCount(); i++)
+                        {
+                            cIndex = groupIndex.child(tItem->row(), i);
+                            m_selectionModel->select(cIndex, QItemSelectionModel::Select);
+                        }
+                    }
+                }
             }
-         }
-      }
-   }
-}
+        }
+    }
 
-connect(m_selectionModel,
-        SIGNAL(selectionChanged(const QItemSelection &,
-                                const QItemSelection &)),
-        this,
-        SLOT(modelSelectionChanged(const QItemSelection &,
-                                   const QItemSelection &)));
-
-connect(this,
+    if (m_selectionModel != nullptr)
+    {
+        connect(m_selectionModel,
+            SIGNAL(selectionChanged(const QItemSelection&,
+                const QItemSelection&)),
+            this,
+            SLOT(modelSelectionChanged(const QItemSelection&,
+                const QItemSelection&)));
+    }
+    connect(this,
         SIGNAL(selectionChanged()),
         this,
         SLOT(sceneSelectionChanged()));
@@ -562,14 +567,15 @@ void ImageViewScene::setModel(QAbstractItemModel* model)
    // Set model
    m_model = model;
 
-   addAnnotationsFromModel();
-
-   // Connect signals/slots to inserting and removing ROIs
-   connect(m_model,
+   if (m_model != nullptr)
+   {
+       addAnnotationsFromModel();
+       // Connect signals/slots to inserting and removing ROIs
+       connect(m_model,
            SIGNAL(rowsInserted(const QModelIndex&, int, int)),
            this,
            SLOT(modelRowsInserted(const QModelIndex&, int, int)));
-
+   }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -591,14 +597,16 @@ void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
    // Set ROI selection model
    m_selectionModel = selectionModel;
 
-   // Set new connections
-   connect(m_selectionModel,
+   if (m_selectionModel != nullptr)
+   {
+       // Set new connections
+       connect(m_selectionModel,
            SIGNAL(selectionChanged(const QItemSelection&,
-                                   const QItemSelection&)),
+               const QItemSelection&)),
            this,
            SLOT(modelSelectionChanged(const QItemSelection&,
-                                      const QItemSelection&)));
-
+               const QItemSelection&)));
+   }
 }
 
 /*---------------------------------------------------------------------------*/

@@ -110,6 +110,24 @@ public:
     */
    ImageViewScene* scene(int grid_idx = 0);
 
+   void setSceneModel(QAbstractItemModel* model);
+
+   void setSceneSelectionModel(QItemSelectionModel* selectionModel);
+
+   void setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel);
+
+   void sceneEnableAnnotations(bool state);
+
+   void setSceneUnitsLabel(QString label);
+
+   void setSceneUnitsPerPixelX(double val);
+
+   void setSceneUnitsPerPixelY(double val);
+
+   void sceneUpdateModel();
+
+   void setScenetPixmap(QPixmap p);
+
    /**
     * sets the coordinate model for coordinate widget
     */
