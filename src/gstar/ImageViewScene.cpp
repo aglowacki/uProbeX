@@ -149,7 +149,15 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
             cItem = item->child(start);
             if (cItem != nullptr)
             {
-               addItem(cItem);
+               //addItem(cItem);
+
+                AbstractGraphicsItem* clone = cItem->duplicate();
+                
+                clone->linkProperties(cItem->properties());
+
+                //cItem->linkProperties(clone->properties());
+
+                addItem(clone);
             }
          }
       }

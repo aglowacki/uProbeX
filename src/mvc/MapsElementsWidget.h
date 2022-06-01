@@ -17,7 +17,7 @@
 #include <unordered_map>
 #include <gstar/CoordinateWidget.h>
 #include <gstar/CountsLookupTransformer.h>
-#include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
 #include "gstar/MinMaxSlider.h"
@@ -72,9 +72,9 @@ public slots:
 
    void model_updated();
 
-   void addHotSpotMask();
+   void addRoiMask();
 
-   void roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload);
+   void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
    void onGridDialog();
 
@@ -125,7 +125,7 @@ protected:
 
    QPushButton *_pb_perpixel_fitting;
 
-   QAction *_addHotSpotMaskAction;
+   QAction *_addRoiMaskAction;
    
    QPushButton * _grid_button;
 

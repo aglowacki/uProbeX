@@ -7,7 +7,7 @@
 
 #include <gstar/ImageViewWidget.h>
 
-#include <gstar/Annotation/HotSpotMaskGraphicsItem.h>
+#include <gstar/Annotation/RoiMaskGraphicsItem.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -265,24 +265,24 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::addHotSpotMask()
+void MapsElementsWidget::addRoiMask()
 {
     int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
     int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
-   gstar::HotSpotMaskGraphicsItem* annotation = new gstar::HotSpotMaskGraphicsItem(w, h);
+   gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
 
    //QString name = ano->getName();
    //_spectra_widget->appendROISpectra()
    //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
-   connect(annotation, &gstar::HotSpotMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
+   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload)
+void MapsElementsWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
 {
     if (ano != nullptr && reload)
     {
@@ -298,14 +298,14 @@ void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool re
 void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
-    // TODO: change hotspot to spectra region and add back in
+    // TODO: change Roi to spectra region and add back in
     
-    _addHotSpotMaskAction = new QAction("Add ROI Mask", this);
+    _addRoiMaskAction = new QAction("Add ROI Mask", this);
 
-    connect(_addHotSpotMaskAction,
+    connect(_addRoiMaskAction,
             SIGNAL(triggered()),
             this,
-            SLOT(addHotSpotMask()));
+            SLOT(addRoiMask()));
             
 }
 
@@ -321,7 +321,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    QMenu menu(parent);
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
-   menu.addAction(_addHotSpotMaskAction);
+   menu.addAction(_addRoiMaskAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -832,20 +832,20 @@ void MapsElementsWidget::redrawCounts()
 void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
 {
     
-    gstar::HotSpotMaskGraphicsItem item(0,0);
+    gstar::RoiMaskGraphicsItem item(0,0);
 
-    QList<gstar::AbstractGraphicsItem*>  hotspots;
+    QList<gstar::AbstractGraphicsItem*>  Rois;
     if(m_treeModel != nullptr)
     {
-        hotspots = m_treeModel->get_all_of_type( item.classId() );
+        Rois = m_treeModel->get_all_of_type( item.classId() );
     }
     
     QImage *sum_of_masks = nullptr;
-    if(hotspots.size() > 0)
+    if(Rois.size() > 0)
     {
-        foreach(gstar::AbstractGraphicsItem* item , hotspots)
+        foreach(gstar::AbstractGraphicsItem* item , Rois)
         {
-            gstar::HotSpotMaskGraphicsItem* mask = dynamic_cast<gstar::HotSpotMaskGraphicsItem*>(item);
+            gstar::RoiMaskGraphicsItem* mask = dynamic_cast<gstar::RoiMaskGraphicsItem*>(item);
             if(mask->isEnabled())
             {
                 if(sum_of_masks == nullptr)

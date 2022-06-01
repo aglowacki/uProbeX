@@ -66,7 +66,7 @@ void AnnotationProperty::setValue(const QVariant value)
 {
 
    m_value = value;
-   emit valueChanged();
+   emit valueChanged(this, value);
 
 }
 

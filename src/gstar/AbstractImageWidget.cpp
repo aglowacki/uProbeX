@@ -99,6 +99,8 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 AbstractImageWidget::~AbstractImageWidget()
 {
 
+    m_imageViewWidget->setSceneSelectionModel(nullptr);
+
    if(m_treeModel != nullptr)
    {
       delete m_treeModel;

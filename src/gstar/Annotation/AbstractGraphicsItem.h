@@ -223,6 +223,11 @@ public:
     */
    void setPropertyValue(QString name, QVariant value);
 
+   /**
+   * Override current properties with new list
+   */
+   void linkProperties(QList<AnnotationProperty*> prop_list);
+
 public slots:
 
    /**
@@ -257,7 +262,9 @@ protected slots:
    /**
     * @brief modelChanged : Slot for AnnotationProperty changes.
     */
-   void modelChanged();
+   void modelChanged(AnnotationProperty*, QVariant);
+
+   void linkPropChanged(AnnotationProperty*, QVariant);
 
    /**
     * @brief viewChanged : Slot for QGraphicsItem changes.

@@ -129,6 +129,16 @@ void AbstractGraphicsItem::clearProperties()
 
 /*---------------------------------------------------------------------------*/
 
+void AbstractGraphicsItem::linkProperties(QList<AnnotationProperty*> prop_list)
+{
+    foreach(AnnotationProperty * prop, prop_list)
+    {
+        connect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 int AbstractGraphicsItem::columnCount() const
 {
 
@@ -144,9 +154,9 @@ void AbstractGraphicsItem::connectAllProperties()
    foreach (AnnotationProperty* prop, m_data)
    {
       connect(prop,
-              SIGNAL(valueChanged()),
+              SIGNAL(valueChanged(AnnotationProperty*, QVariant)),
               this,
-              SLOT(modelChanged()));
+              SLOT(modelChanged(AnnotationProperty*, QVariant)));
    }
 
 }
@@ -241,9 +251,9 @@ void AbstractGraphicsItem::disconnectAllProperties()
    foreach (AnnotationProperty* prop, m_data)
    {
       disconnect(prop,
-                 SIGNAL(valueChanged()),
+                 SIGNAL(valueChanged(AnnotationProperty*, QVariant)),
                  this,
-                 SLOT(modelChanged()));
+                 SLOT(modelChanged(AnnotationProperty*, QVariant)));
    }
 
 }
@@ -455,8 +465,10 @@ QVariant AbstractGraphicsItem::itemChange(GraphicsItemChange change,
 
 /*---------------------------------------------------------------------------*/
 
-void AbstractGraphicsItem::modelChanged()
+void AbstractGraphicsItem::modelChanged(AnnotationProperty* prop, QVariant val)
 {
+    Q_UNUSED(prop);
+    Q_UNUSED(val);
 
    disconnectAllViewItems();
    disconnectAllProperties();
@@ -464,6 +476,24 @@ void AbstractGraphicsItem::modelChanged()
    connectAllViewItems();
    connectAllProperties();
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant val)
+{
+    disconnectAllViewItems();
+    disconnectAllProperties();
+    foreach(AnnotationProperty * p, m_data)
+    {
+        if (p->getName() == prop->getName())
+        {
+            p->setValue(val);
+            break;
+        }
+    }
+    connectAllViewItems();
+    connectAllProperties();
 }
 
 /*---------------------------------------------------------------------------*/
