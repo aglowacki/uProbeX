@@ -25,7 +25,7 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
    m_model = nullptr;
    m_selectionModel = nullptr;
    m_zoomSelection = nullptr;
-
+   _is_multi_scene = false;
    m_unitsLabel = "";
    m_unitsPerPixelX = 1.0;
    m_unitsPerPixelY = 1.0;
@@ -155,7 +155,7 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
                 
                 clone->linkProperties(cItem->properties());
 
-                //cItem->linkProperties(clone->properties());
+                cItem->linkProperties(clone->properties());
 
                 addItem(clone);
             }
@@ -402,8 +402,17 @@ void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
 
     if (item != nullptr)
     {
-        addItem(item);
-
+        if (_is_multi_scene)
+        {
+            AbstractGraphicsItem* clone = item->duplicate();
+            clone->linkProperties(item->properties());
+            item->linkProperties(clone->properties());
+            addItem(clone);
+        }
+        else
+        {
+            addItem(item);
+        }
         foreach(AbstractGraphicsItem * cItem, item->childList())
         {
             recursiveAddAnnotation(cItem);
@@ -558,7 +567,7 @@ void ImageViewScene::setMode(Mode mode)
 
 /*---------------------------------------------------------------------------*/
 
-void ImageViewScene::setModel(QAbstractItemModel* model)
+void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
 {
 
    // Remove old connections
@@ -574,6 +583,7 @@ void ImageViewScene::setModel(QAbstractItemModel* model)
 
    // Set model
    m_model = model;
+   _is_multi_scene = is_multi_scene;
 
    if (m_model != nullptr)
    {

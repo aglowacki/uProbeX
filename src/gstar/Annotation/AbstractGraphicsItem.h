@@ -278,6 +278,9 @@ protected:
     */
    void connectAllProperties();
 
+   void connectAllLinkedProperties();
+
+   void disconnectAllLinkedProperties();
    /**
     * @brief connectAllViewItems : Connects QGraphicsItem signals to
     *                               viewChanged() slot.
@@ -326,6 +329,9 @@ protected:
     * @brief m_data : List of AnnotationPropertys for model.
     */
    QList<AnnotationProperty*> m_data;
+
+
+   QList<AnnotationProperty*> _linked_props;
 
    /**
     * @brief m_parent : Parent node.

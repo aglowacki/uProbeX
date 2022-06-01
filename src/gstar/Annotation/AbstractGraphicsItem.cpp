@@ -133,8 +133,9 @@ void AbstractGraphicsItem::linkProperties(QList<AnnotationProperty*> prop_list)
 {
     foreach(AnnotationProperty * prop, prop_list)
     {
-        connect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+        _linked_props.push_back(prop);
     }
+    connectAllLinkedProperties();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -161,6 +162,29 @@ void AbstractGraphicsItem::connectAllProperties()
 
 }
 
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::connectAllLinkedProperties()
+{
+
+    foreach(AnnotationProperty * prop, _linked_props)
+    {
+        connect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::disconnectAllLinkedProperties()
+{
+
+    foreach(AnnotationProperty * prop, _linked_props)
+    {
+        disconnect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+    }
+
+}
 /*---------------------------------------------------------------------------*/
 
 void AbstractGraphicsItem::connectAllViewItems()
@@ -482,8 +506,7 @@ void AbstractGraphicsItem::modelChanged(AnnotationProperty* prop, QVariant val)
 
 void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant val)
 {
-    disconnectAllViewItems();
-    disconnectAllProperties();
+    disconnectAllLinkedProperties();
     foreach(AnnotationProperty * p, m_data)
     {
         if (p->getName() == prop->getName())
@@ -492,8 +515,7 @@ void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant va
             break;
         }
     }
-    connectAllViewItems();
-    connectAllProperties();
+    connectAllLinkedProperties();
 }
 
 /*---------------------------------------------------------------------------*/

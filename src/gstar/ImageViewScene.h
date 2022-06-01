@@ -103,7 +103,7 @@ public:
     *
     * @param model - ROI model
     */
-   void setModel(QAbstractItemModel* model);
+   void setModel(QAbstractItemModel* model, bool is_multi_scene=false);
 
    /**
     * Set the selection model for ROIs
@@ -332,6 +332,8 @@ private:
     * @brief m_unitsPerPixelY
     */
    double m_unitsPerPixelY;
+
+   bool _is_multi_scene;
 
 };
 

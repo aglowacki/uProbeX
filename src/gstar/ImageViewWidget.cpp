@@ -413,9 +413,10 @@ ImageViewScene* ImageViewWidget::scene(int grid_idx)
 
 void ImageViewWidget::setSceneModel(QAbstractItemModel* model)
 {
+    bool multi_win =  (_sub_windows.size() > 1) ? true : false;
     for (auto& itr : _sub_windows)
     {
-        itr.scene->setModel(model);
+        itr.scene->setModel(model, multi_win);
     }
 }
 
@@ -433,9 +434,10 @@ void ImageViewWidget::setSceneSelectionModel(QItemSelectionModel* selectionModel
 
 void ImageViewWidget::setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel)
 {
+    bool multi_win = (_sub_windows.size() > 1) ? true : false;
     for (auto& itr : _sub_windows)
     {
-        itr.scene->setModel(model);
+        itr.scene->setModel(model, multi_win);
         itr.scene->setSelectionModel(selectionModel);
     }
 }
