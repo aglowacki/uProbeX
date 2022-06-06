@@ -11,6 +11,8 @@
 #include <QGraphicsView>
 #include <typeinfo>
 
+#include<QDebug>
+
 using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
@@ -157,11 +159,58 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
 
                 cItem->linkProperties(clone->properties());
 
+                cItem->appendLinkedDisplayChild(clone);
+
                 addItem(clone);
             }
          }
       }
    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int end)
+{
+
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+    if (parent.isValid())
+    {
+        const QAbstractItemModel* pm = parent.model();
+        if (typeid(*pm) == typeid(AnnotationTreeModel))
+        {
+            AbstractGraphicsItem* cItem = nullptr;
+            AbstractGraphicsItem* item =
+                static_cast<AbstractGraphicsItem*>(parent.internalPointer());
+
+            if (item != nullptr)
+            {
+                cItem = item->child(start);
+                if (cItem != nullptr)
+                {
+                    qDebug() << "----" << item->childList().count();
+                    cItem->unlinkAllAnnotations();
+                    QList<QGraphicsItem*> gitems = this->items();
+                    AbstractGraphicsItem* toRemove = nullptr;
+                    for (auto itr : cItem->getLinkedDisplayChildren())
+                    {
+                        if (gitems.contains(itr))
+                        {
+                            removeItem(itr);
+                            toRemove = itr;
+                            break;
+                        }
+                    }
+                    if (toRemove != nullptr)
+                    {
+                        cItem->removeLinkedDisplayChild(toRemove);
+                    }
+                }
+            }
+        }
+    }
 
 }
 
@@ -577,6 +626,11 @@ void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
                  SIGNAL(rowsInserted(const QModelIndex&, int, int)),
                  this,
                  SLOT(modelRowsInserted(const QModelIndex&, int, int)));
+
+      disconnect(m_model,
+          SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
+          this,
+          SLOT(modelRowsRemoved(const QModelIndex&, int, int)));
    }
 
    removeAllAnnotationItems();
@@ -593,6 +647,11 @@ void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
            SIGNAL(rowsInserted(const QModelIndex&, int, int)),
            this,
            SLOT(modelRowsInserted(const QModelIndex&, int, int)));
+
+       connect(m_model,
+           SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
+           this,
+           SLOT(modelRowsRemoved(const QModelIndex&, int, int)));
    }
 }
 

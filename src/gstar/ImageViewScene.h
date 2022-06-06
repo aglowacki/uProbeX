@@ -266,6 +266,8 @@ private slots:
     */
    void modelRowsInserted(const QModelIndex& parent, int start, int end);
 
+   void modelRowsRemoved(const QModelIndex& parent, int start, int end);
+
    /**
     * Internal slot called when the ROI selection in the scene is changed
     * interactively by the user. Reimplemented from QAbstractItemModel.

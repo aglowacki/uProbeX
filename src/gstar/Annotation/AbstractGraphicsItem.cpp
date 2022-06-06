@@ -70,6 +70,23 @@ void AbstractGraphicsItem::appendChild(AbstractGraphicsItem* child)
 
 /*---------------------------------------------------------------------------*/
 
+void AbstractGraphicsItem::appendLinkedDisplayChild(AbstractGraphicsItem* child)
+{
+    _linkedDisplayChildren.push_back(child);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::removeLinkedDisplayChild(AbstractGraphicsItem* child)
+{
+    if (_linkedDisplayChildren.contains(child))
+    {
+        _linkedDisplayChildren.removeAll(child);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void AbstractGraphicsItem::appendProperty(AnnotationProperty* prop)
 {
     if (prop != nullptr)
@@ -185,6 +202,15 @@ void AbstractGraphicsItem::disconnectAllLinkedProperties()
     }
 
 }
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::unlinkAllAnnotations()
+{
+    disconnectAllLinkedProperties();
+    _linked_props.clear();
+}
+
 /*---------------------------------------------------------------------------*/
 
 void AbstractGraphicsItem::connectAllViewItems()

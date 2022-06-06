@@ -42,7 +42,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphics
 
    _draw_mask = new AnnotationProperty();
    _draw_mask->setName("Draw");
-   _draw_mask->setValue(true);
+   _draw_mask->setValue(false);
 
    _erase_mask = new AnnotationProperty();
    _erase_mask->setName("Erase");
