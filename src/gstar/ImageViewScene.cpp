@@ -190,7 +190,6 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
                 cItem = item->child(start);
                 if (cItem != nullptr)
                 {
-                    qDebug() << "----" << item->childList().count();
                     cItem->unlinkAllAnnotations();
                     QList<QGraphicsItem*> gitems = this->items();
                     AbstractGraphicsItem* toRemove = nullptr;

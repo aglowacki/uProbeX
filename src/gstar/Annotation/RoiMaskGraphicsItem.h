@@ -113,9 +113,9 @@ protected:
 
    AnnotationProperty* _display_mask;
 
-   AnnotationProperty* _draw_mask;
+   //AnnotationProperty* _draw_mask;
 
-   AnnotationProperty* _erase_mask;
+   //AnnotationProperty* _erase_mask;
 
    AnnotationProperty* _alpha_value;
 

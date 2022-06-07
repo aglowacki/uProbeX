@@ -39,7 +39,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphics
    _display_mask = new AnnotationProperty();
    _display_mask->setName("Visible");
    _display_mask->setValue(true);
-
+   /*
    _draw_mask = new AnnotationProperty();
    _draw_mask->setName("Draw");
    _draw_mask->setValue(false);
@@ -47,18 +47,18 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphics
    _erase_mask = new AnnotationProperty();
    _erase_mask->setName("Erase");
    _erase_mask->setValue(false);
-
+   */
    _alpha_value = new AnnotationProperty();
    _alpha_value->setName("Alpha %");
    _alpha_value->setValue(70);
 
-   connect(_draw_mask, SIGNAL(valueChanged()), this ,SLOT(drawmask_changed()));
-   connect(_erase_mask, SIGNAL(valueChanged()), this ,SLOT(erasemask_changed()));
+   //connect(_draw_mask, SIGNAL(valueChanged()), this ,SLOT(drawmask_changed()));
+   //connect(_erase_mask, SIGNAL(valueChanged()), this ,SLOT(erasemask_changed()));
 
    m_data.push_back(_enable_mask);
    m_data.push_back(_display_mask);
-   m_data.push_back(_draw_mask);
-   m_data.push_back(_erase_mask);
+   //m_data.push_back(_draw_mask);
+   //m_data.push_back(_erase_mask);
    m_data.push_back(_alpha_value);
 
 }
@@ -158,12 +158,14 @@ void RoiMaskGraphicsItem::updateView()
 
 void RoiMaskGraphicsItem::drawmask_changed()
 {
+    /*
     bool val = _draw_mask->getValue().toBool();
     if(val == true)
     {
         _erase_mask->setValue(false);
         updateModel();
     }
+    */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -189,12 +191,14 @@ std::vector<QPoint> RoiMaskGraphicsItem::get_mask_list()
 
 void RoiMaskGraphicsItem::erasemask_changed()
 {
+    /*
     bool val = _erase_mask->getValue().toBool();
     if(val == true)
     {
         _draw_mask->setValue(false);
         updateModel();
     }
+    */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -264,7 +268,7 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
 
 void RoiMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-
+    /*
     _mouse_down = true;
    // Mouse click position (in item coordinates)
 
@@ -286,14 +290,14 @@ void RoiMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
    // Pass mouse event
    QGraphicsItem::mousePressEvent(event);
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
 
 void RoiMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-
+    /*
    if(_mouse_down == true)
    {
        int alpha_val = (int)((_alpha_value->getValue().toFloat() / 100.0) * 255.0);
@@ -312,14 +316,14 @@ void RoiMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
        // Queue an update
        update();
    }
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
 
 void RoiMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-
+    /*
     _mouse_down = false;
 
    // Queue an update
@@ -328,7 +332,7 @@ void RoiMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
    // Pass mouse event
    QGraphicsItem::mouseReleaseEvent(event);
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
