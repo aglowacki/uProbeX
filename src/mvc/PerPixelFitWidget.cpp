@@ -69,7 +69,7 @@ void PerPixelFitWidget::createLayout()
     _save_avg = new QCheckBox("Generate Avg H5");
     _save_v9 = new QCheckBox("Add v9 soft links");
     _save_exchange = new QCheckBox("Add Exchange format");
-    _save_csv = new QCheckBox("Save CVS of integrated fits");
+    _save_csv = new QCheckBox("Save CSV of integrated fits");
     _perform_quantification = new QCheckBox("Perform Quantification (maps_standardinfo.txt)");
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
