@@ -1164,6 +1164,7 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 void MapsElementsWidget::on_export_image_pressed()
 {
 
+    //bring up dialog 
 
 }
 
