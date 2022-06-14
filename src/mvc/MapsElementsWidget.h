@@ -92,6 +92,8 @@ public slots:
 
    void on_log_color_changed(int);
 
+   void on_export_image_pressed();
+
 protected:
 
    /**
@@ -149,6 +151,8 @@ protected:
    QCheckBox* _global_contrast_chk;
 
    QCheckBox* _chk_log_color;
+
+   QPushButton *_btn_export_as_image;
 
    float _min_contrast_perc;
 

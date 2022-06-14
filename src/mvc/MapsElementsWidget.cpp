@@ -19,7 +19,7 @@
 #include <limits>
 #include "core/GlobalThreadPool.h"
 #include "io/file/csv_io.h"
-
+#include "core/ColorMap.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -120,6 +120,13 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 	_cb_colormap = new QComboBox();
 	_cb_colormap->addItem(STR_COLORMAP_GRAY);
 	_cb_colormap->addItem(STR_COLORMAP_HEAT);
+
+    const std::map<QString, QVector<QRgb> >* color_maps = ColorMap::inst()->color_maps();
+    for (auto itr : *color_maps)
+    {
+        _cb_colormap->addItem(itr.first);
+    }
+
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
@@ -154,6 +161,10 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _contrast_widget = new gstar::MinMaxSlider();
     connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
     m_toolbar->addWidget(_contrast_widget);
+
+    _btn_export_as_image = new QPushButton("Export Images");
+    connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
+    m_toolbar->addWidget(_btn_export_as_image);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -397,6 +408,19 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
 		_selected_colormap = &_heat_colormap;
         Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_HEAT);
 	}
+    else
+    {
+        _selected_colormap = ColorMap::inst()->get_color_map(colormap);
+        if (_selected_colormap == nullptr)
+        {
+            _selected_colormap = &_gray_colormap;
+            Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
+        }
+        else
+        {
+            Preferences::inst()->setValue(STR_COLORMAP, colormap);
+        }
+    }
 	redrawCounts();
     
     Preferences::inst()->save();
@@ -1132,6 +1156,14 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
     {
         m_imageViewWidget->resizeEvent(nullptr);
     }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_image_pressed()
+{
+
 
 }
 
