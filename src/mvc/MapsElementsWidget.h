@@ -21,6 +21,7 @@
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
 #include "gstar/MinMaxSlider.h"
+#include <mvc/ExportMapsDialog.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -153,6 +154,8 @@ protected:
    QCheckBox* _chk_log_color;
 
    QPushButton *_btn_export_as_image;
+
+   ExportMapsDialog* _export_maps_dialog;
 
    float _min_contrast_perc;
 

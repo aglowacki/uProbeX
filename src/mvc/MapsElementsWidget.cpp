@@ -36,6 +36,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
     _calib_curve = nullptr;
 	_min_contrast_perc = 0;
 	_max_contrast_perc = 1.0;
+    
+    _export_maps_dialog = nullptr;
 
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -1165,6 +1167,13 @@ void MapsElementsWidget::on_export_image_pressed()
 {
 
     //bring up dialog 
+    if (_export_maps_dialog == nullptr)
+    {
+        _export_maps_dialog = new ExportMapsDialog(_model->getFilePath().toStdString());
+        //connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+    }
+    //_export_maps_dialog->updateFileList(file_list);
+    _export_maps_dialog->show();
 
 }
 
