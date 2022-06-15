@@ -18,6 +18,7 @@
 
 #include "data_struct/element_info.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
+#include <mvc/NumericPrecDelegate.h>
 #include <preferences/Preferences.h>
 
 using namespace data_struct;
@@ -112,10 +113,13 @@ void FitSpectraWidget::createLayout()
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
     connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra_with_background);
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
+    NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
+
 
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
+    _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
