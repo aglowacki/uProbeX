@@ -121,6 +121,9 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
+    _fit_params_table->setItemDelegateForColumn(3, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(4, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table,
@@ -135,6 +138,7 @@ void FitSpectraWidget::createLayout()
 
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
+    _fit_elements_table->setItemDelegateForColumn(1, npDelegate);
     _fit_elements_table->sortByColumn(0);
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
