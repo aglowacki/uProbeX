@@ -23,6 +23,7 @@
 #include <QCheckBox>
 #include <QEventLoop>
 #include <QLineEdit>
+#include <QGroupBox>
 #include <thread>
 
 /*---------------------------------------------------------------------------*/
@@ -102,6 +103,12 @@ protected:
    
    QLineEdit* _le_detectors;
    
+   QHBoxLayout* _proc_save_layout;
+
+   QGroupBox* _saving_grp;
+
+   QGroupBox* _processing_grp;
+
    size_t _total_blocks;
 };
 
