@@ -41,6 +41,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
 	_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+    _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
         _cb_add_elements->addItem(QString::fromStdString(e));
@@ -306,6 +307,22 @@ void FitSpectraWidget::onSettingsDialog()
 				_spectra_widget->remove_spectra(name);
 			}
 		}
+
+        _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
+        if(_showMaxChanSpec)
+        {
+            for (auto& itr : _max_chan_spec_map)
+            {
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            for (auto& itr : _max_chan_spec_map)
+            {
+                _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+            }
+        }
     }
 }
 
@@ -375,6 +392,15 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 			}
 		}
 		
+        _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
+        if (_showMaxChanSpec)
+        {
+            for (auto& itr : _max_chan_spec_map)
+            {
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+
         for (auto& itr : _roi_spec_map)
         {
             _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
@@ -388,6 +414,13 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 void FitSpectraWidget::appendFitIntSpectra(string name, ArrayDr* spec)
 {
     _fit_int_spec_map[name] = spec;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::appendMaxChanSpectra(string name, ArrayDr* spec)
+{
+    _max_chan_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -407,6 +440,18 @@ void FitSpectraWidget::clearFitIntSpectra()
         _spectra_widget->remove_spectra(name);
     }
     _fit_int_spec_map.clear();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::clearMaxChanSpectra()
+{
+    for (auto& itr : _max_chan_spec_map)
+    {
+        _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+    }
+    _max_chan_spec_map.clear();
 
 }
 /*---------------------------------------------------------------------------*/

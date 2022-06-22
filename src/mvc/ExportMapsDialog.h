@@ -26,6 +26,7 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QMessageBox>
+#include "core/defines.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -65,27 +66,20 @@ protected:
     */
    void createLayout();
 
-   
-   QTextEdit *_textEdit;
+   std::string _directory;
 
    QProgressBar *_progressBarFiles;
-
-   QProgressBar* _progressBarBlocks;
 
    QPushButton *_btn_run;
 
    QPushButton *_btn_cancel;
 
-   QListView* _file_list_view;
+   QCheckBox* _export_tiff;
 
-   QStandardItemModel* _file_list_model;
+   QCheckBox* _export_png;
 
-   QCheckBox* _proc_roi;
-
-   QCheckBox* _proc_nnls;
-
-   QCheckBox* _proc_matrix;
-
+   QCheckBox* _export_ascii;
+   /*
    QCheckBox* _save_avg;
 
    QCheckBox* _save_v9;
@@ -95,8 +89,7 @@ protected:
    QCheckBox* _save_exchange;
 
    QCheckBox* _perform_quantification;
-
-   QLineEdit* _le_detectors;
+   */
    
 };
 

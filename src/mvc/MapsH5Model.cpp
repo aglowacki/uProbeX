@@ -634,7 +634,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
-            _fit_int_spec_dict.insert({ "Max_Channels", fit_int_spec });
+            _max_chan_spec_dict.insert({ "Max_Channels", fit_int_spec });
             
         }
         else
@@ -648,7 +648,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
-            _fit_int_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
+            _max_chan_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
             
         }
         else
@@ -1290,7 +1290,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
-                    _fit_int_spec_dict.insert({ "Max_Channels", spectra });
+                    _max_chan_spec_dict.insert({ "Max_Channels", spectra });
 
                 }
                 else
@@ -1332,7 +1332,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
-                    _fit_int_spec_dict.insert({ "Max_10_Channels", spectra });
+                    _max_chan_spec_dict.insert({ "Max_10_Channels", spectra });
 
                 }
                 else

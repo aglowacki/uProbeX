@@ -31,6 +31,7 @@ void SpectraWidgetSettingsDialog::createLayout()
     bool log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
     bool detailed = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
 	bool fit_int = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+    bool max_chan = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
     
     _chkLog10 = new QCheckBox("Display Y axis in Log10");
     _chkLog10->setChecked(log10);
@@ -38,11 +39,14 @@ void SpectraWidgetSettingsDialog::createLayout()
     _chkDetailedFit->setChecked(detailed);
 	_chkFit_Int = new QCheckBox("Show Fit_Int_Spectras (Summed per pixel fitting)");
 	_chkFit_Int->setChecked(fit_int);
+    _chkMax_Chan = new QCheckBox("Show Max Channels Spectras");
+    _chkMax_Chan->setChecked(max_chan);
 
     QVBoxLayout* chklayout = new QVBoxLayout();
     chklayout->addWidget(_chkLog10);
     chklayout->addWidget(_chkDetailedFit);
 	chklayout->addWidget(_chkFit_Int);
+    chklayout->addWidget(_chkMax_Chan);
 
 
     _btn_accept = new QPushButton("Accept");
@@ -71,6 +75,7 @@ void SpectraWidgetSettingsDialog::onAccepted()
     Preferences::inst()->setValue(STR_PFR_LOG_10, _chkLog10->isChecked());
     Preferences::inst()->setValue(STR_PFR_DETAILED_FIT_SPEC, _chkDetailedFit->isChecked());
 	Preferences::inst()->setValue(STR_PFR_SHOW_FIT_INT_SPEC, _chkFit_Int->isChecked());
+    Preferences::inst()->setValue(STR_PFR_SHOW_MAX_CHAN_SPEC, _chkMax_Chan->isChecked());
     Preferences::inst()->save();
 	close();
 }

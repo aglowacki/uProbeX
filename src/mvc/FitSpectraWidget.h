@@ -64,9 +64,13 @@ public:
 
    void appendFitIntSpectra(string, ArrayDr*);
 
+   void appendMaxChanSpectra(string name, ArrayDr* spec);
+
    void appendROISpectra(string, ArrayDr*);
 
    void clearFitIntSpectra();
+   
+   void clearMaxChanSpectra();
 
    void clearROISpectra();
 
@@ -187,6 +191,8 @@ private:
 
     unordered_map<string, ArrayDr*> _fit_int_spec_map;
 
+    unordered_map<string, ArrayDr*> _max_chan_spec_map;
+
     unordered_map<string, ArrayDr*> _roi_spec_map;
 
     std::string _detector_element;
@@ -210,6 +216,8 @@ private:
     bool _showDetailedFitSpec;
 
 	bool _showFitIntSpec;
+
+    bool _showMaxChanSpec;
 
     unordered_map<string, ArrayDr> _labeled_spectras;
 };

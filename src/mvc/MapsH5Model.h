@@ -126,6 +126,8 @@ public:
 
 	std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
 
+    std::unordered_map<std::string, ArrayDr*> _max_chan_spec_dict;
+
     const data_struct::Scan_Info<double>* getScanInfo() { return &_scan_info; }
 
 signals:

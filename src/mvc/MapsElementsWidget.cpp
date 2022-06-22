@@ -491,6 +491,12 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
             }
 
+            for (auto& itr : model->_max_chan_spec_dict)
+            {
+                _spectra_widget->appendMaxChanSpectra(itr.first, itr.second);
+            }
+            
+
 			_model->getIntegratedSpectra(_int_spec);
 			_spectra_widget->setIntegratedSpectra(&_int_spec);
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
