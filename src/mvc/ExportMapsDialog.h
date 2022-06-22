@@ -10,6 +10,7 @@
 
 #include <QWidget>
 #include <QTextEdit>
+#include <QDir>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QLineEdit>
@@ -41,24 +42,35 @@ public:
    /**
     * Constructor.
     */
-	ExportMapsDialog(std::string directory, QWidget *parent = nullptr);
+	ExportMapsDialog(QDir directory, QWidget *parent = nullptr);
 
    /**
     * Destructor.
     */
    ~ExportMapsDialog();
 
-    void updateFileList(QStringList file_list);
+    void status_callback(size_t cur, size_t total);
 
-    void status_callback(size_t cur_block, size_t total_blocks);
+    void setRunEnabled(bool val) { _btn_run->setEnabled(val); }
+
+    bool get_save_tiff() { return _export_tiff->isChecked(); }
+
+    bool get_save_png() { return _export_png->isChecked(); }
+
+    bool get_save_ascii() { return _export_ascii->isChecked(); }
+
+    QDir get_dir() { return _directory; }
 
 signals:
 
-    void processed_list_update();
+    void export_released();
 
 public slots:
-    void runProcessing();
-   
+
+    void on_browse();
+
+    void on_open();
+
 protected:
 
    /**
@@ -66,7 +78,7 @@ protected:
     */
    void createLayout();
 
-   std::string _directory;
+   QDir _directory;
 
    QProgressBar *_progressBarFiles;
 
@@ -79,18 +91,11 @@ protected:
    QCheckBox* _export_png;
 
    QCheckBox* _export_ascii;
-   /*
-   QCheckBox* _save_avg;
 
-   QCheckBox* _save_v9;
-
-   QCheckBox* _save_csv;
+   QLabel* _le_dir;
    
-   QCheckBox* _save_exchange;
+   size_t _total_blocks;
 
-   QCheckBox* _perform_quantification;
-   */
-   
 };
 
 

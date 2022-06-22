@@ -95,6 +95,8 @@ public slots:
 
    void on_export_image_pressed();
 
+   void on_export_images();
+
 protected:
 
    /**

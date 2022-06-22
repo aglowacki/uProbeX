@@ -227,6 +227,8 @@ bool MapsH5Model::load(QString filepath)
     try
     {
         _filepath = filepath;
+        _dir = QDir(filepath);
+        _datset_name = QFileInfo(filepath).fileName();
         //_is_loaded = ERROR_LOADING;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();

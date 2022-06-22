@@ -1175,12 +1175,75 @@ void MapsElementsWidget::on_export_image_pressed()
     //bring up dialog 
     if (_export_maps_dialog == nullptr)
     {
-        _export_maps_dialog = new ExportMapsDialog(_model->getFilePath().toStdString());
-        //connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+        QDir export_model_dir = _model->getDir();
+        export_model_dir.cdUp();
+        export_model_dir.mkdir("export");
+        export_model_dir.cd("export");
+        export_model_dir.mkdir(_model->getDatasetName());
+        export_model_dir.cd(_model->getDatasetName());
+
+        _export_maps_dialog = new ExportMapsDialog(export_model_dir.absolutePath());
+        connect(_export_maps_dialog, &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
     }
-    //_export_maps_dialog->updateFileList(file_list);
     _export_maps_dialog->show();
 
 }
 
 /*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_images()
+{
+    _export_maps_dialog->setRunEnabled(false);
+    
+    //get all maps
+    int view_cnt = m_imageViewWidget->getViewCount();
+    std::string analysis_text = _cb_analysis->currentText().toStdString();
+    std::map<std::string, std::future<QPixmap> > job_queue;
+
+
+    QDir export_model_dir = _export_maps_dialog->get_dir();
+    int cur = 0;
+    _export_maps_dialog->status_callback(cur, view_cnt);
+    for (int vidx = 0; vidx < view_cnt; vidx++)
+    {
+        QString element = m_imageViewWidget->getLabelAt(vidx);
+
+        job_queue[element.toStdString()] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+    }
+
+    while (job_queue.size() > 0)
+    {
+        std::vector<std::string> to_delete;
+        for (auto& itr : job_queue)
+        {
+            //m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
+            if (_export_maps_dialog->get_save_tiff())
+            {
+
+            }
+            if (_export_maps_dialog->get_save_png())
+            {
+                if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
+                {
+                    logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
+                }
+            }
+            if (_export_maps_dialog->get_save_ascii())
+            {
+
+            }
+            to_delete.push_back(itr.first);
+            cur++;
+            _export_maps_dialog->status_callback(cur, view_cnt);
+        }
+
+        for (const auto& itr : to_delete)
+        {
+            job_queue.erase(itr);
+        }
+    }
+
+    _export_maps_dialog->setRunEnabled(true);
+    _export_maps_dialog->on_open();
+    _export_maps_dialog->close();
+}

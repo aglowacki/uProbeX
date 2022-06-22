@@ -10,6 +10,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QDir>
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
@@ -99,6 +100,8 @@ public:
     QString getFilePath() { return _filepath; }
 
     QString getDatasetName() { return _datset_name; }
+
+    QDir getDir() { return _dir; }
 
     void initialize_from_stream_block(data_struct::Stream_Block<float>* block);
 
@@ -192,6 +195,8 @@ private:
     QString _filepath;
 
     QString _datset_name;
+
+    QDir _dir;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 
