@@ -60,39 +60,21 @@ void ExportMapsDialog::createLayout()
     _export_all->setChecked(false);
 
     v_proc_layout->addItem(h_layout);
-    v_proc_layout->addWidget(_export_tiff);
+    //v_proc_layout->addWidget(_export_tiff);
     v_proc_layout->addWidget(_export_png);
     v_proc_layout->addWidget(_export_ascii);
     v_proc_layout->addWidget(_export_all);
 
     _processing_grp->setLayout(v_proc_layout);
     _processing_grp->setTitle("Export Image Options");
-    /*
-    QGroupBox* saving_grp = new QGroupBox();
-    QVBoxLayout* v_save_layout = new QVBoxLayout();
-    _save_avg = new QCheckBox("Generate Avg H5");
-    _save_v9 = new QCheckBox("Add v9 soft links");
-    _save_exchange = new QCheckBox("Add Exchange format");
-    _save_csv = new QCheckBox("Save CSV of integrated fits");
-    _perform_quantification = new QCheckBox("Perform Quantification (maps_standardinfo.txt)");
 
-    v_save_layout->addWidget(_save_avg);
-    v_save_layout->addWidget(_save_v9);
-    v_save_layout->addWidget(_save_exchange);
-    v_save_layout->addWidget(_save_csv);
-    v_save_layout->addWidget(_perform_quantification);
-
-    saving_grp->setLayout(v_save_layout);
-    saving_grp->setTitle("Export Options");
-    */
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(_btn_run);
     buttonlayout->addWidget(_btn_cancel);
 
     QHBoxLayout* proc_save_layout = new QHBoxLayout();
     proc_save_layout->addWidget(_processing_grp);
-    //proc_save_layout->addWidget(saving_grp);
-
+    
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(proc_save_layout);
     layout->addItem(buttonlayout);

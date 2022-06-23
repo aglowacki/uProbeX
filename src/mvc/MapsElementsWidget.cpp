@@ -1206,7 +1206,7 @@ void MapsElementsWidget::on_export_images()
 
     if (_export_maps_dialog->get_save_tiff())
     {
-
+        
     }
     if (_export_maps_dialog->get_save_png())
     {
@@ -1219,26 +1219,16 @@ void MapsElementsWidget::on_export_images()
             {
                 data_struct::Fit_Count_Dict<float> element_counts;
                 _model->getAnalyzedCounts(a_itr, element_counts);
-                /*
-                for (auto n_itr : normalizers)
+
+                for (auto& e_itr : element_counts)
                 {
-                    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-                    if (scalers->count(n_itr) > 0)
+                    std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
+                    QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
+                    if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
                     {
-                        _normalizer = &(scalers->at(n_itr));
+                        logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str()) + ".png").toStdString() << "\n";
                     }
-                    _calib_curve = _model->get_calibration_curve(a_itr, n_itr);
-                    */
-                    for (auto& e_itr : element_counts)
-                    {
-                        std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
-                        QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
-                        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
-                        {
-                            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str()) + ".png").toStdString() << "\n";
-                        }
-                    }
-                //}
+                }
             }
         }
         else
@@ -1376,13 +1366,11 @@ void MapsElementsWidget::on_export_images()
                                         else
                                         {
                                             val = e_val;
-                                            //logW << "Could not normalize by " << n_itr << "\n";
                                         }
                                     }
                                     else
                                     {
                                         val = e_val;
-                                        //logW << "Could not normalize by " << n_itr << "\n";
                                     }
                                 }
                                 out_stream << val << " , ";
