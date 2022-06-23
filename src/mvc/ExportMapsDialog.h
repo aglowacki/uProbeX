@@ -51,13 +51,15 @@ public:
 
     void status_callback(size_t cur, size_t total);
 
-    void setRunEnabled(bool val) { _btn_run->setEnabled(val); }
+    void setRunEnabled(bool val);
 
     bool get_save_tiff() { return _export_tiff->isChecked(); }
 
     bool get_save_png() { return _export_png->isChecked(); }
 
     bool get_save_ascii() { return _export_ascii->isChecked(); }
+
+    bool get_export_all() { return _export_all->isChecked(); }
 
     QDir get_dir() { return _directory; }
 
@@ -80,6 +82,8 @@ protected:
 
    QDir _directory;
 
+   QGroupBox* _processing_grp;
+
    QProgressBar *_progressBarFiles;
 
    QPushButton *_btn_run;
@@ -91,6 +95,8 @@ protected:
    QCheckBox* _export_png;
 
    QCheckBox* _export_ascii;
+
+   QCheckBox* _export_all;
 
    QLabel* _le_dir;
    

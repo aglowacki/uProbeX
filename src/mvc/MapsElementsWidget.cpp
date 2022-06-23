@@ -1203,43 +1203,210 @@ void MapsElementsWidget::on_export_images()
 
     QDir export_model_dir = _export_maps_dialog->get_dir();
     int cur = 0;
-    _export_maps_dialog->status_callback(cur, view_cnt);
-    for (int vidx = 0; vidx < view_cnt; vidx++)
-    {
-        QString element = m_imageViewWidget->getLabelAt(vidx);
 
-        job_queue[element.toStdString()] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+    if (_export_maps_dialog->get_save_tiff())
+    {
+
     }
-
-    while (job_queue.size() > 0)
+    if (_export_maps_dialog->get_save_png())
     {
-        std::vector<std::string> to_delete;
-        for (auto& itr : job_queue)
+        if (_export_maps_dialog->get_export_all())
         {
-            //m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
-            if (_export_maps_dialog->get_save_tiff())
-            {
+            std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
 
-            }
-            if (_export_maps_dialog->get_save_png())
+            std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+            for (auto& a_itr : analysis_types)
             {
-                if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
+                data_struct::Fit_Count_Dict<float> element_counts;
+                _model->getAnalyzedCounts(a_itr, element_counts);
+                /*
+                for (auto n_itr : normalizers)
                 {
-                    logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
+                    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                    if (scalers->count(n_itr) > 0)
+                    {
+                        _normalizer = &(scalers->at(n_itr));
+                    }
+                    _calib_curve = _model->get_calibration_curve(a_itr, n_itr);
+                    */
+                    for (auto& e_itr : element_counts)
+                    {
+                        std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
+                        QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
+                        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
+                        {
+                            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str()) + ".png").toStdString() << "\n";
+                        }
+                    }
+                //}
+            }
+        }
+        else
+        {
+            _export_maps_dialog->status_callback(cur, view_cnt);
+            for (int vidx = 0; vidx < view_cnt; vidx++)
+            {
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+
+                job_queue[element.toStdString()] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            }
+
+            while (job_queue.size() > 0)
+            {
+                std::vector<std::string> to_delete;
+                for (auto& itr : job_queue)
+                {
+                    if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
+                    {
+                        logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
+                    }
+                    to_delete.push_back(itr.first);
+                    cur++;
+                    _export_maps_dialog->status_callback(cur, view_cnt);
+                }
+
+                for (const auto& itr : to_delete)
+                {
+                    job_queue.erase(itr);
                 }
             }
-            if (_export_maps_dialog->get_save_ascii())
-            {
-
-            }
-            to_delete.push_back(itr.first);
-            cur++;
-            _export_maps_dialog->status_callback(cur, view_cnt);
         }
+    }
+    if (_export_maps_dialog->get_save_ascii())
+    {
+        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
 
-        for (const auto& itr : to_delete)
+        const std::vector<float> x_axis = _model->get_x_axis();
+        const std::vector<float> y_axis = _model->get_y_axis();
+
+        std::string save_file_name = export_model_dir.absolutePath().toStdString() + QDir::separator().toLatin1() + _model->getDatasetName().toStdString();
+        std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+
+        size_t cur = 0;
+        size_t total = analysis_types.size() * x_axis.size() * y_axis.size() * normalizers.size();
+        _export_maps_dialog->status_callback(cur, total);
+
+
+        for (auto& a_itr : analysis_types)
         {
-            job_queue.erase(itr);
+            data_struct::Fit_Count_Dict<float> element_counts;
+            _model->getAnalyzedCounts(a_itr, element_counts);
+
+            data_struct::ArrayXXr<float>* normalizer = nullptr;
+
+            for (auto n_itr : normalizers)
+            {
+                std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                if (scalers->count(n_itr) > 0)
+                {
+                    normalizer = &(scalers->at(n_itr));
+                }
+                Calibration_curve<double>* calib_curve = _model->get_calibration_curve(a_itr, n_itr);
+
+                std::string sub_save_file = save_file_name + "-" + a_itr + "-" + n_itr + ".csv";
+                std::ofstream out_stream(sub_save_file);
+
+                logI << save_file_name << "\n";
+
+                if (out_stream.is_open())
+                {
+
+                    out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
+
+
+
+                    if (a_itr == STR_FIT_ROI || n_itr == "Counts")
+                    {
+                        out_stream << "Analysis " << a_itr << " in cts/s \n";
+                    }
+                    else
+                    {
+                        out_stream << "Analysis " << a_itr << " Normalized by " << n_itr << " ug/cm2 \n";
+                    }
+
+                    out_stream << "Y Pixel, X Pixel, Y Position, X Position, ";
+                    for (auto& e_itr : element_counts)
+                    {
+                        out_stream << e_itr.first;
+                        if (calib_curve != nullptr && normalizer != nullptr)
+                        {
+                            if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                            {
+                                out_stream << " (ug/cm2) ";
+                            }
+                            else
+                            {
+                                out_stream << " (cts/s) ";
+                            }
+                        }
+                        else
+                        {
+                            out_stream << " (cts/s) ";
+                        }
+                        out_stream << " , ";
+                    }
+                    out_stream << "\n";
+
+                    for (int yidx = 0; yidx < y_axis.size(); yidx++)
+                    {
+                        for (int xidx = 0; xidx < x_axis.size(); xidx++)
+                        {
+
+                            out_stream << yidx << " , " << xidx << " , " << y_axis.at(yidx) << " , " << x_axis.at(xidx) << " , ";
+
+                            for (auto& e_itr : element_counts)
+                            {
+                                float calib_val = 1.0;
+                                double val = 1.0;
+                                float e_val = (e_itr.second)(yidx, xidx);
+                                if (a_itr == STR_FIT_ROI || n_itr == "Counts")
+                                {
+                                    val = e_val;
+                                }
+                                else
+                                {
+                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    {
+                                        if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                        {
+                                            calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+                                            float n_val = (*normalizer)(yidx, xidx);
+                                            val = e_val / n_val / calib_val;
+                                        }
+                                        else
+                                        {
+                                            val = e_val;
+                                            //logW << "Could not normalize by " << n_itr << "\n";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val = e_val;
+                                        //logW << "Could not normalize by " << n_itr << "\n";
+                                    }
+                                }
+                                out_stream << val << " , ";
+                            }
+                            cur++;
+                            _export_maps_dialog->status_callback(cur, total);
+                            out_stream << "\n";
+                        }
+                        if (false == _export_maps_dialog->isActiveWindow())
+                        {
+                            out_stream.close();
+                            _export_maps_dialog->setRunEnabled(true);
+                            return;
+                        }
+                        out_stream << "\n";
+                    }
+                    out_stream.close();
+                }
+                else
+                {
+                    logE << "Could not save PNG for " << save_file_name << "\n";
+                }
+            }
+
         }
     }
 

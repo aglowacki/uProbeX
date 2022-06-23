@@ -38,7 +38,7 @@ void ExportMapsDialog::createLayout()
     _btn_cancel = new QPushButton("Close");
     connect(_btn_cancel, &QPushButton::released, this, &ExportMapsDialog::close);
 
-    QGroupBox* processing_grp = new QGroupBox();
+    _processing_grp = new QGroupBox();
     QVBoxLayout* v_proc_layout = new QVBoxLayout();
     QHBoxLayout* h_layout = new QHBoxLayout();
     _le_dir = new QLabel();
@@ -56,14 +56,17 @@ void ExportMapsDialog::createLayout()
     _export_png->setChecked(true);
     _export_ascii = new QCheckBox("Save ASCII");
     _export_ascii->setChecked(true);
+    _export_all = new QCheckBox("Exports all elements: Unchecked exports only elements in view");
+    _export_all->setChecked(false);
 
     v_proc_layout->addItem(h_layout);
     v_proc_layout->addWidget(_export_tiff);
     v_proc_layout->addWidget(_export_png);
     v_proc_layout->addWidget(_export_ascii);
+    v_proc_layout->addWidget(_export_all);
 
-    processing_grp->setLayout(v_proc_layout);
-    processing_grp->setTitle("Export Image Options");
+    _processing_grp->setLayout(v_proc_layout);
+    _processing_grp->setTitle("Export Image Options");
     /*
     QGroupBox* saving_grp = new QGroupBox();
     QVBoxLayout* v_save_layout = new QVBoxLayout();
@@ -87,7 +90,7 @@ void ExportMapsDialog::createLayout()
     buttonlayout->addWidget(_btn_cancel);
 
     QHBoxLayout* proc_save_layout = new QHBoxLayout();
-    proc_save_layout->addWidget(processing_grp);
+    proc_save_layout->addWidget(_processing_grp);
     //proc_save_layout->addWidget(saving_grp);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -96,6 +99,14 @@ void ExportMapsDialog::createLayout()
     layout->addWidget(_progressBarFiles);
     
     setLayout(layout);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ExportMapsDialog::setRunEnabled(bool val)
+{
+    _processing_grp->setEnabled(val);
+    _btn_run->setEnabled(val); 
 }
 
 /*---------------------------------------------------------------------------*/
