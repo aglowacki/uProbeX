@@ -1403,9 +1403,14 @@ void MapsElementsWidget::on_export_images()
         QPixmap pixmap(_counts_window->rect().size());
         _counts_window->render(&pixmap, QPoint(), QRegion(_counts_window->rect()));
 
-        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot.png")), "PNG"))
+        QDateTime date = QDateTime::currentDateTime();
+        QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+        QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+
+        qDebug() << "Date:" + formattedTime;
+        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot_"+formattedTime+".png")), "PNG"))
         {
-            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot.png")).toStdString() << "\n";
+            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot_" + formattedTime + ".png")).toStdString() << "\n";
         }
     }
 
