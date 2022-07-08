@@ -76,7 +76,7 @@ public slots:
 
     void onCloseModel(const QStringList& names_list, MODEL_TYPE mt);
 
-    void onPerPixelProcess(const QString& context_label, const QStringList& file_list);
+    void onCustomContext(const QString& context_label, const QStringList& file_list);
 
     void onPerPixelProcessList(const QStringList& file_list);
 

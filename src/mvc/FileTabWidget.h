@@ -108,6 +108,13 @@ protected:
     QPushButton* _process_btn;
 
 	QPushButton * _filter_suggest_btn;
+
+    QAction* _action_load;
+
+    QAction* _action_unload;
+
+    QAction* _action_refresh;
+
 };
 
 /*---------------------------------------------------------------------------*/
