@@ -52,18 +52,25 @@ void ExportMapsDialog::createLayout()
     h_layout->addWidget(btn_open);
     _export_tiff = new QCheckBox("Save Tiff");
     _export_tiff->setChecked(true);
+
     _export_png = new QCheckBox("Save PNG");
     _export_png->setChecked(true);
+
     _export_ascii = new QCheckBox("Save ASCII");
     _export_ascii->setChecked(true);
+
     _export_all = new QCheckBox("Exports all elements: Unchecked exports only elements in view");
     _export_all->setChecked(false);
+
+    _save_screen = new QCheckBox("Screenshot elements in view");
+    _save_screen->setChecked(false);
 
     v_proc_layout->addItem(h_layout);
     //v_proc_layout->addWidget(_export_tiff);
     v_proc_layout->addWidget(_export_png);
     v_proc_layout->addWidget(_export_ascii);
     v_proc_layout->addWidget(_export_all);
+    v_proc_layout->addWidget(_save_screen);
 
     _processing_grp->setLayout(v_proc_layout);
     _processing_grp->setTitle("Export Image Options");

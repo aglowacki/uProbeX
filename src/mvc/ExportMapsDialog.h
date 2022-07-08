@@ -61,6 +61,8 @@ public:
 
     bool get_export_all() { return _export_all->isChecked(); }
 
+    bool get_save_screen() { return _save_screen->isChecked(); }
+
     QDir get_dir() { return _directory; }
 
 signals:
@@ -97,6 +99,8 @@ protected:
    QCheckBox* _export_ascii;
 
    QCheckBox* _export_all;
+
+   QCheckBox* _save_screen;
 
    QLabel* _le_dir;
    

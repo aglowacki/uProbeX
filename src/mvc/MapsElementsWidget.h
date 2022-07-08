@@ -159,6 +159,8 @@ protected:
 
    ExportMapsDialog* _export_maps_dialog;
 
+   QWidget* _counts_window;
+
    float _min_contrast_perc;
 
    float _max_contrast_perc;

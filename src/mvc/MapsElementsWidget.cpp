@@ -176,10 +176,10 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _extra_pvs_table_widget = new QTableWidget(1, 4);
     _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
 
-    QWidget *window = new QWidget();
-    window->setLayout(counts_layout);
+    _counts_window = new QWidget();
+    _counts_window->setLayout(counts_layout);
 
-    _tab_widget->addTab(window, "Analyzed Counts");
+    _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
@@ -1395,6 +1395,17 @@ void MapsElementsWidget::on_export_images()
                 }
             }
 
+        }
+    }
+    if (_export_maps_dialog->get_save_screen())
+    {
+
+        QPixmap pixmap(_counts_window->rect().size());
+        _counts_window->render(&pixmap, QPoint(), QRegion(_counts_window->rect()));
+
+        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot.png")), "PNG"))
+        {
+            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot.png")).toStdString() << "\n";
         }
     }
 
