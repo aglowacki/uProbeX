@@ -19,6 +19,7 @@
 #include <core/uProbeX.h>
 #include <mvc/AbstractWindowController.h>
 #include <core/SubWindow.h>
+#include <core/ColorMap.h>
 #include <mvc/SWSModel.h>
 #include <mvc/VLM_Widget.h>
 #include <preferences/PreferencesDialog.h>
@@ -101,6 +102,8 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     m_mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_mdiArea->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     setCentralWidget(m_mdiArea);
+
+    ColorMap::inst()->reload_color_maps();
 
     show();
 }

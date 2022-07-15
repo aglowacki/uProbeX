@@ -17,10 +17,11 @@
 #include <unordered_map>
 #include <gstar/CoordinateWidget.h>
 #include <gstar/CountsLookupTransformer.h>
-#include "gstar/Annotation/HotSpotMaskGraphicsItem.h"
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
 #include "gstar/MinMaxSlider.h"
+#include <mvc/ExportMapsDialog.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -72,9 +73,9 @@ public slots:
 
    void model_updated();
 
-   void addHotSpotMask();
+   void addRoiMask();
 
-   void roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload);
+   void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
    void onGridDialog();
 
@@ -91,6 +92,10 @@ public slots:
    void on_global_contrast_changed(int);
 
    void on_log_color_changed(int);
+
+   void on_export_image_pressed();
+
+   void on_export_images();
 
 protected:
 
@@ -125,7 +130,7 @@ protected:
 
    QPushButton *_pb_perpixel_fitting;
 
-   QAction *_addHotSpotMaskAction;
+   QAction *_addRoiMaskAction;
    
    QPushButton * _grid_button;
 
@@ -149,6 +154,12 @@ protected:
    QCheckBox* _global_contrast_chk;
 
    QCheckBox* _chk_log_color;
+
+   QPushButton *_btn_export_as_image;
+
+   ExportMapsDialog* _export_maps_dialog;
+
+   QWidget* _counts_window;
 
    float _min_contrast_perc;
 

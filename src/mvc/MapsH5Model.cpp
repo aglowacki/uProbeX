@@ -227,6 +227,8 @@ bool MapsH5Model::load(QString filepath)
     try
     {
         _filepath = filepath;
+        _dir = QDir(filepath);
+        _datset_name = QFileInfo(filepath).fileName();
         //_is_loaded = ERROR_LOADING;
         //std::chrono::time_point<std::chrono::system_clock> start, end;
         //start = std::chrono::system_clock::now();
@@ -563,7 +565,53 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
 {
-//    _scan_info.
+
+    hid_t x_id, y_id;
+    string x_axis_loc = "x_axis";
+    string y_axis_loc = "y_axis";
+
+    x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
+    y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
+
+    if (x_id > -1 && y_id > -1)
+    {
+        hid_t x_space_id = H5Dget_space(x_id);
+        hid_t y_space_id = H5Dget_space(y_id);
+
+        hsize_t x_dims_in[1] = { 0 };
+        hsize_t y_dims_in[1] = { 0 };
+        int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
+        int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
+        if (xstatus_n > -1 && ystatus_n > -1)
+        {
+            _x_axis.resize(x_dims_in[0]);
+            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, &_x_axis[0]);
+            if (error > 0)
+            {
+                logW << "Could not load x_axis\n";
+            }
+            _y_axis.resize(y_dims_in[0]);
+            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, &_y_axis[0]);
+            if (error > 0)
+            {
+                logW << "Could not load y_axis\n";
+            }
+        }
+
+        if (x_space_id > -1)
+        {
+            H5Sclose(x_space_id);
+        }
+        if (y_space_id > -1)
+        {
+            H5Sclose(y_space_id);
+        }
+
+        H5Dclose(x_id);
+        H5Dclose(y_id);
+
+    }
+
     return true;
 }
 
@@ -634,7 +682,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
-            _fit_int_spec_dict.insert({ "Max_Channels", fit_int_spec });
+            _max_chan_spec_dict.insert({ "Max_Channels", fit_int_spec });
             
         }
         else
@@ -648,7 +696,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
-            _fit_int_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
+            _max_chan_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
             
         }
         else
@@ -1164,11 +1212,13 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id;
+    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id;
     string extra_pvs_desc = "Scan/Extra_PVs/Description";
     string extra_pvs_name = "Scan/Extra_PVs/Names";
     string extra_pvs_unit = "Scan/Extra_PVs/Unit";
     string extra_pvs_val = "Scan/Extra_PVs/Values";
+    string x_axis_loc = "Scan/x_axis";
+    string y_axis_loc = "Scan/y_axis";
     hsize_t offset[1] = { 0, };
     hsize_t count[1] = { 1 };
     hid_t   filetype, memtype, status;
@@ -1178,6 +1228,8 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
     unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
     val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
+    x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
+    y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -1247,6 +1299,47 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     {
         H5Dclose(val_id);
     }
+
+    if (x_id > -1 && y_id > -1)
+    {
+        hid_t x_space_id = H5Dget_space(x_id);
+        hid_t y_space_id = H5Dget_space(y_id);
+        
+        hsize_t x_dims_in[1] = { 0 };
+        hsize_t y_dims_in[1] = { 0 };
+        int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
+        int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
+        if (xstatus_n > -1 && ystatus_n > -1)
+        {
+            _x_axis.resize(x_dims_in[0]);
+            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, &_x_axis[0]);
+            if (error > 0)
+            {
+                logW << "Could not load x_axis\n";
+            }
+            _y_axis.resize(y_dims_in[0]);
+            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, &_y_axis[0]);
+            if (error > 0)
+            {
+                logW << "Could not load y_axis\n";
+            }
+        }
+
+        if (x_space_id > -1)
+        {
+            H5Sclose(x_space_id);
+        }
+        if (y_space_id > -1)
+        {
+            H5Sclose(y_space_id);
+        }
+
+        H5Dclose(x_id);
+        H5Dclose(y_id);
+
+    }
+
+
     return true;
 }
 
@@ -1290,7 +1383,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
-                    _fit_int_spec_dict.insert({ "Max_Channels", spectra });
+                    _max_chan_spec_dict.insert({ "Max_Channels", spectra });
 
                 }
                 else
@@ -1332,7 +1425,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
-                    _fit_int_spec_dict.insert({ "Max_10_Channels", spectra });
+                    _max_chan_spec_dict.insert({ "Max_10_Channels", spectra });
 
                 }
                 else

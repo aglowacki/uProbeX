@@ -10,6 +10,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QDir>
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
@@ -88,7 +89,7 @@ public:
 
     std::unordered_map<std::string, data_struct::ArrayXXr<float>>* getScalers() { return &_scalers; }
 
-    bool is_fully_loaded() {return _is_fully_loaded;}
+    bool is_fully_loaded() { return _is_fully_loaded; }
 
     //data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
     void getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts);
@@ -99,6 +100,8 @@ public:
     QString getFilePath() { return _filepath; }
 
     QString getDatasetName() { return _datset_name; }
+
+    QDir getDir() { return _dir; }
 
     void initialize_from_stream_block(data_struct::Stream_Block<float>* block);
 
@@ -120,13 +123,19 @@ public:
 
     Calibration_curve<double>* get_calibration_curve(string analysis_type, string scaler_name);
 
-    data_struct::Params_Override<double>* getParamOverride(){return _params_override;}
+    data_struct::Params_Override<double>* getParamOverride() { return _params_override; }
 
-    bool load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra<double>&spec);
+    bool load_roi(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
 
-	std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
+    std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
+
+    std::unordered_map<std::string, ArrayDr*> _max_chan_spec_dict;
 
     const data_struct::Scan_Info<double>* getScanInfo() { return &_scan_info; }
+
+    const std::vector<float>& get_x_axis() { return _x_axis; }
+
+    const std::vector<float>& get_y_axis() { return _y_axis; }
 
 signals:
     void model_data_updated();
@@ -152,7 +161,7 @@ protected:
 
     bool _load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_9(const std::vector<QPoint> &roi_list, data_struct::Spectra<double> &spec);
+    bool _load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
 
     //Version 10
 
@@ -172,7 +181,7 @@ protected:
 
     bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_10(const std::vector<QPoint> &roi_list, data_struct::Spectra<double> &spec);
+    bool _load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
 
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
@@ -191,6 +200,8 @@ private:
 
     QString _datset_name;
 
+    QDir _dir;
+
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
@@ -198,6 +209,9 @@ private:
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_roi;
 
     data_struct::Scan_Info<double> _scan_info;
+
+    std::vector<float> _x_axis;
+    std::vector<float> _y_axis;
 
     float _version;
 

@@ -5,7 +5,6 @@
 
 #include <mvc/PerPixelFitWidget.h>
 #include <QApplication>
-#include <QGroupBox>
 #include <data_struct/analysis_job.h>
 #include <core/process_whole.h>
 #include <QScrollArea>
@@ -51,7 +50,7 @@ void PerPixelFitWidget::createLayout()
     _btn_cancel = new QPushButton("Cancel");
     connect(_btn_cancel, &QPushButton::released, this, &PerPixelFitWidget::close);
 
-    QGroupBox* processing_grp = new QGroupBox();
+    _processing_grp = new QGroupBox();
     QVBoxLayout* v_proc_layout = new QVBoxLayout();
     _proc_roi = new QCheckBox("Region of Interest Analysis");
     _proc_nnls = new QCheckBox("Non-Negative Least Squares Analysis");
@@ -61,15 +60,15 @@ void PerPixelFitWidget::createLayout()
     v_proc_layout->addWidget(_proc_nnls);
     v_proc_layout->addWidget(_proc_matrix);
 
-    processing_grp->setLayout(v_proc_layout);
-    processing_grp->setTitle("Processing Options");
+    _processing_grp->setLayout(v_proc_layout);
+    _processing_grp->setTitle("Processing Options");
 
-    QGroupBox* saving_grp = new QGroupBox();
+    _saving_grp = new QGroupBox();
     QVBoxLayout* v_save_layout = new QVBoxLayout();
     _save_avg = new QCheckBox("Generate Avg H5");
     _save_v9 = new QCheckBox("Add v9 soft links");
     _save_exchange = new QCheckBox("Add Exchange format");
-    _save_csv = new QCheckBox("Save CVS of integrated fits");
+    _save_csv = new QCheckBox("Save CSV of integrated fits");
     _perform_quantification = new QCheckBox("Perform Quantification (maps_standardinfo.txt)");
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
@@ -80,8 +79,8 @@ void PerPixelFitWidget::createLayout()
     v_save_layout->addWidget(_save_csv);
     v_save_layout->addWidget(_perform_quantification);
 
-    saving_grp->setLayout(v_save_layout);
-    saving_grp->setTitle("Export Options");
+    _saving_grp->setLayout(v_save_layout);
+    _saving_grp->setTitle("Export Options");
 
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
@@ -92,9 +91,9 @@ void PerPixelFitWidget::createLayout()
     buttonlayout->addWidget(_btn_run);
     buttonlayout->addWidget(_btn_cancel);
 
-    QHBoxLayout* proc_save_layout = new QHBoxLayout();
-    proc_save_layout->addWidget(processing_grp);
-    proc_save_layout->addWidget(saving_grp);
+    _proc_save_layout = new QHBoxLayout();
+    _proc_save_layout->addWidget(_processing_grp);
+    _proc_save_layout->addWidget(_saving_grp);
 
     QHBoxLayout* hbox_progresss_blocks = new QHBoxLayout();
     hbox_progresss_blocks->addWidget(new QLabel("Current Fitting:"));
@@ -106,7 +105,7 @@ void PerPixelFitWidget::createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(_le_detectors);
-    layout->addItem(proc_save_layout);
+    layout->addItem(_proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
@@ -134,6 +133,10 @@ void PerPixelFitWidget::updateFileList(QStringList file_list)
 void PerPixelFitWidget::runProcessing()
 {
     _btn_run->setEnabled(false);
+    _processing_grp->setEnabled(false);
+    _saving_grp->setEnabled(false);
+    _le_detectors->setEnabled(false);
+    _file_list_view->setEnabled(false);
     //run in thread
     data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
@@ -264,6 +267,11 @@ void PerPixelFitWidget::runProcessing()
     iterate_datasets_and_update(analysis_job);
 
     _btn_run->setEnabled(true);
+    _processing_grp->setEnabled(true);
+    _saving_grp->setEnabled(true);
+    _le_detectors->setEnabled(true);
+    _file_list_view->setEnabled(true);
+    _btn_cancel->setText("Close");
     emit processed_list_update();
 }
 

@@ -73,7 +73,7 @@ signals:
    /**
     * @brief valueChanged
     */
-   void valueChanged();
+   void valueChanged(AnnotationProperty*, QVariant);
 
 protected:
 

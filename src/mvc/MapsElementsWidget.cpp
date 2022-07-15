@@ -7,7 +7,7 @@
 
 #include <gstar/ImageViewWidget.h>
 
-#include <gstar/Annotation/HotSpotMaskGraphicsItem.h>
+#include <gstar/Annotation/RoiMaskGraphicsItem.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -19,7 +19,7 @@
 #include <limits>
 #include "core/GlobalThreadPool.h"
 #include "io/file/csv_io.h"
-
+#include "core/ColorMap.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -36,6 +36,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
     _calib_curve = nullptr;
 	_min_contrast_perc = 0;
 	_max_contrast_perc = 1.0;
+    
+    _export_maps_dialog = nullptr;
 
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -120,6 +122,13 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 	_cb_colormap = new QComboBox();
 	_cb_colormap->addItem(STR_COLORMAP_GRAY);
 	_cb_colormap->addItem(STR_COLORMAP_HEAT);
+
+    const std::map<QString, QVector<QRgb> >* color_maps = ColorMap::inst()->color_maps();
+    for (auto itr : *color_maps)
+    {
+        _cb_colormap->addItem(itr.first);
+    }
+
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
     m_toolbar->addWidget(new QLabel(" ColorMap :"));
@@ -155,6 +164,10 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
     m_toolbar->addWidget(_contrast_widget);
 
+    _btn_export_as_image = new QPushButton("Export Images");
+    connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
+    m_toolbar->addWidget(_btn_export_as_image);
+
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
 
@@ -163,10 +176,10 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _extra_pvs_table_widget = new QTableWidget(1, 4);
     _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
 
-    QWidget *window = new QWidget();
-    window->setLayout(counts_layout);
+    _counts_window = new QWidget();
+    _counts_window->setLayout(counts_layout);
 
-    _tab_widget->addTab(window, "Analyzed Counts");
+    _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
@@ -253,6 +266,7 @@ void MapsElementsWidget::on_min_max_contrast_changed()
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
     m_imageViewWidget->newGridLayout(rows, cols);
     model_updated();
     m_imageViewWidget->restoreLabels(element_view_list);
@@ -264,24 +278,24 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::addHotSpotMask()
+void MapsElementsWidget::addRoiMask()
 {
     int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
     int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
-   gstar::HotSpotMaskGraphicsItem* annotation = new gstar::HotSpotMaskGraphicsItem(w, h);
+   gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
 
    //QString name = ano->getName();
    //_spectra_widget->appendROISpectra()
    //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
-   connect(annotation, &gstar::HotSpotMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
+   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool reload)
+void MapsElementsWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
 {
     if (ano != nullptr && reload)
     {
@@ -297,14 +311,14 @@ void MapsElementsWidget::roiUpdated(gstar::HotSpotMaskGraphicsItem* ano, bool re
 void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
-    // TODO: change hotspot to spectra region and add back in
+    // TODO: change Roi to spectra region and add back in
     
-    _addHotSpotMaskAction = new QAction("Add ROI Mask", this);
+    _addRoiMaskAction = new QAction("Add ROI Mask", this);
 
-    connect(_addHotSpotMaskAction,
+    connect(_addRoiMaskAction,
             SIGNAL(triggered()),
             this,
-            SLOT(addHotSpotMask()));
+            SLOT(addRoiMask()));
             
 }
 
@@ -320,7 +334,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    QMenu menu(parent);
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
-   menu.addAction(_addHotSpotMaskAction);
+   menu.addAction(_addRoiMaskAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -396,6 +410,19 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
 		_selected_colormap = &_heat_colormap;
         Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_HEAT);
 	}
+    else
+    {
+        _selected_colormap = ColorMap::inst()->get_color_map(colormap);
+        if (_selected_colormap == nullptr)
+        {
+            _selected_colormap = &_gray_colormap;
+            Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
+        }
+        else
+        {
+            Preferences::inst()->setValue(STR_COLORMAP, colormap);
+        }
+    }
 	redrawCounts();
     
     Preferences::inst()->save();
@@ -463,6 +490,12 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             {
                 _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
             }
+
+            for (auto& itr : model->_max_chan_spec_dict)
+            {
+                _spectra_widget->appendMaxChanSpectra(itr.first, itr.second);
+            }
+            
 
 			_model->getIntegratedSpectra(_int_spec);
 			_spectra_widget->setIntegratedSpectra(&_int_spec);
@@ -821,7 +854,9 @@ void MapsElementsWidget::redrawCounts()
             }
         }
     }
-
+    //redraw annotations
+    m_selectionModel->clear();
+    m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -829,20 +864,20 @@ void MapsElementsWidget::redrawCounts()
 void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
 {
     
-    gstar::HotSpotMaskGraphicsItem item(0,0);
+    gstar::RoiMaskGraphicsItem item(0,0);
 
-    QList<gstar::AbstractGraphicsItem*>  hotspots;
+    QList<gstar::AbstractGraphicsItem*>  Rois;
     if(m_treeModel != nullptr)
     {
-        hotspots = m_treeModel->get_all_of_type( item.classId() );
+        Rois = m_treeModel->get_all_of_type( item.classId() );
     }
     
     QImage *sum_of_masks = nullptr;
-    if(hotspots.size() > 0)
+    if(Rois.size() > 0)
     {
-        foreach(gstar::AbstractGraphicsItem* item , hotspots)
+        foreach(gstar::AbstractGraphicsItem* item , Rois)
         {
-            gstar::HotSpotMaskGraphicsItem* mask = dynamic_cast<gstar::HotSpotMaskGraphicsItem*>(item);
+            gstar::RoiMaskGraphicsItem* mask = dynamic_cast<gstar::RoiMaskGraphicsItem*>(item);
             if(mask->isEnabled())
             {
                 if(sum_of_masks == nullptr)
@@ -1133,3 +1168,253 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 }
 
 /*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_image_pressed()
+{
+
+    //bring up dialog 
+    if (_export_maps_dialog == nullptr)
+    {
+        QDir export_model_dir = _model->getDir();
+        export_model_dir.cdUp();
+        export_model_dir.mkdir("export");
+        export_model_dir.cd("export");
+        export_model_dir.mkdir(_model->getDatasetName());
+        export_model_dir.cd(_model->getDatasetName());
+
+        _export_maps_dialog = new ExportMapsDialog(export_model_dir.absolutePath());
+        connect(_export_maps_dialog, &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
+    }
+    _export_maps_dialog->show();
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::on_export_images()
+{
+    _export_maps_dialog->setRunEnabled(false);
+    
+    //get all maps
+    int view_cnt = m_imageViewWidget->getViewCount();
+    std::string analysis_text = _cb_analysis->currentText().toStdString();
+    std::map<std::string, std::future<QPixmap> > job_queue;
+
+
+    QDir export_model_dir = _export_maps_dialog->get_dir();
+    int cur = 0;
+
+    if (_export_maps_dialog->get_save_tiff())
+    {
+        
+    }
+    if (_export_maps_dialog->get_save_png())
+    {
+        if (_export_maps_dialog->get_export_all())
+        {
+            std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
+
+            std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+            for (auto& a_itr : analysis_types)
+            {
+                data_struct::Fit_Count_Dict<float> element_counts;
+                _model->getAnalyzedCounts(a_itr, element_counts);
+
+                for (auto& e_itr : element_counts)
+                {
+                    std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
+                    QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
+                    if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
+                    {
+                        logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str()) + ".png").toStdString() << "\n";
+                    }
+                }
+            }
+        }
+        else
+        {
+            _export_maps_dialog->status_callback(cur, view_cnt);
+            for (int vidx = 0; vidx < view_cnt; vidx++)
+            {
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+
+                job_queue[element.toStdString()] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            }
+
+            while (job_queue.size() > 0)
+            {
+                std::vector<std::string> to_delete;
+                for (auto& itr : job_queue)
+                {
+                    if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
+                    {
+                        logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
+                    }
+                    to_delete.push_back(itr.first);
+                    cur++;
+                    _export_maps_dialog->status_callback(cur, view_cnt);
+                }
+
+                for (const auto& itr : to_delete)
+                {
+                    job_queue.erase(itr);
+                }
+            }
+        }
+    }
+    if (_export_maps_dialog->get_save_ascii())
+    {
+        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
+
+        const std::vector<float> x_axis = _model->get_x_axis();
+        const std::vector<float> y_axis = _model->get_y_axis();
+
+        std::string save_file_name = export_model_dir.absolutePath().toStdString() + QDir::separator().toLatin1() + _model->getDatasetName().toStdString();
+        std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+
+        size_t cur = 0;
+        size_t total = analysis_types.size() * x_axis.size() * y_axis.size() * normalizers.size();
+        _export_maps_dialog->status_callback(cur, total);
+
+
+        for (auto& a_itr : analysis_types)
+        {
+            data_struct::Fit_Count_Dict<float> element_counts;
+            _model->getAnalyzedCounts(a_itr, element_counts);
+
+            data_struct::ArrayXXr<float>* normalizer = nullptr;
+
+            for (auto n_itr : normalizers)
+            {
+                std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                if (scalers->count(n_itr) > 0)
+                {
+                    normalizer = &(scalers->at(n_itr));
+                }
+                Calibration_curve<double>* calib_curve = _model->get_calibration_curve(a_itr, n_itr);
+
+                std::string sub_save_file = save_file_name + "-" + a_itr + "-" + n_itr + ".csv";
+                std::ofstream out_stream(sub_save_file);
+
+                logI << save_file_name << "\n";
+
+                if (out_stream.is_open())
+                {
+
+                    out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
+
+
+
+                    if (a_itr == STR_FIT_ROI || n_itr == "Counts")
+                    {
+                        out_stream << "Analysis " << a_itr << " in cts/s \n";
+                    }
+                    else
+                    {
+                        out_stream << "Analysis " << a_itr << " Normalized by " << n_itr << " ug/cm2 \n";
+                    }
+
+                    out_stream << "Y Pixel, X Pixel, Y Position, X Position, ";
+                    for (auto& e_itr : element_counts)
+                    {
+                        out_stream << e_itr.first;
+                        if (calib_curve != nullptr && normalizer != nullptr)
+                        {
+                            if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                            {
+                                out_stream << " (ug/cm2) ";
+                            }
+                            else
+                            {
+                                out_stream << " (cts/s) ";
+                            }
+                        }
+                        else
+                        {
+                            out_stream << " (cts/s) ";
+                        }
+                        out_stream << " , ";
+                    }
+                    out_stream << "\n";
+
+                    for (int yidx = 0; yidx < y_axis.size(); yidx++)
+                    {
+                        for (int xidx = 0; xidx < x_axis.size(); xidx++)
+                        {
+
+                            out_stream << yidx << " , " << xidx << " , " << y_axis.at(yidx) << " , " << x_axis.at(xidx) << " , ";
+
+                            for (auto& e_itr : element_counts)
+                            {
+                                float calib_val = 1.0;
+                                double val = 1.0;
+                                float e_val = (e_itr.second)(yidx, xidx);
+                                if (a_itr == STR_FIT_ROI || n_itr == "Counts")
+                                {
+                                    val = e_val;
+                                }
+                                else
+                                {
+                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    {
+                                        if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                        {
+                                            calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+                                            float n_val = (*normalizer)(yidx, xidx);
+                                            val = e_val / n_val / calib_val;
+                                        }
+                                        else
+                                        {
+                                            val = e_val;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val = e_val;
+                                    }
+                                }
+                                out_stream << val << " , ";
+                            }
+                            cur++;
+                            _export_maps_dialog->status_callback(cur, total);
+                            out_stream << "\n";
+                        }
+                        if (false == _export_maps_dialog->isActiveWindow())
+                        {
+                            out_stream.close();
+                            _export_maps_dialog->setRunEnabled(true);
+                            return;
+                        }
+                        out_stream << "\n";
+                    }
+                    out_stream.close();
+                }
+                else
+                {
+                    logE << "Could not save PNG for " << save_file_name << "\n";
+                }
+            }
+
+        }
+    }
+    if (_export_maps_dialog->get_save_screen())
+    {
+
+        QPixmap pixmap(_counts_window->rect().size());
+        _counts_window->render(&pixmap, QPoint(), QRegion(_counts_window->rect()));
+
+        QDateTime date = QDateTime::currentDateTime();
+        QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+        QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+
+        qDebug() << "Date:" + formattedTime;
+        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot_"+formattedTime+".png")), "PNG"))
+        {
+            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString("screenshot_" + formattedTime + ".png")).toStdString() << "\n";
+        }
+    }
+
+    _export_maps_dialog->setRunEnabled(true);
+    _export_maps_dialog->on_open();
+    _export_maps_dialog->close();
+}

@@ -52,6 +52,9 @@ public:
     */
    void appendChild(AbstractGraphicsItem* child);
 
+   void appendLinkedDisplayChild(AbstractGraphicsItem* child);
+
+   void removeLinkedDisplayChild(AbstractGraphicsItem* child);
    /**
     * @brief appendProperty : Add a property.
     * @param prop : Property to add.
@@ -135,6 +138,10 @@ public:
     * @return
     */
    Qt::ItemFlags displayFlags(int row, int column) const;
+
+   const QList<AbstractGraphicsItem*>& getLinkedDisplayChildren() { return _linkedDisplayChildren; }
+
+   void clearLinkedDisplayChildren() { return _linkedDisplayChildren.clear(); }
 
    /**
     * @brief hasChild : Returns if it contains the specific child in its list.
@@ -223,6 +230,13 @@ public:
     */
    void setPropertyValue(QString name, QVariant value);
 
+   /**
+   * Override current properties with new list
+   */
+   void linkProperties(QList<AnnotationProperty*> prop_list);
+
+   void unlinkAllAnnotations();
+
 public slots:
 
    /**
@@ -257,7 +271,9 @@ protected slots:
    /**
     * @brief modelChanged : Slot for AnnotationProperty changes.
     */
-   void modelChanged();
+   void modelChanged(AnnotationProperty*, QVariant);
+
+   void linkPropChanged(AnnotationProperty*, QVariant);
 
    /**
     * @brief viewChanged : Slot for QGraphicsItem changes.
@@ -271,6 +287,9 @@ protected:
     */
    void connectAllProperties();
 
+   void connectAllLinkedProperties();
+
+   void disconnectAllLinkedProperties();
    /**
     * @brief connectAllViewItems : Connects QGraphicsItem signals to
     *                               viewChanged() slot.
@@ -320,10 +339,15 @@ protected:
     */
    QList<AnnotationProperty*> m_data;
 
+
+   QList<AnnotationProperty*> _linked_props;
+
    /**
     * @brief m_parent : Parent node.
     */
    AbstractGraphicsItem* m_parent;
+
+   QList<AbstractGraphicsItem*> _linkedDisplayChildren;
 
    /**
     * @brief m_decimalPreci

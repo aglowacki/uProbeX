@@ -411,6 +411,99 @@ ImageViewScene* ImageViewWidget::scene(int grid_idx)
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::setSceneModel(QAbstractItemModel* model)
+{
+    bool multi_win =  (_sub_windows.size() > 1) ? true : false;
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setModel(model, multi_win);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSceneSelectionModel(QItemSelectionModel* selectionModel)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setSelectionModel(selectionModel);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel)
+{
+    bool multi_win = (_sub_windows.size() > 1) ? true : false;
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setModel(model, multi_win);
+        itr.scene->setSelectionModel(selectionModel);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::sceneEnableAnnotations(bool state)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->enableAnnotations(state);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSceneUnitsLabel(QString label)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setUnitsLabel(label);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSceneUnitsPerPixelX(double val)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setUnitsPerPixelX(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSceneUnitsPerPixelY(double val)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setUnitsPerPixelY(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::sceneUpdateModel()
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->updateModel();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setScenetPixmap(QPixmap p)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.scene->setPixmap(p);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
 {
 

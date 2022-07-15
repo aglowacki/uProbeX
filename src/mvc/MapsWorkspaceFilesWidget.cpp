@@ -14,6 +14,10 @@
 #include <QRegExp>
 #include "core/GlobalThreadPool.h"
 
+
+const QString STR_PROCESS("process");
+const QString STR_H5_EXPORT("hdf5_export");
+
 /*---------------------------------------------------------------------------*/
 
 MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(parent)
@@ -48,19 +52,20 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->appendFilterHelpAction(h5avg_file);
     _h5_tab_widget->appendFilterHelpAction(h5det_file);
 
-    connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
-
-    _h5_tab_widget->addCustomContext("hdf5", "Per Pixel Process");
+    _h5_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
+    // TODO: need to implement
+    //_h5_tab_widget->addCustomContext(STR_H5_EXPORT, "Export Images"); 
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
-    connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onPerPixelProcess);
-    _mda_tab_widget->addCustomContext("mda", "Per Pixel Process");
+    connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    _mda_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
 
     _vlm_tab_widget = new FileTabWidget();
     _vlm_tab_widget->setProcessButtonVisible(false);
@@ -351,9 +356,17 @@ void MapsWorkspaceFilesWidget::clearLists()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onPerPixelProcess(const QString& context_label, const QStringList& file_list)
+void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, const QStringList& file_list)
 {
-    onPerPixelProcessList(file_list);
+    if (context_label == STR_PROCESS)
+    {
+        onPerPixelProcessList(file_list);
+    }
+    else if (context_label == STR_H5_EXPORT)
+    {
+        //onExportImages(file_list);
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -380,3 +393,5 @@ void MapsWorkspaceFilesWidget::onProcessed_list_update()
         _model->reload_analyzed();
     }
 }
+
+/*---------------------------------------------------------------------------*/

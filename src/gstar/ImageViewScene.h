@@ -103,7 +103,7 @@ public:
     *
     * @param model - ROI model
     */
-   void setModel(QAbstractItemModel* model);
+   void setModel(QAbstractItemModel* model, bool is_multi_scene=false);
 
    /**
     * Set the selection model for ROIs
@@ -266,6 +266,8 @@ private slots:
     */
    void modelRowsInserted(const QModelIndex& parent, int start, int end);
 
+   void modelRowsRemoved(const QModelIndex& parent, int start, int end);
+
    /**
     * Internal slot called when the ROI selection in the scene is changed
     * interactively by the user. Reimplemented from QAbstractItemModel.
@@ -332,6 +334,8 @@ private:
     * @brief m_unitsPerPixelY
     */
    double m_unitsPerPixelY;
+
+   bool _is_multi_scene;
 
 };
 
