@@ -58,6 +58,8 @@
 #define STR_COLORMAP_GRAY "Grayscale"
 #define STR_COLORMAP_HEAT "Heatmap"
 #define STR_RECENT_MAPS_WORKSPACES "Recent_MAPS_Workspaces"
+#define STR_LOG_SCALE_COLOR "Color_Scale_Log"
+#define STR_DISPLAY_COLOR_LEDGEND "Display_Color_Ledgend"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

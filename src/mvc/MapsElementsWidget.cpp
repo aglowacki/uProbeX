@@ -131,13 +131,43 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
-    m_toolbar->addWidget(new QLabel(" ColorMap :"));
-    m_toolbar->addWidget(_cb_colormap);
+    _color_map_ledgend_lbl = new QLabel();
+    _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
+    _color_maps_ledgend->setColorTable(_gray_colormap);
+    for (uint c = 0; c < 256; c++)
+    {
+        for (int r = 0; r < 10; r++)
+        {
+            _color_maps_ledgend->setPixel(c, r, c);
+        }
+    }
+    
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+
+    QWidget* color_maps_widgets = new QWidget();
+    QVBoxLayout* colormapsVBox = new QVBoxLayout();
+    QHBoxLayout* colormapsHBox = new QHBoxLayout();
+    colormapsHBox->addWidget(new QLabel(" ColorMap :"));
+    colormapsHBox->addWidget(_cb_colormap);
+    colormapsVBox->addItem(colormapsHBox);
+    colormapsVBox->addWidget(_color_map_ledgend_lbl);
+    color_maps_widgets->setLayout(colormapsVBox);
+    m_toolbar->addWidget(color_maps_widgets);
+    
+    _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
+    connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     _chk_log_color = new QCheckBox("Log scale");
     _chk_log_color->setChecked(false);
     connect(_chk_log_color, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
-    m_toolbar->addWidget(_chk_log_color);
+
+    QWidget* color_chk_widgets = new QWidget();
+    QVBoxLayout* colorVBox = new QVBoxLayout();
+    colorVBox->addWidget(_chk_log_color);
+    colorVBox->addWidget(_chk_disp_color_ledgend);
+    color_chk_widgets->setLayout(colorVBox);
+
+    m_toolbar->addWidget(color_chk_widgets);
 
     _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
@@ -198,6 +228,12 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     createActions();
 
+    bool chk_log_scale_color = Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool();
+    bool chk_display_color_ledgend = Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool();
+
+    _chk_log_color->setChecked(chk_log_scale_color);
+    _chk_disp_color_ledgend->setChecked(chk_display_color_ledgend);
+
     int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
     int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
     if (rows < 1)
@@ -247,6 +283,8 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
 
 void MapsElementsWidget::on_log_color_changed(int state)
 {
+    Preferences::inst()->setValue(STR_LOG_SCALE_COLOR, _chk_log_color->isChecked());
+    Preferences::inst()->setValue(STR_DISPLAY_COLOR_LEDGEND, _chk_disp_color_ledgend->isChecked());
     redrawCounts();
 }
 
@@ -423,6 +461,9 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
             Preferences::inst()->setValue(STR_COLORMAP, colormap);
         }
     }
+    _color_maps_ledgend->setColorTable(*_selected_colormap);
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+
 	redrawCounts();
     
     Preferences::inst()->save();
@@ -984,7 +1025,17 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 m_imageHeightDim->setCurrentText(QString::number(height));
                 m_imageWidthDim->setCurrentText(QString::number(width));
             }
-            QImage image(width, height, QImage::Format_Indexed8);
+            // add to width for color maps ledgend
+            int cm_ledgend = width * .05; // add 5% width for ledgend
+            if (cm_ledgend == 0)
+            {
+                cm_ledgend = 3;
+            }
+            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
+            {
+                cm_ledgend = 0;
+            }
+            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
             float counts_max;
@@ -1040,6 +1091,50 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                     image.setPixel(col, row, data);
                 }
             }
+            
+            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
+            {
+                // add color map ledgend
+                int startH = height * .1;
+                int endH = height - startH;
+                int startW = width + 1;
+                int endW = width + cm_ledgend;
+                if (cm_ledgend == 3)
+                {
+                    endW--;
+                }
+                    
+                float inc = 255.0 / float(endH - startH);
+                float fcol = 255.0;
+
+                for (int row = 0; row < height; row++)
+                {
+                    if (row >= startH && row <= endH)
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            if (col >= startW && col <= endW)
+                            {
+                                image.setPixel(col, row, uint(fcol));
+                            }
+                            else
+                            {
+                                image.setPixel(col, row, uint(127));
+                            }
+                        }
+                        fcol -= inc;
+                        fcol = std::max(fcol, float(0.0));
+                    }
+                    else
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            image.setPixel(col, row, uint(127));
+                        }
+                    }
+                }
+            }
+
             m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
 	}
@@ -1090,8 +1185,18 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 normalized = normalized.log10();
                 normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
             }
+            // add to width for color maps ledgend
+            int cm_ledgend = width * .05; // add 5% width for ledgend
+            if (cm_ledgend == 0)
+            {
+                cm_ledgend = 3;
+            }
+            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
+            {
+                cm_ledgend = 0;
+            }
 
-            QImage image(width, height, QImage::Format_Indexed8);
+            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
             float counts_max;
@@ -1147,6 +1252,50 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     image.setPixel(col, row, data);
                 }
             }
+
+            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
+            {
+                // add color map ledgend
+                int startH = height * .1;
+                int endH = height - startH;
+                int startW = width + 1;
+                int endW = width + cm_ledgend;
+                if (cm_ledgend == 3)
+                {
+                    endW--;
+                }
+
+                float inc = 255.0 / float(endH - startH);
+                float fcol = 255.0;
+
+                for (int row = 0; row < height; row++)
+                {
+                    if (row >= startH && row <= endH)
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            if (col >= startW && col <= endW)
+                            {
+                                image.setPixel(col, row, uint(fcol));
+                            }
+                            else
+                            {
+                                image.setPixel(col, row, uint(127));
+                            }
+                        }
+                        fcol -= inc;
+                        fcol = std::max(fcol, float(0.0));
+                    }
+                    else
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            image.setPixel(col, row, uint(127));
+                        }
+                    }
+                }
+            }
+
             return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
         }
     }

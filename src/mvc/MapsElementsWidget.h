@@ -155,11 +155,17 @@ protected:
 
    QCheckBox* _chk_log_color;
 
+   QCheckBox* _chk_disp_color_ledgend;
+
    QPushButton *_btn_export_as_image;
 
    ExportMapsDialog* _export_maps_dialog;
 
    QWidget* _counts_window;
+
+   QImage* _color_maps_ledgend;
+
+   QLabel *_color_map_ledgend_lbl;
 
    float _min_contrast_perc;
 
