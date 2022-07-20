@@ -233,9 +233,6 @@ void FitSpectraWidget::createLayout()
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
 
-    update_spectra_top_axis({ "Ca", "Fe", "Cu"});
-
-
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
     setLayout(layout);
@@ -582,6 +579,7 @@ void FitSpectraWidget::add_element()
 
     _fit_elements_table_model->appendElement(fit_element);
 
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -618,6 +616,7 @@ void FitSpectraWidget::del_element()
         }
         break;
     }
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1006,30 +1005,35 @@ void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict<double
 {
     _fit_elements_table_model->updateFitElements(elements_to_fit);
 	_elements_to_fit = elements_to_fit;
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_names)
+void FitSpectraWidget::update_spectra_top_axis()
 {
-
-    std::map < std::string, float> labels;
-    for (const auto& itr : element_names)
+    if (_elements_to_fit != nullptr)
     {
-        Fit_Element_Map<double> em(itr, Element_Info_Map<double>::inst()->get_element(itr));
-		if (_param_override != nullptr)
-		{
-			map<int, double> ratios = _param_override->get_custom_factor(itr);
-			for (const auto &itr : ratios)
-			{
-				em.multiply_custom_multiply_ratio(itr.first, itr.second);
-			}
-		}
+        _spectra_widget->clear_top_axis();
 
-        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
-        labels[itr] = em.center();
+        std::map < float, std::string> labels;
+        for (const auto& itr : *_elements_to_fit)
+        {
+            Fit_Element_Map<double> em(itr.first, Element_Info_Map<double>::inst()->get_element(itr.first));
+            if (_param_override != nullptr)
+            {
+                map<int, double> ratios = _param_override->get_custom_factor(itr.first);
+                for (const auto& itr2 : ratios)
+                {
+                    em.multiply_custom_multiply_ratio(itr2.first, itr2.second);
+                }
+            }
+
+            em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
+            labels[em.center()] = itr.first;
+        }
+        _spectra_widget->set_top_axis(labels);
     }
-    _spectra_widget->set_top_axis(labels);
 }
 
 /*---------------------------------------------------------------------------*/

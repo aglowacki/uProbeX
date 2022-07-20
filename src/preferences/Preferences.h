@@ -62,6 +62,8 @@
 #define STR_LOG_SCALE_COLOR "Color_Scale_Log"
 #define STR_DISPLAY_COLOR_LEDGEND "Display_Color_Ledgend"
 
+
+
 /**
  * @brief Read and save preferences between application restarts, the vaule key
  * is divided into PVList, EnergyFlux, MirrorEnery, HISTBins, which is

@@ -108,7 +108,9 @@ public slots:
 
     void set_element_lines(data_struct::Fit_Element_Map<double>* element);
 
-    void set_top_axis(std::map<std::string, float> elements);
+    void clear_top_axis();
+
+    void set_top_axis(std::map < float, std::string> elements);
 
     void onResetChartView();
 

@@ -70,11 +70,15 @@ void SpectraWidget::createLayout()
     _axisX->setTickAnchor(0.0);
     _axisX->setTickInterval(0.5);
     _axisX->setTickType(QtCharts::QValueAxis::TicksDynamic);
-
     _axisX->setTickCount(20);
 
     _top_axis_elements = new QtCharts::QCategoryAxis();
+    //_top_axis_elements->setTickAnchor(0.0);
+    //_top_axis_elements->setTickInterval(0.5);
+    //_top_axis_elements->setTickType(QtCharts::QValueAxis::TicksDynamic);
     //_top_axis_elements->setTickCount(20);
+    _top_axis_elements->setLabelsPosition(QtCharts::QCategoryAxis::AxisLabelsPositionOnValue);
+    _top_axis_elements->setGridLineVisible(false);
 
     _axisY = new QtCharts::QValueAxis();
     _axisY->setTitleText("Counts");
@@ -84,7 +88,7 @@ void SpectraWidget::createLayout()
 
     _chart = new QtCharts::QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
-    //_chart->addAxis(_top_axis_elements, Qt::AlignTop);
+    _chart->addAxis(_top_axis_elements, Qt::AlignTop);
 
     float ymax = 0;
     float ymin = 0;
@@ -183,6 +187,7 @@ void SpectraWidget::onSpectraDisplayChanged(const QString &)
     qreal maxRange = _display_eneergy_max->text().toDouble();
     qreal minRange = _display_eneergy_min->text().toDouble();
     _axisX->setRange(minRange, maxRange);
+    _top_axis_elements->setRange(minRange, maxRange);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -215,6 +220,7 @@ void SpectraWidget::onResetChartView()
 
     _currentYAxis->setRange(1, _int_spec_max_y);
     _axisX->setRange(0, _int_spec_max_x);
+    _top_axis_elements->setRange(0, _int_spec_max_x);
 
 
 }
@@ -297,6 +303,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 		}
         _chart->addSeries(series);
         series->attachAxis(_axisX);
+        series->attachAxis(_top_axis_elements);
         _display_eneergy_min->setText(QString::number(_axisX->min()));
         _display_eneergy_max->setText(QString::number(_axisX->max()));
 
@@ -323,7 +330,6 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
             pen.setColor(QColor::fromRgb(MOD_SPEC_R, MOD_SPEC_G, MOD_SPEC_B));
             series->setPen(pen);
         }
-        //series->attachAxis(_top_axis_elements);
     }
     else
     {
@@ -640,11 +646,22 @@ void SpectraWidget::handleMarkerClicked()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
+void SpectraWidget::clear_top_axis()
+{
+    QStringList labels = _top_axis_elements->categoriesLabels();
+    for (QString str : labels)
+    {
+        _top_axis_elements->remove(str);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::set_top_axis(std::map < float, std::string> elements)
 {  
     for (const auto& itr : elements)
     {
-        _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
+        _top_axis_elements->append(QString::fromStdString(itr.second), itr.first);
     } 
 }
 
