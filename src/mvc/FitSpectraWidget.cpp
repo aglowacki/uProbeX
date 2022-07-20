@@ -40,7 +40,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 	_param_override = nullptr;
     _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
-	_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+	_showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+    _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
     _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -290,23 +291,49 @@ void FitSpectraWidget::onSettingsDialog()
                 _spectra_widget->remove_spectra(QString(itr.first.c_str()));
             }
         }
-		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
-		if (_showFitIntSpec)
+		_showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+		if (_showFitIntMatrix)
 		{
+            if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+            }
+            /*
 			for (auto &itr : _fit_int_spec_map)
 			{
 				QString name = "Fitted_Int_" + QString(itr.first.c_str());
 				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
 			}
+            */
 		}
 		else
 		{
+            QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+            _spectra_widget->remove_spectra(name);
+            /*
 			for (auto& itr : _fit_int_spec_map)
 			{
 				QString name = "Fitted_Int_" + QString(itr.first.c_str());
 				_spectra_widget->remove_spectra(name);
 			}
+            */
 		}
+
+        _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
+        if (_showFitIntNNLS)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
 
         _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
         if(_showMaxChanSpec)
@@ -382,6 +409,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
+        /*
 		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
 		if (_showFitIntSpec)
 		{
@@ -391,7 +419,38 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
 			}
 		}
-		
+		*/
+
+        _showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+        if (_showFitIntMatrix)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
+
+        _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
+        if (_showFitIntNNLS)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
+
         _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
         if (_showMaxChanSpec)
         {

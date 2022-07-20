@@ -215,7 +215,9 @@ private:
 
     bool _showDetailedFitSpec;
 
-	bool _showFitIntSpec;
+	bool _showFitIntMatrix;
+
+    bool _showFitIntNNLS;
 
     bool _showMaxChanSpec;
 

@@ -59,7 +59,9 @@ protected:
 
    QCheckBox* _chkDetailedFit;
 
-   QCheckBox* _chkFit_Int;
+   QCheckBox* _chkFit_Int_Matrix;
+
+   QCheckBox* _chkFit_Int_NNLS;
 
    QCheckBox* _chkMax_Chan;
 
