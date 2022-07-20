@@ -196,24 +196,33 @@ void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
 
 /*---------------------------------------------------------------------------*/
 
+void SpectraWidget::onResetChartViewOnlyY()
+{
+    _display_height_min->setText(QString::number(1));
+    _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
+    _currentYAxis->setRange(1, _int_spec_max_y);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::onResetChartView()
 {
     _display_eneergy_min->setText(QString::number(0));
     _display_eneergy_max->setText(QString::number(_int_spec_max_x));
+
     _display_height_min->setText(QString::number(1));
     _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
-    _axisX->setRange(0, _int_spec_max_x);
+
     _currentYAxis->setRange(1, _int_spec_max_y);
+    _axisX->setRange(0, _int_spec_max_x);
+
+
 }
 
 /*---------------------------------------------------------------------------*/
 
 void SpectraWidget::onUpdateChartLineEdits()
 {
-
-    QRectF plotArea = _chart->plotArea();
-    qreal xbound = plotArea.x();
-    logI << "x bound :" << xbound << "\n";
     _display_eneergy_min->setText(QString::number(_axisX->min()));
     _display_eneergy_max->setText(QString::number(_axisX->max()));
     if (_display_log10)

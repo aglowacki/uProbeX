@@ -990,7 +990,7 @@ void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
 		_int_spec = int_spec;
 	}
     replot_integrated_spectra(true);
-    _spectra_widget->onResetChartView();
+    _spectra_widget->onResetChartViewOnlyY();
 }
 
 /*---------------------------------------------------------------------------*/

@@ -112,6 +112,8 @@ public slots:
 
     void onResetChartView();
 
+    void onResetChartViewOnlyY();
+
     void set_log10(bool val);
 
 protected:
