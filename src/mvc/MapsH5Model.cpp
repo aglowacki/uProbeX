@@ -914,13 +914,13 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant)
 {
-    hid_t channels_dset_id, channels_dspace_id;
-    hid_t sr_dset_id, sr_dspace_id;
-    hid_t us_dset_id, us_dspace_id;
-    hid_t ds_dset_id, ds_dspace_id;
-    hid_t grp_id;
-    hid_t memoryspace_id, memoryspace_name_id;
-    hid_t error;
+    hid_t channels_dset_id = -1, channels_dspace_id = -1;
+    hid_t sr_dset_id = -1, sr_dspace_id = -1;
+    hid_t us_dset_id = -1, us_dspace_id = -1;
+    hid_t ds_dset_id = -1, ds_dspace_id = -1;
+    hid_t grp_id = -1;
+    hid_t memoryspace_id = -1, memoryspace_name_id = -1;
+    hid_t error = -1;
     hid_t sr_error = -1;
     hid_t us_error = -1;
     hid_t ds_error = -1;

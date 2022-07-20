@@ -106,11 +106,9 @@ void SpectraWidget::createLayout()
 
     _line_series = nullptr;
 
-    _chartView = new QtCharts::QChartView(_chart);
-    _chartView->setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+    _chartView = new ChartView(_chart);
+    connect(_chartView, &ChartView::view_zoomed, this, &SpectraWidget::onUpdateChartLineEdits);
 
-    //_chartView->setRenderHint(QPainter::Antialiasing);
-   
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
     _display_eneergy_min->setMinimumWidth(100);
@@ -212,6 +210,10 @@ void SpectraWidget::onResetChartView()
 
 void SpectraWidget::onUpdateChartLineEdits()
 {
+
+    QRectF plotArea = _chart->plotArea();
+    qreal xbound = plotArea.x();
+    logI << "x bound :" << xbound << "\n";
     _display_eneergy_min->setText(QString::number(_axisX->min()));
     _display_eneergy_max->setText(QString::number(_axisX->max()));
     if (_display_log10)
@@ -549,94 +551,6 @@ void SpectraWidget::_update_series()
     //_chart->createDefaultAxes();
 }
 */
-/*---------------------------------------------------------------------------*/
-/*
-bool SpectraWidget::viewportEvent(QEvent *event)
-{
-    if (event->type() == QEvent::TouchBegin) {
-        // By default touch events are converted to mouse events. So
-        // after this event we will get a mouse event also but we want
-        // to handle touch events as gestures only. So we need this safeguard
-        // to block mouse events that are actually generated from touch.
-        m_isTouching = true;
-
-        // Turn off animations when handling gestures they
-        // will only slow us down.
-        _chart->setAnimationOptions(QtCharts::QChart::NoAnimation);
-    }
-    return QWidget::viewportEvent(event);
-}
-*/
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mousePressEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        return;
-
-    QWidget::mousePressEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        return;
-    QWidget::mouseMoveEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        m_isTouching = false;
-
-    // Because we disabled animations when touch event was detected
-    // we must put them back on.
-    _chart->setAnimationOptions(QtCharts::QChart::SeriesAnimations);
-
-    onUpdateChartLineEdits();
-
-    QWidget::mouseReleaseEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Plus:
-        _chart->zoomIn();
-        break;
-    case Qt::Key_Minus:
-        _chart->zoomOut();
-        break;
-    case Qt::Key_Left:
-        _chart->scroll(-10, 0);
-        break;
-    case Qt::Key_Right:
-        _chart->scroll(10, 0);
-        break;
-    case Qt::Key_Up:
-        _chart->scroll(0, 10);
-        break;
-    case Qt::Key_Down:
-        _chart->scroll(0, -10);
-        break;
-    case Qt::Key_R:
-        //_chart->resetMatrix();
-        //_chart->resetTransform();
-        //_chart->zoomReset();
-        onResetChartView();
-        break;
-    default:
-        QWidget::keyPressEvent(event);
-        break;
-    }
-}
-
 /*---------------------------------------------------------------------------*/
 
 void SpectraWidget::connectMarkers()
