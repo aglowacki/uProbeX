@@ -219,7 +219,7 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_parameters, 0, 3);
     grid_layout->addWidget(_btn_export_csv, 1, 3);
-    grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 77);
+    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);

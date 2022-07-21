@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QGroupBox>
 #include <QSplitter>
+#include <QScrollBar>
 
  /*---------------------------------------------------------------------------*/
 
@@ -78,6 +79,7 @@ void FittingDialog::_createLayout()
     _new_fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     
+    connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
 
     _btn_run = new QPushButton("Run");
     connect(_btn_run, &QPushButton::released, this, &FittingDialog::runProcessing);
@@ -200,9 +202,8 @@ void FittingDialog::_createLayout()
     
     QVBoxLayout* layout = new QVBoxLayout();
 
-    QWidget* bottomWidget = new QWidget;
+    QWidget* bottomWidget = new QWidget();
     bottomWidget->setLayout(hbox_tables);
-
 
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Vertical);
