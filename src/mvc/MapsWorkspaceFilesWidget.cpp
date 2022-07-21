@@ -97,7 +97,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
     _tab_widget->insertTab(1, _mda_tab_widget, "Raw Data");
     _tab_widget->insertTab(2, _vlm_tab_widget, "Light Microscope");
-
+    
     vlayout->addWidget(_tab_widget);
     setLayout(vlayout);
 }

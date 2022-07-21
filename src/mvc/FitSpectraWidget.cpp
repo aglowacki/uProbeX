@@ -204,7 +204,7 @@ void FitSpectraWidget::createLayout()
             this,
             SLOT(optimizer_changed(QString)));
 
-    _chk_auto_model = new QCheckBox("Auto Update Model Spectra on Data Change");
+    _chk_auto_model = new QCheckBox("Auto Update Model");
     _chk_auto_model->setChecked(false);
     connect(_chk_auto_model,
             SIGNAL(stateChanged(int)),
@@ -212,13 +212,13 @@ void FitSpectraWidget::createLayout()
             SLOT(check_auto_model(int)));
 
     QGridLayout *grid_layout = new QGridLayout();
-    grid_layout->addWidget(_btnSsettings, 0, 0);
-    grid_layout->addWidget(_cb_opttimizer, 0, 1);
-    grid_layout->addWidget(_btn_fit_spectra, 0, 2);
-    grid_layout->addWidget(_chk_auto_model, 0, 3);
-    grid_layout->addWidget(_btn_model_spectra, 0, 4);
-    grid_layout->addWidget(_btn_export_parameters, 0, 5);
-    grid_layout->addWidget(_btn_export_csv, 0, 6);
+    grid_layout->addWidget(_btnSsettings, 1, 0);
+    grid_layout->addWidget(_cb_opttimizer, 0, 0);
+    grid_layout->addWidget(_btn_fit_spectra, 0, 1);
+    grid_layout->addWidget(_chk_auto_model, 0, 2);
+    grid_layout->addWidget(_btn_model_spectra, 1, 2);
+    grid_layout->addWidget(_btn_export_parameters, 0, 3);
+    grid_layout->addWidget(_btn_export_csv, 1, 3);
     grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 77);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();

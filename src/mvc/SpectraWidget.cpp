@@ -115,21 +115,21 @@ void SpectraWidget::createLayout()
 
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
-    _display_eneergy_min->setMinimumWidth(100);
+ //   _display_eneergy_min->setMinimumWidth(100);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max()));
-    _display_eneergy_max->setMinimumWidth(100);
+//    _display_eneergy_max->setMinimumWidth(100);
     connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
     _display_height_min = new QLineEdit(QString::number(ymin));
-    _display_height_min->setMinimumWidth(100);
+//    _display_height_min->setMinimumWidth(100);
     connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
     _display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
-    _display_height_max->setMinimumWidth(100);
+//    _display_height_max->setMinimumWidth(100);
     connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
     _btn_reset_chart_view = new QPushButton("Reset");
@@ -147,6 +147,7 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(_display_eneergy_max);
     options_layout->addWidget(new QLabel("KeV"));
 
+    /*
     options_layout->addWidget(new QLabel("   |   Display Height Min:"));
     options_layout->addWidget(_display_height_min);
     options_layout->addWidget(new QLabel("Counts  ,  "));
@@ -154,7 +155,7 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(new QLabel("Display Height Max:"));
     options_layout->addWidget(_display_height_max);
     options_layout->addWidget(new QLabel("Counts | "));
-
+    */
     options_layout->addWidget(_btn_reset_chart_view);
 
     options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
