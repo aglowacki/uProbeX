@@ -33,7 +33,7 @@ SubImageWindow::SubImageWindow() : QObject()
 
     btn_contrast = new QPushButton("C");
     connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
-    btn_contrast->setEnabled(false);
+    btn_contrast->setVisible(false);
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(counts_coord_widget);

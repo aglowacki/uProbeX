@@ -52,7 +52,7 @@ public:
 
 signals:
 
-    void processed_list_update();
+    void processed_list_update(QStringList);
 
 public slots:
     void runProcessing();
@@ -64,6 +64,7 @@ protected:
     */
    void createLayout();
 
+   QStringList _file_list;
    
    QTextEdit *_textEdit;
 

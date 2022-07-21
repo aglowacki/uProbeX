@@ -187,9 +187,20 @@ void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceFilesWidget::setFileTabActionsEnabled(bool val)
+{
+    
+    _h5_tab_widget->setActionsAndButtonsEnabled(val);
+    _mda_tab_widget->setActionsAndButtonsEnabled(val);
+    _vlm_tab_widget->setActionsAndButtonsEnabled(val);
+    
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_TYPE mt)
 {
-
+    setFileTabActionsEnabled(false);
     if (_model != nullptr)
     {
 
@@ -314,12 +325,14 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             QCoreApplication::processEvents();
         }
     }
+    setFileTabActionsEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL_TYPE mt)
 {
+    setFileTabActionsEnabled(false);
     File_Loaded_Status load_status = UNLOADED;
     if (_model != nullptr)
     {
@@ -342,6 +355,8 @@ void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL
             }
         }
     }
+
+    setFileTabActionsEnabled(true);
     emit unloadList_model(names_list, mt);
 }
 
@@ -387,11 +402,13 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceFilesWidget::onProcessed_list_update()
+void MapsWorkspaceFilesWidget::onProcessed_list_update(QStringList file_list)
 {
     if (_model != nullptr)
     {
         _model->reload_analyzed();
+
+        onOpenModel(file_list, MODEL_TYPE::MAPS_H5);
     }
 }
 

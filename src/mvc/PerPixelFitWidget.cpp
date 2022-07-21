@@ -122,6 +122,9 @@ void PerPixelFitWidget::updateFileList(QStringList file_list)
     _progressBarBlocks->setValue(0);
 
     _file_list_model->clear();
+
+    _file_list.clear();
+    _file_list = file_list;
     for(auto & itr : file_list)
     {
         _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr));
@@ -272,7 +275,7 @@ void PerPixelFitWidget::runProcessing()
     _le_detectors->setEnabled(true);
     _file_list_view->setEnabled(true);
     _btn_cancel->setText("Close");
-    emit processed_list_update();
+    emit processed_list_update(_file_list);
 }
 
 void PerPixelFitWidget::status_callback(size_t cur_block, size_t total_blocks)
