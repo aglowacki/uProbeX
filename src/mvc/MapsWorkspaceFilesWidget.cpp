@@ -380,6 +380,7 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
         _per_pixel_fit_widget = new PerPixelFitWidget(_model->get_directory_name().toStdString());
         connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
     }
+    onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     _per_pixel_fit_widget->updateFileList(file_list);
     _per_pixel_fit_widget->show();
 }

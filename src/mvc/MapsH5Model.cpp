@@ -299,7 +299,83 @@ bool MapsH5Model::load(QString filepath)
         //H5Sclose(dataspace_id);
         //H5Dclose(dset_id);
         H5Gclose(maps_grp_id);
-        H5Fclose(file_id);
+        //H5Fclose(file_id);
+
+        // close all objects
+        if (file_id > 0)
+        {
+            H5Fflush(file_id, H5F_SCOPE_LOCAL);
+
+            ssize_t obj_cnt = H5Fget_obj_count(file_id, H5F_OBJ_DATASET | H5F_OBJ_LOCAL);
+            if (obj_cnt > 0)
+            {
+                logI << "closing forgotten datasets: " << obj_cnt << "\n";
+                hid_t* objs = new hid_t[obj_cnt];
+                if (H5Fget_obj_ids(file_id, H5F_OBJ_DATASET, -1, objs) > -1)
+                {
+                    for (int i = 0; i < obj_cnt; i++)
+                    {
+                        H5Dclose(objs[i]);
+                    }
+                }
+                delete[] objs;
+            }
+            obj_cnt = H5Fget_obj_count(file_id, H5F_OBJ_GROUP | H5F_OBJ_LOCAL);
+            if (obj_cnt > 0)
+            {
+                logI << "closing forgotten groups: " << obj_cnt << "\n";
+                hid_t* objs = new hid_t[obj_cnt];
+                if (H5Fget_obj_ids(file_id, H5F_OBJ_GROUP, -1, objs) > -1)
+                {
+                    for (int i = 0; i < obj_cnt; i++)
+                    {
+                        H5Gclose(objs[i]);
+                    }
+                }
+                delete[] objs;
+            }
+            obj_cnt = H5Fget_obj_count(file_id, H5F_OBJ_DATATYPE | H5F_OBJ_LOCAL);
+            if (obj_cnt > 0)
+            {
+                logI << "closing forgotten datatypes: " << obj_cnt << "\n";
+                hid_t* objs = new hid_t[obj_cnt];
+                if (H5Fget_obj_ids(file_id, H5F_OBJ_DATATYPE, -1, objs) > -1)
+                {
+                    for (int i = 0; i < obj_cnt; i++)
+                    {
+                        H5Tclose(objs[i]);
+                    }
+                }
+                delete[] objs;
+            }
+            obj_cnt = H5Fget_obj_count(file_id, H5F_OBJ_ATTR | H5F_OBJ_LOCAL);
+            if (obj_cnt > 0)
+            {
+                logI << "closing forgotten attributes: " << obj_cnt << "\n";
+                hid_t* objs = new hid_t[obj_cnt];
+                if (H5Fget_obj_ids(file_id, H5F_OBJ_ATTR, -1, objs) > -1)
+                {
+                    for (int i = 0; i < obj_cnt; i++)
+                    {
+                        H5Aclose(objs[i]);
+                    }
+                }
+                delete[] objs;
+            }
+            obj_cnt = H5Fget_obj_count(file_id, H5F_OBJ_ALL | H5F_OBJ_LOCAL);
+            if (obj_cnt > 1) //file is still open
+            {
+                logW << "**** did not close total objects " << obj_cnt << "\n";
+            }
+
+
+            H5Fclose(file_id);
+            file_id = -1;
+        }
+        else
+        {
+            logW << " could not close file because none is open" << "\n";
+        }
 
         //end = std::chrono::system_clock::now();
         //std::chrono::duration<double> elapsed_seconds = end-start;

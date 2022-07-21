@@ -690,7 +690,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
         if (param_overrides != nullptr)
         {
 
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT);;All Files (*.*)"));
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"));
             if (fileName.length() > 0)
             {
                 data_struct::Fit_Parameters<double>* nfit_params = &(param_overrides->fit_params);

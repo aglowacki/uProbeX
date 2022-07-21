@@ -296,25 +296,11 @@ void FitSpectraWidget::onSettingsDialog()
                 QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
                 _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
             }
-            /*
-			for (auto &itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
-			}
-            */
 		}
 		else
 		{
             QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
             _spectra_widget->remove_spectra(name);
-            /*
-			for (auto& itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->remove_spectra(name);
-			}
-            */
 		}
 
         _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
