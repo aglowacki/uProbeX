@@ -119,6 +119,7 @@ void MDA_Widget::model_updated()
 
     _cb_detector->clear();
     auto keys = _model->getDetectorKeys();
+    sort(keys.begin(), keys.end());
     for (unsigned int i : keys)
     {
         if (i == -1)
