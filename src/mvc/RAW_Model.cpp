@@ -66,6 +66,10 @@ bool RAW_Model::load(QString filename)
 				for (int i = 0; i < DEFAULT_NUM_DETECTORXS; i++)
 				{
 					io::file::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
+					if (_integrated_spectra_map[i].size() == 0)
+					{
+						_integrated_spectra_map.erase(i);
+					}
 				}
 			}
 			else
@@ -73,7 +77,10 @@ bool RAW_Model::load(QString filename)
 				// copy from mda_io to this model
 				for (int i = 0; i < mda_io.get_num_integreated_spectra(); i++)
 				{
-					_integrated_spectra_map[i] = (data_struct::Spectra<double>)*(mda_io.get_integrated_spectra(i));
+					if (mda_io.get_integrated_spectra(i)->size() > 0)
+					{
+						_integrated_spectra_map[i] = (data_struct::Spectra<double>) * (mda_io.get_integrated_spectra(i));
+					}
 				}
 				mda_io.unload_int_spectra();
 			}
