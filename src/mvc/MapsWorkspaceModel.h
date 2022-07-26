@@ -131,10 +131,12 @@ private:
     QList <QString> _mda_suffex;
     QList <QString> _raw_suffex;
     QList <QString> _vlm_suffex;
+    QList <QString> _all_roi_suffex;
 
     map<QString, QFileInfo> _h5_fileinfo_list;
     map<QString, QFileInfo> _raw_fileinfo_list;
     map<QString, QFileInfo> _vlm_fileinfo_list;
+    map<QString, QFileInfo> _roi_fileinfo_list;
 
     QDir* _dir;
 
@@ -142,6 +144,7 @@ private:
     bool _is_raw_loaded;
     bool _is_fit_params_loaded;
     bool _is_imgdat_loaded;
+    bool _is_rois_loaded;
 };
 
 bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func);

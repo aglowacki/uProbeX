@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QSplitter>
 #include <QScrollBar>
+#include <mvc/NumericPrecDelegate.h>
 
  /*---------------------------------------------------------------------------*/
 
@@ -61,6 +62,7 @@ void FittingDialog::_createLayout()
     _progressBarFiles->setRange(0, 100);
 
     ComboBoxDelegate* cbDelegate = new ComboBoxDelegate(bound_types);
+    NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
     _fit_params_table_model = new FitParamsTableModel();
 
@@ -70,7 +72,11 @@ void FittingDialog::_createLayout()
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
+    _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
+    _fit_params_table->setItemDelegateForColumn(3, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(4, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         
     _new_fit_params_table = new QTableView();

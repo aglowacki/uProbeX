@@ -9,6 +9,80 @@
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_mda(QFileInfo fileInfo)
+{
+    int is_good = io::file::mda_get_multiplied_dims(fileInfo.filePath().toStdString());
+    if (is_good > 0)
+        return true;
+    return false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (fid < 0)
+        return false;
+
+    for (const auto& itr : raw_h5_groups)
+    {
+        hid_t gid = H5Gopen(fid, itr.c_str(), H5P_DEFAULT);
+        if (gid > -1)
+        {
+            H5Gclose(gid);
+            H5Fclose(fid);
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_roi(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_vlm(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_imgdat_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (fid < 0)
+        return false;
+
+    hid_t gid = H5Gopen(fid, "MAPS", H5P_DEFAULT);
+    if (gid > -1)
+    {
+        H5Gclose(gid);
+        H5Fclose(fid);
+        return true;
+    }
+
+    return false;
+
+}
+
+
 /*----------------src/mvc/MapsWorkspaceModel.cpp \-----------------------------------------------------------*/
 
 MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
@@ -16,6 +90,9 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
     _is_fit_params_loaded = false;
     _is_imgdat_loaded = false;
+    _is_rois_loaded = false;
+    _is_vlm_loaded = false;
+    _is_raw_loaded = false;
     _dir = nullptr;
 
     _all_h5_suffex.append("h5");
@@ -37,6 +114,8 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _vlm_suffex.append("sws");
     _vlm_suffex.append("tif");
     _vlm_suffex.append("tiff");
+
+    _all_roi_suffex.append("roi");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -88,6 +167,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
             job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
             job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi);
 
             _is_fit_params_loaded = _load_fit_params();
             io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
@@ -123,6 +203,11 @@ void MapsWorkspaceModel::load(QString filepath)
                             _is_imgdat_loaded = itr.second.get();
                             to_delete.push_back(itr.first);
                             emit doneLoadingImgDat();
+                            break;
+                        case 4:
+                            _is_rois_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            //emit doneLoadingImgDat();
                             break;
                         }
                     }
@@ -477,65 +562,3 @@ data_struct::Fit_Element_Map_Dict<double>* MapsWorkspaceModel::getElementToFit(i
 }
 
 /*---------------------------------------------------------------------------*/
-
-bool check_raw_mda(QFileInfo fileInfo)
-{
-    int is_good = io::file::mda_get_multiplied_dims(fileInfo.filePath().toStdString());
-    if (is_good > 0)
-        return true;
-    return false;
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_raw_h5(QFileInfo fileInfo)
-{
-
-    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-    if ( fid < 0)
-        return false;
-
-    for(const auto& itr: raw_h5_groups)
-    {
-        hid_t gid = H5Gopen(fid, itr.c_str(), H5P_DEFAULT);
-        if ( gid > -1)
-        {
-            H5Gclose(gid);
-            H5Fclose(fid);
-            return true;
-        }
-    }
-
-    return false;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_vlm(QFileInfo fileInfo)
-{
-    // TODO:
-       return false;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_imgdat_h5(QFileInfo fileInfo)
-{
-
-    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-    if ( fid < 0)
-        return false;
-
-    hid_t gid = H5Gopen(fid, "MAPS" , H5P_DEFAULT);
-    if ( gid > -1)
-    {
-        H5Gclose(gid);
-        H5Fclose(fid);
-        return true;
-    }
-
-    return false;
-
-}
