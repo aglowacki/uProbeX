@@ -364,6 +364,16 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
         _energy_range.min = 0;
         _energy_range.max = _int_spec->rows() - 1;
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
+
+        _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
+                _out_fit_params[STR_ENERGY_OFFSET].value,
+                _out_fit_params[STR_ENERGY_SLOPE].value,
+                _out_fit_params[STR_ENERGY_QUADRATIC].value,
+                _out_fit_params[STR_SNIP_WIDTH].value,
+                0, //spectra energy start range
+                _int_spec->size() - 1);
+        
+        _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
     }
 }
 
@@ -538,12 +548,12 @@ void FittingDialog::runProcessing()
 
         unordered_map<string, ArrayDr> labeled_spectras;
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
-        /*
+        
         if (fit_spec.size() == _spectra_background.size())
         {
             fit_spec += _spectra_background;
         }
-        */
+        
         for (int i = 0; i < fit_spec.size(); i++)
         {
             if (fit_spec[i] <= 0.0)

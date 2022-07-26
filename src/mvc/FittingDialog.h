@@ -184,6 +184,8 @@ protected:
 
    QDoubleSpinBox* _opt_mp_covtol;
 
+   ArrayDr _spectra_background;
+
    bool _is_hybrid_fit;
 
    // energy vector
