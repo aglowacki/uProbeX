@@ -199,6 +199,7 @@ void FitSpectraWidget::createLayout()
     _cb_opttimizer = new QComboBox();
     _cb_opttimizer->addItem(STR_LM_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
+    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     connect(_cb_opttimizer,
             SIGNAL(currentIndexChanged(QString)),
             this,
@@ -959,7 +960,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 {
     if(val == STR_LM_FIT)
         _fit_params_table_model->setOptimizerSupportsMinMax(false);
-    else if(val == STR_MP_FIT)
+    else if(val == STR_MP_FIT || val == STR_HYBRID_MP_FIT)
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
 
     _fit_params_table->resizeColumnToContents(0);

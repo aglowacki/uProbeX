@@ -29,9 +29,11 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _accepted = false;
     _canceled = false;
     _running = false;
+    _is_hybrid_fit = false;
     _elements_to_fit = nullptr;
     _int_spec = nullptr;
-    _fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _createLayout();
 }
 
@@ -264,6 +266,8 @@ void FittingDialog::setOptimizer(QString opt)
         _mp_fit_ctrl_grp->setVisible(false);
         _lm_fit_ctrl_grp->setVisible(true);
         _optimizer = &_lmfit_optimizer;
+        _param_fit_routine.set_optimizer(_optimizer);
+        _is_hybrid_fit = false;
         _fit_params_table_model->setOptimizerSupportsMinMax(false);
     }
     else if (opt == STR_MP_FIT)
@@ -271,9 +275,19 @@ void FittingDialog::setOptimizer(QString opt)
         _lm_fit_ctrl_grp->setVisible(false);
         _mp_fit_ctrl_grp->setVisible(true);
         _optimizer = &_mpfit_optimizer;
+        _param_fit_routine.set_optimizer(_optimizer);
+        _is_hybrid_fit = false;
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
-    _fit_routine.set_optimizer(_optimizer);
+    else if (opt == STR_HYBRID_MP_FIT)
+    {
+        _lm_fit_ctrl_grp->setVisible(false);
+        _mp_fit_ctrl_grp->setVisible(true);
+        _optimizer = &_mpfit_optimizer;
+        _is_hybrid_fit = true;
+        _hybrid_fit_routine.set_optimizer(_optimizer);
+        _fit_params_table_model->setOptimizerSupportsMinMax(true);
+    }
     _updateGUIOptimizerOptions();
 }
 
@@ -453,7 +467,14 @@ void FittingDialog::runProcessing()
         //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        _fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        if (_is_hybrid_fit)
+        {
+            _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        }
+        else
+        {
+            _param_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        }
         //Fit the spectra saving the element counts in element_fit_count_dict
         // single threaded
         //out_fit_params = fit_routine.fit_spectra_parameters(&_model, int_spectra, _elements_to_fit);
@@ -462,7 +483,14 @@ void FittingDialog::runProcessing()
         Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         try
         {
-            outcome = _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params , &cb_func);
+            if (_is_hybrid_fit)
+            {
+                outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+            }
+            else
+            {
+                outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+            }
         }
         catch (int e)
         {
