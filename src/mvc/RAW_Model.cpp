@@ -65,8 +65,7 @@ bool RAW_Model::load(QString filename)
 
 				for (int i = 0; i < DEFAULT_NUM_DETECTORXS; i++)
 				{
-					io::file::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
-					if (_integrated_spectra_map[i].size() == 0)
+					if (false == io::file::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i)))
 					{
 						_integrated_spectra_map.erase(i);
 					}
