@@ -9,12 +9,10 @@
 #include <QFileInfo>
 #include <math.h>
 #include <gstar/LinearTransformer.h>
-#include <QMessageBox>
 #include <QPainter>
 #include <QImageReader>
 #include <QApplication>
 #include <gstar/GStarResource.h>
-#include <QMessageBox>
 #include "core/defines.h"
 using gstar::LinearTransformer;
 
@@ -61,13 +59,14 @@ bool SWSModel::load(QString filepath)
 
       m_datasetName = info1.completeBaseName();
       _datasetPath = info1.path() + QDir::separator() + m_datasetName;
+      /*
       logW<<_datasetPath.toStdString()<<"\n";
       logW<<m_datasetName.toStdString() << "\n";
 
       logW<<info1.suffix().toStdString() << "\n";
       logW<<info1.bundleName().toStdString() << "\n";
       logW<<info1.completeBaseName().toStdString() << "\n";
-
+      */
       QSettings swsData(filepath, QSettings::IniFormat);
 
       //save all settings to QMap
@@ -118,18 +117,9 @@ void SWSModel::check_and_load_autosave()
 				QFileInfo fileInfo(autosavedTmpFile);
 				QDateTime lastModified = fileInfo.lastModified();
 
-				QMessageBox msgBox;
-				msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-				msgBox.setDefaultButton(QMessageBox::No);
-				msgBox.setIcon(QMessageBox::Warning);
-				msgBox.setText("It looks like last time this application was used something went wrong, "
-					"would you like to restore auto-safe data from " + lastModified.toString());
-				int ret = msgBox.exec();
-
-				if (ret == QMessageBox::Yes)
-				{
-					_datasetPath = autosavedTemporaryFile;
-				}
+                //logW << "It looks like last time this application was used something went wrong, would you like to restore auto-safe data from " << lastModified.toString() << "\n";
+				//_datasetPath = autosavedTemporaryFile;
+				
 			}
 		}
 		else
@@ -411,8 +401,7 @@ bool SWSModel::loadDirectory()
             {
                m_tiffLoaded = false;
                loaded = false;
-               QMessageBox::critical(0, "uProbeX",
-                        "Failed to open associated TIFF file.");
+               logW<<"Failed to open associated TIFF file.\n";
 
             }
          }
@@ -631,13 +620,15 @@ bool SWSModel::loadPMG()
      else
      {
         loaded = false;
-        QMessageBox::warning(0, "Error", "Could not read file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
+        QString fpath = _datasetPath + QDir::separator() + m_datasetName;
+        logE << "Could not read file"<< fpath.toStdString() << ".pmg";
      }
    }
    else
    {
       loaded = false;
-      QMessageBox::warning(0, "Error", "Could not find file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
+      QString fpath = _datasetPath + QDir::separator() + m_datasetName;
+      logE << "Could not read file" << fpath.toStdString() << ".pmg";
    }
 
 

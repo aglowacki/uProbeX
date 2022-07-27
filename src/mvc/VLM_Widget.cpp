@@ -71,6 +71,7 @@ VLM_Widget::VLM_Widget(QWidget* parent)
    m_solverWidget = nullptr;
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
+   m_coordinateModel = nullptr;
    m_solver = nullptr;
    m_solverParameterParse = new SolverParameterParse();
 
