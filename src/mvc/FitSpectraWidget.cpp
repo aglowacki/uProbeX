@@ -1017,7 +1017,10 @@ void FitSpectraWidget::update_spectra_top_axis()
             }
 
             em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
-            labels[em.center()] = itr.first;
+            if (em.center() > 0.)
+            {
+                labels[em.center()] = itr.first;
+            }
         }
         _spectra_widget->set_top_axis(labels);
     }
