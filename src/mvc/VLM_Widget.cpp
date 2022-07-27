@@ -1861,8 +1861,11 @@ void VLM_Widget::setModel(VLM_Model* model)
         _model = model;
         if (_model != nullptr)
         {
-            updateFrame(_model->getImage());
-            setCoordinateModel(_model->getCoordModel());
+            if (_model->loaded())
+            {
+                updateFrame(_model->getImage());
+                setCoordinateModel(_model->getCoordModel());
+            }
             restoreMarkerLoaded();
         }
     }

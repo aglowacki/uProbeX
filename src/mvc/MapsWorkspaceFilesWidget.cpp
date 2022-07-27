@@ -311,6 +311,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 if (Model != nullptr)
                 {
                     load_status = LOADED;
+                    Model->getImage();
                     emit loaded_model(name, mt);
                 }
                 else
