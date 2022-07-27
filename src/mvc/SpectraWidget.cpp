@@ -428,10 +428,47 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
     if(element != nullptr)
     {
         const std::vector<data_struct::Element_Energy_Ratio<double>>& energy_ratios = element->energy_ratios();
-
         for(auto& itr : energy_ratios)
         {
             QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
+            QPen pen = line->pen();
+            switch (itr.ptype)
+            {
+            case data_struct::Element_Param_Type::Kb1_Line:
+            case data_struct::Element_Param_Type::Kb2_Line:
+                pen.setColor(QColor::fromRgb(LINE_KB_R, LINE_KB_G, LINE_KB_B));
+                break;
+            case data_struct::Element_Param_Type::Ka1_Line:
+            case data_struct::Element_Param_Type::Ka2_Line:
+                pen.setColor(QColor::fromRgb(LINE_KA_R, LINE_KA_G, LINE_KA_B));
+                break;
+                //L1
+            case data_struct::Element_Param_Type::Lb3_Line: // 4
+            case data_struct::Element_Param_Type::Lb4_Line: // 5
+            case data_struct::Element_Param_Type::Lg2_Line: // 7
+            case data_struct::Element_Param_Type::Lg3_Line: // 8
+            case data_struct::Element_Param_Type::Lg4_Line: // 9
+                pen.setColor(QColor::fromRgb(LINE_L1_R, LINE_L1_G, LINE_L1_B));
+                break;
+                //L2
+            case data_struct::Element_Param_Type::Lb1_Line: // 2
+            case data_struct::Element_Param_Type::Lg1_Line: // 6
+            case data_struct::Element_Param_Type::Ln_Line:  // 11
+                pen.setColor(QColor::fromRgb(LINE_L2_R, LINE_L2_G, LINE_L2_B));
+                break;
+                //L3
+            case data_struct::Element_Param_Type::La1_Line: // 0
+            case data_struct::Element_Param_Type::La2_Line: // 1
+            case data_struct::Element_Param_Type::Lb2_Line: // 3
+            case data_struct::Element_Param_Type::Ll_Line:  // 10
+                pen.setColor(QColor::fromRgb(LINE_L3_R, LINE_L3_G, LINE_L3_B));
+                break;
+            default:
+                pen.setColor(QColor::fromRgb(LINE_M_R, LINE_M_G, LINE_M_B));
+                break;
+            }
+
+            line->setPen(pen);
             line->append(itr.energy, line_min);
             //float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
             float line_ratio = itr.ratio;
