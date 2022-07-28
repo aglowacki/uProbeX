@@ -483,7 +483,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     {
         if (_model != nullptr)
         {
-            std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+            std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
             if (scalers->count(name.toStdString()) > 0)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
@@ -736,7 +736,7 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
-    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
     
     if (scalers->count(STR_DS_IC) > 0)
     {
@@ -793,18 +793,24 @@ void MapsElementsWidget::model_updated()
         element_lines.push_back(el_name+"_M");
     }
 
-    element_lines.push_back(STR_COHERENT_SCT_AMPLITUDE);
-    element_lines.push_back(STR_COMPTON_AMPLITUDE);
-    element_lines.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
-    element_lines.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
-    element_lines.push_back(STR_NUM_ITR);
-    element_lines.push_back(STR_RESIDUAL);
+    std::vector<std::string> final_counts_to_add_before_scalers;
+
+    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
+    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
 
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     
+    // get copy of elements to add the ones that were missed, usually pileups
+    data_struct::Fit_Count_Dict<float> element_counts_not_added;
+    _model->getAnalyzedCounts(current_a, element_counts_not_added);
+
     m_imageViewWidget->clearLabels();
     //insert in z order
     for (std::string el_name : element_lines)
@@ -813,16 +819,82 @@ void MapsElementsWidget::model_updated()
         {
             QString val = QString(el_name.c_str());
             m_imageViewWidget->addLabel(val);
+            element_counts_not_added.erase(el_name);
         }
 
     }
-//        for(auto& itr: *element_counts)
-//        {
-//            QString val = QString(itr.first.c_str());
-//            m_imageViewWidget->addLabel(val);
-//        }
 
-    for (auto& itr : *scalers)
+    //add leftovers ( pile ups )
+    for(auto& itr: element_counts_not_added)
+    {
+        // if it is not in the final add then add it
+        if(std::find(final_counts_to_add_before_scalers.begin(), final_counts_to_add_before_scalers.end(), itr.first) == final_counts_to_add_before_scalers.end())
+        {
+            QString val = QString(itr.first.c_str());
+            m_imageViewWidget->addLabel(val);
+        }
+    }
+
+    // add end of element list that are not elements
+    for (auto& itr : final_counts_to_add_before_scalers)
+    {
+        QString val = QString(itr.c_str());
+        m_imageViewWidget->addLabel(val);
+    }
+    
+
+    std::vector<std::string> scalers_to_add_first;
+    scalers_to_add_first.push_back(STR_SR_CURRENT);
+    scalers_to_add_first.push_back(STR_US_IC);
+    scalers_to_add_first.push_back(STR_DS_IC);
+    scalers_to_add_first.push_back(STR_ELT);
+    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
+    scalers_to_add_first.push_back(STR_ERT);
+    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
+    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_ICR);
+    scalers_to_add_first.push_back("INCNT");
+    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_OCR);
+    scalers_to_add_first.push_back("OUTCNT");
+    scalers_to_add_first.push_back(STR_DEAD_TIME);
+
+    scalers_to_add_first.push_back("abs_cfg");
+    scalers_to_add_first.push_back("abs_ic");
+
+    scalers_to_add_first.push_back("H_dpc_cfg");
+    scalers_to_add_first.push_back("V_dpc_cfg");
+    
+    scalers_to_add_first.push_back("DPC1_IC");
+    scalers_to_add_first.push_back("DPC2_IC");
+
+    scalers_to_add_first.push_back("dia1_dpc_cfg");
+    scalers_to_add_first.push_back("dia2_dpc_cfg");
+
+    scalers_to_add_first.push_back("CFG_1");
+    scalers_to_add_first.push_back(STR_CFG_2);
+    scalers_to_add_first.push_back(STR_CFG_3);
+    scalers_to_add_first.push_back(STR_CFG_4);
+    scalers_to_add_first.push_back(STR_CFG_5);
+    scalers_to_add_first.push_back("CFG_6");
+    scalers_to_add_first.push_back("CFG_7");
+    scalers_to_add_first.push_back("CFG_8");
+    scalers_to_add_first.push_back("CFG_9");
+
+
+    std::map<std::string, data_struct::ArrayXXr<float>> left_over_scalers = *scalers;
+    // add scalers in certain order
+    for (auto& itr : scalers_to_add_first)
+    {
+        if(scalers->count(itr) > 0)
+        {
+            m_imageViewWidget->addLabel(QString(itr.c_str()));
+            left_over_scalers.erase(itr);
+        }
+    }
+
+    // add rest of scalers
+    for (auto& itr : left_over_scalers)
     {
         m_imageViewWidget->addLabel(QString(itr.first.c_str()));
     }
@@ -986,7 +1058,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 	{
         data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
@@ -1153,7 +1225,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
     {
         data_struct::Fit_Count_Dict<float> fit_counts; 
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
@@ -1435,7 +1507,7 @@ void MapsElementsWidget::on_export_images()
 
             for (auto n_itr : normalizers)
             {
-                std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
                 if (scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));

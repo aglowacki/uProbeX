@@ -698,7 +698,6 @@ bool SWSModel::loadTiles()
    bool loaded = false;
 
    //logW<<"Supported image formats "<<QImageReader::supportedImageFormats();
-   //_gscene = new QGraphicsScene();
    int x_res = (m_samples[m_numSamples - 1].cornerBottomRight.x / m_samples[m_numSamples - 1].scale) / m_pmgImageReduction;
    int y_res = (m_samples[m_numSamples - 1].cornerBottomRight.y / m_samples[m_numSamples - 1].scale) / m_pmgImageReduction;
    _tif_img = QImage(QSize(x_res, y_res), QImage::Format_ARGB32);

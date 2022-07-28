@@ -87,7 +87,7 @@ public:
 
     std::vector<std::string> count_names();
 
-    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* getScalers() { return &_scalers; }
+    std::map<std::string, data_struct::ArrayXXr<float>>* getScalers() { return &_scalers; }
 
     bool is_fully_loaded() { return _is_fully_loaded; }
 
@@ -191,7 +191,7 @@ protected:
 
     data_struct::Params_Override<double>* _params_override;
 
-    std::unordered_map<std::string, data_struct::ArrayXXr<float>> _scalers;
+    std::map<std::string, data_struct::ArrayXXr<float>> _scalers;
 
 private:
     std::mutex _mutex;
