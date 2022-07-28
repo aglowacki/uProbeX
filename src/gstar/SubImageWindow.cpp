@@ -28,7 +28,7 @@ SubImageWindow::SubImageWindow() : QObject()
     counts_coord_model = new gstar::CoordinateModel(counts_lookup);
     counts_coord_widget = new gstar::CoordinateWidget(true);
     counts_coord_widget->setModel(counts_coord_model);
-    counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
+    counts_coord_widget->setLabel("Counts: ", "Min:  ", "Max:  ");
     counts_coord_widget->setUnitsLabel("cts/s");
 
     btn_contrast = new QPushButton("C");
