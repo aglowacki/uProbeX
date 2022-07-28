@@ -427,10 +427,17 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
         }
     }
 
-    QString analysisName = _cb_analysis->currentText();
-    if(analysisName.length() > 0 && name.length() > 0)
+    if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
-        displayCounts(analysisName.toStdString() , name.toStdString(), _chk_log_color->isChecked(), viewIdx);
+        m_imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
+    }
+    else
+    {
+        QString analysisName = _cb_analysis->currentText();
+        if (analysisName.length() > 0 && name.length() > 0)
+        {
+            displayCounts(analysisName.toStdString(), name.toStdString(), _chk_log_color->isChecked(), viewIdx);
+        }
     }
 }
 
@@ -812,7 +819,14 @@ void MapsElementsWidget::model_updated()
     _model->getAnalyzedCounts(current_a, element_counts_not_added);
 
     m_imageViewWidget->clearLabels();
-    //insert in z order
+
+    // insert any region links
+    for (const auto& itr : _model->regionLinks())
+    {
+        m_imageViewWidget->addLabel(itr.first);
+    }
+
+    // insert in z order
     for (std::string el_name : element_lines)
     {
         if(element_counts.count(el_name) > 0)
@@ -942,8 +956,14 @@ void MapsElementsWidget::redrawCounts()
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
-            
-            job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            if (_model != nullptr && _model->regionLinks().count(element) > 0)
+            {
+                m_imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
+            }
+            else
+            {
+                job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            }
         }
 
         while (job_queue.size() > 0)

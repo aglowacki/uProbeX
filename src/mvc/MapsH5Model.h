@@ -10,6 +10,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QImage>
 #include <QDir>
 #include <hdf5.h>
 #include <unordered_map>
@@ -137,6 +138,10 @@ public:
 
     const std::vector<float>& get_y_axis() { return _y_axis; }
 
+    void addRegionLink(QString name, QImage image) { _region_links[name] = image; }
+
+    const std::map<QString, QImage>& regionLinks() const { return _region_links; }
+
 signals:
     void model_data_updated();
 
@@ -207,6 +212,8 @@ private:
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_roi;
+
+    std::map<QString, QImage> _region_links;
 
     data_struct::Scan_Info<double> _scan_info;
 

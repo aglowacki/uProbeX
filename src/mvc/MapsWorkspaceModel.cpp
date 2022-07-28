@@ -46,6 +46,16 @@ bool check_raw_h5(QFileInfo fileInfo)
 
 /*---------------------------------------------------------------------------*/
 
+bool check_region_link(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+
 bool check_roi(QFileInfo fileInfo)
 {
     // TODO:
@@ -117,6 +127,8 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _vlm_suffex.append("tiff");
 
     _all_roi_suffex.append("roi");
+
+    _all_region_links_suffex.append("tif");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -169,6 +181,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
             job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
             job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi);
+            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
 
             _is_fit_params_loaded = _load_fit_params();
             io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
@@ -260,6 +273,22 @@ void MapsWorkspaceModel::reload_vlm()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceModel::reload_roi()
+{
+    _roi_fileinfo_list.clear();
+    get_filesnames_in_directory(*_dir, "rois", _vlm_suffex, &_roi_fileinfo_list, check_roi);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::reload_region_link()
+{
+    _region_links_fileinfo_list.clear();
+    get_filesnames_in_directory(*_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceModel::unload()
 {
 
@@ -299,6 +328,66 @@ void MapsWorkspaceModel::unload()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceModel::_load_region_links(QString name, MapsH5Model* model)
+{
+    for (auto& itr : _region_links_fileinfo_list)
+    {
+        QStringList flist = itr.second.baseName().split("@");
+        if (flist.count() > 1)
+        {
+            if (flist[0] == name)
+            {
+                QImage image;
+                if (image.load(itr.second.absoluteFilePath()))
+                {
+                    model->addRegionLink(flist[1], image.mirrored());
+                }
+                else
+                {
+                    logW << "Error loading region link " << itr.second.absoluteFilePath().toStdString() << " for " << name.toStdString() << "\n";
+                }
+            }
+        }
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::_load_rois(QString name, MapsH5Model* model)
+{
+    // TODO: check and load ROI's
+        // check V9 ROI's first
+        // get 4 numbers in dataset name to ref roi's
+    QRegExp re("[0-9][0-9][0-9][0-9]");
+    //re.setPatternSyntax(QRegExp::Wildcard);
+    int pos = re.indexIn(name);
+    if (pos > -1)
+    {
+        int len = re.matchedLength();
+        QString dataset_num = name.mid(pos, len);
+
+        QRegExp re2(dataset_num);
+        for (auto& itr : _roi_fileinfo_list)
+        {
+            int pos2 = re.indexIn(itr.first);
+            if (pos2 > -1)
+            {
+                logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
+                /*
+                // load and append to h5 model
+                ROIModel* roi_model = new ROIModel();
+                roi_model->loadv9(itr);
+                model->addROI(roi_model);
+                */
+            }
+        }
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
 MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
 {
     if(_h5_models.count(name) > 0)
@@ -309,33 +398,12 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     {
         MapsH5Model * model = new MapsH5Model();
         QFileInfo fileInfo = _h5_fileinfo_list[name];
-        model->load(fileInfo.absoluteFilePath());
-        // TODO: check and load ROI's
-        // check V9 ROI's first
-        // get 4 numbers in dataset name to ref roi's
-        QRegExp re("[0-9][0-9][0-9][0-9]");
-        //re.setPatternSyntax(QRegExp::Wildcard);
-        int pos = re.indexIn(name);
-        if (pos > -1)
+        if (model->load(fileInfo.absoluteFilePath()))
         {
-            int len = re.matchedLength();
-            QString dataset_num = name.mid(pos, len);
-
-            QRegExp re2(dataset_num);
-            for (auto& itr : _roi_fileinfo_list)
-            {
-                int pos2 = re.indexIn(itr.first);
-                if (pos2 > -1)
-                {
-                    logI <<"ROI : H5 = "<< name.toStdString()<< " roi = "<< itr.first.toStdString() << "\n";
-                    /*
-                    // load and append to h5 model
-                    ROIModel* roi_model = new ROIModel();
-                    roi_model->loadv9(itr);
-                    model->addROI(roi_model);
-                    */
-                }
-            }
+            // Load region links
+            _load_region_links(fileInfo.baseName(), model);
+            // Load ROI's
+            _load_rois(fileInfo.baseName(), model);
         }
         //_roi_fileinfo_list.count()
         if(model->is_counts_loaded())

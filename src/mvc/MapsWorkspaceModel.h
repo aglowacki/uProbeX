@@ -31,6 +31,10 @@ bool check_vlm(QFileInfo fileInfo);
 
 bool check_imgdat_h5(QFileInfo fileInfo);
 
+bool check_roi(QFileInfo fileInfo);
+
+bool check_region_link(QFileInfo fileInfo);
+
 /**
  * @brief Model
  */
@@ -89,6 +93,8 @@ public:
 
     vector<QString> get_loaded_vlm_names();
 
+    QDir get_directory() { return *_dir; }
+
 signals:
 
     void doneLoadingMDA();
@@ -113,9 +119,17 @@ public slots:
 
     void reload_vlm();
 
+    void reload_roi();
+
+    void reload_region_link();
+
 protected:
 
     bool _load_fit_params();
+
+    void _load_rois(QString name, MapsH5Model* model);
+
+    void _load_region_links(QString name, MapsH5Model* model);
 
     //bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
@@ -132,11 +146,13 @@ private:
     QList <QString> _raw_suffex;
     QList <QString> _vlm_suffex;
     QList <QString> _all_roi_suffex;
+    QList <QString> _all_region_links_suffex;
 
     map<QString, QFileInfo> _h5_fileinfo_list;
     map<QString, QFileInfo> _raw_fileinfo_list;
     map<QString, QFileInfo> _vlm_fileinfo_list;
     map<QString, QFileInfo> _roi_fileinfo_list;
+    map<QString, QFileInfo> _region_links_fileinfo_list;
 
     QDir* _dir;
 
