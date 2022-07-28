@@ -96,7 +96,7 @@ bool PythonRegionCaller::CallFunc(QString name,
    catch(PythonLoader::pyException ex)
    {
       //QMessageBox::critical(0, "Error", ex.what());
-      logW<<ex.what();
+      logE<<ex.what();
       return false;
    }
 

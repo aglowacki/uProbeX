@@ -377,7 +377,7 @@ void SolverProfileWidget::openPythonFile()
         {
             foreach (QString key, variables.keys())
             {
-                logW<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
+                logI<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
                 ////play_attributes->addAttr(key, variables[key], "float", true);
                 Attribute attr(key, variables[key], "", true);
                 coefList.append(attr);
@@ -403,7 +403,7 @@ void SolverProfileWidget::openPythonFile()
         {
             foreach (QString key, variables.keys())
             {
-                logW<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
+                logI<< key.toStdString() <<" : "<< variables[key].toStdString()<<"\n";
                 Attribute attr(key, variables[key], "", true);
                 optionsList.append(attr);
             }
@@ -417,7 +417,7 @@ void SolverProfileWidget::openPythonFile()
     }
     catch(PythonLoader::pyException ex)
     {
-        logW<<ex.what();
+        logE<<ex.what();
         QMessageBox::warning(nullptr, "Error loading variables", "Error loading variables. You will have to manually enter them.");
     }
 }

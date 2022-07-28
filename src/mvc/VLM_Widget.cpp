@@ -805,7 +805,7 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
 void VLM_Widget::callbackPvXUpdatedFloat(float val)
 {
 
-   logW<<"float x val = "<<val;
+   //logI<<"float x val = "<<val;
    callbackPvXUpdatedDouble((double) val);
 
 }
@@ -815,7 +815,7 @@ void VLM_Widget::callbackPvXUpdatedFloat(float val)
 void VLM_Widget::callbackPvYUpdatedFloat(float val)
 {
 
-   logW<<"float y val = "<<val;
+   //logI<<"float y val = "<<val;
    callbackPvYUpdatedDouble((double) val);
 
 }
@@ -828,7 +828,7 @@ void VLM_Widget::callbackPvXUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsX == false)
       return;
 
-   logW<<"double x val = "<<val;
+   //logI<<"double x val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -859,7 +859,7 @@ void VLM_Widget::callbackPvYUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsY == false)
       return;
 
-   logW<<"double y val = "<<val;
+   //logI<<"double y val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -1500,7 +1500,7 @@ void VLM_Widget::deleteItem()
          for (int i = selectedIndexes.count() - 1; i >= 0; i--)
          {
             QModelIndex index = selectedIndexes[i];
-            logW<<"index "<<index.row();
+            //logI<<"index "<<index.row();
             treeModel->removeRow(index.row(), index);
          }
       }

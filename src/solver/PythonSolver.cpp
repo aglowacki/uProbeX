@@ -122,7 +122,7 @@ bool PythonSolver::run()
    {
       this->m_lastErrorMsg = ex.what();
       //QMessageBox::critical(nullptr, "Error", ex.what());
-      logW<<ex.what();
+      logE<<ex.what();
       return false;
    }
 

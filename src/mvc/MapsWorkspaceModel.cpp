@@ -6,6 +6,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <QEventLoop>
 #include "core/GlobalThreadPool.h"
+#include <QRegExp>
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 
@@ -284,11 +285,13 @@ void MapsWorkspaceModel::unload()
     _raw_fileinfo_list.clear();
     _vlm_fileinfo_list.clear();
     _h5_fileinfo_list.clear();
+    _roi_fileinfo_list.clear();
 
     _is_fit_params_loaded = false;
     _is_raw_loaded = false;
     _is_vlm_loaded = false;
     _is_imgdat_loaded = false;
+    _is_rois_loaded = false;
     //_dir = new QDir(filepath);
 
     emit doneUnloading();
@@ -306,7 +309,35 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     {
         MapsH5Model * model = new MapsH5Model();
         QFileInfo fileInfo = _h5_fileinfo_list[name];
-        model->load(fileInfo.absoluteFilePath());
+        ///////model->load(fileInfo.absoluteFilePath());
+        // TODO: check and load ROI's
+        // check V9 ROI's first
+        // get 4 numbers in dataset name to ref roi's
+        QRegExp re("[0-9][0-9][0-9][0-9]");
+        //re.setPatternSyntax(QRegExp::Wildcard);
+        int pos = re.indexIn(name);
+        if (pos > -1)
+        {
+            int len = re.matchedLength();
+            QString dataset_num = name.mid(pos, len);
+
+            QRegExp re2(dataset_num);
+            for (auto& itr : _roi_fileinfo_list)
+            {
+                int pos2 = re.indexIn(itr.first);
+                if (pos2 > -1)
+                {
+                    logI <<"ROI : H5 = "<< name.toStdString()<< " roi = "<< itr.first.toStdString() << "\n";
+                    /*
+                    // load and append to h5 model
+                    ROIModel* roi_model = new ROIModel();
+                    roi_model->loadv9(itr);
+                    model->addROI(roi_model);
+                    */
+                }
+            }
+        }
+        //_roi_fileinfo_list.count()
         if(model->is_counts_loaded())
         {
             _h5_models.insert( {fileInfo.fileName(), model} );
