@@ -309,7 +309,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     {
         MapsH5Model * model = new MapsH5Model();
         QFileInfo fileInfo = _h5_fileinfo_list[name];
-        ///////model->load(fileInfo.absoluteFilePath());
+        model->load(fileInfo.absoluteFilePath());
         // TODO: check and load ROI's
         // check V9 ROI's first
         // get 4 numbers in dataset name to ref roi's
