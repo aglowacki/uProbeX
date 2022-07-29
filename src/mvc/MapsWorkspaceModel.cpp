@@ -7,6 +7,8 @@
 #include <QEventLoop>
 #include "core/GlobalThreadPool.h"
 #include <QRegExp>
+#include "io/file/hdf5_io.h"
+#include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 
@@ -374,12 +376,38 @@ void MapsWorkspaceModel::_load_rois(QString name, MapsH5Model* model)
             if (pos2 > -1)
             {
                 logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
-                /*
-                // load and append to h5 model
-                ROIModel* roi_model = new ROIModel();
-                roi_model->loadv9(itr);
-                model->addROI(roi_model);
-                */
+
+                std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
+                std::string search_filename;
+                //data_struct::Detector<double>* detector;
+                try
+                {
+                    if (io::file::aps::load_v9_rois(itr.second.absoluteFilePath().toStdString(), rois))
+                    {
+                        for (auto& roi_itr : rois)
+                        {
+                            Spectra<double>* int_spectra = new Spectra<double>();
+                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(model->getFilePath().toStdString(), int_spectra, roi_itr.second))
+                            {
+                                //ROIModel* roi_model = new ROIModel();
+                                //roi_model->
+                                //model->addROI(QString(roi_itr.first), roi_itr.second, int_spectra);
+                            }
+                            else
+                            {
+                                logW << "Could not load intspec roi from file " << model->getFilePath().toStdString() << "\n";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logW << "Could not load v9 roi from file " << itr.second.absoluteFilePath().toStdString() << "\n";
+                    }
+                }
+                catch (exception e)
+                {
+                    logE << e.what() << "\n";
+                }
             }
         }
     }
@@ -403,7 +431,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
             // Load region links
             _load_region_links(fileInfo.baseName(), model);
             // Load ROI's
-            _load_rois(fileInfo.baseName(), model);
+            //_load_rois(fileInfo.baseName(), model);
         }
         //_roi_fileinfo_list.count()
         if(model->is_counts_loaded())
