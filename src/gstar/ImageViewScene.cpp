@@ -576,30 +576,32 @@ void ImageViewScene::sceneSelectionChanged()
 void ImageViewScene::setPixmap(QPixmap p)
 {
 
-   // Set pixmap
-   if (m_pixItem != nullptr)
-   {
-      // Check against old image size and reset scene if necessary
-      if ((m_pixItem -> boundingRect()).width() != p.width() ||
-          (m_pixItem -> boundingRect()).height() != p.height())
-      {
-         m_pixItem -> setPixmap(p);
-         setSceneRect(m_pixItem -> boundingRect());
-         //updateROIs();
-      }
-      // New and old images have matching dimensions
-      else
-      {
-         m_pixItem -> setPixmap(p);
-      }
-
-   }
-   // Set first pixmap
-   else
-   {
-      m_pixItem = addPixmap(p);
-      //updateROIs();
-   }
+    // Set pixmap
+    if (m_pixItem != nullptr)
+    {
+        if (p.width() > 0 && p.height() > 0)
+        {
+            // Check against old image size and reset scene if necessary
+            if ((m_pixItem->boundingRect()).width() != p.width() ||
+                (m_pixItem->boundingRect()).height() != p.height())
+            {
+                m_pixItem->setPixmap(p);
+                setSceneRect(m_pixItem->boundingRect());
+                //updateROIs();
+            }
+            // New and old images have matching dimensions
+            else
+            {
+                m_pixItem->setPixmap(p);
+            }
+        }
+    }
+    // Set first pixmap
+    else
+    {
+        m_pixItem = addPixmap(p);
+        //updateROIs();
+    }
 
 }
 

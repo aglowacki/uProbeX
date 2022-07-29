@@ -26,14 +26,14 @@ SubImageWindow::SubImageWindow() : QObject()
 
     counts_lookup = new gstar::CountsLookupTransformer();
     counts_coord_model = new gstar::CoordinateModel(counts_lookup);
-    counts_coord_widget = new gstar::CoordinateWidget();
+    counts_coord_widget = new gstar::CoordinateWidget(true);
     counts_coord_widget->setModel(counts_coord_model);
-    counts_coord_widget->setLabel("Counts:", "Min:", "Max:");
+    counts_coord_widget->setLabel("Counts: ", "Min:  ", "Max:  ");
     counts_coord_widget->setUnitsLabel("cts/s");
 
     btn_contrast = new QPushButton("C");
     connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
-    btn_contrast->setEnabled(false);
+    btn_contrast->setVisible(false);
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(counts_coord_widget);

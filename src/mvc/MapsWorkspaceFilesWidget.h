@@ -52,6 +52,8 @@ public:
 
    void setLabelWorkspacePath(QString path) {_lbl_workspace->setText(path);}
 
+   void setFileTabActionsEnabled(bool val);
+
 signals:
 
    void loaded_model(const QString, MODEL_TYPE);
@@ -80,7 +82,7 @@ public slots:
 
     void onPerPixelProcessList(const QStringList& file_list);
 
-    void onProcessed_list_update();
+    void onProcessed_list_update(QStringList file_list);
 
 protected:
 

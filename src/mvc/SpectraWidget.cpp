@@ -70,11 +70,15 @@ void SpectraWidget::createLayout()
     _axisX->setTickAnchor(0.0);
     _axisX->setTickInterval(0.5);
     _axisX->setTickType(QtCharts::QValueAxis::TicksDynamic);
-
     _axisX->setTickCount(20);
 
     _top_axis_elements = new QtCharts::QCategoryAxis();
+    //_top_axis_elements->setTickAnchor(0.0);
+    //_top_axis_elements->setTickInterval(0.5);
+    //_top_axis_elements->setTickType(QtCharts::QValueAxis::TicksDynamic);
     //_top_axis_elements->setTickCount(20);
+    _top_axis_elements->setLabelsPosition(QtCharts::QCategoryAxis::AxisLabelsPositionOnValue);
+    _top_axis_elements->setGridLineVisible(false);
 
     _axisY = new QtCharts::QValueAxis();
     _axisY->setTitleText("Counts");
@@ -84,7 +88,7 @@ void SpectraWidget::createLayout()
 
     _chart = new QtCharts::QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
-    //_chart->addAxis(_top_axis_elements, Qt::AlignTop);
+    _chart->addAxis(_top_axis_elements, Qt::AlignTop);
 
     float ymax = 0;
     float ymin = 0;
@@ -106,28 +110,26 @@ void SpectraWidget::createLayout()
 
     _line_series = nullptr;
 
-    _chartView = new QtCharts::QChartView(_chart);
-    _chartView->setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+    _chartView = new ChartView(_chart);
+    connect(_chartView, &ChartView::view_zoomed, this, &SpectraWidget::onUpdateChartLineEdits);
 
-    //_chartView->setRenderHint(QPainter::Antialiasing);
-   
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
-    _display_eneergy_min->setMinimumWidth(100);
+ //   _display_eneergy_min->setMinimumWidth(100);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max()));
-    _display_eneergy_max->setMinimumWidth(100);
+//    _display_eneergy_max->setMinimumWidth(100);
     connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
     _display_height_min = new QLineEdit(QString::number(ymin));
-    _display_height_min->setMinimumWidth(100);
+//    _display_height_min->setMinimumWidth(100);
     connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
     _display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
-    _display_height_max->setMinimumWidth(100);
+//    _display_height_max->setMinimumWidth(100);
     connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
     _btn_reset_chart_view = new QPushButton("Reset");
@@ -145,6 +147,7 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(_display_eneergy_max);
     options_layout->addWidget(new QLabel("KeV"));
 
+    /*
     options_layout->addWidget(new QLabel("   |   Display Height Min:"));
     options_layout->addWidget(_display_height_min);
     options_layout->addWidget(new QLabel("Counts  ,  "));
@@ -152,7 +155,7 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(new QLabel("Display Height Max:"));
     options_layout->addWidget(_display_height_max);
     options_layout->addWidget(new QLabel("Counts | "));
-
+    */
     options_layout->addWidget(_btn_reset_chart_view);
 
     options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
@@ -185,6 +188,7 @@ void SpectraWidget::onSpectraDisplayChanged(const QString &)
     qreal maxRange = _display_eneergy_max->text().toDouble();
     qreal minRange = _display_eneergy_min->text().toDouble();
     _axisX->setRange(minRange, maxRange);
+    _top_axis_elements->setRange(minRange, maxRange);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -198,14 +202,28 @@ void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
 
 /*---------------------------------------------------------------------------*/
 
+void SpectraWidget::onResetChartViewOnlyY()
+{
+    _display_height_min->setText(QString::number(1));
+    _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
+    _currentYAxis->setRange(1, _int_spec_max_y);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void SpectraWidget::onResetChartView()
 {
     _display_eneergy_min->setText(QString::number(0));
     _display_eneergy_max->setText(QString::number(_int_spec_max_x));
+
     _display_height_min->setText(QString::number(1));
     _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
-    _axisX->setRange(0, _int_spec_max_x);
+
     _currentYAxis->setRange(1, _int_spec_max_y);
+    _axisX->setRange(0, _int_spec_max_x);
+    _top_axis_elements->setRange(0, _int_spec_max_x);
+
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -286,6 +304,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 		}
         _chart->addSeries(series);
         series->attachAxis(_axisX);
+        series->attachAxis(_top_axis_elements);
         _display_eneergy_min->setText(QString::number(_axisX->min()));
         _display_eneergy_max->setText(QString::number(_axisX->max()));
 
@@ -312,7 +331,6 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
             pen.setColor(QColor::fromRgb(MOD_SPEC_R, MOD_SPEC_G, MOD_SPEC_B));
             series->setPen(pen);
         }
-        //series->attachAxis(_top_axis_elements);
     }
     else
     {
@@ -410,10 +428,47 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
     if(element != nullptr)
     {
         const std::vector<data_struct::Element_Energy_Ratio<double>>& energy_ratios = element->energy_ratios();
-
         for(auto& itr : energy_ratios)
         {
             QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
+            QPen pen = line->pen();
+            switch (itr.ptype)
+            {
+            case data_struct::Element_Param_Type::Kb1_Line:
+            case data_struct::Element_Param_Type::Kb2_Line:
+                pen.setColor(QColor::fromRgb(LINE_KB_R, LINE_KB_G, LINE_KB_B));
+                break;
+            case data_struct::Element_Param_Type::Ka1_Line:
+            case data_struct::Element_Param_Type::Ka2_Line:
+                pen.setColor(QColor::fromRgb(LINE_KA_R, LINE_KA_G, LINE_KA_B));
+                break;
+                //L1
+            case data_struct::Element_Param_Type::Lb3_Line: // 4
+            case data_struct::Element_Param_Type::Lb4_Line: // 5
+            case data_struct::Element_Param_Type::Lg2_Line: // 7
+            case data_struct::Element_Param_Type::Lg3_Line: // 8
+            case data_struct::Element_Param_Type::Lg4_Line: // 9
+                pen.setColor(QColor::fromRgb(LINE_L1_R, LINE_L1_G, LINE_L1_B));
+                break;
+                //L2
+            case data_struct::Element_Param_Type::Lb1_Line: // 2
+            case data_struct::Element_Param_Type::Lg1_Line: // 6
+            case data_struct::Element_Param_Type::Ln_Line:  // 11
+                pen.setColor(QColor::fromRgb(LINE_L2_R, LINE_L2_G, LINE_L2_B));
+                break;
+                //L3
+            case data_struct::Element_Param_Type::La1_Line: // 0
+            case data_struct::Element_Param_Type::La2_Line: // 1
+            case data_struct::Element_Param_Type::Lb2_Line: // 3
+            case data_struct::Element_Param_Type::Ll_Line:  // 10
+                pen.setColor(QColor::fromRgb(LINE_L3_R, LINE_L3_G, LINE_L3_B));
+                break;
+            default:
+                pen.setColor(QColor::fromRgb(LINE_M_R, LINE_M_G, LINE_M_B));
+                break;
+            }
+
+            line->setPen(pen);
             line->append(itr.energy, line_min);
             //float line_ratio = data_struct::Element_Param_Percent_Map.at(itr.ptype);
             float line_ratio = itr.ratio;
@@ -550,94 +605,6 @@ void SpectraWidget::_update_series()
 }
 */
 /*---------------------------------------------------------------------------*/
-/*
-bool SpectraWidget::viewportEvent(QEvent *event)
-{
-    if (event->type() == QEvent::TouchBegin) {
-        // By default touch events are converted to mouse events. So
-        // after this event we will get a mouse event also but we want
-        // to handle touch events as gestures only. So we need this safeguard
-        // to block mouse events that are actually generated from touch.
-        m_isTouching = true;
-
-        // Turn off animations when handling gestures they
-        // will only slow us down.
-        _chart->setAnimationOptions(QtCharts::QChart::NoAnimation);
-    }
-    return QWidget::viewportEvent(event);
-}
-*/
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mousePressEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        return;
-
-    QWidget::mousePressEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        return;
-    QWidget::mouseMoveEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (m_isTouching)
-        m_isTouching = false;
-
-    // Because we disabled animations when touch event was detected
-    // we must put them back on.
-    _chart->setAnimationOptions(QtCharts::QChart::SeriesAnimations);
-
-    onUpdateChartLineEdits();
-
-    QWidget::mouseReleaseEvent(event);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void SpectraWidget::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Plus:
-        _chart->zoomIn();
-        break;
-    case Qt::Key_Minus:
-        _chart->zoomOut();
-        break;
-    case Qt::Key_Left:
-        _chart->scroll(-10, 0);
-        break;
-    case Qt::Key_Right:
-        _chart->scroll(10, 0);
-        break;
-    case Qt::Key_Up:
-        _chart->scroll(0, 10);
-        break;
-    case Qt::Key_Down:
-        _chart->scroll(0, -10);
-        break;
-    case Qt::Key_R:
-        //_chart->resetMatrix();
-        //_chart->resetTransform();
-        //_chart->zoomReset();
-        onResetChartView();
-        break;
-    default:
-        QWidget::keyPressEvent(event);
-        break;
-    }
-}
-
-/*---------------------------------------------------------------------------*/
 
 void SpectraWidget::connectMarkers()
 {
@@ -717,11 +684,22 @@ void SpectraWidget::handleMarkerClicked()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::set_top_axis(std::map<std::string, float> elements)
+void SpectraWidget::clear_top_axis()
+{
+    QStringList labels = _top_axis_elements->categoriesLabels();
+    for (QString str : labels)
+    {
+        _top_axis_elements->remove(str);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void SpectraWidget::set_top_axis(std::map < float, std::string> elements)
 {  
     for (const auto& itr : elements)
     {
-        _top_axis_elements->append(QString::fromStdString(itr.first), itr.second);
+        _top_axis_elements->append(QString::fromStdString(itr.second), itr.first);
     } 
 }
 

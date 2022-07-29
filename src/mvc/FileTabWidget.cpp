@@ -97,42 +97,24 @@ void FileTabWidget::_gen_visible_list(QStringList *sl)
 
 void FileTabWidget::load_all_visible()
 {
-    _load_all_btn->setEnabled(false);
-    _unload_all_btn->setEnabled(false);
-    _action_load->setEnabled(false);
-    _action_unload->setEnabled(false);
-    _action_refresh->setEnabled(false);
+    
 
     QStringList sl;
     _gen_visible_list(&sl);
     emit loadList(sl);
 
-    _action_load->setEnabled(true);
-    _action_unload->setEnabled(true);
-    _action_refresh->setEnabled(true);
-    _load_all_btn->setEnabled(true);
-    _unload_all_btn->setEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void FileTabWidget::unload_all_visible()
 {
-    _load_all_btn->setEnabled(false);
-    _unload_all_btn->setEnabled(false);
-    _action_load->setEnabled(false);
-    _action_unload->setEnabled(false);
-    _action_refresh->setEnabled(false);
+    
 
     QStringList sl;
     _gen_visible_list(&sl);
     emit unloadList(sl);
 
-    _action_load->setEnabled(true);
-    _action_unload->setEnabled(true);
-    _action_refresh->setEnabled(true);
-    _load_all_btn->setEnabled(true);
-    _unload_all_btn->setEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -198,6 +180,8 @@ void FileTabWidget::ShowContextMenu(const QPoint &pos)
 
 void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 {
+    
+
     QStringList sl;
     sl.append(idx.data(0).toString());
     emit loadList(sl);
@@ -205,13 +189,25 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 
 /*---------------------------------------------------------------------------*/
 
+void FileTabWidget::setActionsAndButtonsEnabled(bool val)
+{
+    _load_all_btn->setEnabled(val);
+    _unload_all_btn->setEnabled(val);
+    _action_load->setEnabled(val);
+    _action_unload->setEnabled(val);
+    _action_refresh->setEnabled(val);
+    _process_btn->setEnabled(val);
+    for (QAction* act : _custom_action_list)
+    {
+        act->setEnabled(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FileTabWidget::onLoadFile()
 {
-    _load_all_btn->setEnabled(false);
-    _unload_all_btn->setEnabled(false);
-    _action_load->setEnabled(false);
-    _action_unload->setEnabled(false);
-    _action_refresh->setEnabled(false);
+    
 
     QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
@@ -221,23 +217,13 @@ void FileTabWidget::onLoadFile()
         sl.append(idx.data(0).toString());
     }
     emit loadList(sl);
-
-    _action_load->setEnabled(true);
-    _action_unload->setEnabled(true);
-    _action_refresh->setEnabled(true);
-    _load_all_btn->setEnabled(true);
-    _unload_all_btn->setEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void FileTabWidget::onUnloadFile()
 {
-    _load_all_btn->setEnabled(false);
-    _unload_all_btn->setEnabled(false);
-    _action_load->setEnabled(false);
-    _action_unload->setEnabled(false);
-    _action_refresh->setEnabled(false);
+    
 
     QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
@@ -248,11 +234,6 @@ void FileTabWidget::onUnloadFile()
     }
     emit unloadList(sl);
 
-    _action_load->setEnabled(true);
-    _action_unload->setEnabled(true);
-    _action_refresh->setEnabled(true);
-    _load_all_btn->setEnabled(true);
-    _unload_all_btn->setEnabled(true);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -328,6 +309,7 @@ void FileTabWidget::filterBtnClicked()
 void FileTabWidget::addCustomContext(QString Id, QString label)
 {
     QAction* action = _contextMenu->addAction(label);
+    _custom_action_list.append(action);
     action->setData(Id);
     connect(action, SIGNAL(triggered()), this, SLOT(onCustomContext()));
 }

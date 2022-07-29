@@ -131,13 +131,43 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
 
-    m_toolbar->addWidget(new QLabel(" ColorMap :"));
-    m_toolbar->addWidget(_cb_colormap);
+    _color_map_ledgend_lbl = new QLabel();
+    _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
+    _color_maps_ledgend->setColorTable(_gray_colormap);
+    for (uint c = 0; c < 256; c++)
+    {
+        for (int r = 0; r < 10; r++)
+        {
+            _color_maps_ledgend->setPixel(c, r, c);
+        }
+    }
+    
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+
+    QWidget* color_maps_widgets = new QWidget();
+    QVBoxLayout* colormapsVBox = new QVBoxLayout();
+    QHBoxLayout* colormapsHBox = new QHBoxLayout();
+    colormapsHBox->addWidget(new QLabel(" ColorMap :"));
+    colormapsHBox->addWidget(_cb_colormap);
+    colormapsVBox->addItem(colormapsHBox);
+    colormapsVBox->addWidget(_color_map_ledgend_lbl);
+    color_maps_widgets->setLayout(colormapsVBox);
+    m_toolbar->addWidget(color_maps_widgets);
+    
+    _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
+    connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     _chk_log_color = new QCheckBox("Log scale");
     _chk_log_color->setChecked(false);
     connect(_chk_log_color, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
-    m_toolbar->addWidget(_chk_log_color);
+
+    QWidget* color_chk_widgets = new QWidget();
+    QVBoxLayout* colorVBox = new QVBoxLayout();
+    colorVBox->addWidget(_chk_log_color);
+    colorVBox->addWidget(_chk_disp_color_ledgend);
+    color_chk_widgets->setLayout(colorVBox);
+
+    m_toolbar->addWidget(color_chk_widgets);
 
     _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
@@ -198,6 +228,12 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     createActions();
 
+    bool chk_log_scale_color = Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool();
+    bool chk_display_color_ledgend = Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool();
+
+    _chk_log_color->setChecked(chk_log_scale_color);
+    _chk_disp_color_ledgend->setChecked(chk_display_color_ledgend);
+
     int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
     int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
     if (rows < 1)
@@ -247,6 +283,8 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
 
 void MapsElementsWidget::on_log_color_changed(int state)
 {
+    Preferences::inst()->setValue(STR_LOG_SCALE_COLOR, _chk_log_color->isChecked());
+    Preferences::inst()->setValue(STR_DISPLAY_COLOR_LEDGEND, _chk_disp_color_ledgend->isChecked());
     redrawCounts();
 }
 
@@ -389,10 +427,17 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
         }
     }
 
-    QString analysisName = _cb_analysis->currentText();
-    if(analysisName.length() > 0 && name.length() > 0)
+    if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
-        displayCounts(analysisName.toStdString() , name.toStdString(), _chk_log_color->isChecked(), viewIdx);
+        m_imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
+    }
+    else
+    {
+        QString analysisName = _cb_analysis->currentText();
+        if (analysisName.length() > 0 && name.length() > 0)
+        {
+            displayCounts(analysisName.toStdString(), name.toStdString(), _chk_log_color->isChecked(), viewIdx);
+        }
     }
 }
 
@@ -423,6 +468,9 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
             Preferences::inst()->setValue(STR_COLORMAP, colormap);
         }
     }
+    _color_maps_ledgend->setColorTable(*_selected_colormap);
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+
 	redrawCounts();
     
     Preferences::inst()->save();
@@ -442,7 +490,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     {
         if (_model != nullptr)
         {
-            std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+            std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
             if (scalers->count(name.toStdString()) > 0)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
@@ -649,7 +697,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
         if (param_overrides != nullptr)
         {
 
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("TXT (*.txt *.TXT);;All Files (*.*)"));
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"));
             if (fileName.length() > 0)
             {
                 data_struct::Fit_Parameters<double>* nfit_params = &(param_overrides->fit_params);
@@ -695,7 +743,7 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
-    std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
     
     if (scalers->count(STR_DS_IC) > 0)
     {
@@ -752,36 +800,115 @@ void MapsElementsWidget::model_updated()
         element_lines.push_back(el_name+"_M");
     }
 
-    element_lines.push_back(STR_COHERENT_SCT_AMPLITUDE);
-    element_lines.push_back(STR_COMPTON_AMPLITUDE);
-    element_lines.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
-    element_lines.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
-    element_lines.push_back(STR_NUM_ITR);
-    element_lines.push_back(STR_RESIDUAL);
+    std::vector<std::string> final_counts_to_add_before_scalers;
+
+    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
+    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
 
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     
+    // get copy of elements to add the ones that were missed, usually pileups
+    data_struct::Fit_Count_Dict<float> element_counts_not_added;
+    _model->getAnalyzedCounts(current_a, element_counts_not_added);
+
     m_imageViewWidget->clearLabels();
-    //insert in z order
+
+    // insert any region links
+    for (const auto& itr : _model->regionLinks())
+    {
+        m_imageViewWidget->addLabel(itr.first);
+    }
+
+    // insert in z order
     for (std::string el_name : element_lines)
     {
         if(element_counts.count(el_name) > 0)
         {
             QString val = QString(el_name.c_str());
             m_imageViewWidget->addLabel(val);
+            element_counts_not_added.erase(el_name);
         }
 
     }
-//        for(auto& itr: *element_counts)
-//        {
-//            QString val = QString(itr.first.c_str());
-//            m_imageViewWidget->addLabel(val);
-//        }
 
-    for (auto& itr : *scalers)
+    //add leftovers ( pile ups )
+    for(auto& itr: element_counts_not_added)
+    {
+        // if it is not in the final add then add it
+        if(std::find(final_counts_to_add_before_scalers.begin(), final_counts_to_add_before_scalers.end(), itr.first) == final_counts_to_add_before_scalers.end())
+        {
+            QString val = QString(itr.first.c_str());
+            m_imageViewWidget->addLabel(val);
+        }
+    }
+
+    // add end of element list that are not elements
+    for (auto& itr : final_counts_to_add_before_scalers)
+    {
+        QString val = QString(itr.c_str());
+        m_imageViewWidget->addLabel(val);
+    }
+    
+
+    std::vector<std::string> scalers_to_add_first;
+    scalers_to_add_first.push_back(STR_SR_CURRENT);
+    scalers_to_add_first.push_back(STR_US_IC);
+    scalers_to_add_first.push_back(STR_DS_IC);
+    scalers_to_add_first.push_back(STR_ELT);
+    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
+    scalers_to_add_first.push_back(STR_ERT);
+    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
+    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_ICR);
+    scalers_to_add_first.push_back("INCNT");
+    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_OCR);
+    scalers_to_add_first.push_back("OUTCNT");
+    scalers_to_add_first.push_back(STR_DEAD_TIME);
+
+    scalers_to_add_first.push_back("abs_cfg");
+    scalers_to_add_first.push_back("abs_ic");
+
+    scalers_to_add_first.push_back("H_dpc_cfg");
+    scalers_to_add_first.push_back("V_dpc_cfg");
+    
+    scalers_to_add_first.push_back("DPC1_IC");
+    scalers_to_add_first.push_back("DPC2_IC");
+
+    scalers_to_add_first.push_back("dia1_dpc_cfg");
+    scalers_to_add_first.push_back("dia2_dpc_cfg");
+
+    scalers_to_add_first.push_back("CFG_1");
+    scalers_to_add_first.push_back(STR_CFG_2);
+    scalers_to_add_first.push_back(STR_CFG_3);
+    scalers_to_add_first.push_back(STR_CFG_4);
+    scalers_to_add_first.push_back(STR_CFG_5);
+    scalers_to_add_first.push_back("CFG_6");
+    scalers_to_add_first.push_back("CFG_7");
+    scalers_to_add_first.push_back("CFG_8");
+    scalers_to_add_first.push_back("CFG_9");
+
+
+    std::map<std::string, data_struct::ArrayXXr<float>> left_over_scalers = *scalers;
+    // add scalers in certain order
+    for (auto& itr : scalers_to_add_first)
+    {
+        if(scalers->count(itr) > 0)
+        {
+            m_imageViewWidget->addLabel(QString(itr.c_str()));
+            left_over_scalers.erase(itr);
+        }
+    }
+
+    // add rest of scalers
+    for (auto& itr : left_over_scalers)
     {
         m_imageViewWidget->addLabel(QString(itr.first.c_str()));
     }
@@ -829,8 +956,14 @@ void MapsElementsWidget::redrawCounts()
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
-            
-            job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            if (_model != nullptr && _model->regionLinks().count(element) > 0)
+            {
+                m_imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
+            }
+            else
+            {
+                job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+            }
         }
 
         while (job_queue.size() > 0)
@@ -945,7 +1078,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 	{
         data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
@@ -984,7 +1117,17 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 m_imageHeightDim->setCurrentText(QString::number(height));
                 m_imageWidthDim->setCurrentText(QString::number(width));
             }
-            QImage image(width, height, QImage::Format_Indexed8);
+            // add to width for color maps ledgend
+            int cm_ledgend = width * .05; // add 5% width for ledgend
+            if (cm_ledgend == 0)
+            {
+                cm_ledgend = 3;
+            }
+            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
+            {
+                cm_ledgend = 0;
+            }
+            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
             float counts_max;
@@ -1040,6 +1183,50 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                     image.setPixel(col, row, data);
                 }
             }
+            
+            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
+            {
+                // add color map ledgend
+                int startH = height * .1;
+                int endH = height - startH;
+                int startW = width + 1;
+                int endW = width + cm_ledgend;
+                if (cm_ledgend == 3)
+                {
+                    endW--;
+                }
+                    
+                float inc = 255.0 / float(endH - startH);
+                float fcol = 255.0;
+
+                for (int row = 0; row < height; row++)
+                {
+                    if (row >= startH && row <= endH)
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            if (col >= startW && col <= endW)
+                            {
+                                image.setPixel(col, row, uint(fcol));
+                            }
+                            else
+                            {
+                                image.setPixel(col, row, uint(127));
+                            }
+                        }
+                        fcol -= inc;
+                        fcol = std::max(fcol, float(0.0));
+                    }
+                    else
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            image.setPixel(col, row, uint(127));
+                        }
+                    }
+                }
+            }
+
             m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
 	}
@@ -1058,7 +1245,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
     {
         data_struct::Fit_Count_Dict<float> fit_counts; 
         _model->getAnalyzedCounts(analysis_type, fit_counts);
-        data_struct::Fit_Count_Dict<float>* scalers = _model->getScalers();
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         ArrayXXr<float> normalized;
         bool draw = false;
         int height = 0;
@@ -1090,8 +1277,18 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 normalized = normalized.log10();
                 normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
             }
+            // add to width for color maps ledgend
+            int cm_ledgend = width * .05; // add 5% width for ledgend
+            if (cm_ledgend == 0)
+            {
+                cm_ledgend = 3;
+            }
+            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
+            {
+                cm_ledgend = 0;
+            }
 
-            QImage image(width, height, QImage::Format_Indexed8);
+            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
             image.setColorTable(*_selected_colormap);
 
             float counts_max;
@@ -1147,6 +1344,50 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     image.setPixel(col, row, data);
                 }
             }
+
+            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
+            {
+                // add color map ledgend
+                int startH = height * .1;
+                int endH = height - startH;
+                int startW = width + 1;
+                int endW = width + cm_ledgend;
+                if (cm_ledgend == 3)
+                {
+                    endW--;
+                }
+
+                float inc = 255.0 / float(endH - startH);
+                float fcol = 255.0;
+
+                for (int row = 0; row < height; row++)
+                {
+                    if (row >= startH && row <= endH)
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            if (col >= startW && col <= endW)
+                            {
+                                image.setPixel(col, row, uint(fcol));
+                            }
+                            else
+                            {
+                                image.setPixel(col, row, uint(127));
+                            }
+                        }
+                        fcol -= inc;
+                        fcol = std::max(fcol, float(0.0));
+                    }
+                    else
+                    {
+                        for (int col = width; col < width + cm_ledgend; col++)
+                        {
+                            image.setPixel(col, row, uint(127));
+                        }
+                    }
+                }
+            }
+
             return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
         }
     }
@@ -1286,7 +1527,7 @@ void MapsElementsWidget::on_export_images()
 
             for (auto n_itr : normalizers)
             {
-                std::unordered_map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
                 if (scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));

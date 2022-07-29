@@ -220,6 +220,7 @@ private:
     * @brief xyzArray
     */
     SubSample *m_samples;
+
 };
 
 

@@ -6,8 +6,95 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <QEventLoop>
 #include "core/GlobalThreadPool.h"
+#include <QRegExp>
+#include "io/file/hdf5_io.h"
+#include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
+
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_mda(QFileInfo fileInfo)
+{
+    int is_good = io::file::mda_get_multiplied_dims(fileInfo.filePath().toStdString());
+    if (is_good > 0)
+        return true;
+    return false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_raw_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (fid < 0)
+        return false;
+
+    for (const auto& itr : raw_h5_groups)
+    {
+        hid_t gid = H5Gopen(fid, itr.c_str(), H5P_DEFAULT);
+        if (gid > -1)
+        {
+            H5Gclose(gid);
+            H5Fclose(fid);
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_region_link(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+bool check_roi(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_vlm(QFileInfo fileInfo)
+{
+    // TODO:
+    return true;
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool check_imgdat_h5(QFileInfo fileInfo)
+{
+
+    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (fid < 0)
+        return false;
+
+    hid_t gid = H5Gopen(fid, "MAPS", H5P_DEFAULT);
+    if (gid > -1)
+    {
+        H5Gclose(gid);
+        H5Fclose(fid);
+        return true;
+    }
+
+    return false;
+
+}
+
 
 /*----------------src/mvc/MapsWorkspaceModel.cpp \-----------------------------------------------------------*/
 
@@ -16,6 +103,9 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
     _is_fit_params_loaded = false;
     _is_imgdat_loaded = false;
+    _is_rois_loaded = false;
+    _is_vlm_loaded = false;
+    _is_raw_loaded = false;
     _dir = nullptr;
 
     _all_h5_suffex.append("h5");
@@ -37,6 +127,10 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _vlm_suffex.append("sws");
     _vlm_suffex.append("tif");
     _vlm_suffex.append("tiff");
+
+    _all_roi_suffex.append("roi");
+
+    _all_region_links_suffex.append("tif");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -88,6 +182,8 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
             job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
             job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi);
+            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
 
             _is_fit_params_loaded = _load_fit_params();
             io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
@@ -123,6 +219,11 @@ void MapsWorkspaceModel::load(QString filepath)
                             _is_imgdat_loaded = itr.second.get();
                             to_delete.push_back(itr.first);
                             emit doneLoadingImgDat();
+                            break;
+                        case 4:
+                            _is_rois_loaded = itr.second.get();
+                            to_delete.push_back(itr.first);
+                            //emit doneLoadingImgDat();
                             break;
                         }
                     }
@@ -174,6 +275,22 @@ void MapsWorkspaceModel::reload_vlm()
 
 /*---------------------------------------------------------------------------*/
 
+void MapsWorkspaceModel::reload_roi()
+{
+    _roi_fileinfo_list.clear();
+    get_filesnames_in_directory(*_dir, "rois", _vlm_suffex, &_roi_fileinfo_list, check_roi);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::reload_region_link()
+{
+    _region_links_fileinfo_list.clear();
+    get_filesnames_in_directory(*_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsWorkspaceModel::unload()
 {
 
@@ -199,14 +316,102 @@ void MapsWorkspaceModel::unload()
     _raw_fileinfo_list.clear();
     _vlm_fileinfo_list.clear();
     _h5_fileinfo_list.clear();
+    _roi_fileinfo_list.clear();
 
     _is_fit_params_loaded = false;
     _is_raw_loaded = false;
     _is_vlm_loaded = false;
     _is_imgdat_loaded = false;
+    _is_rois_loaded = false;
     //_dir = new QDir(filepath);
 
     emit doneUnloading();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::_load_region_links(QString name, MapsH5Model* model)
+{
+    for (auto& itr : _region_links_fileinfo_list)
+    {
+        QStringList flist = itr.second.baseName().split("@");
+        if (flist.count() > 1)
+        {
+            if (flist[0] == name)
+            {
+                QImage image;
+                if (image.load(itr.second.absoluteFilePath()))
+                {
+                    model->addRegionLink(flist[1], image.mirrored());
+                }
+                else
+                {
+                    logW << "Error loading region link " << itr.second.absoluteFilePath().toStdString() << " for " << name.toStdString() << "\n";
+                }
+            }
+        }
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceModel::_load_rois(QString name, MapsH5Model* model)
+{
+    // TODO: check and load ROI's
+        // check V9 ROI's first
+        // get 4 numbers in dataset name to ref roi's
+    QRegExp re("[0-9][0-9][0-9][0-9]");
+    //re.setPatternSyntax(QRegExp::Wildcard);
+    int pos = re.indexIn(name);
+    if (pos > -1)
+    {
+        int len = re.matchedLength();
+        QString dataset_num = name.mid(pos, len);
+
+        QRegExp re2(dataset_num);
+        for (auto& itr : _roi_fileinfo_list)
+        {
+            int pos2 = re.indexIn(itr.first);
+            if (pos2 > -1)
+            {
+                logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
+
+                std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
+                std::string search_filename;
+                //data_struct::Detector<double>* detector;
+                try
+                {
+                    if (io::file::aps::load_v9_rois(itr.second.absoluteFilePath().toStdString(), rois))
+                    {
+                        for (auto& roi_itr : rois)
+                        {
+                            Spectra<double>* int_spectra = new Spectra<double>();
+                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(model->getFilePath().toStdString(), int_spectra, roi_itr.second))
+                            {
+                                //ROIModel* roi_model = new ROIModel();
+                                //roi_model->
+                                //model->addROI(QString(roi_itr.first), roi_itr.second, int_spectra);
+                            }
+                            else
+                            {
+                                logW << "Could not load intspec roi from file " << model->getFilePath().toStdString() << "\n";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logW << "Could not load v9 roi from file " << itr.second.absoluteFilePath().toStdString() << "\n";
+                    }
+                }
+                catch (exception e)
+                {
+                    logE << e.what() << "\n";
+                }
+            }
+        }
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -221,7 +426,14 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     {
         MapsH5Model * model = new MapsH5Model();
         QFileInfo fileInfo = _h5_fileinfo_list[name];
-        model->load(fileInfo.absoluteFilePath());
+        if (model->load(fileInfo.absoluteFilePath()))
+        {
+            // Load region links
+            _load_region_links(fileInfo.baseName(), model);
+            // Load ROI's
+            //_load_rois(fileInfo.baseName(), model);
+        }
+        //_roi_fileinfo_list.count()
         if(model->is_counts_loaded())
         {
             _h5_models.insert( {fileInfo.fileName(), model} );
@@ -477,65 +689,3 @@ data_struct::Fit_Element_Map_Dict<double>* MapsWorkspaceModel::getElementToFit(i
 }
 
 /*---------------------------------------------------------------------------*/
-
-bool check_raw_mda(QFileInfo fileInfo)
-{
-    int is_good = io::file::mda_get_multiplied_dims(fileInfo.filePath().toStdString());
-    if (is_good > 0)
-        return true;
-    return false;
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_raw_h5(QFileInfo fileInfo)
-{
-
-    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-    if ( fid < 0)
-        return false;
-
-    for(const auto& itr: raw_h5_groups)
-    {
-        hid_t gid = H5Gopen(fid, itr.c_str(), H5P_DEFAULT);
-        if ( gid > -1)
-        {
-            H5Gclose(gid);
-            H5Fclose(fid);
-            return true;
-        }
-    }
-
-    return false;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_vlm(QFileInfo fileInfo)
-{
-    // TODO:
-       return false;
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool check_imgdat_h5(QFileInfo fileInfo)
-{
-
-    hid_t fid = H5Fopen(fileInfo.filePath().toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-    if ( fid < 0)
-        return false;
-
-    hid_t gid = H5Gopen(fid, "MAPS" , H5P_DEFAULT);
-    if ( gid > -1)
-    {
-        H5Gclose(gid);
-        H5Fclose(fid);
-        return true;
-    }
-
-    return false;
-
-}

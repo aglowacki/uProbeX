@@ -46,8 +46,10 @@ bool TIFF_Model::load(QString filepath)
         //load xml markers and regions
         _load_xml_markers_and_regions();
         _initializeCoordModel();
-        _loaded = true;
-
+        if (_img.width() > 0 && _img.height() > 0)
+        {
+            _loaded = true;
+        }
     }
     catch (std::string& s)
     {
@@ -58,7 +60,7 @@ bool TIFF_Model::load(QString filepath)
         return false;
     }
 
-    return true;
+    return _loaded;
 }
 
 /*---------------------------------------------------------------------------*/

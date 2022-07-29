@@ -294,13 +294,35 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 		QStringList raw_file_list;
 		for (auto& itr : raw_file_map)
 		{
-			menu.addAction(new QAction(itr.first));
+			menu.addAction(new QAction(itr.second.baseName()));
 		}
 		QPoint globalCursorPos = QCursor::pos();
 		QAction* result = menu.exec(globalCursorPos);
 		if (result != nullptr)
 		{
-			logI << result->text().toStdString() << "\n";
+			logI << "Linking VLM region with dataset "<< result->text().toStdString() << "\n"; 
+			QDir dir = _model->get_directory();
+			if (dir.mkpath("VLM/region_links"))
+			{
+				dir.cd("VLM/region_links");
+				// use @ as delimeter 
+				QString filepath = dir.absolutePath() + "/" + result->text() + "@" + item_name + ".tif";
+				if (false == image.save(filepath))
+				{
+					logW << "Error saving region_link " << filepath.toStdString() << "\n";
+				}
+				else
+				{
+					_model->reload_region_link();
+					//emit reload_dataset();
+				}
+			}
+			else
+			{
+				QString dir_path_str = dir.absolutePath() + "/VLM/region_links";
+				logW << "Error creating directory " << dir_path_str.toStdString() <<"\n";
+			}
+			logI << "dir " << dir.absolutePath().toStdString() << "\n";
 			//result->text();
 		}
 

@@ -7,6 +7,8 @@
 #include <QApplication>
 #include <QGroupBox>
 #include <QSplitter>
+#include <QScrollBar>
+#include <mvc/NumericPrecDelegate.h>
 
  /*---------------------------------------------------------------------------*/
 
@@ -27,9 +29,11 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _accepted = false;
     _canceled = false;
     _running = false;
+    _is_hybrid_fit = false;
     _elements_to_fit = nullptr;
     _int_spec = nullptr;
-    _fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _createLayout();
 }
 
@@ -60,6 +64,7 @@ void FittingDialog::_createLayout()
     _progressBarFiles->setRange(0, 100);
 
     ComboBoxDelegate* cbDelegate = new ComboBoxDelegate(bound_types);
+    NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
     _fit_params_table_model = new FitParamsTableModel();
 
@@ -69,7 +74,11 @@ void FittingDialog::_createLayout()
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
+    _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
+    _fit_params_table->setItemDelegateForColumn(3, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(4, npDelegate);
+    _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         
     _new_fit_params_table = new QTableView();
@@ -78,6 +87,7 @@ void FittingDialog::_createLayout()
     _new_fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     
+    connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
 
     _btn_run = new QPushButton("Run");
     connect(_btn_run, &QPushButton::released, this, &FittingDialog::runProcessing);
@@ -200,9 +210,8 @@ void FittingDialog::_createLayout()
     
     QVBoxLayout* layout = new QVBoxLayout();
 
-    QWidget* bottomWidget = new QWidget;
+    QWidget* bottomWidget = new QWidget();
     bottomWidget->setLayout(hbox_tables);
-
 
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Vertical);
@@ -257,6 +266,8 @@ void FittingDialog::setOptimizer(QString opt)
         _mp_fit_ctrl_grp->setVisible(false);
         _lm_fit_ctrl_grp->setVisible(true);
         _optimizer = &_lmfit_optimizer;
+        _param_fit_routine.set_optimizer(_optimizer);
+        _is_hybrid_fit = false;
         _fit_params_table_model->setOptimizerSupportsMinMax(false);
     }
     else if (opt == STR_MP_FIT)
@@ -264,9 +275,19 @@ void FittingDialog::setOptimizer(QString opt)
         _lm_fit_ctrl_grp->setVisible(false);
         _mp_fit_ctrl_grp->setVisible(true);
         _optimizer = &_mpfit_optimizer;
+        _param_fit_routine.set_optimizer(_optimizer);
+        _is_hybrid_fit = false;
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
-    _fit_routine.set_optimizer(_optimizer);
+    else if (opt == STR_HYBRID_MP_FIT)
+    {
+        _lm_fit_ctrl_grp->setVisible(false);
+        _mp_fit_ctrl_grp->setVisible(true);
+        _optimizer = &_mpfit_optimizer;
+        _is_hybrid_fit = true;
+        _hybrid_fit_routine.set_optimizer(_optimizer);
+        _fit_params_table_model->setOptimizerSupportsMinMax(true);
+    }
     _updateGUIOptimizerOptions();
 }
 
@@ -343,6 +364,16 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
         _energy_range.min = 0;
         _energy_range.max = _int_spec->rows() - 1;
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
+
+        _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
+                _out_fit_params[STR_ENERGY_OFFSET].value,
+                _out_fit_params[STR_ENERGY_SLOPE].value,
+                _out_fit_params[STR_ENERGY_QUADRATIC].value,
+                _out_fit_params[STR_SNIP_WIDTH].value,
+                0, //spectra energy start range
+                _int_spec->size() - 1);
+        
+        _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
     }
 }
 
@@ -446,7 +477,14 @@ void FittingDialog::runProcessing()
         //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        _fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        if (_is_hybrid_fit)
+        {
+            _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        }
+        else
+        {
+            _param_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+        }
         //Fit the spectra saving the element counts in element_fit_count_dict
         // single threaded
         //out_fit_params = fit_routine.fit_spectra_parameters(&_model, int_spectra, _elements_to_fit);
@@ -455,7 +493,14 @@ void FittingDialog::runProcessing()
         Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         try
         {
-            outcome = _fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params , &cb_func);
+            if (_is_hybrid_fit)
+            {
+                outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+            }
+            else
+            {
+                outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+            }
         }
         catch (int e)
         {
@@ -503,12 +548,12 @@ void FittingDialog::runProcessing()
 
         unordered_map<string, ArrayDr> labeled_spectras;
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
-        /*
+        
         if (fit_spec.size() == _spectra_background.size())
         {
             fit_spec += _spectra_background;
         }
-        */
+        
         for (int i = 0; i < fit_spec.size(); i++)
         {
             if (fit_spec[i] <= 0.0)

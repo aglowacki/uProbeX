@@ -45,7 +45,7 @@ public:
     *
     * @param the widget to which this widget is parented.
     */
-   CoordinateWidget(QWidget* parent = 0);
+   CoordinateWidget(bool vertical = false, QWidget* parent = 0);
 
    /**
     * Default destructor.

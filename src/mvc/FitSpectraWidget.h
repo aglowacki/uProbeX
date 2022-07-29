@@ -141,7 +141,7 @@ protected:
     */
    void createLayout();
 
-   void update_spectra_top_axis(std::vector<std::string> element_names);
+   void update_spectra_top_axis();
 
 private slots:
 
@@ -215,7 +215,9 @@ private:
 
     bool _showDetailedFitSpec;
 
-	bool _showFitIntSpec;
+	bool _showFitIntMatrix;
+
+    bool _showFitIntNNLS;
 
     bool _showMaxChanSpec;
 

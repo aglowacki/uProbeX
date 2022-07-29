@@ -71,6 +71,7 @@ VLM_Widget::VLM_Widget(QWidget* parent)
    m_solverWidget = nullptr;
    m_calSelectionModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
+   m_coordinateModel = nullptr;
    m_solver = nullptr;
    m_solverParameterParse = new SolverParameterParse();
 
@@ -804,7 +805,7 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
 void VLM_Widget::callbackPvXUpdatedFloat(float val)
 {
 
-   logW<<"float x val = "<<val;
+   //logI<<"float x val = "<<val;
    callbackPvXUpdatedDouble((double) val);
 
 }
@@ -814,7 +815,7 @@ void VLM_Widget::callbackPvXUpdatedFloat(float val)
 void VLM_Widget::callbackPvYUpdatedFloat(float val)
 {
 
-   logW<<"float y val = "<<val;
+   //logI<<"float y val = "<<val;
    callbackPvYUpdatedDouble((double) val);
 
 }
@@ -827,7 +828,7 @@ void VLM_Widget::callbackPvXUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsX == false)
       return;
 
-   logW<<"double x val = "<<val;
+   //logI<<"double x val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -858,7 +859,7 @@ void VLM_Widget::callbackPvYUpdatedDouble(double val)
    if(m_calSelectionModel == nullptr || m_grabbingPvsY == false)
       return;
 
-   logW<<"double y val = "<<val;
+   //logI<<"double y val = "<<val;
 
    QModelIndexList selectedIndexes = m_calSelectionModel->selectedRows();
    if (selectedIndexes.count() == 1)
@@ -964,7 +965,9 @@ void VLM_Widget::linkRegionToDataset()
                     QImage image(size, QImage::Format_ARGB32);
                     image.fill(Qt::transparent);
                     QPainter painter(&image);
+                    item->hide();
                     scene->render(&painter);
+                    item->show();
                     //QString filepath = _model->getDataPath();
                     //QString fileName = "c:\\temp\\file_name.png"; 
                     //if (false == image.save("c:\\temp\\file_name.png"))
@@ -1296,6 +1299,7 @@ void VLM_Widget::createLayout()
 
    setLayout(layout);
 
+   m_tabWidget->setCurrentIndex(MICROPROBE_IDX);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1499,7 +1503,7 @@ void VLM_Widget::deleteItem()
          for (int i = selectedIndexes.count() - 1; i >= 0; i--)
          {
             QModelIndex index = selectedIndexes[i];
-            logW<<"index "<<index.row();
+            //logI<<"index "<<index.row();
             treeModel->removeRow(index.row(), index);
          }
       }
@@ -1861,8 +1865,11 @@ void VLM_Widget::setModel(VLM_Model* model)
         _model = model;
         if (_model != nullptr)
         {
-            updateFrame(_model->getImage());
-            setCoordinateModel(_model->getCoordModel());
+            if (_model->loaded())
+            {
+                updateFrame(_model->getImage());
+                setCoordinateModel(_model->getCoordModel());
+            }
             restoreMarkerLoaded();
         }
     }
@@ -1914,38 +1921,6 @@ void VLM_Widget::restoreMarkerLoaded()
 		return;
 	}
 
-	auto markersLoaded = _model->getMarkers();
-
-    while (m_calTreeModel->rowCount() > 0)
-    {
-        QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
-        m_calTreeModel->removeRow(0, first);
-    }
-
-   for(int i = markersLoaded.size()-1; i>=0; i--)
-   {
-
-      QMap<QString, QString> marker = markersLoaded.at(i);
-
-      UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
-      annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-      annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-
-      reloadAndSelectAnnotation(m_calTreeModel,
-                                m_calAnnoTreeView,
-                                m_calSelectionModel,
-                                annotation,
-                                QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                                        marker[UPROBE_REAL_POS_Y].toDouble()));
-      annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                         marker[UPROBE_REAL_POS_Y].toDouble()));
-      annotation->setPropertyValue(UPROBE_NAME,QVariant(marker[UPROBE_NAME]));
-      annotation->setPropertyValue(UPROBE_LIGHT_POS_X,marker[UPROBE_LIGHT_POS_X]);
-      annotation->setPropertyValue(UPROBE_LIGHT_POS_Y,marker[UPROBE_LIGHT_POS_Y]);
-   }
-
-   tabIndexChanged(MICROPROBE_IDX);
-
    auto regionMarkersLoaded = _model->getRegionMarkers();
 
    while (m_mpTreeModel->rowCount() > 0)
@@ -1978,6 +1953,38 @@ void VLM_Widget::restoreMarkerLoaded()
    }
 
    tabIndexChanged(CALIBRATION_IDX);
+
+   auto markersLoaded = _model->getMarkers();
+
+   while (m_calTreeModel->rowCount() > 0)
+   {
+       QModelIndex first = m_calTreeModel->index(0, 0, QModelIndex());
+       m_calTreeModel->removeRow(0, first);
+   }
+
+   for (int i = markersLoaded.size() - 1; i >= 0; i--)
+   {
+
+       QMap<QString, QString> marker = markersLoaded.at(i);
+
+       UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
+       annotation->setMouseOverPixelCoordModel(m_coordinateModel);
+       annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+
+       reloadAndSelectAnnotation(m_calTreeModel,
+           m_calAnnoTreeView,
+           m_calSelectionModel,
+           annotation,
+           QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+               marker[UPROBE_REAL_POS_Y].toDouble()));
+       annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
+           marker[UPROBE_REAL_POS_Y].toDouble()));
+       annotation->setPropertyValue(UPROBE_NAME, QVariant(marker[UPROBE_NAME]));
+       annotation->setPropertyValue(UPROBE_LIGHT_POS_X, marker[UPROBE_LIGHT_POS_X]);
+       annotation->setPropertyValue(UPROBE_LIGHT_POS_Y, marker[UPROBE_LIGHT_POS_Y]);
+   }
+
+   tabIndexChanged(MICROPROBE_IDX);
 
 }
 

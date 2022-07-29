@@ -134,7 +134,7 @@ void SolverWidget::setCoefs(QMap<QString, double> oldVals, QMap<QString, double>
    m_newCoefs = newVals;
    if(oldVals.keys().size() != newVals.keys().size())
    {
-      logW<<"Error: SolverWidget::setCoefs(), oldVals dictionary size does not match newVals dictionary!";
+      logE<<"Error: SolverWidget::setCoefs(), oldVals dictionary size does not match newVals dictionary!";
       return;
    }
    int i=0;
@@ -142,7 +142,7 @@ void SolverWidget::setCoefs(QMap<QString, double> oldVals, QMap<QString, double>
    {
       if(false == newVals.contains(key))
       {
-         logW<<"Error: SolverWidget::setCoefs(), oldVals dictionary keys do not match newVals dictionary keys!";
+         logE<<"Error: SolverWidget::setCoefs(), oldVals dictionary keys do not match newVals dictionary keys!";
          return;
       }
       this->appendVariable(i, key, oldVals[key], newVals[key]);

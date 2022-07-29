@@ -40,7 +40,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 	_param_override = nullptr;
     _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
-	_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+	_showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+    _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
     _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
     for(const std::string& e : data_struct::Element_Symbols)
     {
@@ -198,12 +199,13 @@ void FitSpectraWidget::createLayout()
     _cb_opttimizer = new QComboBox();
     _cb_opttimizer->addItem(STR_LM_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
+    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     connect(_cb_opttimizer,
             SIGNAL(currentIndexChanged(QString)),
             this,
             SLOT(optimizer_changed(QString)));
 
-    _chk_auto_model = new QCheckBox("Auto Update Model Spectra on Data Change");
+    _chk_auto_model = new QCheckBox("Auto Update Model");
     _chk_auto_model->setChecked(false);
     connect(_chk_auto_model,
             SIGNAL(stateChanged(int)),
@@ -211,14 +213,14 @@ void FitSpectraWidget::createLayout()
             SLOT(check_auto_model(int)));
 
     QGridLayout *grid_layout = new QGridLayout();
-    grid_layout->addWidget(_btnSsettings, 0, 0);
-    grid_layout->addWidget(_cb_opttimizer, 0, 1);
-    grid_layout->addWidget(_btn_fit_spectra, 0, 2);
-    grid_layout->addWidget(_chk_auto_model, 0, 3);
-    grid_layout->addWidget(_btn_model_spectra, 0, 4);
-    grid_layout->addWidget(_btn_export_parameters, 0, 5);
-    grid_layout->addWidget(_btn_export_csv, 0, 6);
-    grid_layout->addItem(new QSpacerItem(999, 10, QSizePolicy::Maximum), 0, 77);
+    grid_layout->addWidget(_btnSsettings, 1, 0);
+    grid_layout->addWidget(_cb_opttimizer, 0, 0);
+    grid_layout->addWidget(_btn_fit_spectra, 0, 1);
+    grid_layout->addWidget(_chk_auto_model, 0, 2);
+    grid_layout->addWidget(_btn_model_spectra, 1, 2);
+    grid_layout->addWidget(_btn_export_parameters, 0, 3);
+    grid_layout->addWidget(_btn_export_csv, 1, 3);
+    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
@@ -231,9 +233,6 @@ void FitSpectraWidget::createLayout()
 	splitter->addWidget(_spectra_widget);
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
-
-    update_spectra_top_axis({ "Ca", "Fe", "Cu"});
-
 
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
@@ -290,23 +289,35 @@ void FitSpectraWidget::onSettingsDialog()
                 _spectra_widget->remove_spectra(QString(itr.first.c_str()));
             }
         }
-		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
-		if (_showFitIntSpec)
+		_showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+		if (_showFitIntMatrix)
 		{
-			for (auto &itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
-			}
+            if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+            }
 		}
 		else
 		{
-			for (auto& itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->remove_spectra(name);
-			}
+            QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+            _spectra_widget->remove_spectra(name);
 		}
+
+        _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
+        if (_showFitIntNNLS)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
 
         _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
         if(_showMaxChanSpec)
@@ -382,6 +393,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         }
         _spectra_widget->setXLabel("Energy (kEv)");
         
+        /*
 		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
 		if (_showFitIntSpec)
 		{
@@ -391,7 +403,38 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
 			}
 		}
-		
+		*/
+
+        _showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
+        if (_showFitIntMatrix)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
+
+        _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
+        if (_showFitIntNNLS)
+        {
+            if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+            }
+        }
+        else
+        {
+            QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
+            _spectra_widget->remove_spectra(name);
+        }
+
         _showMaxChanSpec = Preferences::inst()->getValue(STR_PFR_SHOW_MAX_CHAN_SPEC).toBool();
         if (_showMaxChanSpec)
         {
@@ -523,6 +566,7 @@ void FitSpectraWidget::add_element()
 
     _fit_elements_table_model->appendElement(fit_element);
 
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -559,6 +603,7 @@ void FitSpectraWidget::del_element()
         }
         break;
     }
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -915,7 +960,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 {
     if(val == STR_LM_FIT)
         _fit_params_table_model->setOptimizerSupportsMinMax(false);
-    else if(val == STR_MP_FIT)
+    else if(val == STR_MP_FIT || val == STR_HYBRID_MP_FIT)
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
 
     _fit_params_table->resizeColumnToContents(0);
@@ -931,7 +976,7 @@ void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
 		_int_spec = int_spec;
 	}
     replot_integrated_spectra(true);
-    _spectra_widget->onResetChartView();
+    _spectra_widget->onResetChartViewOnlyY();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -947,30 +992,38 @@ void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict<double
 {
     _fit_elements_table_model->updateFitElements(elements_to_fit);
 	_elements_to_fit = elements_to_fit;
+    update_spectra_top_axis();
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::update_spectra_top_axis(std::vector<std::string> element_names)
+void FitSpectraWidget::update_spectra_top_axis()
 {
-
-    std::map < std::string, float> labels;
-    for (const auto& itr : element_names)
+    if (_elements_to_fit != nullptr)
     {
-        Fit_Element_Map<double> em(itr, Element_Info_Map<double>::inst()->get_element(itr));
-		if (_param_override != nullptr)
-		{
-			map<int, double> ratios = _param_override->get_custom_factor(itr);
-			for (const auto &itr : ratios)
-			{
-				em.multiply_custom_multiply_ratio(itr.first, itr.second);
-			}
-		}
+        _spectra_widget->clear_top_axis();
 
-        em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
-        labels[itr] = em.center();
+        std::map < float, std::string> labels;
+        for (const auto& itr : *_elements_to_fit)
+        {
+            Fit_Element_Map<double> em(itr.first, Element_Info_Map<double>::inst()->get_element(itr.first));
+            if (_param_override != nullptr)
+            {
+                map<int, double> ratios = _param_override->get_custom_factor(itr.first);
+                for (const auto& itr2 : ratios)
+                {
+                    em.multiply_custom_multiply_ratio(itr2.first, itr2.second);
+                }
+            }
+
+            em.init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
+            if (em.center() > 0.)
+            {
+                labels[em.center()] = itr.first;
+            }
+        }
+        _spectra_widget->set_top_axis(labels);
     }
-    _spectra_widget->set_top_axis(labels);
 }
 
 /*---------------------------------------------------------------------------*/

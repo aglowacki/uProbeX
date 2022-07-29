@@ -34,6 +34,7 @@
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
+#include "fitting/routines/hybrid_param_nnls_fit_routine.h"
 #include "fitting/models/gaussian_model.h"
 #include <mvc/MapsH5Model.h>
 #include "core/GlobalThreadPool.h"
@@ -42,6 +43,7 @@
 
 const static QString STR_LM_FIT = "Levenberg-Marquardt Fit";
 const static QString STR_MP_FIT = "MP Fit";
+const static QString STR_HYBRID_MP_FIT = "Hybrid MP Fit";
 
 /*---------------------------------------------------------------------------*/
 
@@ -142,7 +144,11 @@ protected:
 
    fitting::optimizers::Optimizer<double>*_optimizer;
 
-   fitting::routines::Param_Optimized_Fit_Routine<double> _fit_routine;
+   //fitting::routines::Base_Fit_Routine<double> *_fit_routine;
+
+   fitting::routines::Param_Optimized_Fit_Routine<double> _param_fit_routine;
+
+   fitting::routines::Hybrid_Param_NNLS_Fit_Routine<double> _hybrid_fit_routine;
 
    size_t _total_itr;
 
@@ -177,6 +183,10 @@ protected:
    QSpinBox* _opt_lm_scale_diag;
 
    QDoubleSpinBox* _opt_mp_covtol;
+
+   ArrayDr _spectra_background;
+
+   bool _is_hybrid_fit;
 
    // energy vector
    ArrayDr _ev;

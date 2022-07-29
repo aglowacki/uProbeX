@@ -8,7 +8,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QCategoryAxis>
 #include <QAction>
@@ -20,7 +19,7 @@
 #include <QPushButton>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
-
+#include "mvc/ChartView.h"
 
 #define DEF_STR_FIT_INT_SPECTRA "Fit Spectra"
 #define DEF_STR_NEW_FIT_INT_SPECTRA "New Fit Spectra"
@@ -43,7 +42,30 @@
 #define FIT_SPEC_R 246
 #define FIT_SPEC_G 37
 #define FIT_SPEC_B 37
+// Element line colors
+#define LINE_KA_R 160
+#define LINE_KA_G 37
+#define LINE_KA_B 37
 
+#define LINE_KB_R 80
+#define LINE_KB_G 160
+#define LINE_KB_B 37
+
+#define LINE_L1_R 160
+#define LINE_L1_G 37
+#define LINE_L1_B 37
+
+#define LINE_L2_R 80
+#define LINE_L2_G 160
+#define LINE_L2_B 37
+
+#define LINE_L3_R 37
+#define LINE_L3_G 80
+#define LINE_L3_B 160
+
+#define LINE_M_R 226
+#define LINE_M_G 126
+#define LINE_M_B 126
 
 /*---------------------------------------------------------------------------*/
 
@@ -109,9 +131,13 @@ public slots:
 
     void set_element_lines(data_struct::Fit_Element_Map<double>* element);
 
-    void set_top_axis(std::map<std::string, float> elements);
+    void clear_top_axis();
+
+    void set_top_axis(std::map < float, std::string> elements);
 
     void onResetChartView();
+
+    void onResetChartViewOnlyY();
 
     void set_log10(bool val);
 
@@ -122,21 +148,11 @@ protected:
     */
     void createLayout();
 
-    //bool viewportEvent(QEvent *event);
-
-    void mousePressEvent(QMouseEvent *event);
-
-    void mouseMoveEvent(QMouseEvent *event);
-
-    void mouseReleaseEvent(QMouseEvent *event);
-
-    void keyPressEvent(QKeyEvent *event);
-
     bool _display_log10;
 
     QtCharts::QChart *_chart;
 
-    QtCharts::QChartView *_chartView;
+    ChartView *_chartView;
 
     QtCharts::QLineSeries *_line_series;
 

@@ -9,14 +9,10 @@
 #include <QFileInfo>
 #include <math.h>
 #include <gstar/LinearTransformer.h>
-#include <QMessageBox>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
 #include <QPainter>
 #include <QImageReader>
 #include <QApplication>
 #include <gstar/GStarResource.h>
-#include <QMessageBox>
 #include "core/defines.h"
 using gstar::LinearTransformer;
 
@@ -32,6 +28,8 @@ SWSModel::SWSModel() : VLM_Model()
     m_numXSamples = 0;
     m_numYSamples = 0;
     m_tiffLoaded = false;
+    _tif_img = QImage(QSize(10,10), QImage::Format_ARGB32);
+    _tif_img.fill(Qt::transparent);
 
 }
 
@@ -61,13 +59,14 @@ bool SWSModel::load(QString filepath)
 
       m_datasetName = info1.completeBaseName();
       _datasetPath = info1.path() + QDir::separator() + m_datasetName;
+      /*
       logW<<_datasetPath.toStdString()<<"\n";
       logW<<m_datasetName.toStdString() << "\n";
 
       logW<<info1.suffix().toStdString() << "\n";
       logW<<info1.bundleName().toStdString() << "\n";
       logW<<info1.completeBaseName().toStdString() << "\n";
-
+      */
       QSettings swsData(filepath, QSettings::IniFormat);
 
       //save all settings to QMap
@@ -118,18 +117,9 @@ void SWSModel::check_and_load_autosave()
 				QFileInfo fileInfo(autosavedTmpFile);
 				QDateTime lastModified = fileInfo.lastModified();
 
-				QMessageBox msgBox;
-				msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-				msgBox.setDefaultButton(QMessageBox::No);
-				msgBox.setIcon(QMessageBox::Warning);
-				msgBox.setText("It looks like last time this application was used something went wrong, "
-					"would you like to restore auto-safe data from " + lastModified.toString());
-				int ret = msgBox.exec();
-
-				if (ret == QMessageBox::Yes)
-				{
-					_datasetPath = autosavedTemporaryFile;
-				}
+                //logW << "It looks like last time this application was used something went wrong, would you like to restore auto-safe data from " << lastModified.toString() << "\n";
+				//_datasetPath = autosavedTemporaryFile;
+				
 			}
 		}
 		else
@@ -403,14 +393,15 @@ bool SWSModel::loadDirectory()
       {
          if(false == loadTiff())
          {
-            if(loadTiles())
-               m_tiffLoaded = true;
+             if (loadTiles())
+             {
+                 m_tiffLoaded = true;
+             }
             else
             {
                m_tiffLoaded = false;
                loaded = false;
-               QMessageBox::critical(0, "uProbeX",
-                        "Failed to open associated TIFF file.");
+               logW<<"Failed to open associated TIFF file.\n";
 
             }
          }
@@ -629,13 +620,15 @@ bool SWSModel::loadPMG()
      else
      {
         loaded = false;
-        QMessageBox::warning(0, "Error", "Could not read file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
+        QString fpath = _datasetPath + QDir::separator() + m_datasetName;
+        logE << "Could not read file"<< fpath.toStdString() << ".pmg";
      }
    }
    else
    {
       loaded = false;
-      QMessageBox::warning(0, "Error", "Could not find file"+_datasetPath+QDir::separator()+m_datasetName+".pmg");
+      QString fpath = _datasetPath + QDir::separator() + m_datasetName;
+      logE << "Could not read file" << fpath.toStdString() << ".pmg";
    }
 
 
@@ -666,13 +659,19 @@ bool SWSModel::loadTiff()
       {
           QImageReader img_reader(_datasetPath + ".tiff");
           _tif_img = img_reader.read();
-          m_tiffLoaded = true;
+          if (_tif_img.width() > 0 && _tif_img.height() > 0)
+          {
+              m_tiffLoaded = true;
+          }
       }
       else if(file2.exists() == true)
       {
           QImageReader img_reader(_datasetPath + ".tif");
           _tif_img = img_reader.read();
-          m_tiffLoaded = true;
+          if (_tif_img.width() > 0 && _tif_img.height() > 0)
+          {
+              m_tiffLoaded = true;
+          }
       }
       else
       {
@@ -698,10 +697,12 @@ bool SWSModel::loadTiles()
 
    bool loaded = false;
 
-   QGraphicsScene* gscene = new QGraphicsScene();
-
    //logW<<"Supported image formats "<<QImageReader::supportedImageFormats();
-
+   int x_res = (m_samples[m_numSamples - 1].cornerBottomRight.x / m_samples[m_numSamples - 1].scale) / m_pmgImageReduction;
+   int y_res = (m_samples[m_numSamples - 1].cornerBottomRight.y / m_samples[m_numSamples - 1].scale) / m_pmgImageReduction;
+   _tif_img = QImage(QSize(x_res, y_res), QImage::Format_ARGB32);
+   _tif_img.fill(Qt::transparent);
+   QPainter painter(&_tif_img);
    for(unsigned int i=0; i<m_numSamples; i++)
    {
       //m_samples[i]._tif_img = nullptr;
@@ -725,46 +726,27 @@ bool SWSModel::loadTiles()
       QImage *tiffImage = new QImage();
       if (tiffImage->load(fileName, "tif"))
       {
-         //QGraphicsPixmapItem* pixItem = gscene->addPixmap(QPixmap::fromImage(tiffImage->convertToFormat(QImage::Format_ARGB32)));
-         QGraphicsPixmapItem* pixItem = gscene->addPixmap(QPixmap::fromImage(*tiffImage));
-         //pixItem->scale(m_pmgScale, m_pmgScale);
-         //pixItem->scale(m_samples[i].scale, m_samples[i].scale);
          double sx, sy;
 
          sx = m_samples[i].cornerTopLeft.x / m_samples[i].scale;
          sx /= m_pmgImageReduction;
          sy = m_samples[i].cornerTopLeft.y / m_samples[i].scale;
          sy /= m_pmgImageReduction;
-         QTransform trans;
-         trans.translate(sx, sy);
-         pixItem->setTransform(trans);
-         //pixItem->translate(sx, sy);
+         QPointF p(sx, sy);
+         painter.drawImage(p, *tiffImage);
+         loaded = true;
       }
       else
       {
          logW<<"Failed to load image "<<fileName.toStdString() << "\n";
       }
+      delete tiffImage;
    }
 
-   gscene->clearSelection();
-   gscene->setSceneRect(gscene->itemsBoundingRect());
-   /* TODO: have a thread save in background
-   QImage image(gscene->sceneRect().size().toSize(), QImage::Format_RGB888);  // Create the image with the exact size of the shrunk scene
-   //image.fill(Qt::transparent);
-
-   QPainter painter(&image);
-   gscene->render(&painter);
-   
-   if(false == image.save(_datasetPath+".tif", "tif"))
-   {
-      logW<<"Failed to save mosaic image "<<_datasetPath.toStdString()<<".tif\n";
-   }
-   */
    QApplication::restoreOverrideCursor();
 
-   // TODO: check if exists in the beginning and load .
-   //return loadTiff();
-   return true;
+
+   return loaded;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -828,9 +810,9 @@ uchar* SWSModel::getBytes()
 
 /*---------------------------------------------------------------------------*/
 
-QImage* SWSModel::getImage() 
+QImage* SWSModel::getImage()
 {
-
+    
     return &_tif_img; 
    
 }

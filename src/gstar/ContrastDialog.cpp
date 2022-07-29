@@ -54,14 +54,17 @@ void ContrastDialog::set_array(const data_struct::ArrayXXr<float>* arr)
 		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
 
 		data_struct::ArrayTr<float> pts;
-		int w = arr->rows();
-		int h = arr->cols();
-		pts.resize(w * h);
-		for (int i = 0; i < w; i++)
+		int h = arr->rows();
+		int w = arr->cols();
+		int t = arr->size();
+		pts.resize(t);
+		int s = 0;
+		for (int i = 0; i < h; i++)
 		{
-			for (int j = 0; j < h; j++)
+			for (int j = 0; j < w; j++)
 			{
-				pts((i * w) + j) = ((*arr)(i, j));
+				pts(s) = ((*arr)(i, j));
+				s++;
 			}
 		}
 		_historgram->updatePoints(pts);

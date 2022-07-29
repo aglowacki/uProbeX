@@ -50,7 +50,8 @@
 #define STR_PRF_LastPort "LastPort"
 #define STR_PFR_LOG_10 "Log10YAxis"
 #define STR_PFR_DETAILED_FIT_SPEC "DetailedFitSpectra"
-#define STR_PFR_SHOW_FIT_INT_SPEC "ShowFitIntSpectra"
+#define STR_PFR_SHOW_FIT_INT_MATRIX "ShowFitIntMatrix"
+#define STR_PFR_SHOW_FIT_INT_NNLS "ShowFitIntNNLS"
 #define STR_PFR_SHOW_MAX_CHAN_SPEC "ShowMaxChanSpectra"
 #define STR_GRID_ROWS "GridRows"
 #define STR_GRID_COLS "GridCols"
@@ -58,6 +59,10 @@
 #define STR_COLORMAP_GRAY "Grayscale"
 #define STR_COLORMAP_HEAT "Heatmap"
 #define STR_RECENT_MAPS_WORKSPACES "Recent_MAPS_Workspaces"
+#define STR_LOG_SCALE_COLOR "Color_Scale_Log"
+#define STR_DISPLAY_COLOR_LEDGEND "Display_Color_Ledgend"
+
+
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

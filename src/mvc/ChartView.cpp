@@ -1,0 +1,67 @@
+/*-----------------------------------------------------------------------------
+ * Copyright (c) 2022, UChicago Argonne, LLC
+ * See LICENSE file.
+ *---------------------------------------------------------------------------*/
+
+#include "mvc/ChartView.h"
+
+
+/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
+
+ChartView::ChartView(QtCharts::QChart* chart, QWidget *parent) : QtCharts::QChartView(chart, parent)
+{
+    setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+    setMouseTracking(true);
+    setInteractive(true);
+    //setRenderHint(QPainter::Antialiasing);
+}
+
+/*---------------------------------------------------------------------------*/
+
+ChartView::~ChartView()
+{
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChartView::mousePressEvent(QMouseEvent* event)
+{
+    
+    QtCharts::QChartView::mousePressEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChartView::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        return;
+    }
+
+    emit(view_zoomed());
+
+    QtCharts::QChartView::mouseReleaseEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChartView::keyPressEvent(QKeyEvent* event)
+{
+   
+    switch (event->key()) {
+    case Qt::Key_Left:
+        chart()->scroll(-10, 0);
+        break;
+    case Qt::Key_Right:
+        chart()->scroll(10, 0);
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+        break;
+    }
+}
+
+/*---------------------------------------------------------------------------*/

@@ -49,6 +49,8 @@ class FileTabWidget : public QWidget
 
     void setProcessButtonVisible(bool val) { _process_btn->setVisible(val); }
 
+    void setActionsAndButtonsEnabled(bool val);
+
 signals:
     void onOpenItem(QString);
 
@@ -114,6 +116,8 @@ protected:
     QAction* _action_unload;
 
     QAction* _action_refresh;
+
+    QList<QAction*> _custom_action_list;
 
 };
 

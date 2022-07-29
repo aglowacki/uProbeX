@@ -47,7 +47,7 @@ PythonTransformer::PythonTransformer(QString path,
    }
    catch(PythonLoader::pyException px)
    {
-      logW<<px.what();
+      logE<<px.what();
       QString er = QString(px.what());
       er += QString("\r\n Path: "+path
                     +"\r\nModule: "+filename+
@@ -179,7 +179,7 @@ void PythonTransformer::transformCommand(double inX,
    }
    catch(PythonLoader::pyException ex)
    {
-      logW<<ex.what();
+      logE<<ex.what();
    }
 
 }

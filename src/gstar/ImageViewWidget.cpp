@@ -58,7 +58,7 @@ void ImageViewWidget::setGlobalContrast(bool val)
 {
     for (auto& itr : _sub_windows)
     {
-        itr.btn_contrast->setEnabled(val);
+        itr.btn_contrast->setVisible(val);
     }
 }
 
