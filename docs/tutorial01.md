@@ -120,9 +120,9 @@ If you would like to remove an element from fitting, you can select the element 
 
 Doing this by hand can be time consumming so we are going to use an iterative fitting algorithm to do this for us. There are 2 main ones and and experimental one. 
 
-**Levenberg-Marquardt** Will try to fit you integrated spectra **with out** max and min contraints
+**Levenberg-Marquardt** will try to fit you integrated spectra **with out** max and min contraints
 
-**MPFit** Will try to fit you integrated spectra **with** max and min contraints. 
+**MPFit** will try to fit you integrated spectra **with** max and min contraints. 
 
 Let click the **Fit Spectra** button. 
 
