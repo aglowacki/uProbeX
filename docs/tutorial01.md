@@ -45,7 +45,7 @@ If your workspace contains data in the **img.dat** then you will see a list of h
 
 ![This is an image](https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-03-1.png)
 
-We will sue **XRF-Demo2** or **XRF-Demo2-mini** for this first part of the tutorial.
+We will use **XRF-Demo2** or **XRF-Demo2-mini** for this first part of the tutorial.
 Click the right arrow on the file tabs to get to 
 
 ![This is an image](https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-05.png)
@@ -58,7 +58,7 @@ This will load the Light Microscope dataset that is located in the Workspace_dir
 
 ![This is an image](https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-07.png)
 
-There are also **Scan Regions** that you can create before and experiment. 
+There are also **Scan Regions** that you can create before the experiment. 
 
 In this demo, the first scan region in the dataset **Micro Probe Region1**, is associated with raw dataset **2xfm_009.mda**. If you are performing experiments at the APS, it is recommended to name your regions to the raw dataset names as a reference for the future. 
 
@@ -74,7 +74,7 @@ The date set is loaded the but screen didn't change. Go to the top of the screen
 
 You can use that drop down box to switch between loaded datasets. Note that the screen shows a different main display. You can now view the **Integrated Spectra** , the **Scalers**, and **Extra PV's** that are in this dataset. 
 
-The Integrated spectra is displayed in **log10** by default.
+Note: The Integrated spectra is displayed in **log10** by default.
 
 The data we are interested in is between **1 kEv - 11 kEv** . We can zoom in on the area by **Left click** around 1 kEv and **Drag** the mouse the 11 kEv and **release** the mouse button.
 
@@ -92,7 +92,7 @@ Lets **click** the **Model Spectra** button on the bottom
 
 This will add a new line to the spectra view called Model Spectra in orange. 
 
-![This is an image](https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-14-model.png)
+![This is an image](https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-14.png)
 
 You can make changes to the fit parameters and fit elements and then click Model Spectra again to update the model. There is a shortcut you can use so you don't have to keep clicking Model Spectra. If you **check** the **Auto update model** box, this will automatically update the model (same as clicking the model button) whenever you change a fit parameter or element. 
 
