@@ -391,7 +391,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 				_spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
 			
         }
-        _spectra_widget->setXLabel("Energy (kEv)");
+        _spectra_widget->setXLabel("Energy (keV)");
         
         /*
 		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();

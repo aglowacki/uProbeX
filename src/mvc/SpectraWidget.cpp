@@ -141,11 +141,11 @@ void SpectraWidget::createLayout()
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(new QLabel("Display Energy Min:"));
     options_layout->addWidget(_display_eneergy_min);
-    options_layout->addWidget(new QLabel("KeV  ,  "));
+    options_layout->addWidget(new QLabel("keV  ,  "));
 
     options_layout->addWidget(new QLabel("Display Energy Max:"));
     options_layout->addWidget(_display_eneergy_max);
-    options_layout->addWidget(new QLabel("KeV"));
+    options_layout->addWidget(new QLabel("keV"));
 
     /*
     options_layout->addWidget(new QLabel("   |   Display Height Min:"));
