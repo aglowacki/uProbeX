@@ -82,6 +82,7 @@ find_package(hdf5 CONFIG REQUIRED)
 find_package(netCDF CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
+find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 
 if (libxrf_fit_FOUND)
@@ -205,6 +206,7 @@ IF (MSVC)
             						ws2_32.lib
             						rpcrt4.lib
             						iphlpapi.lib
+                        ${TIFF_LIBRARIES}
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
                         netCDF::netcdf

@@ -233,7 +233,7 @@ void PerPixelFitWidget::runProcessing()
         if (_perform_quantification->isChecked())
         {
             analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
-            perform_quantification(&analysis_job);
+            perform_quantification(&analysis_job, true);
         }
         process_dataset_files(&analysis_job, &cb_func);
         //QCoreApplication::processEvents();

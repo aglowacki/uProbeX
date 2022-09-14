@@ -255,7 +255,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 
                 QApplication::setOverrideCursor(Qt::WaitCursor);
                 
-				if (name.endsWith(".mda"))
+				if (name.endsWith(".mda") || name.contains(".mca"))
 				{
 					QCoreApplication::processEvents();
 					// loading through background thread on windows seems to lock up on fopen

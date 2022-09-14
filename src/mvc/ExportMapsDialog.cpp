@@ -66,7 +66,7 @@ void ExportMapsDialog::createLayout()
     _save_screen->setChecked(false);
 
     v_proc_layout->addItem(h_layout);
-    //v_proc_layout->addWidget(_export_tiff);
+    v_proc_layout->addWidget(_export_tiff);
     v_proc_layout->addWidget(_export_png);
     v_proc_layout->addWidget(_export_ascii);
     v_proc_layout->addWidget(_export_all);
