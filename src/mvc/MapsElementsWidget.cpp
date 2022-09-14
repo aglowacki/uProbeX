@@ -1500,6 +1500,7 @@ void MapsElementsWidget::on_export_images()
                         //TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
 
                         // Write the information to the file
+                        // need to normaize the data by IC also 
                         TIFFWriteEncodedStrip(tif, 0, e_itr.second.data(), 4 *  e_itr.second.cols() * e_itr.second.rows());
                         TIFFClose(tif);
 
