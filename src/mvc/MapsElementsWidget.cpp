@@ -1446,6 +1446,25 @@ void MapsElementsWidget::on_export_images()
     QDir export_model_dir = _export_maps_dialog->get_dir();
     int cur = 0;
 
+    QDir png_dir = export_model_dir;
+    QDir tif8_dir = export_model_dir;
+    QDir tiff_dir = export_model_dir;
+    QDir ascii_dir = export_model_dir;
+
+    if (_export_maps_dialog->get_save_png())
+    {
+        png_dir.mkdir("PNG");
+        png_dir.cd("PNG");
+    }
+    if (_export_maps_dialog->get_save_tiff())
+    {
+        tif8_dir.mkdir("TIF_8bit");
+        tif8_dir.cd("TIF_8bit");
+        tiff_dir.mkdir("TIF_32FP");
+        tiff_dir.cd("TIF_32FP");
+    }
+
+
     if (_export_maps_dialog->get_save_png() || _export_maps_dialog->get_save_tiff())
     {
         if (_export_maps_dialog->get_export_all())
@@ -1457,54 +1476,125 @@ void MapsElementsWidget::on_export_images()
             {
                 data_struct::Fit_Count_Dict<float> element_counts;
                 _model->getAnalyzedCounts(a_itr, element_counts);
+             
+                if (_export_maps_dialog->get_save_png())
+                {
+                    png_dir.mkdir(QString(a_itr.c_str()));
+                    png_dir.cd(QString(a_itr.c_str()));
+                }
+                if (_export_maps_dialog->get_save_tiff())
+                {
+                    tif8_dir.mkdir(QString(a_itr.c_str()));
+                    tif8_dir.cd(QString(a_itr.c_str()));
+                    tiff_dir.mkdir(QString(a_itr.c_str()));
+                    tiff_dir.cd(QString(a_itr.c_str()));
+                }
 
+                // Save 8 bit png and/or tiff
                 for (auto& e_itr : element_counts)
                 {
+                    QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
                     if (_export_maps_dialog->get_save_png())
                     {
                         std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
-                        QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
-                        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
+                        if (false == pixmap.save(QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
                         {
-                            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
+                            logE << "Could not save PNG for " << QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
                         }
                     }
                     if (_export_maps_dialog->get_save_tiff())
                     {
                         std::string save_file_name = a_itr + "-" + e_itr.first + "_8bit.tif";
-                        QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
-                        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "TIFF"))
+                        if (false == pixmap.save(QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "TIFF"))
                         {
-                            logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
+                            logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
                         }
-
-                        // save float 32bit
-                        std::string save_file_name_fp = a_itr + "-" + e_itr.first + "_fp.tif";
-                        TIFF* tif = nullptr;
-                        QString save_path = QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str()));
-                        if ((tif = TIFFOpen(save_path.toStdString().c_str(), "w")) == NULL)
-                        {
-                            logE << "Could not open " << save_path.toStdString() << " for writing\n";
-                            continue;
-                        }
-
-                        TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, e_itr.second.cols());
-                        TIFFSetField(tif, TIFFTAG_IMAGELENGTH, e_itr.second.rows());
-                        TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
-                        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
-                        TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, e_itr.second.rows());
-                        TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
-                        //TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
-                        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
-                        TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-                        //TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
-
-                        // Write the information to the file
-                        // need to normaize the data by IC also 
-                        TIFFWriteEncodedStrip(tif, 0, e_itr.second.data(), 4 *  e_itr.second.cols() * e_itr.second.rows());
-                        TIFFClose(tif);
-
                     }
+                }
+
+                // save normalized 32 bit float tiff
+                if (_export_maps_dialog->get_save_tiff())
+                {
+                    data_struct::ArrayXXr<float>* normalizer = nullptr;
+                    for (auto n_itr : normalizers)
+                    {
+                        tiff_dir.mkdir(QString(n_itr.c_str()));
+                        tiff_dir.cd(QString(n_itr.c_str()));
+
+                        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                        if (scalers->count(n_itr) > 0)
+                        {
+                            normalizer = &(scalers->at(n_itr));
+                        }
+                        Calibration_curve<double>* calib_curve = _model->get_calibration_curve(a_itr, n_itr);
+
+                        for (auto& e_itr : element_counts)
+                        {
+                            std::string save_file_name_fp = a_itr + "-" + e_itr.first + "-";
+                            TIFF* tif = nullptr;
+
+                            data_struct::ArrayXXr<float> counts = e_itr.second;
+
+                            //out_stream << e_itr.first;
+                            if (calib_curve != nullptr && normalizer != nullptr)
+                            {
+                                if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                {
+                                    save_file_name_fp += n_itr;
+
+                                    float calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+
+                                    counts /= (*normalizer);
+                                    counts /= calib_val;
+                                }
+                                else
+                                {
+                                    save_file_name_fp += "cts_s";
+                                }
+                            }
+                            else
+                            {
+                                save_file_name_fp += "cts_s";
+                            }
+
+                            save_file_name_fp += ".tif";
+
+                            QString save_path = QDir::cleanPath(tiff_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str()));
+                            if ((tif = TIFFOpen(save_path.toStdString().c_str(), "w")) == NULL)
+                            {
+                                logE << "Could not open " << save_path.toStdString() << " for writing\n";
+                                continue;
+                            }
+
+                            TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, e_itr.second.cols());
+                            TIFFSetField(tif, TIFFTAG_IMAGELENGTH, e_itr.second.rows());
+                            TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+                            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
+                            TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, e_itr.second.rows());
+                            TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+                            //TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
+                            TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+                            TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                            //TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
+
+                            // Write the information to the file
+                            // need to normaize the data by IC also 
+                            TIFFWriteEncodedStrip(tif, 0, counts.data(), 4 * counts.cols() * counts.rows());
+                            TIFFClose(tif);
+                        }
+
+                        tiff_dir.cdUp();
+                    }
+                }
+
+                if (_export_maps_dialog->get_save_png())
+                {
+                    png_dir.cdUp();
+                }
+                if (_export_maps_dialog->get_save_tiff())
+                {
+                    tif8_dir.cdUp();
+                    tiff_dir.cdUp();
                 }
             }
         }
@@ -1514,8 +1604,65 @@ void MapsElementsWidget::on_export_images()
             for (int vidx = 0; vidx < view_cnt; vidx++)
             {
                 QString element = m_imageViewWidget->getLabelAt(vidx);
+                std::string el_str = element.toStdString();
 
-                job_queue[element.toStdString()] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                job_queue[el_str] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+
+
+                // save normalized 32 bit float tiff
+                std::string save_file_name_fp = analysis_text + "-" + el_str + "-";
+                Calibration_curve<double>* calib_curve = _model->get_calibration_curve(analysis_text, _cb_normalize->currentText().toStdString());
+                TIFF* tif = nullptr;
+                data_struct::ArrayXXr<float> counts;
+
+                data_struct::Fit_Count_Dict<float> element_counts;
+                _model->getAnalyzedCounts(analysis_text, element_counts);
+                if (element_counts.count(el_str) > 0)
+                {
+                    counts = element_counts.at(el_str);
+
+                    if (calib_curve != nullptr && _normalizer != nullptr)
+                    {
+                        if (calib_curve->calib_curve.count(el_str) > 0)
+                        {
+                            save_file_name_fp += _cb_normalize->currentText().toStdString();
+
+                            float calib_val = static_cast<float>(calib_curve->calib_curve.at(el_str));
+
+                            counts /= (*_normalizer);
+                            counts /= calib_val;
+                        }
+                    }
+                }
+                else if (_model->getScalers()->count(el_str) > 0)
+                {
+                    counts = _model->getScalers()->at(el_str);
+                }
+                save_file_name_fp += ".tif";
+
+                QString save_path = QDir::cleanPath(tiff_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str()));
+                if ((tif = TIFFOpen(save_path.toStdString().c_str(), "w")) == NULL)
+                {
+                    logE << "Could not open " << save_path.toStdString() << " for writing\n";
+                    continue;
+                }
+
+                TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, counts.cols());
+                TIFFSetField(tif, TIFFTAG_IMAGELENGTH, counts.rows());
+                TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+                TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
+                TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, counts.rows());
+                TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+                //TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
+                TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+                TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                //TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
+
+                // Write the information to the file
+                // need to normaize the data by IC also 
+                TIFFWriteEncodedStrip(tif, 0, counts.data(), 4 * counts.cols() * counts.rows());
+                TIFFClose(tif);
+
             }
 
             while (job_queue.size() > 0)
@@ -1523,40 +1670,22 @@ void MapsElementsWidget::on_export_images()
                 std::vector<std::string> to_delete;
                 for (auto& itr : job_queue)
                 {
+                    QPixmap pixmap = itr.second.get();
+
                     if (_export_maps_dialog->get_save_png())
                     {
-                        if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
+                        if (false == pixmap.save(QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
                         {
-                            logE << "Could not save PNG for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
+                            logE << "Could not save PNG for " << QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
                         }
                     }
                     if (_export_maps_dialog->get_save_tiff())
                     {
                         //save 8 bit tiff
-                        if (false == itr.second.get().save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif"), "TIFF"))
+                        if (false == pixmap.save(QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif"), "TIFF"))
                         {
-                            logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif").toStdString() << "\n";
+                            logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif").toStdString() << "\n";
                         }
-
-                        // save float 32bit
-                        /*
-                        std::string save_file_name_fp = a_itr + "-" + e_itr.first + "_fp.tif";
-
-                        QImage image(e_itr.second.cols(), e_itr.second.rows(), QImage::Format_ARGB32);
-
-                        for (int y = 0; y < e_itr.second.rows(); y++)
-                        {
-                            for (int x = 0; x < e_itr.second.cols(); x++)
-                            {
-                                image.setPixel(x, y, (uint)e_itr.second(y, x));
-                            }
-                        }
-                        pixmap = QPixmap::fromImage(image);
-                        if (false == pixmap.save(QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str())), "TIFF"))
-                        {
-                            logE << "Could not save 32 bit float TIFF for " << QDir::cleanPath(export_model_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str())).toStdString() << "\n";
-                        }
-                        */
                     }
                     to_delete.push_back(itr.first);
                     cur++;
@@ -1572,12 +1701,14 @@ void MapsElementsWidget::on_export_images()
     }
     if (_export_maps_dialog->get_save_ascii())
     {
+        ascii_dir.mkdir("ASCII");
+        ascii_dir.cd("ASCII");
+
         std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
 
         const std::vector<float> x_axis = _model->get_x_axis();
         const std::vector<float> y_axis = _model->get_y_axis();
 
-        std::string save_file_name = export_model_dir.absolutePath().toStdString() + QDir::separator().toLatin1() + _model->getDatasetName().toStdString();
         std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
         size_t cur = 0;
@@ -1592,14 +1723,23 @@ void MapsElementsWidget::on_export_images()
 
             data_struct::ArrayXXr<float>* normalizer = nullptr;
 
+            ascii_dir.mkdir(QString(a_itr.c_str()));
+            ascii_dir.cd(QString(a_itr.c_str()));
+
             for (auto n_itr : normalizers)
             {
+
+                ascii_dir.mkdir(QString(n_itr.c_str()));
+                ascii_dir.cd(QString(n_itr.c_str()));
+
                 std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
                 if (scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));
                 }
                 Calibration_curve<double>* calib_curve = _model->get_calibration_curve(a_itr, n_itr);
+
+                std::string save_file_name = ascii_dir.absolutePath().toStdString() + QDir::separator().toLatin1() + _model->getDatasetName().toStdString();
 
                 std::string sub_save_file = save_file_name + "-" + a_itr + "-" + n_itr + ".csv";
                 std::ofstream out_stream(sub_save_file);
@@ -1701,8 +1841,10 @@ void MapsElementsWidget::on_export_images()
                 {
                     logE << "Could not save PNG for " << save_file_name << "\n";
                 }
-            }
 
+                ascii_dir.cdUp();
+            }
+            ascii_dir.cdUp();
         }
     }
     if (_export_maps_dialog->get_save_screen())
