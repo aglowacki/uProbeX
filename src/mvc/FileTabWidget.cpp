@@ -180,11 +180,12 @@ void FileTabWidget::ShowContextMenu(const QPoint &pos)
 
 void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 {
-    
-
-    QStringList sl;
-    sl.append(idx.data(0).toString());
-    emit loadList(sl);
+    if (_load_all_btn->isEnabled())
+    {
+        QStringList sl;
+        sl.append(idx.data(0).toString());
+        emit loadList(sl);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
