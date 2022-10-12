@@ -355,62 +355,69 @@ void MapsWorkspaceModel::_load_region_links(QString name, MapsH5Model* model)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsWorkspaceModel::_load_rois(QString name, MapsH5Model* model)
+bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
 {
-    // TODO: check and load ROI's
-        // check V9 ROI's first
-        // get 4 numbers in dataset name to ref roi's
-    QRegExp re("[0-9][0-9][0-9][0-9]");
-    //re.setPatternSyntax(QRegExp::Wildcard);
-    int pos = re.indexIn(name);
-    if (pos > -1)
+    if (_h5_fileinfo_list.count(fname) > 0)
     {
-        int len = re.matchedLength();
-        QString dataset_num = name.mid(pos, len);
+        QFileInfo fileInfo = _h5_fileinfo_list[fname];
 
-        QRegExp re2(dataset_num);
-        for (auto& itr : _roi_fileinfo_list)
+        QString name = fileInfo.baseName();
+        // TODO: check and load ROI's
+            // check V9 ROI's first
+            // get 4 numbers in dataset name to ref roi's
+        QRegExp re("[0-9][0-9][0-9][0-9]");
+        //re.setPatternSyntax(QRegExp::Wildcard);
+        int pos = re.indexIn(name);
+        if (pos > -1)
         {
-            int pos2 = re.indexIn(itr.first);
-            if (pos2 > -1)
-            {
-                logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
+            int len = re.matchedLength();
+            QString dataset_num = name.mid(pos, len);
 
-                std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
-                std::string search_filename;
-                //data_struct::Detector<double>* detector;
-                try
+            QRegExp re2(dataset_num);
+            for (auto& itr : _roi_fileinfo_list)
+            {
+                int pos2 = re.indexIn(itr.first);
+                if (pos2 > -1)
                 {
-                    if (io::file::aps::load_v9_rois(itr.second.absoluteFilePath().toStdString(), rois))
+                    logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
+
+                    std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
+                    std::string search_filename;
+                    //data_struct::Detector<double>* detector;
+                    try
                     {
-                        for (auto& roi_itr : rois)
+                        if (io::file::aps::load_v9_rois(itr.second.absoluteFilePath().toStdString(), rois))
                         {
-                            Spectra<double>* int_spectra = new Spectra<double>();
-                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(model->getFilePath().toStdString(), int_spectra, roi_itr.second))
+                            for (auto& roi_itr : rois)
                             {
-                                //ROIModel* roi_model = new ROIModel();
-                                //roi_model->
-                                //model->addROI(QString(roi_itr.first), roi_itr.second, int_spectra);
+                                Spectra<double>* int_spectra = new Spectra<double>();
+                                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(model->getFilePath().toStdString(), int_spectra, roi_itr.second))
+                                {
+                                    //ROIModel* roi_model = new ROIModel();
+                                    //roi_model->
+                                    //model->addROI(QString(roi_itr.first), roi_itr.second, int_spectra);
+                                }
+                                else
+                                {
+                                    logW << "Could not load intspec roi from file " << model->getFilePath().toStdString() << "\n";
+                                }
                             }
-                            else
-                            {
-                                logW << "Could not load intspec roi from file " << model->getFilePath().toStdString() << "\n";
-                            }
+                            return true;
+                        }
+                        else
+                        {
+                            logW << "Could not load v9 roi from file " << itr.second.absoluteFilePath().toStdString() << "\n";
                         }
                     }
-                    else
+                    catch (exception e)
                     {
-                        logW << "Could not load v9 roi from file " << itr.second.absoluteFilePath().toStdString() << "\n";
+                        logE << e.what() << "\n";
                     }
-                }
-                catch (exception e)
-                {
-                    logE << e.what() << "\n";
                 }
             }
         }
     }
-
+    return false;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -427,8 +434,10 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
         QFileInfo fileInfo = _h5_fileinfo_list[name];
         if (model->load(fileInfo.absoluteFilePath()))
         {
+            QApplication::processEvents();
             // Load region links
             _load_region_links(fileInfo.baseName(), model);
+            //can not load from here because ifstream.open locks up in thread
             // Load ROI's
             //_load_rois(fileInfo.baseName(), model);
         }

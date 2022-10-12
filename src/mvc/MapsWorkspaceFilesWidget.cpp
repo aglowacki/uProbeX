@@ -224,6 +224,9 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 MapsH5Model* h5Model = ret.get();
                 if (h5Model != nullptr)
                 {
+                    // have to call from main thread because ifstream.open locks up in threadpool
+                    _model->load_v9_rois(name, h5Model);
+
                     int idx = -1;
                     for (unsigned char b = '0'; b < '7'; b++)
                     {
