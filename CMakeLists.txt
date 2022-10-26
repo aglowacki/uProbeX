@@ -84,6 +84,7 @@ find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
 find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
+find_package(OpenCV CONFIG REQUIRED)
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -209,6 +210,10 @@ IF (MSVC)
                         ${TIFF_LIBRARIES}
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
+                        opencv_ml
+                        opencv_dnn
+                        opencv_core
+                        opencv_flann
                         netCDF::netcdf
                         hdf5::hdf5-shared
                         libxrf_fit
@@ -223,6 +228,10 @@ ELSEIF (UNIX)
                         yaml-cpp
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
+                        opencv_ml
+                        opencv_dnn
+                        opencv_core
+                        opencv_flann
                         netCDF::netcdf
                         libxrf_fit
                         libxrf_io
