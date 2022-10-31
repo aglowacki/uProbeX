@@ -22,6 +22,8 @@
 #include "preferences/Preferences.h"
 #include "gstar/MinMaxSlider.h"
 #include <mvc/ExportMapsDialog.h>
+#include <mvc/CoLocalizationWidget.h>
+#include <mvc/ImageSegROIDialog.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -74,6 +76,8 @@ public slots:
    void model_updated();
 
    void addRoiMask();
+
+   void openImageSegDialog();
 
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
@@ -131,6 +135,8 @@ protected:
    QPushButton *_pb_perpixel_fitting;
 
    QAction *_addRoiMaskAction;
+
+   QAction* _addKMeansRoiAction;
    
    QPushButton * _grid_button;
 
@@ -166,6 +172,10 @@ protected:
    QImage* _color_maps_ledgend;
 
    QLabel *_color_map_ledgend_lbl;
+
+   CoLocalizationWidget* _co_loc_widget;
+
+   ImageSegRoiDialog _img_seg_diag;
 
    float _min_contrast_perc;
 

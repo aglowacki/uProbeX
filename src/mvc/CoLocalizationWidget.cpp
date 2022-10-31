@@ -3,22 +3,19 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/ImageSegmentWidget.h>
+#include <mvc/CoLocalizationWidget.h>
 
 //---------------------------------------------------------------------------
 
-ImageSegmentWidget::ImageSegmentWidget(int rows, int cols, bool create_image_nav, QWidget* parent)
-    : AbstractImageWidget(rows, cols, parent)
+CoLocalizationWidget::CoLocalizationWidget(QWidget* parent) : gstar::AbstractImageWidget(1, 1, parent)
 {
-    
     _model = nullptr;
-    
-    _createLayout(create_image_nav);
+    _createLayout();
 }
 
 //---------------------------------------------------------------------------
 
-ImageSegmentWidget::~ImageSegmentWidget()
+CoLocalizationWidget::~CoLocalizationWidget()
 {
 /* //this is done elsewhere . should refactor it to be smart pointer
     if(_model != nullptr)
@@ -27,143 +24,36 @@ ImageSegmentWidget::~ImageSegmentWidget()
     }
     _model = nullptr;
 */
-    if(_spectra_widget != nullptr)
-    {
-        delete _spectra_widget;
-    }
-    _spectra_widget = nullptr;
 
 }
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::_createLayout(bool create_image_nav)
+void CoLocalizationWidget::_createLayout()
 {
 
-    _tab_widget = new QTabWidget();
-    /*
-    _spectra_widget = new FitSpectraWidget();
-    connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &ImageSegmentWidget::on_export_fit_params);
-    connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &ImageSegmentWidget::on_export_csv_and_png);
-
-    _cb_analysis = new QComboBox(this);
-    */
-    QHBoxLayout* hbox = new QHBoxLayout();
-    QHBoxLayout* hbox2 = new QHBoxLayout();
-    QVBoxLayout* counts_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_imageViewWidget);
 
-	//connect(&iDiag, SIGNAL(onNewGridLayout(int, int)), this, SLOT(onNewGridLayout(int, int)));
-
-    _dataset_directory = new QLabel();
-    _dataset_name = new QLabel();
-    hbox2->addWidget(new QLabel("Dataset: "));
-    hbox2->addWidget(_dataset_directory);
-    hbox2->addWidget(_dataset_name);
-    hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
-
-    QSplitter* splitter = new QSplitter();
-    splitter->setOrientation(Qt::Horizontal);
-    splitter->addWidget(m_imageViewWidget);
-    splitter->setStretchFactor(0, 1);
-    splitter->addWidget(m_tabWidget);
-
-    createToolBar(m_imageViewWidget, create_image_nav);
-    counts_layout->addWidget(m_toolbar);
-    counts_layout->addWidget(splitter);
-
+    //_imageViewWidget->setSceneModel(m_treeModel);
+    //_imageViewWidget->setSceneSelectionModel(m_selectionModel);
     /*
-    connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
-
-    _color_map_ledgend_lbl = new QLabel();
-    _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
-    _color_maps_ledgend->setColorTable(_gray_colormap);
-    for (uint c = 0; c < 256; c++)
-    {
-        for (int r = 0; r < 10; r++)
-        {
-            _color_maps_ledgend->setPixel(c, r, c);
-        }
-    }
-    
-    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
-    
-    QWidget* color_maps_widgets = new QWidget();
-    QVBoxLayout* colormapsVBox = new QVBoxLayout();
-    QHBoxLayout* colormapsHBox = new QHBoxLayout();
-    colormapsHBox->addWidget(new QLabel(" ColorMap :"));
-    colormapsHBox->addWidget(_cb_colormap);
-    colormapsVBox->addItem(colormapsHBox);
-    colormapsVBox->addWidget(_color_map_ledgend_lbl);
-    color_maps_widgets->setLayout(colormapsVBox);
-    m_toolbar->addWidget(color_maps_widgets);
-    
-    _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
-    connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &ImageSegmentWidget::on_log_color_changed);
-
-    _chk_log_color = new QCheckBox("Log scale");
-    _chk_log_color->setChecked(false);
-    connect(_chk_log_color, &QCheckBox::stateChanged, this, &ImageSegmentWidget::on_log_color_changed);
-    
-    QWidget* color_chk_widgets = new QWidget();
-    QVBoxLayout* colorVBox = new QVBoxLayout();
-    colorVBox->addWidget(_chk_log_color);
-    colorVBox->addWidget(_chk_disp_color_ledgend);
-    color_chk_widgets->setLayout(colorVBox);
-
-    m_toolbar->addWidget(color_chk_widgets);
-
-    _grid_button = new QPushButton();
-	_grid_button->setIcon(QIcon(":/images/grid.png"));
-	_grid_button->setIconSize(QSize(15, 15)); 
-
-	connect(_grid_button, SIGNAL(pressed()), this, SLOT(onGridDialog()));
-    
-    m_toolbar->addWidget(_grid_button);
-	m_toolbar->addWidget(_cb_analysis);
-    m_toolbar->addWidget(new QLabel("  Normalize By: "));
-    m_toolbar->addWidget(_cb_normalize);
-
-    _global_contrast_chk = new QCheckBox("Global Contrast");
-    _global_contrast_chk->setChecked(true);
-    connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &ImageSegmentWidget::on_global_contrast_changed);
-    m_toolbar->addWidget(_global_contrast_chk);
-    _contrast_widget = new gstar::MinMaxSlider();
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &ImageSegmentWidget::on_min_max_contrast_changed);
-    m_toolbar->addWidget(_contrast_widget);
-
-    _btn_export_as_image = new QPushButton("Export Images");
-    connect(_btn_export_as_image, &QPushButton::pressed, this, &ImageSegmentWidget::on_export_image_pressed);
-    m_toolbar->addWidget(_btn_export_as_image);
-    */
-    
-    _counts_window = new QWidget();
-    _counts_window->setLayout(counts_layout);
-
-    _tab_widget->addTab(_counts_window, "ROI's");
-    //_tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
-
-
-    layout->addItem(hbox2);
-    layout->addWidget(_tab_widget);
+    _imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_imageViewWidget,
+        SIGNAL(customContextMenuRequested(const QPoint&)),
+        this,
+        SLOT(viewContextMenu(const QPoint&)));
+        */
 
     //don't erase counts when mouse is off scene
-    m_imageViewWidget->set_null_mouse_pos = false;
-    connect(m_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
+    //_imageViewWidget->set_null_mouse_pos = false;
+    //connect(_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
 
-	connect(m_imageViewWidget, &gstar::ImageViewWidget::parent_redraw, this, &ImageSegmentWidget::redrawCounts);
+	//connect(_imageViewWidget, &gstar::ImageViewWidget::parent_redraw, this, &CoLocalizationWidget::redrawCounts);
 
-    appendAnnotationTab();
+    //createActions();
 
-    createActions();
     /*
-    bool chk_log_scale_color = Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool();
-    bool chk_display_color_ledgend = Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool();
-
-    _chk_log_color->setChecked(chk_log_scale_color);
-    _chk_disp_color_ledgend->setChecked(chk_display_color_ledgend);
-
-    */
     int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
     int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
     if (rows < 1)
@@ -171,6 +61,7 @@ void ImageSegmentWidget::_createLayout(bool create_image_nav)
     if (cols < 1)
         cols = 1;
     onNewGridLayout(rows, cols);
+    */
 
     /*
     QString colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
@@ -186,7 +77,7 @@ void ImageSegmentWidget::_createLayout(bool create_image_nav)
 
 //---------------------------------------------------------------------------
 /*
-void ImageSegmentWidget::onGridDialog()
+void CoLocalizationWidget::onGridDialog()
 {
 	
 	iDiag.show();
@@ -195,17 +86,17 @@ void ImageSegmentWidget::onGridDialog()
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::on_global_contrast_changed(int state)
+void CoLocalizationWidget::on_global_contrast_changed(int state)
 {
     if (state == Qt::CheckState::Checked)
     {
         _contrast_widget->setEnabled(true);
-        m_imageViewWidget->setGlobalContrast(false);
+        _imageViewWidget->setGlobalContrast(false);
     }
     else
     {
         _contrast_widget->setEnabled(false);
-        m_imageViewWidget->setGlobalContrast(true);
+        _imageViewWidget->setGlobalContrast(true);
     }
     
     redrawCounts();
@@ -213,7 +104,7 @@ void ImageSegmentWidget::on_global_contrast_changed(int state)
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::on_log_color_changed(int state)
+void CoLocalizationWidget::on_log_color_changed(int state)
 {
     Preferences::inst()->setValue(STR_LOG_SCALE_COLOR, _chk_log_color->isChecked());
     Preferences::inst()->setValue(STR_DISPLAY_COLOR_LEDGEND, _chk_disp_color_ledgend->isChecked());
@@ -222,7 +113,7 @@ void ImageSegmentWidget::on_log_color_changed(int state)
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::on_min_max_contrast_changed()
+void CoLocalizationWidget::on_min_max_contrast_changed()
 {
 
 	_min_contrast_perc = _contrast_widget->getUserMin() / 100.0;
@@ -233,7 +124,7 @@ void ImageSegmentWidget::on_min_max_contrast_changed()
 */
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::onNewGridLayout(int rows, int cols)
+void CoLocalizationWidget::onNewGridLayout(int rows, int cols)
 {
     const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
@@ -247,11 +138,11 @@ void ImageSegmentWidget::onNewGridLayout(int rows, int cols)
 }
 
 //---------------------------------------------------------------------------
-
-void ImageSegmentWidget::addRoiMask()
+/*
+void CoLocalizationWidget::addRoiMask()
 {
-    int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
-    int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
+    int w = _imageViewWidget->scene()->getPixmapItem()->pixmap().width();
+    int h = _imageViewWidget->scene()->getPixmapItem()->pixmap().height();
    gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
 
@@ -259,13 +150,13 @@ void ImageSegmentWidget::addRoiMask()
    //_spectra_widget->appendROISpectra()
    //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
-   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &ImageSegmentWidget::roiUpdated);
+   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &CoLocalizationWidget::roiUpdated);
 
 }
-
+*/
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
+void CoLocalizationWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
 {
     if (ano != nullptr && reload)
     {
@@ -278,26 +169,24 @@ void ImageSegmentWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::createActions()
+void CoLocalizationWidget::createActions()
 {
-    AbstractImageWidget::createActions();
-    // TODO: change Roi to spectra region and add back in
-    
+    /*
     _addRoiMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addRoiMaskAction,
             SIGNAL(triggered()),
             this,
             SLOT(addRoiMask()));
-            
+      */      
 }
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::displayContextMenu(QWidget* parent,
+void CoLocalizationWidget::displayContextMenu(QWidget* parent,
                                              const QPoint& pos)
 {
-
+    /*
    if (m_annotationsEnabled == false)
       return;
 
@@ -326,12 +215,12 @@ void ImageSegmentWidget::displayContextMenu(QWidget* parent,
    {
       m_selectionModel->clearSelection();
    }
-
+   */
 }
 
 //---------------------------------------------------------------------------
 /*
-void ImageSegmentWidget::onAnalysisSelect(QString name)
+void CoLocalizationWidget::onAnalysisSelect(QString name)
 {	
     _calib_curve = _model->get_calibration_curve(name.toStdString(), _cb_normalize->currentText().toStdString());
     redrawCounts();
@@ -339,29 +228,29 @@ void ImageSegmentWidget::onAnalysisSelect(QString name)
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::onElementSelect(QString name, int viewIdx)
+void CoLocalizationWidget::onElementSelect(QString name, int viewIdx)
 {
     // update label on element select since it could be scaler
     if (_normalizer != nullptr && _calib_curve != nullptr)
     {
-        int cnt = m_imageViewWidget->getViewCount();
+        int cnt = _imageViewWidget->getViewCount();
         for (int i = 0; i < cnt; i++)
         {
-            QString label = m_imageViewWidget->getLabelAt(i);
+            QString label = _imageViewWidget->getLabelAt(i);
             if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
             {
-                m_imageViewWidget->setUnitLabel(i, "ug/cm2");
+                _imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
             else
             {
-                m_imageViewWidget->setUnitLabel(i, "cts/s");
+                _imageViewWidget->setUnitLabel(i, "cts/s");
             }
         }
     }
 
     if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
-        m_imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
+        _imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
     }
     else
     {
@@ -375,7 +264,7 @@ void ImageSegmentWidget::onElementSelect(QString name, int viewIdx)
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::onColormapSelect(QString colormap)
+void CoLocalizationWidget::onColormapSelect(QString colormap)
 {
 	if(colormap == STR_COLORMAP_GRAY)
 	{
@@ -410,13 +299,13 @@ void ImageSegmentWidget::onColormapSelect(QString colormap)
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::onSelectNormalizer(QString name)
+void CoLocalizationWidget::onSelectNormalizer(QString name)
 {
     if (name == "1")
     {
         _normalizer = nullptr;
         _calib_curve = nullptr;
-        m_imageViewWidget->setUnitLabels("cts/s");
+        _imageViewWidget->setUnitLabels("cts/s");
     }
     else
     {
@@ -433,13 +322,13 @@ void ImageSegmentWidget::onSelectNormalizer(QString name)
 
     if (_normalizer != nullptr && _calib_curve != nullptr)
     {
-        int cnt = m_imageViewWidget->getViewCount();
+        int cnt = _imageViewWidget->getViewCount();
         for (int i = 0; i < cnt; i++)
         {
-            QString label = m_imageViewWidget->getLabelAt(i);
+            QString label = _imageViewWidget->getLabelAt(i);
             if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
             {
-                m_imageViewWidget->setUnitLabel(i, "ug/cm2");
+                _imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
         }
         
@@ -450,7 +339,7 @@ void ImageSegmentWidget::onSelectNormalizer(QString name)
 */
  //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::setModel(MapsH5Model* model)
+void CoLocalizationWidget::setModel(MapsH5Model* model)
 {
     if (_model != model)
     {
@@ -458,36 +347,13 @@ void ImageSegmentWidget::setModel(MapsH5Model* model)
         //model_updated();
         if (_model != nullptr)
         {
-            data_struct::Params_Override<double>* po = _model->getParamOverride();
-            if (po != nullptr)
-            {
-                _spectra_widget->setParamOverride(po);
-            }
-            disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
-            _spectra_widget->clearFitIntSpectra();
-            _spectra_widget->clearROISpectra();
-            for (auto& itr : model->_fit_int_spec_dict)
-            {
-                _spectra_widget->appendFitIntSpectra(itr.first, itr.second);
-            }
-
-            for (auto& itr : model->_max_chan_spec_dict)
-            {
-                _spectra_widget->appendMaxChanSpectra(itr.first, itr.second);
-            }
-
-
-            _model->getIntegratedSpectra(_int_spec);
-            _spectra_widget->setIntegratedSpectra(&_int_spec);
-            connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
         }
-        m_imageWidgetToolBar->clickFill();
     }
 }
 
 //---------------------------------------------------------------------------
 /*
-void ImageSegmentWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
+void CoLocalizationWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
 {
     QDir save_path = QDir(_dataset_directory->text());
     QFileInfo file_info = QFileInfo(_dataset_directory->text());
@@ -558,7 +424,7 @@ void ImageSegmentWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::model_updated()
+void CoLocalizationWidget::model_updated()
 {
     if(_model == nullptr)
     {
@@ -639,18 +505,18 @@ void ImageSegmentWidget::model_updated()
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
-    const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    const std::vector<QString> element_view_list = _imageViewWidget->getLabelList();
     
     // get copy of elements to add the ones that were missed, usually pileups
     data_struct::Fit_Count_Dict<float> element_counts_not_added;
     _model->getAnalyzedCounts(current_a, element_counts_not_added);
 
-    m_imageViewWidget->clearLabels();
+    _imageViewWidget->clearLabels();
 
     // insert any region links
     for (const auto& itr : _model->regionLinks())
     {
-        m_imageViewWidget->addLabel(itr.first);
+        _imageViewWidget->addLabel(itr.first);
     }
 
     // insert in z order
@@ -659,7 +525,7 @@ void ImageSegmentWidget::model_updated()
         if(element_counts.count(el_name) > 0)
         {
             QString val = QString(el_name.c_str());
-            m_imageViewWidget->addLabel(val);
+            _imageViewWidget->addLabel(val);
             element_counts_not_added.erase(el_name);
         }
 
@@ -672,7 +538,7 @@ void ImageSegmentWidget::model_updated()
         if(std::find(final_counts_to_add_before_scalers.begin(), final_counts_to_add_before_scalers.end(), itr.first) == final_counts_to_add_before_scalers.end())
         {
             QString val = QString(itr.first.c_str());
-            m_imageViewWidget->addLabel(val);
+            _imageViewWidget->addLabel(val);
         }
     }
 
@@ -680,7 +546,7 @@ void ImageSegmentWidget::model_updated()
     for (auto& itr : final_counts_to_add_before_scalers)
     {
         QString val = QString(itr.c_str());
-        m_imageViewWidget->addLabel(val);
+        _imageViewWidget->addLabel(val);
     }
     
 
@@ -729,7 +595,7 @@ void ImageSegmentWidget::model_updated()
     {
         if(scalers->count(itr) > 0)
         {
-            m_imageViewWidget->addLabel(QString(itr.c_str()));
+            _imageViewWidget->addLabel(QString(itr.c_str()));
             left_over_scalers.erase(itr);
         }
     }
@@ -737,7 +603,7 @@ void ImageSegmentWidget::model_updated()
     // add rest of scalers
     for (auto& itr : left_over_scalers)
     {
-        m_imageViewWidget->addLabel(QString(itr.first.c_str()));
+        _imageViewWidget->addLabel(QString(itr.first.c_str()));
     }
 
     if(false == found_analysis)
@@ -746,7 +612,7 @@ void ImageSegmentWidget::model_updated()
     }
     _cb_analysis->setCurrentText(current_analysis);
 
-    m_imageViewWidget->restoreLabels(element_view_list);
+    _imageViewWidget->restoreLabels(element_view_list);
 
     for (int cntr = 0; cntr < _cb_normalize->count(); cntr++)
     {
@@ -763,7 +629,7 @@ void ImageSegmentWidget::model_updated()
 */
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::redrawCounts()
+void CoLocalizationWidget::redrawCounts()
 {
     int view_cnt = m_imageViewWidget->getViewCount();
     std::string analysis_text = "NNLS";//_cb_analysis->currentText().toStdString();
@@ -783,10 +649,10 @@ void ImageSegmentWidget::redrawCounts()
 
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
-            QString element = m_imageViewWidget->getLabelAt(vidx);
+            QString element = _imageViewWidget->getLabelAt(vidx);
             if (_model != nullptr && _model->regionLinks().count(element) > 0)
             {
-                m_imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
+                _imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
             }
             else
             {
@@ -799,12 +665,12 @@ void ImageSegmentWidget::redrawCounts()
             std::vector<int> to_delete;
             for (auto& itr : job_queue)
             {
-                m_imageViewWidget->resetCoordsToZero();
-                m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
+                _imageViewWidget->resetCoordsToZero();
+                _imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
                 if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
                 {
-                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
-                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                    m_imageHeightDim->setCurrentText(QString::number(_imageViewWidget->scene(itr.first)->height()));
+                    m_imageWidthDim->setCurrentText(QString::number(_imageViewWidget->scene(itr.first)->width()));
                 }
                 to_delete.push_back(itr.first);
             }
@@ -818,12 +684,12 @@ void ImageSegmentWidget::redrawCounts()
     */
     //redraw annotations
     m_selectionModel->clear();
-    m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
+    //m_imageViewWidget->setSceneModelAndSelection(_treeModel, _selectionModel);
 }
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
+void CoLocalizationWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
 	if (_model != nullptr)
 	{
@@ -857,12 +723,13 @@ void ImageSegmentWidget::displayCounts(const std::string analysis_type, const st
         if (draw)
         {
             m_imageViewWidget->resetCoordsToZero();
+            /*
             if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
             {
                 m_imageHeightDim->setCurrentText(QString::number(height));
                 m_imageWidthDim->setCurrentText(QString::number(width));
             }
-            
+            */
             QImage image(width, height, QImage::Format_Indexed8);
             //image.setColorTable(*_selected_colormap);
 
@@ -902,7 +769,7 @@ void ImageSegmentWidget::displayCounts(const std::string analysis_type, const st
 
 //---------------------------------------------------------------------------
 /*
-QPixmap ImageSegmentWidget::generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
+QPixmap CoLocalizationWidget::generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
     if (_model != nullptr)
     {
@@ -951,7 +818,7 @@ QPixmap ImageSegmentWidget::generate_pixmap(const std::string analysis_type, con
             counts_min = normalized.minCoeff();
             
             //get user min max from contrast control
-			m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
+			_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
 
             float max_min = counts_max - counts_min;
             for (int row = 0; row < height; row++)
@@ -1019,7 +886,7 @@ QPixmap ImageSegmentWidget::generate_pixmap(const std::string analysis_type, con
 */
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::windowChanged(Qt::WindowStates oldState,
+void CoLocalizationWidget::windowChanged(Qt::WindowStates oldState,
                                        Qt::WindowStates newState)
 {
     Q_UNUSED(oldState);
@@ -1033,7 +900,7 @@ void ImageSegmentWidget::windowChanged(Qt::WindowStates oldState,
 
 //---------------------------------------------------------------------------
 /*
-void ImageSegmentWidget::on_export_image_pressed()
+void CoLocalizationWidget::on_export_image_pressed()
 {
 
     //bring up dialog 
@@ -1047,7 +914,7 @@ void ImageSegmentWidget::on_export_image_pressed()
         export_model_dir.cd(_model->getDatasetName());
 
         _export_maps_dialog = new ExportMapsDialog(export_model_dir.absolutePath());
-        connect(_export_maps_dialog, &ExportMapsDialog::export_released, this, &ImageSegmentWidget::on_export_images);
+        connect(_export_maps_dialog, &ExportMapsDialog::export_released, this, &CoLocalizationWidget::on_export_images);
     }
     _export_maps_dialog->show();
 
@@ -1055,12 +922,12 @@ void ImageSegmentWidget::on_export_image_pressed()
 
 //---------------------------------------------------------------------------
 
-void ImageSegmentWidget::on_export_images()
+void CoLocalizationWidget::on_export_images()
 {
     _export_maps_dialog->setRunEnabled(false);
     
     //get all maps
-    int view_cnt = m_imageViewWidget->getViewCount();
+    int view_cnt = _imageViewWidget->getViewCount();
     std::string analysis_text = _cb_analysis->currentText().toStdString();
     std::map<std::string, std::future<QPixmap> > job_queue;
 
@@ -1225,7 +1092,7 @@ void ImageSegmentWidget::on_export_images()
             _export_maps_dialog->status_callback(cur, view_cnt);
             for (int vidx = 0; vidx < view_cnt; vidx++)
             {
-                QString element = m_imageViewWidget->getLabelAt(vidx);
+                QString element = _imageViewWidget->getLabelAt(vidx);
                 std::string el_str = element.toStdString();
 
                 job_queue[el_str] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });

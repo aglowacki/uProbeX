@@ -26,7 +26,7 @@ using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, QWidget* parent)
     : AbstractImageWidget(rows, cols, parent)
@@ -37,7 +37,6 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
     _calib_curve = nullptr;
 	_min_contrast_perc = 0;
 	_max_contrast_perc = 1.0;
-    
     _export_maps_dialog = nullptr;
 
 	int r = 0;
@@ -64,7 +63,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
     _createLayout(create_image_nav);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsElementsWidget::~MapsElementsWidget()
 {
@@ -83,7 +82,7 @@ MapsElementsWidget::~MapsElementsWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::_createLayout(bool create_image_nav)
 {
@@ -210,8 +209,11 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _counts_window = new QWidget();
     _counts_window->setLayout(counts_layout);
 
+    _co_loc_widget = new CoLocalizationWidget();
+
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
+    //_tab_widget->addTab(_co_loc_widget, "CoLocalization");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
 
@@ -254,7 +256,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onGridDialog()
 {
@@ -262,7 +264,7 @@ void MapsElementsWidget::onGridDialog()
 	iDiag.show();
 
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_global_contrast_changed(int state)
 {
@@ -280,7 +282,7 @@ void MapsElementsWidget::on_global_contrast_changed(int state)
     redrawCounts();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_log_color_changed(int state)
 {
@@ -289,7 +291,7 @@ void MapsElementsWidget::on_log_color_changed(int state)
     redrawCounts();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_min_max_contrast_changed()
 {
@@ -300,7 +302,7 @@ void MapsElementsWidget::on_min_max_contrast_changed()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
@@ -315,7 +317,7 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     Preferences::inst()->save();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::addRoiMask()
 {
@@ -332,20 +334,26 @@ void MapsElementsWidget::addRoiMask()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::openImageSegDialog()
+{
+    // Bring up dialog for settings and run kmeans.
+    _img_seg_diag.show();
+}
+
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
 {
     if (ano != nullptr && reload)
     {
-        {
 
-        }
     }
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::createActions()
 {
@@ -358,10 +366,17 @@ void MapsElementsWidget::createActions()
             SIGNAL(triggered()),
             this,
             SLOT(addRoiMask()));
+
+    _addKMeansRoiAction = new QAction("ROI Image Seg Dialog", this);
+
+    connect(_addKMeansRoiAction,
+        SIGNAL(triggered()),
+        this,
+        SLOT(openImageSegDialog()));
             
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::displayContextMenu(QWidget* parent,
                                              const QPoint& pos)
@@ -374,6 +389,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
    menu.addAction(_addRoiMaskAction);
+   menu.addAction(_addKMeansRoiAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -398,7 +414,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
@@ -406,7 +422,7 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
     redrawCounts();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 {
@@ -442,7 +458,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onColormapSelect(QString colormap)
 {
@@ -477,7 +493,7 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
     Preferences::inst()->save();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::onSelectNormalizer(QString name)
 {
@@ -517,7 +533,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     redrawCounts();
 }
 
- /*---------------------------------------------------------------------------*/
+ //---------------------------------------------------------------------------
 
 void MapsElementsWidget::setModel(MapsH5Model* model)
 {
@@ -571,7 +587,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
 {
@@ -642,7 +658,7 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr
     QMessageBox::information(nullptr, "Export to CSV", mesg);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit)
 {
@@ -721,7 +737,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::model_updated()
 {
@@ -935,7 +951,7 @@ void MapsElementsWidget::model_updated()
     connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::redrawCounts()
 {
@@ -993,7 +1009,7 @@ void MapsElementsWidget::redrawCounts()
     m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& element_counts)
 {
@@ -1070,8 +1086,8 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
     }
     
 }
-
-/*---------------------------------------------------------------------------*/
+*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
@@ -1238,7 +1254,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
@@ -1395,7 +1411,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
     return QPixmap();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
                                        Qt::WindowStates newState)
@@ -1409,7 +1425,7 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_export_image_pressed()
 {
@@ -1431,7 +1447,7 @@ void MapsElementsWidget::on_export_image_pressed()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::on_export_images()
 {
