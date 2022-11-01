@@ -339,6 +339,22 @@ void MapsElementsWidget::addRoiMask()
 void MapsElementsWidget::openImageSegDialog()
 {
     // Bring up dialog for settings and run kmeans.
+
+    std::string analysis_text = _cb_analysis->currentText().toStdString();
+
+    data_struct::Fit_Count_Dict<float> fit_counts;
+    _model->getAnalyzedCounts(analysis_text, fit_counts);
+    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+    if (scalers != nullptr)
+    {
+        for (auto& itr : *scalers)
+        {
+            fit_counts.insert(itr);
+        }
+    }
+    _img_seg_diag.setColorMap(_selected_colormap);
+    _img_seg_diag.setImageData(fit_counts);
+
     _img_seg_diag.show();
 }
 

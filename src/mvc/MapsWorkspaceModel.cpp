@@ -437,6 +437,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
             QApplication::processEvents();
             // Load region links
             _load_region_links(fileInfo.baseName(), model);
+            
             //can not load from here because ifstream.open locks up in thread
             // Load ROI's
             //_load_rois(fileInfo.baseName(), model);

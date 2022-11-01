@@ -13,9 +13,6 @@
 #include "io/file/aps/aps_fit_params_import.h"
 #include "io/file/csv_io.h"
 
-using gstar::AbstractImageWidget;
-using gstar::ImageViewWidget;
-
 /*---------------------------------------------------------------------------*/
 
 MDA_Widget::MDA_Widget(QWidget* parent) : QWidget(parent)
