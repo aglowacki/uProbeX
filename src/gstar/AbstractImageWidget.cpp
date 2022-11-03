@@ -358,7 +358,7 @@ void AbstractImageWidget::duplicateItem()
 
 /*---------------------------------------------------------------------------*/
 
-QLayout* AbstractImageWidget::generateDefaultLayout()
+QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 {
 
    QVBoxLayout* mainLayout = new QVBoxLayout();
@@ -367,9 +367,11 @@ QLayout* AbstractImageWidget::generateDefaultLayout()
    splitter->setOrientation(Qt::Horizontal);
 
    splitter->addWidget(m_imageViewWidget);
-   splitter->setStretchFactor(0, 1);
-   splitter->addWidget(m_tabWidget);
-
+   if (add_tab_widget)
+   {
+       splitter->setStretchFactor(0, 1);
+       splitter->addWidget(m_tabWidget);
+   }
    createToolBar(m_imageViewWidget);
 
    mainLayout->addWidget(m_toolbar);

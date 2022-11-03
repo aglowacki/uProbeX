@@ -43,6 +43,10 @@ namespace gstar
 		
 		float contrast_max() { return _contrast_max; }
 
+        void setImageLabelVisible(bool val) { cb_image_label->setVisible(val); }
+
+        void setCountsVisible(bool val) { counts_coord_widget->setVisible(val, val, val); }
+
         QGraphicsView* view;
         ImageViewScene* scene;
         QComboBox* cb_image_label;

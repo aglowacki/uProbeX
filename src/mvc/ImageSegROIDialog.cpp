@@ -56,6 +56,39 @@ QLayout* ImageSegRoiDialog::_createKMeansLayout()
 {
 	QVBoxLayout* layout = new QVBoxLayout();
 
+	QLabel* label_nfeatures = new QLabel("Number of Features:");
+	_km_nfeatures = new QLineEdit();
+	_km_nfeatures->setValidator(new QIntValidator(0, 10, this));
+	_km_nfeatures->setText("2");
+
+	QHBoxLayout* hlayout = new QHBoxLayout();
+	hlayout->addWidget(label_nfeatures);
+	hlayout->addWidget(_km_nfeatures);
+	layout->addItem(hlayout);
+
+	QLabel* label_Term = new QLabel("Term Criteria:");
+	_km_TermCriteria = new QComboBox();
+	_km_TermCriteria->addItem("COUNT");
+	_km_TermCriteria->addItem("EPS"); 
+	_km_TermCriteria->addItem("COUNT + EPS");
+	_km_TermCriteria->setCurrentIndex(2); // default to EPS
+//	_km_le_EPS->setText(cv::TermCriteria::EPS);
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label_Term);
+	hlayout->addWidget(_km_TermCriteria);
+	layout->addItem(hlayout);
+
+	QLabel* label_max_iter = new QLabel("MAX_Iter");
+	_km_le_MAX_ITER = new QLineEdit();
+	_km_le_MAX_ITER->setValidator(new QIntValidator(0, 10000, this));
+	_km_le_MAX_ITER->setText("10");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label_max_iter);
+	hlayout->addWidget(_km_le_MAX_ITER);
+	layout->addItem(hlayout);
+	
 	return layout;
 }
 
@@ -89,8 +122,7 @@ void ImageSegRoiDialog::createLayout()
 
 	connect(_img_list_model, &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
 
-	//_int_img_widget = new gstar::AbstractImageWidget();
-	_int_img_widget = new gstar::ImageViewWidget();
+	_int_img_widget = new ImageSegWidget();
 
 	QHBoxLayout* mainLayout = new QHBoxLayout;
 	QVBoxLayout *leftLayout = new QVBoxLayout;
@@ -138,9 +170,19 @@ void ImageSegRoiDialog::onSetTech(QString name)
 
 void ImageSegRoiDialog::onRun()
 {
+	if(_cb_tech->currentText() == STR_KMEANS)
+	{
+		//cv::kmeans(data, nfeatures, 
+		//cv::TermCriteria::MAX_ITER
+		// 
+		//criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+		// Set flags(Just to avoid line break in the code)
+		//flags = cv.KMEANS_RANDOM_CENTERS
+		//compactness, labels, centers = cv.kmeans(z, nfeatures, None, criteria, 10, flags)
+	}
 	// emit list of roi's
 	//emit onNewROIs();
-	close();
+	//close();
 }
 
 //---------------------------------------------------------------------------
@@ -161,7 +203,7 @@ void ImageSegRoiDialog::setColorMap(QVector<QRgb>* selected_colormap)
 
 //---------------------------------------------------------------------------
 
-void ImageSegRoiDialog::onImgSelection(QStandardItem* item) //(const QModelIndex& a)
+void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 
 {
 	ArrayXXr<float> int_img;
 	bool first = true;
@@ -207,9 +249,7 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item) //(const QModelIndex
 			}
 		}
 
-		//_int_img_widget->updateFrame(&image);
-		_int_img_widget->scene(0)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
-		//_int_img_widget->clickFill(true);
+		_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
 	}
 }
 

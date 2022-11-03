@@ -21,7 +21,8 @@
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
 #include "data_struct/fit_parameters.h"
-#include <gstar/AbstractImageWidget.h>
+#include <mvc/ImageSegWidget.h>
+#include <opencv2/opencv.hpp>
 
 /*---------------------------------------------------------------------------*/
 
@@ -81,13 +82,18 @@ private:
 	QStandardItemModel* _roi_list_model;
 
 	
-	//gstar::AbstractImageWidget* _int_img_widget;
-	gstar::ImageViewWidget* _int_img_widget;
+	ImageSegWidget* _int_img_widget;
+
 	QVector<QRgb>* _selected_colormap;
 
 	std::map<QString, QLayout*> _layout_map;
 
 	std::map<QString, data_struct::ArrayXXr<float>> _img_data;
+
+	// kmeans controls
+	QComboBox* _km_TermCriteria;
+	QLineEdit* _km_le_MAX_ITER;
+	QLineEdit* _km_nfeatures;
 
 };
 

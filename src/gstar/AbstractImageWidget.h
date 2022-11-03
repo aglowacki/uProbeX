@@ -250,7 +250,7 @@ protected:
    /**
     * Virtual method that must be overidden by base classes.
     */
-   virtual QLayout* generateDefaultLayout();
+   virtual QLayout* generateDefaultLayout(bool add_tab_widget=true);
 
    /**
     * Create tool bar

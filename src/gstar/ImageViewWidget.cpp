@@ -78,6 +78,33 @@ void ImageViewWidget::clickCursor()
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::setCoordsVisible(bool val)
+{
+    m_coordWidget->setVisible(val, val, val);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setSelectorVisible(bool val)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.setImageLabelVisible(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageViewWidget::setCountsVisible(bool val)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.setCountsVisible(val);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::clickFill(bool checked)
 {
 
