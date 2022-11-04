@@ -63,6 +63,8 @@ protected:
 
    void createLayout();
 
+   bool _get_img(ArrayXXr<float>& int_img);
+
    QLayout* _createKMeansLayout();
 
 private:
@@ -93,6 +95,7 @@ private:
 	// kmeans controls
 	QComboBox* _km_TermCriteria;
 	QLineEdit* _km_le_MAX_ITER;
+	QLineEdit* _km_le_epsilon;
 	QLineEdit* _km_nfeatures;
 
 };

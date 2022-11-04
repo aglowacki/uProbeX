@@ -88,6 +88,16 @@ QLayout* ImageSegRoiDialog::_createKMeansLayout()
 	hlayout->addWidget(label_max_iter);
 	hlayout->addWidget(_km_le_MAX_ITER);
 	layout->addItem(hlayout);
+
+	QLabel* label_epsilon = new QLabel("Epsilon");
+	_km_le_epsilon = new QLineEdit();
+	_km_le_epsilon->setValidator(new QDoubleValidator());
+	_km_le_epsilon->setText("1.0");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label_epsilon);
+	hlayout->addWidget(_km_le_epsilon);
+	layout->addItem(hlayout);
 	
 	return layout;
 }
@@ -101,6 +111,7 @@ void ImageSegRoiDialog::createLayout()
 	_cb_tech->addItem(STR_KMEANS);
 
 	runBtn = new QPushButton("Run");
+	runBtn->setEnabled(false);
 	acceptBtn = new QPushButton("Accept");
 	acceptBtn->setEnabled(false);
 	cancelBtn = new QPushButton("Cancel");
@@ -170,19 +181,33 @@ void ImageSegRoiDialog::onSetTech(QString name)
 
 void ImageSegRoiDialog::onRun()
 {
+	ArrayXXr<float> int_img;
+	_get_img(int_img);
+
 	if(_cb_tech->currentText() == STR_KMEANS)
 	{
-		//cv::kmeans(data, nfeatures, 
-		//cv::TermCriteria::MAX_ITER
-		// 
-		//criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-		// Set flags(Just to avoid line break in the code)
+
+		cv::TermCriteria crit;
+		if (_km_TermCriteria->currentIndex() == 0)
+		{
+			crit.type = cv::TermCriteria::COUNT;
+		}
+		else if (_km_TermCriteria->currentIndex() == 1)
+		{
+			crit.type = cv::TermCriteria::EPS;
+		}
+		else if (_km_TermCriteria->currentIndex() == 2)
+		{
+			crit.type = cv::TermCriteria::COUNT | cv::TermCriteria::EPS;
+		}
+		crit.maxCount = _km_le_MAX_ITER->text().toInt();
+		crit.epsilon = _km_le_epsilon->text().toDouble();
+		int clusterCount = _km_nfeatures->text().toInt();
+		//double compactness = cv::kmeans(points, clusterCount, labels, crit, 3, cv::KMEANS_PP_CENTERS, centers);
 		//flags = cv.KMEANS_RANDOM_CENTERS
 		//compactness, labels, centers = cv.kmeans(z, nfeatures, None, criteria, 10, flags)
 	}
-	// emit list of roi's
-	//emit onNewROIs();
-	//close();
+
 }
 
 //---------------------------------------------------------------------------
@@ -203,15 +228,14 @@ void ImageSegRoiDialog::setColorMap(QVector<QRgb>* selected_colormap)
 
 //---------------------------------------------------------------------------
 
-void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 
+bool ImageSegRoiDialog::_get_img(ArrayXXr<float> &int_img)
 {
-	ArrayXXr<float> int_img;
 	bool first = true;
 
 	for (int i = 0; i < _img_list_model->rowCount(); i++)
 	{
 		QStandardItem* item0 = _img_list_model->item(i);
-		if(item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
+		if (item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
 		{
 			if (first)
 			{
@@ -224,8 +248,19 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 			}
 		}
 	}
+	return !first; 
+}
 
-	if (first == false)
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 
+{
+	ArrayXXr<float> int_img;
+	bool is_checked = _get_img(int_img);
+
+	runBtn->setEnabled(is_checked);
+
+	if (is_checked)
 	{
 		float counts_max = int_img.maxCoeff();
 		float counts_min = int_img.minCoeff();
