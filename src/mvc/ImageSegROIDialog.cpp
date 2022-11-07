@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QGridLayout>
+#include <opencv2/core/eigen.hpp>
 
 //---------------------------------------------------------------------------
 static const QString STR_KMEANS = QString("KMeans");
@@ -18,6 +19,24 @@ static const QString STR_KMEANS = QString("KMeans");
 
 ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 {
+
+	_color_map.insert({ 0, QColor(Qt::red) });
+	_color_map.insert({ 1, QColor(Qt::green) });
+	_color_map.insert({ 2, QColor(Qt::blue) });
+	_color_map.insert({ 3, QColor(Qt::yellow) });
+	_color_map.insert({ 4, QColor(Qt::magenta) });
+	_color_map.insert({ 5, QColor(Qt::white) });
+	_color_map.insert({ 6, QColor(Qt::gray) });
+	_color_map.insert({ 7, QColor(Qt::cyan) });
+	_color_map.insert({ 8, QColor(Qt::darkGray) });
+	_color_map.insert({ 9, QColor(Qt::darkGreen) });
+	_color_map.insert({ 10, QColor(Qt::darkMagenta) });
+	_color_map.insert({ 11, QColor(Qt::darkBlue) });
+	_color_map.insert({ 12, QColor(Qt::darkRed) });
+	_color_map.insert({ 13, QColor(Qt::darkYellow) });
+	_color_map.insert({ 14, QColor(Qt::darkCyan) });
+	_color_map.insert({ 15, QColor(Qt::black) });
+	
 
 	_techLayout = new QVBoxLayout();
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
@@ -56,46 +75,66 @@ QLayout* ImageSegRoiDialog::_createKMeansLayout()
 {
 	QVBoxLayout* layout = new QVBoxLayout();
 
-	QLabel* label_nfeatures = new QLabel("Number of Features:");
+	QLabel* label = new QLabel("Number of Features:");
 	_km_nfeatures = new QLineEdit();
 	_km_nfeatures->setValidator(new QIntValidator(0, 10, this));
 	_km_nfeatures->setText("2");
 
 	QHBoxLayout* hlayout = new QHBoxLayout();
-	hlayout->addWidget(label_nfeatures);
+	hlayout->addWidget(label);
 	hlayout->addWidget(_km_nfeatures);
 	layout->addItem(hlayout);
 
-	QLabel* label_Term = new QLabel("Term Criteria:");
+	label = new QLabel("Term Criteria:");
 	_km_TermCriteria = new QComboBox();
 	_km_TermCriteria->addItem("COUNT");
 	_km_TermCriteria->addItem("EPS"); 
 	_km_TermCriteria->addItem("COUNT + EPS");
 	_km_TermCriteria->setCurrentIndex(2); // default to EPS
-//	_km_le_EPS->setText(cv::TermCriteria::EPS);
 
 	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label_Term);
+	hlayout->addWidget(label);
 	hlayout->addWidget(_km_TermCriteria);
 	layout->addItem(hlayout);
 
-	QLabel* label_max_iter = new QLabel("MAX_Iter");
+	label = new QLabel("Centers:");
+	_km_Centers = new QComboBox();
+	_km_Centers->addItem("Random");
+	_km_Centers->addItem("PP");
+	_km_Centers->setCurrentIndex(0); // default to Random
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_Centers);
+	layout->addItem(hlayout);
+	
+	label = new QLabel("Attempts:");
+	_km_attempts = new QLineEdit();
+	_km_attempts->setValidator(new QIntValidator(0, 100, this));
+	_km_attempts->setText("3");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_attempts);
+	layout->addItem(hlayout);
+
+	label = new QLabel("MAX_Iter");
 	_km_le_MAX_ITER = new QLineEdit();
 	_km_le_MAX_ITER->setValidator(new QIntValidator(0, 10000, this));
 	_km_le_MAX_ITER->setText("10");
 
 	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label_max_iter);
+	hlayout->addWidget(label);
 	hlayout->addWidget(_km_le_MAX_ITER);
 	layout->addItem(hlayout);
 
-	QLabel* label_epsilon = new QLabel("Epsilon");
+	label = new QLabel("Epsilon");
 	_km_le_epsilon = new QLineEdit();
 	_km_le_epsilon->setValidator(new QDoubleValidator());
 	_km_le_epsilon->setText("1.0");
 
 	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label_epsilon);
+	hlayout->addWidget(label);
 	hlayout->addWidget(_km_le_epsilon);
 	layout->addItem(hlayout);
 	
@@ -186,7 +225,7 @@ void ImageSegRoiDialog::onRun()
 
 	if(_cb_tech->currentText() == STR_KMEANS)
 	{
-
+		cv::KmeansFlags flags;
 		cv::TermCriteria crit;
 		if (_km_TermCriteria->currentIndex() == 0)
 		{
@@ -203,9 +242,34 @@ void ImageSegRoiDialog::onRun()
 		crit.maxCount = _km_le_MAX_ITER->text().toInt();
 		crit.epsilon = _km_le_epsilon->text().toDouble();
 		int clusterCount = _km_nfeatures->text().toInt();
-		//double compactness = cv::kmeans(points, clusterCount, labels, crit, 3, cv::KMEANS_PP_CENTERS, centers);
-		//flags = cv.KMEANS_RANDOM_CENTERS
-		//compactness, labels, centers = cv.kmeans(z, nfeatures, None, criteria, 10, flags)
+		int attempts = _km_attempts->text().toInt();
+
+		if (_km_Centers->currentIndex() == 0)
+		{
+			flags = cv::KMEANS_RANDOM_CENTERS;
+		}
+		else if (_km_Centers->currentIndex() == 1)
+		{
+			flags = cv::KMEANS_PP_CENTERS;
+		}
+
+		cv::Mat labels, centers;
+		
+		cv::Mat data(int_img.rows() * int_img.cols(), 1, CV_32FC1, int_img.data());
+		
+		double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
+
+		cv::Mat new_labels = labels.reshape(1, int_img.rows());
+		
+
+		_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img)));
+		/*
+		std::vector<QImage> images = _generate_images(clusterCount, new_labels);
+		if (images.size() > 0)
+		{
+			_int_img_widget->setPixMap(QPixmap::fromImage(images[0]));
+		}
+		*/
 	}
 
 }
@@ -253,6 +317,100 @@ bool ImageSegRoiDialog::_get_img(ArrayXXr<float> &int_img)
 
 //---------------------------------------------------------------------------
 
+QImage ImageSegRoiDialog::_generate_img(ArrayXXr<float>& int_img)
+{
+	float counts_max = int_img.maxCoeff();
+	float counts_min = int_img.minCoeff();
+	int width = static_cast<int>(int_img.cols());
+	int height = static_cast<int>(int_img.rows());
+	QImage image(width, height, QImage::Format_Indexed8);
+	image.setColorTable(*_selected_colormap);
+
+	float max_min = counts_max - counts_min;
+	for (int row = 0; row < height; row++)
+	{
+		for (int col = 0; col < width; col++)
+		{
+			//first clamp the data to max min
+			float cnts = int_img(row, col);
+			cnts = std::min(counts_max, cnts);
+			cnts = std::max(counts_min, cnts);
+			//convert to pixel
+			byte data = static_cast<byte>(((cnts - counts_min) / max_min) * 255.0);
+			image.setPixel(col, row, (uint)data);
+		}
+	}
+	return image;
+}
+
+//---------------------------------------------------------------------------
+
+std::vector<QImage> ImageSegRoiDialog::_generate_images(int num_images, cv::Mat& mat)
+{
+	std::vector<QImage> images;
+	for (int i = 0; i < num_images; i++)
+	{
+		QImage image(mat.cols, mat.rows, QImage::Format_ARGB32);
+		image.setColorTable(*_selected_colormap);
+		images.emplace_back(image);
+	}
+
+	for (int row = 0; row < mat.rows; row++)
+	{
+		for (int col = 0; col < mat.cols; col++)
+		{
+			//first clamp the data to max min
+			int idx = mat.at<int>(row, col);
+			byte data = 127;
+			images[idx].setPixel(col, row, (uint)data);
+		}
+	}
+	return images;
+}
+
+//---------------------------------------------------------------------------
+
+QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img)
+{
+
+	QImage background = _generate_img(bg_img);
+	background.convertTo(QImage::Format_RGB32);
+
+	QImage overlay(mat.cols, mat.rows, QImage::Format_RGB32);
+
+	for (int row = 0; row < mat.rows; row++)
+	{
+		for (int col = 0; col < mat.cols; col++)
+		{
+			//first clamp the data to max min
+			int color_idx = mat.at<int>(row, col);
+			if (color_idx > _color_map.size())
+			{
+				color_idx = color_idx % _color_map.size();
+			}
+			QColor color_data = _color_map[color_idx];
+			color_data.setAlpha(127);
+
+			//QRgb val = background.pixel(col, row);
+			//val = color_data.rgba();
+			overlay.setPixel(col, row, color_data.rgba());
+		}
+	}
+
+	// Overlay the two 
+	QImage surface(mat.cols, mat.rows, QImage::Format_RGB32);
+	QPainter p(&surface);
+	p.setCompositionMode(QPainter::QPainter::CompositionMode_Source);
+	p.drawImage(0, 0, background);
+	p.setCompositionMode(QPainter::QPainter::CompositionMode_Overlay);
+	p.drawImage(0, 0, overlay);
+	p.end();
+	
+	return surface;
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 
 {
 	ArrayXXr<float> int_img;
@@ -262,27 +420,7 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 
 	if (is_checked)
 	{
-		float counts_max = int_img.maxCoeff();
-		float counts_min = int_img.minCoeff();
-		int width = static_cast<int>(int_img.cols());
-		int height = static_cast<int>(int_img.rows());
-		QImage image(width, height, QImage::Format_Indexed8);
-		image.setColorTable(*_selected_colormap);
-
-		float max_min = counts_max - counts_min;
-		for (int row = 0; row < height; row++)
-		{
-			for (int col = 0; col < width; col++)
-			{
-				//first clamp the data to max min
-				float cnts = int_img(row, col);
-				cnts = std::min(counts_max, cnts);
-				cnts = std::max(counts_min, cnts);
-				//convert to pixel
-				byte data = static_cast<byte>(((cnts - counts_min) / max_min) * 255.0);
-				image.setPixel(col, row, (uint)data);
-			}
-		}
+		QImage image = _generate_img(int_img);
 
 		_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
 	}

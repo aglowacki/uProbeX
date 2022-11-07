@@ -65,6 +65,12 @@ protected:
 
    bool _get_img(ArrayXXr<float>& int_img);
 
+   QImage _generate_img(ArrayXXr<float>& int_img);
+
+   std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
+
+   QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img);
+
    QLayout* _createKMeansLayout();
 
 private:
@@ -92,11 +98,15 @@ private:
 
 	std::map<QString, data_struct::ArrayXXr<float>> _img_data;
 
+	std::map<int, QColor> _color_map;
+
 	// kmeans controls
 	QComboBox* _km_TermCriteria;
+	QComboBox* _km_Centers;
 	QLineEdit* _km_le_MAX_ITER;
 	QLineEdit* _km_le_epsilon;
 	QLineEdit* _km_nfeatures;
+	QLineEdit* _km_attempts;
 
 };
 
