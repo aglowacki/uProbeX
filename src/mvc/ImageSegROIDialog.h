@@ -108,6 +108,8 @@ private:
 	QLineEdit* _km_nfeatures;
 	QLineEdit* _km_attempts;
 
+	QSize _image_size;
+
 };
 
 

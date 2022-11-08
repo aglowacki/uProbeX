@@ -55,18 +55,153 @@ ImageSegRoiDialog::~ImageSegRoiDialog()
 
 void ImageSegRoiDialog::setImageData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data)
 {
+
 	_img_list_model->clear();
 	_img_data.clear();
+
+	//create save ordered vector by element Z number with K , L, M lines
+	std::vector<std::string> element_lines;
+	for (std::string el_name : data_struct::Element_Symbols)
+	{
+		element_lines.push_back(el_name);
+	}
+	for (std::string el_name : data_struct::Element_Symbols)
+	{
+		element_lines.push_back(el_name + "_L");
+	}
+	for (std::string el_name : data_struct::Element_Symbols)
+	{
+		element_lines.push_back(el_name + "_M");
+	}
+
+	std::vector<std::string> final_counts_to_add_before_scalers;
+	final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
+	final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
+	final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+	final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+	final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
+	final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
+
+	std::vector<std::string> scalers_to_add_first;
+	scalers_to_add_first.push_back(STR_SR_CURRENT);
+	scalers_to_add_first.push_back(STR_US_IC);
+	scalers_to_add_first.push_back(STR_DS_IC);
+	scalers_to_add_first.push_back(STR_ELT);
+	scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
+	scalers_to_add_first.push_back(STR_ERT);
+	scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
+	scalers_to_add_first.push_back(STR_INPUT_COUNTS);
+	scalers_to_add_first.push_back(STR_ICR);
+	scalers_to_add_first.push_back("INCNT");
+	scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
+	scalers_to_add_first.push_back(STR_OCR);
+	scalers_to_add_first.push_back("OUTCNT");
+	scalers_to_add_first.push_back(STR_DEAD_TIME);
+	scalers_to_add_first.push_back("abs_cfg");
+	scalers_to_add_first.push_back("abs_ic");
+	scalers_to_add_first.push_back("H_dpc_cfg");
+	scalers_to_add_first.push_back("V_dpc_cfg");
+	scalers_to_add_first.push_back("DPC1_IC");
+	scalers_to_add_first.push_back("DPC2_IC");
+	scalers_to_add_first.push_back("dia1_dpc_cfg");
+	scalers_to_add_first.push_back("dia2_dpc_cfg");
+	scalers_to_add_first.push_back("CFG_1");
+	scalers_to_add_first.push_back(STR_CFG_2);
+	scalers_to_add_first.push_back(STR_CFG_3);
+	scalers_to_add_first.push_back(STR_CFG_4);
+	scalers_to_add_first.push_back(STR_CFG_5);
+	scalers_to_add_first.push_back("CFG_6");
+	scalers_to_add_first.push_back("CFG_7");
+	scalers_to_add_first.push_back("CFG_8");
+	scalers_to_add_first.push_back("CFG_9");
+
+	// insert in z order
+	for (std::string el_name : element_lines)
+	{
+		if (img_data.count(el_name) > 0)
+		{
+			_img_data[QString(el_name.c_str())] = img_data.at(el_name);
+			QStandardItem* item0 = new QStandardItem(false);
+			item0->setCheckable(true);
+			item0->setCheckState(Qt::Unchecked);
+			item0->setText(QString(el_name.c_str()));
+			_img_list_model->appendRow(item0);
+
+			if (_image_size.isEmpty())
+			{
+				_image_size = QSize(img_data.at(el_name).cols(), img_data.at(el_name).rows());
+			}
+			img_data.erase(el_name);
+		}
+
+	}
+	/*
+	//add leftovers ( pile ups )
+	for (auto& itr : element_counts_not_added)
+	{
+		// if it is not in the final add then add it
+		if (std::find(final_counts_to_add_before_scalers.begin(), final_counts_to_add_before_scalers.end(), itr.first) == final_counts_to_add_before_scalers.end())
+		{
+			QString val = QString(itr.first.c_str());
+			m_imageViewWidget->addLabel(val);
+		}
+	}
+	*/
+	// add end of element list that are not elements
+	for (auto& itr : final_counts_to_add_before_scalers)
+	{
+		if (img_data.count(itr) > 0)
+		{
+			_img_data[QString(itr.c_str())] = img_data.at(itr);
+			QStandardItem* item0 = new QStandardItem(false);
+			item0->setCheckable(true);
+			item0->setCheckState(Qt::Unchecked);
+			item0->setText(QString(itr.c_str()));
+			_img_list_model->appendRow(item0);
+
+			img_data.erase(itr);
+		}
+	}
+
+	// add scalers in certain order
+	for (auto& itr : scalers_to_add_first)
+	{
+		if (img_data.count(itr) > 0)
+		{
+			_img_data[QString(itr.c_str())] = img_data.at(itr);
+			QStandardItem* item0 = new QStandardItem(false);
+			item0->setCheckable(true);
+			item0->setCheckState(Qt::Unchecked);
+			item0->setText(QString(itr.c_str()));
+			_img_list_model->appendRow(item0);
+
+			img_data.erase(itr);
+		}
+	}
+
+	// add rest of scalers
 	for (auto& itr : img_data)
 	{
-		_img_data[QString(itr.first.c_str())] = itr.second;
+		_img_data[QString(itr.first.c_str())] = img_data.at(itr.first);
 		QStandardItem* item0 = new QStandardItem(false);
 		item0->setCheckable(true);
 		item0->setCheckState(Qt::Unchecked);
 		item0->setText(QString(itr.first.c_str()));
 		_img_list_model->appendRow(item0);
 	}
-	
+
+
+	/* // any order
+	for (auto& itr : img_data)
+	{
+		//_img_data[QString(itr.first.c_str())] = itr.second;
+		QStandardItem* item0 = new QStandardItem(false);
+		item0->setCheckable(true);
+		item0->setCheckState(Qt::Unchecked);
+		item0->setText(QString(itr.first.c_str()));
+		_img_list_model->appendRow(item0);
+	}
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -433,6 +568,12 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 	{
 		QImage image = _generate_img(int_img);
 
+		_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+	}
+	else if (false == _image_size.isEmpty())
+	{
+		QImage image(_image_size, QImage::Format_ARGB32_Premultiplied);
+		image.fill(QColor(Qt::gray));
 		_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
 	}
 }
