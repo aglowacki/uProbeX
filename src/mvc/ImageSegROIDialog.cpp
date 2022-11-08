@@ -361,7 +361,7 @@ std::vector<QImage> ImageSegRoiDialog::_generate_images(int num_images, cv::Mat&
 		{
 			//first clamp the data to max min
 			int idx = mat.at<int>(row, col);
-			byte data = 127;
+			byte data = 255;
 			images[idx].setPixel(col, row, (uint)data);
 		}
 	}
@@ -370,11 +370,11 @@ std::vector<QImage> ImageSegRoiDialog::_generate_images(int num_images, cv::Mat&
 
 //---------------------------------------------------------------------------
 
-QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img)
+QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha)
 {
 
 	QImage background = _generate_img(bg_img);
-	background.convertTo(QImage::Format_RGB32);
+	background.convertTo(QImage::Format_ARGB32_Premultiplied);
 
 	QImage overlay(mat.cols, mat.rows, QImage::Format_RGB32);
 
@@ -389,7 +389,7 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 				color_idx = color_idx % _color_map.size();
 			}
 			QColor color_data = _color_map[color_idx];
-			color_data.setAlpha(127);
+			color_data.setAlpha(alpha);
 
 			//QRgb val = background.pixel(col, row);
 			//val = color_data.rgba();
@@ -398,15 +398,26 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 	}
 
 	// Overlay the two 
-	QImage surface(mat.cols, mat.rows, QImage::Format_RGB32);
-	QPainter p(&surface);
-	p.setCompositionMode(QPainter::QPainter::CompositionMode_Source);
-	p.drawImage(0, 0, background);
-	p.setCompositionMode(QPainter::QPainter::CompositionMode_Overlay);
+	//QImage surface(mat.cols, mat.rows, QImage::Format_ARGB32_Premultiplied);
+	//QPainter p(&surface);
+//	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//	p.drawImage(0, 0, background);
+
+	QPainter p(&background);
+	/*
+	if (alpha < 255)
+	{
+		p.setCompositionMode(QPainter::CompositionMode_Overlay);
+	}
+	else
+	{
+		p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	}*/
+	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	p.drawImage(0, 0, overlay);
 	p.end();
 	
-	return surface;
+	return background;
 }
 
 //---------------------------------------------------------------------------

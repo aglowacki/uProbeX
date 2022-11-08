@@ -69,7 +69,7 @@ protected:
 
    std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
 
-   QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img);
+   QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
 
    QLayout* _createKMeansLayout();
 
