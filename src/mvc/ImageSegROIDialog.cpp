@@ -397,7 +397,7 @@ void ImageSegRoiDialog::onRun()
 		cv::Mat new_labels = labels.reshape(1, int_img.rows());
 		
 
-		_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img)));
+		_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img, 90)));
 		/*
 		std::vector<QImage> images = _generate_images(clusterCount, new_labels);
 		if (images.size() > 0)
@@ -510,7 +510,7 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 
 	QImage background = _generate_img(bg_img).convertToFormat(QImage::Format_ARGB32_Premultiplied);
 	
-	QImage overlay(mat.cols, mat.rows, QImage::Format_RGB32);
+	QImage overlay(mat.cols, mat.rows, QImage::Format_ARGB32);
 
 	for (int row = 0; row < mat.rows; row++)
 	{
@@ -547,7 +547,10 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 	{
 		p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	}*/
-	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	//p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	p.setCompositionMode(QPainter::CompositionMode_Plus);
+	//p.setCompositionMode(QPainter::CompositionMode_Exclusion);
+	//p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
 	p.drawImage(0, 0, overlay);
 	p.end();
 	
