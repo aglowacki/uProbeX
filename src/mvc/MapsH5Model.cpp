@@ -1232,10 +1232,11 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
 
-    filetype = H5Tcopy(H5T_C_S1);
-    H5Tset_size(filetype, 256);
+    //memtype = H5Dget_type(channels_dset_id);
+    //filetype = H5Tcopy(H5T_C_S1);
+    //H5Tset_size(filetype, 256);
     memtype = H5Tcopy(H5T_C_S1);
-    status = H5Tset_size(memtype, 255);
+    status = H5Tset_size(memtype, 254);
 
     for (int i = 0; i < 3; i++)
     {
@@ -1257,16 +1258,19 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
         memset(&tmp_name[0], 0, 254);
         H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
-        std::string el_name = std::string(tmp_name);
-        _scalers.emplace(std::pair<std::string, EMatrixF>(el_name, EMatrixF()));
-        _scalers.at(el_name).resize(count[1], count[2]);
+        if (error > -1)
+        {
+            std::string el_name = std::string(tmp_name);
+            _scalers.emplace(std::pair<std::string, EMatrixF>(el_name, EMatrixF()));
+            _scalers.at(el_name).resize(count[1], count[2]);
 
-        H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+            H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+        }
     }
 
     delete[]dims_out;
-
+    H5Tclose(memtype);
     H5Sclose(memoryspace_name_id);
     H5Sclose(memoryspace_id);
     H5Sclose(channels_dspace_id);

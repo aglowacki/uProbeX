@@ -933,7 +933,7 @@ void MapsElementsWidget::model_updated()
     // add scalers in certain order
     for (auto& itr : scalers_to_add_first)
     {
-        if(scalers->count(itr) > 0)
+        if(itr.length() > 0 && scalers->count(itr) > 0)
         {
             m_imageViewWidget->addLabel(QString(itr.c_str()));
             left_over_scalers.erase(itr);

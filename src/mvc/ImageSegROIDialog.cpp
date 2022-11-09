@@ -508,9 +508,8 @@ std::vector<QImage> ImageSegRoiDialog::_generate_images(int num_images, cv::Mat&
 QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha)
 {
 
-	QImage background = _generate_img(bg_img);
-	background.convertTo(QImage::Format_ARGB32_Premultiplied);
-
+	QImage background = _generate_img(bg_img).convertToFormat(QImage::Format_ARGB32_Premultiplied);
+	
 	QImage overlay(mat.cols, mat.rows, QImage::Format_RGB32);
 
 	for (int row = 0; row < mat.rows; row++)
