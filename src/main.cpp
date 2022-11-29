@@ -124,6 +124,7 @@ int main(int argc, char** argv)
 	// Startup application
 	uProbeX* widget = new uProbeX(nullptr);
 	//widget->setAttribute(Qt::WA_DeleteOnClose);
+	widget->setWindowState(Qt::WindowMaximized);
 	widget->show();
 	
 	// Run

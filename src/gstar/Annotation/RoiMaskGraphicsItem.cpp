@@ -15,7 +15,7 @@ using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
 
-RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphicsItem* parent)
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
 {
 
@@ -23,12 +23,21 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphics
 
     _mouse_down = false;
 
-    _mask = new QImage(width, height, QImage::Format_ARGB32);
-    for(int w=0; w<width; w++)
+    _mask = new QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
+    for(int w=0; w< mat.cols; w++)
     {
-        for(int h=0; h<height; h++)
+        for(int h=0; h< mat.rows; h++)
         {
-            _mask->setPixelColor(w,h, QColor(0,0,0,0));
+            int color_idx = mat.at<int>(h, w);
+            if (color_idx == idx)
+            {
+                col.setAlpha(70);
+                _mask->setPixelColor(w, h, col);
+            }
+            else
+            {
+                _mask->setPixelColor(w, h, QColor(0, 0, 0, 0));
+            }
         }
     }
 
@@ -61,6 +70,31 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int width, int height, AbstractGraphics
    //m_data.push_back(_erase_mask);
    m_data.push_back(_alpha_value);
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
+{
+    _mask = new QImage();
+    *_mask = mask;
+
+    _enable_mask = new AnnotationProperty();
+    _enable_mask->setName("Enable");
+    _enable_mask->setValue(true);
+
+    _display_mask = new AnnotationProperty();
+    _display_mask->setName("Visible");
+    _display_mask->setValue(true);
+
+    _alpha_value = new AnnotationProperty();
+    _alpha_value->setName("Alpha %");
+    _alpha_value->setValue(70);
+
+    
+    m_data.push_back(_enable_mask);
+    m_data.push_back(_display_mask);
+    m_data.push_back(_alpha_value);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -233,8 +267,7 @@ const QString RoiMaskGraphicsItem::displayName() const
 
 AbstractGraphicsItem* RoiMaskGraphicsItem::duplicate()
 {
-
-   RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(_mask->width(), _mask->height());
+   RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(*_mask);
 
    item->setPos(pos());
    //item->setLine(m_line->line());

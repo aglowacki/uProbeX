@@ -23,6 +23,7 @@
 #include "data_struct/fit_parameters.h"
 #include <mvc/ImageSegWidget.h>
 #include <opencv2/opencv.hpp>
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -79,15 +80,15 @@ private:
 	
 	QVBoxLayout* _techLayout;
 
-	QPushButton* runBtn;
-	QPushButton* acceptBtn;
-	QPushButton* cancelBtn;
+	QPushButton* _runBtn;
+	QPushButton* _acceptBtn;
+	QPushButton* _cancelBtn;
   
 	QListView* _img_names_view;
 	QStandardItemModel* _img_list_model;
 
-	QListView* _roi_names_view;
-	QStandardItemModel* _roi_list_model;
+	//QListView* _roi_names_view;
+	//QStandardItemModel* _roi_list_model;
 
 	
 	ImageSegWidget* _int_img_widget;

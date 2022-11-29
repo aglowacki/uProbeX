@@ -143,11 +143,14 @@ void AbstractImageWidget::addRuler()
 
 /*---------------------------------------------------------------------------*/
 
-void AbstractImageWidget::appendAnnotationTab()
+void AbstractImageWidget::appendAnnotationTab(bool bToolbar)
 {
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
-   infoLayout->addWidget(m_annotationToolbar->getToolBar());
+   if (bToolbar)
+   {
+       infoLayout->addWidget(m_annotationToolbar->getToolBar());
+   }
    infoLayout->addWidget(m_annoTreeView);
 
    m_treeTabWidget = new QWidget(this);

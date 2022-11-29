@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <gstar/AbstractImageWidget.h>
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -40,6 +41,10 @@ public:
    void widgetChanged(bool enable);
 
    void setPixMap(QPixmap pix);
+
+   void clearAllRoiMasks();
+
+   void addRoiMask(gstar::RoiMaskGraphicsItem* roi);
 
 public slots:
 

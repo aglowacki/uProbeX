@@ -284,14 +284,14 @@ void ImageSegRoiDialog::createLayout()
 	_cb_tech = new QComboBox();
 	_cb_tech->addItem(STR_KMEANS);
 
-	runBtn = new QPushButton("Run");
-	runBtn->setEnabled(false);
-	acceptBtn = new QPushButton("Accept");
-	acceptBtn->setEnabled(false);
-	cancelBtn = new QPushButton("Cancel");
-	connect(runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
-	connect(acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
-	connect(cancelBtn, SIGNAL(pressed()), this, SLOT(close()));
+	_runBtn = new QPushButton("Run");
+	_runBtn->setEnabled(false);
+	_acceptBtn = new QPushButton("Accept");
+	_acceptBtn->setEnabled(false);
+	_cancelBtn = new QPushButton("Cancel");
+	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
+	connect(_acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
+	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(close()));
 
 	_img_list_model = new QStandardItemModel();
 	_img_names_view = new QListView();
@@ -299,12 +299,13 @@ void ImageSegRoiDialog::createLayout()
 	_img_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_img_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
+	/*
 	_roi_list_model = new QStandardItemModel();
 	_roi_names_view = new QListView();
 	_roi_names_view->setModel(_roi_list_model);
 	//_roi_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_roi_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
+	*/
 	connect(_img_list_model, &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
 
 	_int_img_widget = new ImageSegWidget();
@@ -313,25 +314,25 @@ void ImageSegRoiDialog::createLayout()
 	QVBoxLayout *leftLayout = new QVBoxLayout;
 	QHBoxLayout* optionLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
-	QVBoxLayout* rightLayout = new QVBoxLayout;
+	//QVBoxLayout* rightLayout = new QVBoxLayout;
 
 	optionLayout->addWidget(_techLabel);
 	optionLayout->addWidget(_cb_tech);
 
-	buttonLayout->addWidget(runBtn);
-	buttonLayout->addWidget(acceptBtn);
-	buttonLayout->addWidget(cancelBtn);
+	buttonLayout->addWidget(_runBtn);
+	buttonLayout->addWidget(_acceptBtn);
+	buttonLayout->addWidget(_cancelBtn);
 	
 	leftLayout->addWidget(_img_names_view);
 	leftLayout->addItem(optionLayout);
 	leftLayout->addItem(_techLayout);
 	leftLayout->addItem(buttonLayout);
 
-	rightLayout->addWidget(_roi_names_view);
+	//rightLayout->addWidget(_roi_names_view);
 
 	mainLayout->addItem(leftLayout);
 	mainLayout->addWidget(_int_img_widget);
-	mainLayout->addItem(rightLayout);
+	//mainLayout->addItem(rightLayout);
 
 	_techLayout->addItem(_layout_map[STR_KMEANS]);
 
@@ -355,6 +356,11 @@ void ImageSegRoiDialog::onSetTech(QString name)
 
 void ImageSegRoiDialog::onRun()
 {
+	_runBtn->setEnabled(false);
+	_acceptBtn->setEnabled(false);
+
+	// check if we have roi masks and ask user if we should clear them before running.
+
 	ArrayXXr<float> int_img;
 	_get_img(int_img);
 
@@ -397,7 +403,22 @@ void ImageSegRoiDialog::onRun()
 		cv::Mat new_labels = labels.reshape(1, int_img.rows());
 		
 
-		_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img, 90)));
+		for (int i = 0; i < clusterCount; i++)
+		{
+			int color_idx = i;
+			if (color_idx > _color_map.size())
+			{
+				color_idx = color_idx % _color_map.size();
+			}
+			QColor color_data = _color_map[color_idx];
+
+			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
+			_int_img_widget->addRoiMask(roi);
+		}
+
+		//_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img, 90)));
+		
+		
 		/*
 		std::vector<QImage> images = _generate_images(clusterCount, new_labels);
 		if (images.size() > 0)
@@ -406,7 +427,8 @@ void ImageSegRoiDialog::onRun()
 		}
 		*/
 	}
-
+	_acceptBtn->setEnabled(true);
+	_runBtn->setEnabled(true);
 }
 
 //---------------------------------------------------------------------------
@@ -531,22 +553,23 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 		}
 	}
 
-	// Overlay the two 
-	//QImage surface(mat.cols, mat.rows, QImage::Format_ARGB32_Premultiplied);
-	//QPainter p(&surface);
-//	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//	p.drawImage(0, 0, background);
-
-	QPainter p(&background);
 	/*
-	if (alpha < 255)
-	{
-		p.setCompositionMode(QPainter::CompositionMode_Overlay);
-	}
-	else
-	{
-		p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-	}*/
+	// Overlay the two 
+	QImage surface(mat.cols, mat.rows, QImage::Format_ARGB32_Premultiplied);
+	QPainter p(&surface);
+	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	p.setOpacity(0.5);
+	p.drawImage(0, 0, background);
+	p.setCompositionMode(QPainter::CompositionMode_Overlay);
+	p.drawImage(0, 0, overlay);
+	p.end();
+
+	return surface;
+	*/
+		
+	
+	
+	QPainter p(&background);
 	//p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	p.setCompositionMode(QPainter::CompositionMode_Plus);
 	//p.setCompositionMode(QPainter::CompositionMode_Exclusion);
@@ -555,6 +578,7 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 	p.end();
 	
 	return background;
+	
 }
 
 //---------------------------------------------------------------------------
@@ -564,7 +588,7 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 	ArrayXXr<float> int_img;
 	bool is_checked = _get_img(int_img);
 
-	runBtn->setEnabled(is_checked);
+	_runBtn->setEnabled(is_checked);
 
 	if (is_checked)
 	{

@@ -26,10 +26,11 @@ ImageSegWidget::~ImageSegWidget()
 void ImageSegWidget::createLayout()
 {
 
-   QLayout* layout = generateDefaultLayout(false);
+   QLayout* layout = generateDefaultLayout(true);
    m_imageViewWidget->setCoordsVisible(false);
    m_imageViewWidget->setSelectorVisible(false);
    m_imageViewWidget->setCountsVisible(false);
+   appendAnnotationTab();
    setLayout(layout);
 }
 
@@ -67,6 +68,20 @@ void ImageSegWidget::widgetChanged(bool enable)
    // More widget change after solver run could be added here
    //m_btnRunSolver -> setEnabled(enable);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::clearAllRoiMasks()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
+{
+    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi);
 }
 
 //---------------------------------------------------------------------------

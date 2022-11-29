@@ -297,6 +297,12 @@ void FitSpectraWidget::onSettingsDialog()
                 QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
                 _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
             }
+
+            if (_fit_int_spec_map.count("Background") > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_INT_BACKGROUND.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at("Background"), (data_struct::Spectra<double>*) & _ev);
+            }
 		}
 		else
 		{

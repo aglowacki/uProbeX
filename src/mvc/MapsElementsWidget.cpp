@@ -321,6 +321,7 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 
 void MapsElementsWidget::addRoiMask()
 {
+    /*
     int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
     int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
    gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
@@ -331,7 +332,7 @@ void MapsElementsWidget::addRoiMask()
    //            //data_struct Spectra = _model->load_roi(annotation->getROI());
 
    connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
-
+   */
 }
 
 //---------------------------------------------------------------------------

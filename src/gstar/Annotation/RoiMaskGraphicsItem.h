@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include "LineGraphicsItem.h"
+#include <opencv2/opencv.hpp>
 
 /*---------------------------------------------------------------------------*/
 
@@ -28,7 +29,9 @@ public:
     * @brief RulerGraphicsItem
     * @param parent
     */
-   RoiMaskGraphicsItem(int width, int height, AbstractGraphicsItem* parent = 0);
+   RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
+
+   RoiMaskGraphicsItem(QImage mask, AbstractGraphicsItem* parent = 0);
 
    ~RoiMaskGraphicsItem();
 

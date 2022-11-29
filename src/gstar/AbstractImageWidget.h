@@ -240,7 +240,7 @@ protected:
    /**
     * @brief appendAnnotationTab
     */
-   void appendAnnotationTab();
+   void appendAnnotationTab(bool bToolbar=true);
 
    /**
     * @brief createActions
