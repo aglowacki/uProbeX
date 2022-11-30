@@ -15,6 +15,8 @@ using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
 
+static const QString CONST_STATIC_ROI_NAME = QString("ROI Spectra");
+
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
 {
@@ -31,7 +33,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
             int color_idx = mat.at<int>(h, w);
             if (color_idx == idx)
             {
-                col.setAlpha(70);
+                col.setAlpha(178);
                 _mask->setPixelColor(w, h, col);
             }
             else
@@ -41,59 +43,36 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
         }
     }
 
-   _enable_mask = new AnnotationProperty();
-   _enable_mask->setName("Enable");
-   _enable_mask->setValue(true);
+   _color_ano = new AnnotationProperty();
+   _color_ano->setName("Color");
+   _color_ano->setValue(col);
 
-   _display_mask = new AnnotationProperty();
-   _display_mask->setName("Visible");
-   _display_mask->setValue(true);
-   /*
-   _draw_mask = new AnnotationProperty();
-   _draw_mask->setName("Draw");
-   _draw_mask->setValue(false);
-
-   _erase_mask = new AnnotationProperty();
-   _erase_mask->setName("Erase");
-   _erase_mask->setValue(false);
-   */
    _alpha_value = new AnnotationProperty();
    _alpha_value->setName("Alpha %");
    _alpha_value->setValue(70);
 
-   //connect(_draw_mask, SIGNAL(valueChanged()), this ,SLOT(drawmask_changed()));
-   //connect(_erase_mask, SIGNAL(valueChanged()), this ,SLOT(erasemask_changed()));
-
-   m_data.push_back(_enable_mask);
-   m_data.push_back(_display_mask);
-   //m_data.push_back(_draw_mask);
-   //m_data.push_back(_erase_mask);
+   m_data.push_back(_color_ano);
    m_data.push_back(_alpha_value);
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
     _mask = new QImage();
     *_mask = mask;
 
-    _enable_mask = new AnnotationProperty();
-    _enable_mask->setName("Enable");
-    _enable_mask->setValue(true);
-
-    _display_mask = new AnnotationProperty();
-    _display_mask->setName("Visible");
-    _display_mask->setValue(true);
+    _color_ano = new AnnotationProperty();
+    _color_ano->setName("Color");
+    _color_ano->setValue(color);
 
     _alpha_value = new AnnotationProperty();
     _alpha_value->setName("Alpha %");
     _alpha_value->setValue(70);
 
     
-    m_data.push_back(_enable_mask);
-    m_data.push_back(_display_mask);
+    m_data.push_back(_color_ano);
     m_data.push_back(_alpha_value);
 }
 
@@ -122,33 +101,23 @@ QString RoiMaskGraphicsItem::getName()
 
 void RoiMaskGraphicsItem::calculate()
 {
-/*
-   QString unitsLabel = "";
-   double unitsPerPixelX = 1.0;
-   double unitsPerPixelY = 1.0;
+    QVariant variant = _color_ano->getValue();
+    QColor color = variant.value<QColor>();
+    int alpha = _alpha_value->getValue().toInt();
+    alpha = (int)(((float)alpha / 100.0) * 255.0);
+    color.setAlpha(alpha);
+    
 
-   //get units per pixel from scene
-   QGraphicsScene* bScene = scene();
-   if (bScene != nullptr)
-   {
-      ImageViewScene* iScene = dynamic_cast<ImageViewScene*>(bScene);
-      if (iScene != nullptr)
-      {
-         unitsLabel = iScene->getUnitsLabel();
-         unitsPerPixelX = iScene->getUnitsPerPixelX();
-         unitsPerPixelY = iScene->getUnitsPerPixelY();
-      }
-   }
-
-   double dx = m_line->line().dx();
-   double dy = m_line->line().dy();
-   dx *= unitsPerPixelX;
-   dy *= unitsPerPixelY;
-
-   double len = sqrt( (dx * dx) + (dy * dy) );
-   m_text = QString("%1%2").arg(len).arg(unitsLabel);
-   m_length->setValue(m_text);
-*/
+    for (int w = 0; w < _mask->width(); w++)
+    {
+        for (int h = 0; h < _mask->height(); h++)
+        {
+            if(_mask->pixel(w,h) != 0)
+            {
+                _mask->setPixelColor(w, h, color);
+            }
+        }
+    }
 }
 
 
@@ -170,20 +139,7 @@ void RoiMaskGraphicsItem::updateView()
 
     _alpha_value->setValue(val);
 
-    val = (int)(((float)val / 100.0) * 255.0);
-
-    for(int w=0; w<_mask->width(); w++)
-    {
-        for(int h=0; h<_mask->height(); h++)
-        {
-            QColor c = _mask->pixelColor(w,h);
-            if(c.green() > 0)
-            {
-                c.setAlpha(val);
-                _mask->setPixelColor(w,h, c);
-            }
-        }
-    }
+    calculate();
     update();
     emit(mask_updated(this, false));
 }
@@ -257,21 +213,15 @@ QRectF RoiMaskGraphicsItem::boundingRectMarker() const
 
 const QString RoiMaskGraphicsItem::displayName() const
 {
-
-   const QString name = QString("ROI Spectra");
-   return name;
-
+   return CONST_STATIC_ROI_NAME;
 }
 
 /*---------------------------------------------------------------------------*/
 
 AbstractGraphicsItem* RoiMaskGraphicsItem::duplicate()
 {
-   RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(*_mask);
-
-   item->setPos(pos());
-   //item->setLine(m_line->line());
-   //item->setLinkColor(m_lineColor);
+    QColor col = QColor(this->_color_ano->getValue().toString());
+   RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(*_mask, col);
    item->calculate();
    return item;
 
@@ -285,16 +235,8 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
 
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    setPos(0,0);
-    //int hw = (_pixmap->width() / 2) * -1;
-    //int hh = (_pixmap->height() / 2) * -1;
-    if(_display_mask->getValue().toBool())
-    {
-        //painter->drawPixmap(hw, hh, *_pixmap);
-        painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
-    }
-
-
+    setPos(0, 0);
+    painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
 }
 
 /*---------------------------------------------------------------------------*/

@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/MapsWorkspaceController.h>
+#include <QApplication>
 
 MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
@@ -15,7 +16,15 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 	_imgStackControllWidget->setAttribute(Qt::WA_DeleteOnClose);
 	connect(_imgStackControllWidget, SIGNAL(widgetClosed()), this, SLOT(imgWidgetClosed()));
 
+
+	QPoint pos = QGuiApplication::screens().at(0)->geometry().center();
 	_imgStackControllWidget->show();
+
+	pos.setX(pos.x() - (_imgStackControllWidget->width() * 0.5));
+	pos.setY(pos.y() - (_imgStackControllWidget->height() * 0.5));
+	_imgStackControllWidget->move(pos);
+
+
 }
 
 /*---------------------------------------------------------------------------*/

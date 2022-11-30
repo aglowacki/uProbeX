@@ -356,9 +356,6 @@ void ImageSegRoiDialog::onSetTech(QString name)
 
 void ImageSegRoiDialog::onRun()
 {
-	_runBtn->setEnabled(false);
-	_acceptBtn->setEnabled(false);
-
 	// check if we have roi masks and ask user if we should clear them before running.
 
 	ArrayXXr<float> int_img;
@@ -428,7 +425,6 @@ void ImageSegRoiDialog::onRun()
 		*/
 	}
 	_acceptBtn->setEnabled(true);
-	_runBtn->setEnabled(true);
 }
 
 //---------------------------------------------------------------------------

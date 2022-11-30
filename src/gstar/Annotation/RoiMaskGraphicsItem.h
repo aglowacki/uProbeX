@@ -31,7 +31,7 @@ public:
     */
    RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
 
-   RoiMaskGraphicsItem(QImage mask, AbstractGraphicsItem* parent = 0);
+   RoiMaskGraphicsItem(QImage mask, QColor color, AbstractGraphicsItem* parent = 0);
 
    ~RoiMaskGraphicsItem();
 
@@ -61,7 +61,7 @@ public:
 
    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
 
-   bool isEnabled() { return _enable_mask->getValue().toBool(); }
+   bool isEnabled() { return _color_ano->getValue().toBool(); }
 
    int alphaValue() { return _alpha_value->getValue().toInt(); }
 
@@ -112,13 +112,7 @@ protected:
     */
    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
-   AnnotationProperty* _enable_mask;
-
-   AnnotationProperty* _display_mask;
-
-   //AnnotationProperty* _draw_mask;
-
-   //AnnotationProperty* _erase_mask;
+   AnnotationProperty* _color_ano;
 
    AnnotationProperty* _alpha_value;
 
