@@ -91,7 +91,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy=nullptr);
+    void append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy=nullptr, QColor* color=nullptr);
 
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 

@@ -299,13 +299,6 @@ void ImageSegRoiDialog::createLayout()
 	_img_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_img_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	/*
-	_roi_list_model = new QStandardItemModel();
-	_roi_names_view = new QListView();
-	_roi_names_view->setModel(_roi_list_model);
-	//_roi_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	_roi_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	*/
 	connect(_img_list_model, &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
 
 	_int_img_widget = new ImageSegWidget();
@@ -314,7 +307,6 @@ void ImageSegRoiDialog::createLayout()
 	QVBoxLayout *leftLayout = new QVBoxLayout;
 	QHBoxLayout* optionLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
-	//QVBoxLayout* rightLayout = new QVBoxLayout;
 
 	optionLayout->addWidget(_techLabel);
 	optionLayout->addWidget(_cb_tech);
@@ -328,12 +320,9 @@ void ImageSegRoiDialog::createLayout()
 	leftLayout->addItem(_techLayout);
 	leftLayout->addItem(buttonLayout);
 
-	//rightLayout->addWidget(_roi_names_view);
-
 	mainLayout->addItem(leftLayout);
 	mainLayout->addWidget(_int_img_widget);
-	//mainLayout->addItem(rightLayout);
-
+	
 	_techLayout->addItem(_layout_map[STR_KMEANS]);
 
 	setLayout(mainLayout);
@@ -412,17 +401,6 @@ void ImageSegRoiDialog::onRun()
 			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
 			_int_img_widget->addRoiMask(roi);
 		}
-
-		//_int_img_widget->setPixMap(QPixmap::fromImage(_generate_sum_image(new_labels, int_img, 90)));
-		
-		
-		/*
-		std::vector<QImage> images = _generate_images(clusterCount, new_labels);
-		if (images.size() > 0)
-		{
-			_int_img_widget->setPixMap(QPixmap::fromImage(images[0]));
-		}
-		*/
 	}
 	_acceptBtn->setEnabled(true);
 }
@@ -432,7 +410,7 @@ void ImageSegRoiDialog::onRun()
 void ImageSegRoiDialog::onAccept()
 {
 	// emit list of roi's
-	//emit onNewROIs();
+	emit onNewROIs(_int_img_widget->getAllROIs());
 	close();
 }
 
@@ -497,7 +475,7 @@ QImage ImageSegRoiDialog::_generate_img(ArrayXXr<float>& int_img)
 }
 
 //---------------------------------------------------------------------------
-
+/*
 std::vector<QImage> ImageSegRoiDialog::_generate_images(int num_images, cv::Mat& mat)
 {
 	std::vector<QImage> images;
@@ -549,22 +527,6 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 		}
 	}
 
-	/*
-	// Overlay the two 
-	QImage surface(mat.cols, mat.rows, QImage::Format_ARGB32_Premultiplied);
-	QPainter p(&surface);
-	p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-	p.setOpacity(0.5);
-	p.drawImage(0, 0, background);
-	p.setCompositionMode(QPainter::CompositionMode_Overlay);
-	p.drawImage(0, 0, overlay);
-	p.end();
-
-	return surface;
-	*/
-		
-	
-	
 	QPainter p(&background);
 	//p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	p.setCompositionMode(QPainter::CompositionMode_Plus);
@@ -576,7 +538,7 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 	return background;
 	
 }
-
+*/
 //---------------------------------------------------------------------------
 
 void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 

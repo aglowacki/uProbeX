@@ -29,9 +29,10 @@ public:
     * @brief RulerGraphicsItem
     * @param parent
     */
+    // blank constructor for classid
    RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
 
-   RoiMaskGraphicsItem(QImage mask, QColor color, AbstractGraphicsItem* parent = 0);
+   RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
 
    ~RoiMaskGraphicsItem();
 
@@ -53,6 +54,8 @@ public:
     */
    QRectF boundingRect() const;
 
+   QColor getColor() const;
+
    /**
     * @brief boundingRectMarker
     * @return
@@ -67,10 +70,10 @@ public:
 
    QImage* image_mask() { return _mask; }
 
-   std::vector<QPoint> get_mask_list();
-
    QString getName();
 
+   void to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois);
+ 
 signals:
 
    void mask_updated(RoiMaskGraphicsItem* ano, bool reload);

@@ -46,6 +46,8 @@ public:
 
    void addRoiMask(gstar::RoiMaskGraphicsItem* roi);
 
+   std::vector<gstar::RoiMaskGraphicsItem*> getAllROIs();
+
 public slots:
 
    /**

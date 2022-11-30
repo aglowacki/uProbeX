@@ -60,6 +60,9 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 		}
     }
 	_selected_colormap = &_gray_colormap;
+
+    connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
+
     _createLayout(create_image_nav);
 }
 
@@ -252,6 +255,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     }
     //onColormapSelect(colormap);
 
+    connect(m_treeModel, &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
+
     setLayout(layout);
 
 }
@@ -405,7 +410,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    QMenu menu(parent);
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
-   menu.addAction(_addRoiMaskAction);
+   //menu.addAction(_addRoiMaskAction);
    menu.addAction(_addKMeansRoiAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
@@ -1444,6 +1449,25 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
+{
+    for (auto& itr : roi_list)
+    {
+        insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, itr);
+        std::vector<std::pair<unsigned int, unsigned int>> roi;
+        itr->to_roi_vec(roi);
+        
+        data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
+        if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, roi))
+        {
+            _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
+        }
+    }
+    _spectra_widget->replot_integrated_spectra(false);
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::on_export_image_pressed()
 {
 
@@ -1901,3 +1925,34 @@ void MapsElementsWidget::on_export_images()
     _export_maps_dialog->on_open();
     _export_maps_dialog->close();
 }
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::on_delete_all_annotations(QString classid)
+{
+    QImage i;
+    QColor c;
+    gstar::RoiMaskGraphicsItem item(i,c,0);
+
+    if (classid == item.classId())
+    {
+        _spectra_widget->deleteAllROISpectra();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::on_delete_annotation(QString classid, QString name)
+{
+    QImage i;
+    QColor c;
+    gstar::RoiMaskGraphicsItem item(i, c, 0);
+
+    if (classid == item.classId())
+    {
+        _spectra_widget->deleteROISpectra(name.toStdString());
+    }
+}
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

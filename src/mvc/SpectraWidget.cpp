@@ -246,7 +246,7 @@ void SpectraWidget::onUpdateChartLineEdits()
 
 /*---------------------------------------------------------------------------*/
 
-void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy)
+void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy, QColor* color)
 {
     if (spectra == nullptr)
         return;
@@ -310,27 +310,31 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 
         series->attachAxis(_currentYAxis);
         QPen pen = series->pen();
-        int r, g, b, a;
-        if (name == DEF_STR_INT_SPECTRA)
+        if (color != nullptr)
         {
-            pen.setColor(QColor::fromRgb(INT_SPEC_R, INT_SPEC_G, INT_SPEC_B));
-            series->setPen(pen);
+            pen.setColor(*color);
         }
-        else if (name == DEF_STR_FIT_INT_SPECTRA)
+        else
         {
-            pen.setColor(QColor::fromRgb(FIT_SPEC_R, FIT_SPEC_G, FIT_SPEC_B));
-            series->setPen(pen);
+            int r, g, b, a;
+            if (name == DEF_STR_INT_SPECTRA)
+            {
+                pen.setColor(QColor::fromRgb(INT_SPEC_R, INT_SPEC_G, INT_SPEC_B));
+            }
+            else if (name == DEF_STR_FIT_INT_SPECTRA)
+            {
+                pen.setColor(QColor::fromRgb(FIT_SPEC_R, FIT_SPEC_G, FIT_SPEC_B));
+            }
+            if (name == DEF_STR_BACK_SPECTRA)
+            {
+                pen.setColor(QColor::fromRgb(BAK_SPEC_R, BAK_SPEC_G, BAK_SPEC_B));
+            }
+            if (name == DEF_STR_MODEL_SPECTRA)
+            {
+                pen.setColor(QColor::fromRgb(MOD_SPEC_R, MOD_SPEC_G, MOD_SPEC_B));
+            }
         }
-        if (name == DEF_STR_BACK_SPECTRA)
-        {
-            pen.setColor(QColor::fromRgb(BAK_SPEC_R, BAK_SPEC_G, BAK_SPEC_B));
-            series->setPen(pen);
-        }
-        if (name == DEF_STR_MODEL_SPECTRA)
-        {
-            pen.setColor(QColor::fromRgb(MOD_SPEC_R, MOD_SPEC_G, MOD_SPEC_B));
-            series->setPen(pen);
-        }
+        series->setPen(pen);
     }
     else
     {

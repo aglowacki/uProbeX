@@ -452,7 +452,8 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 
         for (auto& itr : _roi_spec_map)
         {
-            _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+            QColor* color = &(_roi_spec_colors.at(itr.first));
+            _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev, color);
         }
 
     }
@@ -474,9 +475,46 @@ void FitSpectraWidget::appendMaxChanSpectra(string name, ArrayDr* spec)
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendROISpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendROISpectra(string name, ArrayDr* spec, QColor color)
 {
     _roi_spec_map[name] = spec;
+    _roi_spec_colors[name] = color;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::deleteROISpectra(string name)
+{
+    if (_roi_spec_map.count(name) > 0)
+    {
+        ArrayDr* spec = _roi_spec_map.at(name);
+        if (spec != nullptr)
+        {
+            spec->resize(1);
+            // delete spec; throws exception , need to investigate TODO
+        }
+        _roi_spec_map.erase(name);
+        _spectra_widget->remove_spectra(QString(name.c_str()));
+    }
+    replot_integrated_spectra(false);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::deleteAllROISpectra()
+{
+    for (auto &itr : _roi_spec_map)
+    {
+        ArrayDr* spec = itr.second;
+        _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+        if (spec != nullptr)
+        {
+            spec->resize(1);
+            // delete spec; throws exception , need to investigate TODO
+        }
+    }
+    _roi_spec_map.clear();
+    replot_integrated_spectra(false);
 }
 
 /*---------------------------------------------------------------------------*/

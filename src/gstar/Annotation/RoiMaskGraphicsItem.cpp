@@ -15,7 +15,7 @@ using namespace gstar;
 
 /*---------------------------------------------------------------------------*/
 
-static const QString CONST_STATIC_ROI_NAME = QString("ROI Spectra");
+static const QString CONST_STATIC_ROI_NAME = QString("ROI");
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -58,7 +58,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
 
 /*---------------------------------------------------------------------------*/
 
-RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
     _mask = new QImage();
     *_mask = mask;
@@ -69,9 +69,8 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, AbstractGrap
 
     _alpha_value = new AnnotationProperty();
     _alpha_value->setName("Alpha %");
-    _alpha_value->setValue(70);
+    _alpha_value->setValue(alpha);
 
-    
     m_data.push_back(_color_ano);
     m_data.push_back(_alpha_value);
 }
@@ -146,6 +145,15 @@ void RoiMaskGraphicsItem::updateView()
 
 /*---------------------------------------------------------------------------*/
 
+QColor RoiMaskGraphicsItem::getColor() const
+{
+    QVariant variant = _color_ano->getValue();
+    QColor color = variant.value<QColor>();
+    return color;
+}
+
+/*---------------------------------------------------------------------------*/
+
 void RoiMaskGraphicsItem::drawmask_changed()
 {
     /*
@@ -160,21 +168,18 @@ void RoiMaskGraphicsItem::drawmask_changed()
 
 /*---------------------------------------------------------------------------*/
 
-std::vector<QPoint> RoiMaskGraphicsItem::get_mask_list()
+void RoiMaskGraphicsItem::to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois)
 {
-    std::vector<QPoint> roi_list;
     for (int w = 0; w < _mask->width(); w++)
     {
         for (int h = 0; h < _mask->height(); h++)
         {
-            QColor c = _mask->pixelColor(w, h);
-            if (c.green() > 0)
+            if( _mask->pixel(w, h) != 0)
             {
-                roi_list.push_back(QPoint(w,h));
+                rois.push_back({ w, h });
             }
         }
     }
-    return roi_list;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -220,10 +225,10 @@ const QString RoiMaskGraphicsItem::displayName() const
 
 AbstractGraphicsItem* RoiMaskGraphicsItem::duplicate()
 {
-    QColor col = QColor(this->_color_ano->getValue().toString());
-   RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(*_mask, col);
-   item->calculate();
-   return item;
+    QColor col = QColor(_color_ano->getValue().toString());
+    RoiMaskGraphicsItem* item = new RoiMaskGraphicsItem(*_mask, col, _alpha_value->getValue().toInt());
+    item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, getName()));
+    return item;
 
 }
 /*---------------------------------------------------------------------------*/

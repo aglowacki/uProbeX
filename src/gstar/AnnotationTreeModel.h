@@ -160,7 +160,25 @@ public:
                 const QVariant& value,
                 int role = Qt::EditRole);
 
-   QList<AbstractGraphicsItem*> get_all_of_type(const QString type_name);
+   template<typename T>
+   void get_all_of_type(const QString type_name, std::vector<T*> &list)
+   {
+       if (m_groups.count(type_name) > 0)
+       {
+           for (auto& itr : m_groups[type_name]->childList())
+           {
+               list.push_back(static_cast<T*>(itr->duplicate()));
+           }
+       }
+   }
+
+signals:
+
+    // classid
+    void deleteAll(QString);
+
+    // classid, display prop name
+    void deletedNode(QString, QString);
 
 public slots:
 

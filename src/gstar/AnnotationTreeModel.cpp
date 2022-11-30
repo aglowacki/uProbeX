@@ -60,11 +60,14 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
    }
    AbstractGraphicsItem* groupRoot = m_groups[item->classId()];
 
-   m_groupsCnt[item->classId()]++;
-   QString dName = QString("%1%2")
-                   .arg(displayName)
-         .arg(m_groupsCnt[item->classId()]);
-   item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
+   if (false == item->propertyValue(DEF_STR_DISPLAY_NAME).isValid())
+   {
+       m_groupsCnt[item->classId()]++;
+       QString dName = QString("%1%2")
+           .arg(displayName)
+           .arg(m_groupsCnt[item->classId()]);
+       item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
+   }
    item->setParent(groupRoot);
 
    int row = groupRoot->childCount();
@@ -544,6 +547,8 @@ bool AnnotationTreeModel::removeRow(int row,
       m_groups.remove(classIdName);
       delete item;
       endRemoveRows();
+
+      emit deleteAll(classIdName);
    }
    else
    {
@@ -562,6 +567,11 @@ bool AnnotationTreeModel::removeRow(int row,
 
       pItem->removeChildAt(row);
       QString classIdName = item->classId();
+      QVariant name_var = item->propertyValue(DEF_STR_DISPLAY_NAME);
+      if (name_var.isValid())
+      {
+          emit deletedNode(classIdName, name_var.toString());
+      }
       delete item;
 
       if (pItem->childCount() == 0)
@@ -570,7 +580,6 @@ bool AnnotationTreeModel::removeRow(int row,
          m_groups.remove(classIdName);
          delete pItem;
       }
-
       // Indicate end of removal
       endRemoveRows();
    }
@@ -639,15 +648,4 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
 }
 
 /*---------------------------------------------------------------------------*/
-
-QList<AbstractGraphicsItem*> AnnotationTreeModel::get_all_of_type(const QString type_name)
-{
-    QList<AbstractGraphicsItem*> na;
-    if(m_groups.count(type_name) > 0)
-    {
-        return m_groups[type_name]->childList();
-    }
-    return na;
-}
-
 /*---------------------------------------------------------------------------*/

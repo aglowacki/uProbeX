@@ -49,7 +49,7 @@ public:
    void setColorMap(QVector<QRgb>* selected_colormap);
 
 signals:
-	void onNewROIs(std::vector<QPoint> roi_list);
+	void onNewROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
 
 public slots:
 	void onRun();
@@ -68,9 +68,9 @@ protected:
 
    QImage _generate_img(ArrayXXr<float>& int_img);
 
-   std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
+   //std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
 
-   QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
+   //QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
 
    QLayout* _createKMeansLayout();
 
@@ -86,11 +86,7 @@ private:
   
 	QListView* _img_names_view;
 	QStandardItemModel* _img_list_model;
-
-	//QListView* _roi_names_view;
-	//QStandardItemModel* _roi_list_model;
-
-	
+		
 	ImageSegWidget* _int_img_widget;
 
 	QVector<QRgb>* _selected_colormap;

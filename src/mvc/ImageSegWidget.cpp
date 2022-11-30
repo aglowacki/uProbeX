@@ -85,3 +85,17 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 }
 
 //---------------------------------------------------------------------------
+
+std::vector<gstar::RoiMaskGraphicsItem*> ImageSegWidget::getAllROIs()
+{
+
+    std::vector<gstar::RoiMaskGraphicsItem*> list;
+    QImage i;
+    QColor q;
+    gstar::RoiMaskGraphicsItem item(i, q, 0);
+    if (m_treeModel != nullptr)
+    {
+        m_treeModel->get_all_of_type(item.classId(), list);
+    }
+    return list;
+}

@@ -101,6 +101,12 @@ public slots:
 
    void on_export_images();
 
+   void on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
+
+   void on_delete_all_annotations(QString);
+
+   void on_delete_annotation(QString, QString);
+
 protected:
 
    /**
