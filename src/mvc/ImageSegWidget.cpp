@@ -74,7 +74,7 @@ void ImageSegWidget::widgetChanged(bool enable)
 
 void ImageSegWidget::clearAllRoiMasks()
 {
-
+    m_treeModel->clearAll();
 }
 
 //---------------------------------------------------------------------------

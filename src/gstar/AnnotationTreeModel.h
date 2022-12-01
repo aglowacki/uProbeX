@@ -53,6 +53,8 @@ public:
     */
    void calculate();
 
+   void clearAll();
+
    /**
     * @brief columnCount
     * @param parent
@@ -201,6 +203,8 @@ protected:
     * @param item
     */
    void recursiveCalculate(AbstractGraphicsItem* pItem);
+
+   QModelIndex getRootModelIndex()const;
 
 protected:
 

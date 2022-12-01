@@ -838,7 +838,7 @@ bool MapsH5Model::_load_counts_9(hid_t maps_grp_id)
 {
     hid_t analyzed_grp_id;
 
-    std::string analyzed_groups[] = {"XRF_roi", "XRF_roi_plus", "XRF_fits"};
+    std::string analyzed_groups[] = {"XRF_fits", "XRF_roi_plus", "XRF_roi", };
 
     for( std::string group_name : analyzed_groups )
     {

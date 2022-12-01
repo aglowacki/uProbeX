@@ -12,6 +12,7 @@
 #include <QLineEdit>
 #include <QWidget>
 #include <QButtonGroup>
+#include <QCheckBox>
 
 class QSpinBox;
 
@@ -60,6 +61,8 @@ public:
     */
    int getDecimalPrecision();
 
+   bool getUseDarkTheme();
+
    /**
     * Set the font size
     */
@@ -93,6 +96,9 @@ private:
     * @brief string to display on window title
     */
    QLineEdit* m_windowTitle;
+
+   QCheckBox* _useDarkTheme;
+
 
 };
 

@@ -277,6 +277,35 @@ void AbstractImageWidget::createRangeWidget()
 
 /*---------------------------------------------------------------------------*/
 
+void AbstractImageWidget::deleteAllItems()
+{
+    
+    QModelIndex topLeft;
+    QModelIndex bottomRight;
+    int rows = m_treeModel->rowCount(QModelIndex());
+    int cols = m_treeModel->columnCount(QModelIndex());
+    topLeft = m_treeModel->index(0, 0, QModelIndex());
+    bottomRight = m_treeModel->index(rows-1, cols-1, QModelIndex());
+
+    QItemSelection selection(topLeft, bottomRight);
+    m_selectionModel->select(selection, QItemSelectionModel::Select);
+
+    if (m_selectionModel->hasSelection())
+    {
+        QModelIndexList selectedIndexes = m_selectionModel->selectedRows();
+
+        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        {
+            QModelIndex index = selectedIndexes[i];
+            //qDebug()<<"index "<<index.row();
+            m_treeModel->removeRow(index.row(), index);
+        }
+    }
+}
+
+
+/*---------------------------------------------------------------------------*/
+
 void AbstractImageWidget::deleteItem()
 {
 

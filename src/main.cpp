@@ -83,13 +83,16 @@ int main(int argc, char** argv)
 {
 
 	QApplication app(argc, argv);
-	//TODO: read pref to see if dark or light theme
-   //dark style
-//   QFile* file = new QFile(":/qss/dark2.qss");
-//   file->open(QFile::ReadOnly | QFile::Text);
-//   QTextStream *stream = new QTextStream(file);
-//   app.setStyleSheet(stream->readAll());
-
+	//dark style
+	
+	bool use_dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+	if (use_dark_theme)
+	{
+		QFile* file = new QFile(":/qss/dark.qss");
+		file->open(QFile::ReadOnly | QFile::Text);
+		QTextStream* stream = new QTextStream(file);
+		app.setStyleSheet(stream->readAll());
+	}
 	qInstallMessageHandler(myMessageOutput);
 
 	std::thread stdio_stream_thread(readSTDOUT);

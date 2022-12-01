@@ -144,6 +144,8 @@ public slots:
     */
    void updateFrame(QImage *img);
 
+   void deleteAllItems();
+
 signals:
   
    /**

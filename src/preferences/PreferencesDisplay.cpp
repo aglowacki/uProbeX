@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <preferences/PreferencesDisplay.h>
+#include <preferences/Preferences.h>
 
 #include <QSpinBox>
 #include <QLabel>
@@ -39,10 +40,18 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    QLabel* lblDeciPrecision = new QLabel("Number of precision:");
    lblDeciPrecision->setFont(font);
 
+   QLabel* lblUseDarkTheme = new QLabel("Use Dark Theme:");
+   lblUseDarkTheme->setFont(font);
+
+   bool use_dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+   _useDarkTheme = new QCheckBox("Restart required");
+   _useDarkTheme->setChecked(use_dark_theme);
+
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
    mainLayout->addRow(lblTitle, m_windowTitle);
    mainLayout->addRow(lblDeciPrecision, m_decimalPreci);
+   mainLayout->addRow(lblUseDarkTheme, _useDarkTheme);
 
    setLayout(mainLayout);
 
@@ -78,6 +87,13 @@ QString PreferencesDisplay::getWindowTitle()
 
    return m_windowTitle->text();
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool PreferencesDisplay::getUseDarkTheme()
+{
+    return _useDarkTheme->isChecked();
 }
 
 /*---------------------------------------------------------------------------*/

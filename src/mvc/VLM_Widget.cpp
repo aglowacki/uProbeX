@@ -1558,7 +1558,7 @@ void VLM_Widget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
          (gstar::AbstractGraphicsItem*)first.internalPointer();
    if(groupPtr == nullptr)
       return;
-   QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
    for (gstar::AbstractGraphicsItem* child : clist)
    {
@@ -1615,7 +1615,7 @@ void VLM_Widget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
          (gstar::AbstractGraphicsItem*)first.internalPointer();
    if(groupPtr == nullptr)
       return;
-   QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
    for (gstar::AbstractGraphicsItem* child : clist)
    {
@@ -1688,7 +1688,7 @@ bool VLM_Widget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
    }
 
 
-   QList<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
 
    for (gstar::AbstractGraphicsItem* child : clist)
    {

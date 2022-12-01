@@ -291,7 +291,7 @@ void ImageSegRoiDialog::createLayout()
 	_cancelBtn = new QPushButton("Cancel");
 	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
 	connect(_acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
-	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(close()));
+	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(onClose()));
 
 	_img_list_model = new QStandardItemModel();
 	_img_names_view = new QListView();
@@ -412,6 +412,23 @@ void ImageSegRoiDialog::onAccept()
 	// emit list of roi's
 	emit onNewROIs(_int_img_widget->getAllROIs());
 	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onClose()
+{
+	clear_all_rois();
+	clear_image();
+	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::clear_all_rois()
+{
+	//_int_img_widget->clearAllRoiMasks();
+	_int_img_widget->deleteAllItems();
 }
 
 //---------------------------------------------------------------------------
@@ -556,11 +573,17 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 	}
 	else if (false == _image_size.isEmpty())
 	{
-		QImage image(_image_size, QImage::Format_ARGB32_Premultiplied);
-		image.fill(QColor(Qt::gray));
-		_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+		clear_image();
 	}
 }
 
 //---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::clear_image()
+{
+	QImage image(_image_size, QImage::Format_ARGB32_Premultiplied);
+	image.fill(QColor(Qt::gray));
+	_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+}
+
 //---------------------------------------------------------------------------

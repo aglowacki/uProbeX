@@ -187,24 +187,27 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
 
             if (item != nullptr)
             {
-                cItem = item->child(start);
-                if (cItem != nullptr)
+                for (int i = start; i <= end; i++)
                 {
-                    cItem->unlinkAllAnnotations();
-                    QList<QGraphicsItem*> gitems = this->items();
-                    AbstractGraphicsItem* toRemove = nullptr;
-                    for (auto itr : cItem->getLinkedDisplayChildren())
+                    cItem = item->child(i);
+                    if (cItem != nullptr)
                     {
-                        if (gitems.contains(itr))
+                        cItem->unlinkAllAnnotations();
+                        QList<QGraphicsItem*> gitems = this->items();
+                        AbstractGraphicsItem* toRemove = nullptr;
+                        for (auto itr : cItem->getLinkedDisplayChildren())
                         {
-                            removeItem(itr);
-                            toRemove = itr;
-                            break;
+                            if (gitems.contains(itr))
+                            {
+                                removeItem(itr);
+                                toRemove = itr;
+                                break;
+                            }
                         }
-                    }
-                    if (toRemove != nullptr)
-                    {
-                        cItem->removeLinkedDisplayChild(toRemove);
+                        if (toRemove != nullptr)
+                        {
+                            cItem->removeLinkedDisplayChild(toRemove);
+                        }
                     }
                 }
             }

@@ -48,6 +48,10 @@ public:
 
    void setColorMap(QVector<QRgb>* selected_colormap);
 
+   void clear_all_rois();
+
+   void clear_image();
+
 signals:
 	void onNewROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
 
@@ -59,6 +63,8 @@ public slots:
 	void onSetTech(QString name);
 
 	void onImgSelection(QStandardItem* item);
+
+	void onClose();
 
 protected:
 

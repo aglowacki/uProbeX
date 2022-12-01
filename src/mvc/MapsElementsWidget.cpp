@@ -256,6 +256,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     //onColormapSelect(colormap);
 
     connect(m_treeModel, &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
+    connect(m_treeModel, &gstar::AnnotationTreeModel::deleteAll, this, &MapsElementsWidget::on_delete_all_annotations);
 
     setLayout(layout);
 
@@ -813,11 +814,16 @@ void MapsElementsWidget::model_updated()
     std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
     bool found_analysis = false;
+    bool first = true;
     for(auto& itr: analysis_types)
     {
         QString newVal = QString(itr.c_str());
         _cb_analysis->addItem(newVal);
-        current_a = itr;
+        if (first)
+        {
+            current_a = itr;
+            first = false;
+        }
         if(current_analysis == newVal)
         {
             found_analysis = true;
@@ -1451,6 +1457,8 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
 {
+    _img_seg_diag.clear_all_rois();
+    _img_seg_diag.clear_image();
     for (auto& itr : roi_list)
     {
         insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, itr);

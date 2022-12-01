@@ -309,7 +309,22 @@ Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
       return 0;
    }
 
+   if (m_root->childCount() == 0)
+   {
+       return 0;
+   }
+
    AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+
+   if (item == nullptr)
+   {
+       return 0;
+   }
+
+   if (m_root->hasChild(item) == false)
+   {
+       return 0;
+   }
 
    if (item->parent() == m_root || item == m_root)
    {
@@ -438,20 +453,26 @@ bool AnnotationTreeModel::insertRows(int row,
 
 /*---------------------------------------------------------------------------*/
 
+QModelIndex AnnotationTreeModel::getRootModelIndex()const
+{
+    return createIndex(0, 0, m_root);
+}
+
+/*---------------------------------------------------------------------------*/
+
 QModelIndex AnnotationTreeModel::parent(const QModelIndex& index)const
 {
 
-   if (!index.isValid())
-   {
-      return QModelIndex();
-   }
+    AbstractGraphicsItem* childItem = nullptr;
 
-   AbstractGraphicsItem* childItem =
-         static_cast<AbstractGraphicsItem*>(index.internalPointer());
+    if (index.isValid())
+    {
+        childItem = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+    }
 
    if (childItem == m_root || childItem == nullptr)
    {
-      return QModelIndex();
+       return QModelIndex();
    }
 
    if (m_root->hasChild(childItem) == false)
@@ -496,6 +517,17 @@ void AnnotationTreeModel::refreshModel(AbstractGraphicsItem* item)
 
 /*---------------------------------------------------------------------------*/
 
+void AnnotationTreeModel::clearAll()
+{
+    // Remove all rows
+    while (rowCount(getRootModelIndex()) > 0)
+    {
+        removeRows(0, 1, getRootModelIndex());
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool AnnotationTreeModel::removeRow(int row,
                               const QModelIndex& parent)
 {
@@ -526,64 +558,71 @@ bool AnnotationTreeModel::removeRow(int row,
        return false;
    }
 
-   //check if group is being deleted
-   if (pItem == m_root)
-   {
-      //this is a group item, delete all the children under it
-      //count = item->childCount();
+    //check if group is being deleted
+   
+    if (pItem == m_root)
+    {
+        //this is a group item, delete all the children under it
+        QModelIndex parentIndex = index(item->row(), 0, QModelIndex());
+        count = item->childCount();
+        beginRemoveRows(parentIndex, row, row + count - 1);
 
-      beginRemoveRows(QModelIndex(), row, row + count - 1);
-      //beginRemoveRows(parent, row, row + count - 1);
+        QString classIdName;
+        for (int i = count - 1; i >= 0; i--)
+        {
+            AbstractGraphicsItem* cItem = item->child(0);
+            if (cItem != nullptr)
+            {
+                classIdName = cItem->classId();
+                item->removeChildAt(0);
+                delete cItem;
+            }
+        }
+        
+        m_root->removeChildAt(item->row());
+        m_groups.remove(classIdName);
+        delete item;
+        
+        endRemoveRows();
 
-      QString classIdName;
-      for (int i = count - 1; i >= 0; i--)
-      {
-         AbstractGraphicsItem* cItem = item->child(i);
-         item->removeChildAt(i);
-         classIdName = cItem->classId();
-         delete cItem;
-      }
-      m_root->removeChildAt(item->row());
-      m_groups.remove(classIdName);
-      delete item;
-      endRemoveRows();
+        emit deleteAll(classIdName);
+    }
+    else
+    {
+        row = item->row();
 
-      emit deleteAll(classIdName);
-   }
-   else
-   {
-      row = item->row();
+        if(row < 0 || row > (pItem->childCount() - 1))
+        {
+            return false;
+        }
 
-      if(row < 0 || row > (pItem->childCount() - 1))
-      {
-         return false;
-      }
+        // Indicate beginning of removal
+        //beginRemoveRows(QModelIndex(), row, row + count - 1);
+        //QModelIndex parentIndex = createIndex(pItem->row(), 0, pItem);
+        QModelIndex parentIndex = index(pItem->row(), 0, QModelIndex());
+        beginRemoveRows(parentIndex, row, row + count - 1);
 
-      // Indicate beginning of removal
-      //beginRemoveRows(QModelIndex(), row, row + count - 1);
-      //QModelIndex parentIndex = createIndex(pItem->row(), 0, pItem);
-      QModelIndex parentIndex = index(pItem->row(), 0, QModelIndex());
-      beginRemoveRows(parentIndex, row, row + count - 1);
+        pItem->removeChildAt(row);
+        QString classIdName = item->classId();
 
-      pItem->removeChildAt(row);
-      QString classIdName = item->classId();
-      QVariant name_var = item->propertyValue(DEF_STR_DISPLAY_NAME);
-      if (name_var.isValid())
-      {
-          emit deletedNode(classIdName, name_var.toString());
-      }
-      delete item;
+        QVariant name_var = item->propertyValue(DEF_STR_DISPLAY_NAME);
+        if (name_var.isValid())
+        {
+            emit deletedNode(classIdName, name_var.toString());
+        }
+        delete item;
 
-      if (pItem->childCount() == 0)
-      {
-         m_root->removeChildAt(pItem->row());
-         m_groups.remove(classIdName);
-         delete pItem;
-      }
-      // Indicate end of removal
-      endRemoveRows();
-   }
-   return true;
+        
+        if (pItem->childCount() == 0)
+        {
+            m_root->removeChildAt(pItem->row());
+            m_groups.remove(classIdName);
+            delete pItem;
+        }
+        // Indicate end of removal
+        endRemoveRows();
+    }
+    return true;
 
 }
 
