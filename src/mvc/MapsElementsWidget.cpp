@@ -232,6 +232,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     appendAnnotationTab();
 
+    _appendRoiTab();
+
     createActions();
 
     bool chk_log_scale_color = Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool();
@@ -258,8 +260,118 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     connect(m_treeModel, &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
     connect(m_treeModel, &gstar::AnnotationTreeModel::deleteAll, this, &MapsElementsWidget::on_delete_all_annotations);
 
+    connect(m_tabWidget, &QTabWidget::currentChanged, this, &MapsElementsWidget::annoTabChanged);
+
     setLayout(layout);
 
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::_appendRoiTab()
+{
+    QVBoxLayout* infoLayout = new QVBoxLayout();
+    
+    m_roiTreeModel = new gstar::AnnotationTreeModel();
+    connect(m_roiTreeModel,
+        SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+        this,
+        SLOT(roiModelDataChanged(const QModelIndex&, const QModelIndex&)));
+
+    m_roiSelectionModel = new QItemSelectionModel(m_roiTreeModel);
+
+    m_roiTreeView = new QTreeView();
+    //m_roiTreeView->setPalette(pal);
+    //m_roiTreeView->setAutoFillBackground(true);
+    m_roiTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_roiTreeView->setAnimated(true);
+    m_roiTreeView->setModel(m_roiTreeModel);
+    m_roiTreeView->setHeaderHidden(true);
+    m_roiTreeView->setSelectionModel(m_roiSelectionModel);
+    m_roiTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_roiTreeView,
+        SIGNAL(customContextMenuRequested(const QPoint&)),
+        this,
+        SLOT(roiTreeContextMenu(const QPoint&)));
+    /*
+    connect(m_roiTreeView,
+        SIGNAL(doubleClicked(const QModelIndex&)),
+        this,
+        SLOT(roiTreeDoubleClicked(const QModelIndex&)));
+        */
+    //infoLayout->addWidget(m_annotationToolbar->getToolBar());
+    infoLayout->addWidget(m_roiTreeView);
+
+    m_roiTreeTabWidget = new QWidget(this);
+    //m_treeTabWidget->setPalette(pal);
+    //m_treeTabWidget->setAutoFillBackground(true);
+    m_roiTreeTabWidget->setLayout(infoLayout);
+
+    m_tabWidget->addTab(m_roiTreeTabWidget, QIcon(), "ROI's");
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::roiTreeContextMenu(const QPoint& pos)
+{
+
+    displayRoiContextMenu(m_roiTreeView, m_roiTreeView->viewport()->mapToGlobal(pos));
+
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::displayRoiContextMenu(QWidget* parent, const QPoint& pos)
+{
+
+    //if (m_roisEnabled == false)
+    //    return;
+
+    QMenu menu(parent);
+    menu.addAction(_addKMeansRoiAction);
+
+    if (m_roiTreeModel != nullptr && m_roiTreeModel->rowCount() > 0)
+    {
+        if (m_roiSelectionModel->hasSelection())
+        {
+            menu.addSeparator();
+            menu.addAction(m_duplicateAction);
+            menu.addSeparator();
+            menu.addAction(m_deleteAction);
+        }
+    }
+
+    QAction* result = menu.exec(pos);
+    if (result == nullptr)
+    {
+        m_roiSelectionModel->clearSelection();
+    }
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+void MapsElementsWidget::roiModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
+{
+
+    m_roiTreeView->resizeColumnToContents(topLeft.column());
+    m_roiTreeView->resizeColumnToContents(bottomRight.column());
+
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::annoTabChanged(int idx)
+{
+    if (idx == 0) // Annotations
+    {
+        m_imageViewWidget->setSceneModel(m_treeModel);
+    }
+    else if (idx == 1) //ROI's
+    {
+        m_imageViewWidget->setSceneModel(m_roiTreeModel);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -325,44 +437,28 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::addRoiMask()
-{
-    /*
-    int w = m_imageViewWidget->scene()->getPixmapItem()->pixmap().width();
-    int h = m_imageViewWidget->scene()->getPixmapItem()->pixmap().height();
-   gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
-   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
-
-   //QString name = ano->getName();
-   //_spectra_widget->appendROISpectra()
-   //            //data_struct Spectra = _model->load_roi(annotation->getROI());
-
-   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &MapsElementsWidget::roiUpdated);
-   */
-}
-
-//---------------------------------------------------------------------------
-
 void MapsElementsWidget::openImageSegDialog()
 {
     // Bring up dialog for settings and run kmeans.
-
-    std::string analysis_text = _cb_analysis->currentText().toStdString();
-
-    data_struct::Fit_Count_Dict<float> fit_counts;
-    _model->getAnalyzedCounts(analysis_text, fit_counts);
-    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-    if (scalers != nullptr)
+    if (_model != nullptr)
     {
-        for (auto& itr : *scalers)
-        {
-            fit_counts.insert(itr);
-        }
-    }
-    _img_seg_diag.setColorMap(_selected_colormap);
-    _img_seg_diag.setImageData(fit_counts);
+        std::string analysis_text = _cb_analysis->currentText().toStdString();
 
-    _img_seg_diag.show();
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        _model->getAnalyzedCounts(analysis_text, fit_counts);
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        if (scalers != nullptr)
+        {
+            for (auto& itr : *scalers)
+            {
+                fit_counts.insert(itr);
+            }
+        }
+        _img_seg_diag.setColorMap(_selected_colormap);
+        _img_seg_diag.setImageData(fit_counts);
+
+        _img_seg_diag.show();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -411,8 +507,6 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    QMenu menu(parent);
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
-   //menu.addAction(_addRoiMaskAction);
-   menu.addAction(_addKMeansRoiAction);
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -1461,7 +1555,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
     _img_seg_diag.clear_image();
     for (auto& itr : roi_list)
     {
-        insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, itr);
+        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr);
         std::vector<std::pair<unsigned int, unsigned int>> roi;
         itr->to_roi_vec(roi);
         

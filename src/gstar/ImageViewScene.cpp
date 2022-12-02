@@ -248,6 +248,7 @@ void ImageViewScene::enableAnnotations(bool state)
       return;
    }
 
+   rootItem->setEnabled(state);
    recursiveSetEnabled(rootItem, state);
 
    // Reset view; just in case...

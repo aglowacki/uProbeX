@@ -73,7 +73,7 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
            this,
            SIGNAL(clickCrossHair()));
 
-   QLabel* enableLable = new QLabel("Enable:");
+   QLabel* enableLable = new QLabel("Visible:");
    m_chkSetVisible = new QCheckBox();
    m_chkSetVisible->setChecked(true);
    connect(m_chkSetVisible,

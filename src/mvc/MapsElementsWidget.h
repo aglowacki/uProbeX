@@ -75,8 +75,6 @@ public slots:
 
    void model_updated();
 
-   void addRoiMask();
-
    void openImageSegDialog();
 
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
@@ -107,6 +105,14 @@ public slots:
 
    void on_delete_annotation(QString, QString);
 
+   void roiModelDataChanged(const QModelIndex& , const QModelIndex& );
+
+   void roiTreeContextMenu(const QPoint&);
+
+   void displayRoiContextMenu(QWidget* , const QPoint&);
+
+   void annoTabChanged(int);
+
 protected:
 
    /**
@@ -117,6 +123,8 @@ protected:
    virtual void createActions();
 
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
+
+   void _appendRoiTab();
 
    MapsH5Model *_model;
 
@@ -186,6 +194,15 @@ protected:
    float _min_contrast_perc;
 
    float _max_contrast_perc;
+
+   QTreeView* m_roiTreeView;
+
+   gstar::AnnotationTreeModel* m_roiTreeModel;
+
+   QItemSelectionModel* m_roiSelectionModel;
+
+   QWidget* m_roiTreeTabWidget;
+
 };
 
 
