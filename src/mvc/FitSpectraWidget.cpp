@@ -35,6 +35,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _chk_is_pileup = new QCheckBox("Pile Up");
     _detector_element = "Si"; // default to Si detector if not found in param override
     _int_spec = nullptr;
+    _displayROIs = true;
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
 	_param_override = nullptr;
@@ -241,6 +242,22 @@ void FitSpectraWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
+void FitSpectraWidget::displayROIs(bool val)
+{
+    _displayROIs = val;
+    if (val == false)
+    {
+        for (auto& itr : _roi_spec_map)
+        {
+            _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+        }
+    }
+
+    replot_integrated_spectra(false);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::setParamOverride(data_struct::Params_Override<double>* po)
 {
 	_param_override = po; 
@@ -370,7 +387,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
     {
-		//std::lock_guard<std::mutex> lock(_mutex);
+        //std::lock_guard<std::mutex> lock(_mutex);
 
         data_struct::Fit_Parameters<double> fit_params = _fit_params_table_model->getFitParams();
 
@@ -385,31 +402,31 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra<double>*) & _ev);
         if (snipback)
         {
-			// TODO: Look into why memory access violation happens when streaming
-				_spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
-					fit_params[STR_ENERGY_OFFSET].value,
-					fit_params[STR_ENERGY_SLOPE].value,
-					fit_params[STR_ENERGY_QUADRATIC].value,
-					fit_params[STR_SNIP_WIDTH].value,
-					0, //spectra energy start range
-					_int_spec->size() - 1);
+            // TODO: Look into why memory access violation happens when streaming
+            _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
+                fit_params[STR_ENERGY_OFFSET].value,
+                fit_params[STR_ENERGY_SLOPE].value,
+                fit_params[STR_ENERGY_QUADRATIC].value,
+                fit_params[STR_SNIP_WIDTH].value,
+                0, //spectra energy start range
+                _int_spec->size() - 1);
 
-				_spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
-			
+            _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
         }
         _spectra_widget->setXLabel("Energy (keV)");
-        
+
         /*
-		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
-		if (_showFitIntSpec)
-		{
-			for (auto &itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
-			}
-		}
-		*/
+        _showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+        if (_showFitIntSpec)
+        {
+            for (auto &itr : _fit_int_spec_map)
+            {
+                QString name = "Fitted_Int_" + QString(itr.first.c_str());
+                _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
+            }
+        }
+        */
 
         _showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
         if (_showFitIntMatrix)
@@ -450,12 +467,14 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             }
         }
 
-        for (auto& itr : _roi_spec_map)
+        if (_displayROIs)
         {
-            QColor* color = &(_roi_spec_colors.at(itr.first));
-            _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev, color);
+            for (auto& itr : _roi_spec_map)
+            {
+                QColor* color = &(_roi_spec_colors.at(itr.first));
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev, color);
+            }
         }
-
     }
 }
 

@@ -78,6 +78,8 @@ public:
 
    void clearROISpectra();
 
+   void displayROIs(bool val);
+
 signals:
 
    void signal_finished_fit();
@@ -226,6 +228,8 @@ private:
     bool _showFitIntNNLS;
 
     bool _showMaxChanSpec;
+
+    bool _displayROIs;
 
     unordered_map<string, ArrayDr> _labeled_spectras;
 };

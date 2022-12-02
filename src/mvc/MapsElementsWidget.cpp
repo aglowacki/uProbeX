@@ -367,11 +367,14 @@ void MapsElementsWidget::annoTabChanged(int idx)
     if (idx == 0) // Annotations
     {
         m_imageViewWidget->setSceneModel(m_treeModel);
+        _spectra_widget->displayROIs(false);
     }
     else if (idx == 1) //ROI's
     {
         m_imageViewWidget->setSceneModel(m_roiTreeModel);
+        _spectra_widget->displayROIs(true);
     }
+
 }
 
 //---------------------------------------------------------------------------
