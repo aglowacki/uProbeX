@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/ImageSegRoiDialog.h>
+#include <mvc/ImageSegROIDialog.h>
 
 
 #include <QVBoxLayout>
