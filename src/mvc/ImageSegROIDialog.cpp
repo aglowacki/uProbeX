@@ -14,6 +14,7 @@
 
 //---------------------------------------------------------------------------
 static const QString STR_KMEANS = QString("KMeans");
+static const QString STR_MANUAL = QString("Manual");
 
 //---------------------------------------------------------------------------
 
@@ -37,9 +38,8 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	_color_map.insert({ 14, QColor(Qt::darkCyan) });
 	_color_map.insert({ 15, QColor(Qt::black) });
 	
-
-	_techLayout = new QVBoxLayout();
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
+	_layout_map[STR_MANUAL] = _createManualLayout();
     createLayout();
 
 }
@@ -206,7 +206,7 @@ void ImageSegRoiDialog::setImageData(std::unordered_map<std::string, data_struct
 
 //---------------------------------------------------------------------------
 
-QLayout* ImageSegRoiDialog::_createKMeansLayout()
+QWidget* ImageSegRoiDialog::_createKMeansLayout()
 {
 	QVBoxLayout* layout = new QVBoxLayout();
 
@@ -273,23 +273,46 @@ QLayout* ImageSegRoiDialog::_createKMeansLayout()
 	hlayout->addWidget(_km_le_epsilon);
 	layout->addItem(hlayout);
 	
-	return layout;
+	_runBtn = new QPushButton("Run");
+	_runBtn->setEnabled(false);
+	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
+	layout->addWidget(_runBtn);
+
+	QWidget* widget = new QWidget();
+	widget->setLayout(layout);
+	return widget;
+}
+
+//---------------------------------------------------------------------------
+
+QWidget* ImageSegRoiDialog::_createManualLayout()
+{
+	QVBoxLayout* layout = new QVBoxLayout();
+
+	QComboBox* _manual_cb_action = new QComboBox();
+	_manual_cb_action->addItem("Add");
+	_manual_cb_action->addItem("Subtract");
+
+	QHBoxLayout* hlayout = new QHBoxLayout();
+	hlayout->addWidget(_manual_cb_action);
+	layout->addItem(hlayout);
+	
+	QWidget* widget = new QWidget();
+	widget->setLayout(layout);
+	return widget;
 }
 
 //---------------------------------------------------------------------------
 
 void ImageSegRoiDialog::createLayout()
 {
-	_techLabel = new QLabel("Auto Image Segment Technique:");
-	_cb_tech = new QComboBox();
-	_cb_tech->addItem(STR_KMEANS);
+	_techTabs = new QTabWidget();
+	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
+	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
 
-	_runBtn = new QPushButton("Run");
-	_runBtn->setEnabled(false);
 	_acceptBtn = new QPushButton("Accept");
 	_acceptBtn->setEnabled(false);
 	_cancelBtn = new QPushButton("Cancel");
-	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
 	connect(_acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
 	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(onClose()));
 
@@ -308,37 +331,22 @@ void ImageSegRoiDialog::createLayout()
 	QHBoxLayout* optionLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
 
-	optionLayout->addWidget(_techLabel);
-	optionLayout->addWidget(_cb_tech);
+	optionLayout->addWidget(_techTabs);
 
-	buttonLayout->addWidget(_runBtn);
 	buttonLayout->addWidget(_acceptBtn);
 	buttonLayout->addWidget(_cancelBtn);
 	
 	leftLayout->addWidget(_img_names_view);
 	leftLayout->addItem(optionLayout);
-	leftLayout->addItem(_techLayout);
+	leftLayout->addWidget(_techTabs);
 	leftLayout->addItem(buttonLayout);
 
 	mainLayout->addItem(leftLayout);
 	mainLayout->addWidget(_int_img_widget);
-	
-	_techLayout->addItem(_layout_map[STR_KMEANS]);
 
 	setLayout(mainLayout);
 
 	setWindowTitle("ROI Image Segmentation");
-}
-
-//---------------------------------------------------------------------------
-
-void ImageSegRoiDialog::onSetTech(QString name)
-{
-	if (_layout_map.count(name) > 0)
-	{
-		_techLayout->removeItem(_techLayout->itemAt(0));
-		_techLayout->addItem(_layout_map.at(name));
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -350,7 +358,7 @@ void ImageSegRoiDialog::onRun()
 	ArrayXXr<float> int_img;
 	_get_img(int_img);
 
-	if(_cb_tech->currentText() == STR_KMEANS)
+	if(_techTabs->currentIndex() == 0) // KMEANS
 	{
 		cv::KmeansFlags flags;
 		cv::TermCriteria crit;
@@ -383,9 +391,16 @@ void ImageSegRoiDialog::onRun()
 		cv::Mat labels, centers;
 		
 		cv::Mat data(int_img.rows() * int_img.cols(), 1, CV_32FC1, int_img.data());
-		
-		double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
-
+		try
+		{
+			double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
+		}
+		catch (exception& e)
+		{
+			QMessageBox::critical(nullptr, "PythonRegionCaller Error", e.what());
+			_acceptBtn->setEnabled(true);
+			return;
+		}
 		cv::Mat new_labels = labels.reshape(1, int_img.rows());
 		
 

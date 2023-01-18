@@ -80,6 +80,7 @@ public:
 
    void displayROIs(bool val);
 
+   void setFitRoiEnabled(bool val) { _btn_fit_roi_spectra->setEnabled(val); }
 signals:
 
    void signal_finished_fit();
@@ -93,6 +94,8 @@ signals:
 public slots:
 
    void Fit_Spectra_Click();
+
+   void Fit_ROI_Spectra_Click();
 
    void Model_Spectra_Click();
 
@@ -174,6 +177,8 @@ private:
     QTabWidget *_fit_params_tab_widget;
 
     QPushButton* _btn_fit_spectra;
+
+    QPushButton* _btn_fit_roi_spectra;
 
     QPushButton* _btn_model_spectra;
 

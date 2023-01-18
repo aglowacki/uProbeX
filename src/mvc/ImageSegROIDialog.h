@@ -60,8 +60,6 @@ public slots:
 
 	void onAccept();
 
-	void onSetTech(QString name);
-
 	void onImgSelection(QStandardItem* item);
 
 	void onClose();
@@ -78,13 +76,12 @@ protected:
 
    //QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
 
-   QLayout* _createKMeansLayout();
+   QWidget* _createKMeansLayout();
+
+   QWidget* _createManualLayout();
 
 private:
-	QLabel* _techLabel;
-	QComboBox* _cb_tech;
-	
-	QVBoxLayout* _techLayout;
+	QTabWidget* _techTabs;
 
 	QPushButton* _runBtn;
 	QPushButton* _acceptBtn;
@@ -97,7 +94,7 @@ private:
 
 	QVector<QRgb>* _selected_colormap;
 
-	std::map<QString, QLayout*> _layout_map;
+	std::map<QString, QWidget*> _layout_map;
 
 	std::map<QString, data_struct::ArrayXXr<float>> _img_data;
 
@@ -112,6 +109,8 @@ private:
 	QLineEdit* _km_attempts;
 
 	QSize _image_size;
+
+	QComboBox* _manual_cb_action;
 
 };
 

@@ -158,6 +158,10 @@ void FitSpectraWidget::createLayout()
     _btn_fit_spectra = new QPushButton("Fit Spectra");
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
 
+    _btn_fit_roi_spectra = new QPushButton("Fit ROI Spectra");
+    connect(_btn_fit_roi_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_ROI_Spectra_Click);
+    _btn_fit_roi_spectra->setEnabled(false);
+
     _btn_model_spectra = new QPushButton("Model Spectra");
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
@@ -214,12 +218,13 @@ void FitSpectraWidget::createLayout()
             SLOT(check_auto_model(int)));
 
     QGridLayout *grid_layout = new QGridLayout();
-    grid_layout->addWidget(_btnSsettings, 1, 0);
     grid_layout->addWidget(_cb_opttimizer, 0, 0);
     grid_layout->addWidget(_btn_fit_spectra, 0, 1);
     grid_layout->addWidget(_chk_auto_model, 0, 2);
-    grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_parameters, 0, 3);
+    grid_layout->addWidget(_btnSsettings, 1, 0);
+    grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
+    grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_csv, 1, 3);
     grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
 
@@ -244,6 +249,7 @@ void FitSpectraWidget::createLayout()
 
 void FitSpectraWidget::displayROIs(bool val)
 {
+    _btn_fit_roi_spectra->setEnabled(val);
     _displayROIs = val;
     if (val == false)
     {
@@ -839,6 +845,13 @@ void FitSpectraWidget::Fit_Spectra_Click()
         delete _fitting_dialog;
         _fitting_dialog = nullptr;
     }
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::Fit_ROI_Spectra_Click()
+{
 
 }
 
