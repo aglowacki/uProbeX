@@ -64,6 +64,10 @@ public slots:
 
 	void onClose();
 
+	void onNewROI();
+
+	//
+
 protected:
 
    void createLayout();
@@ -110,8 +114,13 @@ private:
 
 	QSize _image_size;
 
-	QComboBox* _manual_cb_action;
+	//QComboBox* _cb_selected_roi;
 
+	QPushButton* _manual_btn_add_roi;
+	QComboBox* _manual_cb_action;
+	QSpinBox* _manual_sp_brush_size;
+
+	int _next_color;
 };
 
 

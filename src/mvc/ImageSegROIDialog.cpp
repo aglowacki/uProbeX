@@ -40,6 +40,7 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
 	_layout_map[STR_MANUAL] = _createManualLayout();
+	_next_color = 0;
     createLayout();
 
 }
@@ -274,7 +275,6 @@ QWidget* ImageSegRoiDialog::_createKMeansLayout()
 	layout->addItem(hlayout);
 	
 	_runBtn = new QPushButton("Run");
-	_runBtn->setEnabled(false);
 	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
 	layout->addWidget(_runBtn);
 
@@ -287,16 +287,39 @@ QWidget* ImageSegRoiDialog::_createKMeansLayout()
 
 QWidget* ImageSegRoiDialog::_createManualLayout()
 {
+	QHBoxLayout* hlayout;
 	QVBoxLayout* layout = new QVBoxLayout();
 
-	QComboBox* _manual_cb_action = new QComboBox();
-	_manual_cb_action->addItem("Add");
-	_manual_cb_action->addItem("Subtract");
+	//_cb_selected_roi = new QComboBox();
+	_manual_btn_add_roi = new QPushButton("New ROI");
+	connect(_manual_btn_add_roi, &QPushButton::pressed, this, &ImageSegRoiDialog::onNewROI);
 
-	QHBoxLayout* hlayout = new QHBoxLayout();
+	hlayout = new QHBoxLayout();
+	//hlayout->addWidget(new QLabel("Selected ROI"));
+	//hlayout->addWidget(_cb_selected_roi);
+	hlayout->addWidget(_manual_btn_add_roi);
+	layout->addItem(hlayout);
+
+
+	QComboBox* _manual_cb_action = new QComboBox();
+	_manual_cb_action->addItem("Add To");
+	_manual_cb_action->addItem("Subtract From");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(new QLabel("Action:"));
 	hlayout->addWidget(_manual_cb_action);
 	layout->addItem(hlayout);
-	
+
+	_manual_sp_brush_size = new QSpinBox();
+	_manual_sp_brush_size->setRange(0, 100);
+	_manual_sp_brush_size->setSingleStep(1.0);
+	_manual_sp_brush_size->setValue(10);
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(new QLabel("Brush Size"));
+	hlayout->addWidget(_manual_sp_brush_size);
+	layout->addItem(hlayout);
+
 	QWidget* widget = new QWidget();
 	widget->setLayout(layout);
 	return widget;
@@ -309,9 +332,10 @@ void ImageSegRoiDialog::createLayout()
 	_techTabs = new QTabWidget();
 	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
 	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
+	_techTabs->setEnabled(false);
 
 	_acceptBtn = new QPushButton("Accept");
-	_acceptBtn->setEnabled(false);
+	//_acceptBtn->setEnabled(false);
 	_cancelBtn = new QPushButton("Cancel");
 	connect(_acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
 	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(onClose()));
@@ -353,7 +377,7 @@ void ImageSegRoiDialog::createLayout()
 
 void ImageSegRoiDialog::onRun()
 {
-	// check if we have roi masks and ask user if we should clear them before running.
+	// TODO: check if we have roi masks and ask user if we should clear them before running.
 
 	ArrayXXr<float> int_img;
 	_get_img(int_img);
@@ -412,7 +436,7 @@ void ImageSegRoiDialog::onRun()
 				color_idx = color_idx % _color_map.size();
 			}
 			QColor color_data = _color_map[color_idx];
-
+			_next_color++;
 			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
 			_int_img_widget->addRoiMask(roi);
 		}
@@ -435,7 +459,25 @@ void ImageSegRoiDialog::onClose()
 {
 	clear_all_rois();
 	clear_image();
+	_techTabs->setEnabled(false);
 	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onNewROI()
+{
+	QColor color_data = _color_map[_next_color];
+	cv::Mat mat;
+	ArrayXXr<float> int_img;
+	if (_get_img(int_img))
+	{
+		mat.reshape(int_img.rows() * int_img.cols());
+		gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(mat, _next_color, color_data);
+		_int_img_widget->addRoiMask(roi);
+		//_cb_selected_roi->addItem(roi->getName());
+		_next_color++;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -444,6 +486,7 @@ void ImageSegRoiDialog::clear_all_rois()
 {
 	//_int_img_widget->clearAllRoiMasks();
 	_int_img_widget->deleteAllItems();
+	//_cb_selected_roi->clear();
 }
 
 //---------------------------------------------------------------------------
@@ -578,7 +621,7 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 	ArrayXXr<float> int_img;
 	bool is_checked = _get_img(int_img);
 
-	_runBtn->setEnabled(is_checked);
+	_techTabs->setEnabled(is_checked);
 
 	if (is_checked)
 	{

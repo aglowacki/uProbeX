@@ -175,6 +175,8 @@ signals:
     */
    void rulerUnitsChanged(QString, double, double);
 
+   void deletedAnnotation(AbstractGraphicsItem*);
+
 protected slots:
 
    /**
