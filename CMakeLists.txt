@@ -226,6 +226,7 @@ ELSEIF (UNIX)
     target_link_libraries (uProbeX PRIVATE
                         libzmq
                         yaml-cpp
+                        ${TIFF_LIBRARIES}
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
                         opencv_ml
