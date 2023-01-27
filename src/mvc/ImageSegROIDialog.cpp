@@ -16,6 +16,12 @@
 static const QString STR_KMEANS = QString("KMeans");
 static const QString STR_MANUAL = QString("Manual");
 
+const int TAB_KMEANS = 0;
+const int TAB_MANUAL = 1;
+
+const int ACTION_ADD = 0;
+const int ACTION_ERASE = 1;
+
 //---------------------------------------------------------------------------
 
 ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
@@ -301,9 +307,10 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	layout->addItem(hlayout);
 
 
-	QComboBox* _manual_cb_action = new QComboBox();
+	_manual_cb_action = new QComboBox();
 	_manual_cb_action->addItem("Add To");
-	_manual_cb_action->addItem("Subtract From");
+	_manual_cb_action->addItem("Erase");
+	connect(_manual_cb_action, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ImageSegRoiDialog::manualActionChanged);
 
 	hlayout = new QHBoxLayout();
 	hlayout->addWidget(new QLabel("Action:"));
@@ -314,6 +321,7 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_sp_brush_size->setRange(0, 100);
 	_manual_sp_brush_size->setSingleStep(1.0);
 	_manual_sp_brush_size->setValue(10);
+	connect(_manual_sp_brush_size, qOverload<int>(&QSpinBox::valueChanged), this, &ImageSegRoiDialog::updateCustomCursor);
 
 	hlayout = new QHBoxLayout();
 	hlayout->addWidget(new QLabel("Brush Size"));
@@ -333,6 +341,7 @@ void ImageSegRoiDialog::createLayout()
 	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
 	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
 	_techTabs->setEnabled(false);
+	connect(_techTabs, &QTabWidget::currentChanged, this, &ImageSegRoiDialog::onTabChanged);
 
 	_acceptBtn = new QPushButton("Accept");
 	//_acceptBtn->setEnabled(false);
@@ -478,6 +487,47 @@ void ImageSegRoiDialog::onNewROI()
 		//_cb_selected_roi->addItem(roi->getName());
 		_next_color++;
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::updateCustomCursor(int val)
+{
+	
+	QPixmap pmap(val, val);
+	if (_manual_cb_action->currentIndex() == ACTION_ADD)
+	{
+		pmap.fill(QColor(Qt::green));
+	}
+	else
+	{
+		pmap.fill(QColor(Qt::red));
+	}
+	
+	_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onTabChanged(int tab)
+{
+	if (tab == TAB_MANUAL)
+	{
+		int bs = _manual_sp_brush_size->value();
+		updateCustomCursor(bs);
+	}
+	else
+	{
+		_int_img_widget->imageViewWidget()->clickCursor();
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::manualActionChanged(QString)
+{
+	int bs = _manual_sp_brush_size->value();
+	updateCustomCursor(bs);
 }
 
 //---------------------------------------------------------------------------

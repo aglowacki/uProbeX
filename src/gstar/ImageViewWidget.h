@@ -232,6 +232,8 @@ public slots:
     */
    void clickZoomOut();
 
+   void customCursor(QCursor cursor);
+
 //protected:
 
    /**

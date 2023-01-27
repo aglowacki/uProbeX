@@ -78,6 +78,16 @@ void ImageViewWidget::clickCursor()
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::customCursor(QCursor cursor)
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.view->viewport()->setCursor(cursor);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::setCoordsVisible(bool val)
 {
     m_coordWidget->setVisible(val, val, val);

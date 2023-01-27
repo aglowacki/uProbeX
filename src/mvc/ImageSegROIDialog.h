@@ -66,7 +66,13 @@ public slots:
 
 	void onNewROI();
 
-	//
+private slots:
+
+	void onTabChanged(int);
+
+	void updateCustomCursor(int);
+
+	void manualActionChanged(QString);
 
 protected:
 
