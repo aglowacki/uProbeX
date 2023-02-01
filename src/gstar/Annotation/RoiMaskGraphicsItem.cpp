@@ -106,10 +106,22 @@ void RoiMaskGraphicsItem::add_to_roi(int x, int y, QSize size)
     {
         if (y > -1 && y < _mask->height())
         {
+            int xsize = x + size.width();
+            if (xsize > _mask->width() - 1)
+                xsize = _mask->width() - 1;
+            int ysize = y + size.height();
+            if (ysize > _mask->height() - 1)
+                ysize = _mask->height() - 1;
             QVariant variant = _color_ano->getValue();
             QColor col = variant.value<QColor>();
             col.setAlpha(_alpha_value->getValue().toInt());
-            _mask->setPixelColor(x, y, col);
+            for (int i = x; i < xsize; i++)
+            {
+                for (int j = y; j < ysize; j++)
+                {
+                    _mask->setPixelColor(i, j, col);
+                }
+            }
             update();
         }
     }
