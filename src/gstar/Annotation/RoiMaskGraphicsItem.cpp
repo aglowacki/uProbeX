@@ -84,6 +84,53 @@ RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 
 /*---------------------------------------------------------------------------*/
 
+void RoiMaskGraphicsItem::setMaskSize(QRectF size)
+{
+    _mask = new QImage(size.width(), size.height(), QImage::Format_ARGB32);
+    for (int w = 0; w < size.width(); w++)
+    {
+        for (int h = 0; h < size.height(); h++)
+        {
+            _mask->setPixelColor(w, h, QColor(0, 0, 0, 0));
+        }
+    }
+    update();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::add_to_roi(int x, int y, QSize size)
+{
+
+    if (x > -1 && x < _mask->width())
+    {
+        if (y > -1 && y < _mask->height())
+        {
+            QVariant variant = _color_ano->getValue();
+            QColor col = variant.value<QColor>();
+            col.setAlpha(_alpha_value->getValue().toInt());
+            _mask->setPixelColor(x, y, col);
+            update();
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::erase_from_roi(int x, int y, QSize size)
+{
+    if (x > -1 && x < _mask->width())
+    {
+        if (y > -1 && y < _mask->height())
+        {
+            _mask->setPixelColor(x, y, QColor(0, 0, 0, 0));
+            update();
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 QString RoiMaskGraphicsItem::getName()
 {
 

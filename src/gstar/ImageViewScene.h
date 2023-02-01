@@ -209,6 +209,10 @@ signals:
     */
    void zoomOut();
 
+   void onMousePressEvent(QGraphicsSceneMouseEvent*);
+
+   void onMouseReleaseEvent(QGraphicsSceneMouseEvent*);
+
 protected:
 
    /**

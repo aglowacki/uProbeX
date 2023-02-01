@@ -74,6 +74,12 @@ public:
 
    void to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois);
  
+   void add_to_roi(int x, int y, QSize size);
+
+   void erase_from_roi(int x, int y, QSize size);
+
+   void setMaskSize(QRectF size);
+
 signals:
 
    void mask_updated(RoiMaskGraphicsItem* ano, bool reload);

@@ -10,6 +10,9 @@
 ImageSegWidget::ImageSegWidget(QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
+    _action_mode = ROI_ACTION_MODES::OFF;
+    _selected_roi = nullptr;
+    _mouse_down = false;
     createLayout();
     createActions();
 }
@@ -30,6 +33,13 @@ void ImageSegWidget::createLayout()
    m_imageViewWidget->setCoordsVisible(false);
    m_imageViewWidget->setSelectorVisible(false);
    m_imageViewWidget->setCountsVisible(false);
+   
+   
+   connect(m_selectionModel, &QItemSelectionModel::currentChanged, this, &ImageSegWidget::currentRoiChanged);
+   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::mouseOverPixel, this, &ImageSegWidget::mouseOverPixel);
+   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, this, &ImageSegWidget::mousePressEvent);
+   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, this, &ImageSegWidget::mouseReleaseEvent);
+   
    appendAnnotationTab();
    setLayout(layout);
 }
@@ -79,9 +89,71 @@ void ImageSegWidget::clearAllRoiMasks()
 
 //---------------------------------------------------------------------------
 
+void ImageSegWidget::mouseOverPixel(int x, int y)
+{
+    if (_selected_roi != nullptr && _mouse_down)
+    {
+        if (_action_mode == ROI_ACTION_MODES::ADD)
+        {
+            _selected_roi->add_to_roi(x, y, _roi_brush_size);
+            //QRectF rect(qreal(x), qreal(y), qreal(_roi_brush_size.width()), qreal(_roi_brush_size.height()));
+            //m_imageViewWidget->scene()->invalidate(rect);
+            //m_imageViewWidget->repaint();
+        }
+        else if (_action_mode == ROI_ACTION_MODES::ERASE)
+        {
+            _selected_roi->erase_from_roi(x, y, _roi_brush_size);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        _mouse_down = true;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        _mouse_down = false;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::setRoiBrushSize(int val)
+{
+    if (val < 1)
+    {
+        val = 1;
+    }
+    _roi_brush_size = QSize(val, val);
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 {
     insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi);
+    // auto select the new roi
+    _selected_roi = roi;
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::currentRoiChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+    gstar::AbstractGraphicsItem* abstractItem = static_cast<gstar::AbstractGraphicsItem*>(current.internalPointer());
+    // will be nullptr if not the right class
+    _selected_roi = dynamic_cast<gstar::RoiMaskGraphicsItem*>(abstractItem);
 }
 
 //---------------------------------------------------------------------------
@@ -99,3 +171,5 @@ std::vector<gstar::RoiMaskGraphicsItem*> ImageSegWidget::getAllROIs()
     }
     return list;
 }
+
+//---------------------------------------------------------------------------

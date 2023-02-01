@@ -7,6 +7,7 @@
 
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/AnnotationTreeModel.h"
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <typeinfo>
@@ -151,8 +152,6 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
             cItem = item->child(start);
             if (cItem != nullptr)
             {
-               //addItem(cItem);
-
                 AbstractGraphicsItem* clone = cItem->duplicate();
                 
                 clone->linkProperties(cItem->properties());
@@ -160,6 +159,17 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
                 cItem->linkProperties(clone->properties());
 
                 cItem->appendLinkedDisplayChild(clone);
+
+                // if roi item, we need to get scene width and height to pass to new object
+                RoiMaskGraphicsItem* roi_gitem = dynamic_cast<RoiMaskGraphicsItem*>(cItem);
+                if (roi_gitem != nullptr)
+                {
+                    QImage* mask = roi_gitem->image_mask();
+                    if (mask->width() == 0 || mask->height() == 0)
+                    {
+                        roi_gitem->setMaskSize(sceneRect());
+                    }
+                }
 
                 addItem(clone);
             }
@@ -411,6 +421,7 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
       QGraphicsScene::mousePressEvent(event);
    }
 
+   emit onMousePressEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -436,6 +447,7 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
       QGraphicsScene::mouseReleaseEvent(event);
    }
 
+   emit onMouseReleaseEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/

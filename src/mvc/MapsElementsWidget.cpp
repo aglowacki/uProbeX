@@ -459,7 +459,21 @@ void MapsElementsWidget::openImageSegDialog()
         }
         _img_seg_diag.setColorMap(_selected_colormap);
         _img_seg_diag.setImageData(fit_counts);
-
+        
+        // add any roi's that were loaded.
+        std::vector<gstar::RoiMaskGraphicsItem*> roi_list;
+        QImage i;
+        QColor q;
+        gstar::RoiMaskGraphicsItem item(i, q, 0);
+        if (m_treeModel != nullptr)
+        {
+            m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
+        }
+        for (auto& itr : roi_list)
+        {
+            
+            _img_seg_diag.append_roi(itr);
+        }
         _img_seg_diag.show();
     }
 }

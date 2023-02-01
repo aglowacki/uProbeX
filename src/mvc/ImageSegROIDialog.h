@@ -53,6 +53,8 @@ public:
 
    void clear_image();
 
+   void append_roi(gstar::RoiMaskGraphicsItem* roi) { _int_img_widget->addRoiMask(roi); }
+
 signals:
 	void onNewROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
 

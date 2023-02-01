@@ -495,13 +495,16 @@ void ImageSegRoiDialog::updateCustomCursor(int val)
 {
 	
 	QPixmap pmap(val, val);
+	_int_img_widget->setRoiBrushSize(val);
 	if (_manual_cb_action->currentIndex() == ACTION_ADD)
 	{
 		pmap.fill(QColor(Qt::green));
+		_int_img_widget->setActionMode(ROI_ACTION_MODES::ADD);
 	}
 	else
 	{
 		pmap.fill(QColor(Qt::red));
+		_int_img_widget->setActionMode(ROI_ACTION_MODES::ERASE);
 	}
 	
 	_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));
@@ -519,6 +522,7 @@ void ImageSegRoiDialog::onTabChanged(int tab)
 	else
 	{
 		_int_img_widget->imageViewWidget()->clickCursor();
+		_int_img_widget->setActionMode(ROI_ACTION_MODES::OFF);
 	}
 }
 
