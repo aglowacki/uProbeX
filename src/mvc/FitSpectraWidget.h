@@ -62,13 +62,13 @@ public:
 
    void clearAllSpectra() { _spectra_widget->clearAllSpectra(); }
 
-   void appendFitIntSpectra(string, ArrayDr*);
+   void appendFitIntSpectra(std::string, ArrayDr*);
 
-   void appendMaxChanSpectra(string name, ArrayDr* spec);
+   void appendMaxChanSpectra(std::string name, ArrayDr* spec);
 
-   void appendROISpectra(string name, ArrayDr* spec, QColor color);
+   void appendROISpectra(std::string name, ArrayDr* spec, QColor color);
 
-   void deleteROISpectra(string name);
+   void deleteROISpectra(std::string name);
 
    void deleteAllROISpectra();
 
@@ -89,7 +89,7 @@ signals:
 
    void export_fit_paramters(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit);
                                                     //ev                           int spec                  back                 fit              detailed fit
-   void export_csv_and_png(QPixmap, ArrayDr *, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr> *);
+   void export_csv_and_png(QPixmap, ArrayDr *, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr> *);
 
 public slots:
 
@@ -200,13 +200,13 @@ private:
 
     data_struct::Params_Override<double>* _param_override;
 
-    unordered_map<string, ArrayDr*> _fit_int_spec_map;
+    std::unordered_map<std::string, ArrayDr*> _fit_int_spec_map;
 
-    unordered_map<string, ArrayDr*> _max_chan_spec_map;
+    std::unordered_map<std::string, ArrayDr*> _max_chan_spec_map;
 
-    unordered_map<string, ArrayDr*> _roi_spec_map;
+    std::unordered_map<std::string, ArrayDr*> _roi_spec_map;
 
-    unordered_map<string, QColor> _roi_spec_colors;
+    std::unordered_map<std::string, QColor> _roi_spec_colors;
 
     std::string _detector_element;
 
@@ -236,7 +236,7 @@ private:
 
     bool _displayROIs;
 
-    unordered_map<string, ArrayDr> _labeled_spectras;
+    std::unordered_map<std::string, ArrayDr> _labeled_spectras;
 };
 
 

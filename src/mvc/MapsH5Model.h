@@ -27,21 +27,21 @@
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
-const string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
-const string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
-const string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
+const std::string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
+const std::string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
+const std::string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
 
-const string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
-const string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
-const string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
+const std::string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
+const std::string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
+const std::string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
 
-const string STR_SR_CURRENT_V9 = "SRcurrent";
-const string STR_US_IC_V9 = "us_ic";
-const string STR_DS_IC_V9 = "ds_ic";
+const std::string STR_SR_CURRENT_V9 = "SRcurrent";
+const std::string STR_US_IC_V9 = "us_ic";
+const std::string STR_DS_IC_V9 = "ds_ic";
 
-const string STR_ROI_V9 = "XRF_roi";
-const string STR_ROI_PLUS_V9 = "XRF_roi_plus";
-const string STR_FITS_V9 = "XRF_fits";
+const std::string STR_ROI_V9 = "XRF_roi";
+const std::string STR_ROI_PLUS_V9 = "XRF_roi_plus";
+const std::string STR_FITS_V9 = "XRF_fits";
 
 template <typename T_real>
 struct Calibration_curve
@@ -50,14 +50,14 @@ struct Calibration_curve
     {
     }
 
-    Calibration_curve(string name)
+    Calibration_curve(std::string name)
     {
         scaler_name = name;
     }
 
-    string scaler_name;
+    std::string scaler_name;
     //            el_name   value
-    unordered_map<string, T_real> calib_curve;
+    std::unordered_map<std::string, T_real> calib_curve;
 };
 
 using ArrayDr = data_struct::ArrayTr<double>;
@@ -122,7 +122,7 @@ public:
 
     void set_fit_parameters_override(data_struct::Params_Override<double>* override);
 
-    Calibration_curve<double>* get_calibration_curve(string analysis_type, string scaler_name);
+    Calibration_curve<double>* get_calibration_curve(std::string analysis_type, std::string scaler_name);
 
     data_struct::Params_Override<double>* getParamOverride() { return _params_override; }
 

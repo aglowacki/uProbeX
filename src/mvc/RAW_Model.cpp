@@ -120,7 +120,7 @@ bool RAW_Model::load(QString filename)
 		{
 			int det = filename[filename.length() - 1].digitValue();
 			_integrated_spectra_map[det] = data_struct::Spectra<double>();
-			unordered_map<string, double> pv_map;
+			std::unordered_map<std::string, double> pv_map;
 			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
 			// add fit params
 			data_struct::Params_Override<double>* po = nullptr;

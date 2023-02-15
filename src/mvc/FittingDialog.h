@@ -78,7 +78,7 @@ public:
 
     void setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
-	data_struct::Spectra<double> get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras);
+	data_struct::Spectra<double> get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras);
 
 	data_struct::Fit_Parameters<double>* get_new_fit_params() { return &_new_out_fit_params; }
 

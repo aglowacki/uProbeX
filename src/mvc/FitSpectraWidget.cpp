@@ -486,21 +486,21 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendFitIntSpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendFitIntSpectra(std::string name, ArrayDr* spec)
 {
     _fit_int_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendMaxChanSpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendMaxChanSpectra(std::string name, ArrayDr* spec)
 {
     _max_chan_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendROISpectra(string name, ArrayDr* spec, QColor color)
+void FitSpectraWidget::appendROISpectra(std::string name, ArrayDr* spec, QColor color)
 {
     _roi_spec_map[name] = spec;
     _roi_spec_colors[name] = color;
@@ -508,7 +508,7 @@ void FitSpectraWidget::appendROISpectra(string name, ArrayDr* spec, QColor color
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::deleteROISpectra(string name)
+void FitSpectraWidget::deleteROISpectra(std::string name)
 {
     if (_roi_spec_map.count(name) > 0)
     {
@@ -606,7 +606,7 @@ void FitSpectraWidget::add_element()
     {
 		if (_param_override != nullptr)
 		{
-			map<int, double> ratios = _param_override->get_custom_factor(el_name.toStdString());
+            std::map<int, double> ratios = _param_override->get_custom_factor(el_name.toStdString());
 			for (const auto &itr : ratios)
 			{
 				fit_element->multiply_custom_multiply_ratio(itr.first, itr.second);
@@ -885,7 +885,7 @@ void FitSpectraWidget::Model_Spectra_Click()
         energy_range.min = 0;
         energy_range.max = _int_spec->size()-1;
 
-        unordered_map<string, ArrayTr<double>> labeled_spectras;
+        std::unordered_map<std::string, ArrayTr<double>> labeled_spectras;
         data_struct::Spectra<double> fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, &labeled_spectras, energy_range);
 
         replot_integrated_spectra(true);
@@ -1014,7 +1014,7 @@ void FitSpectraWidget::element_selection_changed(int index)
 
 	if (_param_override != nullptr)
 	{
-		map<int, double> ratios = _param_override->get_custom_factor(full_name.toStdString());
+        std::map<int, double> ratios = _param_override->get_custom_factor(full_name.toStdString());
 		for (const auto &itr : ratios)
 		{
 			em.multiply_custom_multiply_ratio(itr.first, itr.second);
@@ -1085,7 +1085,7 @@ void FitSpectraWidget::update_spectra_top_axis()
             Fit_Element_Map<double> em(itr.first, Element_Info_Map<double>::inst()->get_element(itr.first));
             if (_param_override != nullptr)
             {
-                map<int, double> ratios = _param_override->get_custom_factor(itr.first);
+                std::map<int, double> ratios = _param_override->get_custom_factor(itr.first);
                 for (const auto& itr2 : ratios)
                 {
                     em.multiply_custom_multiply_ratio(itr2.first, itr2.second);

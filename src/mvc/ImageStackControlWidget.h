@@ -91,11 +91,11 @@ protected:
 
    QPushButton *_right_btn;
 
-   map<QString, MapsH5Model*> _h5_model_map;
+   std::map<QString, MapsH5Model*> _h5_model_map;
 
-   map<QString, RAW_Model*> _raw_model_map;
+   std::map<QString, RAW_Model*> _raw_model_map;
 
-   map<QString, VLM_Model*> _vlm_model_map;
+   std::map<QString, VLM_Model*> _vlm_model_map;
 
    QProgressBar* _load_progress;
 

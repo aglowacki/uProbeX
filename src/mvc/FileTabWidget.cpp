@@ -135,7 +135,7 @@ void FileTabWidget::unload_all()
 
 /*---------------------------------------------------------------------------*/
 
-void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
+void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
 	_file_list_model->clear();
     for(auto & itr : fileinfo_list)
@@ -146,7 +146,7 @@ void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
 
 /*---------------------------------------------------------------------------*/
 
-void FileTabWidget::update_file_list(const map<QString, QFileInfo>& fileinfo_list)
+void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
     int rows = _file_list_model->rowCount();
     for (const auto& itr : fileinfo_list)

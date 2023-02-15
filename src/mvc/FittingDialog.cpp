@@ -9,6 +9,9 @@
 #include <QSplitter>
 #include <QScrollBar>
 #include <mvc/NumericPrecDelegate.h>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
  /*---------------------------------------------------------------------------*/
 
@@ -297,7 +300,7 @@ void  FittingDialog::_updateGUIOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt = _optimizer->get_options();
+        std::unordered_map<std::string, double> opt = _optimizer->get_options();
         if (opt.count(STR_OPT_FTOL) > 0)
         {
             _opt_ftol->setValue(opt.at(STR_OPT_FTOL));
@@ -339,7 +342,7 @@ void  FittingDialog::_updateOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt;
+        std::unordered_map<std::string, double> opt;
         opt[STR_OPT_FTOL] = _opt_ftol->value();
         opt[STR_OPT_XTOL] = _opt_xtol->value();
         opt[STR_OPT_GTOL] = _opt_gtol->value();
@@ -391,7 +394,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
     _elements_to_fit = elements_to_fit;
     if (_elements_to_fit != nullptr)
     {
-        unordered_map<string, ArrayDr> labeled_spectras;
+        std::unordered_map<std::string, ArrayDr> labeled_spectras;
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         /*
         if (fit_spec.size() == _spectra_background.size())
@@ -413,7 +416,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Spectra<double> FittingDialog::get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras)
+data_struct::Spectra<double> FittingDialog::get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
 	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
 }
@@ -546,7 +549,7 @@ void FittingDialog::runProcessing()
 
 		_progressBarBlocks->setValue(_total_itr);
 
-        unordered_map<string, ArrayDr> labeled_spectras;
+        std::unordered_map<std::string, ArrayDr> labeled_spectras;
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         
         if (fit_spec.size() == _spectra_background.size())

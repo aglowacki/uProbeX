@@ -141,7 +141,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 void MapsWorkspaceFilesWidget::updatedMDA()
 {
     _mda_tab_widget->set_file_list(_model->get_raw_file_list());
-    vector<QString> loaded_names = _model->get_loaded_raw_names();
+    std::vector<QString> loaded_names = _model->get_loaded_raw_names();
     for (const auto& itr : loaded_names)
     {
         _mda_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
@@ -153,7 +153,7 @@ void MapsWorkspaceFilesWidget::updatedMDA()
 void MapsWorkspaceFilesWidget::updatedVLM()
 {
     _vlm_tab_widget->set_file_list(_model->get_vlm_file_list());
-    vector<QString> loaded_names = _model->get_loaded_vlm_names();
+    std::vector<QString> loaded_names = _model->get_loaded_vlm_names();
     for (const auto& itr : loaded_names)
     {
         _vlm_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
@@ -164,7 +164,7 @@ void MapsWorkspaceFilesWidget::updatedVLM()
 void MapsWorkspaceFilesWidget::updatedHDF()
 {
     _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-    vector<QString> loaded_names = _model->get_loaded_h5_names();
+    std::vector<QString> loaded_names = _model->get_loaded_h5_names();
     for (const auto& itr : loaded_names)
     {
         _h5_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);

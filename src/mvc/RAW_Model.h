@@ -72,7 +72,7 @@ private:
 
     QString _path;
 
-    unordered_map<string, data_struct::ArrayTr<double> > _csv_data;
+    std::unordered_map<std::string, data_struct::ArrayTr<double> > _csv_data;
 };
 
 

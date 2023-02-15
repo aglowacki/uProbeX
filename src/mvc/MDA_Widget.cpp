@@ -197,7 +197,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_pa
 
 /*---------------------------------------------------------------------------*/
 
-void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec, ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
+void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec, ArrayDr* fit_spec, std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
 
     //QString path = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");

@@ -428,7 +428,7 @@ void ImageSegRoiDialog::onRun()
 		{
 			double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
 		}
-		catch (exception& e)
+		catch (std::exception& e)
 		{
 			QMessageBox::critical(nullptr, "PythonRegionCaller Error", e.what());
 			_acceptBtn->setEnabled(true);

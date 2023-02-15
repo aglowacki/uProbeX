@@ -87,7 +87,7 @@ public slots:
 
    void onSelectNormalizer(QString name);
 
-   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr>*);
+   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
    void on_min_max_contrast_changed();
 
@@ -162,7 +162,7 @@ protected:
 
    Calibration_curve<double>* _calib_curve;
 
-   unordered_map<string, data_struct::Spectra<double>> _roi_spectra;
+   std::unordered_map<std::string, data_struct::Spectra<double>> _roi_spectra;
 
    QTableWidget* _extra_pvs_table_widget;
 

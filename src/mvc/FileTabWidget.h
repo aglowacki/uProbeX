@@ -37,9 +37,9 @@ class FileTabWidget : public QWidget
 
     ~FileTabWidget(){}
 
-    void set_file_list(const map<QString, QFileInfo>& fileinfo_list);
+    void set_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
-    void update_file_list(const map<QString, QFileInfo>& fileinfo_list);
+    void update_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
     void unload_all();
 

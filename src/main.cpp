@@ -62,8 +62,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 void readSTDOUT()
 {
 	std::string line;
-	ostringstream strCout;
-	cout.rdbuf(strCout.rdbuf());
+	std::ostringstream strCout;
+	std::cout.rdbuf(strCout.rdbuf());
 
 	while (running)
 	{

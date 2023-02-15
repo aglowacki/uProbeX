@@ -4,8 +4,6 @@
 # include <ctime>
 # include <cmath>
 
-using namespace std;
-
 # include "solver/asa047.hpp"
 
 //****************************************************************************80
@@ -535,7 +533,7 @@ void timestamp ( void )
 
   len = strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
 
-  cout << time_buffer << "\n";
+  std::cout << time_buffer << "\n";
 
   return;
 # undef TIME_SIZE

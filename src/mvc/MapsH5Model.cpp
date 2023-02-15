@@ -643,8 +643,8 @@ bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
 {
 
     hid_t x_id, y_id;
-    string x_axis_loc = "x_axis";
-    string y_axis_loc = "y_axis";
+    std::string x_axis_loc = "x_axis";
+    std::string y_axis_loc = "y_axis";
 
     x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
     y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
@@ -1293,12 +1293,12 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
     hid_t desc_id, name_id, unit_id, val_id, x_id, y_id;
-    string extra_pvs_desc = "Scan/Extra_PVs/Description";
-    string extra_pvs_name = "Scan/Extra_PVs/Names";
-    string extra_pvs_unit = "Scan/Extra_PVs/Unit";
-    string extra_pvs_val = "Scan/Extra_PVs/Values";
-    string x_axis_loc = "Scan/x_axis";
-    string y_axis_loc = "Scan/y_axis";
+    std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
+    std::string extra_pvs_name = "Scan/Extra_PVs/Names";
+    std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
+    std::string extra_pvs_val = "Scan/Extra_PVs/Values";
+    std::string x_axis_loc = "Scan/x_axis";
+    std::string y_axis_loc = "Scan/y_axis";
     hsize_t offset[1] = { 0, };
     hsize_t count[1] = { 1 };
     hid_t   filetype, memtype, status;
@@ -1432,8 +1432,8 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
     hsize_t offset[1] = { 0,};
     hsize_t count[1] = { 1 };
 
-    string max_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX_CHANNELS_INT_SPEC;
-    string max_10_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX10_INT_SPEC;
+    std::string max_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX_CHANNELS_INT_SPEC;
+    std::string max_10_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX10_INT_SPEC;
 
     dset_id = H5Dopen(file_id, max_path.c_str(), H5P_DEFAULT);
     if (dset_id > -1)
@@ -1727,7 +1727,7 @@ bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct:
 
 /*---------------------------------------------------------------------------*/
 
-Calibration_curve<double>* MapsH5Model::get_calibration_curve(string analysis_type, string scaler_name)
+Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analysis_type, std::string scaler_name)
 {
     if (analysis_type == STR_FIT_GAUSS_MATRIX)
     {

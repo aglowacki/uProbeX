@@ -290,7 +290,7 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 	{
 		QMenu menu(this);
 
-		map<QString, QFileInfo> raw_file_map = _model->get_raw_file_list();
+		std::map<QString, QFileInfo> raw_file_map = _model->get_raw_file_list();
 		QStringList raw_file_list;
 		for (auto& itr : raw_file_map)
 		{

@@ -513,7 +513,7 @@ bool PythonLoader::loadFunction(QString path,
             sys_path = PySys_GetObject("path");
             if (sys_path == nullptr)
                 return false;
-            logI<<"Python path object found."<<endl;
+            logI<<"Python path object found."<<std::endl;
 
             int pyPathSize = PyList_Size(sys_path);
             for (int ia=0; ia<pyPathSize; ia++)

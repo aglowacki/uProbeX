@@ -723,7 +723,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, unordered_map<string, ArrayDr>* labeled_spectras)
+void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec , ArrayDr* fit_spec, std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
     QDir save_path = QDir(_dataset_directory->text());
     QFileInfo file_info = QFileInfo(_dataset_directory->text());
