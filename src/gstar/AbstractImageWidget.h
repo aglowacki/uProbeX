@@ -285,7 +285,8 @@ protected:
    void insertAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                   QTreeView* annoTreeView,
                                   QItemSelectionModel* selectionModel,
-                                  AbstractGraphicsItem* annotation);
+                                  AbstractGraphicsItem* annotation,
+                                  bool centerAnno = true);
 
    void reloadAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                   QTreeView* annoTreeView,
