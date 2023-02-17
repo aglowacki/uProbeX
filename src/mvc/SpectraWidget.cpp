@@ -364,6 +364,11 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 			}
 		}
         series->replace(points);
+        QPen pen = series->pen();
+        if (color != nullptr)
+        {
+            pen.setColor(*color);
+        }
     }
 
     emit trigger_connect_markers();

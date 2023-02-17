@@ -477,14 +477,11 @@ void ImageSegRoiDialog::onClose()
 void ImageSegRoiDialog::onNewROI()
 {
 	QColor color_data = _color_map[_next_color];
-	cv::Mat mat;
 	ArrayXXr<float> int_img;
 	if (_get_img(int_img))
 	{
-		mat.reshape(int_img.rows() * int_img.cols());
-		gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(mat, _next_color, color_data);
+		gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(int_img.rows(), int_img.cols(), color_data);
 		_int_img_widget->addRoiMask(roi);
-		//_cb_selected_roi->addItem(roi->getName());
 		_next_color++;
 	}
 }

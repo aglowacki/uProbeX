@@ -65,10 +65,15 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
    }
    else
    {
+       AbstractGraphicsItem* out_child = nullptr;
        // don't add already existing one
-       row = groupRoot->indexOfName(item);
+       row = groupRoot->indexOfName(item, &out_child);
        if (row > -1)
        {
+           if (out_child != nullptr)
+           {
+               out_child->copyPropertyValues(item->properties());
+           }           
            return index(row, 0, QModelIndex());
        }
    }

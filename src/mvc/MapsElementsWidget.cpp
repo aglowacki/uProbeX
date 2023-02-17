@@ -25,6 +25,8 @@
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 
+#define ANNO_TAB 0
+#define ROI_TAB 1
 
 //---------------------------------------------------------------------------
 
@@ -364,12 +366,12 @@ void MapsElementsWidget::roiModelDataChanged(const QModelIndex& topLeft, const Q
 
 void MapsElementsWidget::annoTabChanged(int idx)
 {
-    if (idx == 0) // Annotations
+    if (idx == ANNO_TAB) // Annotations
     {
         m_imageViewWidget->setSceneModel(m_treeModel);
         _spectra_widget->displayROIs(false);
     }
-    else if (idx == 1) //ROI's
+    else if (idx == ROI_TAB) //ROI's
     {
         m_imageViewWidget->setSceneModel(m_roiTreeModel);
         _spectra_widget->displayROIs(true);
@@ -1572,8 +1574,6 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
     _img_seg_diag.clear_image();
     for (auto& itr : roi_list)
     {
-        // check if m_roiTreeModel contians it already
-
         insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr);
         std::vector<std::pair<unsigned int, unsigned int>> roi;
         itr->to_roi_vec(roi);
@@ -1585,6 +1585,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
         }
     }
     _spectra_widget->replot_integrated_spectra(false);
+    annoTabChanged(ROI_TAB);
 }
 
 //---------------------------------------------------------------------------

@@ -35,6 +35,8 @@ public:
     // blank constructor for classid
    RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
 
+   RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent = 0);
+
    RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
 
    ~RoiMaskGraphicsItem();
@@ -121,6 +123,8 @@ public slots:
    void onMouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
 protected:
+
+    void _init(QColor color, int alpha);
 
     AnnotationProperty* _color_ano;
 

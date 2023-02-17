@@ -109,7 +109,7 @@ public:
 
    int indexOf(AbstractGraphicsItem* child);
 
-   int indexOfName(AbstractGraphicsItem* child);
+   int indexOfName(AbstractGraphicsItem* child, AbstractGraphicsItem** out_child);
    /**
     * @brief data : Get the data of a property this class has.
     * @param row : Currently not used but in the future should be the data of
@@ -242,6 +242,8 @@ public:
    void linkProperties(QList<AnnotationProperty*> prop_list);
 
    void unlinkAllAnnotations();
+
+   void copyPropertyValues(QList<AnnotationProperty*> prop_list);
 
 public slots:
 

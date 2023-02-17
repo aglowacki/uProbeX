@@ -150,6 +150,26 @@ void AbstractGraphicsItem::clearProperties()
 
 /*---------------------------------------------------------------------------*/
 
+void AbstractGraphicsItem::copyPropertyValues(QList<AnnotationProperty*> prop_list)
+{
+    disconnectAllProperties();
+    foreach(AnnotationProperty * prop, m_data)
+    {
+        foreach(AnnotationProperty * np, prop_list)
+        {
+            if (np->getName() == prop->getName())
+            {
+                prop->setValue(np->getValue());
+                break;
+            }
+        }
+    }
+    updateModel();
+    connectAllProperties();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void AbstractGraphicsItem::linkProperties(QList<AnnotationProperty*> prop_list)
 {
     foreach(AnnotationProperty * prop, prop_list)
@@ -624,7 +644,7 @@ void AbstractGraphicsItem::removeChildAt(int row)
 
 /*---------------------------------------------------------------------------*/
 
-int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child)
+int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child, AbstractGraphicsItem **out_child)
 {
     auto itr = m_children.begin();
     for (int i = 0; i < m_children.size(); i++)
@@ -632,7 +652,10 @@ int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child)
         QString s1 = (*itr)->propertyValue(DEF_STR_DISPLAY_NAME).toString();
         QString s2 = child->propertyValue(DEF_STR_DISPLAY_NAME).toString();
         if (s1 == s2)
+        {
+            *out_child = (*itr);
             return i;
+        }
         itr++;
     }
     return -1;

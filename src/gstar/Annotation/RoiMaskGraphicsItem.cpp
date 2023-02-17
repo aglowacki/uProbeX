@@ -18,25 +18,13 @@ using namespace gstar;
 static const QString CONST_STATIC_ROI_NAME = QString("ROI");
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
-   : AbstractGraphicsItem(parent)
+    : AbstractGraphicsItem(parent)
 {
-
-    setFlags( ItemIsSelectable );
-
-    _mouse_down = false;
-    _draw_action = DRAW_ACTION_MODES::OFF;
-
     _mask = new QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
 
-    _polygon.clear();
-    _polygon.push_back(QPoint(0, 0));
-    _polygon.push_back(QPoint(0, _mask->height()));
-    _polygon.push_back(QPoint(_mask->width(), _mask->height()));
-    _polygon.push_back(QPoint(_mask->width(), 0));
-
-    for(int w=0; w< mat.cols; w++)
+    for (int w = 0; w < mat.cols; w++)
     {
-        for(int h=0; h< mat.rows; h++)
+        for (int h = 0; h < mat.rows; h++)
         {
             int color_idx = mat.at<int>(h, w);
             if (color_idx == idx)
@@ -51,19 +39,27 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
         }
     }
 
-    _brush_size = QSize(10, 10);
+    _init(col, 70);
 
-   _color_ano = new AnnotationProperty();
-   _color_ano->setName("Color");
-   _color_ano->setValue(col);
+}
 
-   _alpha_value = new AnnotationProperty();
-   _alpha_value->setName("Alpha %");
-   _alpha_value->setValue(70);
 
-   m_data.push_back(_color_ano);
-   m_data.push_back(_alpha_value);
+/*---------------------------------------------------------------------------*/
 
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent)
+    : AbstractGraphicsItem(parent)
+{
+    _mask = new QImage(cols, rows, QImage::Format_ARGB32);
+
+    for (int w = 0; w < cols; w++)
+    {
+        for (int h = 0; h < rows; h++)
+        {
+            _mask->setPixelColor(w, h, QColor(0, 0, 0, 0));
+        }
+    }
+
+    _init(col, 70);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -72,25 +68,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, A
 {
     _mask = new QImage();
     *_mask = mask.copy();
-    _mouse_down = false;
-    _draw_action = DRAW_ACTION_MODES::OFF;
-
-    _polygon.clear();
-    _polygon.push_back(QPoint(0, 0));
-    _polygon.push_back(QPoint(0, _mask->height()));
-    _polygon.push_back(QPoint(_mask->width(), _mask->height()));
-    _polygon.push_back(QPoint(_mask->width(), 0));
-
-    _color_ano = new AnnotationProperty();
-    _color_ano->setName("Color");
-    _color_ano->setValue(color);
-
-    _alpha_value = new AnnotationProperty();
-    _alpha_value->setName("Alpha %");
-    _alpha_value->setValue(alpha);
-
-    m_data.push_back(_color_ano);
-    m_data.push_back(_alpha_value);
+    _init(color, alpha);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -102,6 +80,34 @@ RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
         delete _mask;
         _mask = nullptr;
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::_init(QColor color, int alpha)
+{
+    setFlags(ItemIsSelectable);
+
+    _polygon.clear();
+    _polygon.push_back(QPoint(0, 0));
+    _polygon.push_back(QPoint(0, _mask->height()));
+    _polygon.push_back(QPoint(_mask->width(), _mask->height()));
+    _polygon.push_back(QPoint(_mask->width(), 0));
+
+    _mouse_down = false;
+    _draw_action = DRAW_ACTION_MODES::OFF;
+    _brush_size = QSize(10, 10);
+
+    _color_ano = new AnnotationProperty();
+    _color_ano->setName("Color");
+    _color_ano->setValue(color);
+
+    _alpha_value = new AnnotationProperty();
+    _alpha_value->setName("Alpha %");
+    _alpha_value->setValue(alpha);
+
+    m_data.push_back(_color_ano);
+    m_data.push_back(_alpha_value);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -151,7 +157,7 @@ void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
                     _mask->setPixelColor(i, j, col);
                 }
             }
-            updateModel();
+            updateView();
         }
     }
 }
@@ -180,7 +186,7 @@ void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
                     _mask->setPixelColor(i, j, QColor(0, 0, 0, 0));
                 }
             }
-            updateModel();
+            updateView();
         }
     }
 }
@@ -237,22 +243,20 @@ QPainterPath RoiMaskGraphicsItem::shape() const
 
 void RoiMaskGraphicsItem::updateModel()
 {
-    //calculate();
-}
-
-/*---------------------------------------------------------------------------*/
-
-void RoiMaskGraphicsItem::updateView()
-{
     int val = _alpha_value->getValue().toInt();
 
     val = std::min(val, 100);
     val = std::max(val, 0);
 
     _alpha_value->setValue(val);
-
     calculate();
-    QRectF f = boundingRect();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::updateView()
+{
+    //calculate();
     update(boundingRect());
 }
 
