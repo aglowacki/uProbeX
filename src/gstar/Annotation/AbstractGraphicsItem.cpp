@@ -539,7 +539,7 @@ void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant va
             break;
         }
     }
-    update();
+    updateView();
     connectAllLinkedProperties();
 }
 
