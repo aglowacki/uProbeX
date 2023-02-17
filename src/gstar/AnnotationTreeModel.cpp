@@ -46,13 +46,6 @@ AnnotationTreeModel::~AnnotationTreeModel()
 QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
 {
 
-   //int row = rowCount();
-
-   connect(item,
-           SIGNAL(viewUpdated(AbstractGraphicsItem*)),
-           this,
-           SLOT(refreshModel(AbstractGraphicsItem*)));
-
    QString displayName = item->displayName();
    if (m_groups.contains(item->classId()) == false)
    {
@@ -60,21 +53,37 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
    }
    AbstractGraphicsItem* groupRoot = m_groups[item->classId()];
 
+   int row;
+
+   m_groupsCnt[item->classId()]++;
    if (false == item->propertyValue(DEF_STR_DISPLAY_NAME).isValid())
    {
-       m_groupsCnt[item->classId()]++;
-       QString dName = QString("%1%2")
+       QString dName = QString("%1_%2")
            .arg(displayName)
            .arg(m_groupsCnt[item->classId()]);
        item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
    }
+   else
+   {
+       // don't add already existing one
+       row = groupRoot->indexOfName(item);
+       if (row > -1)
+       {
+           return index(row, 0, QModelIndex());
+       }
+   }
    item->setParent(groupRoot);
 
-   int row = groupRoot->childCount();
+   row = groupRoot->childCount();
   // QModelIndex rIndex = index(0, 0, QModelIndex());
    QModelIndex gIndex = index(groupRoot->row(), 0, QModelIndex());
 
    beginInsertRows(gIndex, row, row);
+
+   connect(item,
+       SIGNAL(viewUpdated(AbstractGraphicsItem*)),
+       this,
+       SLOT(refreshModel(AbstractGraphicsItem*)));
 
    groupRoot->appendChild(item);
 
@@ -133,7 +142,7 @@ AbstractGraphicsItem* AnnotationTreeModel::createGroup(AbstractGraphicsItem* ite
    int row = m_root->childCount();
    //QModelIndex rIndex = index(0, 0, QModelIndex());
    beginInsertRows(QModelIndex(), row, row);
-
+   
    m_groupsCnt[item->classId()] = 0;
    m_groups[item->classId()] = groupRoot;
    m_root->appendChild(groupRoot);

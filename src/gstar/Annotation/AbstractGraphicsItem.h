@@ -109,6 +109,7 @@ public:
 
    int indexOf(AbstractGraphicsItem* child);
 
+   int indexOfName(AbstractGraphicsItem* child);
    /**
     * @brief data : Get the data of a property this class has.
     * @param row : Currently not used but in the future should be the data of

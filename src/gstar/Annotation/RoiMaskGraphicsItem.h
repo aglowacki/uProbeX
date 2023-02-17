@@ -16,6 +16,9 @@
 namespace gstar
 {
 
+    
+    enum class DRAW_ACTION_MODES { OFF, ADD, ERASE };
+
 /**
  * @brief The RulerGraphicsItem class
  */
@@ -64,7 +67,7 @@ public:
 
    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
 
-   bool isEnabled() { return _color_ano->getValue().toBool(); }
+   //bool isEnabled() { return _color_ano->getValue().toBool(); }
 
    int alphaValue() { return _alpha_value->getValue().toInt(); }
 
@@ -74,15 +77,17 @@ public:
 
    void to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois);
  
-   void add_to_roi(int x, int y, QSize size);
+   void add_to_roi(QPointF pos);
 
-   void erase_from_roi(int x, int y, QSize size);
+   void erase_from_roi(QPointF pos);
 
    void setMaskSize(QRectF size);
 
-signals:
+   void setBrushSize(QSize brushSize) { _brush_size = brushSize; }
 
-   void mask_updated(RoiMaskGraphicsItem* ano, bool reload);
+   void setDrawAction(DRAW_ACTION_MODES action_mode) { _draw_action = action_mode; }
+
+   QPainterPath shape() const;
 
 public slots:
    /**
@@ -100,34 +105,36 @@ public slots:
     */
    void calculate();
 
-   void drawmask_changed();
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
-   void erasemask_changed();
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMousePressEvent(QGraphicsSceneMouseEvent* event);
+
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
 protected:
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+    AnnotationProperty* _color_ano;
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    AnnotationProperty* _alpha_value;
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+    QImage* _mask;
 
-   AnnotationProperty* _color_ano;
+    QSize _brush_size;
 
-   AnnotationProperty* _alpha_value;
+    QPolygon _polygon;
 
-   QImage* _mask;
+    DRAW_ACTION_MODES _draw_action;
 
-   bool _mouse_down;
+    bool _mouse_down;
 };
 
 }

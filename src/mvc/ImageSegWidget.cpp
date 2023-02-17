@@ -10,7 +10,7 @@
 ImageSegWidget::ImageSegWidget(QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
-    _action_mode = ROI_ACTION_MODES::OFF;
+    _draw_action_mode = gstar::DRAW_ACTION_MODES::OFF;
     _selected_roi = nullptr;
     _mouse_down = false;
     createLayout();
@@ -36,10 +36,11 @@ void ImageSegWidget::createLayout()
    
    
    connect(m_selectionModel, &QItemSelectionModel::currentChanged, this, &ImageSegWidget::currentRoiChanged);
-   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::mouseOverPixel, this, &ImageSegWidget::mouseOverPixel);
+   /*
+   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, this, &ImageSegWidget::mouseOverPixel);
    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, this, &ImageSegWidget::mousePressEvent);
    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, this, &ImageSegWidget::mouseReleaseEvent);
-   
+   */
    appendAnnotationTab();
    setLayout(layout);
 }
@@ -88,7 +89,7 @@ void ImageSegWidget::clearAllRoiMasks()
 }
 
 //---------------------------------------------------------------------------
-
+/*
 void ImageSegWidget::mouseOverPixel(int x, int y)
 {
     if (_selected_roi != nullptr && _mouse_down)
@@ -140,7 +141,7 @@ void ImageSegWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         _mouse_down = false;
     }
 }
-
+*/
 //---------------------------------------------------------------------------
 
 void ImageSegWidget::setRoiBrushSize(int val)
@@ -150,24 +151,58 @@ void ImageSegWidget::setRoiBrushSize(int val)
         val = 1;
     }
     _roi_brush_size = QSize(val, val);
+    if (_selected_roi != nullptr)
+    {
+        _selected_roi->setBrushSize(_roi_brush_size);
+        _selected_roi->setDrawAction(_draw_action_mode);
+    }
 }
 
 //---------------------------------------------------------------------------
 
 void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 {
+    if (_selected_roi != nullptr)
+    {
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+    }
+
     insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi, false);
     // auto select the new roi
     _selected_roi = roi;
+    _selected_roi->setBrushSize(_roi_brush_size);
+    _selected_roi->setDrawAction(_draw_action_mode);
+
+    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
+    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
+    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
 }
 
 //---------------------------------------------------------------------------
 
 void ImageSegWidget::currentRoiChanged(const QModelIndex& current, const QModelIndex& previous)
 {
+    if (_selected_roi != nullptr)
+    {
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
+        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+    }
+
     gstar::AbstractGraphicsItem* abstractItem = static_cast<gstar::AbstractGraphicsItem*>(current.internalPointer());
     // will be nullptr if not the right class
     _selected_roi = dynamic_cast<gstar::RoiMaskGraphicsItem*>(abstractItem);
+
+    if (_selected_roi != nullptr)
+    {
+        _selected_roi->setBrushSize(_roi_brush_size);
+        _selected_roi->setDrawAction(_draw_action_mode);
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+    }
 }
 
 //---------------------------------------------------------------------------

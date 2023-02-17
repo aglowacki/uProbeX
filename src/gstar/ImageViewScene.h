@@ -186,7 +186,7 @@ signals:
     * @param x - x coordinate.
     * @param y - y coordinate.
     */
-   void mouseOverPixel(int x, int y);
+   //void mouseOverPixel(int x, int y);
 
    /**
     * Signal that a zoom in event took place. The view onto the scene should
@@ -210,6 +210,8 @@ signals:
    void zoomOut();
 
    void onMousePressEvent(QGraphicsSceneMouseEvent*);
+
+   void onMouseMoveEvent(QGraphicsSceneMouseEvent*);
 
    void onMouseReleaseEvent(QGraphicsSceneMouseEvent*);
 

@@ -471,9 +471,9 @@ void MapsElementsWidget::openImageSegDialog()
         }
         for (auto& itr : roi_list)
         {
-            
             _img_seg_diag.append_roi(itr);
         }
+
         _img_seg_diag.show();
     }
 }
@@ -495,14 +495,14 @@ void MapsElementsWidget::createActions()
 {
     AbstractImageWidget::createActions();
     // TODO: change Roi to spectra region and add back in
-    
+    /*
     _addRoiMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addRoiMaskAction,
             SIGNAL(triggered()),
             this,
             SLOT(addRoiMask()));
-
+            */
     _addKMeansRoiAction = new QAction("ROI Image Seg Dialog", this);
 
     connect(_addKMeansRoiAction,
@@ -1572,6 +1572,8 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
     _img_seg_diag.clear_image();
     for (auto& itr : roi_list)
     {
+        // check if m_roiTreeModel contians it already
+
         insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr);
         std::vector<std::pair<unsigned int, unsigned int>> roi;
         itr->to_roi_vec(roi);

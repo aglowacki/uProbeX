@@ -231,7 +231,7 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 		connect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
 		connect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
 		connect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
-        connect(itr.scene, SIGNAL(mouseOverPixel(int, int)), this, SLOT(mouseOverPixel(int, int)));
+        connect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
        
         connect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
 
@@ -280,7 +280,7 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 		disconnect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
 		disconnect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
 		disconnect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
-		disconnect(itr.scene, SIGNAL(mouseOverPixel(int, int)), this, SLOT(mouseOverPixel(int, int)));
+		disconnect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
 		disconnect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
 		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
@@ -406,9 +406,10 @@ void ImageViewWidget::setCoordinateModel(CoordinateModel* model)
 
 /*---------------------------------------------------------------------------*/
 
-void ImageViewWidget::mouseOverPixel(int x, int y)
+void ImageViewWidget::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-
+    int x = event->scenePos().x();
+    int y = event->scenePos().y();
     m_coordWidget -> setCoordinate(x,y);
     for(auto &itr : _sub_windows)
     {

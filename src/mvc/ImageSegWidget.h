@@ -13,8 +13,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-enum class ROI_ACTION_MODES { OFF, ADD, ERASE };
-
 /**
  * @brief Widget used to display VLM workspaces. Used with VLM_Model.
  */
@@ -50,7 +48,7 @@ public:
 
    std::vector<gstar::RoiMaskGraphicsItem*> getAllROIs();
 
-   void setActionMode(ROI_ACTION_MODES mode) { _action_mode = mode; }
+   void setActionMode(gstar::DRAW_ACTION_MODES mode) { _draw_action_mode = mode; }
 
    void setRoiBrushSize(int val);
 
@@ -65,11 +63,11 @@ public slots:
 
 protected slots:
 
-    void mouseOverPixel(int x, int y);
+    //void mouseOverPixel(int x, int y);
 
-    void mousePressEvent(QGraphicsSceneMouseEvent*);
+    //void mousePressEvent(QGraphicsSceneMouseEvent*);
 
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent*);
+    //void mouseReleaseEvent(QGraphicsSceneMouseEvent*);
 
     void currentRoiChanged(const QModelIndex& current, const QModelIndex& previous);
 
@@ -82,7 +80,7 @@ protected:
 
 private:     
 
-    ROI_ACTION_MODES _action_mode;
+    gstar::DRAW_ACTION_MODES _draw_action_mode;
 
     bool _first_pixmap_set;
 

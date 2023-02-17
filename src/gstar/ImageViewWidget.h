@@ -287,7 +287,8 @@ protected slots:
     * @param x - x coordinate.
     * @param y - y coordinate.
     */
-   virtual void mouseOverPixel(int x, int y);
+   //virtual void mouseOverPixel(int x, int y);
+    void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
 private slots:
 
