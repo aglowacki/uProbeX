@@ -142,7 +142,7 @@ void ImageSegWidget::setRoiBrushSize(int val)
 
 void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 {
-    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi);
+    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi, false);
     // auto select the new roi
     _selected_roi = roi;
 }

@@ -459,11 +459,17 @@ ImageViewWidget* AbstractImageWidget::imageViewWidget() const
 void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                                     QTreeView* annoTreeView,
                                                     QItemSelectionModel* selectionModel,
-                                                    AbstractGraphicsItem* annotation)
+                                                    AbstractGraphicsItem* annotation,
+                                                    bool centerAnno)
 {
 
-   QPointF center = m_imageViewWidget->getCenterPoint();
-   annotation->setPos(center);
+    QPointF annoPos(0.0, 0.0);
+    if (centerAnno)
+    {
+        annoPos = m_imageViewWidget->getCenterPoint();
+    }
+    
+    annotation->setPos(annoPos);
 
    QModelIndex pIndex = treeModel->appendNode(annotation);
 
