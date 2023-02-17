@@ -176,6 +176,8 @@ public:
 
    void setUnitLabels(QString label);
 
+   void redrawSubWindows();
+
    /**
     * @ brief view
     *

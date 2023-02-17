@@ -47,6 +47,8 @@ namespace gstar
 
         void setCountsVisible(bool val) { counts_coord_widget->setVisible(val, val, val); }
 
+        void redraw() { emit redraw_event(); }
+
         QGraphicsView* view;
         ImageViewScene* scene;
         QComboBox* cb_image_label;

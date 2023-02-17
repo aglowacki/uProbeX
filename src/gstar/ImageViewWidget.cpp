@@ -241,6 +241,16 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 /*---------------------------------------------------------------------------*/
 
+void ImageViewWidget::redrawSubWindows()
+{
+    for (auto& itr : _sub_windows)
+    {
+        itr.redraw();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ImageViewWidget::setUnitLabel(int idx, QString label)
 {
     if (idx > -1 && idx < _sub_windows.size())
