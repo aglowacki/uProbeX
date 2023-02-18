@@ -157,7 +157,8 @@ void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
                     _mask->setPixelColor(i, j, col);
                 }
             }
-            updateView();
+            QRect rect(x, y, _brush_size.width(), _brush_size.height());
+            update(rect);
         }
     }
 }
@@ -186,7 +187,8 @@ void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
                     _mask->setPixelColor(i, j, QColor(0, 0, 0, 0));
                 }
             }
-            updateView();
+            QRect rect(x, y, _brush_size.width(), _brush_size.height());
+            update(rect);
         }
     }
 }
@@ -256,8 +258,7 @@ void RoiMaskGraphicsItem::updateModel()
 
 void RoiMaskGraphicsItem::updateView()
 {
-    //calculate();
-    update(boundingRect());
+    update();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -340,13 +341,16 @@ void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         _mouse_down = true;
-        add_to_roi(event->scenePos());
-        // Queue an update
-        update();
-
-        // Pass mouse event
-        QGraphicsItem::mousePressEvent(event);
+        if (_draw_action == DRAW_ACTION_MODES::ADD)
+        {
+            add_to_roi(event->scenePos());
+        }
+        else if (_draw_action == DRAW_ACTION_MODES::ERASE)
+        {
+            erase_from_roi(event->screenPos());
+        }
     }
+    QGraphicsItem::mousePressEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -363,9 +367,8 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
        {
            erase_from_roi(event->screenPos());
        }
-
-       QGraphicsItem::mouseMoveEvent(event);
    }
+   QGraphicsItem::mouseMoveEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -375,14 +378,8 @@ void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         _mouse_down = false;
-
-        // Queue an update
-        //update();
-        //emit(mask_updated(this, true));
-
-        // Pass mouse event
-        QGraphicsItem::mouseReleaseEvent(event);
     }
+    QGraphicsItem::mouseReleaseEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/

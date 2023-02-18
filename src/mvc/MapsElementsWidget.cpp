@@ -471,10 +471,12 @@ void MapsElementsWidget::openImageSegDialog()
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
-        for (auto& itr : roi_list)
+        for (auto itr : roi_list)
         {
-            _img_seg_diag.append_roi(itr);
+            _img_seg_diag.append_roi((gstar::RoiMaskGraphicsItem*)(itr->duplicate()));
         }
+        m_roiTreeModel->clearAll();
+        _spectra_widget->deleteAllROISpectra();
 
         _img_seg_diag.show();
     }
@@ -1570,11 +1572,9 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
 {
-    _img_seg_diag.clear_all_rois();
-    _img_seg_diag.clear_image();
     for (auto& itr : roi_list)
     {
-        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr);
+        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
         std::vector<std::pair<unsigned int, unsigned int>> roi;
         itr->to_roi_vec(roi);
         
@@ -1586,6 +1586,8 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
     }
     _spectra_widget->replot_integrated_spectra(false);
     annoTabChanged(ROI_TAB);
+    _img_seg_diag.clear_all_rois();
+    _img_seg_diag.clear_image();
 }
 
 //---------------------------------------------------------------------------

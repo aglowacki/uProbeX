@@ -36,9 +36,6 @@ AnnotationTreeModel::~AnnotationTreeModel()
       m_root = nullptr;
    }
 
-   m_groups.clear();
-   m_groupsCnt.clear();
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -63,6 +60,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
            .arg(m_groupsCnt[item->classId()]);
        item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
    }
+   /*
    else
    {
        AbstractGraphicsItem* out_child = nullptr;
@@ -77,6 +75,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
            return index(row, 0, QModelIndex());
        }
    }
+   */
    item->setParent(groupRoot);
 
    row = groupRoot->childCount();
@@ -538,6 +537,8 @@ void AnnotationTreeModel::clearAll()
     {
         removeRows(0, 1, getRootModelIndex());
     }
+    m_groups.clear();
+    m_groupsCnt.clear();
 }
 
 /*---------------------------------------------------------------------------*/
