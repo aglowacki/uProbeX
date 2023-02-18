@@ -152,6 +152,8 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
             cItem = item->child(start);
             if (cItem != nullptr)
             {
+                addItem(cItem);// drawing works but updates down't on multiple displays...
+                /*
                 AbstractGraphicsItem* clone = cItem->duplicate();
                 
                 clone->linkProperties(cItem->properties());
@@ -172,6 +174,7 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
                 }
 
                 addItem(clone);
+                */
             }
          }
       }
