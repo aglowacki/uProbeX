@@ -152,34 +152,26 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
             cItem = item->child(start);
             if (cItem != nullptr)
             {
-                addItem(cItem);// drawing works but updates down't on multiple displays...
-                /*
-                AbstractGraphicsItem* clone = cItem->duplicate();
-                
-                clone->linkProperties(cItem->properties());
-
-                cItem->linkProperties(clone->properties());
-
-                cItem->appendLinkedDisplayChild(clone);
-
-                // if roi item, we need to get scene width and height to pass to new object
-                RoiMaskGraphicsItem* roi_gitem = dynamic_cast<RoiMaskGraphicsItem*>(cItem);
-                if (roi_gitem != nullptr)
+                if (_is_multi_scene)
                 {
-                    QImage* mask = roi_gitem->image_mask();
-                    if (mask->width() == 0 || mask->height() == 0)
-                    {
-                        roi_gitem->setMaskSize(sceneRect());
-                    }
-                }
+                    AbstractGraphicsItem* clone = cItem->duplicate();
 
-                addItem(clone);
-                */
+                    clone->linkProperties(cItem->properties());
+
+                    cItem->linkProperties(clone->properties());
+
+                    cItem->appendLinkedDisplayChild(clone);
+
+                    addItem(clone);
+                }
+                else
+                {
+                    addItem(cItem);// drawing works but updates down't on multiple displays...
+                }
             }
          }
       }
    }
-
 }
 
 /*---------------------------------------------------------------------------*/
