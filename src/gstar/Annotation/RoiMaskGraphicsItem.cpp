@@ -258,6 +258,7 @@ void RoiMaskGraphicsItem::updateModel()
 
 void RoiMaskGraphicsItem::updateView()
 {
+    calculate();
     update();
 }
 
@@ -347,7 +348,7 @@ void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
         }
         else if (_draw_action == DRAW_ACTION_MODES::ERASE)
         {
-            erase_from_roi(event->screenPos());
+            erase_from_roi(event->scenePos());
         }
     }
     QGraphicsItem::mousePressEvent(event);
@@ -365,7 +366,7 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
        }
        else if (_draw_action == DRAW_ACTION_MODES::ERASE)
        {
-           erase_from_roi(event->screenPos());
+           erase_from_roi(event->scenePos());
        }
    }
    QGraphicsItem::mouseMoveEvent(event);

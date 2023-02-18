@@ -331,7 +331,7 @@ void MapsElementsWidget::displayRoiContextMenu(QWidget* parent, const QPoint& po
 
     QMenu menu(parent);
     menu.addAction(_addKMeansRoiAction);
-
+    /*
     if (m_roiTreeModel != nullptr && m_roiTreeModel->rowCount() > 0)
     {
         if (m_roiSelectionModel->hasSelection())
@@ -342,7 +342,7 @@ void MapsElementsWidget::displayRoiContextMenu(QWidget* parent, const QPoint& po
             menu.addAction(m_deleteAction);
         }
     }
-
+    */
     QAction* result = menu.exec(pos);
     if (result == nullptr)
     {

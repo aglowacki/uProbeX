@@ -60,22 +60,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
            .arg(m_groupsCnt[item->classId()]);
        item->prependProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, dName));
    }
-   /*
-   else
-   {
-       AbstractGraphicsItem* out_child = nullptr;
-       // don't add already existing one
-       row = groupRoot->indexOfName(item, &out_child);
-       if (row > -1)
-       {
-           if (out_child != nullptr)
-           {
-               out_child->copyPropertyValues(item->properties());
-           }           
-           return index(row, 0, QModelIndex());
-       }
-   }
-   */
+
    item->setParent(groupRoot);
 
    row = groupRoot->childCount();

@@ -498,7 +498,7 @@ void ImageSegRoiDialog::updateCustomCursor(int val)
 		pmap.fill(QColor(Qt::green));
 		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD);
 	}
-	else
+	else if (_manual_cb_action->currentIndex() == ACTION_ERASE)
 	{
 		pmap.fill(QColor(Qt::red));
 		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE);

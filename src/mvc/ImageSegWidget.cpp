@@ -36,11 +36,6 @@ void ImageSegWidget::createLayout()
    
    
    connect(m_selectionModel, &QItemSelectionModel::currentChanged, this, &ImageSegWidget::currentRoiChanged);
-   /*
-   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, this, &ImageSegWidget::mouseOverPixel);
-   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, this, &ImageSegWidget::mousePressEvent);
-   connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, this, &ImageSegWidget::mouseReleaseEvent);
-   */
    appendAnnotationTab();
    setLayout(layout);
 }
@@ -89,59 +84,17 @@ void ImageSegWidget::clearAllRoiMasks()
 }
 
 //---------------------------------------------------------------------------
-/*
-void ImageSegWidget::mouseOverPixel(int x, int y)
+
+void ImageSegWidget::setActionMode(gstar::DRAW_ACTION_MODES mode)
 {
-    if (_selected_roi != nullptr && _mouse_down)
+    _draw_action_mode = mode;
+    if (_selected_roi != nullptr)
     {
-        if (_action_mode == ROI_ACTION_MODES::ADD)
-        {
-            _selected_roi->add_to_roi(x, y, _roi_brush_size);
-            //QRectF rect(qreal(x), qreal(y), qreal(_roi_brush_size.width()), qreal(_roi_brush_size.height()));
-            //m_imageViewWidget->view()->update(x, y, _roi_brush_size.width(), _roi_brush_size.height());
-            //m_imageViewWidget->view()->update(->sceneRect());
-            //m_imageViewWidget->scene()->invalidate(x, y, _roi_brush_size.width(), _roi_brush_size.height());
-            //m_imageViewWidget->redrawSubWindows();
-            //m_imageViewWidget->scene()->updateModel();
-        }
-        else if (_action_mode == ROI_ACTION_MODES::ERASE)
-        {
-            _selected_roi->erase_from_roi(x, y, _roi_brush_size);
-        }
+        _selected_roi->setBrushSize(_roi_brush_size);
+        _selected_roi->setDrawAction(_draw_action_mode);
     }
 }
 
-//---------------------------------------------------------------------------
-
-void ImageSegWidget::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        _mouse_down = true;
-        if (_selected_roi != nullptr)
-        {
-            if (_action_mode == ROI_ACTION_MODES::ADD)
-            {
-                _selected_roi->add_to_roi(event->pos().x(), event->pos().y(), _roi_brush_size);
-            }
-            else if (_action_mode == ROI_ACTION_MODES::ERASE)
-            {
-                _selected_roi->erase_from_roi(event->pos().x(), event->pos().y(), _roi_brush_size);
-            }
-        }
-    }
-}
-
-//---------------------------------------------------------------------------
-
-void ImageSegWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        _mouse_down = false;
-    }
-}
-*/
 //---------------------------------------------------------------------------
 
 void ImageSegWidget::setRoiBrushSize(int val)
