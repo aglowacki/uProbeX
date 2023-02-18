@@ -36,7 +36,7 @@ void ImageSegWidget::createLayout()
    
    
    connect(m_selectionModel, &QItemSelectionModel::currentChanged, this, &ImageSegWidget::currentRoiChanged);
-   appendAnnotationTab();
+   appendAnnotationTab(false);
    setLayout(layout);
 }
 

@@ -1150,6 +1150,8 @@ void MapsElementsWidget::redrawCounts()
     //redraw annotations
     m_selectionModel->clear();
     m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
+
+    annoTabChanged(m_tabWidget->currentIndex());
 }
 
 //---------------------------------------------------------------------------
