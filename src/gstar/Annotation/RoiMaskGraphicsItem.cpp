@@ -21,7 +21,6 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
     : AbstractGraphicsItem(parent)
 {
     _mask = new QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
-
     for (int w = 0; w < mat.cols; w++)
     {
         for (int h = 0; h < mat.rows; h++)
@@ -86,7 +85,10 @@ RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 
 void RoiMaskGraphicsItem::_init(QColor color, int alpha)
 {
+    //_cursor = new CursorGraphicsItem()
+
     setFlags(ItemIsSelectable);
+    setAcceptHoverEvents(true);
 
     _polygon.clear();
     _polygon.push_back(QPoint(0, 0));
@@ -369,6 +371,7 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
            erase_from_roi(event->scenePos());
        }
    }
+   //_cursor->setPos(event->scenePos());
    QGraphicsItem::mouseMoveEvent(event);
 }
 
@@ -381,6 +384,23 @@ void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         _mouse_down = false;
     }
     QGraphicsItem::mouseReleaseEvent(event);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+{
+    //_cursor->setPos(event->scenePos());
+    //this->scene()->addItem(_cursor);
+    update(boundingRect());
+}
+
+/*---------------------------------------------------------------------------*/
+
+void RoiMaskGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
+{
+    //this->scene()->removeItem(_cursor);
+    update(boundingRect());
 }
 
 /*---------------------------------------------------------------------------*/

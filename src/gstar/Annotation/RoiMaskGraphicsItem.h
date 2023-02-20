@@ -91,6 +91,10 @@ public:
 
    QPainterPath shape() const;
 
+   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+
+   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+
 public slots:
    /**
     * @brief updateModel
@@ -139,6 +143,8 @@ protected:
     DRAW_ACTION_MODES _draw_action;
 
     bool _mouse_down;
+
+    QGraphicsItem* _cursor;
 };
 
 }
