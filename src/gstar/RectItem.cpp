@@ -178,18 +178,21 @@ QVariant RectItem::itemChange(GraphicsItemChange change,
    // Check for change in position
    // Only check for one of QGraphicsItem::ItemPositionChange or
    // QGraphicsItem::ItemPositionHasChanged to avoid infinite recursion
-   if (change == QGraphicsItem::ItemPositionHasChanged) {
+    if (change == QGraphicsItem::ItemPositionHasChanged) {
 
-      // Get boundary item rectangle
-      QRectF boundRect = ((ImageViewScene*) scene()) -> pixRect();
+        if (scene() != nullptr)
+        {
+            // Get boundary item rectangle
+            QRectF boundRect = ((ImageViewScene*)scene())->pixRect();
 
-      // Check bounds
-      setPos(qBound(boundRect.left(), pos().x(),
-                    boundRect.right() - m_rect.width()),
-             qBound(boundRect.top(), pos().y(),
+            // Check bounds
+            setPos(qBound(boundRect.left(), pos().x(),
+                boundRect.right() - m_rect.width()),
+                qBound(boundRect.top(), pos().y(),
                     boundRect.bottom() - m_rect.height()));
 
-   }
+        }
+    }
 
    // Get ItemSelectedHasChanged change
    if (change == QGraphicsItem::ItemSelectedHasChanged) {

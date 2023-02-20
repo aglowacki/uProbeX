@@ -8,7 +8,8 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include "LineGraphicsItem.h"
+#include "gstar/Annotation/AbstractGraphicsItem.h"
+#include "gstar/RectItem.h"
 #include <opencv2/opencv.hpp>
 
 /*---------------------------------------------------------------------------*/
@@ -85,7 +86,7 @@ public:
 
    void setMaskSize(QRectF size);
 
-   void setBrushSize(QSize brushSize) { _brush_size = brushSize; }
+   void setBrushSize(QSize brushSize);
 
    void setDrawAction(DRAW_ACTION_MODES action_mode) { _draw_action = action_mode; }
 
@@ -144,7 +145,7 @@ protected:
 
     bool _mouse_down;
 
-    QGraphicsItem* _cursor;
+    RectItem* _cursor;
 };
 
 }

@@ -13,7 +13,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 static const QString CONST_STATIC_ROI_NAME = QString("ROI");
 
@@ -43,7 +43,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
 }
 
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent)
     : AbstractGraphicsItem(parent)
@@ -61,7 +61,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, Abstrac
     _init(col, 70);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
@@ -70,7 +70,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, A
     _init(color, alpha);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 {
@@ -81,11 +81,14 @@ RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::_init(QColor color, int alpha)
 {
-    //_cursor = new CursorGraphicsItem()
+    _cursor = new RectItem();
+    _cursor->setWidth(10.);
+    _cursor->setHeight(10.);
+    _cursor->setColor(Qt::gray);
 
     setFlags(ItemIsSelectable);
     setAcceptHoverEvents(true);
@@ -112,7 +115,7 @@ void RoiMaskGraphicsItem::_init(QColor color, int alpha)
     m_data.push_back(_alpha_value);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::setMaskSize(QRectF size)
 {
@@ -133,7 +136,7 @@ void RoiMaskGraphicsItem::setMaskSize(QRectF size)
     update();
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
 {
@@ -165,7 +168,7 @@ void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
 {
@@ -195,7 +198,7 @@ void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 QString RoiMaskGraphicsItem::getName()
 {
@@ -209,7 +212,7 @@ QString RoiMaskGraphicsItem::getName()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::calculate()
 {
@@ -232,7 +235,7 @@ void RoiMaskGraphicsItem::calculate()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 QPainterPath RoiMaskGraphicsItem::shape() const
 {
@@ -243,7 +246,7 @@ QPainterPath RoiMaskGraphicsItem::shape() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::updateModel()
 {
@@ -256,7 +259,7 @@ void RoiMaskGraphicsItem::updateModel()
     calculate();
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::updateView()
 {
@@ -264,7 +267,7 @@ void RoiMaskGraphicsItem::updateView()
     update();
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 QColor RoiMaskGraphicsItem::getColor() const
 {
@@ -273,7 +276,7 @@ QColor RoiMaskGraphicsItem::getColor() const
     return color;
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois)
 {
@@ -289,7 +292,7 @@ void RoiMaskGraphicsItem::to_roi_vec(std::vector<std::pair<unsigned int, unsigne
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 QRectF RoiMaskGraphicsItem::boundingRect() const
 {
@@ -298,7 +301,7 @@ QRectF RoiMaskGraphicsItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 QRectF RoiMaskGraphicsItem::boundingRectMarker() const
 {
@@ -307,14 +310,14 @@ QRectF RoiMaskGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 const QString RoiMaskGraphicsItem::displayName() const
 {
    return CONST_STATIC_ROI_NAME;
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 AbstractGraphicsItem* RoiMaskGraphicsItem::duplicate()
 {
@@ -324,7 +327,7 @@ AbstractGraphicsItem* RoiMaskGraphicsItem::duplicate()
     return item;
 
 }
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::paint(QPainter* painter,
                                  const QStyleOptionGraphicsItem* option,
@@ -337,7 +340,7 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
     painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -356,7 +359,7 @@ void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
     QGraphicsItem::mousePressEvent(event);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -371,11 +374,11 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
            erase_from_roi(event->scenePos());
        }
    }
-   //_cursor->setPos(event->scenePos());
+   _cursor->setPos(event->scenePos());
    QGraphicsItem::mouseMoveEvent(event);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -386,21 +389,32 @@ void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    //_cursor->setPos(event->scenePos());
-    //this->scene()->addItem(_cursor);
+    _cursor->setPos(event->scenePos());
+    this->scene()->addItem(_cursor);
     update(boundingRect());
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
 void RoiMaskGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-    //this->scene()->removeItem(_cursor);
+    this->scene()->removeItem(_cursor);
     update(boundingRect());
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
+
+void RoiMaskGraphicsItem::setBrushSize(QSize brushSize)
+{
+    _brush_size = brushSize;
+    double w = (double)(brushSize.width());
+    double h = (double)(brushSize.height());
+    _cursor->setWidth(w); 
+    _cursor->setHeight(h);
+}
+
+//-----------------------------------------------------------------------------

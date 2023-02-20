@@ -318,7 +318,7 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	layout->addItem(hlayout);
 
 	_manual_sp_brush_size = new QSpinBox();
-	_manual_sp_brush_size->setRange(0, 100);
+	_manual_sp_brush_size->setRange(1, 100);
 	_manual_sp_brush_size->setSingleStep(1.0);
 	_manual_sp_brush_size->setValue(10);
 	connect(_manual_sp_brush_size, qOverload<int>(&QSpinBox::valueChanged), this, &ImageSegRoiDialog::updateCustomCursor);
