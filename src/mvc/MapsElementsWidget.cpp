@@ -702,6 +702,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
 			_model->getIntegratedSpectra(_int_spec);
 			_spectra_widget->setIntegratedSpectra(&_int_spec);
+            _spectra_widget->setDatasetDir(_model->getDir());
+
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
 
             const data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();

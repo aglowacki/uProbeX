@@ -452,8 +452,6 @@ void FittingDialog::onCancel()
 
 void FittingDialog::runProcessing()
 {
-    fitting::optimizers::OPTIMIZER_OUTCOME outcome;
-
     if (_elements_to_fit != nullptr && _int_spec != nullptr)
     {
         _running = true;
@@ -498,11 +496,11 @@ void FittingDialog::runProcessing()
         {
             if (_is_hybrid_fit)
             {
-                outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
             }
             else
             {
-                outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
             }
         }
         catch (int e)

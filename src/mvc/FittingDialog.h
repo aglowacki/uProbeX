@@ -82,9 +82,13 @@ public:
 
 	data_struct::Fit_Parameters<double>* get_new_fit_params() { return &_new_out_fit_params; }
 
+    data_struct::Fit_Element_Map_Dict<double> get_elements_to_fit() { return *_elements_to_fit; }
+
     void waitToFinishRunning();
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
+
+    fitting::optimizers::OPTIMIZER_OUTCOME getOutcome() { return _outcome; }
 
 signals:
 
@@ -190,6 +194,8 @@ protected:
 
    // energy vector
    ArrayDr _ev;
+
+   fitting::optimizers::OPTIMIZER_OUTCOME _outcome;
 
 };
 

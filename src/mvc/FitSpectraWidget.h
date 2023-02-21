@@ -81,6 +81,8 @@ public:
    void displayROIs(bool val);
 
    void setFitRoiEnabled(bool val) { _btn_fit_roi_spectra->setEnabled(val); }
+
+   void setDatasetDir(QDir dir) { _dataset_dir = dir; }
 signals:
 
    void signal_finished_fit();
@@ -237,6 +239,8 @@ private:
     bool _displayROIs;
 
     std::unordered_map<std::string, ArrayDr> _labeled_spectras;
+
+    QDir _dataset_dir;
 };
 
 

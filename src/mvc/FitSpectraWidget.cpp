@@ -15,9 +15,11 @@
 #include <QMessageBox>
 #include <QSpacerItem>
 #include <QInputDialog>
+#include <QDesktopServices>
 #include <math.h>
 
 #include "data_struct/element_info.h"
+#include "io/file/hl_file_io.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include <mvc/NumericPrecDelegate.h>
 #include <preferences/Preferences.h>
@@ -919,12 +921,9 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
         _spectra_widget->getDisplayHeightMax());
         _fitting_dialog->exec();
         // save results to file
-        /*
+
         if (_fitting_dialog->accepted_fit())
         {
-            _fitting_dialog->get_new_fit_params();
-            _fitting_dialog->get_new_fit_params();
-           
             _fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
             if (_fit_spec.size() == _spectra_background.size())
             {
@@ -937,8 +936,22 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
                     _fit_spec[i] = 0.1;
                 }
             }
+
+            fitting::optimizers::OPTIMIZER_OUTCOME outcome = _fitting_dialog->getOutcome();
+            std::string result = fitting::optimizers::optimizer_outcome_to_str(outcome);
+            data_struct::Fit_Element_Map_Dict<double> elements_to_fit = _fitting_dialog->get_elements_to_fit();
+            data_struct::Fit_Parameters<double>*  new_fit_params = _fitting_dialog->get_new_fit_params();
+
+            //_dataset_dir.path()
+            //io::file::save_optimized_fit_params(analysis_job->dataset_directory, save_filename, detector_num, result, new_fit_params, &_fit_spec, &elements_to_fit);
+            // open file location
+            QFileInfo finfo(_dataset_dir.absolutePath());
+            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(finfo.absolutePath())))
+            {
+                logE << "Failed to open dir " << finfo.absolutePath().toStdString() << "\n";
+            }
         }
-        */
+
         delete _fitting_dialog;
         _fitting_dialog = nullptr;
     }
