@@ -14,6 +14,7 @@
 #include <QSplitter>
 #include <QMessageBox>
 #include <QSpacerItem>
+#include <QInputDialog>
 #include <math.h>
 
 #include "data_struct/element_info.h"
@@ -852,7 +853,95 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
 void FitSpectraWidget::Fit_ROI_Spectra_Click()
 {
+    // bring up dialog to select roi 
+    QString roi_name;
+    ArrayDr* roi_spec = nullptr;
 
+    if (_roi_spec_map.size() > 1)
+    {
+        QInputDialog qDialog;
+
+        QStringList items;
+        for (auto itr : _roi_spec_map)
+        {
+            items << QString(itr.first.c_str());
+        }
+
+        qDialog.setOptions(QInputDialog::UseListViewForComboBoxItems);
+        qDialog.setComboBoxItems(items);
+        qDialog.setWindowTitle("Select ROI to fit");
+
+        qDialog.exec();
+
+        roi_name = qDialog.textValue();
+
+        if (_roi_spec_map.count(roi_name.toStdString()) > 0)
+        {
+            roi_spec = _roi_spec_map.at(roi_name.toStdString());
+        }
+        else
+        {
+            logE << "Could not find roi spectra " << roi_name.toStdString() << "\n";
+            return;
+        }
+    }
+    else
+    {
+        for (auto itr : _roi_spec_map)
+        {
+            roi_spec = itr.second;
+            break;
+        }
+    }
+   
+
+    if (_elements_to_fit != nullptr && roi_spec != nullptr)
+    {
+        data_struct::Fit_Parameters<double> out_fit_params = _fit_params_table_model->getFitParams();
+        data_struct::Fit_Parameters<double> element_fit_params = _fit_elements_table_model->getAsFitParams();
+
+
+        if (_fitting_dialog == nullptr)
+        {
+            _fitting_dialog = new FittingDialog();
+        }
+        _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
+        _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
+        _fitting_dialog->setSpectra((Spectra<double>*)roi_spec, _ev);
+        _fitting_dialog->setElementsToFit(_elements_to_fit);
+        if (_fit_spec.size() > 0)
+        {
+            _fitting_dialog->setFitSpectra(&_fit_spec);
+        }
+        _fitting_dialog->setDisplayRange(_spectra_widget->getDisplayEnergyMin(),
+        _spectra_widget->getDisplayEnergyMax(),
+        _spectra_widget->getDisplayHeightMin(),
+        _spectra_widget->getDisplayHeightMax());
+        _fitting_dialog->exec();
+        // save results to file
+        /*
+        if (_fitting_dialog->accepted_fit())
+        {
+            _fitting_dialog->get_new_fit_params();
+            _fitting_dialog->get_new_fit_params();
+           
+            _fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
+            if (_fit_spec.size() == _spectra_background.size())
+            {
+                _fit_spec += _spectra_background;
+            }
+            for (int i = 0; i < _fit_spec.size(); i++)
+            {
+                if (_fit_spec[i] <= 0.0)
+                {
+                    _fit_spec[i] = 0.1;
+                }
+            }
+        }
+        */
+        delete _fitting_dialog;
+        _fitting_dialog = nullptr;
+    }
 }
 
 /*---------------------------------------------------------------------------*/

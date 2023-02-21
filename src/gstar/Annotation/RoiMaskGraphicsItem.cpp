@@ -142,16 +142,17 @@ void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
 {
     int x = pos.x();
     int y = pos.y();
-    if (x > -1 && x < _mask->width())
+
+    if (x > -1 && x <= _mask->width())
     {
-        if (y > -1 && y < _mask->height())
+        if (y > -1 && y <= _mask->height())
         {
             int xsize = x + _brush_size.width();
-            if (xsize > _mask->width() - 1)
-                xsize = _mask->width() - 1;
+            if (xsize > _mask->width())
+                xsize = _mask->width();
             int ysize = y + _brush_size.height();
-            if (ysize > _mask->height() - 1)
-                ysize = _mask->height() - 1;
+            if (ysize > _mask->height())
+                ysize = _mask->height();
             QVariant variant = _color_ano->getValue();
             QColor col = variant.value<QColor>();
             col.setAlpha(_alpha_value->getValue().toInt());
@@ -175,16 +176,16 @@ void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
 
     int x = pos.x();
     int y = pos.y();
-    if (x > -1 && x < _mask->width())
+    if (x > -1 && x <= _mask->width())
     {
-        if (y > -1 && y < _mask->height())
+        if (y > -1 && y <= _mask->height())
         {
             int xsize = x + _brush_size.width();
-            if (xsize > _mask->width() - 1)
-                xsize = _mask->width() - 1;
+            if (xsize > _mask->width())
+                xsize = _mask->width();
             int ysize = y + _brush_size.height();
-            if (ysize > _mask->height() - 1)
-                ysize = _mask->height() - 1;
+            if (ysize > _mask->height())
+                ysize = _mask->height();
             for (int i = x; i < xsize; i++)
             {
                 for (int j = y; j < ysize; j++)
