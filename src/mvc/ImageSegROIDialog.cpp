@@ -308,8 +308,8 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 
 
 	_manual_cb_action = new QComboBox();
-	_manual_cb_action->addItem("Add To");
-	_manual_cb_action->addItem("Erase");
+	_manual_cb_action->addItem("Brush Add");
+	_manual_cb_action->addItem("Brush Erase");
 	connect(_manual_cb_action, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ImageSegRoiDialog::manualActionChanged);
 
 	hlayout = new QHBoxLayout();
