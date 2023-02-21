@@ -891,6 +891,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
     {
         for (auto itr : _roi_spec_map)
         {
+            roi_name = QString(itr.first.c_str());
             roi_spec = itr.second;
             break;
         }
@@ -942,13 +943,20 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             data_struct::Fit_Element_Map_Dict<double> elements_to_fit = _fitting_dialog->get_elements_to_fit();
             data_struct::Fit_Parameters<double>*  new_fit_params = _fitting_dialog->get_new_fit_params();
 
-            //_dataset_dir.path()
-            //io::file::save_optimized_fit_params(analysis_job->dataset_directory, save_filename, detector_num, result, new_fit_params, &_fit_spec, &elements_to_fit);
-            // open file location
+            int detector_num = -1;
+            QDir tmp_dir = _dataset_dir;
+            tmp_dir.cdUp();
+            tmp_dir.cdUp();
             QFileInfo finfo(_dataset_dir.absolutePath());
-            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(finfo.absolutePath())))
+            
+            QString roi_file_name = finfo.fileName() + "_roi_" + roi_name;
+
+            io::file::save_optimized_fit_params(tmp_dir.absolutePath().toStdString(), roi_file_name.toStdString(), detector_num, result, new_fit_params, &_fit_spec, &elements_to_fit);
+            // open file location
+            tmp_dir.cd("output");
+            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(tmp_dir.absolutePath())))
             {
-                logE << "Failed to open dir " << finfo.absolutePath().toStdString() << "\n";
+                logE << "Failed to open dir " << tmp_dir.absolutePath().toStdString() << "\n";
             }
         }
 
