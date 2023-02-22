@@ -58,12 +58,14 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_h5_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_mda_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
     _mda_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
 
@@ -402,6 +404,23 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
     onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     _per_pixel_fit_widget->updateFileList(file_list);
     _per_pixel_fit_widget->show();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onBatchRoiList(const QStringList& file_list)
+{
+    /*
+    //create per pixel process widget and pass workspace
+    if (_per_pixel_fit_widget == nullptr)
+    {
+        _per_pixel_fit_widget = new PerPixelFitWidget(_model->get_directory_name().toStdString());
+        connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+    }
+    onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
+    _per_pixel_fit_widget->updateFileList(file_list);
+    _per_pixel_fit_widget->show();
+    */
 }
 
 /*---------------------------------------------------------------------------*/
