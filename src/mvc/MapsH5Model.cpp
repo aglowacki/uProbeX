@@ -166,6 +166,20 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
 
 /*---------------------------------------------------------------------------*/
 
+void MapsH5Model::clearAllMapRois()
+{
+    _map_rois.clear();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::appendMapRoi(std::string name, struct Map_ROI roi)
+{
+    _map_rois[name] = roi;
+}
+
+/*---------------------------------------------------------------------------*/
+
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* block)
 {
     if(block->spectra != nullptr)

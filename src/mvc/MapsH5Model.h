@@ -62,6 +62,26 @@ struct Calibration_curve
 
 using ArrayDr = data_struct::ArrayTr<double>;
 
+struct Map_ROI
+{
+    Map_ROI()
+    {
+
+    }
+    Map_ROI(std::string name_, std::vector<std::pair<unsigned int, unsigned int>> pixel_list_, data_struct::Spectra<double> int_spec_)
+    {
+        name = name;
+        pixel_list = pixel_list_;
+        int_spec = int_spec_;
+    }
+    std::string name;
+    std::vector<std::pair<unsigned int, unsigned int>> pixel_list;
+    data_struct::Spectra<double> int_spec;
+    QColor color;
+    int color_alpha;
+};
+
+
 /**
  * @brief Model for Maps analyzed hdf5 files
  */
@@ -142,6 +162,10 @@ public:
 
     const std::map<QString, QImage>& regionLinks() const { return _region_links; }
 
+    void clearAllMapRois();
+
+    void appendMapRoi(std::string name, struct Map_ROI roi);
+
 signals:
     void model_data_updated();
 
@@ -212,6 +236,8 @@ private:
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_roi;
+
+    std::unordered_map<std::string, struct Map_ROI > _map_rois;
 
     std::map<QString, QImage> _region_links;
 

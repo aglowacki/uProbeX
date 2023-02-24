@@ -721,7 +721,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                     i++;
                 }
             }
-
+            // add map_roi's 
         }
         m_imageWidgetToolBar->clickFill();
     }
@@ -1576,16 +1576,24 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
 {
+    _model->clearAllMapRois();
     for (auto& itr : roi_list)
     {
         insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
-        std::vector<std::pair<unsigned int, unsigned int>> roi;
-        itr->to_roi_vec(roi);
+        std::vector<std::pair<unsigned int, unsigned int>> pixel_list;
+        itr->to_roi_vec(pixel_list);
         
         data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
-        if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, roi))
+        if (_model != nullptr)
         {
-            _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
+            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
+            {
+                // need to save color and alpha for map_roi
+                struct Map_ROI roi(itr->getName().toStdString(), pixel_list, *int_spectra);
+
+                _model->appendMapRoi(itr->getName().toStdString(), roi);
+                _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
+            }
         }
     }
     _spectra_widget->replot_integrated_spectra(false);
