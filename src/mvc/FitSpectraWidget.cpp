@@ -951,7 +951,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             
             QString roi_file_name = finfo.fileName() + "_roi_" + roi_name;
 
-            io::file::save_optimized_fit_params(tmp_dir.absolutePath().toStdString(), roi_file_name.toStdString(), detector_num, result, new_fit_params, &_fit_spec, &elements_to_fit);
+            io::file::save_optimized_fit_params(tmp_dir.absolutePath().toStdString(), roi_file_name.toStdString(), detector_num, result, new_fit_params, (Spectra<double>*)roi_spec, &elements_to_fit);
             // open file location
             tmp_dir.cd("output");
             if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(tmp_dir.absolutePath())))

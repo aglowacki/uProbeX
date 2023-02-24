@@ -172,6 +172,8 @@ protected:
 
    data_struct::Fit_Parameters<double> _new_out_fit_params;
 
+   data_struct::Spectra<double> _new_fit_spec;
+
    QDoubleSpinBox* _opt_ftol;
 
    QDoubleSpinBox* _opt_xtol;

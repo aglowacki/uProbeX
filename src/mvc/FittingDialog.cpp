@@ -418,7 +418,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
 
 data_struct::Spectra<double> FittingDialog::get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
-	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
+    return _new_fit_spec;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -548,22 +548,22 @@ void FittingDialog::runProcessing()
 		_progressBarBlocks->setValue(_total_itr);
 
         std::unordered_map<std::string, ArrayDr> labeled_spectras;
-        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         
-        if (fit_spec.size() == _spectra_background.size())
+        if (_new_fit_spec.size() == _spectra_background.size())
         {
-            fit_spec += _spectra_background;
+            _new_fit_spec += _spectra_background;
         }
         
-        for (int i = 0; i < fit_spec.size(); i++)
+        for (int i = 0; i < _new_fit_spec.size(); i++)
         {
-            if (fit_spec[i] <= 0.0)
+            if (_new_fit_spec[i] <= 0.0)
             {
-                fit_spec[i] = 0.1;
+                _new_fit_spec[i] = 0.1;
             }
         }
 
-        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &fit_spec, &_ev);
+        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &_new_fit_spec, &_ev);
 
         _running = false;
 		_btn_accept->setEnabled(true);
