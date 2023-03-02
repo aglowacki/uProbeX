@@ -48,6 +48,8 @@ public:
 
    std::vector<gstar::RoiMaskGraphicsItem*> getAllROIs();
 
+   int getROIsCount();
+
    void setActionMode(gstar::DRAW_ACTION_MODES mode);
 
    void setRoiBrushSize(int val);

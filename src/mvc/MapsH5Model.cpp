@@ -4,6 +4,9 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/MapsH5Model.h>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 /*----------------src/mvc/MapsH5Model.cpp \-----------------------------------------------------------*/
 
@@ -176,6 +179,160 @@ void MapsH5Model::clearAllMapRois()
 void MapsH5Model::appendMapRoi(std::string name, struct Map_ROI roi)
 {
     _map_rois[name] = roi;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::saveAllRoiMaps()
+{
+    QDir model_dir = _dir;
+    model_dir.cdUp();
+    model_dir.cdUp();
+    if (false == model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str()))
+    {
+        model_dir.mkdir(STR_MAPS_ROIS_DIR_NAME.c_str());
+        model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str());
+    }
+    QFileInfo finfo(_dir.absolutePath());
+    QString roi_file_name = model_dir.absolutePath() + QDir::separator() + finfo.baseName() + ".r0i";
+
+    QJsonObject rootJson;
+
+    QJsonArray rois;
+    for (auto& itr : _map_rois)
+    {
+        QJsonObject roiObject;
+        int icolor = int(itr.second.color.rgba());
+        roiObject[STR_MAP_ROI_NAME.c_str()] = itr.first.c_str();
+        roiObject[STR_MAP_ROI_COLOR.c_str()] = icolor;
+        roiObject[STR_MAP_ROI_COLOR_ALPHA.c_str()] = itr.second.color_alpha;
+        QJsonArray roiPixels;
+        for (auto& pItr : itr.second.pixel_list)
+        {
+            QJsonArray pixelPair;
+            pixelPair.append(pItr.first);
+            pixelPair.append(pItr.second);
+
+            roiPixels.append(pixelPair);
+        }
+        roiObject[STR_MAP_ROI_PIXEL_LOC.c_str()] = roiPixels;
+        QJsonArray roiIntSpec;
+        for (auto& iItr : itr.second.int_spec)
+        {
+            roiIntSpec.append(iItr);
+        }
+        roiObject[finfo.fileName()] = roiIntSpec;
+        
+        rois.append(roiObject);
+    }
+
+    rootJson[STR_MAPS_ROIS.c_str()] = rois;
+    QByteArray save_data = QJsonDocument(rootJson).toJson();
+    
+    QFile saveFile(roi_file_name);
+    if (!saveFile.open(QIODevice::WriteOnly)) 
+    {
+        logW<<"Couldn't open save file: "<< roi_file_name.toStdString();
+    }
+    else
+    {
+        saveFile.write(save_data);
+        saveFile.close();
+    }
+    
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::loadAllRoiMaps()
+{
+
+    bool resave = false;
+    QDir model_dir = _dir;
+    model_dir.cdUp();
+    model_dir.cdUp();
+    if (false == model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str()))
+    {
+        // no rois folder means no rois to load
+        return;
+    }
+
+    QFileInfo finfo(_dir.absolutePath());
+    QString roi_file_name = model_dir.absolutePath() + QDir::separator() + finfo.baseName() + ".r0i";
+
+    QFile roiFile(roi_file_name);
+    if (!roiFile.open(QIODevice::ReadOnly))
+    {
+        logW << "Couldn't open save file: " << roi_file_name.toStdString();
+        return;
+    }
+
+    _map_rois.clear();
+
+    QJsonObject rootJson = QJsonDocument::fromJson(roiFile.readAll()).object();
+    roiFile.close();
+
+    if (rootJson.contains(STR_MAPS_ROIS.c_str()) && rootJson[STR_MAPS_ROIS.c_str()].isArray())
+    {
+
+        QJsonArray rois = rootJson[STR_MAPS_ROIS.c_str()].toArray();
+        for (int i = 0; i < rois.size(); ++i)
+        {
+            QJsonObject jsonRoi = rois[i].toObject();
+
+            Map_ROI mroi;
+            mroi.name = jsonRoi.value(STR_MAP_ROI_NAME.c_str()).toString().toStdString();
+            mroi.color = QColor::fromRgba(QRgb(jsonRoi.value(STR_MAP_ROI_COLOR.c_str()).toInt()));
+            mroi.color_alpha = jsonRoi.value(STR_MAP_ROI_COLOR_ALPHA.c_str()).toInt();
+            QJsonArray jsonPixels = jsonRoi[STR_MAP_ROI_PIXEL_LOC.c_str()].toArray();
+            for (int j = 0; j < jsonPixels.size(); ++j)
+            {
+                QJsonArray pixelPair = jsonPixels[j].toArray();
+                std::pair<int, int> ppair;
+                ppair.first = pixelPair[0].toInt();
+                ppair.second = pixelPair[1].toInt();
+                mroi.pixel_list.push_back(ppair);
+            }
+            if (jsonRoi.contains(finfo.fileName()) && jsonRoi[finfo.fileName()].isArray()) // if we have the int spec for this file
+            {
+                QJsonArray jsonIntSpec = jsonRoi[finfo.fileName()].toArray();
+                mroi.int_spec.resize(jsonIntSpec.size());
+                for (int k = 0; k < jsonIntSpec.size(); ++k)
+                {
+                    mroi.int_spec(k) = jsonIntSpec[k].toInt();
+                }
+            }
+            else
+            {
+                // load it 
+                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), &(mroi.int_spec), mroi.pixel_list))
+                {
+                    QJsonArray roiIntSpec;
+                    for (auto& iItr : mroi.int_spec)
+                    {
+                        roiIntSpec.append(iItr);
+                    }
+                    jsonRoi[finfo.fileName()] = roiIntSpec;
+
+                    rois[i] = jsonRoi;
+                    resave = true;
+                }
+            }
+            _map_rois[mroi.name] = mroi;
+        }
+        if (resave)
+        {
+            // save to r0i file
+            if (!roiFile.open(QIODevice::WriteOnly))
+            {
+                logW << "Couldn't open save file: " << roi_file_name.toStdString();
+            }
+            rootJson[STR_MAPS_ROIS.c_str()] = rois;
+            QByteArray save_data = QJsonDocument(rootJson).toJson();
+            roiFile.write(save_data);
+            roiFile.close();
+        }
+    }
 }
 
 /*---------------------------------------------------------------------------*/

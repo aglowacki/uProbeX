@@ -40,6 +40,8 @@ public:
 
    RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
 
+   RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent = 0);
+
    ~RoiMaskGraphicsItem();
 
    /**
@@ -78,7 +80,7 @@ public:
 
    QString getName();
 
-   void to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois);
+   void to_roi_vec(std::vector<std::pair<int, int>>& rois);
  
    void add_to_roi(QPointF pos);
 

@@ -386,7 +386,22 @@ void ImageSegRoiDialog::createLayout()
 
 void ImageSegRoiDialog::onRun()
 {
-	// TODO: check if we have roi masks and ask user if we should clear them before running.
+	if (_int_img_widget->getROIsCount() > 0)
+	{
+		QMessageBox msgBox;
+		msgBox.setText("Clear Current ROI's?");
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+		int ret = msgBox.exec();
+		switch (ret) 
+		{
+			case QMessageBox::Yes:
+				_int_img_widget->clearAllRoiMasks();
+				break;
+			default:
+				break;
+		}
+	}
 
 	ArrayXXr<float> int_img;
 	_get_img(int_img);

@@ -72,6 +72,29 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, A
 
 //-----------------------------------------------------------------------------
 
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
+{
+    _mask = new QImage(width, height, QImage::Format_ARGB32);
+    _init(color, alpha);
+    // clear the image
+    for (int w = 0; w < width; w++)
+    {
+        for (int h = 0; h < height; h++)
+        {
+            _mask->setPixelColor(w, h, QColor(0, 0, 0, 0));
+        }
+    }
+    color.setAlpha(alpha);
+    // set roi pixels
+    for (auto& itr : pixel_list)
+    {
+        _mask->setPixelColor(itr.first, itr.second, color);
+    }
+    
+}
+
+//-----------------------------------------------------------------------------
+
 RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 {
     if (_mask != nullptr)
@@ -279,7 +302,7 @@ QColor RoiMaskGraphicsItem::getColor() const
 
 //-----------------------------------------------------------------------------
 
-void RoiMaskGraphicsItem::to_roi_vec(std::vector<std::pair<unsigned int, unsigned int>>& rois)
+void RoiMaskGraphicsItem::to_roi_vec(std::vector<std::pair<int, int>>& rois)
 {
     for (int w = 0; w < _mask->width(); w++)
     {

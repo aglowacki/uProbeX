@@ -381,7 +381,7 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
                 {
                     logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
 
-                    std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
+                    std::map<int, std::vector<std::pair<int, int>>> rois;
                     std::string search_filename;
                     //data_struct::Detector<double>* detector;
                     try

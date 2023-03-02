@@ -43,6 +43,15 @@ const std::string STR_ROI_V9 = "XRF_roi";
 const std::string STR_ROI_PLUS_V9 = "XRF_roi_plus";
 const std::string STR_FITS_V9 = "XRF_fits";
 
+const std::string STR_MAPS_ROIS_DIR_NAME = "rois";
+const std::string STR_MAPS_ROIS = "MAPS_ROIS";
+const std::string STR_MAP_ROI_NAME = "Name";
+const std::string STR_MAP_ROI_COLOR = "Color";
+const std::string STR_MAP_ROI_COLOR_ALPHA = "Color_Alpha";
+const std::string STR_MAP_ROI_PIXEL_LOC = "Pixel_Loc";
+const std::string STR_MAP_ROI_INT_SPEC = "Integrated_Spectra";
+
+
 template <typename T_real>
 struct Calibration_curve
 {
@@ -68,14 +77,16 @@ struct Map_ROI
     {
 
     }
-    Map_ROI(std::string name_, std::vector<std::pair<unsigned int, unsigned int>> pixel_list_, data_struct::Spectra<double> int_spec_)
+    Map_ROI(std::string name_, QColor color_, int color_alpha_, std::vector<std::pair<int, int>> pixel_list_, data_struct::Spectra<double> int_spec_)
     {
-        name = name;
+        name = name_;
+        color = color_;
+        color_alpha = color_alpha_;
         pixel_list = pixel_list_;
         int_spec = int_spec_;
     }
     std::string name;
-    std::vector<std::pair<unsigned int, unsigned int>> pixel_list;
+    std::vector<std::pair<int, int>> pixel_list;
     data_struct::Spectra<double> int_spec;
     QColor color;
     int color_alpha;
@@ -166,6 +177,11 @@ public:
 
     void appendMapRoi(std::string name, struct Map_ROI roi);
 
+    void saveAllRoiMaps();
+
+    void loadAllRoiMaps();
+
+    const std::unordered_map<std::string, struct Map_ROI >& get_map_rois() { return _map_rois; }
 signals:
     void model_data_updated();
 
