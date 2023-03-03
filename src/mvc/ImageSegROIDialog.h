@@ -17,6 +17,7 @@
 #include <QListWidgetItem>
 #include <QSpinBox>
 #include <QVBoxLayout>
+#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
@@ -77,11 +78,13 @@ private slots:
 
 	void manualActionChanged(QString);
 
+	void onNormalizeChanged(int);
+
 protected:
 
    void createLayout();
 
-   bool _get_img(ArrayXXr<float>& int_img);
+   bool _get_img(ArrayXXr<float>& int_img, bool normalize);
 
    QImage _generate_img(ArrayXXr<float>& int_img);
 
@@ -102,7 +105,8 @@ private:
   
 	QListView* _img_names_view;
 	QStandardItemModel* _img_list_model;
-		
+	QCheckBox* _chk_normalize_sum;
+	
 	ImageSegWidget* _int_img_widget;
 
 	QVector<QRgb>* _selected_colormap;

@@ -364,7 +364,10 @@ void ImageSegRoiDialog::createLayout()
 	QHBoxLayout* optionLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
 
-	optionLayout->addWidget(_techTabs);
+	_chk_normalize_sum = new QCheckBox("Normalize before summing");
+	connect(_chk_normalize_sum, &QCheckBox::stateChanged, this, &ImageSegRoiDialog::onNormalizeChanged);
+
+	optionLayout->addWidget(_chk_normalize_sum);
 
 	buttonLayout->addWidget(_acceptBtn);
 	buttonLayout->addWidget(_cancelBtn);
@@ -404,7 +407,7 @@ void ImageSegRoiDialog::onRun()
 	}
 
 	ArrayXXr<float> int_img;
-	_get_img(int_img);
+	_get_img(int_img, _chk_normalize_sum->isChecked());
 
 	if(_techTabs->currentIndex() == 0) // KMEANS
 	{
@@ -493,7 +496,7 @@ void ImageSegRoiDialog::onNewROI()
 {
 	QColor color_data = _color_map[_next_color];
 	ArrayXXr<float> int_img;
-	if (_get_img(int_img))
+	if (_get_img(int_img, _chk_normalize_sum->isChecked()))
 	{
 		gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(int_img.rows(), int_img.cols(), color_data);
 		_int_img_widget->addRoiMask(roi);
@@ -564,23 +567,65 @@ void ImageSegRoiDialog::setColorMap(QVector<QRgb>* selected_colormap)
 
 //---------------------------------------------------------------------------
 
-bool ImageSegRoiDialog::_get_img(ArrayXXr<float> &int_img)
+bool ImageSegRoiDialog::_get_img(ArrayXXr<float> &int_img, bool normalize)
 {
 	bool first = true;
 
-	for (int i = 0; i < _img_list_model->rowCount(); i++)
+	if (normalize)
 	{
-		QStandardItem* item0 = _img_list_model->item(i);
-		if (item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
+		float highCoef = 0.;
+		ArrayXXr<float>* tmp_img;
+		// go through and get max and min value  
+		for (int i = 0; i < _img_list_model->rowCount(); i++)
 		{
-			if (first)
+			QStandardItem* item0 = _img_list_model->item(i);
+			if (item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
 			{
-				int_img = _img_data.at(item0->text());
-				first = false;
+				tmp_img = &_img_data.at(item0->text());
+				highCoef = std::max(tmp_img->maxCoeff(), highCoef);
 			}
-			else
+		}
+
+		// go through and normalize before summing
+		for (int i = 0; i < _img_list_model->rowCount(); i++)
+		{
+			QStandardItem* item0 = _img_list_model->item(i);
+			if (item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
 			{
-				int_img += _img_data.at(item0->text());
+				ArrayXXr<float> norm_img = _img_data.at(item0->text());
+				float localLow = norm_img.minCoeff();
+				float localDiff = norm_img.maxCoeff() - localLow;
+
+				norm_img = norm_img.unaryExpr([localLow, localDiff, highCoef](float v) { return ((v - localLow)/ (localDiff) ) * highCoef; });
+
+				if (first)
+				{
+					int_img = norm_img;
+					first = false;
+				}
+				else
+				{
+					int_img += norm_img;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < _img_list_model->rowCount(); i++)
+		{
+			QStandardItem* item0 = _img_list_model->item(i);
+			if (item0->checkState() == Qt::Checked && _img_data.count(item0->text()) > 0)
+			{
+				if (first)
+				{
+					int_img = _img_data.at(item0->text());
+					first = false;
+				}
+				else
+				{
+					int_img += _img_data.at(item0->text());
+				}
 			}
 		}
 	}
@@ -682,10 +727,17 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 */
 //---------------------------------------------------------------------------
 
+void ImageSegRoiDialog::onNormalizeChanged(int a)
+{
+	onImgSelection(nullptr);
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegRoiDialog::onImgSelection(QStandardItem* item) 
 {
 	ArrayXXr<float> int_img;
-	bool is_checked = _get_img(int_img);
+	bool is_checked = _get_img(int_img, _chk_normalize_sum->isChecked());
 
 	_techTabs->setEnabled(is_checked);
 
