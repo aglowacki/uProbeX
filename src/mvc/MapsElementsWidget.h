@@ -203,6 +203,8 @@ protected:
 
    QWidget* m_roiTreeTabWidget;
 
+   QPushButton* _btn_roi_img_seg;
+
 };
 
 

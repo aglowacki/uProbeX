@@ -271,9 +271,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 //---------------------------------------------------------------------------
 
 void MapsElementsWidget::_appendRoiTab()
-{
-    QVBoxLayout* infoLayout = new QVBoxLayout();
-    
+{   
     m_roiTreeModel = new gstar::AnnotationTreeModel();
     connect(m_roiTreeModel,
         SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
@@ -302,12 +300,17 @@ void MapsElementsWidget::_appendRoiTab()
         SLOT(roiTreeDoubleClicked(const QModelIndex&)));
         */
     //infoLayout->addWidget(m_annotationToolbar->getToolBar());
-    infoLayout->addWidget(m_roiTreeView);
+    QVBoxLayout* roiVbox = new QVBoxLayout();
+    _btn_roi_img_seg = new QPushButton("ROI Dialog");
+    connect(_btn_roi_img_seg, &QPushButton::released, this, &MapsElementsWidget::openImageSegDialog);
+
+    roiVbox->addWidget(_btn_roi_img_seg);
+    roiVbox->addWidget(m_roiTreeView);
 
     m_roiTreeTabWidget = new QWidget(this);
     //m_treeTabWidget->setPalette(pal);
     //m_treeTabWidget->setAutoFillBackground(true);
-    m_roiTreeTabWidget->setLayout(infoLayout);
+    m_roiTreeTabWidget->setLayout(roiVbox);
 
     m_tabWidget->addTab(m_roiTreeTabWidget, QIcon(), "ROI's");
 }
