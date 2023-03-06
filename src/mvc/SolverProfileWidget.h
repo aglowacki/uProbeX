@@ -246,7 +246,7 @@ private:
    /**
     * @brief m_profiles
     */
-   vector<Profile> m_profiles;
+   std::vector<Profile> m_profiles;
 
    /**
     * @brief m_fileName

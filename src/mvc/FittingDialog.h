@@ -78,13 +78,17 @@ public:
 
     void setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
-	data_struct::Spectra<double> get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras);
+	data_struct::Spectra<double> get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras);
 
 	data_struct::Fit_Parameters<double>* get_new_fit_params() { return &_new_out_fit_params; }
+
+    data_struct::Fit_Element_Map_Dict<double> get_elements_to_fit() { return *_elements_to_fit; }
 
     void waitToFinishRunning();
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
+
+    fitting::optimizers::OPTIMIZER_OUTCOME getOutcome() { return _outcome; }
 
 signals:
 
@@ -168,6 +172,8 @@ protected:
 
    data_struct::Fit_Parameters<double> _new_out_fit_params;
 
+   data_struct::Spectra<double> _new_fit_spec;
+
    QDoubleSpinBox* _opt_ftol;
 
    QDoubleSpinBox* _opt_xtol;
@@ -190,6 +196,8 @@ protected:
 
    // energy vector
    ArrayDr _ev;
+
+   fitting::optimizers::OPTIMIZER_OUTCOME _outcome;
 
 };
 

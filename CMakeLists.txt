@@ -84,6 +84,7 @@ find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZeroMQ CONFIG REQUIRED)
 find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
+find_package(OpenCV CONFIG REQUIRED)
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -111,7 +112,7 @@ IF(NOT DEFINED CMAKE_PREFIX_PATH)
   MESSAGE( "IF qt5-config.cmake is not found, set CMAKE_PREFIX_PATH = Qt root directory")
 ENDIF()
 add_definitions(-D_BUILD_WITH_QT)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 find_package(Qt5 COMPONENTS Core Charts REQUIRED)
 include_directories(${Qt5Charts_INCLUDES})
 set(CMAKE_CXX_FLAGS "${Qt5Charts_EXECUTABLE_COMPILE_FLAGS}")
@@ -209,6 +210,10 @@ IF (MSVC)
                         ${TIFF_LIBRARIES}
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
+                        opencv_ml
+                        opencv_dnn
+                        opencv_core
+                        opencv_flann
                         netCDF::netcdf
                         hdf5::hdf5-shared
                         libxrf_fit
@@ -221,8 +226,13 @@ ELSEIF (UNIX)
     target_link_libraries (uProbeX PRIVATE
                         libzmq
                         yaml-cpp
+                        ${TIFF_LIBRARIES}
                         ${Qt5Core_LIBRARIES}
                         ${Qt5Charts_LIBRARIES}
+                        opencv_ml
+                        opencv_dnn
+                        opencv_core
+                        opencv_flann
                         netCDF::netcdf
                         libxrf_fit
                         libxrf_io

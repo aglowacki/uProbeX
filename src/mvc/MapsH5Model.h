@@ -27,21 +27,23 @@
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
-const string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
-const string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
-const string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
+const std::string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
+const std::string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
+const std::string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
 
-const string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
-const string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
-const string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
+const std::string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
+const std::string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
+const std::string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
 
-const string STR_SR_CURRENT_V9 = "SRcurrent";
-const string STR_US_IC_V9 = "us_ic";
-const string STR_DS_IC_V9 = "ds_ic";
+const std::string STR_SR_CURRENT_V9 = "SRcurrent";
+const std::string STR_US_IC_V9 = "us_ic";
+const std::string STR_DS_IC_V9 = "ds_ic";
 
-const string STR_ROI_V9 = "XRF_roi";
-const string STR_ROI_PLUS_V9 = "XRF_roi_plus";
-const string STR_FITS_V9 = "XRF_fits";
+const std::string STR_ROI_V9 = "XRF_roi";
+const std::string STR_ROI_PLUS_V9 = "XRF_roi_plus";
+const std::string STR_FITS_V9 = "XRF_fits";
+
+const std::string STR_MAPS_ROIS_DIR_NAME = "rois";
 
 template <typename T_real>
 struct Calibration_curve
@@ -50,17 +52,39 @@ struct Calibration_curve
     {
     }
 
-    Calibration_curve(string name)
+    Calibration_curve(std::string name)
     {
         scaler_name = name;
     }
 
-    string scaler_name;
+    std::string scaler_name;
     //            el_name   value
-    unordered_map<string, T_real> calib_curve;
+    std::unordered_map<std::string, T_real> calib_curve;
 };
 
 using ArrayDr = data_struct::ArrayTr<double>;
+
+struct Map_ROI
+{
+    Map_ROI()
+    {
+
+    }
+    Map_ROI(std::string name_, QColor color_, int color_alpha_, std::vector<std::pair<int, int>> pixel_list_, data_struct::Spectra<double> int_spec_)
+    {
+        name = name_;
+        color = color_;
+        color_alpha = color_alpha_;
+        pixel_list = pixel_list_;
+        int_spec = int_spec_;
+    }
+    std::string name;
+    std::vector<std::pair<int, int>> pixel_list;
+    data_struct::Spectra<double> int_spec;
+    QColor color;
+    int color_alpha;
+};
+
 
 /**
  * @brief Model for Maps analyzed hdf5 files
@@ -122,7 +146,7 @@ public:
 
     void set_fit_parameters_override(data_struct::Params_Override<double>* override);
 
-    Calibration_curve<double>* get_calibration_curve(string analysis_type, string scaler_name);
+    Calibration_curve<double>* get_calibration_curve(std::string analysis_type, std::string scaler_name);
 
     data_struct::Params_Override<double>* getParamOverride() { return _params_override; }
 
@@ -142,6 +166,15 @@ public:
 
     const std::map<QString, QImage>& regionLinks() const { return _region_links; }
 
+    void clearAllMapRois();
+
+    void appendMapRoi(std::string name, struct Map_ROI roi);
+
+    void saveAllRoiMaps();
+
+    void loadAllRoiMaps();
+
+    const std::unordered_map<std::string, struct Map_ROI >& get_map_rois() { return _map_rois; }
 signals:
     void model_data_updated();
 
@@ -190,7 +223,7 @@ protected:
 
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
-    std::unordered_map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
+    std::map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
 
     data_struct::Spectra<double> _integrated_spectra;
 
@@ -212,6 +245,8 @@ private:
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_roi;
+
+    std::unordered_map<std::string, struct Map_ROI > _map_rois;
 
     std::map<QString, QImage> _region_links;
 

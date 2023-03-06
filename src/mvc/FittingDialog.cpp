@@ -9,6 +9,9 @@
 #include <QSplitter>
 #include <QScrollBar>
 #include <mvc/NumericPrecDelegate.h>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
  /*---------------------------------------------------------------------------*/
 
@@ -297,7 +300,7 @@ void  FittingDialog::_updateGUIOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt = _optimizer->get_options();
+        std::unordered_map<std::string, double> opt = _optimizer->get_options();
         if (opt.count(STR_OPT_FTOL) > 0)
         {
             _opt_ftol->setValue(opt.at(STR_OPT_FTOL));
@@ -339,7 +342,7 @@ void  FittingDialog::_updateOptimizerOptions()
 {
     if (_optimizer != nullptr)
     {
-        unordered_map<string, double> opt;
+        std::unordered_map<std::string, double> opt;
         opt[STR_OPT_FTOL] = _opt_ftol->value();
         opt[STR_OPT_XTOL] = _opt_xtol->value();
         opt[STR_OPT_GTOL] = _opt_gtol->value();
@@ -391,7 +394,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
     _elements_to_fit = elements_to_fit;
     if (_elements_to_fit != nullptr)
     {
-        unordered_map<string, ArrayDr> labeled_spectras;
+        std::unordered_map<std::string, ArrayDr> labeled_spectras;
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         /*
         if (fit_spec.size() == _spectra_background.size())
@@ -413,9 +416,9 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
 
 /*---------------------------------------------------------------------------*/
 
-data_struct::Spectra<double> FittingDialog::get_fit_spectra(unordered_map<string, ArrayDr>* labeled_spectras)
+data_struct::Spectra<double> FittingDialog::get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
-	return _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, labeled_spectras, _energy_range);
+    return _new_fit_spec;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -449,8 +452,6 @@ void FittingDialog::onCancel()
 
 void FittingDialog::runProcessing()
 {
-    fitting::optimizers::OPTIMIZER_OUTCOME outcome;
-
     if (_elements_to_fit != nullptr && _int_spec != nullptr)
     {
         _running = true;
@@ -495,11 +496,11 @@ void FittingDialog::runProcessing()
         {
             if (_is_hybrid_fit)
             {
-                outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
             }
             else
             {
-                outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
             }
         }
         catch (int e)
@@ -546,23 +547,23 @@ void FittingDialog::runProcessing()
 
 		_progressBarBlocks->setValue(_total_itr);
 
-        unordered_map<string, ArrayDr> labeled_spectras;
-        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
+        std::unordered_map<std::string, ArrayDr> labeled_spectras;
+        _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &labeled_spectras, _energy_range);
         
-        if (fit_spec.size() == _spectra_background.size())
+        if (_new_fit_spec.size() == _spectra_background.size())
         {
-            fit_spec += _spectra_background;
+            _new_fit_spec += _spectra_background;
         }
         
-        for (int i = 0; i < fit_spec.size(); i++)
+        for (int i = 0; i < _new_fit_spec.size(); i++)
         {
-            if (fit_spec[i] <= 0.0)
+            if (_new_fit_spec[i] <= 0.0)
             {
-                fit_spec[i] = 0.1;
+                _new_fit_spec[i] = 0.1;
             }
         }
 
-        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &fit_spec, &_ev);
+        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &_new_fit_spec, &_ev);
 
         _running = false;
 		_btn_accept->setEnabled(true);

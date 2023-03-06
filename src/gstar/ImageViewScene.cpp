@@ -7,6 +7,7 @@
 
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/AnnotationTreeModel.h"
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <typeinfo>
@@ -151,22 +152,26 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
             cItem = item->child(start);
             if (cItem != nullptr)
             {
-               //addItem(cItem);
+                if (_is_multi_scene)
+                {
+                    AbstractGraphicsItem* clone = cItem->duplicate();
 
-                AbstractGraphicsItem* clone = cItem->duplicate();
-                
-                clone->linkProperties(cItem->properties());
+                    clone->linkProperties(cItem->properties());
 
-                cItem->linkProperties(clone->properties());
+                    cItem->linkProperties(clone->properties());
 
-                cItem->appendLinkedDisplayChild(clone);
+                    cItem->appendLinkedDisplayChild(clone);
 
-                addItem(clone);
+                    addItem(clone);
+                }
+                else
+                {
+                    addItem(cItem);// drawing works but updates down't on multiple displays...
+                }
             }
          }
       }
    }
-
 }
 
 /*---------------------------------------------------------------------------*/
@@ -187,24 +192,27 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
 
             if (item != nullptr)
             {
-                cItem = item->child(start);
-                if (cItem != nullptr)
+                for (int i = start; i <= end; i++)
                 {
-                    cItem->unlinkAllAnnotations();
-                    QList<QGraphicsItem*> gitems = this->items();
-                    AbstractGraphicsItem* toRemove = nullptr;
-                    for (auto itr : cItem->getLinkedDisplayChildren())
+                    cItem = item->child(i);
+                    if (cItem != nullptr)
                     {
-                        if (gitems.contains(itr))
+                        cItem->unlinkAllAnnotations();
+                        QList<QGraphicsItem*> gitems = this->items();
+                        AbstractGraphicsItem* toRemove = nullptr;
+                        for (auto itr : cItem->getLinkedDisplayChildren())
                         {
-                            removeItem(itr);
-                            toRemove = itr;
-                            break;
+                            if (gitems.contains(itr))
+                            {
+                                removeItem(itr);
+                                toRemove = itr;
+                                break;
+                            }
                         }
-                    }
-                    if (toRemove != nullptr)
-                    {
-                        cItem->removeLinkedDisplayChild(toRemove);
+                        if (toRemove != nullptr)
+                        {
+                            cItem->removeLinkedDisplayChild(toRemove);
+                        }
                     }
                 }
             }
@@ -245,6 +253,7 @@ void ImageViewScene::enableAnnotations(bool state)
       return;
    }
 
+   rootItem->setEnabled(state);
    recursiveSetEnabled(rootItem, state);
 
    // Reset view; just in case...
@@ -362,7 +371,8 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
                QImage img = m_pixItem->pixmap().toImage();
                //QRgb val = img.pixel(x, y);
                               // emit the mouse over pixel location
-               emit mouseOverPixel(x, y);
+               //emit mouseOverPixel(x, y);
+               emit onMouseMoveEvent(event);
             }
          }
       }
@@ -407,6 +417,7 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
       QGraphicsScene::mousePressEvent(event);
    }
 
+   emit onMousePressEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -432,6 +443,7 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
       QGraphicsScene::mouseReleaseEvent(event);
    }
 
+   emit onMouseReleaseEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/

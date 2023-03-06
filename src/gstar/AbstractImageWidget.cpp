@@ -143,11 +143,14 @@ void AbstractImageWidget::addRuler()
 
 /*---------------------------------------------------------------------------*/
 
-void AbstractImageWidget::appendAnnotationTab()
+void AbstractImageWidget::appendAnnotationTab(bool bToolbar)
 {
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
-   infoLayout->addWidget(m_annotationToolbar->getToolBar());
+   if (bToolbar)
+   {
+       infoLayout->addWidget(m_annotationToolbar->getToolBar());
+   }
    infoLayout->addWidget(m_annoTreeView);
 
    m_treeTabWidget = new QWidget(this);
@@ -274,6 +277,41 @@ void AbstractImageWidget::createRangeWidget()
 
 /*---------------------------------------------------------------------------*/
 
+void AbstractImageWidget::deleteAllItems()
+{
+    
+    QModelIndex topLeft;
+    QModelIndex bottomRight;
+    int rows = m_treeModel->rowCount(QModelIndex());
+    int cols = m_treeModel->columnCount(QModelIndex());
+    topLeft = m_treeModel->index(0, 0, QModelIndex());
+    bottomRight = m_treeModel->index(rows-1, cols-1, QModelIndex());
+
+    QItemSelection selection(topLeft, bottomRight);
+    m_selectionModel->select(selection, QItemSelectionModel::Select);
+
+    if (m_selectionModel->hasSelection())
+    {
+        QModelIndexList selectedIndexes = m_selectionModel->selectedRows();
+
+        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        {
+            QModelIndex index = selectedIndexes[i];
+            AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+
+            if (item != nullptr)
+            {
+                emit deletedAnnotation(item);
+            }
+            
+            m_treeModel->removeRow(index.row(), index);
+        }
+    }
+}
+
+
+/*---------------------------------------------------------------------------*/
+
 void AbstractImageWidget::deleteItem()
 {
 
@@ -293,8 +331,15 @@ void AbstractImageWidget::deleteItem()
          for (int i = selectedIndexes.count() - 1; i >= 0; i--)
          {
             QModelIndex index = selectedIndexes[i];
-            //qDebug()<<"index "<<index.row();
+            AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
+
+            if (item != nullptr)
+            {
+                emit deletedAnnotation(item);
+            }
+
             m_treeModel->removeRow(index.row(), index);
+            
          }
       }
    }
@@ -358,7 +403,7 @@ void AbstractImageWidget::duplicateItem()
 
 /*---------------------------------------------------------------------------*/
 
-QLayout* AbstractImageWidget::generateDefaultLayout()
+QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 {
 
    QVBoxLayout* mainLayout = new QVBoxLayout();
@@ -367,9 +412,11 @@ QLayout* AbstractImageWidget::generateDefaultLayout()
    splitter->setOrientation(Qt::Horizontal);
 
    splitter->addWidget(m_imageViewWidget);
-   splitter->setStretchFactor(0, 1);
-   splitter->addWidget(m_tabWidget);
-
+   if (add_tab_widget)
+   {
+       splitter->setStretchFactor(0, 1);
+       splitter->addWidget(m_tabWidget);
+   }
    createToolBar(m_imageViewWidget);
 
    mainLayout->addWidget(m_toolbar);
@@ -412,11 +459,17 @@ ImageViewWidget* AbstractImageWidget::imageViewWidget() const
 void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                                     QTreeView* annoTreeView,
                                                     QItemSelectionModel* selectionModel,
-                                                    AbstractGraphicsItem* annotation)
+                                                    AbstractGraphicsItem* annotation,
+                                                    bool centerAnno)
 {
 
-   QPointF center = m_imageViewWidget->getCenterPoint();
-   annotation->setPos(center);
+    QPointF annoPos(0.0, 0.0);
+    if (centerAnno)
+    {
+        annoPos = m_imageViewWidget->getCenterPoint();
+    }
+    
+    annotation->setPos(annoPos);
 
    QModelIndex pIndex = treeModel->appendNode(annotation);
 

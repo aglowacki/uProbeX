@@ -37,9 +37,9 @@ class FileTabWidget : public QWidget
 
     ~FileTabWidget(){}
 
-    void set_file_list(const map<QString, QFileInfo>& fileinfo_list);
+    void set_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
-    void update_file_list(const map<QString, QFileInfo>& fileinfo_list);
+    void update_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
     void unload_all();
 
@@ -62,6 +62,8 @@ signals:
 
     void processList(const QStringList&);
 
+    void batchRoiList(const QStringList&);
+
     void customContext(QString, QStringList);
 
     void onRefresh();
@@ -74,6 +76,8 @@ public slots:
     void onUnloadFile();
 
     void process_all_visible();
+
+    void batch_roi_visible();
 
     void filterTextChanged(const QString &);
 
@@ -108,6 +112,8 @@ protected:
     QPushButton *_unload_all_btn;
 
     QPushButton* _process_btn;
+
+    QPushButton* _batch_roi_btn;
 
 	QPushButton * _filter_suggest_btn;
 

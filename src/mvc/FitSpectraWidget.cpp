@@ -14,9 +14,12 @@
 #include <QSplitter>
 #include <QMessageBox>
 #include <QSpacerItem>
+#include <QInputDialog>
+#include <QDesktopServices>
 #include <math.h>
 
 #include "data_struct/element_info.h"
+#include "io/file/hl_file_io.h"
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include <mvc/NumericPrecDelegate.h>
 #include <preferences/Preferences.h>
@@ -35,6 +38,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _chk_is_pileup = new QCheckBox("Pile Up");
     _detector_element = "Si"; // default to Si detector if not found in param override
     _int_spec = nullptr;
+    _displayROIs = true;
     _elements_to_fit = nullptr;
     _fitting_dialog = nullptr;
 	_param_override = nullptr;
@@ -157,6 +161,10 @@ void FitSpectraWidget::createLayout()
     _btn_fit_spectra = new QPushButton("Fit Spectra");
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
 
+    _btn_fit_roi_spectra = new QPushButton("Fit ROI Spectra");
+    connect(_btn_fit_roi_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_ROI_Spectra_Click);
+    _btn_fit_roi_spectra->setEnabled(false);
+
     _btn_model_spectra = new QPushButton("Model Spectra");
     connect(_btn_model_spectra, &QPushButton::released, this, &FitSpectraWidget::Model_Spectra_Click);
 
@@ -213,12 +221,13 @@ void FitSpectraWidget::createLayout()
             SLOT(check_auto_model(int)));
 
     QGridLayout *grid_layout = new QGridLayout();
-    grid_layout->addWidget(_btnSsettings, 1, 0);
     grid_layout->addWidget(_cb_opttimizer, 0, 0);
     grid_layout->addWidget(_btn_fit_spectra, 0, 1);
     grid_layout->addWidget(_chk_auto_model, 0, 2);
-    grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_parameters, 0, 3);
+    grid_layout->addWidget(_btnSsettings, 1, 0);
+    grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
+    grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_csv, 1, 3);
     grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
 
@@ -237,6 +246,23 @@ void FitSpectraWidget::createLayout()
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
     setLayout(layout);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::displayROIs(bool val)
+{
+    _btn_fit_roi_spectra->setEnabled(val);
+    _displayROIs = val;
+    if (val == false)
+    {
+        for (auto& itr : _roi_spec_map)
+        {
+            _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+        }
+    }
+
+    replot_integrated_spectra(false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -296,6 +322,12 @@ void FitSpectraWidget::onSettingsDialog()
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
                 _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+            }
+
+            if (_fit_int_spec_map.count("Background") > 0)
+            {
+                QString name = "Fitted_Int_" + QString(STR_FIT_INT_BACKGROUND.c_str());
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at("Background"), (data_struct::Spectra<double>*) & _ev);
             }
 		}
 		else
@@ -364,7 +396,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
     {
-		//std::lock_guard<std::mutex> lock(_mutex);
+        //std::lock_guard<std::mutex> lock(_mutex);
 
         data_struct::Fit_Parameters<double> fit_params = _fit_params_table_model->getFitParams();
 
@@ -379,31 +411,31 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra<double>*) & _ev);
         if (snipback)
         {
-			// TODO: Look into why memory access violation happens when streaming
-				_spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
-					fit_params[STR_ENERGY_OFFSET].value,
-					fit_params[STR_ENERGY_SLOPE].value,
-					fit_params[STR_ENERGY_QUADRATIC].value,
-					fit_params[STR_SNIP_WIDTH].value,
-					0, //spectra energy start range
-					_int_spec->size() - 1);
+            // TODO: Look into why memory access violation happens when streaming
+            _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
+                fit_params[STR_ENERGY_OFFSET].value,
+                fit_params[STR_ENERGY_SLOPE].value,
+                fit_params[STR_ENERGY_QUADRATIC].value,
+                fit_params[STR_SNIP_WIDTH].value,
+                0, //spectra energy start range
+                _int_spec->size() - 1);
 
-				_spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
-			
+            _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
         }
         _spectra_widget->setXLabel("Energy (keV)");
-        
+
         /*
-		_showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
-		if (_showFitIntSpec)
-		{
-			for (auto &itr : _fit_int_spec_map)
-			{
-				QString name = "Fitted_Int_" + QString(itr.first.c_str());
-				_spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
-			}
-		}
-		*/
+        _showFitIntSpec = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_SPEC).toBool();
+        if (_showFitIntSpec)
+        {
+            for (auto &itr : _fit_int_spec_map)
+            {
+                QString name = "Fitted_Int_" + QString(itr.first.c_str());
+                _spectra_widget->append_spectra(name, itr.second, (data_struct::Spectra<double>*)&_ev);
+            }
+        }
+        */
 
         _showFitIntMatrix = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool();
         if (_showFitIntMatrix)
@@ -444,33 +476,73 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             }
         }
 
-        for (auto& itr : _roi_spec_map)
+        if (_displayROIs)
         {
-            _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+            for (auto& itr : _roi_spec_map)
+            {
+                QColor* color = &(_roi_spec_colors.at(itr.first));
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev, color);
+            }
         }
-
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendFitIntSpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendFitIntSpectra(std::string name, ArrayDr* spec)
 {
     _fit_int_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendMaxChanSpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendMaxChanSpectra(std::string name, ArrayDr* spec)
 {
     _max_chan_spec_map[name] = spec;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void FitSpectraWidget::appendROISpectra(string name, ArrayDr* spec)
+void FitSpectraWidget::appendROISpectra(std::string name, ArrayDr* spec, QColor color)
 {
     _roi_spec_map[name] = spec;
+    _roi_spec_colors[name] = color;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::deleteROISpectra(std::string name)
+{
+    if (_roi_spec_map.count(name) > 0)
+    {
+        ArrayDr* spec = _roi_spec_map.at(name);
+        if (spec != nullptr)
+        {
+            spec->resize(1);
+            // delete spec; throws exception , need to investigate TODO
+        }
+        _roi_spec_map.erase(name);
+        _spectra_widget->remove_spectra(QString(name.c_str()));
+    }
+    replot_integrated_spectra(false);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitSpectraWidget::deleteAllROISpectra()
+{
+    for (auto &itr : _roi_spec_map)
+    {
+        ArrayDr* spec = itr.second;
+        _spectra_widget->remove_spectra(QString(itr.first.c_str()));
+        if (spec != nullptr)
+        {
+            spec->resize(1);
+            // delete spec; throws exception , need to investigate TODO
+        }
+    }
+    _roi_spec_map.clear();
+    replot_integrated_spectra(false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -537,7 +609,7 @@ void FitSpectraWidget::add_element()
     {
 		if (_param_override != nullptr)
 		{
-			map<int, double> ratios = _param_override->get_custom_factor(el_name.toStdString());
+            std::map<int, double> ratios = _param_override->get_custom_factor(el_name.toStdString());
 			for (const auto &itr : ratios)
 			{
 				fit_element->multiply_custom_multiply_ratio(itr.first, itr.second);
@@ -781,6 +853,120 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
 /*---------------------------------------------------------------------------*/
 
+void FitSpectraWidget::Fit_ROI_Spectra_Click()
+{
+    // bring up dialog to select roi 
+    QString roi_name;
+    ArrayDr* roi_spec = nullptr;
+
+    if (_roi_spec_map.size() > 1)
+    {
+        QInputDialog qDialog;
+
+        QStringList items;
+        for (auto itr : _roi_spec_map)
+        {
+            items << QString(itr.first.c_str());
+        }
+
+        qDialog.setOptions(QInputDialog::UseListViewForComboBoxItems);
+        qDialog.setComboBoxItems(items);
+        qDialog.setWindowTitle("Select ROI to fit");
+
+        qDialog.exec();
+
+        roi_name = qDialog.textValue();
+
+        if (_roi_spec_map.count(roi_name.toStdString()) > 0)
+        {
+            roi_spec = _roi_spec_map.at(roi_name.toStdString());
+        }
+        else
+        {
+            logE << "Could not find roi spectra " << roi_name.toStdString() << "\n";
+            return;
+        }
+    }
+    else
+    {
+        for (auto itr : _roi_spec_map)
+        {
+            roi_name = QString(itr.first.c_str());
+            roi_spec = itr.second;
+            break;
+        }
+    }
+   
+
+    if (_elements_to_fit != nullptr && roi_spec != nullptr)
+    {
+        data_struct::Fit_Parameters<double> out_fit_params = _fit_params_table_model->getFitParams();
+        data_struct::Fit_Parameters<double> element_fit_params = _fit_elements_table_model->getAsFitParams();
+
+
+        if (_fitting_dialog == nullptr)
+        {
+            _fitting_dialog = new FittingDialog();
+        }
+        _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
+        _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
+        _fitting_dialog->setSpectra((Spectra<double>*)roi_spec, _ev);
+        _fitting_dialog->setElementsToFit(_elements_to_fit);
+        if (_fit_spec.size() > 0)
+        {
+            _fitting_dialog->setFitSpectra(&_fit_spec);
+        }
+        _fitting_dialog->setDisplayRange(_spectra_widget->getDisplayEnergyMin(),
+        _spectra_widget->getDisplayEnergyMax(),
+        _spectra_widget->getDisplayHeightMin(),
+        _spectra_widget->getDisplayHeightMax());
+        _fitting_dialog->exec();
+        // save results to file
+
+        if (_fitting_dialog->accepted_fit())
+        {
+            _fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
+            if (_fit_spec.size() == _spectra_background.size())
+            {
+                _fit_spec += _spectra_background;
+            }
+            for (int i = 0; i < _fit_spec.size(); i++)
+            {
+                if (_fit_spec[i] <= 0.0)
+                {
+                    _fit_spec[i] = 0.1;
+                }
+            }
+
+            fitting::optimizers::OPTIMIZER_OUTCOME outcome = _fitting_dialog->getOutcome();
+            std::string result = fitting::optimizers::optimizer_outcome_to_str(outcome);
+            data_struct::Fit_Element_Map_Dict<double> elements_to_fit = _fitting_dialog->get_elements_to_fit();
+            data_struct::Fit_Parameters<double>*  new_fit_params = _fitting_dialog->get_new_fit_params();
+
+            int detector_num = -1;
+            QDir tmp_dir = _dataset_dir;
+            tmp_dir.cdUp();
+            tmp_dir.cdUp();
+            QFileInfo finfo(_dataset_dir.absolutePath());
+            
+            QString roi_file_name = finfo.fileName() + "_roi_" + roi_name;
+
+            io::file::save_optimized_fit_params(tmp_dir.absolutePath().toStdString(), roi_file_name.toStdString(), detector_num, result, new_fit_params, (Spectra<double>*)roi_spec, &elements_to_fit);
+            // open file location
+            tmp_dir.cd("output");
+            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(tmp_dir.absolutePath())))
+            {
+                logE << "Failed to open dir " << tmp_dir.absolutePath().toStdString() << "\n";
+            }
+        }
+
+        delete _fitting_dialog;
+        _fitting_dialog = nullptr;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FitSpectraWidget::Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)
 {
     Model_Spectra_Click();
@@ -809,7 +995,7 @@ void FitSpectraWidget::Model_Spectra_Click()
         energy_range.min = 0;
         energy_range.max = _int_spec->size()-1;
 
-        unordered_map<string, ArrayTr<double>> labeled_spectras;
+        std::unordered_map<std::string, ArrayTr<double>> labeled_spectras;
         data_struct::Spectra<double> fit_spec = model.model_spectrum(&fit_params, _elements_to_fit, &labeled_spectras, energy_range);
 
         replot_integrated_spectra(true);
@@ -938,7 +1124,7 @@ void FitSpectraWidget::element_selection_changed(int index)
 
 	if (_param_override != nullptr)
 	{
-		map<int, double> ratios = _param_override->get_custom_factor(full_name.toStdString());
+        std::map<int, double> ratios = _param_override->get_custom_factor(full_name.toStdString());
 		for (const auto &itr : ratios)
 		{
 			em.multiply_custom_multiply_ratio(itr.first, itr.second);
@@ -1009,7 +1195,7 @@ void FitSpectraWidget::update_spectra_top_axis()
             Fit_Element_Map<double> em(itr.first, Element_Info_Map<double>::inst()->get_element(itr.first));
             if (_param_override != nullptr)
             {
-                map<int, double> ratios = _param_override->get_custom_factor(itr.first);
+                std::map<int, double> ratios = _param_override->get_custom_factor(itr.first);
                 for (const auto& itr2 : ratios)
                 {
                     em.multiply_custom_multiply_ratio(itr2.first, itr2.second);

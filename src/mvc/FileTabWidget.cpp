@@ -61,6 +61,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 
     _process_btn = new QPushButton("Process All");
     connect(_process_btn, SIGNAL(released()), this, SLOT(process_all_visible()));
+    _batch_roi_btn = new QPushButton("Batch ROI");
+    connect(_batch_roi_btn, SIGNAL(released()), this, SLOT(batch_roi_visible()));
     _load_all_btn = new QPushButton("Load All");
     connect(_load_all_btn, SIGNAL(released()), this, SLOT(load_all_visible()));
     _unload_all_btn = new QPushButton("Unload All");
@@ -70,10 +72,14 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     hlayout2->addWidget(_load_all_btn);
     hlayout2->addWidget(_unload_all_btn);
 
+    QHBoxLayout* hlayout3 = new QHBoxLayout();
+    hlayout2->addWidget(_process_btn);
+    hlayout2->addWidget(_batch_roi_btn);
+
     QLayout* vlayout = new QVBoxLayout();
     vlayout->addItem(hlayout1);
     vlayout->addItem(hlayout2);
-    vlayout->addWidget(_process_btn);
+    vlayout->addItem(hlayout3);
     vlayout->addWidget(_file_list_view);
     setLayout(vlayout);
 
@@ -128,6 +134,15 @@ void FileTabWidget::process_all_visible()
 
 /*---------------------------------------------------------------------------*/
 
+void FileTabWidget::batch_roi_visible()
+{
+    QStringList sl;
+    _gen_visible_list(&sl);
+    emit batchRoiList(sl);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void FileTabWidget::unload_all()
 {
     _file_list_model->clear();
@@ -135,7 +150,7 @@ void FileTabWidget::unload_all()
 
 /*---------------------------------------------------------------------------*/
 
-void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
+void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
 	_file_list_model->clear();
     for(auto & itr : fileinfo_list)
@@ -146,7 +161,7 @@ void FileTabWidget::set_file_list(const map<QString, QFileInfo>& fileinfo_list)
 
 /*---------------------------------------------------------------------------*/
 
-void FileTabWidget::update_file_list(const map<QString, QFileInfo>& fileinfo_list)
+void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
     int rows = _file_list_model->rowCount();
     for (const auto& itr : fileinfo_list)
@@ -198,6 +213,7 @@ void FileTabWidget::setActionsAndButtonsEnabled(bool val)
     _action_unload->setEnabled(val);
     _action_refresh->setEnabled(val);
     _process_btn->setEnabled(val);
+    _batch_roi_btn->setEnabled(val);
     for (QAction* act : _custom_action_list)
     {
         act->setEnabled(val);

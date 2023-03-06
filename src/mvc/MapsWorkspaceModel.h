@@ -81,17 +81,17 @@ public:
 
     data_struct::Params_Override<double>* getParamOverride(int idx);
 
-    const map<QString, QFileInfo>& get_hdf5_file_list() { return _h5_fileinfo_list; }
+    const std::map<QString, QFileInfo>& get_hdf5_file_list() { return _h5_fileinfo_list; }
 
-    const map<QString, QFileInfo>& get_raw_file_list() { return _raw_fileinfo_list; }
+    const std::map<QString, QFileInfo>& get_raw_file_list() { return _raw_fileinfo_list; }
 
-    const map<QString, QFileInfo>& get_vlm_file_list() { return _vlm_fileinfo_list; }
+    const std::map<QString, QFileInfo>& get_vlm_file_list() { return _vlm_fileinfo_list; }
 
-    vector<QString> get_loaded_raw_names();
+    std::vector<QString> get_loaded_raw_names();
 
-    vector<QString> get_loaded_h5_names();
+    std::vector<QString> get_loaded_h5_names();
 
-    vector<QString> get_loaded_vlm_names();
+    std::vector<QString> get_loaded_vlm_names();
 
     QDir get_directory() { return *_dir; }
 
@@ -148,11 +148,11 @@ private:
     QList <QString> _all_roi_suffex;
     QList <QString> _all_region_links_suffex;
 
-    map<QString, QFileInfo> _h5_fileinfo_list;
-    map<QString, QFileInfo> _raw_fileinfo_list;
-    map<QString, QFileInfo> _vlm_fileinfo_list;
-    map<QString, QFileInfo> _roi_fileinfo_list;
-    map<QString, QFileInfo> _region_links_fileinfo_list;
+    std::map<QString, QFileInfo> _h5_fileinfo_list;
+    std::map<QString, QFileInfo> _raw_fileinfo_list;
+    std::map<QString, QFileInfo> _vlm_fileinfo_list;
+    std::map<QString, QFileInfo> _roi_fileinfo_list;
+    std::map<QString, QFileInfo> _region_links_fileinfo_list;
 
     QDir* _dir;
 
@@ -163,7 +163,7 @@ private:
     bool _is_rois_loaded;
 };
 
-bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func);
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func);
 
 /*---------------------------------------------------------------------------*/
 

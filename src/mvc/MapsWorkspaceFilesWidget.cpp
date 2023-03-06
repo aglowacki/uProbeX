@@ -12,10 +12,12 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QRegExp>
+#include <QMessageBox>
 #include "core/GlobalThreadPool.h"
 
 
 const QString STR_PROCESS("process");
+const QString STR_BATCH_ROI("batch_roi");
 const QString STR_H5_EXPORT("hdf5_export");
 
 /*---------------------------------------------------------------------------*/
@@ -24,6 +26,7 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 {
 
     _per_pixel_fit_widget = nullptr;
+    _batch_roi_fit_widget = nullptr;
 	_model = nullptr;
     createLayout();
 
@@ -53,17 +56,21 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->appendFilterHelpAction(h5det_file);
 
     _h5_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
+    _h5_tab_widget->addCustomContext(STR_BATCH_ROI, "Process ROI's");
     // TODO: need to implement
     //_h5_tab_widget->addCustomContext(STR_H5_EXPORT, "Export Images"); 
+
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_h5_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_mda_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
     _mda_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
 
@@ -141,7 +148,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 void MapsWorkspaceFilesWidget::updatedMDA()
 {
     _mda_tab_widget->set_file_list(_model->get_raw_file_list());
-    vector<QString> loaded_names = _model->get_loaded_raw_names();
+    std::vector<QString> loaded_names = _model->get_loaded_raw_names();
     for (const auto& itr : loaded_names)
     {
         _mda_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
@@ -153,7 +160,7 @@ void MapsWorkspaceFilesWidget::updatedMDA()
 void MapsWorkspaceFilesWidget::updatedVLM()
 {
     _vlm_tab_widget->set_file_list(_model->get_vlm_file_list());
-    vector<QString> loaded_names = _model->get_loaded_vlm_names();
+    std::vector<QString> loaded_names = _model->get_loaded_vlm_names();
     for (const auto& itr : loaded_names)
     {
         _vlm_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
@@ -164,7 +171,7 @@ void MapsWorkspaceFilesWidget::updatedVLM()
 void MapsWorkspaceFilesWidget::updatedHDF()
 {
     _h5_tab_widget->set_file_list(_model->get_hdf5_file_list());
-    vector<QString> loaded_names = _model->get_loaded_h5_names();
+    std::vector<QString> loaded_names = _model->get_loaded_h5_names();
     for (const auto& itr : loaded_names)
     {
         _h5_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
@@ -381,6 +388,10 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
     {
         onPerPixelProcessList(file_list);
     }
+    else if (context_label == STR_BATCH_ROI)
+    {
+        onBatchRoiList(file_list);
+    }
     else if (context_label == STR_H5_EXPORT)
     {
         //onExportImages(file_list);
@@ -402,6 +413,50 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
     onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     _per_pixel_fit_widget->updateFileList(file_list);
     _per_pixel_fit_widget->show();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onBatchRoiList(const QStringList& file_list)
+{
+    std::map<QString, std::string> map_set;
+    std::unordered_map<QString, QFileInfo> roi_map;
+    for (auto& itr : file_list)
+    {
+        QFileInfo finfo(itr);
+        map_set[finfo.baseName()] = finfo.baseName().toStdString();
+    }
+
+    logI << "file cnt = " << file_list.size() << "\n";
+    logI << "map_set cnt = " << map_set.size() << "\n";
+
+    QDir directory = _model->get_directory();
+    if (false == directory.cd(STR_MAPS_ROIS_DIR_NAME.c_str()))
+    {
+        QMessageBox::warning(nullptr, "ROI Warning", "Did not find folder 'rois' in this workspace. Please create ROI's and try again");
+        return;
+    }
+    QStringList roi_list = directory.entryList(QStringList() << "*.roi" << "*.r0i", QDir::Files);
+    logI << "roi_list = " << roi_list.size();
+
+    foreach(QString filename, roi_list)
+    {
+        QFileInfo finfo(filename);
+        if (map_set.count(finfo.baseName()) > 0)
+        {
+            roi_map[finfo.baseName()] = finfo;
+        }
+    }
+
+    
+    //create batch roi process widget and pass workspace
+    if (_batch_roi_fit_widget == nullptr)
+    {
+        _batch_roi_fit_widget = new BatchRoiFitWidget(_model->get_directory_name().toStdString());
+    }
+    _batch_roi_fit_widget->updateFileList(roi_map);
+    _batch_roi_fit_widget->show();
+    
 }
 
 /*---------------------------------------------------------------------------*/

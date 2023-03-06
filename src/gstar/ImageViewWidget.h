@@ -102,6 +102,12 @@ public:
     */
    bool getMouseLeaveState();
 
+   void setCoordsVisible(bool val);
+
+   void setSelectorVisible(bool val);
+
+   void setCountsVisible(bool val);
+
    /**
     * Returns a pointer to the scene that is currently visualized in the view.
     * If no scene is currently visualized, 0 is returned.
@@ -170,6 +176,8 @@ public:
 
    void setUnitLabels(QString label);
 
+   void redrawSubWindows();
+
    /**
     * @ brief view
     *
@@ -226,6 +234,8 @@ public slots:
     */
    void clickZoomOut();
 
+   void customCursor(QCursor cursor);
+
 //protected:
 
    /**
@@ -277,7 +287,8 @@ protected slots:
     * @param x - x coordinate.
     * @param y - y coordinate.
     */
-   virtual void mouseOverPixel(int x, int y);
+   //virtual void mouseOverPixel(int x, int y);
+    void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
 private slots:
 

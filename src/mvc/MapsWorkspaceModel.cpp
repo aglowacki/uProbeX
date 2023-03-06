@@ -381,7 +381,7 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
                 {
                     logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
 
-                    std::map<int, std::vector<std::pair<unsigned int, unsigned int>>> rois;
+                    std::map<std::string, std::vector<std::pair<int, int>>> rois;
                     std::string search_filename;
                     //data_struct::Detector<double>* detector;
                     try
@@ -409,7 +409,7 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
                             logW << "Could not load v9 roi from file " << itr.second.absoluteFilePath().toStdString() << "\n";
                         }
                     }
-                    catch (exception e)
+                    catch (std::exception e)
                     {
                         logE << e.what() << "\n";
                     }
@@ -437,6 +437,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
             QApplication::processEvents();
             // Load region links
             _load_region_links(fileInfo.baseName(), model);
+            
             //can not load from here because ifstream.open locks up in thread
             // Load ROI's
             //_load_rois(fileInfo.baseName(), model);
@@ -520,9 +521,9 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
 
 /*---------------------------------------------------------------------------*/
 
-vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
+std::vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
 {
-    vector<QString>  ret;
+    std::vector<QString>  ret;
     for (auto& itr : _raw_models)
     {
         ret.push_back(itr.first);
@@ -532,9 +533,9 @@ vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
 
 /*---------------------------------------------------------------------------*/
 
-vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
+std::vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
 {
-    vector<QString>  ret;
+    std::vector<QString>  ret;
     for (auto& itr : _h5_models)
     {
         ret.push_back(itr.first);
@@ -544,9 +545,9 @@ vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
 
 /*---------------------------------------------------------------------------*/
 
-vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
+std::vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
 {
-    vector<QString>  ret;
+    std::vector<QString>  ret;
     for (auto& itr : _vlm_models)
     {
         ret.push_back(itr.first);
@@ -628,7 +629,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 /*---------------------------------------------------------------------------*/
 
-bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
 {
     if(sub_dir_name.length() > 0)
     {

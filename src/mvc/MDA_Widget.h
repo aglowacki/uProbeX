@@ -46,7 +46,7 @@ public slots:
 
    void onDetectorSelectIdx(int idx);
 
-   void on_export_csv(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr>*);
+   void on_export_csv(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
    //void onScalerSelect(const QString& det);
 

@@ -24,20 +24,9 @@ AbstractGraphicsItem::AbstractGraphicsItem(AbstractGraphicsItem* parent) :
 
    setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsScenePositionChanges);
 
-   connect(this,
-           SIGNAL(xChanged()),
-           this,
-           SLOT(viewChanged()));
-
-   connect(this,
-           SIGNAL(yChanged()),
-           this,
-           SLOT(viewChanged()));
-
-   connect(this,
-           SIGNAL(zChanged()),
-           this,
-           SLOT(viewChanged()));
+   connect(this, &AbstractGraphicsItem::xChanged, this, &AbstractGraphicsItem::viewChanged);
+   connect(this, &AbstractGraphicsItem::yChanged, this, &AbstractGraphicsItem::viewChanged);
+   connect(this, &AbstractGraphicsItem::zChanged, this, &AbstractGraphicsItem::viewChanged);
 
 }
 
@@ -46,15 +35,23 @@ AbstractGraphicsItem::AbstractGraphicsItem(AbstractGraphicsItem* parent) :
 AbstractGraphicsItem::~AbstractGraphicsItem()
 {
 
-   if (m_children.count() > 0)
-   {
-      qDeleteAll(m_children);
-   }
-   m_children.clear();
-   clearProperties();
+    clearChildren();
+    clearProperties();
+    m_parent = nullptr;
+}
 
-   m_parent = nullptr;
+/*---------------------------------------------------------------------------*/
 
+void AbstractGraphicsItem::clearChildren()
+{
+    if (m_children.size() > 0)
+    {
+        for (auto& itr : m_children)
+        {
+            delete itr;
+        }
+    }
+    m_children.clear();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -64,7 +61,7 @@ void AbstractGraphicsItem::appendChild(AbstractGraphicsItem* child)
 
     if (child != nullptr)
     {
-        m_children.append(child);
+        m_children.push_back(child);
     }
 }
 
@@ -99,9 +96,16 @@ void AbstractGraphicsItem::appendProperty(AnnotationProperty* prop)
 
 AbstractGraphicsItem* AbstractGraphicsItem::child(int row)
 {
-
-   return m_children.value(row);
-
+    if (row < m_children.size())
+    {
+        auto itr = m_children.begin();
+        for (int i = 0; i < row; i++)
+        {
+            itr++;
+        }
+        return *itr;
+    }
+    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -115,7 +119,7 @@ QString AbstractGraphicsItem::classId()
 
 /*---------------------------------------------------------------------------*/
 
-QList<AbstractGraphicsItem*> AbstractGraphicsItem::childList() const
+std::list<AbstractGraphicsItem*> AbstractGraphicsItem::childList() const
 {
 
    return m_children;
@@ -127,7 +131,7 @@ QList<AbstractGraphicsItem*> AbstractGraphicsItem::childList() const
 int AbstractGraphicsItem::childCount() const
 {
 
-   return m_children.count();
+   return m_children.size();
 
 }
 
@@ -142,6 +146,26 @@ void AbstractGraphicsItem::clearProperties()
    }
    m_data.clear();
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void AbstractGraphicsItem::copyPropertyValues(QList<AnnotationProperty*> prop_list)
+{
+    disconnectAllProperties();
+    foreach(AnnotationProperty * prop, m_data)
+    {
+        foreach(AnnotationProperty * np, prop_list)
+        {
+            if (np->getName() == prop->getName())
+            {
+                prop->setValue(np->getValue());
+                break;
+            }
+        }
+    }
+    updateModel();
+    connectAllProperties();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -171,10 +195,7 @@ void AbstractGraphicsItem::connectAllProperties()
 
    foreach (AnnotationProperty* prop, m_data)
    {
-      connect(prop,
-              SIGNAL(valueChanged(AnnotationProperty*, QVariant)),
-              this,
-              SLOT(modelChanged(AnnotationProperty*, QVariant)));
+      connect(prop, &AnnotationProperty::valueChanged, this, &AbstractGraphicsItem::modelChanged);
    }
 
 }
@@ -186,7 +207,7 @@ void AbstractGraphicsItem::connectAllLinkedProperties()
 
     foreach(AnnotationProperty * prop, _linked_props)
     {
-        connect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+        connect(prop, &AnnotationProperty::valueChanged, this, &AbstractGraphicsItem::linkPropChanged);
     }
 
 }
@@ -198,7 +219,7 @@ void AbstractGraphicsItem::disconnectAllLinkedProperties()
 
     foreach(AnnotationProperty * prop, _linked_props)
     {
-        disconnect(prop, SIGNAL(valueChanged(AnnotationProperty*, QVariant)), this, SLOT(linkPropChanged(AnnotationProperty*, QVariant)));
+        disconnect(prop, &AnnotationProperty::valueChanged, this, &AbstractGraphicsItem::linkPropChanged);
     }
 
 }
@@ -300,10 +321,7 @@ void AbstractGraphicsItem::disconnectAllProperties()
 
    foreach (AnnotationProperty* prop, m_data)
    {
-      disconnect(prop,
-                 SIGNAL(valueChanged(AnnotationProperty*, QVariant)),
-                 this,
-                 SLOT(modelChanged(AnnotationProperty*, QVariant)));
+      disconnect(prop,&AnnotationProperty::valueChanged, this, &AbstractGraphicsItem::modelChanged);
    }
 
 }
@@ -533,7 +551,7 @@ void AbstractGraphicsItem::modelChanged(AnnotationProperty* prop, QVariant val)
 void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant val)
 {
     disconnectAllLinkedProperties();
-    foreach(AnnotationProperty * p, m_data)
+    foreach(AnnotationProperty *p, m_data)
     {
         if (p->getName() == prop->getName())
         {
@@ -541,6 +559,7 @@ void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant va
             break;
         }
     }
+    updateView();
     connectAllLinkedProperties();
 }
 
@@ -604,7 +623,7 @@ void AbstractGraphicsItem::setPropertyValue(QString name, QVariant value)
 void AbstractGraphicsItem::removeChild(AbstractGraphicsItem* item)
 {
 
-   m_children.removeOne(item);
+   m_children.remove(item);
 
 }
 
@@ -612,9 +631,48 @@ void AbstractGraphicsItem::removeChild(AbstractGraphicsItem* item)
 
 void AbstractGraphicsItem::removeChildAt(int row)
 {
+    if (row < m_children.size())
+    {
+        auto itr = m_children.begin();
+        for (int i = 0; i < row; i++)
+        {
+            itr++;
+        }
+        m_children.erase(itr);         
+    }
+}
 
-   m_children.removeAt(row);
+/*---------------------------------------------------------------------------*/
 
+int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child, AbstractGraphicsItem **out_child)
+{
+    auto itr = m_children.begin();
+    for (int i = 0; i < m_children.size(); i++)
+    {
+        QString s1 = (*itr)->propertyValue(DEF_STR_DISPLAY_NAME).toString();
+        QString s2 = child->propertyValue(DEF_STR_DISPLAY_NAME).toString();
+        if (s1 == s2)
+        {
+            *out_child = (*itr);
+            return i;
+        }
+        itr++;
+    }
+    return -1;
+}
+
+/*---------------------------------------------------------------------------*/
+
+int AbstractGraphicsItem::indexOf(AbstractGraphicsItem* child)
+{
+    auto itr = m_children.begin();
+    for (int i = 0; i < m_children.size(); i++)
+    {
+        if (*itr == child)
+            return i;
+        itr++;
+    }
+    return -1;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -622,11 +680,12 @@ void AbstractGraphicsItem::removeChildAt(int row)
 int AbstractGraphicsItem::row() const
 {
 
-   if (m_parent)
-      return m_parent->
-            m_children.indexOf(const_cast<AbstractGraphicsItem*>(this));
-
-   return 0;
+    if (m_parent)
+    {
+        return m_parent->indexOf(const_cast<AbstractGraphicsItem*>(this));
+        //return m_parent->m_children.indexOf(const_cast<AbstractGraphicsItem*>(this));
+    }
+    return 0;
 
 }
 

@@ -46,6 +46,9 @@ public:
     */
    ~AbstractGraphicsItem();
 
+
+   void clearChildren();
+
    /**
     * @brief appendChild : Adds a child node.
     * @param child : Node to be added.
@@ -78,7 +81,7 @@ public:
     * @brief childList : Returns a list of all the child nodes.
     * @return
     */
-   QList<AbstractGraphicsItem*> childList() const;
+   std::list<AbstractGraphicsItem*> childList() const;
 
    /**
     * @brief childCount : Get the number of children.
@@ -104,6 +107,9 @@ public:
     */
    int columnCount() const;
 
+   int indexOf(AbstractGraphicsItem* child);
+
+   int indexOfName(AbstractGraphicsItem* child, AbstractGraphicsItem** out_child);
    /**
     * @brief data : Get the data of a property this class has.
     * @param row : Currently not used but in the future should be the data of
@@ -237,6 +243,8 @@ public:
 
    void unlinkAllAnnotations();
 
+   void copyPropertyValues(QList<AnnotationProperty*> prop_list);
+
 public slots:
 
    /**
@@ -332,7 +340,7 @@ protected:
    /**
     * @brief m_children : List of child nodes for scene.
     */
-   QList<AbstractGraphicsItem*> m_children;
+   std::list<AbstractGraphicsItem*> m_children;
 
    /**
     * @brief m_data : List of AnnotationPropertys for model.

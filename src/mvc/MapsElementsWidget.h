@@ -22,6 +22,8 @@
 #include "preferences/Preferences.h"
 #include "gstar/MinMaxSlider.h"
 #include <mvc/ExportMapsDialog.h>
+#include <mvc/CoLocalizationWidget.h>
+#include <mvc/ImageSegROIDialog.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -73,7 +75,7 @@ public slots:
 
    void model_updated();
 
-   void addRoiMask();
+   void openImageSegDialog();
 
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
@@ -85,7 +87,7 @@ public slots:
 
    void onSelectNormalizer(QString name);
 
-   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr>*);
+   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
    void on_min_max_contrast_changed();
 
@@ -97,6 +99,20 @@ public slots:
 
    void on_export_images();
 
+   void on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
+
+   void on_delete_all_annotations(QString);
+
+   void on_delete_annotation(QString, QString);
+
+   void roiModelDataChanged(const QModelIndex& , const QModelIndex& );
+
+   void roiTreeContextMenu(const QPoint&);
+
+   void displayRoiContextMenu(QWidget* , const QPoint&);
+
+   void annoTabChanged(int);
+
 protected:
 
    /**
@@ -107,6 +123,8 @@ protected:
    virtual void createActions();
 
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
+
+   void _appendRoiTab();
 
    MapsH5Model *_model;
 
@@ -131,6 +149,8 @@ protected:
    QPushButton *_pb_perpixel_fitting;
 
    QAction *_addRoiMaskAction;
+
+   QAction* _addKMeansRoiAction;
    
    QPushButton * _grid_button;
 
@@ -142,7 +162,7 @@ protected:
 
    Calibration_curve<double>* _calib_curve;
 
-   unordered_map<string, data_struct::Spectra<double>> _roi_spectra;
+   std::unordered_map<std::string, data_struct::Spectra<double>> _roi_spectra;
 
    QTableWidget* _extra_pvs_table_widget;
 
@@ -167,9 +187,24 @@ protected:
 
    QLabel *_color_map_ledgend_lbl;
 
+   CoLocalizationWidget* _co_loc_widget;
+
+   ImageSegRoiDialog _img_seg_diag;
+
    float _min_contrast_perc;
 
    float _max_contrast_perc;
+
+   QTreeView* m_roiTreeView;
+
+   gstar::AnnotationTreeModel* m_roiTreeModel;
+
+   QItemSelectionModel* m_roiSelectionModel;
+
+   QWidget* m_roiTreeTabWidget;
+
+   QPushButton* _btn_roi_img_seg;
+
 };
 
 

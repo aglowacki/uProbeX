@@ -8,12 +8,17 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include "LineGraphicsItem.h"
+#include "gstar/Annotation/AbstractGraphicsItem.h"
+#include "gstar/RectItem.h"
+#include <opencv2/opencv.hpp>
 
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
 {
+
+    
+    enum class DRAW_ACTION_MODES { OFF, ADD, ERASE };
 
 /**
  * @brief The RulerGraphicsItem class
@@ -28,7 +33,14 @@ public:
     * @brief RulerGraphicsItem
     * @param parent
     */
-   RoiMaskGraphicsItem(int width, int height, AbstractGraphicsItem* parent = 0);
+    // blank constructor for classid
+   RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
+
+   RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent = 0);
+
+   RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
+
+   RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent = 0);
 
    ~RoiMaskGraphicsItem();
 
@@ -50,6 +62,8 @@ public:
     */
    QRectF boundingRect() const;
 
+   QColor getColor() const;
+
    /**
     * @brief boundingRectMarker
     * @return
@@ -58,19 +72,31 @@ public:
 
    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
 
-   bool isEnabled() { return _enable_mask->getValue().toBool(); }
+   //bool isEnabled() { return _color_ano->getValue().toBool(); }
 
    int alphaValue() { return _alpha_value->getValue().toInt(); }
 
    QImage* image_mask() { return _mask; }
 
-   std::vector<QPoint> get_mask_list();
-
    QString getName();
 
-signals:
+   void to_roi_vec(std::vector<std::pair<int, int>>& rois);
+ 
+   void add_to_roi(QPointF pos);
 
-   void mask_updated(RoiMaskGraphicsItem* ano, bool reload);
+   void erase_from_roi(QPointF pos);
+
+   void setMaskSize(QRectF size);
+
+   void setBrushSize(QSize brushSize);
+
+   void setDrawAction(DRAW_ACTION_MODES action_mode) { _draw_action = action_mode; }
+
+   QPainterPath shape() const;
+
+   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+
+   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
 public slots:
    /**
@@ -88,40 +114,40 @@ public slots:
     */
    void calculate();
 
-   void drawmask_changed();
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
-   void erasemask_changed();
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMousePressEvent(QGraphicsSceneMouseEvent* event);
+
+   /**
+    * Reimplemented from QGraphicsItem. See Qt documentation.
+    */
+   void onMouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
 protected:
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+    void _init(QColor color, int alpha);
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    AnnotationProperty* _color_ano;
 
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+    AnnotationProperty* _alpha_value;
 
-   AnnotationProperty* _enable_mask;
+    QImage* _mask;
 
-   AnnotationProperty* _display_mask;
+    QSize _brush_size;
 
-   //AnnotationProperty* _draw_mask;
+    QPolygon _polygon;
 
-   //AnnotationProperty* _erase_mask;
+    DRAW_ACTION_MODES _draw_action;
 
-   AnnotationProperty* _alpha_value;
+    bool _mouse_down;
 
-   QImage* _mask;
-
-   bool _mouse_down;
+    RectItem* _cursor;
 };
 
 }

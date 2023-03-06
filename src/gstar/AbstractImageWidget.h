@@ -144,6 +144,8 @@ public slots:
     */
    void updateFrame(QImage *img);
 
+   void deleteAllItems();
+
 signals:
   
    /**
@@ -172,6 +174,8 @@ signals:
     * @brief rulerUnitsChanged
     */
    void rulerUnitsChanged(QString, double, double);
+
+   void deletedAnnotation(AbstractGraphicsItem*);
 
 protected slots:
 
@@ -240,7 +244,7 @@ protected:
    /**
     * @brief appendAnnotationTab
     */
-   void appendAnnotationTab();
+   void appendAnnotationTab(bool bToolbar=true);
 
    /**
     * @brief createActions
@@ -250,7 +254,7 @@ protected:
    /**
     * Virtual method that must be overidden by base classes.
     */
-   virtual QLayout* generateDefaultLayout();
+   virtual QLayout* generateDefaultLayout(bool add_tab_widget=true);
 
    /**
     * Create tool bar
@@ -281,7 +285,8 @@ protected:
    void insertAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                   QTreeView* annoTreeView,
                                   QItemSelectionModel* selectionModel,
-                                  AbstractGraphicsItem* annotation);
+                                  AbstractGraphicsItem* annotation,
+                                  bool centerAnno = true);
 
    void reloadAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                   QTreeView* annoTreeView,
