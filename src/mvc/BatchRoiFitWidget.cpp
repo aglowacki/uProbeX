@@ -1,9 +1,9 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2019, UChicago Argonne, LLC
+ * Copyright (c) 2023, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/PerPixelFitWidget.h>
+#include <mvc/BatchRoiFitWidget.h>
 #include <QApplication>
 #include <data_struct/analysis_job.h>
 #include <core/process_whole.h>
@@ -12,7 +12,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-PerPixelFitWidget::PerPixelFitWidget(std::string directory, QWidget *parent) : QWidget(parent)
+BatchRoiFitWidget::BatchRoiFitWidget(std::string directory, QWidget *parent) : QWidget(parent)
 {
 
     _cur_file = 0;
@@ -29,7 +29,7 @@ PerPixelFitWidget::PerPixelFitWidget(std::string directory, QWidget *parent) : Q
 
 /*---------------------------------------------------------------------------*/
 
-PerPixelFitWidget::~PerPixelFitWidget()
+BatchRoiFitWidget::~BatchRoiFitWidget()
 {
 
  
@@ -37,7 +37,7 @@ PerPixelFitWidget::~PerPixelFitWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void PerPixelFitWidget::createLayout()
+void BatchRoiFitWidget::createLayout()
 {
 
     _progressBarBlocks = new QProgressBar();
@@ -46,10 +46,10 @@ void PerPixelFitWidget::createLayout()
     _progressBarFiles->setRange(0, 100);
 
     _btn_run = new QPushButton("Run");
-    connect(_btn_run, &QPushButton::released, this, &PerPixelFitWidget::runProcessing);
+    connect(_btn_run, &QPushButton::released, this, &BatchRoiFitWidget::runProcessing);
     _btn_cancel = new QPushButton("Cancel");
-    connect(_btn_cancel, &QPushButton::released, this, &PerPixelFitWidget::close);
-
+    connect(_btn_cancel, &QPushButton::released, this, &BatchRoiFitWidget::close);
+    /*
     _processing_grp = new QGroupBox();
     QVBoxLayout* v_proc_layout = new QVBoxLayout();
     _proc_roi = new QCheckBox("Region of Interest Analysis");
@@ -70,9 +70,9 @@ void PerPixelFitWidget::createLayout()
     _save_exchange = new QCheckBox("Add Exchange format");
     _save_csv = new QCheckBox("Save CSV of integrated fits");
     _perform_quantification = new QCheckBox("Perform Quantification (maps_standardinfo.txt)");
-
+    */
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
-
+    /*
     v_save_layout->addWidget(_save_avg);
     v_save_layout->addWidget(_save_v9);
     v_save_layout->addWidget(_save_exchange);
@@ -81,20 +81,20 @@ void PerPixelFitWidget::createLayout()
 
     _saving_grp->setLayout(v_save_layout);
     _saving_grp->setTitle("Export Options");
-
+    */
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
     _file_list_view->setModel(_file_list_model);
     _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
+    
     QHBoxLayout* buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(_btn_run);
     buttonlayout->addWidget(_btn_cancel);
-
+    /*
     _proc_save_layout = new QHBoxLayout();
     _proc_save_layout->addWidget(_processing_grp);
     _proc_save_layout->addWidget(_saving_grp);
-
+    */
     QHBoxLayout* hbox_progresss_blocks = new QHBoxLayout();
     hbox_progresss_blocks->addWidget(new QLabel("Current Fitting:"));
     hbox_progresss_blocks->addWidget(_progressBarBlocks);
@@ -109,7 +109,7 @@ void PerPixelFitWidget::createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(detector_hbox);
-    layout->addItem(_proc_save_layout);
+    //layout->addItem(_proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
@@ -120,30 +120,43 @@ void PerPixelFitWidget::createLayout()
 
 /*---------------------------------------------------------------------------*/
 
-void PerPixelFitWidget::updateFileList(QStringList file_list)
+void BatchRoiFitWidget::updateFileList(std::unordered_map<QString, QFileInfo> roi_map)
 {
     _progressBarFiles->setValue(0);
     _progressBarBlocks->setValue(0);
 
     _file_list_model->clear();
 
-    _file_list.clear();
-    _file_list = file_list;
-    for(auto & itr : file_list)
+    _roi_map = roi_map;
+
+    if (_roi_map.size() == 0)
     {
-        _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr));
+        _btn_run->setEnabled(false);
     }
+    else
+    {
+        _btn_run->setEnabled(true);
+    }
+
+    _file_list.clear();
+    for (auto& itr : _roi_map)
+    {
+        _file_list.push_back(itr.first);
+        _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr.first));
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
 
-void PerPixelFitWidget::runProcessing()
+void BatchRoiFitWidget::runProcessing()
 {
     _btn_run->setEnabled(false);
     _processing_grp->setEnabled(false);
     _saving_grp->setEnabled(false);
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
+    /*
     //run in thread
     data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
@@ -232,8 +245,8 @@ void PerPixelFitWidget::runProcessing()
     if (io::file::init_analysis_job_detectors(&analysis_job))
     {
         io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
-        Callback_Func_Status_Def cb_func = std::bind(&PerPixelFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
-        //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&PerPixelFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        Callback_Func_Status_Def cb_func = std::bind(&BatchRoiFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
+        //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&BatchRoiFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         if (_perform_quantification->isChecked())
         {
             analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
@@ -280,9 +293,10 @@ void PerPixelFitWidget::runProcessing()
     _file_list_view->setEnabled(true);
     _btn_cancel->setText("Close");
     emit processed_list_update(_file_list);
+    */
 }
 
-void PerPixelFitWidget::status_callback(size_t cur_block, size_t total_blocks)
+void BatchRoiFitWidget::status_callback(size_t cur_block, size_t total_blocks)
 {
     if (_total_blocks != total_blocks)
     {

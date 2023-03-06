@@ -213,6 +213,7 @@ void FileTabWidget::setActionsAndButtonsEnabled(bool val)
     _action_unload->setEnabled(val);
     _action_refresh->setEnabled(val);
     _process_btn->setEnabled(val);
+    _batch_roi_btn->setEnabled(val);
     for (QAction* act : _custom_action_list)
     {
         act->setEnabled(val);

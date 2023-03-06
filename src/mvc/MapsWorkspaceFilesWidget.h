@@ -22,6 +22,7 @@
 #include "mvc/ComboBoxDelegate.h"
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
+#include "mvc/BatchRoiFitWidget.h"
 
 enum class MODEL_TYPE { MAPS_H5, RAW, VLM };
 
@@ -112,6 +113,8 @@ private:
    FitParamsTableModel* _fit_params_table_model;
 
    PerPixelFitWidget* _per_pixel_fit_widget;
+
+   BatchRoiFitWidget* _batch_roi_fit_widget;
 };
 
 
