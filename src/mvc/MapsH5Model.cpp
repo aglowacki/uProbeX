@@ -198,35 +198,51 @@ void MapsH5Model::saveAllRoiMaps()
 
     QJsonObject rootJson;
 
-    QJsonArray rois;
+    QJsonArray json_rois;
     for (auto& itr : _map_rois)
     {
-        QJsonObject roiObject;
+        QJsonObject json_roi_object;
         int icolor = int(itr.second.color.rgba());
-        roiObject[STR_MAP_ROI_NAME.c_str()] = itr.first.c_str();
-        roiObject[STR_MAP_ROI_COLOR.c_str()] = icolor;
-        roiObject[STR_MAP_ROI_COLOR_ALPHA.c_str()] = itr.second.color_alpha;
-        QJsonArray roiPixels;
+        json_roi_object[STR_MAP_ROI_NAME.c_str()] = itr.first.c_str();
+        json_roi_object[STR_MAP_ROI_COLOR.c_str()] = icolor;
+        json_roi_object[STR_MAP_ROI_COLOR_ALPHA.c_str()] = itr.second.color_alpha;
+
+        // save pixel locations
+        QJsonArray json_roi_pixels;
         for (auto& pItr : itr.second.pixel_list)
         {
             QJsonArray pixelPair;
             pixelPair.append(pItr.first);
             pixelPair.append(pItr.second);
 
-            roiPixels.append(pixelPair);
+            json_roi_pixels.append(pixelPair);
         }
-        roiObject[STR_MAP_ROI_PIXEL_LOC.c_str()] = roiPixels;
-        QJsonArray roiIntSpec;
+        json_roi_object[STR_MAP_ROI_PIXEL_LOC.c_str()] = json_roi_pixels;
+
+        // save int spectra
+        QJsonArray json_arr_specs;
+
+        QJsonObject json_int_spec;
+
+        QJsonArray json_spec;
         for (auto& iItr : itr.second.int_spec)
         {
-            roiIntSpec.append(iItr);
+            json_spec.append(iItr);
         }
-        roiObject[finfo.fileName()] = roiIntSpec;
+        json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = finfo.fileName();
+        json_int_spec[STR_SPECTRA.c_str()] = json_spec;
+        json_int_spec[STR_ELT.c_str()] = itr.second.int_spec.elapsed_livetime();
+        json_int_spec[STR_ERT.c_str()] = itr.second.int_spec.elapsed_realtime();
+        json_int_spec[STR_ICR.c_str()] = itr.second.int_spec.input_counts();
+        json_int_spec[STR_OCR.c_str()] = itr.second.int_spec.output_counts();
         
-        rois.append(roiObject);
+        json_arr_specs.append(json_int_spec);
+
+        json_roi_object[STR_MAP_ROI_INT_SPEC.c_str()] = json_arr_specs;
+        json_rois.append(json_roi_object);
     }
 
-    rootJson[STR_MAPS_ROIS.c_str()] = rois;
+    rootJson[STR_MAPS_ROIS.c_str()] = json_rois;
     QByteArray save_data = QJsonDocument(rootJson).toJson();
     
     QFile saveFile(roi_file_name);
@@ -274,7 +290,7 @@ void MapsH5Model::loadAllRoiMaps()
 
     if (rootJson.contains(STR_MAPS_ROIS.c_str()) && rootJson[STR_MAPS_ROIS.c_str()].isArray())
     {
-
+        bool int_spec_loaded = false;
         QJsonArray rois = rootJson[STR_MAPS_ROIS.c_str()].toArray();
         for (int i = 0; i < rois.size(); ++i)
         {
@@ -293,27 +309,62 @@ void MapsH5Model::loadAllRoiMaps()
                 ppair.second = pixelPair[1].toInt();
                 mroi.pixel_list.push_back(ppair);
             }
-            if (jsonRoi.contains(finfo.fileName()) && jsonRoi[finfo.fileName()].isArray()) // if we have the int spec for this file
+            // load array of int spectras
+            if (jsonRoi.contains(STR_MAP_ROI_INT_SPEC.c_str()) && jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].isArray()) // if we have the int spec for this file
             {
-                QJsonArray jsonIntSpec = jsonRoi[finfo.fileName()].toArray();
-                mroi.int_spec.resize(jsonIntSpec.size());
-                for (int k = 0; k < jsonIntSpec.size(); ++k)
+                QJsonArray jsonIntSpecArr = jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].toArray();
+                for (int m = 0; m < jsonIntSpecArr.size(); ++m)
                 {
-                    mroi.int_spec(k) = jsonIntSpec[k].toInt();
+                    QJsonObject json_int_spec = jsonIntSpecArr[m].toObject();
+                    if (json_int_spec.contains(STR_MAP_ROI_INT_SPEC_FILENAME.c_str()))
+                    {
+                        QString filename = json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()].toString();
+                        // if we found our int spectra then load it
+                        if (filename == finfo.fileName())
+                        {
+                            QJsonArray json_spec_arr = json_int_spec[STR_SPECTRA.c_str()].toArray();
+                            mroi.int_spec.resize(json_spec_arr.size());
+                            for (int n = 0; n < json_spec_arr.size(); ++n)
+                            {
+                                mroi.int_spec(n) = json_spec_arr[n].toInt();
+                            }
+                            mroi.int_spec.elapsed_livetime(json_int_spec[STR_ELT.c_str()].toDouble());
+                            mroi.int_spec.elapsed_realtime(json_int_spec[STR_ERT.c_str()].toDouble());
+                            mroi.int_spec.input_counts(json_int_spec[STR_ICR.c_str()].toDouble());
+                            mroi.int_spec.output_counts(json_int_spec[STR_OCR.c_str()].toDouble());
+                            int_spec_loaded = true;
+                        }
+                    }
                 }
             }
             else
             {
+                int_spec_loaded = false;
+            }
+
+            if (false == int_spec_loaded)
+            {
                 // load it 
                 if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), &(mroi.int_spec), mroi.pixel_list))
                 {
-                    QJsonArray roiIntSpec;
+                    QJsonArray jsonIntSpecArr = jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].toArray();
+
+                    QJsonObject json_int_spec;
+                    json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = finfo.fileName();
+
+                    QJsonArray json_spec;
                     for (auto& iItr : mroi.int_spec)
                     {
-                        roiIntSpec.append(iItr);
+                        json_spec.append(iItr);
                     }
-                    jsonRoi[finfo.fileName()] = roiIntSpec;
+                    json_int_spec[STR_SPECTRA.c_str()] = json_spec;
+                    json_int_spec[STR_ELT.c_str()] = mroi.int_spec.elapsed_livetime();
+                    json_int_spec[STR_ERT.c_str()] = mroi.int_spec.elapsed_realtime();
+                    json_int_spec[STR_ICR.c_str()] = mroi.int_spec.input_counts();
+                    json_int_spec[STR_OCR.c_str()] = mroi.int_spec.output_counts();
 
+                    jsonIntSpecArr.append(json_int_spec);
+                    jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()] = jsonIntSpecArr;
                     rois[i] = jsonRoi;
                     resave = true;
                 }

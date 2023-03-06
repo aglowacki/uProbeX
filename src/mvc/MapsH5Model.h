@@ -44,13 +44,6 @@ const std::string STR_ROI_PLUS_V9 = "XRF_roi_plus";
 const std::string STR_FITS_V9 = "XRF_fits";
 
 const std::string STR_MAPS_ROIS_DIR_NAME = "rois";
-const std::string STR_MAPS_ROIS = "MAPS_ROIS";
-const std::string STR_MAP_ROI_NAME = "Name";
-const std::string STR_MAP_ROI_COLOR = "Color";
-const std::string STR_MAP_ROI_COLOR_ALPHA = "Color_Alpha";
-const std::string STR_MAP_ROI_PIXEL_LOC = "Pixel_Loc";
-const std::string STR_MAP_ROI_INT_SPEC = "Integrated_Spectra";
-
 
 template <typename T_real>
 struct Calibration_curve
