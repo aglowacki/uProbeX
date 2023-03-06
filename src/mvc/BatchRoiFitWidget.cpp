@@ -152,15 +152,17 @@ void BatchRoiFitWidget::updateFileList(std::unordered_map<QString, QFileInfo> ro
 void BatchRoiFitWidget::runProcessing()
 {
     _btn_run->setEnabled(false);
-    _processing_grp->setEnabled(false);
-    _saving_grp->setEnabled(false);
+  //  _processing_grp->setEnabled(false);
+  //  _saving_grp->setEnabled(false);
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
-    /*
+
+
     //run in thread
     data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
     
+    /*
     if (_proc_roi->isChecked())
     {
         analysis_job.fitting_routines.push_back(data_struct::Fitting_Routines::ROI);
@@ -173,7 +175,7 @@ void BatchRoiFitWidget::runProcessing()
     {
         analysis_job.fitting_routines.push_back(data_struct::Fitting_Routines::GAUSS_MATRIX);
     }
-
+    */
     QString dstring = _le_detectors->text();
     if (dstring.length() > 0)
     {
@@ -222,6 +224,8 @@ void BatchRoiFitWidget::runProcessing()
         return;
     }
     
+    /*
+
     QModelIndex parent = QModelIndex();
     for (int r = 0; r < _file_list_model->rowCount(parent); ++r)
     {
@@ -241,10 +245,24 @@ void BatchRoiFitWidget::runProcessing()
         total_file_range = (analysis_job.fitting_routines.size() * analysis_job.dataset_files.size() * analysis_job.detector_num_arr.size());
     }
     _progressBarFiles->setRange(0, total_file_range);
-
+    */
     if (io::file::init_analysis_job_detectors(&analysis_job))
     {
-        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
+        _progressBarBlocks->setRange(0, _roi_map.size());
+
+        std::map<int, std::map<std::string, data_struct::Fit_Parameters<double>>> roi_fit_params;
+        int i = 0;
+        for (auto& itr : _roi_map)
+        {
+            i++;
+            _progressBarFiles->setValue(i);
+            QCoreApplication::processEvents();
+            optimize_single_roi(analysis_job, itr.second.fileName().toStdString(), roi_fit_params);
+        }
+        _progressBarFiles->setValue(i);
+        QCoreApplication::processEvents();
+        /*
+        /io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
         Callback_Func_Status_Def cb_func = std::bind(&BatchRoiFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&BatchRoiFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         if (_perform_quantification->isChecked())
@@ -254,11 +272,12 @@ void BatchRoiFitWidget::runProcessing()
         }
         process_dataset_files(&analysis_job, &cb_func);
         //QCoreApplication::processEvents();
-        _progressBarFiles->setValue(total_file_range);
+        _progressBarFiles->setValue(_roi_map.size());
         _progressBarBlocks->setValue(_total_blocks);
         QCoreApplication::processEvents();
+        */
     }
-    
+    /*
     if (_save_avg->isChecked())
     {
         analysis_job.generate_average_h5 = true;
@@ -285,15 +304,16 @@ void BatchRoiFitWidget::runProcessing()
    
 
     iterate_datasets_and_update(analysis_job);
+    */
+    
 
     _btn_run->setEnabled(true);
-    _processing_grp->setEnabled(true);
-    _saving_grp->setEnabled(true);
+ //   _processing_grp->setEnabled(true);
+  //  _saving_grp->setEnabled(true);
     _le_detectors->setEnabled(true);
     _file_list_view->setEnabled(true);
     _btn_cancel->setText("Close");
     emit processed_list_update(_file_list);
-    */
 }
 
 void BatchRoiFitWidget::status_callback(size_t cur_block, size_t total_blocks)
