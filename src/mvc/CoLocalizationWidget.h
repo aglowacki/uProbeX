@@ -36,7 +36,7 @@ public:
    /**
     * Destructor.
     */
-   ~CoLocalizationWidget();
+   virtual ~CoLocalizationWidget();
 
    void setModel(MapsH5Model* h5_model);
 
@@ -46,31 +46,17 @@ public slots:
 
 	void redrawCounts();
 
-   void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
+    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
-   void displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx = 0);
+    void displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx = 0);
 
-   //QPixmap generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx);
+    void onNewGridLayout(int rows, int cols);
 
-   //void onAnalysisSelect(QString name);
+    void onSetAnalysisType(QString name);
 
-   //void onElementSelect(QString name, int viewIdx = 0);
+    void onColorSelected(QString);
 
-   //void addRoiMask();
-
-   void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
-
-   //void onGridDialog();
-
-   void onNewGridLayout(int rows, int cols);
-
-   /*
-   void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, unordered_map<string, ArrayDr>*);
-   
-   void on_export_image_pressed();
-
-   void on_export_images();
-   */
+    void onQuadViewChanged(int);
 
 protected:
 
@@ -93,6 +79,25 @@ protected:
 
    QWidget* _counts_window;
 
+   QComboBox* _cb_red_element;
+
+   QComboBox* _cb_green_element;
+
+   QComboBox* _cb_blue_element;
+
+   QCheckBox* _ck_quad_view;
+
+   QString _curAnalysis;
+
+   data_struct::Fit_Count_Dict<float> _fit_counts;
+
+   QVector<QRgb> _red_colormap;
+
+   QVector<QRgb> _green_colormap;
+
+   QVector<QRgb> _blue_colormap;
+   
+   bool _first_pixmap_set;
 };
 
 

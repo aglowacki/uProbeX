@@ -51,7 +51,7 @@ public:
    /**
     * Destructor.
     */
-   ~MapsElementsWidget();
+   virtual ~MapsElementsWidget();
 
    void setModel(MapsH5Model* h5_model);
 

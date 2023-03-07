@@ -56,7 +56,7 @@ public:
    /**
     * Destructor.
     */
-   ~AbstractImageWidget();
+   virtual ~AbstractImageWidget();
 
    /**
     * @brief appendTab

@@ -79,12 +79,19 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
+    /*
+    if (_co_loc_widget != nullptr)
+    {
+        delete _co_loc_widget;
+    }
+    _co_loc_widget = nullptr;
+
     if(_spectra_widget != nullptr)
     {
         delete _spectra_widget;
     }
     _spectra_widget = nullptr;
-
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -110,7 +117,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _dataset_name = new QLabel();
     hbox2->addWidget(new QLabel("Dataset: "));
     hbox2->addWidget(_dataset_directory);
-    hbox2->addWidget(_dataset_name);
+    //hbox2->addWidget(_dataset_name);
     hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QSplitter* splitter = new QSplitter();
@@ -218,7 +225,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
-    //_tab_widget->addTab(_co_loc_widget, "CoLocalization");
+    _tab_widget->addTab(_co_loc_widget, "CoLocalization");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
 
@@ -560,6 +567,7 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
     _calib_curve = _model->get_calibration_curve(name.toStdString(), _cb_normalize->currentText().toStdString());
+    _co_loc_widget->onSetAnalysisType(name);
     redrawCounts();
 }
 
@@ -736,6 +744,10 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
                 _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec), itr.second.color);
             }
+
+            _co_loc_widget->onSetAnalysisType(_cb_analysis->currentText());
+            _co_loc_widget->setModel(_model);
+
             annoTabChanged(m_tabWidget->currentIndex());
         }
         m_imageWidgetToolBar->clickFill();

@@ -239,6 +239,34 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 	}
 }
 
+//---------------------------------------------------------------------------
+
+QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap)
+{
+    float counts_max = int_img.maxCoeff();
+    float counts_min = int_img.minCoeff();
+    int width = static_cast<int>(int_img.cols());
+    int height = static_cast<int>(int_img.rows());
+    QImage image(width, height, QImage::Format_Indexed8);
+    image.setColorTable(colormap);
+
+    float max_min = counts_max - counts_min;
+    for (int row = 0; row < height; row++)
+    {
+        for (int col = 0; col < width; col++)
+        {
+            //first clamp the data to max min
+            float cnts = int_img(row, col);
+            cnts = std::min(counts_max, cnts);
+            cnts = std::max(counts_min, cnts);
+            //convert to pixel
+            byte data = static_cast<byte>(((cnts - counts_min) / max_min) * 255.0);
+            image.setPixel(col, row, (uint)data);
+        }
+    }
+    return image;
+}
+
 /*---------------------------------------------------------------------------*/
 
 void ImageViewWidget::redrawSubWindows()

@@ -33,7 +33,7 @@ public:
    /**
     * Destructor.
     */
-   ~ImageSegWidget();
+   virtual ~ImageSegWidget();
 
    /**
     * @brief widgetChanged
@@ -41,6 +41,8 @@ public:
    void widgetChanged(bool enable);
 
    void setPixMap(QPixmap pix);
+
+   void setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap);
 
    void clearAllRoiMasks();
 
@@ -64,12 +66,6 @@ public slots:
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
 protected slots:
-
-    //void mouseOverPixel(int x, int y);
-
-    //void mousePressEvent(QGraphicsSceneMouseEvent*);
-
-    //void mouseReleaseEvent(QGraphicsSceneMouseEvent*);
 
     void currentRoiChanged(const QModelIndex& current, const QModelIndex& previous);
 

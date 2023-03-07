@@ -27,14 +27,18 @@ using namespace gstar;
 AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 : QWidget(parent)
 {
-   
    // Background
+   m_treeModel = nullptr;
    m_annotationToolbar = nullptr;
    m_coordinateModel = nullptr;
    m_imageWidgetToolBar = nullptr;
    m_range = nullptr;
    m_imageWidthDim = nullptr;
    m_imageHeightDim = nullptr;
+   m_tabWidget = new QTabWidget(this);
+   //m_tabWidget->setPalette(pal);
+   //m_tabWidget->setAutoFillBackground(true);
+   //m_tabWidget->addTab(layoutWidget, QIcon(), "Annotations");
    //QPalette pal = this->palette();
    //pal.setColor(this->backgroundRole(), Qt::white);
    //this->setPalette(pal);
@@ -82,16 +86,10 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 
    createAnnotationToolBar();
 
-   m_tabWidget = new QTabWidget();
-   //m_tabWidget->setPalette(pal);
-   //m_tabWidget->setAutoFillBackground(true);
 
    m_annotationsEnabled = true;
    //add it in parent class so you can control what tab it is on.
-   //m_tabWidget->addTab(layoutWidget, QIcon(), "Annotations");
-
-   //m_lblPixelXCoordinate = nullptr;
-
+      //m_lblPixelXCoordinate = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -100,13 +98,14 @@ AbstractImageWidget::~AbstractImageWidget()
 {
 
     m_imageViewWidget->setSceneSelectionModel(nullptr);
+   
+    if(m_treeModel != nullptr)
+    {
+        delete m_treeModel;
+        m_treeModel = nullptr;
+    }
 
-   if(m_treeModel != nullptr)
-   {
-      delete m_treeModel;
-      m_treeModel = nullptr;
-   }
-
+   /*
    if(m_annotationToolbar != nullptr)
    {
       delete m_annotationToolbar;
@@ -118,7 +117,7 @@ AbstractImageWidget::~AbstractImageWidget()
       delete m_imageWidgetToolBar;
       m_imageWidgetToolBar = nullptr;
    }
-
+   */
 }
 
 /*---------------------------------------------------------------------------*/
@@ -145,21 +144,19 @@ void AbstractImageWidget::addRuler()
 
 void AbstractImageWidget::appendAnnotationTab(bool bToolbar)
 {
+    QVBoxLayout* infoLayout = new QVBoxLayout();
+    if (bToolbar)
+    {
+        infoLayout->addWidget(m_annotationToolbar->getToolBar());
+    }
+    infoLayout->addWidget(m_annoTreeView);
 
-   QVBoxLayout* infoLayout = new QVBoxLayout();
-   if (bToolbar)
-   {
-       infoLayout->addWidget(m_annotationToolbar->getToolBar());
-   }
-   infoLayout->addWidget(m_annoTreeView);
+    m_treeTabWidget = new QWidget(this);
+    //m_treeTabWidget->setPalette(pal);
+    //m_treeTabWidget->setAutoFillBackground(true);
+    m_treeTabWidget->setLayout(infoLayout);
 
-   m_treeTabWidget = new QWidget(this);
-   //m_treeTabWidget->setPalette(pal);
-   //m_treeTabWidget->setAutoFillBackground(true);
-   m_treeTabWidget->setLayout(infoLayout);
-
-   m_tabWidget->addTab(m_treeTabWidget, QIcon(), "Annotations");
-
+    m_tabWidget->addTab(m_treeTabWidget, QIcon(), "Annotations");
 }
 
 /*---------------------------------------------------------------------------*/

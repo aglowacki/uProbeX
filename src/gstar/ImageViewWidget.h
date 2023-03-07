@@ -206,6 +206,8 @@ public:
 
    void getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
 
+   QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap);
+
 public slots:
 
    /**
