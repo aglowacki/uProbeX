@@ -86,8 +86,6 @@ protected:
 
    bool _get_img(ArrayXXr<float>& int_img, bool normalize);
 
-   QImage _generate_img(ArrayXXr<float>& int_img);
-
    //std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
 
    //QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);

@@ -42,6 +42,8 @@ public:
 
    void setPixMap(QPixmap pix);
 
+   void setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap);
+
    void clearAllRoiMasks();
 
    void addRoiMask(gstar::RoiMaskGraphicsItem* roi);

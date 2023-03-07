@@ -52,6 +52,12 @@ public slots:
 
     void onNewGridLayout(int rows, int cols);
 
+    void onSetAnalysisType(QString name);
+
+    void onColorSelected(QString);
+
+    void onQuadViewChanged(int);
+
 protected:
 
    /**
@@ -79,6 +85,19 @@ protected:
 
    QComboBox* _cb_blue_element;
 
+   QCheckBox* _ck_quad_view;
+
+   QString _curAnalysis;
+
+   data_struct::Fit_Count_Dict<float> _fit_counts;
+
+   QVector<QRgb> _red_colormap;
+
+   QVector<QRgb> _green_colormap;
+
+   QVector<QRgb> _blue_colormap;
+   
+   bool _first_pixmap_set;
 };
 
 

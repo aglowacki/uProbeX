@@ -42,6 +42,14 @@ void ImageSegWidget::createLayout()
 
 //---------------------------------------------------------------------------
 
+void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap)
+{
+    QImage image = m_imageViewWidget->generate_img(img_arr, colormap);
+    setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegWidget::setPixMap(QPixmap pix)
 {
     m_imageViewWidget->scene(0)->setPixmap(pix);
