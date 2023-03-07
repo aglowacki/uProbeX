@@ -49,12 +49,6 @@ public:
 
     void updateFileList(std::unordered_map<QString, QFileInfo> roi_map);
 
-    void status_callback(size_t cur_block, size_t total_blocks);
-
-signals:
-
-    void processed_list_update(QStringList);
-
 public slots:
     void runProcessing();
    
@@ -67,8 +61,6 @@ protected:
 
    QStringList _file_list;
    
-   QTextEdit *_textEdit;
-
    QProgressBar *_progressBarFiles;
 
    QProgressBar* _progressBarBlocks;
@@ -81,37 +73,9 @@ protected:
 
    QStandardItemModel* _file_list_model;
 
-   QCheckBox* _proc_roi;
-
-   QCheckBox* _proc_nnls;
-
-   QCheckBox* _proc_matrix;
-
-   QCheckBox* _save_avg;
-
-   QCheckBox* _save_v9;
-
-   QCheckBox* _save_csv;
-   
-   QCheckBox* _save_exchange;
-
-   QCheckBox* _perform_quantification;
-
    std::string _directory;
 
-   size_t _cur_file;
-
-   size_t _cur_block;
-   
    QLineEdit* _le_detectors;
-   
-   QHBoxLayout* _proc_save_layout;
-
-   QGroupBox* _saving_grp;
-
-   QGroupBox* _processing_grp;
-
-   size_t _total_blocks;
 
    std::unordered_map<QString, QFileInfo> _roi_map;
 };

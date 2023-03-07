@@ -218,7 +218,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
-    //_tab_widget->addTab(_co_loc_widget, "CoLocalization");
+    _tab_widget->addTab(_co_loc_widget, "CoLocalization");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
 
 
