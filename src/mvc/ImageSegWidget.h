@@ -33,7 +33,7 @@ public:
    /**
     * Destructor.
     */
-   ~ImageSegWidget();
+   virtual ~ImageSegWidget();
 
    /**
     * @brief widgetChanged
@@ -64,12 +64,6 @@ public slots:
    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
 protected slots:
-
-    //void mouseOverPixel(int x, int y);
-
-    //void mousePressEvent(QGraphicsSceneMouseEvent*);
-
-    //void mouseReleaseEvent(QGraphicsSceneMouseEvent*);
 
     void currentRoiChanged(const QModelIndex& current, const QModelIndex& previous);
 

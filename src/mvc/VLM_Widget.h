@@ -65,7 +65,7 @@ public:
    /**
     * Destructor.
     */
-   ~VLM_Widget();
+   virtual ~VLM_Widget();
 
    /**
     * @brief setCoordinateModel: Model is displayed at the bottom of the screen

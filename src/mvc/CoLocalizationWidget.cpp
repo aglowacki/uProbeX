@@ -10,7 +10,9 @@
 CoLocalizationWidget::CoLocalizationWidget(QWidget* parent) : gstar::AbstractImageWidget(1, 1, parent)
 {
     _model = nullptr;
+    setAnnotationsEnabled(false);
     _createLayout();
+    createActions();
 }
 
 //---------------------------------------------------------------------------
@@ -33,23 +35,36 @@ void CoLocalizationWidget::_createLayout()
 {
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_imageViewWidget);
+    QLayout* gen_layout = generateDefaultLayout(true);
 
-    //_imageViewWidget->setSceneModel(m_treeModel);
-    //_imageViewWidget->setSceneSelectionModel(m_selectionModel);
-    /*
-    _imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_imageViewWidget,
-        SIGNAL(customContextMenuRequested(const QPoint&)),
-        this,
-        SLOT(viewContextMenu(const QPoint&)));
-        */
+    m_imageViewWidget->setCoordsVisible(false);
+    m_imageViewWidget->setSelectorVisible(false);
+    m_imageViewWidget->setCountsVisible(false);
+    
+    _cb_red_element = new QComboBox();
+
+    _cb_green_element = new QComboBox();
+
+    _cb_blue_element = new QComboBox();
+
+    QHBoxLayout* hb = new QHBoxLayout();
+    hb->addWidget(new QLabel("Red Element"));
+    hb->addWidget(_cb_red_element);
+
+    hb->addWidget(new QLabel("Green Element"));
+    hb->addWidget(_cb_green_element);
+
+    hb->addWidget(new QLabel("Blue Element"));
+    hb->addWidget(_cb_blue_element);
+    layout->addItem(hb);
+    
+    appendAnnotationTab(false);
+
+    layout->addItem(gen_layout);
+    //layout->addWidget(m_imageViewWidget);
 
     //don't erase counts when mouse is off scene
     //_imageViewWidget->set_null_mouse_pos = false;
-    //connect(_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
-
-	//connect(_imageViewWidget, &gstar::ImageViewWidget::parent_redraw, this, &CoLocalizationWidget::redrawCounts);
 
     //createActions();
 
@@ -77,13 +92,6 @@ void CoLocalizationWidget::_createLayout()
 
 //---------------------------------------------------------------------------
 /*
-void CoLocalizationWidget::onGridDialog()
-{
-	
-	iDiag.show();
-
-}
-
 //---------------------------------------------------------------------------
 
 void CoLocalizationWidget::on_global_contrast_changed(int state)
@@ -135,36 +143,6 @@ void CoLocalizationWidget::onNewGridLayout(int rows, int cols)
     Preferences::inst()->setValue(STR_GRID_ROWS,rows);
     Preferences::inst()->setValue(STR_GRID_COLS,cols);
     Preferences::inst()->save();
-}
-
-//---------------------------------------------------------------------------
-/*
-void CoLocalizationWidget::addRoiMask()
-{
-    int w = _imageViewWidget->scene()->getPixmapItem()->pixmap().width();
-    int h = _imageViewWidget->scene()->getPixmapItem()->pixmap().height();
-   gstar::RoiMaskGraphicsItem* annotation = new gstar::RoiMaskGraphicsItem(w, h);
-   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
-
-   //QString name = ano->getName();
-   //_spectra_widget->appendROISpectra()
-   //            //data_struct Spectra = _model->load_roi(annotation->getROI());
-
-   connect(annotation, &gstar::RoiMaskGraphicsItem::mask_updated, this, &CoLocalizationWidget::roiUpdated);
-
-}
-*/
-//---------------------------------------------------------------------------
-
-void CoLocalizationWidget::roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload)
-{
-    if (ano != nullptr && reload)
-    {
-        {
-
-        }
-    }
-    
 }
 
 //---------------------------------------------------------------------------
@@ -260,41 +238,6 @@ void CoLocalizationWidget::onElementSelect(QString name, int viewIdx)
             displayCounts(analysisName.toStdString(), name.toStdString(), _chk_log_color->isChecked(), viewIdx);
         }
     }
-}
-
-//---------------------------------------------------------------------------
-
-void CoLocalizationWidget::onColormapSelect(QString colormap)
-{
-	if(colormap == STR_COLORMAP_GRAY)
-	{
-		_selected_colormap = &_gray_colormap;
-        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
-	}
-	else if(colormap == STR_COLORMAP_HEAT)
-	{
-		_selected_colormap = &_heat_colormap;
-        Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_HEAT);
-	}
-    else
-    {
-        _selected_colormap = ColorMap::inst()->get_color_map(colormap);
-        if (_selected_colormap == nullptr)
-        {
-            _selected_colormap = &_gray_colormap;
-            Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
-        }
-        else
-        {
-            Preferences::inst()->setValue(STR_COLORMAP, colormap);
-        }
-    }
-    _color_maps_ledgend->setColorTable(*_selected_colormap);
-    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
-
-	redrawCounts();
-    
-    Preferences::inst()->save();
 }
 
 //---------------------------------------------------------------------------
