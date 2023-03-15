@@ -1977,3 +1977,113 @@ Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analys
 }
 
 /*---------------------------------------------------------------------------*/
+
+void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::string> &names)
+{
+
+    data_struct::Fit_Count_Dict<float> fit_counts;
+    getAnalyzedCounts(analysis_type.toStdString(), fit_counts);
+    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
+    if (scalers != nullptr)
+    {
+        for (auto& itr : *scalers)
+        {
+            fit_counts.insert(itr);
+        }
+    }
+
+    //create save ordered vector by element Z number with K , L, M lines
+    std::vector<std::string> element_lines;
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name);
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name + "_L");
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name + "_M");
+    }
+
+    std::vector<std::string> final_counts_to_add_before_scalers;
+    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
+    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
+
+    std::vector<std::string> scalers_to_add_first;
+    scalers_to_add_first.push_back(STR_SR_CURRENT);
+    scalers_to_add_first.push_back(STR_US_IC);
+    scalers_to_add_first.push_back(STR_DS_IC);
+    scalers_to_add_first.push_back(STR_ELT);
+    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
+    scalers_to_add_first.push_back(STR_ERT);
+    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
+    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_ICR);
+    scalers_to_add_first.push_back("INCNT");
+    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_OCR);
+    scalers_to_add_first.push_back("OUTCNT");
+    scalers_to_add_first.push_back(STR_DEAD_TIME);
+    scalers_to_add_first.push_back("abs_cfg");
+    scalers_to_add_first.push_back("abs_ic");
+    scalers_to_add_first.push_back("H_dpc_cfg");
+    scalers_to_add_first.push_back("V_dpc_cfg");
+    scalers_to_add_first.push_back("DPC1_IC");
+    scalers_to_add_first.push_back("DPC2_IC");
+    scalers_to_add_first.push_back("dia1_dpc_cfg");
+    scalers_to_add_first.push_back("dia2_dpc_cfg");
+    scalers_to_add_first.push_back("CFG_1");
+    scalers_to_add_first.push_back(STR_CFG_2);
+    scalers_to_add_first.push_back(STR_CFG_3);
+    scalers_to_add_first.push_back(STR_CFG_4);
+    scalers_to_add_first.push_back(STR_CFG_5);
+    scalers_to_add_first.push_back("CFG_6");
+    scalers_to_add_first.push_back("CFG_7");
+    scalers_to_add_first.push_back("CFG_8");
+    scalers_to_add_first.push_back("CFG_9");
+
+    // insert in z order
+    for (std::string el_name : element_lines)
+    {
+        if (fit_counts.count(el_name) > 0)
+        {
+            names.push_back(el_name);
+            fit_counts.erase(el_name);
+        }
+    }
+
+    // add end of element list that are not elements
+    for (auto& itr : final_counts_to_add_before_scalers)
+    {
+        if (fit_counts.count(itr) > 0)
+        {
+            names.push_back(itr);
+            fit_counts.erase(itr);
+        }
+    }
+
+    // add scalers in certain order
+    for (auto& itr : scalers_to_add_first)
+    {
+        if (fit_counts.count(itr) > 0)
+        {
+            names.push_back(itr);
+            fit_counts.erase(itr);
+        }
+    }
+
+    // add rest of scalers
+    for (auto& itr : fit_counts)
+    {
+        names.push_back(itr.first);
+    }
+
+}
+
+/*---------------------------------------------------------------------------*/

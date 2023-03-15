@@ -19,6 +19,7 @@
 #include <QValueAxis>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QSpinBox>
 //#include <QPushButton>
 #include <mvc/MapsH5Model.h>
 
@@ -36,17 +37,17 @@ public:
 
     ~ScatterPlotView();
 
-    void setModel(MapsH5Model* model) { _model = model; }
+    void setModel(MapsH5Model* model);
 
     void setAnalysisType(QString curAnalysis);
 
 public slots:
 
-    void onXAxisChange(QString);
-
-    void onYAxisChange(QString);
+    void onNameChange(QString);
 
 private:
+
+    void _updateNames();
 
     void _updatePlot();
 
@@ -67,6 +68,8 @@ private:
     QtCharts::QChartView* _chartView;
 
     QtCharts::QScatterSeries* _scatter_series;
+
+    QString _curAnalysis;
 
     MapsH5Model* _model;
 };
@@ -101,19 +104,17 @@ public slots:
 
 protected:
 
-    void createLayout();
+    void _createLayout();
 
 private:
 
     QHBoxLayout* _subPlotLayout;
 
+    QSpinBox* _sp_maker_size;
+
     QCheckBox* _ck_display_log10;
 
     std::vector< ScatterPlotView*> _plot_view_list;
-
-    QString _curAnalysis;
-
-    MapsH5Model* _model;
 
 };
 

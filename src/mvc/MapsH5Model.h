@@ -175,6 +175,9 @@ public:
     void loadAllRoiMaps();
 
     const std::unordered_map<std::string, struct Map_ROI >& get_map_rois() { return _map_rois; }
+
+    void generateNameLists(QString analysis_type, std::vector<std::string>& names);
+
 signals:
     void model_data_updated();
 

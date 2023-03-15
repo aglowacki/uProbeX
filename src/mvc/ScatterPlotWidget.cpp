@@ -15,6 +15,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(
 {
 
     _model = nullptr;
+    _curAnalysis = QString(STR_FIT_NNLS.c_str());
 
     _axisXLog10 = new QtCharts::QLogValueAxis();
     _axisXLog10->setTitleText("");
@@ -35,26 +36,36 @@ ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(
     _axisY->setLabelFormat("%f");
 
     _chart = new QtCharts::QChart();
-    _chart->addAxis(_axisX, Qt::AlignBottom);
 
     if (display_log10)
     {
-
         _chart->addAxis(_axisXLog10, Qt::AlignBottom);
         _chart->addAxis(_axisYLog10, Qt::AlignLeft);
     }
     else
     {
-
         _chart->addAxis(_axisX, Qt::AlignBottom);
         _chart->addAxis(_axisY, Qt::AlignLeft);
     }
     
     _cb_x_axis_element = new QComboBox();
+    _cb_x_axis_element->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(_cb_x_axis_element, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
     _cb_y_axis_element = new QComboBox();
+    _cb_y_axis_element->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(_cb_y_axis_element, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
 
 
     _chartView = new QtCharts::QChartView(_chart);
+
+    //setRenderHint(QPainter::Antialiasing);
+    _scatter_series = new QtCharts::QScatterSeries();
+    _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+    //_scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+    _scatter_series->setMarkerSize(15.0);
+    _scatter_series->setUseOpenGL(true);
+    _chart->addSeries(_scatter_series);
+
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(new QLabel("X Axis"));
     hbox->addWidget(_cb_x_axis_element);
@@ -79,29 +90,120 @@ ScatterPlotView::~ScatterPlotView()
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotView::onXAxisChange(QString name)
+void ScatterPlotView::onNameChange(QString name)
 {
     _updatePlot();
 }
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotView::onYAxisChange(QString name)
+void ScatterPlotView::setModel(MapsH5Model* model)
 {
-    _updatePlot();
+    _model = model;
+    _updateNames();
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::setAnalysisType(QString name)
+{
+    _curAnalysis = name;
+    _updateNames();
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::_updateNames()
+{
+    if (_model != nullptr)
+    {
+        std::vector<std::string> map_names;
+        _model->generateNameLists(_curAnalysis, map_names);
+        _cb_x_axis_element->clear();
+        _cb_y_axis_element->clear();
+
+        _cb_x_axis_element->addItem(" ");
+        _cb_y_axis_element->addItem(" ");
+        for (auto& itr : map_names)
+        {
+            _cb_x_axis_element->addItem(QString(itr.c_str()));
+            _cb_y_axis_element->addItem(QString(itr.c_str()));
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
 
 void ScatterPlotView::_updatePlot()
 {
-    QString xName = _cb_x_axis_element->currentText();
-    QString yName = _cb_y_axis_element->currentText();
+    std::string xName = _cb_x_axis_element->currentText().toStdString();
+    std::string yName = _cb_y_axis_element->currentText().toStdString();
 
 
     if (_model != nullptr)
     {
-        //int xCnt = 
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+
+        data_struct::ArrayXXr<float> x_map;
+        data_struct::ArrayXXr<float> y_map;
+
+        bool foundX = false;
+        bool foundY = false;
+
+        int xCnt = fit_counts.count(xName);
+        if (xCnt != 0)
+        {
+            x_map = fit_counts.at(xName);
+            foundX = true;
+        }
+        else
+        {
+            xCnt = scalers->count(xName);
+            if (xCnt != 0)
+            {
+                x_map = scalers->at(xName);
+                foundX = true;
+            }
+        }
+
+
+        int yCnt = fit_counts.count(yName);
+        if (yCnt != 0)
+        {
+            y_map = fit_counts.at(yName);
+            foundY = true;
+        }
+        else
+        {
+            yCnt = scalers->count(yName);
+            if (yCnt != 0)
+            {
+                y_map = scalers->at(yName);
+                foundY = true;
+            }
+        }
+
+        if (foundX && foundY)
+        {
+            _chart->removeSeries(_scatter_series);
+            _scatter_series->clear();
+
+            for (int y = 0; y < x_map.rows(); y++)
+            {
+                for (int x = 0; x < x_map.cols(); x++)
+                {
+                    _scatter_series->append(x_map(y,x), y_map(y,x));
+                }
+                
+            }
+            _chart->addSeries(_scatter_series);
+
+            QString sname = _cb_x_axis_element->currentText() + "/" + _cb_y_axis_element->currentText();
+            _scatter_series->setName(sname);
+            _chart->zoomReset();
+        }
     }
 
 }
@@ -113,8 +215,7 @@ void ScatterPlotView::_updatePlot()
 
 ScatterPlotWidget::ScatterPlotWidget(QWidget* parent) : QWidget(parent)
 {
-    _model = nullptr;
-    createLayout();
+    _createLayout();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -127,7 +228,7 @@ ScatterPlotWidget::~ScatterPlotWidget()
 
 /*---------------------------------------------------------------------------*/
 
-void ScatterPlotWidget::createLayout()
+void ScatterPlotWidget::_createLayout()
 {
 
     _subPlotLayout = new QHBoxLayout();
@@ -150,17 +251,16 @@ void ScatterPlotWidget::createLayout()
         _subPlotLayout->addWidget(_plot_view_list[i]);
     }
 
+    _sp_maker_size = new QSpinBox();
+    _sp_maker_size->setRange(1, 100);
+    _sp_maker_size->setSingleStep(1.0);
+    _sp_maker_size->setValue(15);
+    //connect(_sp_maker_size, qOverload<int>(&QSpinBox::valueChanged), this, &ImageSegRoiDialog::updateMarkerSize);
+
 
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(_ck_display_log10);
-//    options_layout->addWidget(_display_eneergy_min);
- //   options_layout->addWidget(new QLabel("keV  ,  "));
-
- //   options_layout->addWidget(new QLabel("Display Energy Max:"));
- //   options_layout->addWidget(_display_eneergy_max);
- //   options_layout->addWidget(new QLabel("keV"));
-
- //   options_layout->addWidget(_btn_reset_chart_view);
+    options_layout->addWidget(_sp_maker_size);
 
  //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
@@ -174,12 +274,11 @@ void ScatterPlotWidget::createLayout()
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotWidget::onSetAnalysisType(QString name)
+void ScatterPlotWidget::setAnalysisType(QString name)
 {
     for (auto& itr : _plot_view_list)
     {
-        itr->setModel(_model);
-        itr->setAnalysisType(_curAnalysis);
+        itr->setAnalysisType(name);
     }
 }
 
@@ -188,17 +287,11 @@ void ScatterPlotWidget::onSetAnalysisType(QString name)
 
 void ScatterPlotWidget::setModel(MapsH5Model* model)
 {
-    if (_model != model)
+    if (model != nullptr)
     {
-        _model = model;
-        //model_updated();
-        if (_model != nullptr)
+        for (auto& itr : _plot_view_list)
         {
-            for (auto& itr : _plot_view_list)
-            {
-                itr->setModel(_model);
-            }
-            onSetAnalysisType(_curAnalysis);
+            itr->setModel(model);
         }
     }
 }

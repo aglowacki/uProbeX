@@ -571,7 +571,7 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
 {	
     _calib_curve = _model->get_calibration_curve(name.toStdString(), _cb_normalize->currentText().toStdString());
     _co_loc_widget->onSetAnalysisType(name);
-    _scatter_plot_widget->onSetAnalysisType(name);
+    _scatter_plot_widget->setAnalysisType(name);
     redrawCounts();
 }
 
@@ -752,7 +752,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             _co_loc_widget->onSetAnalysisType(_cb_analysis->currentText());
             _co_loc_widget->setModel(_model);
 
-            _scatter_plot_widget->onSetAnalysisType(_cb_analysis->currentText());
+            _scatter_plot_widget->setAnalysisType(_cb_analysis->currentText());
             _scatter_plot_widget->setModel(_model);
 
             annoTabChanged(m_tabWidget->currentIndex());
