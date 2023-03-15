@@ -65,6 +65,7 @@
 #define STR_PRF_ScatterPlot_NumWindows "ScatterPlot_NumWindows"
 #define STR_PRF_ScatterPlot_Log10 "ScatterPlot_Log10"
 #define STR_PFR_MARKER_SHAPE "ScatterPlotMarkerShape"
+#define STR_PRF_ScatterPlot_GridLines "ScatterPlotGridLines"
 
 
 /**

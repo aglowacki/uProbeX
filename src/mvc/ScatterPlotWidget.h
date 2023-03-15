@@ -49,6 +49,8 @@ public:
 
     void setShape(QtCharts::QScatterSeries::MarkerShape shape);
 
+    void setGridLinesVisible(int val);
+
     //QPixmap getPngofChart();
 
 public slots:
@@ -120,6 +122,8 @@ public slots:
 
     void onShapeChange(QString val);
 
+    void setGridLinesVisible(int val);
+
 protected:
 
     void _createLayout();
@@ -131,6 +135,8 @@ private:
     QSpinBox* _sp_maker_size;
 
     QCheckBox* _ck_display_log10;
+
+    QCheckBox* _ck_display_grid_lines;
 
     QCheckBox* _ck_black_background;
 

@@ -92,6 +92,8 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     vbox->addItem(hbox);
     vbox->addWidget(_chartView);
 
+    setGridLinesVisible(Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool());
+
     setLayout(vbox);
 
 }
@@ -230,6 +232,26 @@ void ScatterPlotView::updateMarkerSize(qreal val)
 
 //---------------------------------------------------------------------------
 
+void ScatterPlotView::setGridLinesVisible(int val)
+{
+    if (val == 0)
+    {
+        _axisX->setGridLineVisible(false);
+        _axisY->setGridLineVisible(false);
+        _axisXLog10->setGridLineVisible(false);
+        _axisYLog10->setGridLineVisible(false);
+    }
+    else
+    {
+        _axisX->setGridLineVisible(true);
+        _axisY->setGridLineVisible(true);
+        _axisXLog10->setGridLineVisible(true);
+        _axisYLog10->setGridLineVisible(true);
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void ScatterPlotView::_updatePlot()
 {
     std::string xName = _cb_x_axis_element->currentText().toStdString();
@@ -359,13 +381,17 @@ void ScatterPlotWidget::_createLayout()
     // read pref to get number of windows
     int num_wins = Preferences::inst()->getValue(STR_PRF_ScatterPlot_NumWindows).toInt();
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
-
+    bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
     bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
     
 
     _ck_display_log10 = new QCheckBox("Display log10");
     _ck_display_log10->setChecked(_display_log10);
     connect(_ck_display_log10, &QCheckBox::stateChanged, this, &ScatterPlotWidget::set_log10);
+
+    _ck_display_grid_lines = new QCheckBox("Display Grid Lines");
+    _ck_display_grid_lines->setChecked(display_gird_lines);
+    connect(_ck_display_grid_lines, &QCheckBox::stateChanged, this, &ScatterPlotWidget::setGridLinesVisible);
 
     _ck_black_background = new QCheckBox("Black Background");
     _ck_black_background->setChecked(dark_theme);
@@ -396,6 +422,7 @@ void ScatterPlotWidget::_createLayout()
 
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(_ck_display_log10);
+    options_layout->addWidget(_ck_display_grid_lines);
     options_layout->addWidget(_ck_black_background);
     options_layout->addWidget(_sp_maker_size);
     options_layout->addWidget(new QLabel("Marker Shape:"));
@@ -489,6 +516,17 @@ void ScatterPlotWidget::set_log10(int val)
         itr->setLog10(val);
     }
     
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::setGridLinesVisible(int val)
+{
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_GridLines, _ck_display_grid_lines->isChecked());
+    for (auto& itr : _plot_view_list)
+    {
+        itr->setGridLinesVisible(val);
+    }
 }
 
 //---------------------------------------------------------------------------
