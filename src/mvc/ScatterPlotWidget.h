@@ -41,6 +41,10 @@ public:
 
     void setAnalysisType(QString curAnalysis);
 
+    void updateMarkerSize(qreal val);
+
+    void setLog10(int val);
+
 public slots:
 
     void onNameChange(QString);
@@ -101,6 +105,8 @@ public:
 public slots:
 
     void set_log10(bool val);
+    
+    void updateMarkerSize(int val);
 
 protected:
 
