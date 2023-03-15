@@ -60,16 +60,20 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     _scatter_series->setMarkerSize(1.0);
     _scatter_series->setUseOpenGL(true);
     _chart->addSeries(_scatter_series);
-
-    if (display_log10)
+    _display_log10 = display_log10;
+    if (_display_log10)
     {
         _chart->addAxis(_axisXLog10, Qt::AlignBottom);
         _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+        _scatter_series->attachAxis(_axisXLog10);
+        _scatter_series->attachAxis(_axisYLog10);
     }
     else
     {
         _chart->addAxis(_axisX, Qt::AlignBottom);
         _chart->addAxis(_axisY, Qt::AlignLeft);
+        _scatter_series->attachAxis(_axisX);
+        _scatter_series->attachAxis(_axisY);
     }
 
     if (black_background)
@@ -128,31 +132,31 @@ void ScatterPlotView::setLog10(int val)
     
     if (val == 0)
     {
+        _display_log10 = false;
         _scatter_series->detachAxis(_axisXLog10);
         _scatter_series->detachAxis(_axisYLog10);
 
         _chart->removeAxis(_axisXLog10);
         _chart->removeAxis(_axisYLog10);
 
-        _scatter_series->attachAxis(_axisX);
-        _scatter_series->attachAxis(_axisY);
-
         _chart->addAxis(_axisX, Qt::AlignBottom);
         _chart->addAxis(_axisY, Qt::AlignLeft);
+
+        _scatter_series->attachAxis(_axisX);
+        _scatter_series->attachAxis(_axisY);
     }
     else
     {
+        _display_log10 = true;
         _scatter_series->detachAxis(_axisX);
         _scatter_series->detachAxis(_axisY);
         _chart->removeAxis(_axisX);
         _chart->removeAxis(_axisY);
 
-        _scatter_series->attachAxis(_axisXLog10);
-        _scatter_series->attachAxis(_axisYLog10);
-
         _chart->addAxis(_axisXLog10, Qt::AlignBottom);
         _chart->addAxis(_axisYLog10, Qt::AlignLeft);
-
+        _scatter_series->attachAxis(_axisXLog10);
+        _scatter_series->attachAxis(_axisYLog10);
     }
     _updatePlot();
 
@@ -282,6 +286,18 @@ void ScatterPlotView::_updatePlot()
             _chart->removeSeries(_scatter_series);
             _scatter_series->clear();
 
+            if (_display_log10)
+            {
+                x_map = x_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : v; });
+                y_map = y_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : v; });
+            }
+
+            float xMinVal = x_map.minCoeff();
+            float yMinVal = y_map.minCoeff();
+
+            float xMaxVal = x_map.maxCoeff();
+            float yMaxVal = y_map.maxCoeff();
+
             for (int y = 0; y < x_map.rows(); y++)
             {
                 for (int x = 0; x < x_map.cols(); x++)
@@ -297,8 +313,19 @@ void ScatterPlotView::_updatePlot()
             _axisXLog10->setTitleText(_cb_x_axis_element->currentText());
             _axisYLog10->setTitleText(_cb_y_axis_element->currentText());
             QString sname = _cb_x_axis_element->currentText() + "/" + _cb_y_axis_element->currentText();
+            
+            if (_display_log10)
+            {
+                _axisXLog10->setRange(xMinVal, xMaxVal);
+                _axisYLog10->setRange(yMinVal, yMaxVal);
+            }
+            else
+            {
+                _axisX->setRange(xMinVal, xMaxVal);
+                _axisY->setRange(yMinVal, yMaxVal);
+            }
+
             _scatter_series->setName(sname);
-            _chart->zoomReset();
         }
     }
 

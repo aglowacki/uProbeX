@@ -81,6 +81,8 @@ private:
 
     QString _curAnalysis;
 
+    bool _display_log10;
+
     MapsH5Model* _model;
 };
 
