@@ -384,7 +384,6 @@ void ScatterPlotWidget::_createLayout()
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
     bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
     
-
     _ck_display_log10 = new QCheckBox("Display log10");
     _ck_display_log10->setChecked(_display_log10);
     connect(_ck_display_log10, &QCheckBox::stateChanged, this, &ScatterPlotWidget::set_log10);
