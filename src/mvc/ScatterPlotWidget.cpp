@@ -401,6 +401,11 @@ void ScatterPlotWidget::_createLayout()
     _cb_shape->addItem("Rectangle");
     connect(_cb_shape, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotWidget::onShapeChange);
 
+    _btn_add = new QPushButton("Add Plot");
+    connect(_btn_add, &QPushButton::released, this, &ScatterPlotWidget::onAdd);
+    _btn_del = new QPushButton("Remove Plot");
+    connect(_btn_del, &QPushButton::released, this, &ScatterPlotWidget::onDel);
+
     if (num_wins < 1)
     {
         num_wins = 1;
@@ -426,15 +431,51 @@ void ScatterPlotWidget::_createLayout()
     options_layout->addWidget(_sp_maker_size);
     options_layout->addWidget(new QLabel("Marker Shape:"));
     options_layout->addWidget(_cb_shape);
+    options_layout->addWidget(_btn_add);
+    options_layout->addWidget(_btn_del);
 
  //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
-    QVBoxLayout* vlayout = new QVBoxLayout();
-    vlayout->addItem(_subPlotLayout);
-    vlayout->addItem(options_layout);
+    _mainlayout = new QVBoxLayout();
+    _mainlayout->addItem(_subPlotLayout);
+    _mainlayout->addItem(options_layout);
 
-    setLayout(vlayout);
+    setLayout(_mainlayout);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::onAdd()
+{
+    bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
+    bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+    
+    _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, nullptr));
+    int idx = _plot_view_list.size() - 1;
+    _subPlotLayout->addWidget(_plot_view_list[idx]);
+
+    setGridLinesVisible(display_gird_lines);
+
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+    setLayout(_mainlayout);
+
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::onDel()
+{
+    int amt = _plot_view_list.size();
+    if (amt > 1)
+    {
+        _subPlotLayout->removeWidget(_plot_view_list[amt - 1]);
+        _plot_view_list[amt - 1]->setParent(nullptr);
+        delete _plot_view_list[amt - 1];
+        _plot_view_list.pop_back();
+        Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+    }
 }
 
 //---------------------------------------------------------------------------

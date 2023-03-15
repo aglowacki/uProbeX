@@ -12,15 +12,13 @@
 #include <QtCharts/QCategoryAxis>
 #include <QtCharts/QChartView>
 #include <QHBoxLayout>
-//#include <QAction>
-//#include <QMenu>
 #include <QWidget>
 #include <QLogValueAxis>
 #include <QValueAxis>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QSpinBox>
-//#include <QPushButton>
+#include <QPushButton>
 #include <mvc/MapsH5Model.h>
 
 
@@ -124,6 +122,10 @@ public slots:
 
     void setGridLinesVisible(int val);
 
+    void onAdd();
+
+    void onDel();
+
 protected:
 
     void _createLayout();
@@ -141,6 +143,12 @@ private:
     QCheckBox* _ck_black_background;
 
     QComboBox* _cb_shape;
+
+    QPushButton* _btn_add;
+
+    QPushButton* _btn_del;
+
+    QVBoxLayout* _mainlayout;
 
     std::vector< ScatterPlotView*> _plot_view_list;
 
