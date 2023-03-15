@@ -11,23 +11,69 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QCategoryAxis>
 #include <QtCharts/QChartView>
+#include <QHBoxLayout>
 //#include <QAction>
 //#include <QMenu>
 #include <QWidget>
 #include <QLogValueAxis>
 #include <QValueAxis>
 #include <QComboBox>
+#include <QCheckBox>
 //#include <QPushButton>
-#include "data_struct/fit_element_map.h"
+#include <mvc/MapsH5Model.h>
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-/**
- * @brief When open the acquisition window, the widget is showing for capturing
- * the image from the area detector writer, the window will also be updated to
- * show the image.
- */
+class ScatterPlotView : public QWidget
+{
+
+    Q_OBJECT
+
+public:
+
+    ScatterPlotView(bool display_log10, QWidget* parent = nullptr);
+
+    ~ScatterPlotView();
+
+    void setModel(MapsH5Model* model) { _model = model; }
+
+    void setAnalysisType(QString curAnalysis);
+
+public slots:
+
+    void onXAxisChange(QString);
+
+    void onYAxisChange(QString);
+
+private:
+
+    void _updatePlot();
+
+    QtCharts::QLogValueAxis* _axisXLog10;
+
+    QtCharts::QLogValueAxis* _axisYLog10;
+
+    QtCharts::QValueAxis* _axisX;
+
+    QtCharts::QValueAxis* _axisY;
+
+    QComboBox* _cb_x_axis_element;
+
+    QComboBox* _cb_y_axis_element;
+
+    QtCharts::QChart* _chart;
+
+    QtCharts::QChartView* _chartView;
+
+    QtCharts::QScatterSeries* _scatter_series;
+
+    MapsH5Model* _model;
+};
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
 class ScatterPlotWidget : public QWidget
 {
 
@@ -45,52 +91,29 @@ public:
     */
     ~ScatterPlotWidget();
 
-signals:
+    void setModel(MapsH5Model* model);
 
-    //void y_axis_changed(bool is_log10);
+    void setAnalysisType(QString name);
 
 public slots:
-
-    //void ShowContextMenu(const QPoint &);
 
     void set_log10(bool val);
 
 protected:
 
-    /**
-    * @brief Create layout
-    */
     void createLayout();
-
-    bool _display_log10;
-
-    QtCharts::QChart *_chart;
-
-    QtCharts::QScatterSeries *_scatter_series;
-
-private slots:
-
-    //void onSpectraDisplayChanged(const QString &);
-
-    //void onSpectraDisplayHeightChanged(const QString&);
-
-    //void onUpdateChartLineEdits();
-
-    //void _update_series();
 
 private:
 
-    QComboBox *_x_axis_element;
+    QHBoxLayout* _subPlotLayout;
 
-    QComboBox *_y_axis_element;
+    QCheckBox* _ck_display_log10;
 
-    QtCharts::QLogValueAxis *_axisYLog10;
+    std::vector< ScatterPlotView*> _plot_view_list;
 
-    QtCharts::QValueAxis * _axisX;
+    QString _curAnalysis;
 
-    QtCharts::QValueAxis * _axisY;
-
-    QtCharts::QAbstractAxis * _currentYAxis;
+    MapsH5Model* _model;
 
 };
 

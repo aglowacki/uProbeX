@@ -5,107 +5,206 @@
 
 #include <mvc/ScatterPlotWidget.h>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QSpacerItem>
 #include <QLabel>
+#include "preferences/Preferences.h"
 
+ //---------------------------------------------------------------------------
+
+ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(parent)
+{
+
+    _model = nullptr;
+
+    _axisXLog10 = new QtCharts::QLogValueAxis();
+    _axisXLog10->setTitleText("");
+    _axisXLog10->setLabelFormat("%.1e");
+    _axisXLog10->setBase(10.0);
+
+    _axisX = new QtCharts::QValueAxis();
+    _axisX->setTitleText("");
+    _axisX->setLabelFormat("%f");
+    
+    _axisYLog10 = new QtCharts::QLogValueAxis();
+    _axisYLog10->setTitleText("");
+    _axisYLog10->setLabelFormat("%.1e");
+    _axisYLog10->setBase(10.0);
+
+    _axisY = new QtCharts::QValueAxis();
+    _axisY->setTitleText("");
+    _axisY->setLabelFormat("%f");
+
+    _chart = new QtCharts::QChart();
+    _chart->addAxis(_axisX, Qt::AlignBottom);
+
+    if (display_log10)
+    {
+
+        _chart->addAxis(_axisXLog10, Qt::AlignBottom);
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+    }
+    else
+    {
+
+        _chart->addAxis(_axisX, Qt::AlignBottom);
+        _chart->addAxis(_axisY, Qt::AlignLeft);
+    }
+    
+    _cb_x_axis_element = new QComboBox();
+    _cb_y_axis_element = new QComboBox();
+
+
+    _chartView = new QtCharts::QChartView(_chart);
+    QHBoxLayout* hbox = new QHBoxLayout();
+    hbox->addWidget(new QLabel("X Axis"));
+    hbox->addWidget(_cb_x_axis_element);
+    hbox->addWidget(new QLabel("Y Axis"));
+    hbox->addWidget(_cb_y_axis_element);
+    hbox->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
+
+    QVBoxLayout* vbox = new QVBoxLayout();
+    vbox->addItem(hbox);
+    vbox->addWidget(_chartView);
+
+    setLayout(vbox);
+
+}
+ 
+//---------------------------------------------------------------------------
+
+ScatterPlotView::~ScatterPlotView()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::onXAxisChange(QString name)
+{
+    _updatePlot();
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::onYAxisChange(QString name)
+{
+    _updatePlot();
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::_updatePlot()
+{
+    QString xName = _cb_x_axis_element->currentText();
+    QString yName = _cb_y_axis_element->currentText();
+
+
+    if (_model != nullptr)
+    {
+        //int xCnt = 
+    }
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
 ScatterPlotWidget::ScatterPlotWidget(QWidget* parent) : QWidget(parent)
 {
-
-    _display_log10 = true;
-    _currentYAxis = nullptr;
+    _model = nullptr;
     createLayout();
-    /*
-    _action_check_log10 = new QAction("Toggle Log10", this);
-    _action_check_log10->setCheckable(true);
-    _action_check_log10->setChecked(_display_log10);
-    connect(_action_check_log10, SIGNAL(triggered()), this, SLOT(_check_log10()));
-
-    _contextMenu = new QMenu(("Context menu"), this);
-    _contextMenu->addAction(_action_check_log10);
-
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-    
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
-            */
-    /*
-    connect(this, SIGNAL(trigger_connect_markers()),
-            this, SLOT(connectMarkers()));
-            */
 }
 
 /*---------------------------------------------------------------------------*/
 
 ScatterPlotWidget::~ScatterPlotWidget()
 {
-
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, _ck_display_log10->isChecked());
 }
 
 /*---------------------------------------------------------------------------*/
 
 void ScatterPlotWidget::createLayout()
 {
-    _axisYLog10 = new QtCharts::QLogValueAxis();
-    _axisYLog10->setTitleText("Counts Log10");
-    _axisYLog10->setLabelFormat("%.1e");
-    _axisYLog10->setBase(10.0);
 
-    _axisX = new QtCharts::QValueAxis();
-    _axisX->setTitleText("Energy (keV)");
-    _axisX->setLabelFormat("%.2f");
-    _axisX->setTickAnchor(0.0);
-    _axisX->setTickInterval(0.5);
-    _axisX->setTickType(QtCharts::QValueAxis::TicksDynamic);
-    _axisX->setTickCount(20);
+    _subPlotLayout = new QHBoxLayout();
 
-    _axisY = new QtCharts::QValueAxis();
-    _axisY->setTitleText("Counts");
-    _axisY->setLabelFormat("%i");
+    // read pref to get number of windows
+    int num_wins = Preferences::inst()->getValue(STR_PRF_ScatterPlot_NumWindows).toInt();
+    bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
 
-    _chart = new QtCharts::QChart();
-    _chart->addAxis(_axisX, Qt::AlignBottom);
+    _ck_display_log10 = new QCheckBox("Display log10");
+    _ck_display_log10->setChecked(_display_log10);
 
-    if (_display_log10)
+    if (num_wins < 1)
     {
-        _currentYAxis = _axisYLog10;
-    }
-    else
-    {
-        _currentYAxis = _axisY;
+        num_wins = 1;
     }
 
-    _chart->addAxis(_currentYAxis, Qt::AlignLeft);
+    for (int i = 0; i < num_wins; i++)
+    {
+        _plot_view_list.push_back(new ScatterPlotView(_display_log10, nullptr));
+        _subPlotLayout->addWidget(_plot_view_list[i]);
+    }
 
-    // Toolbar zoom out action
-
-    QtCharts::QChartView* chartview = new QtCharts::QChartView(_chart);
-    QHBoxLayout* spectra_layout = new QHBoxLayout();
-    spectra_layout->addWidget(chartview);
 
     QHBoxLayout* options_layout = new QHBoxLayout();
-    options_layout->addWidget(new QLabel("Display Energy Min:"));
+    options_layout->addWidget(_ck_display_log10);
 //    options_layout->addWidget(_display_eneergy_min);
-    options_layout->addWidget(new QLabel("keV  ,  "));
+ //   options_layout->addWidget(new QLabel("keV  ,  "));
 
-    options_layout->addWidget(new QLabel("Display Energy Max:"));
+ //   options_layout->addWidget(new QLabel("Display Energy Max:"));
  //   options_layout->addWidget(_display_eneergy_max);
-    options_layout->addWidget(new QLabel("keV"));
+ //   options_layout->addWidget(new QLabel("keV"));
 
  //   options_layout->addWidget(_btn_reset_chart_view);
 
-    options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
+ //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QVBoxLayout* vlayout = new QVBoxLayout();
-    vlayout->addItem(spectra_layout);
+    vlayout->addItem(_subPlotLayout);
     vlayout->addItem(options_layout);
 
     setLayout(vlayout);
+
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::onSetAnalysisType(QString name)
+{
+    for (auto& itr : _plot_view_list)
+    {
+        itr->setModel(_model);
+        itr->setAnalysisType(_curAnalysis);
+    }
+}
+
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::setModel(MapsH5Model* model)
+{
+    if (_model != model)
+    {
+        _model = model;
+        //model_updated();
+        if (_model != nullptr)
+        {
+            for (auto& itr : _plot_view_list)
+            {
+                itr->setModel(_model);
+            }
+            onSetAnalysisType(_curAnalysis);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
 /*
 void ScatterPlotWidget::set_element_lines(data_struct::Fit_Element_Map<double>* element)
 {
