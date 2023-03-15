@@ -24,6 +24,7 @@
 #include <mvc/ExportMapsDialog.h>
 #include <mvc/CoLocalizationWidget.h>
 #include <mvc/ImageSegROIDialog.h>
+#include <mvc/ScatterPlotWidget.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -188,6 +189,8 @@ protected:
    QLabel *_color_map_ledgend_lbl;
 
    CoLocalizationWidget* _co_loc_widget;
+
+   ScatterPlotWidget* _scatter_plot_widget;
 
    ImageSegRoiDialog _img_seg_diag;
 
