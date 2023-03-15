@@ -11,7 +11,7 @@
 
  //---------------------------------------------------------------------------
 
-ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(parent)
+ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWidget* parent) : QWidget(parent)
 {
 
     _model = nullptr;
@@ -48,8 +48,15 @@ ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(
 
     //setRenderHint(QPainter::Antialiasing);
     _scatter_series = new QtCharts::QScatterSeries();
-    _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeCircle);
-    //_scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
+    QString marker_shape = Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString();
+    if (marker_shape == "Circle")
+    {
+        _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+    }
+    else
+    {
+        _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeRectangle);
+    }
     _scatter_series->setMarkerSize(1.0);
     _scatter_series->setUseOpenGL(true);
     _chart->addSeries(_scatter_series);
@@ -65,6 +72,10 @@ ScatterPlotView::ScatterPlotView(bool display_log10, QWidget* parent) : QWidget(
         _chart->addAxis(_axisY, Qt::AlignLeft);
     }
 
+    if (black_background)
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("black")));
+    }
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(new QLabel("X Axis"));
@@ -90,24 +101,32 @@ ScatterPlotView::~ScatterPlotView()
 
 //---------------------------------------------------------------------------
 
+void ScatterPlotView::setShape(QtCharts::QScatterSeries::MarkerShape shape)
+{
+    _scatter_series->setMarkerShape(shape);
+    _updatePlot();
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::setBlackBackground(int val)
+{
+    if (val == 0)
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("white")));
+    }
+    else
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("black")));
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void ScatterPlotView::setLog10(int val)
 {
     
-    if (val == 1)
-    {
-        _scatter_series->detachAxis(_axisX);
-        _scatter_series->detachAxis(_axisY);
-        _chart->removeAxis(_axisX);
-        _chart->removeAxis(_axisY);
-
-        _scatter_series->attachAxis(_axisXLog10);
-        _scatter_series->attachAxis(_axisYLog10);
-
-        _chart->addAxis(_axisXLog10, Qt::AlignBottom);
-        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
-
-    }
-    else
+    if (val == 0)
     {
         _scatter_series->detachAxis(_axisXLog10);
         _scatter_series->detachAxis(_axisYLog10);
@@ -120,6 +139,20 @@ void ScatterPlotView::setLog10(int val)
 
         _chart->addAxis(_axisX, Qt::AlignBottom);
         _chart->addAxis(_axisY, Qt::AlignLeft);
+    }
+    else
+    {
+        _scatter_series->detachAxis(_axisX);
+        _scatter_series->detachAxis(_axisY);
+        _chart->removeAxis(_axisX);
+        _chart->removeAxis(_axisY);
+
+        _scatter_series->attachAxis(_axisXLog10);
+        _scatter_series->attachAxis(_axisYLog10);
+
+        _chart->addAxis(_axisXLog10, Qt::AlignBottom);
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
+
     }
     _updatePlot();
 
@@ -156,6 +189,8 @@ void ScatterPlotView::_updateNames()
     {
         std::vector<std::string> map_names;
         _model->generateNameLists(_curAnalysis, map_names);
+        QString xSavedName = _cb_x_axis_element->currentText();
+        QString ySavedName = _cb_y_axis_element->currentText();
         _cb_x_axis_element->clear();
         _cb_y_axis_element->clear();
 
@@ -166,7 +201,19 @@ void ScatterPlotView::_updateNames()
             _cb_x_axis_element->addItem(QString(itr.c_str()));
             _cb_y_axis_element->addItem(QString(itr.c_str()));
         }
+
+        int xIdx = _cb_x_axis_element->findText(xSavedName);
+        int yIdx = _cb_y_axis_element->findText(ySavedName);
+        if (xIdx > -1)
+        {
+            _cb_x_axis_element->setCurrentIndex(xIdx);
+        }
+        if (yIdx > -1)
+        {
+            _cb_y_axis_element->setCurrentIndex(yIdx);
+        }
     }
+    _updatePlot();
 }
 
 //---------------------------------------------------------------------------
@@ -286,9 +333,21 @@ void ScatterPlotWidget::_createLayout()
     int num_wins = Preferences::inst()->getValue(STR_PRF_ScatterPlot_NumWindows).toInt();
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
 
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+    
+
     _ck_display_log10 = new QCheckBox("Display log10");
     _ck_display_log10->setChecked(_display_log10);
     connect(_ck_display_log10, &QCheckBox::stateChanged, this, &ScatterPlotWidget::set_log10);
+
+    _ck_black_background = new QCheckBox("Black Background");
+    _ck_black_background->setChecked(dark_theme);
+    connect(_ck_black_background, &QCheckBox::stateChanged, this, &ScatterPlotWidget::setBlackBackground);
+
+    _cb_shape = new QComboBox();
+    _cb_shape->addItem("Circle");
+    _cb_shape->addItem("Rectangle");
+    connect(_cb_shape, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotWidget::onShapeChange);
 
     if (num_wins < 1)
     {
@@ -297,7 +356,7 @@ void ScatterPlotWidget::_createLayout()
 
     for (int i = 0; i < num_wins; i++)
     {
-        _plot_view_list.push_back(new ScatterPlotView(_display_log10, nullptr));
+        _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, nullptr));
         _subPlotLayout->addWidget(_plot_view_list[i]);
     }
 
@@ -310,7 +369,10 @@ void ScatterPlotWidget::_createLayout()
 
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(_ck_display_log10);
+    options_layout->addWidget(_ck_black_background);
     options_layout->addWidget(_sp_maker_size);
+    options_layout->addWidget(new QLabel("Marker Shape:"));
+    options_layout->addWidget(_cb_shape);
 
  //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
@@ -320,6 +382,39 @@ void ScatterPlotWidget::_createLayout()
 
     setLayout(vlayout);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::onShapeChange(QString val)
+{
+    if (val == "Circle")
+    {
+        for (auto& itr : _plot_view_list)
+        {
+            itr->setShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+        }
+        Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Circle");
+    }
+    else
+    {
+        for (auto& itr : _plot_view_list)
+        {
+            itr->setShape(QtCharts::QScatterSeries::MarkerShapeRectangle);
+        }
+        Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Rectangle");
+    }
+
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::setBlackBackground(int val)
+{
+    for (auto& itr : _plot_view_list)
+    {
+        itr->setBlackBackground(val);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -358,7 +453,7 @@ void ScatterPlotWidget::setModel(MapsH5Model* model)
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotWidget::set_log10(bool val)
+void ScatterPlotWidget::set_log10(int val)
 {
 
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, _ck_display_log10->isChecked());
@@ -373,9 +468,8 @@ void ScatterPlotWidget::set_log10(bool val)
 /*
 QPixmap ScatterPlotWidget::getPngofChart()
 {
-
+   
     return _chartView->grab();
-
 }
 */
 /*---------------------------------------------------------------------------*/

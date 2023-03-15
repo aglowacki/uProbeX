@@ -33,7 +33,7 @@ class ScatterPlotView : public QWidget
 
 public:
 
-    ScatterPlotView(bool display_log10, QWidget* parent = nullptr);
+    ScatterPlotView(bool display_log10, bool black_background, QWidget* parent = nullptr);
 
     ~ScatterPlotView();
 
@@ -44,6 +44,12 @@ public:
     void updateMarkerSize(qreal val);
 
     void setLog10(int val);
+
+    void setBlackBackground(int  val);
+
+    void setShape(QtCharts::QScatterSeries::MarkerShape shape);
+
+    //QPixmap getPngofChart();
 
 public slots:
 
@@ -104,9 +110,13 @@ public:
 
 public slots:
 
-    void set_log10(bool val);
+    void set_log10(int val);
     
+    void setBlackBackground(int val);
+
     void updateMarkerSize(int val);
+
+    void onShapeChange(QString val);
 
 protected:
 
@@ -119,6 +129,10 @@ private:
     QSpinBox* _sp_maker_size;
 
     QCheckBox* _ck_display_log10;
+
+    QCheckBox* _ck_black_background;
+
+    QComboBox* _cb_shape;
 
     std::vector< ScatterPlotView*> _plot_view_list;
 
