@@ -397,8 +397,8 @@ void ScatterPlotView::_updatePlot()
 
             if (_display_log10)
             {
-                x_map = x_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : v; });
-                y_map = y_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : v; });
+                x_map = x_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : log10(v); });
+                y_map = y_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : log10(v); });
             }
 
             float xMinVal = x_map.minCoeff();
