@@ -12,6 +12,7 @@
 #include <QSpacerItem>
 #include <QLabel>
 #include <QIntValidator>
+#include "preferences/Preferences.h"
 #include <math.h>
 
 
@@ -164,7 +165,10 @@ void SpectraWidget::createLayout()
     vlayout->addItem(spectra_layout);
     vlayout->addItem(options_layout);
 
-
+    if (Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool())
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("black")));
+    }
 
     setLayout(vlayout);
 }

@@ -65,10 +65,6 @@ protected:
     */
    void _createLayout();
 
-   virtual void createActions();
-
-   virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
-
    MapsH5Model *_model;
 
    QLabel *_dataset_directory;

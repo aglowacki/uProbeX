@@ -75,6 +75,7 @@ void ImageStackControlWidget::createLayout()
 
 	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
 
+	connect(_imageGrid, &MapsElementsWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 
     vlayout->addItem(hlayout1);

@@ -24,6 +24,7 @@
 #include <mvc/ExportMapsDialog.h>
 #include <mvc/CoLocalizationWidget.h>
 #include <mvc/ImageSegROIDialog.h>
+#include <mvc/ScatterPlotWidget.h>
 
 class HDF5PropertyWidget;
 class QAbstractTableModel;
@@ -56,6 +57,9 @@ public:
    void setModel(MapsH5Model* h5_model);
 
    MapsH5Model *getModel(){return _model;}
+
+signals:
+    void loaded_perc(int, int);
 
 public slots:
 
@@ -188,6 +192,8 @@ protected:
    QLabel *_color_map_ledgend_lbl;
 
    CoLocalizationWidget* _co_loc_widget;
+
+   ScatterPlotWidget* _scatter_plot_widget;
 
    ImageSegRoiDialog _img_seg_diag;
 
