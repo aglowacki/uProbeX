@@ -6,10 +6,10 @@
 #include <mvc/ScatterPlotWidget.h>
 #include <QVBoxLayout>
 #include <QSpacerItem>
-#include <QLabel>
 #include <QDateTime>
 #include <QDesktopServices>
 #include "preferences/Preferences.h"
+#include "stats/correlation_coefficient.h"
 
  //---------------------------------------------------------------------------
 
@@ -83,11 +83,15 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         _chart->setBackgroundBrush(QBrush(QColor("black")));
     }
 
+    _lb_corr_coef = new QLabel();
+
     QHBoxLayout* hbox = new QHBoxLayout();
-    hbox->addWidget(new QLabel("X Axis"));
+    hbox->addWidget(new QLabel("X Axis:"));
     hbox->addWidget(_cb_x_axis_element);
-    hbox->addWidget(new QLabel("Y Axis"));
+    hbox->addWidget(new QLabel("Y Axis:"));
     hbox->addWidget(_cb_y_axis_element);
+    hbox->addWidget(new QLabel("Correlation Coefficient:"));
+    hbox->addWidget(_lb_corr_coef);
     //hbox->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QVBoxLayout* vbox = new QVBoxLayout();
@@ -407,14 +411,26 @@ void ScatterPlotView::_updatePlot()
             float xMaxVal = x_map.maxCoeff();
             float yMaxVal = y_map.maxCoeff();
 
+            Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> x_arr;
+            Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> y_arr;
+            x_arr.resize(x_map.cols() * x_map.rows());
+            y_arr.resize(x_map.cols() * x_map.rows());
+            int n = 0;
+
             for (int y = 0; y < x_map.rows(); y++)
             {
                 for (int x = 0; x < x_map.cols(); x++)
                 {
+                    x_arr(n) = (double)x_map(y, x);
+                    y_arr(n) = (double)y_map(y, x);
                     _scatter_series->append(x_map(y,x), y_map(y,x));
+                    n++;
                 }
-                
             }
+
+            double corr_coef = find_coefficient(x_arr, y_arr);
+            _lb_corr_coef->setText(QString::number(corr_coef));
+
             _chart->addSeries(_scatter_series);
 
             _axisX->setTitleText(_cb_x_axis_element->currentText());

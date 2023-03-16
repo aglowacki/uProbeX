@@ -19,6 +19,7 @@
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QLabel>
 #include <mvc/MapsH5Model.h>
 
 
@@ -78,6 +79,8 @@ private:
     QComboBox* _cb_x_axis_element;
 
     QComboBox* _cb_y_axis_element;
+
+    QLabel* _lb_corr_coef;
 
     QtCharts::QChart* _chart;
 
