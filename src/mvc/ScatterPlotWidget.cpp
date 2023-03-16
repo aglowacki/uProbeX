@@ -8,8 +8,10 @@
 #include <QSpacerItem>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QCoreApplication>
 #include "preferences/Preferences.h"
 #include "stats/correlation_coefficient.h"
+#include "core/GlobalThreadPool.h"
 
  //---------------------------------------------------------------------------
 
@@ -508,6 +510,7 @@ ScatterPlotWidget::~ScatterPlotWidget()
 {
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, _ck_display_log10->isChecked());
+    Preferences::inst()->save();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -546,6 +549,8 @@ void ScatterPlotWidget::_createLayout()
     connect(_btn_add, &QPushButton::released, this, &ScatterPlotWidget::onAdd);
     _btn_del = new QPushButton("Remove Plot");
     connect(_btn_del, &QPushButton::released, this, &ScatterPlotWidget::onDel);
+    _btn_scan_corr_coef = new QPushButton("Scan Corr Coef");
+    connect(_btn_scan_corr_coef, &QPushButton::released, this, &ScatterPlotWidget::onScan);
     _btn_save_png = new QPushButton("Save PNG");
     connect(_btn_save_png, &QPushButton::released, this, &ScatterPlotWidget::onSavePng);
 
@@ -577,6 +582,7 @@ void ScatterPlotWidget::_createLayout()
     //options_layout->addWidget(_cb_shape);
     _options_layout->addWidget(_btn_add);
     _options_layout->addWidget(_btn_del);
+    _options_layout->addWidget(_btn_scan_corr_coef);
     _options_layout->addWidget(_btn_save_png);
 
  //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
@@ -722,6 +728,102 @@ void ScatterPlotWidget::onSavePng()
     {
         itr->exportPngCsv();
     }
+}
+
+//---------------------------------------------------------------------------
+
+double proc_corr_coef(MapsH5Model* model, std::string analysis_type, std::pair<std::string, std::string> name_pair)
+{
+    data_struct::ArrayXXr<float> x_map;
+    data_struct::ArrayXXr<float> y_map;
+
+    data_struct::Fit_Count_Dict<float> fit_counts;
+    model->getAnalyzedCounts(analysis_type, fit_counts);
+
+    x_map = fit_counts.at(name_pair.first);
+    y_map = fit_counts.at(name_pair.second);
+
+    Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> x_arr;
+    Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> y_arr;
+    x_arr.resize(x_map.cols() * x_map.rows());
+    y_arr.resize(x_map.cols() * x_map.rows());
+    int n = 0;
+
+    for (int y = 0; y < x_map.rows(); y++)
+    {
+        for (int x = 0; x < x_map.cols(); x++)
+        {
+            x_arr(n) = (double)x_map(y, x);
+            y_arr(n) = (double)y_map(y, x);
+            n++;
+        }
+    }
+
+    double corr_coef = find_coefficient(x_arr, y_arr);
+
+    return corr_coef;
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::onScan()
+{
+    
+    MapsH5Model* model = _plot_view_list[0]->getModel();
+    std::string analysis_type = _plot_view_list[0]->getAnalysisType().toStdString();
+    if (model != nullptr)
+    {
+        std::unordered_map<std::string, double> corr_coef_map;
+        std::vector<std::string> count_names = model->count_names();
+        std::vector<std::pair<std::string, std::string>> el_pair_names;
+        while (count_names.size() > 0)
+        {
+            int last = count_names.size() - 1;
+            for (int i = 0; i < last; i++)
+            {
+                el_pair_names.push_back({ count_names[last], count_names[i] });
+            }
+            count_names.pop_back();
+        }
+        int total = el_pair_names.size();
+        emit updateProgressBar(0, total);
+
+        std::map<int, std::future<double> > job_queue;
+        for (int i = 0; i < el_pair_names.size(); i++)
+        {
+            job_queue[i] = Global_Thread_Pool::inst()->enqueue([this, i, model, analysis_type, el_pair_names] { return proc_corr_coef(model, analysis_type, el_pair_names[i]); });
+        }
+        while (job_queue.size() > 0)
+        {
+            emit updateProgressBar(total - job_queue.size(), total);
+            QCoreApplication::processEvents();
+
+            std::vector<int> to_delete;
+            for (auto& itr : job_queue)
+            {
+                std::future_status status = itr.second.wait_for(std::chrono::milliseconds(100));
+                if (status == std::future_status::ready)
+                {
+                    std::string key = el_pair_names[itr.first].first+'/'+ el_pair_names[itr.first].second;
+                    double val = itr.second.get();
+                    corr_coef_map[key] = val;
+                    if (val > 0.7 || val < -0.7)
+                    {
+                        logI << key << " : " << val << "\n";
+                    }
+                    to_delete.push_back(itr.first);
+                }
+            }
+
+            for (const auto& itr : to_delete)
+            {
+                job_queue.erase(itr);
+            }
+        }
+        emit updateProgressBar(total - job_queue.size(), total);
+        QCoreApplication::processEvents();
+    }
+    
 }
 
 /*---------------------------------------------------------------------------*/

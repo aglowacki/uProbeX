@@ -54,6 +54,8 @@ public:
 
     MapsH5Model* getModel() { return _model; }
 
+    QString getAnalysisType() { return _curAnalysis; }
+
 public slots:
 
     void onNameChange(QString);
@@ -123,6 +125,9 @@ public:
 
     void setAnalysisType(QString name);
 
+signals:
+    void updateProgressBar(int, int);
+
 public slots:
 
     void set_log10(int val);
@@ -140,6 +145,8 @@ public slots:
     void onDel();
 
     void onSavePng();
+
+    void onScan();
 
 protected:
 
@@ -164,6 +171,8 @@ private:
     QPushButton* _btn_del;
 
     QPushButton* _btn_save_png;
+
+    QPushButton* _btn_scan_corr_coef;
 
     QHBoxLayout* _options_layout;
 

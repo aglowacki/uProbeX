@@ -224,6 +224,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _co_loc_widget = new CoLocalizationWidget();
 
     _scatter_plot_widget = new ScatterPlotWidget();
+    connect(_scatter_plot_widget, &ScatterPlotWidget::updateProgressBar, this, &MapsElementsWidget::loaded_perc);
 
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);

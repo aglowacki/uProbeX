@@ -58,6 +58,9 @@ public:
 
    MapsH5Model *getModel(){return _model;}
 
+signals:
+    void loaded_perc(int, int);
+
 public slots:
 
 	void redrawCounts();
