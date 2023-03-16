@@ -39,6 +39,10 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
     _chart = new QtCharts::QChart();
 
+    _lb_roi = new QLabel("ROI:");
+    _cb_roi = new QComboBox();
+    _cb_roi->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    connect(_cb_roi, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
     _cb_x_axis_element = new QComboBox();
     _cb_x_axis_element->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(_cb_x_axis_element, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
@@ -86,6 +90,8 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     _lb_corr_coef = new QLabel();
 
     QHBoxLayout* hbox = new QHBoxLayout();
+    hbox->addWidget(_lb_roi);
+    hbox->addWidget(_cb_roi);
     hbox->addWidget(new QLabel("X Axis:"));
     hbox->addWidget(_cb_x_axis_element);
     hbox->addWidget(new QLabel("Y Axis:"));
@@ -274,6 +280,15 @@ void ScatterPlotView::_updateNames()
 {
     if (_model != nullptr)
     {
+        const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+
+        _cb_roi->clear();
+        _cb_roi->addItem(" ");
+        for (auto& itr : rois)
+        {
+            _cb_roi->addItem(QString(itr.first.c_str()));
+        }
+
         std::vector<std::string> map_names;
         _model->generateNameLists(_curAnalysis, map_names);
         QString xSavedName = _cb_x_axis_element->currentText();
@@ -405,6 +420,27 @@ void ScatterPlotView::_updatePlot()
                 y_map = y_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : log10(v); });
             }
 
+            const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+
+            QString roi_name = _cb_roi->currentText(); 
+
+            if (rois.count(roi_name.toStdString()) > 0)
+            {
+                data_struct::ArrayXXr<float> x_map_roi;
+                data_struct::ArrayXXr<float> y_map_roi;
+                Map_ROI map_roi = rois.at(roi_name.toStdString());
+                x_map_roi.resize(1, map_roi.pixel_list.size());
+                y_map_roi.resize(1, map_roi.pixel_list.size());
+                int i = 0;
+                for (auto& itr : map_roi.pixel_list)
+                {
+                    x_map_roi(0,i) = x_map(itr.second, itr.first);
+                    y_map_roi(0,i) = y_map(itr.second, itr.first);
+                    i++;
+                }
+                x_map = x_map_roi;
+                y_map = y_map_roi;
+            }
             float xMinVal = x_map.minCoeff();
             float yMinVal = y_map.minCoeff();
 

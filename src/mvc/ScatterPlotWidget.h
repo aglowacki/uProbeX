@@ -76,6 +76,10 @@ private:
 
     QtCharts::QValueAxis* _axisY;
 
+    QLabel* _lb_roi;
+
+    QComboBox* _cb_roi;
+
     QComboBox* _cb_x_axis_element;
 
     QComboBox* _cb_y_axis_element;
