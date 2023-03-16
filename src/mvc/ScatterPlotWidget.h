@@ -49,7 +49,9 @@ public:
 
     void setGridLinesVisible(int val);
 
-    //QPixmap getPngofChart();
+    void exportPngCsv();
+
+    MapsH5Model* getModel() { return _model; }
 
 public slots:
 
@@ -57,9 +59,13 @@ public slots:
 
 private:
 
+    bool _getXY_Maps(data_struct::ArrayXXr<float>& x_map, data_struct::ArrayXXr<float>& y_map);
+
     void _updateNames();
 
     void _updatePlot();
+
+    void _exportScatterPlotCSV(QString filePath);
 
     QtCharts::QLogValueAxis* _axisXLog10;
 
@@ -126,6 +132,8 @@ public slots:
 
     void onDel();
 
+    void onSavePng();
+
 protected:
 
     void _createLayout();
@@ -142,11 +150,15 @@ private:
 
     QCheckBox* _ck_black_background;
 
-    QComboBox* _cb_shape;
+    //QComboBox* _cb_shape;
 
     QPushButton* _btn_add;
 
     QPushButton* _btn_del;
+
+    QPushButton* _btn_save_png;
+
+    QHBoxLayout* _options_layout;
 
     QVBoxLayout* _mainlayout;
 

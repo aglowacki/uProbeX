@@ -7,6 +7,8 @@
 #include <QVBoxLayout>
 #include <QSpacerItem>
 #include <QLabel>
+#include <QDateTime>
+#include <QDesktopServices>
 #include "preferences/Preferences.h"
 
  //---------------------------------------------------------------------------
@@ -103,6 +105,81 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 ScatterPlotView::~ScatterPlotView()
 {
 
+}
+
+void ScatterPlotView::exportPngCsv()
+{
+    if (_model != nullptr)
+    {
+        QDir dir = _model->getDir();
+        QFileInfo finfo(dir.absolutePath());
+
+        //QPixmap pixmap(rect().size());
+        //render(&pixmap, QPoint(), QRegion(rect()));
+        
+        QPixmap pixmap = _chartView->grab();
+        QDateTime date = QDateTime::currentDateTime();
+        QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+        QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+
+        dir.cdUp();
+        dir.cd("output");
+
+        QString apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+        QString png_path = QDir::cleanPath(apath + ".png");
+        if (false == pixmap.save(png_path, "PNG"))
+        {
+            logE << "Could not save PNG for " << png_path.toStdString() << "\n";
+        }
+        else
+        {
+            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath())))
+            {
+                logE << "Failed to open dir " << dir.absolutePath().toStdString() << "\n";
+            }
+        }
+
+        QString csv_path = QDir::cleanPath(apath + ".csv");
+        _exportScatterPlotCSV(csv_path);
+       
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
+{
+    if (_model != nullptr)
+    {
+        data_struct::ArrayXXr<float> x_map;
+        data_struct::ArrayXXr<float> y_map;
+        if (_getXY_Maps(x_map, y_map))
+        {
+            std::ofstream out_stream(filePath.toStdString());
+            if (out_stream.is_open())
+            {
+                out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
+                out_stream << "Analysis Type: " << _curAnalysis.toStdString() << "\n";
+                out_stream << "X Axis Name: " << _cb_x_axis_element->currentText().toStdString() << "\n";
+                out_stream << "Y Axis Name: " << _cb_y_axis_element->currentText().toStdString() << "\n";
+                out_stream << "Rows: " << x_map.rows() << "\n";
+                out_stream << "Cols: " << x_map.cols() << "\n";
+                out_stream << "X Index, Y Index, X Value, Y Value \n";
+                for (int y = 0; y < x_map.rows(); y++)
+                {
+                    for (int x = 0; x < x_map.cols(); x++)
+                    {
+                        out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "\n";
+                    }
+                }
+            }
+            else
+            {
+                logE << "Could not open for writing scatter plot CSV : " << filePath.toStdString() << "\n";
+            }
+            out_stream.close();
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -252,6 +329,56 @@ void ScatterPlotView::setGridLinesVisible(int val)
 
 //---------------------------------------------------------------------------
 
+bool ScatterPlotView::_getXY_Maps(data_struct::ArrayXXr<float> &x_map, data_struct::ArrayXXr<float> &y_map)
+{
+    bool foundX = false;
+    bool foundY = false;
+
+    std::string xName = _cb_x_axis_element->currentText().toStdString();
+    std::string yName = _cb_y_axis_element->currentText().toStdString();
+
+    data_struct::Fit_Count_Dict<float> fit_counts;
+    _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+
+    int xCnt = fit_counts.count(xName);
+    if (xCnt != 0)
+    {
+        x_map = fit_counts.at(xName);
+        foundX = true;
+    }
+    else
+    {
+        xCnt = scalers->count(xName);
+        if (xCnt != 0)
+        {
+            x_map = scalers->at(xName);
+            foundX = true;
+        }
+    }
+
+
+    int yCnt = fit_counts.count(yName);
+    if (yCnt != 0)
+    {
+        y_map = fit_counts.at(yName);
+        foundY = true;
+    }
+    else
+    {
+        yCnt = scalers->count(yName);
+        if (yCnt != 0)
+        {
+            y_map = scalers->at(yName);
+            foundY = true;
+        }
+    }
+
+    return foundX && foundY;
+}
+
+//---------------------------------------------------------------------------
+
 void ScatterPlotView::_updatePlot()
 {
     std::string xName = _cb_x_axis_element->currentText().toStdString();
@@ -260,50 +387,10 @@ void ScatterPlotView::_updatePlot()
 
     if (_model != nullptr)
     {
-        data_struct::Fit_Count_Dict<float> fit_counts;
-        _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-
         data_struct::ArrayXXr<float> x_map;
         data_struct::ArrayXXr<float> y_map;
 
-        bool foundX = false;
-        bool foundY = false;
-
-        int xCnt = fit_counts.count(xName);
-        if (xCnt != 0)
-        {
-            x_map = fit_counts.at(xName);
-            foundX = true;
-        }
-        else
-        {
-            xCnt = scalers->count(xName);
-            if (xCnt != 0)
-            {
-                x_map = scalers->at(xName);
-                foundX = true;
-            }
-        }
-
-
-        int yCnt = fit_counts.count(yName);
-        if (yCnt != 0)
-        {
-            y_map = fit_counts.at(yName);
-            foundY = true;
-        }
-        else
-        {
-            yCnt = scalers->count(yName);
-            if (yCnt != 0)
-            {
-                y_map = scalers->at(yName);
-                foundY = true;
-            }
-        }
-
-        if (foundX && foundY)
+        if (_getXY_Maps(x_map, y_map))
         {
             _chart->removeSeries(_scatter_series);
             _scatter_series->clear();
@@ -396,15 +483,19 @@ void ScatterPlotWidget::_createLayout()
     _ck_black_background->setChecked(dark_theme);
     connect(_ck_black_background, &QCheckBox::stateChanged, this, &ScatterPlotWidget::setBlackBackground);
 
+    /*
     _cb_shape = new QComboBox();
     _cb_shape->addItem("Circle");
     _cb_shape->addItem("Rectangle");
     connect(_cb_shape, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotWidget::onShapeChange);
+    */
 
     _btn_add = new QPushButton("Add Plot");
     connect(_btn_add, &QPushButton::released, this, &ScatterPlotWidget::onAdd);
     _btn_del = new QPushButton("Remove Plot");
     connect(_btn_del, &QPushButton::released, this, &ScatterPlotWidget::onDel);
+    _btn_save_png = new QPushButton("Save PNG");
+    connect(_btn_save_png, &QPushButton::released, this, &ScatterPlotWidget::onSavePng);
 
     if (num_wins < 1)
     {
@@ -418,27 +509,29 @@ void ScatterPlotWidget::_createLayout()
     }
 
     _sp_maker_size = new QSpinBox();
+    _sp_maker_size->setPrefix("Marker Size:");
     _sp_maker_size->setRange(1, 100);
     _sp_maker_size->setSingleStep(1.0);
     _sp_maker_size->setValue(1);
     connect(_sp_maker_size, qOverload<int>(&QSpinBox::valueChanged), this, &ScatterPlotWidget::updateMarkerSize);
 
 
-    QHBoxLayout* options_layout = new QHBoxLayout();
-    options_layout->addWidget(_ck_display_log10);
-    options_layout->addWidget(_ck_display_grid_lines);
-    options_layout->addWidget(_ck_black_background);
-    options_layout->addWidget(_sp_maker_size);
-    options_layout->addWidget(new QLabel("Marker Shape:"));
-    options_layout->addWidget(_cb_shape);
-    options_layout->addWidget(_btn_add);
-    options_layout->addWidget(_btn_del);
+    _options_layout = new QHBoxLayout();
+    _options_layout->addWidget(_ck_display_log10);
+    _options_layout->addWidget(_ck_display_grid_lines);
+    _options_layout->addWidget(_ck_black_background);
+    _options_layout->addWidget(_sp_maker_size);
+    //options_layout->addWidget(new QLabel("Marker Shape:"));
+    //options_layout->addWidget(_cb_shape);
+    _options_layout->addWidget(_btn_add);
+    _options_layout->addWidget(_btn_del);
+    _options_layout->addWidget(_btn_save_png);
 
  //   options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     _mainlayout = new QVBoxLayout();
     _mainlayout->addItem(_subPlotLayout);
-    _mainlayout->addItem(options_layout);
+    _mainlayout->addItem(_options_layout);
 
     setLayout(_mainlayout);
 
@@ -452,15 +545,15 @@ void ScatterPlotWidget::onAdd()
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
     bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
     
-    _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, nullptr));
+    _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, this));
     int idx = _plot_view_list.size() - 1;
     _subPlotLayout->addWidget(_plot_view_list[idx]);
-
+    _plot_view_list[idx]->setModel(_plot_view_list[idx - 1]->getModel());
     setGridLinesVisible(display_gird_lines);
 
+    update();
+    _plot_view_list[idx]->show();
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
-    setLayout(_mainlayout);
-
 }
 
 //---------------------------------------------------------------------------
@@ -570,13 +663,14 @@ void ScatterPlotWidget::setGridLinesVisible(int val)
 }
 
 //---------------------------------------------------------------------------
-/*
-QPixmap ScatterPlotWidget::getPngofChart()
-{
-   
-    return _chartView->grab();
-}
-*/
-/*---------------------------------------------------------------------------*/
 
+void ScatterPlotWidget::onSavePng()
+{
+    for (auto& itr : _plot_view_list)
+    {
+        itr->exportPngCsv();
+    }
+}
+
+/*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
