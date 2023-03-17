@@ -250,6 +250,7 @@ void ScatterPlotWidget::onSavePng()
 void ScatterPlotWidget::onScan()
 {
     _scan_corr_coef_dialog.setModel(_plot_view_list[0]->getAnalysisType().toStdString(), _plot_view_list[0]->getModel());
+    _scan_corr_coef_dialog.setViewProps(_ck_display_log10->isChecked(), _ck_black_background->isChecked(), _ck_display_grid_lines->isChecked());
     _scan_corr_coef_dialog.show();
 }
 

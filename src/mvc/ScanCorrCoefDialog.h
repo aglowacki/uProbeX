@@ -50,6 +50,8 @@ public:
 
     void status_callback(size_t cur, size_t total);
 
+    void setViewProps(bool blog10, bool bdark, bool bgrid);
+
     void setRunEnabled(bool val);
 
     void setModel(std::string analysis_type, MapsH5Model* model);
@@ -88,6 +90,12 @@ protected:
     size_t _total_blocks;
 
     std::string _analysis_type;
+
+    bool _blog10;
+
+    bool _bdark;
+
+    bool _bgrid;
 
     bool _running;
 

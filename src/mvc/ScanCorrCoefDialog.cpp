@@ -6,7 +6,6 @@
 #include <mvc/ScanCorrCoefDialog.h>
 #include <QDesktopServices>
 #include "stats/correlation_coefficient.h"
-//#include "core/GlobalThreadPool.h"
 #include "mvc/ScatterPlotView.h"
 
 //---------------------------------------------------------------------------
@@ -90,6 +89,15 @@ void ScanCorrCoefDialog::setRunEnabled(bool val)
 {
     _processing_grp->setEnabled(val);
     _btn_run->setEnabled(val); 
+}
+
+//---------------------------------------------------------------------------
+
+void ScanCorrCoefDialog::setViewProps(bool blog10, bool bdark, bool bgrid)
+{
+    _blog10 = blog10;
+    _bdark = bdark;
+    _bgrid = bgrid;
 }
 
 //---------------------------------------------------------------------------
@@ -213,14 +221,13 @@ void ScanCorrCoefDialog::onRun()
         int total = el_pair_names.size();
         status_callback(0, total);
 
-        ScatterPlotView* view = new ScatterPlotView(true, true, nullptr);
+        ScatterPlotView* view = new ScatterPlotView(_blog10, _bdark, nullptr);
+        view->setGridLinesVisible(_bgrid);
         view->setModel(_model);
         view->setAnalysisType(QString(_analysis_type.c_str()));
         int cur = 0;
-        //std::map<int, std::future<double> > job_queue;
         for (int i = 0; i < el_pair_names.size(); i++)
         {
-            //job_queue[i] = Global_Thread_Pool::inst()->enqueue([this, i, restrict_coef, el_pair_names] { return proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]); });
             double val = proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]);
             if (val > restrict_coef || val < -restrict_coef)
             {
@@ -239,54 +246,6 @@ void ScanCorrCoefDialog::onRun()
         }
 
         delete view;
-        /*
-        while (job_queue.size() > 0)
-        {
-            status_callback(total - job_queue.size(), total);
-            QCoreApplication::processEvents();
-
-            std::vector<int> to_delete;
-            for (auto& itr : job_queue)
-            {
-                std::future_status status = itr.second.wait_for(std::chrono::milliseconds(10));
-                if (status == std::future_status::ready)
-                {
-                    std::string key = el_pair_names[itr.first].first + '/' + el_pair_names[itr.first].second;
-                    double val = 0.0;
-                    try
-                    {
-                        val = itr.second.get();
-                    }
-                    catch (std::exception &e)
-                    {
-                        logE << e.what() << "\n";
-                    }
-                    //corr_coef_map[key] = val;
-
-                    if (val > restrict_coef || val < -restrict_coef)
-                    {
-                        //foundCnt++;
-                        logI << key << " : " << val << "\n";
-                        ScatterPlotView* view = new ScatterPlotView(true, true, nullptr);
-                        view->setModel(_model);
-                        view->setAnalysisType(QString(_analysis_type.c_str()));
-                        view->setXYAxis("", QString(el_pair_names[itr.first].first.c_str()), QString(el_pair_names[itr.first].second.c_str()));
-                        view->resize(1920, 1080);
-                        view->exportPngCsv();
-                        delete view;
-                    }
-                    to_delete.push_back(itr.first);
-                }
-            }
-
-            for (const auto& itr : to_delete)
-            {
-                job_queue.erase(itr);
-            }
-        }
-        status_callback(total - job_queue.size(), total);
-        QCoreApplication::processEvents();
-        */
     }
     _running = false;
     _btn_run->setEnabled(true);
