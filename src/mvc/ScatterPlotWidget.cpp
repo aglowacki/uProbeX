@@ -42,6 +42,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     _chart = new QtCharts::QChart();
 
     _lb_roi = new QLabel("ROI:");
+    _lb_roi->setAlignment(Qt::AlignRight);
     _cb_roi = new QComboBox();
     _cb_roi->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(_cb_roi, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
@@ -90,15 +91,25 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     }
 
     _lb_corr_coef = new QLabel();
+    _lb_corr_coef->setAlignment(Qt::AlignCenter);
+
+    QLabel* lb_xaxis = new QLabel("X Axis:");
+    lb_xaxis->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+
+    QLabel* lb_yaxis = new QLabel("Y Axis:");
+    lb_yaxis->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+
+    QLabel* lb_coef = new QLabel("Correlation Coefficient:");
+    lb_coef->setAlignment(Qt::AlignRight | Qt::AlignCenter);
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(_lb_roi);
     hbox->addWidget(_cb_roi);
-    hbox->addWidget(new QLabel("X Axis:"));
+    hbox->addWidget(lb_xaxis);
     hbox->addWidget(_cb_x_axis_element);
-    hbox->addWidget(new QLabel("Y Axis:"));
+    hbox->addWidget(lb_yaxis);
     hbox->addWidget(_cb_y_axis_element);
-    hbox->addWidget(new QLabel("Correlation Coefficient:"));
+    hbox->addWidget(lb_coef);
     hbox->addWidget(_lb_corr_coef);
     //hbox->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
