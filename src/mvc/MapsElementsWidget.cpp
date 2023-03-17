@@ -79,19 +79,6 @@ MapsElementsWidget::~MapsElementsWidget()
     }
     _model = nullptr;
 */
-    /*
-    if (_co_loc_widget != nullptr)
-    {
-        delete _co_loc_widget;
-    }
-    _co_loc_widget = nullptr;
-
-    if(_spectra_widget != nullptr)
-    {
-        delete _spectra_widget;
-    }
-    _spectra_widget = nullptr;
-    */
 }
 
 //---------------------------------------------------------------------------

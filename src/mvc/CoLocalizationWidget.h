@@ -58,6 +58,8 @@ public slots:
 
     void onQuadViewChanged(int);
 
+    void onExportPng();
+
 protected:
 
    /**
