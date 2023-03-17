@@ -63,7 +63,7 @@ void ScanCorrCoefDialog::_createLayout()
     v_proc_layout->addItem(hbox);
     v_proc_layout->addWidget(_ck_use_elements);
     v_proc_layout->addWidget(_ck_use_scalers);
-    v_proc_layout->addWidget(_ck_use_rois);
+    //v_proc_layout->addWidget(_ck_use_rois);
 
     _processing_grp->setLayout(v_proc_layout);
     _processing_grp->setTitle("Scan Correlation Coefficient");
@@ -219,6 +219,13 @@ void ScanCorrCoefDialog::onRun()
             total_names.pop_back();
         }
         int total = el_pair_names.size();
+        /*
+        auto map_rois = _model->get_map_rois();
+        if (_ck_use_rois->isChecked());
+        {
+            total *= map_rois.size();
+        }
+        */
         status_callback(0, total);
 
         ScatterPlotView* view = new ScatterPlotView(_blog10, _bdark, nullptr);
@@ -226,25 +233,53 @@ void ScanCorrCoefDialog::onRun()
         view->setModel(_model);
         view->setAnalysisType(QString(_analysis_type.c_str()));
         int cur = 0;
-        for (int i = 0; i < el_pair_names.size(); i++)
+        /*
+        if (use_rois)
         {
-            double val = proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]);
-            if (val > restrict_coef || val < -restrict_coef)
+            for (auto* roi_itr : map_rois)
             {
-                //logI << key << " : " << val << "\n";
-                view->setXYAxis("", QString(el_pair_names[i].first.c_str()), QString(el_pair_names[i].second.c_str()));
-                view->resize(1920, 1080);
-                view->exportPngCsv();
-            }
-            cur++;
-            status_callback(cur, total);
-            QCoreApplication::processEvents();
-            if (false == _running)
-            {
-                break;
+                for (int i = 0; i < el_pair_names.size(); i++)
+                {
+                    double val = proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]);
+                    if (val > restrict_coef || val < -restrict_coef)
+                    {
+                        //logI << key << " : " << val << "\n";
+                        view->setXYAxis(QString(roi_itr.first.c_str()), QString(el_pair_names[i].first.c_str()), QString(el_pair_names[i].second.c_str()));
+                        view->resize(1920, 1080);
+                        view->exportPngCsv();
+                    }
+                    cur++;
+                    status_callback(cur, total);
+                    QCoreApplication::processEvents();
+                    if (false == _running)
+                    {
+                        break;
+                    }
+                }
             }
         }
-
+        else
+        {
+        */
+            for (int i = 0; i < el_pair_names.size(); i++)
+            {
+                double val = proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]);
+                if (val > restrict_coef || val < -restrict_coef)
+                {
+                    //logI << key << " : " << val << "\n";
+                    view->setXYAxis("", QString(el_pair_names[i].first.c_str()), QString(el_pair_names[i].second.c_str()));
+                    view->resize(1920, 1080);
+                    view->exportPngCsv();
+                }
+                cur++;
+                status_callback(cur, total);
+                QCoreApplication::processEvents();
+                if (false == _running)
+                {
+                    break;
+                }
+            }
+        //}
         delete view;
     }
     _running = false;
