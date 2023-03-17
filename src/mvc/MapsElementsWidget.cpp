@@ -72,6 +72,9 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 
 MapsElementsWidget::~MapsElementsWidget()
 {
+
+    _co_loc_widget->setModel(nullptr);
+    _scatter_plot_widget->setModel(nullptr);
 /* //this is done elsewhere . should refactor it to be smart pointer
     if(_model != nullptr)
     {
@@ -737,11 +740,15 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec), itr.second.color);
             }
 
-            _co_loc_widget->onSetAnalysisType(_cb_analysis->currentText());
             _co_loc_widget->setModel(_model);
-
-            _scatter_plot_widget->setAnalysisType(_cb_analysis->currentText());
             _scatter_plot_widget->setModel(_model);
+
+            QString analysis_text = _cb_analysis->currentText();
+            if (analysis_text.length() > 0)
+            {
+                _co_loc_widget->onSetAnalysisType(analysis_text);
+                _scatter_plot_widget->setAnalysisType(analysis_text);
+            }
 
             annoTabChanged(m_tabWidget->currentIndex());
         }
@@ -1621,6 +1628,9 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
     {
         _model->saveAllRoiMaps();
     }
+    //refresh roi's
+    _scatter_plot_widget->setModel(_model);
+
     _spectra_widget->replot_integrated_spectra(false);
     annoTabChanged(ROI_TAB);
     _img_seg_diag.clear_all_rois();
