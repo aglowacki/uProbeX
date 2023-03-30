@@ -148,6 +148,8 @@ protected:
 
    fitting::optimizers::Optimizer<double>*_optimizer;
 
+   std::unordered_map<std::string, ArrayDr> _labeled_spectras;
+
    //fitting::routines::Base_Fit_Routine<double> *_fit_routine;
 
    fitting::routines::Param_Optimized_Fit_Routine<double> _param_fit_routine;
