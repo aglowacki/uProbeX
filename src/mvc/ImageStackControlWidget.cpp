@@ -90,20 +90,24 @@ void ImageStackControlWidget::createLayout()
 	QWidget *rightWidget = new QWidget();
 	rightWidget->setLayout(vlayout);
 
-	QSplitter* splitter = new QSplitter();
-	splitter->setOrientation(Qt::Horizontal);
-	splitter->addWidget(leftWidget);
-	splitter->setStretchFactor(0, 1);
-	splitter->addWidget(rightWidget);
+	QSplitter* single_data_splitter = new QSplitter();
+	single_data_splitter->setOrientation(Qt::Horizontal);
+	single_data_splitter->addWidget(leftWidget);
+	single_data_splitter->setStretchFactor(0, 1);
+	single_data_splitter->addWidget(rightWidget);
 	//createToolBar(m_imageViewWidget);
 	//counts_layout->addWidget(m_toolbar);
 	//counts_layout->addWidget(splitter);
 
 	_load_progress = new QProgressBar();
 	
+	QTabWidget* data_tab = new QTabWidget();
+
+	data_tab->addTab(single_data_splitter, "Single Dataset");
+	//data_tab->addTab(single_data_splitter, "Multiple Datasets");
 
 	QVBoxLayout *mainLayout = new QVBoxLayout();
-	mainLayout->addWidget(splitter);
+	mainLayout->addWidget(data_tab);
 	mainLayout->addWidget(_load_progress);
 	
 	//_imageGrid->hide();

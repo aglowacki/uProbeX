@@ -260,7 +260,7 @@ QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& co
             cnts = std::min(counts_max, cnts);
             cnts = std::max(counts_min, cnts);
             //convert to pixel
-            byte data = static_cast<byte>(((cnts - counts_min) / max_min) * 255.0);
+            char data = static_cast<char>(((cnts - counts_min) / max_min) * 255.0);
             image.setPixel(col, row, (uint)data);
         }
     }

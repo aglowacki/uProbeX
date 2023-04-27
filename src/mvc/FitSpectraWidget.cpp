@@ -819,20 +819,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
             replot_integrated_spectra(true);
 			
-            //data_struct::Spectra fit_spec = model.model_spectrum(&out_fit_params, _elements_to_fit, energy_range);
 			_fit_spec = _fitting_dialog->get_fit_spectra(&_labeled_spectras);
-            if (_fit_spec.size() == _spectra_background.size())
-            {
-                _fit_spec += _spectra_background;
-            }
-            for (int i = 0; i < _fit_spec.size(); i++)
-            {
-                if (_fit_spec[i] <= 0.0)
-                {
-                    _fit_spec[i] = 0.1;
-                }
-            }
-
             _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &_fit_spec, (data_struct::Spectra<double>*) & _ev);
             if (_showDetailedFitSpec)
             {

@@ -23,7 +23,7 @@ ScatterPlotWidget::ScatterPlotWidget(QWidget* parent) : QWidget(parent)
 
 ScatterPlotWidget::~ScatterPlotWidget()
 {
-    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, (int)_plot_view_list.size());
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, _ck_display_log10->isChecked());
     Preferences::inst()->save();
 }
@@ -126,7 +126,7 @@ void ScatterPlotWidget::onAdd()
 
     update();
     _plot_view_list[idx]->show();
-    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, (int)_plot_view_list.size());
 }
 
 //---------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void ScatterPlotWidget::onDel()
         _plot_view_list[amt - 1]->setParent(nullptr);
         delete _plot_view_list[amt - 1];
         _plot_view_list.pop_back();
-        Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, _plot_view_list.size());
+        Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, (int)_plot_view_list.size());
     }
 }
 
