@@ -26,26 +26,28 @@ jobs:
         path: 'XRF-Maps'
     - uses: actions/checkout@v3
     - name: Gen vcpkg
-      run: ./XRF-Maps/vcpkg/bootstrap-vcpkg.sh
+      working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
+      run: ./bootstrap-vcpkg.sh
     - name: Restore cached vcpkg
       id: cache-vcpkg-restore
       uses: actions/cache/restore@v3
       with:
-        path: XRF-Maps/vcpkg/installed
+        path: ${{github.workspace}}/XRF-Maps/vcpkg/installed
         key: ${{ runner.os }}-vcpkg
     - name: Run vcpkg
       if: ${{ steps.cache-vcpkg-restore.outputs.cache-hit != 'true' }}
+      working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            ./XRF-Maps/vcpkg/vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-osx-release
+            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-osx-release
           else
-            ./XRF-Maps/vcpkg/vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-linux-release
+            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-linux-release
           fi
     - name: Save vcpkg cache
       id: cache-vcpkg-save
       uses: actions/cache/save@v3
       with:
-        path: XRF-Maps/vcpkg/installed
+        path: ${{github.workspace}}/XRF-Maps/vcpkg/installed
         key: ${{ runner.os }}-vcpkg
     - name: Create XRF Build Environment
       # Some projects don't allow in-source building, so create a separate build directory

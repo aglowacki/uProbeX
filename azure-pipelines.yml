@@ -1,5 +1,11 @@
 trigger:
   - master
+resources:
+  repositories:
+  - repository: XrfMapsGithub
+    type: github
+    endpoint: MyGitHubServiceConnection
+    name: aglowacki/XRF-Maps
 variables:
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
@@ -12,7 +18,7 @@ jobs:
     pool:
       vmImage: 'windows-latest'    
     steps:
-    - checkout: git@github.com:aglowacki/XRF-Maps.git
+    - checkout: XrfMapsGithub
       submodules: true
       path: XRF-Maps
     - checkout: self
