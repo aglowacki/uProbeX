@@ -1,0 +1,73 @@
+trigger:
+  - master
+resources:
+  repositories:
+  - repository: XrfMapsGithub
+    type: github
+    endpoint: https://github.com/aglowacki/XRF-Maps.git
+    name: MyGitHubOrgOrUser/MyGitHubRepo
+variables:
+  buildPlatform: 'x64'
+  buildConfiguration: 'Release'
+  VCPKG_DEFAULT_TRIPLET: 'x64-windows'
+  VCPKG_CONFIG_CACHE: D:/a/1/s/XRF-Maps/vcpkg/installed
+jobs:
+  - job: Default
+    timeoutInMinutes: 360
+    cancelTimeoutInMinutes: 180
+    pool:
+      vmImage: 'windows-latest'    
+    steps:
+    - checkout: XrfMapsGithub
+      submodules: true
+      path: XRF-Maps
+    - checkout: self
+    - script: .\vcpkg\bootstrap-vcpkg.bat
+    - task: Cache@2
+      inputs:
+        key: vcpkg-cache | $(Agent.OS)
+        restoreKeys: |
+          vcpkg-cache | $(Agent.OS)
+          vcpkg-cache
+        path: $(VCPKG_CONFIG_CACHE)
+        cacheHitVar: CACHE_RESTORED
+        displayName: Cache vcpkg packages
+    - script: .\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-windows-release
+      condition: ne(variables.CACHE_RESTORED, 'true')
+    - script: mkdir XRF-Maps/build
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'XRF-Maps/build'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
+    - task: MSBuild@1
+      inputs:
+        solution: 'XRF-Maps/build/ALL_BUILD.vcxproj'
+        configuration: Release
+        maximumCpuCount: true
+        platform: 'x64'
+    - script: mkdir build
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DXRF_Maps_DIR=XRF-Maps/build ..'
+    - task: MSBuild@1
+      inputs:
+        solution: 'build/ALL_BUILD.vcxproj'
+        configuration: Release
+        maximumCpuCount: true
+        platform: 'x64'
+    #- script: new-item -itemtype file -path $(System.DefaultWorkingDirectory)/install -name "version.json" -force -value '{\"buildNumber\":\"$(Build.BuildNumber)\",\"buildId\":\"$(Build.BuildId)\",\"branchName\":\"$(Build.SourceBranchName)\",\"commitHash\":\"$(Build.SourceVersion)\"}'
+    - task: CopyFiles@2
+      displayName: 'Copy bin Files to install'
+      inputs:
+        SourceFolder: $(System.DefaultWorkingDirectory)/bin
+        TargetFolder: $(System.DefaultWorkingDirectory)/install/bin
+    - task: CopyFiles@2
+      displayName: 'Copy ref Files to install'
+      inputs:
+        SourceFolder: $(System.DefaultWorkingDirectory)/reference
+        TargetFolder: $(System.DefaultWorkingDirectory)/install/reference
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: $(System.DefaultWorkingDirectory)/install/
+        artifactName: uProbeX_Windows_x64_AVX2
