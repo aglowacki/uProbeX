@@ -10,7 +10,7 @@ variables:
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
   VCPKG_DEFAULT_TRIPLET: 'x64-windows'
-  VCPKG_CONFIG_CACHE: D:/a/1/s/XRF-Maps/vcpkg/installed
+  VCPKG_CONFIG_CACHE: D:/a/1/XRF-Maps/vcpkg/installed
 jobs:
   - job: Default
     timeoutInMinutes: 360
@@ -21,8 +21,8 @@ jobs:
     - checkout: self
     - checkout: XrfMapsGithub
       submodules: true
-      path: $(System.DefaultWorkingDirectory)/XRF-Maps
-    - script: $(System.DefaultWorkingDirectory)/XRF-Maps/vcpkg/bootstrap-vcpkg.bat
+      path: XRF-Maps
+    - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
         key: vcpkg-cache | $(Agent.OS)
@@ -32,7 +32,7 @@ jobs:
         path: $(VCPKG_CONFIG_CACHE)
         cacheHitVar: CACHE_RESTORED
         displayName: Cache vcpkg packages
-    - script: .\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-windows-release
+    - script: ..\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff qt5-base qt5-charts --overlay-triplets=../XRF-Maps/vcpkg/triplets/community --triplet x64-windows-release
       condition: ne(variables.CACHE_RESTORED, 'true')
     - script: mkdir XRF-Maps/build
     - task: CMake@1
@@ -49,7 +49,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: 'build'
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DXRF_Maps_DIR=../XRF-Maps/build ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DXRF_Maps_DIR=../../XRF-Maps/build ..'
     - task: MSBuild@1
       inputs:
         solution: 'build/ALL_BUILD.vcxproj'

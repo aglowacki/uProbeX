@@ -25,12 +25,12 @@ jobs:
         submodules: 'recursive'
         repository: 'aglowacki/XRF-Maps'
         path: 'XRF-Maps'
-    - name: ls
+    - name: Install Qt5
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
-          port install qt5 qt5-qtcharts
+          sudo port install qt5 qt5-qtcharts
         else
-          apt-get install libqt5gui5 libqt5charts5-dev
+          sudo apt-get install libqt5gui5 libqt5charts5-dev
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
