@@ -10,7 +10,7 @@ variables:
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
   VCPKG_DEFAULT_TRIPLET: 'x64-windows'
-  VCPKG_CONFIG_CACHE: D:/a/1/s/XRF-Maps/vcpkg/installed
+  VCPKG_CONFIG_CACHE: D:/a/1/XRF-Maps/vcpkg/installed
 jobs:
   - job: Default
     timeoutInMinutes: 360
@@ -22,7 +22,7 @@ jobs:
       submodules: true
       path: XRF-Maps
     - checkout: self
-    - script: .\vcpkg\bootstrap-vcpkg.bat
+    - script: .\a\1\XRF-Maps\vcpkg\bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
         key: vcpkg-cache | $(Agent.OS)

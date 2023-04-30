@@ -25,6 +25,12 @@ jobs:
         repository: 'aglowacki/XRF-Maps'
         path: 'XRF-Maps'
     - uses: actions/checkout@v3
+    - name: ls
+      run: |
+        ls -lh
+        ls -lh ${{github.workspace}}
+        ls -lh ${{github.workspace}}/XRF-Maps
+        ls -lh ${{github.workspace}}/XRF-Maps/vcpkg
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
       run: ./bootstrap-vcpkg.sh
