@@ -20,11 +20,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       with:
         submodules: 'recursive'
         repository: 'aglowacki/XRF-Maps'
         path: 'XRF-Maps'
-    - uses: actions/checkout@v3
     - name: ls
       run: |
         ls -lh
