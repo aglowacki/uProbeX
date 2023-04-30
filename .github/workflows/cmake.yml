@@ -19,11 +19,11 @@ jobs:
     runs-on:  ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-        repository: 'https://github.com/aglowacki/XRF-Maps.git'
-        path: 'XRF-Maps'
+    - uses: actions/checkout@v2
+    with:
+      submodules: 'recursive'
+      repository: 'https://github.com/aglowacki/XRF-Maps.git'
+      path: 'XRF-Maps'
     - uses: actions/checkout@v2
     - name: Gen vcpkg
       run: ./XRF-Maps/vcpkg/bootstrap-vcpkg.sh

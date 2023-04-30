@@ -4,7 +4,7 @@ resources:
   repositories:
   - repository: XrfMapsGithub
     type: github
-    endpoint: https://github.com/aglowacki/XRF-Maps.git
+    endpoint: aglowacki/XRF-Maps
     name: MyGitHubOrgOrUser/MyGitHubRepo
 variables:
   buildPlatform: 'x64'
