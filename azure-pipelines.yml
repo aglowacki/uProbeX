@@ -1,11 +1,5 @@
 trigger:
   - master
-resources:
-  repositories:
-  - repository: XrfMapsGithub
-    type: github
-    endpoint: aglowacki/XRF-Maps
-    name: MyGitHubOrgOrUser/MyGitHubRepo
 variables:
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
