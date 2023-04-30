@@ -4,7 +4,7 @@ resources:
   repositories:
   - repository: XrfMapsGithub
     type: github
-    endpoint: MyGitHubServiceConnection
+    endpoint: aglowacki
     name: aglowacki/XRF-Maps
 variables:
   buildPlatform: 'x64'
