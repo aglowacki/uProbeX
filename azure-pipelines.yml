@@ -18,7 +18,7 @@ jobs:
     pool:
       vmImage: 'windows-latest'    
     steps:
-    - checkout: XrfMapsGithub
+    - checkout: git@github.com:aglowacki/XRF-Maps.git
       submodules: true
       path: XRF-Maps
     - checkout: self
