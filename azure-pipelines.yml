@@ -22,13 +22,14 @@ jobs:
     - checkout: XrfMapsGithub
       submodules: true
       path: XRF-Maps
-    - task: PythonScript@0
-      displayName: 'Download Qt Installer'
-      inputs:
-        scriptSource: 'inline'
-        script: from urllib.request import urlretrieve; urlretrieve('https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe', 'qt-unified-windows-x64-online.exe')
-    - script: qt-unified-windows-x64-online.exe install --root D:\a\1\Qt --auto-answer telemetry-question=Yes,AssociateCommonFiletypes=Yes --default-answer --accept-licenses --accept-obligations --file-query PathForSDP7=<path_to_sdp> --email <your_email --pw <your_pw> --confirm-command
-    - script: maintenancetool.exe install qt.qt5.5150.qtcharts qt.qt5.5150.win64_mingw81 --default-answer --accept-licenses --confirm-command
+    #- task: PythonScript@0
+    #  displayName: 'Download Qt Installer'
+    #  inputs:
+    #    scriptSource: 'inline'
+    #    script: from urllib.request import urlretrieve; urlretrieve('https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe', 'qt-unified-windows-x64-online.exe')
+    #- script: qt-unified-windows-x64-online.exe install --root D:\a\1\Qt --auto-answer telemetry-question=Yes,AssociateCommonFiletypes=Yes --default-answer --accept-licenses --accept-obligations --file-query PathForSDP7=<path_to_sdp> --email <your_email --pw <your_pw> --confirm-command
+    #- script: maintenancetool.exe install qt.qt5.5150.qtcharts qt.qt5.5150.win64_mingw81 --default-answer --accept-licenses --confirm-command
+    - script: choco install qt5
     - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:

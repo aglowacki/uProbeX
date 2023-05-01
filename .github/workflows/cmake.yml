@@ -28,9 +28,8 @@ jobs:
     - name: Install Qt5
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
-          curl https://download.qt.io/official_releases/online_installers/qt-unified-mac-x64-online.dmg --output qt-unified-mac-x64-online.dmg
-          ./qt-unified-mac-x64-online.dmg install --root ./Qt --auto-answer telemetry-question=Yes,AssociateCommonFiletypes=Yes --default-answer --accept-licenses --accept-obligations --file-query PathForSDP7=<path_to_sdp> --email <your_email --pw <your_pw> --confirm-command
-          ./maintenancetool install qt.qt5.5150.qtcharts qt.qt5.5150.win64_mingw81 --default-answer --accept-licenses --confirm-command
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew install qt5
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev
         fi
