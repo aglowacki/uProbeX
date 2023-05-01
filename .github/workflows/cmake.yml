@@ -35,8 +35,8 @@ jobs:
           sudo hdiutil attach -verbose -noverify -readonly ./QtInstallerFramework-macOS-x64-4.5.2.dmg
           ls /Volumes
           ls /Volumes/QtInstallerFramework-macOS-x64-4.5.2
-          ls /Volumes/QtInstallerFramework-macOS-x64-4.5.2/bin
-          /Volumes/QtInstallerFramework-macOS-x64-4.5.2/bin/maintenancetool --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
+          ls /Volumes/QtInstallerFramework-macOS-x64-4.5.2/Folders
+          #/Volumes/QtInstallerFramework-macOS-x64-4.5.2/bin/maintenancetool --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
         fi

@@ -43,8 +43,8 @@ jobs:
       displayName: 'Install aqtinstall'
     - script: |
         cd $(Build.SourcesDirectory)
-        python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.12 windows desktop win_msvc2019 -m qtcore qtgui qtwidgets qtcharts
-      displayName: 'Install Qt 5.15.12'
+        python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 windows desktop win_msvc2019 -m qtcore qtgui qtwidgets qtcharts
+      displayName: 'Install Qt 5.15.2'
     - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
