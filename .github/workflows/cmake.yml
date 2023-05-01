@@ -70,9 +70,9 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
           else
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
           fi
     - name: Build XRF-Maps
       working-directory: ${{github.workspace}}/XRF-Maps/build

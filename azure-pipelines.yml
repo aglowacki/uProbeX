@@ -43,7 +43,11 @@ jobs:
         displayName: Cache vcpkg packages
     - script: ..\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --triplet x64-windows
       condition: ne(variables.CACHE_RESTORED, 'true')
-    - script: mkdir ../XRF-Maps/build
+    - task: CmdLine@2
+      inputs:
+        script: |
+          pwd
+          mkdir ..\XRF-Maps\build
     - task: CMake@1
       inputs:
         workingDirectory: '../XRF-Maps/build'
