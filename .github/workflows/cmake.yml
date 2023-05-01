@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        compiler: [g++-10]
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -31,7 +30,7 @@ jobs:
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           brew install qt5
         else
-          sudo apt-get install libqt5gui5 libqt5charts5-dev at-spi2-core
+          sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
