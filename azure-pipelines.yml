@@ -31,6 +31,7 @@ jobs:
     #- script: maintenancetool.exe install qt.qt5.5150.qtcharts qt.qt5.5150.win64_mingw81 --default-answer --accept-licenses --confirm-command
     #- script: choco install -y qt5-default
     - script: choco install -y qt-installer-framework
+    - script: MaintenanceTool.exe install qt.qt5.5152 qt.qt5.5152.qtcharts
     - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
