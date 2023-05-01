@@ -43,14 +43,14 @@ jobs:
         displayName: Cache vcpkg packages
     - script: ..\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --triplet x64-windows
       condition: ne(variables.CACHE_RESTORED, 'true')
-    - script: mkdir XRF-Maps/build
+    - script: mkdir ../XRF-Maps/build
     - task: CMake@1
       inputs:
-        workingDirectory: 'XRF-Maps/build'
+        workingDirectory: '../XRF-Maps/build'
         cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
     - task: MSBuild@1
       inputs:
-        solution: 'XRF-Maps/build/ALL_BUILD.vcxproj'
+        solution: '../XRF-Maps/build/ALL_BUILD.vcxproj'
         configuration: Release
         maximumCpuCount: true
         platform: 'x64'
