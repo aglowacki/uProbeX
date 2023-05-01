@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/aglowacki/uProbeX/workflows/cmake.yaml/badge.svg)](https://github.com/aglowacki/uProbeX/actions)
+[![Actions Status](https://github.com/aglowacki/uProbeX/workflows/CMake/badge.svg)](https://github.com/aglowacki/uProbeX/actions)
 [![Build Status](https://dev.azure.com/aglow/uProbeX/_apis/build/status/aglowacki.uProbeX?branchName=master)](https://dev.azure.com/aglow/uProbeX/_build/latest?definitionId=2&branchName=master)
 
 # uProbeX
