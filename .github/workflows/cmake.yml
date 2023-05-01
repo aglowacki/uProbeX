@@ -47,9 +47,9 @@ jobs:
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-osx-release
+            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
           else
-            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --overlay-triplets=XRF-Maps/vcpkg/triplets/community --triplet x64-linux-release
+            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
           fi
     - name: Save vcpkg cache
       id: cache-vcpkg-save
