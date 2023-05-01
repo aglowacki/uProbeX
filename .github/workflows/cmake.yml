@@ -30,13 +30,13 @@ jobs:
       #installer.exe --root "C:\MyInstallation" --accept-licenses --default-answer --confirm-command install qt5-core
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
-          curl https://download.qt.io/official_releases/qt-installer-framework/4.5.2/QtInstallerFramework-macOS-x64-4.5.2.dmg --output QtInstallerFramework.dmg
+          curl -LO https://download.qt.io/official_releases/qt-installer-framework/4.5.2/QtInstallerFramework-macOS-x64-4.5.2.dmg
           ls -lh
-          sudo hdiutil attach -readonly ./QtInstallerFramework.dmg
+          sudo hdiutil attach -verbose -noverify -readonly ./QtInstallerFramework-macOS-x64-4.5.2.dmg
           ls /Volumes
-          ls /Volumes/QtInstallerFramework
-          ls /Volumes/QtInstallerFramework/bin
-          /Volumes/QtInstallerFramework/bin/maintenancetool --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
+          ls /Volumes/QtInstallerFramework-macOS-x64-4.5.2
+          ls /Volumes/QtInstallerFramework-macOS-x64-4.5.2/bin
+          /Volumes/QtInstallerFramework-macOS-x64-4.5.2/bin/maintenancetool --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
         fi
@@ -52,12 +52,7 @@ jobs:
     - name: Run vcpkg
       if: ${{ steps.cache-vcpkg-restore.outputs.cache-hit != 'true' }}
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
-      run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
-          else
-            ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
-          fi
+      run: ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
     - name: Save vcpkg cache
       id: cache-vcpkg-save
       uses: actions/cache/save@v3
