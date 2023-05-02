@@ -35,7 +35,7 @@ jobs:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'
-    - script: |
+    - run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
           python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
         fi
