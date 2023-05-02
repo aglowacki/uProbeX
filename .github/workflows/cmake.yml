@@ -96,11 +96,11 @@ jobs:
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
-      if [ "$RUNNER_OS" == "macOS" ]; then
-        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
-      else
-        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
-      fi
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+        else
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+        fi
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
