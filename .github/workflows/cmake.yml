@@ -28,7 +28,7 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          brew install qt5
+          brew install qt5 7zip
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
         fi
