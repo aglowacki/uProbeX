@@ -24,22 +24,22 @@ jobs:
         submodules: 'recursive'
         repository: 'aglowacki/XRF-Maps'
         path: 'XRF-Maps'
-    - name: Install Qt5
+    - name: Install Linux Deps
       run: |
-        if [ "$RUNNER_OS" == "macOS" ]; then
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          brew install qt5
-        else
-          sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
+        if [ "$RUNNER_OS" != "macOS" ]; then
+          sudo apt-get install libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
         fi
     - uses: actions/setup-python@v4
       with:
         python-version: '3.10' 
-    - name: Install qtcharts osx
+    - name: Install qtbase qtcharts 
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
           python -m pip install aqtinstall
           python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
+        else
+          python -m pip install aqtinstall
+          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 -m qtcharts --archives qtbase
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
@@ -74,9 +74,9 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
           else
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
           fi
     - name: Build XRF-Maps
       working-directory: ${{github.workspace}}/XRF-Maps/build
@@ -95,7 +95,12 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+      run: |
+      if [ "$RUNNER_OS" == "macOS" ]; then
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+      else
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+      fi
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
