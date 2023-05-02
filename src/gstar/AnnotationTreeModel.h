@@ -10,6 +10,7 @@
 
 #include <QAbstractItemModel>
 #include <QMap>
+#include "gstar/Annotation/AbstractGraphicsItem.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -17,8 +18,6 @@ class QItemSelectionModel;
 
 namespace gstar
 {
-
-class AbstractGraphicsItem;
 
 /**
  * @brief The AnnotationTreeModel class

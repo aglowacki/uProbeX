@@ -15,15 +15,12 @@
 #include <QItemSelectionModel>
 #include <QRubberBand>
 #include <QPixmap>
+#include "gstar/Annotation/AbstractGraphicsItem.h"
 
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
 {
-
-class AbstractGraphicsItem;
-class RectItem;
-class ROITableModel;
 
 /**
  * @brief The ImageViewScene class ...
