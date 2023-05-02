@@ -32,11 +32,10 @@ jobs:
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
         fi
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.x'
-    - run: |
+    - name: Install qtcharts osx
+      run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
+          python -m pip install aqtinstall
           python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
         fi
     - name: Gen vcpkg
