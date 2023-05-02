@@ -9,12 +9,11 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QAbstractItemModel>
+#include <QItemSelectionModel>
 #include <QMap>
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 
 /*---------------------------------------------------------------------------*/
-
-class QItemSelectionModel;
 
 namespace gstar
 {

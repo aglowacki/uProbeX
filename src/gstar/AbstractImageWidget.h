@@ -10,6 +10,14 @@
 
 #include <QWidget>
 
+#include <QAbstractTableModel>
+#include <QComboBox>
+#include <QItemSelectionModel>
+#include <QLabel>
+#include <QTabWidget>
+#include <QToolBar>
+#include <QTreeView>
+#include <QModelIndex>
 #include "gstar/AnnotationTreeModel.h"
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/Annotation/MarkerGraphicsItem.h"
@@ -19,16 +27,6 @@
 #include "gstar/ImageViewToolBar.h"
 #include "gstar/RangeWidget.h"
 #include "gstar/RulerUnitsDialog.h"
-
-class QAbstractTableModel;
-class QComboBox;
-class QItemSelectionModel;
-class QLabel;
-class QTabWidget;
-class QToolBar;
-class QTreeView;
-class QModelIndex;
-
 
 /*---------------------------------------------------------------------------*/
 

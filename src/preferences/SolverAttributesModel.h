@@ -22,8 +22,7 @@
  * Solver attributes and how to get list of Solver attributes. The model's
  *  properties could be set in other class.
  */
-class SolverAttributesModel
-: public QAbstractTableModel
+class SolverAttributesModel : public QAbstractTableModel
 {
    Q_OBJECT
 

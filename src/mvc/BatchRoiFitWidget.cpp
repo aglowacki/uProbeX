@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/BatchRoiFitWidget.h>
+#include "mvc/BatchRoiFitWidget.h"
 #include <QApplication>
 #include <data_struct/analysis_job.h>
 #include <core/process_whole.h>
@@ -78,7 +78,7 @@ void BatchRoiFitWidget::createLayout()
     layout->addItem(hbox_progresss_blocks);
     layout->addItem(hbox_progresss_files);
     
-    setLayout(layout);
+    this->setLayout(layout);
 }
 
 /*---------------------------------------------------------------------------*/

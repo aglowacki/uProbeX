@@ -12,13 +12,11 @@
 #include <QMessageBox>
 #include <QList>
 #include <QItemSelectionModel>
-
+#include <QItemSelection>
+#include <QTableView>
 #include <preferences/Attribute.h>
 #include <preferences/AttributeTableModel.h>
 
-class AttributeTableModel;
-class QItemSelection;
-class QTableView;
 
 /*---------------------------------------------------------------------------*/
 

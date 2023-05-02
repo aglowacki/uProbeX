@@ -26,6 +26,7 @@
 #include <QGroupBox>
 #include <qfileinfo.h>
 #include <thread>
+#include <unordered_map>
 
 /*---------------------------------------------------------------------------*/
 

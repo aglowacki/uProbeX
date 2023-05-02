@@ -10,13 +10,13 @@
 
 #include <QWidget>
 #include <QModelIndex>
-
+#include <QItemSelectionModel>
+#include <QPushButton>
 #include <preferences/Attribute.h>
 
 class DeselectableTreeView;
 class AttributeGroupModel;
-class QItemSelectionModel;
-class QPushButton;
+
 
 /*---------------------------------------------------------------------------*/
 

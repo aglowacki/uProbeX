@@ -9,13 +9,11 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QWidget>
-
+#include <QAction>
+#include <QToolBar>
+#include <QCheckBox>
 
 /*---------------------------------------------------------------------------*/
-
-class QAction;
-class QToolBar;
-class QCheckBox;
 
 namespace gstar
 {
