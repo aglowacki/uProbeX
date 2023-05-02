@@ -43,7 +43,7 @@ jobs:
       displayName: 'Install aqtinstall'
     - script: |
         cd $(Build.SourcesDirectory)
-        python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 windows desktop win64_msvc2019_64 -m qtbase qtcharts
+        python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 windows desktop win64_msvc2019_64 -m qtcharts --archives qtbase
       displayName: 'Install Qt 5.15.2'
     - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
@@ -65,7 +65,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: '../XRF-Maps/build'
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="$(Build.BinariesDirectory)/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
     - task: MSBuild@1
       inputs:
         solution: '../XRF-Maps/build/ALL_BUILD.vcxproj'
@@ -76,7 +76,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: 'build'
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DXRF_Maps_DIR=../../XRF-Maps/build ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="$(Build.BinariesDirectory)/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" -DXRF_Maps_DIR=../../XRF-Maps/build ..'
     - task: MSBuild@1
       inputs:
         solution: 'build/ALL_BUILD.vcxproj'

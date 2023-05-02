@@ -25,17 +25,20 @@ jobs:
         repository: 'aglowacki/XRF-Maps'
         path: 'XRF-Maps'
     - name: Install Qt5
-      #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      #brew install qt5
-      #installer.exe --root "C:\MyInstallation" --accept-licenses --default-answer --confirm-command install qt5-core
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
-          curl -LO https://download.qt.io/official_releases/qt-installer-framework/4.5.2/QtInstallerFramework-macOS-x64-4.5.2.dmg
-          ls -lh
-          sudo hdiutil attach -verbose -noverify -readonly ./QtInstallerFramework-macOS-x64-4.5.2.dmg
-          /Volumes/QtInstallerFramework-macOS-x64-4.5.2/Folders/QtInstallerFramework-macOS-x64-4.5.2.app --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew install qt5
         else
           sudo apt-get install libqt5gui5 libqt5charts5-dev libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev
+        fi
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+    - script: |
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          cd $(Build.SourcesDirectory)
+          python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
@@ -70,7 +73,7 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="$(Build.BinariesDirectory)/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
           else
             cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
           fi
@@ -91,7 +94,7 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="$(Build.BinariesDirectory)/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
