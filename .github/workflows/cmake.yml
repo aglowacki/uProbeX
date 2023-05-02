@@ -113,9 +113,15 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
         mkdir install
+        mkdir install/plugins
         rsync -RavzP reference install
         rsync -RavzP bin install
-        cp XRF-Maps/bin install/bin
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          rsync -RavzP ${{github.workspace}}/Qt/5.15.2/clang_64/plugins/platforms install/plugins
+        else
+          rsync -RavzP ${{github.workspace}}/Qt/5.15.2/gcc_64/plugins/platforms install/plugins
+        fi
+        cp ../XRF-Maps/bin install/bin
         cd install
         echo '{"branchName":"${{ github.ref }}","commitHash":"${{ github.sha }}"}' >> version.json
     - uses: actions/upload-artifact@v3
