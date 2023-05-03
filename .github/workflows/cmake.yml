@@ -27,7 +27,7 @@ jobs:
     - name: Install Linux Deps
       run: |
         if [ "$RUNNER_OS" != "macOS" ]; then
-          sudo apt-get install libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev libharfbuzz-dev libx11-dev libgles2-mesa-dev linux-libc-dev libxft-dev libxext-dev
+          sudo apt-get install libdbus-1-dev libxi-dev libxtst-dev bzip2 mingw-w64 libgtk-3-dev libglib2.0-dev libharfbuzz-dev libx11-dev libgles2-mesa-dev linux-libc-dev libxft-dev libxext-dev libicu-dev
         fi
     - uses: actions/setup-python@v4
       with:
@@ -36,10 +36,11 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
           python -m pip install aqtinstall
-          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
         else
           python -m pip install aqtinstall
-          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 -m qtcharts --archives qtbase
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 --archives qtbase icu qtimageformats 
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 -m qtcharts
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
