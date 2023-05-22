@@ -85,6 +85,7 @@ find_package(ZeroMQ CONFIG REQUIRED)
 find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(OpenCV CONFIG REQUIRED)
+find_path(MLPACK_INCLUDE_DIRS "mlpack/mlpack.hpp")
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -200,6 +201,7 @@ foreach(CompilerFlag ${CompilerFlags})
   set_target_properties(uProbeX PROPERTIES ${CompilerFlag} ${PROJECT_SOURCE_DIR}/bin)
 endforeach()
 
+target_include_directories(uProbeX PRIVATE ${MLPACK_INCLUDE_DIRS})
 
 #qt5_use_modules(uProbeX Core Widgets Gui)
 IF (MSVC)
