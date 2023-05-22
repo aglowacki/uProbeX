@@ -49,6 +49,11 @@ void BatchRoiFitWidget::createLayout()
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
     
+    _cb_opt_method = new QComboBox();
+    _cb_opt_method->addItem("LMFit");
+    _cb_opt_method->addItem("MPFit");
+    _cb_opt_method->addItem("Hybrid NNLS");
+
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
     _file_list_view->setModel(_file_list_model);
@@ -72,6 +77,7 @@ void BatchRoiFitWidget::createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(detector_hbox);
+    layout->addWidget(_cb_opt_method);
     //layout->addItem(_proc_save_layout);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
@@ -122,7 +128,15 @@ void BatchRoiFitWidget::runProcessing()
     //run in thread
     data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
-    
+    if (_cb_opt_method->currentText() == "Hybrid NNLS")
+    {
+        analysis_job.set_optimizer("MPFIT");
+        analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
+    }
+    else
+    {
+        analysis_job.set_optimizer(_cb_opt_method->currentText().toStdString());
+    }
    
     QString dstring = _le_detectors->text();
     if (dstring.length() > 0)

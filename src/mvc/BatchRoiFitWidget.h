@@ -20,7 +20,7 @@
 #include <QListWidgetItem>
 #include <QStringListModel>
 #include <QStandardItemModel>
-#include <QCheckBox>
+#include <QComboBox>
 #include <QEventLoop>
 #include <QLineEdit>
 #include <QGroupBox>
@@ -77,6 +77,8 @@ protected:
    std::string _directory;
 
    QLineEdit* _le_detectors;
+
+   QComboBox* _cb_opt_method;
 
    std::unordered_map<QString, QFileInfo> _roi_map;
 };
