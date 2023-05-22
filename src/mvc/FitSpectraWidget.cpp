@@ -407,7 +407,24 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         ArrayDr energy = ArrayDr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
 
         _ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, 2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
-
+        
+        /*
+        ArrayDr weights = *_int_spec;
+        weights = weights.unaryExpr([](double v) { return v == 0.0 ? v : 1.0 / v; });
+        weights = convolve1d(weights, 5);
+        weights = Eigen::abs(weights);
+        weights /= weights.maxCoeff();
+        _spectra_widget->append_spectra("weights", &weights, (data_struct::Spectra<double>*) & _ev);
+        */
+        /*
+        ArrayDr weights = *_int_spec;
+        weights = weights.log10();
+        weights = weights.unaryExpr([](double v) { return std::isfinite(v) ? v : 0.0; });
+        weights = convolve1d(weights, 5);
+        weights = Eigen::abs(weights);
+        weights /= weights.maxCoeff();
+        _spectra_widget->append_spectra("weights", &weights, (data_struct::Spectra<double>*) & _ev);
+        */
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra<double>*) & _ev);
         if (snipback)
         {
