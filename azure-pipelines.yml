@@ -79,9 +79,6 @@ jobs:
           pwd
           dir
           mkdir build
-          dir ../../XRF-Maps/
-          dir ../../XRF-Maps/build
-          dir ../../XRF-Maps/install
     - task: CMake@1
       inputs:
         workingDirectory: "$(System.DefaultWorkingDirectory)/uProbeX/build"
