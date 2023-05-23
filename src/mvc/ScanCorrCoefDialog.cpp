@@ -42,7 +42,7 @@ void ScanCorrCoefDialog::_createLayout()
     QHBoxLayout* h_layout = new QHBoxLayout();
     
     _le_restrict_coef = new QLineEdit();
-    _le_restrict_coef->setValidator(new QDoubleValidator(0.0, 1.0, 0.1, this));
+    _le_restrict_coef->setValidator(new QDoubleValidator(0.0, 1.0, 3, this));
     _le_restrict_coef->setText("0.85");
 
     _ck_use_elements = new QCheckBox("Use Elements");
