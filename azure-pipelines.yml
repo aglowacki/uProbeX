@@ -21,7 +21,7 @@ jobs:
     - checkout: self
     - checkout: XrfMapsGithub
       submodules: true
-      path: XRF-Maps
+      path: s/XRF-Maps
     #- task: PythonScript@0
     #  displayName: 'Download Qt Installer'
     #  inputs:
@@ -45,7 +45,7 @@ jobs:
         cd $(Build.SourcesDirectory)
         python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 windows desktop win64_msvc2019_64 -m qtcharts --archives qtbase
       displayName: 'Install Qt 5.15.2'
-    - script: $(System.DefaultWorkingDirectory)/../XRF-Maps/vcpkg/bootstrap-vcpkg.bat
+    - script: $(System.DefaultWorkingDirectory)/XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
         key: vcpkg-cache | $(Agent.OS)
@@ -55,20 +55,20 @@ jobs:
         path: $(VCPKG_CONFIG_CACHE)
         cacheHitVar: CACHE_RESTORED
         displayName: Cache vcpkg packages
-    - script: ..\XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --triplet x64-windows
+    - script: XRF-Maps\vcpkg\vcpkg.exe install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff --triplet x64-windows
       condition: ne(variables.CACHE_RESTORED, 'true')
     - task: CmdLine@2
       inputs:
         script: |
           pwd
-          mkdir ..\XRF-Maps\build
+          mkdir XRF-Maps\build
     - task: CMake@1
       inputs:
-        workingDirectory: '../XRF-Maps/build'
+        workingDirectory: 'XRF-Maps/build'
         cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="D:/a/1/b/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
     - task: MSBuild@1
       inputs:
-        solution: '../XRF-Maps/build/ALL_BUILD.vcxproj'
+        solution: 'XRF-Maps/build/ALL_BUILD.vcxproj'
         configuration: Release
         maximumCpuCount: true
         platform: 'x64'
@@ -82,7 +82,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: "$(System.DefaultWorkingDirectory)/uProbeX/build"
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR=D:/a/1/b/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 -DAVX2=ON -DXRF_Maps_DIR=../../../XRF-Maps/build ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR=D:/a/1/b/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 -DAVX2=ON -DXRF_Maps_DIR=../../XRF-Maps/build ..'
     - task: MSBuild@1
       inputs:
         workingDirectory: "$(System.DefaultWorkingDirectory)/uProbeX"
