@@ -183,6 +183,9 @@ void FittingDialog::_createLayout()
     QLabel* lbl_covtol = new QLabel("CovTol: ");
     lbl_covtol->setToolTip(tip_covtol);
 
+    _ck_use_weights = new QCheckBox("Use Weights");
+    _ck_use_weights->setChecked(false);
+
     optimizerLayout->addWidget(lbl_ftol, 0, 0, Qt::AlignRight);
     optimizerLayout->addWidget(_opt_ftol, 0, 1, Qt::AlignLeft);
     optimizerLayout->addWidget(lbl_xtol, 0, 2, Qt::AlignRight);
@@ -197,19 +200,21 @@ void FittingDialog::_createLayout()
     optimizerLayout->addWidget(lbl_maxitr, 1, 4, Qt::AlignRight);
     optimizerLayout->addWidget(_opt_maxiter, 1, 5, Qt::AlignLeft);
 
+    optimizerLayout->addWidget(_ck_use_weights, 0, 6, Qt::AlignLeft);
+
     QHBoxLayout* hbox_lm = new QHBoxLayout();
     hbox_lm->addWidget(lbl_scale);
     hbox_lm->addWidget(_opt_lm_scale_diag);
     _lm_fit_ctrl_grp = new QGroupBox();
     _lm_fit_ctrl_grp->setLayout(hbox_lm);
-    optimizerLayout->addWidget(_lm_fit_ctrl_grp, 0, 6, Qt::AlignLeft);
+    optimizerLayout->addWidget(_lm_fit_ctrl_grp, 0, 7, Qt::AlignLeft);
 
     QHBoxLayout* hbox_mp = new QHBoxLayout();
     hbox_mp->addWidget(lbl_covtol);
     hbox_mp->addWidget(_opt_mp_covtol);
     _mp_fit_ctrl_grp = new QGroupBox();
     _mp_fit_ctrl_grp->setLayout(hbox_mp);
-    optimizerLayout->addWidget(_mp_fit_ctrl_grp, 1, 6, Qt::AlignLeft);
+    optimizerLayout->addWidget(_mp_fit_ctrl_grp, 1, 7, Qt::AlignLeft);
     
     QVBoxLayout* layout = new QVBoxLayout();
 
@@ -271,6 +276,7 @@ void FittingDialog::setOptimizer(QString opt)
         _optimizer = &_lmfit_optimizer;
         _param_fit_routine.set_optimizer(_optimizer);
         _is_hybrid_fit = false;
+        _ck_use_weights->setChecked(false);
         _fit_params_table_model->setOptimizerSupportsMinMax(false);
     }
     else if (opt == STR_MP_FIT)
@@ -280,6 +286,7 @@ void FittingDialog::setOptimizer(QString opt)
         _optimizer = &_mpfit_optimizer;
         _param_fit_routine.set_optimizer(_optimizer);
         _is_hybrid_fit = false;
+        _ck_use_weights->setChecked(true);
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
     else if (opt == STR_HYBRID_MP_FIT)
@@ -288,6 +295,7 @@ void FittingDialog::setOptimizer(QString opt)
         _mp_fit_ctrl_grp->setVisible(true);
         _optimizer = &_mpfit_optimizer;
         _is_hybrid_fit = true;
+        _ck_use_weights->setChecked(false);
         _hybrid_fit_routine.set_optimizer(_optimizer);
         _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
@@ -457,6 +465,13 @@ void FittingDialog::runProcessing()
         _running = true;
         _btn_run->setEnabled(false);
 
+        if (_new_fit_spec.size() > 0)
+        {
+            setFitSpectra(&_new_fit_spec);
+        }
+
+        bool use_weights = _ck_use_weights->isChecked();
+
         //Range of energy in spectra to fit
         _energy_range;
 		_energy_range.min = 0;
@@ -496,11 +511,11 @@ void FittingDialog::runProcessing()
         {
             if (_is_hybrid_fit)
             {
-                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
             else
             {
-                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, _new_out_fit_params, &cb_func);
+                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
         }
         catch (int e)

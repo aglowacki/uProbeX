@@ -10,11 +10,10 @@
 
 #include <vector>
 #include <QObject>
-
-class QToolBar;
-class QAction;
-class QActionGroup;
-class QComboBox;
+#include <QToolBar>
+#include <QAction>
+#include <QActionGroup>
+#include <QComboBox>
 
 /*---------------------------------------------------------------------------*/
 

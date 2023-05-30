@@ -9,10 +9,8 @@
 /*---------------------------------------------------------------------------*/
 
 #include "AbstractGraphicsItem.h"
-
+#include <QGraphicsRectItem>
 /*---------------------------------------------------------------------------*/
-
-class QGraphicsRectItem;
 
 namespace gstar
 {

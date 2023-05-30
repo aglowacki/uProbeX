@@ -15,7 +15,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QRadioButton>
-
+#include <QSpinBox>
 #include <preferences/SolverTable.h>
 
 #include <preferences/SolverParameterWidget.h>
@@ -27,8 +27,6 @@
 #include <mvc/SolverWidget.h>
 #include <solver/CoordinateTransformer.h>
 
-
-class QSpinBox;
 class NelderMeadSolver;
 class SolverWidget;
 class CoordinateTransformer;

@@ -23,7 +23,7 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 
     _max_log_range = 1.0;
     m_isTouching = false;
-    _display_log10 = true;
+    _display_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
     _currentYAxis = nullptr;
     _int_spec_max_x = 1;
     _int_spec_max_y = 1;

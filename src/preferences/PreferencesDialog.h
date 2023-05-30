@@ -9,7 +9,10 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QDialog>
-
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 
 class Preferences;
 class PreferencesDisplay;
@@ -19,10 +22,6 @@ class PreferencesSolverOption;
 class PreferencesAutoSave;
 class PreferencesExport;
 
-class QListWidget;
-class QListWidgetItem;
-class QStackedWidget;
-class QVBoxLayout;
 class Solver;
 
 namespace gstar

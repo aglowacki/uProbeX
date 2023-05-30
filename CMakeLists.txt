@@ -127,8 +127,13 @@ ENDIF()
 include(CheckCXXCompilerFlag)
 
 IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+  IF (NOT APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+  ELSE()
+  set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -D__APPLE__")
+  ENDIF()
   # Enable C++11 mode on C++ / Clang
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -D__Unix__  -fPIC -g -fopenmp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -D__Unix__  -fPIC -g")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__Unix__  -fPIC")
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")

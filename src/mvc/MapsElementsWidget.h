@@ -11,6 +11,7 @@
 #include <gstar/AbstractImageWidget.h>
 
 #include <QTableWidget>
+#include <QAbstractTableModel>
 #include <mvc/MapsH5Model.h>
 #include <mvc/FitSpectraWidget.h>
 #include <QComboBox>
@@ -26,8 +27,6 @@
 #include <mvc/ImageSegROIDialog.h>
 #include <mvc/ScatterPlotWidget.h>
 
-class HDF5PropertyWidget;
-class QAbstractTableModel;
 using gstar::AbstractGraphicsItem;
 /*---------------------------------------------------------------------------*/
 

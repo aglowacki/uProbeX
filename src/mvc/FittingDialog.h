@@ -142,6 +142,8 @@ protected:
 
    QGroupBox* _mp_fit_ctrl_grp;
 
+   QCheckBox* _ck_use_weights;
+
    fitting::optimizers::LMFit_Optimizer<double> _lmfit_optimizer;
 
    fitting::optimizers::MPFit_Optimizer<double> _mpfit_optimizer;

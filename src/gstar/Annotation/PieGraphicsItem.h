@@ -9,13 +9,11 @@
 /*---------------------------------------------------------------------------*/
 
 #include "AbstractGraphicsItem.h"
-
+#include "gstar/AnnotationProperty.h"
 /*---------------------------------------------------------------------------*/
 
 namespace gstar
 {
-
-class AnnotationProperty;
 
 /**
  * @brief The PieGraphicsItem class

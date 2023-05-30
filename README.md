@@ -1,5 +1,5 @@
-[![Actions Status](https://github.com/aglowacki/XRF-Maps/workflows/CMake/badge.svg)](https://github.com/aglowacki/XRF-Maps/actions)
-[![Build Status](https://dev.azure.com/aglow/XRF-Maps/_apis/build/status/aglowacki.XRF-Maps?branchName=master)](https://dev.azure.com/aglow/XRF-Maps/_build/latest?definitionId=2&branchName=master)
+[![Actions Status](https://github.com/aglowacki/uProbeX/workflows/CMake/badge.svg)](https://github.com/aglowacki/uProbeX/actions)
+[![Build Status](https://dev.azure.com/aglow/uProbeX/_apis/build/status/aglowacki.uProbeX?branchName=master)](https://dev.azure.com/aglow/uProbeX/_build/latest?definitionId=2&branchName=master)
 
 # uProbeX
 
@@ -12,16 +12,6 @@ uProbeX is a GUI for  X-ray fluorescence (XRF) : https://github.com/AdvancedPhot
 Visual Studio 2015 or greater (Windows build)
 GCC 6.0 or greater (Linux build)
 Cmake 3.5 or greater
-
-## Libraries
-
-HDF5 : https://www.hdfgroup.org/downloads/
-NetCDF : http://www.unidata.ucar.edu/downloads/netcdf/index.jsp (Download http://www.unidata.ucar.edu/software/netcdf/docs/winbin.html)
-Eigen : http://eigen.tuxfamily.org/index.php?title=Main_Page (submodule in src/support)
-OpenCV
-Tiff
-Qt
-ZeroMQ
 
 ## Compile Default
 
@@ -45,4 +35,3 @@ ZeroMQ
 12) cd build
 13) cmake `-DCMAKE_TOOLCHAIN_FILE=../../XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake ..`
 14) make
-

@@ -12,10 +12,9 @@
 #include <vector>
 
 #include <QItemDelegate>
-
-class QModelIndex;
-class QWidget;
-class QVariant;
+#include <QModelIndex>
+#include <QWidget>
+#include <QVariant>
 
 class ComboBoxDelegate : public QItemDelegate
 {

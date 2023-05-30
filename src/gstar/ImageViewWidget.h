@@ -26,15 +26,12 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QListView>
-
+#include <QComboBox>
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/SubImageWindow.h"
 
 
 /*---------------------------------------------------------------------------*/
-
-class QComboBox;
-
 /*---------------------------------------------------------------------------*/
 
 namespace gstar

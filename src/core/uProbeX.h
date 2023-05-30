@@ -13,6 +13,13 @@
 #include <QApplication>
 #include <QMap>
 #include <QUuid>
+#include <QAction>
+#include <QActionGroup>
+#include <QMenu>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QMdiArea>
+#include <QMdiSubWindow>
 #include <preferences/Preferences.h>
 #include <mvc/MapsH5Model.h>
 #include <mvc/LiveMapsElementsWidget.h>
@@ -25,13 +32,7 @@
 class SubWindow;
 class AbstractWindowController;
 
-class QAction;
-class QActionGroup;
-class QMenu;
-class QMenuBar;
-class QToolBar;
-class QMdiArea;
-class QMdiSubWindow;
+
 
 /*---------------------------------------------------------------------------*/
 

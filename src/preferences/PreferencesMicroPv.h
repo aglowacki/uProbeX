@@ -12,8 +12,7 @@
 #include <QLineEdit>
 #include <QWidget>
 #include <QButtonGroup>
-
-class QSpinBox;
+#include <QSpinBox>
 
 /*---------------------------------------------------------------------------*/
 

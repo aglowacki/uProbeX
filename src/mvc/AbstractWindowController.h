@@ -11,16 +11,9 @@
 #include <preferences/Preferences.h>
 
 #include <QObject>
-
-class AbstractWindowModel;
-
-namespace gstar
-{
-   class Array;
-   class ImageViewWidget;
-   class AbstractImageWidget;
-}
-
+#include "gstar/ImageViewWidget.h"
+#include "gstar/AbstractImageWidget.h"
+#include "mvc/AbstractWindowModel.h"
 
 /*---------------------------------------------------------------------------*/
 

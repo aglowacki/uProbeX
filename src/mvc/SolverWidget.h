@@ -9,13 +9,10 @@
 #include <QWidget>
 #include <QVector>
 #include <QMap>
-
-/*---------------------------------------------------------------------------*/
-
-class QPushButton;
-class QGridLayout;
-class QLineEdit;
-class QLabel;
+#include <QPushButton>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QLabel>
 
 /*---------------------------------------------------------------------------*/
 

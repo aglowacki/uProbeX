@@ -11,15 +11,16 @@
 #include <QWidget>
 #include <QMessageBox>
 #include <QList>
+#include <QItemSelection>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QTableView>
 #include <preferences/SolverTable.h>
 #include <preferences/Attribute.h>
 #include <preferences/AttributeTableModel.h>
 
 class AttributeTableModel;
-class QItemSelection;
-class QPushButton;
-class QSortFilterProxyModel;
-class QTableView;
+
 
 /*---------------------------------------------------------------------------*/
 

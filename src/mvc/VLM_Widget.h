@@ -18,6 +18,9 @@
 #include <QMapIterator>
 #include <QXmlStreamReader>
 #include <QGraphicsView>
+#include <QAbstractTableModel>
+#include <QPushButton>
+#include <QLineEdit>
 #include <mvc/VLM_Model.h>
 
 #include <preferences/SolverParameterParse.h>
@@ -27,10 +30,8 @@
 #include <solver/CoordinateTransformer.h>
 #include <solver/PythonTransformer.h>
 
-class QAbstractTableModel;
-class QPushButton;
+
 class Solver;
-class QLineEdit;
 class SolverWidget;
 class Preferences;
 class RegionCaller;
