@@ -96,6 +96,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _cb_analysis = new QComboBox(this);
 
+    QWidget* toolbar_widget = new QWidget();
+    QHBoxLayout* toolbar_hbox = new QHBoxLayout();
+
     QHBoxLayout* hbox = new QHBoxLayout();
     QHBoxLayout* hbox2 = new QHBoxLayout();
     QVBoxLayout* counts_layout = new QVBoxLayout();
@@ -117,9 +120,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     splitter->addWidget(m_tabWidget);
 
     createToolBar(m_imageViewWidget, create_image_nav);
-    counts_layout->addWidget(m_toolbar);
-    counts_layout->addWidget(splitter);
-
 
 	_cb_colormap = new QComboBox();
 	_cb_colormap->addItem(STR_COLORMAP_GRAY);
@@ -154,22 +154,25 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     colormapsVBox->addItem(colormapsHBox);
     colormapsVBox->addWidget(_color_map_ledgend_lbl);
     color_maps_widgets->setLayout(colormapsVBox);
-    m_toolbar->addWidget(color_maps_widgets);
     
     _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
+    _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool());
     connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     _chk_log_color = new QCheckBox("Log scale");
-    _chk_log_color->setChecked(false);
+    _chk_log_color->setChecked(Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool());
     connect(_chk_log_color, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
+
+    _chk_invert_y = new QCheckBox("Invert Y Axis");
+    _chk_invert_y->setChecked(Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool());
+    connect(_chk_invert_y, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_invert_y_axis);
 
     QWidget* color_chk_widgets = new QWidget();
     QVBoxLayout* colorVBox = new QVBoxLayout();
     colorVBox->addWidget(_chk_log_color);
     colorVBox->addWidget(_chk_disp_color_ledgend);
+    colorVBox->addWidget(_chk_invert_y);
     color_chk_widgets->setLayout(colorVBox);
-
-    m_toolbar->addWidget(color_chk_widgets);
 
     _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
@@ -183,22 +186,18 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _cb_normalize->addItem("1");
     connect(_cb_normalize, SIGNAL(currentIndexChanged(QString)), this, SLOT(onSelectNormalizer(QString)));
 
-	m_toolbar->addWidget(_grid_button);
-	m_toolbar->addWidget(_cb_analysis);
-    m_toolbar->addWidget(new QLabel("  Normalize By: "));
-    m_toolbar->addWidget(_cb_normalize);
-
     _global_contrast_chk = new QCheckBox("Global Contrast");
     _global_contrast_chk->setChecked(true);
     connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
-    m_toolbar->addWidget(_global_contrast_chk);
+    
     _contrast_widget = new gstar::MinMaxSlider();
+    _contrast_widget->setMinimumWidth(200);
     connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
-    m_toolbar->addWidget(_contrast_widget);
+    
 
     _btn_export_as_image = new QPushButton("Export Images");
     connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
-    m_toolbar->addWidget(_btn_export_as_image);
+    
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -207,6 +206,30 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _extra_pvs_table_widget = new QTableWidget(1, 4);
     _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
+
+    toolbar_hbox->addWidget(m_toolbar);
+    toolbar_hbox->addWidget(color_maps_widgets);
+    toolbar_hbox->addWidget(color_chk_widgets);
+    toolbar_hbox->addWidget(_grid_button);
+    toolbar_hbox->addWidget(_cb_analysis);
+    toolbar_hbox->addWidget(new QLabel("  Normalize By: "));
+    toolbar_hbox->addWidget(_cb_normalize);
+    toolbar_hbox->addWidget(_global_contrast_chk);
+    toolbar_hbox->addWidget(_contrast_widget);
+    toolbar_hbox->addWidget(_btn_export_as_image);
+
+    toolbar_widget->setLayout(toolbar_hbox);
+
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setMinimumHeight(100);
+    scrollArea->setMaximumHeight(120);
+    scrollArea->setWidget(toolbar_widget);
+
+    counts_layout->addWidget(scrollArea);
+    counts_layout->addWidget(splitter);
 
     _counts_window = new QWidget();
     _counts_window->setLayout(counts_layout);
@@ -238,12 +261,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _appendRoiTab();
 
     createActions();
-
-    bool chk_log_scale_color = Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool();
-    bool chk_display_color_ledgend = Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool();
-
-    _chk_log_color->setChecked(chk_log_scale_color);
-    _chk_disp_color_ledgend->setChecked(chk_display_color_ledgend);
 
     int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
     int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
@@ -415,6 +432,14 @@ void MapsElementsWidget::on_log_color_changed(int state)
 {
     Preferences::inst()->setValue(STR_LOG_SCALE_COLOR, _chk_log_color->isChecked());
     Preferences::inst()->setValue(STR_DISPLAY_COLOR_LEDGEND, _chk_disp_color_ledgend->isChecked());
+    redrawCounts();
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::on_invert_y_axis(int state)
+{
+    Preferences::inst()->setValue(STR_INVERT_Y_AXIS, _chk_invert_y->isChecked());
     redrawCounts();
 }
 
@@ -1419,7 +1444,10 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                     }
                 }
             }
-
+            if (_chk_invert_y->isChecked())
+            {
+                image = image.mirrored(false, true);
+            }
             m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
 	}
@@ -1580,7 +1608,10 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     }
                 }
             }
-
+            if (_chk_invert_y->isChecked())
+            {
+                image = image.mirrored(false, true);
+            }
             return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
         }
     }
