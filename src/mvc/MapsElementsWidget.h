@@ -98,6 +98,8 @@ public slots:
 
    void on_log_color_changed(int);
 
+   void on_invert_y_axis(int);
+
    void on_export_image_pressed();
 
    void on_export_images();
@@ -179,6 +181,8 @@ protected:
    QCheckBox* _chk_log_color;
 
    QCheckBox* _chk_disp_color_ledgend;
+
+   QCheckBox* _chk_invert_y;
 
    QPushButton *_btn_export_as_image;
 
