@@ -345,6 +345,7 @@ void CoLocalizationWidget::redrawCounts()
     std::string analysis_text = "NNLS";//_cb_analysis->currentText().toStdString();
 
     //if (view_cnt == 1)
+    logI << view_cnt << "\n";
     {
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
@@ -401,6 +402,7 @@ void CoLocalizationWidget::displayCounts(const std::string analysis_type, const 
                 m_imageWidthDim->setCurrentText(QString::number(width));
             }
             */
+            logI << width << " :: " << height << " \n";
             QImage image(width, height, QImage::Format_Indexed8);
             //image.setColorTable(*_selected_colormap);
 
@@ -427,7 +429,10 @@ void CoLocalizationWidget::displayCounts(const std::string analysis_type, const 
                     image.setPixel(col, row, data);
                 }
             }
-            
+            if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
+            {
+                image = image.mirrored(false, true);
+            }
             m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
         }
 	}
