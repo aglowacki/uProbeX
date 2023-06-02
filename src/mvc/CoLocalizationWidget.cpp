@@ -158,6 +158,13 @@ void CoLocalizationWidget::onColorSelected(QString name)
 
     if (_ck_quad_view->isChecked())
     {
+        if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
+        {
+            red_img = red_img.mirrored(false, true);
+            green_img = green_img.mirrored(false, true);
+            blue_img = blue_img.mirrored(false, true);
+            sum_img = sum_img.mirrored(false, true);
+        }
         m_imageViewWidget->scene(0)->setPixmap(QPixmap::fromImage(red_img.convertToFormat(QImage::Format_RGB32)));
         m_imageViewWidget->scene(1)->setPixmap(QPixmap::fromImage(green_img.convertToFormat(QImage::Format_RGB32)));
         m_imageViewWidget->scene(2)->setPixmap(QPixmap::fromImage(blue_img.convertToFormat(QImage::Format_RGB32)));
@@ -165,6 +172,10 @@ void CoLocalizationWidget::onColorSelected(QString name)
     }
     else
     {
+        if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
+        {
+            sum_img = sum_img.mirrored(false, true);
+        }
         m_imageViewWidget->scene(0)->setPixmap(QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
     }
     if (_first_pixmap_set)
@@ -335,112 +346,6 @@ void CoLocalizationWidget::setModel(MapsH5Model* model)
             onSetAnalysisType(_curAnalysis);
         }
     }
-}
-
-//---------------------------------------------------------------------------
-
-void CoLocalizationWidget::redrawCounts()
-{
-    int view_cnt = m_imageViewWidget->getViewCount();
-    std::string analysis_text = "NNLS";//_cb_analysis->currentText().toStdString();
-
-    //if (view_cnt == 1)
-    logI << view_cnt << "\n";
-    {
-        for (int vidx = 0; vidx < view_cnt; vidx++)
-        {
-            QString element = m_imageViewWidget->getLabelAt(vidx);
-            displayCounts(analysis_text, element.toStdString(), false, vidx);
-        }
-    }
-
-    //redraw annotations
-    m_selectionModel->clear();
-    //m_imageViewWidget->setSceneModelAndSelection(_treeModel, _selectionModel);
-}
-
-//---------------------------------------------------------------------------
-
-void CoLocalizationWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
-{
-	if (_model != nullptr)
-	{
-        data_struct::Fit_Count_Dict<float> fit_counts;
-        _model->getAnalyzedCounts(analysis_type, fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-        ArrayXXr<float> normalized;
-        bool draw = false;
-        int height = 0;
-        int width = 0;
-        
-        if (fit_counts.count(element) > 0)
-        {
-            height = static_cast<int>(fit_counts.at(element).rows());
-            width = static_cast<int>(fit_counts.at(element).cols());
-            normalized = fit_counts.at(element);
-            draw = true;
-        }
-        
-        if (false == draw && scalers != nullptr)
-        {
-            if (scalers->count(element) > 0)
-            {
-                height = static_cast<int>(scalers->at(element).rows());
-                width = static_cast<int>(scalers->at(element).cols());
-                normalized = scalers->at(element);
-                draw = true;
-            }
-        }
-
-        if (draw)
-        {
-            m_imageViewWidget->resetCoordsToZero();
-            /*
-            if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
-            {
-                m_imageHeightDim->setCurrentText(QString::number(height));
-                m_imageWidthDim->setCurrentText(QString::number(width));
-            }
-            */
-            logI << width << " :: " << height << " \n";
-            QImage image(width, height, QImage::Format_Indexed8);
-            //image.setColorTable(*_selected_colormap);
-
-            float counts_max;
-            float counts_min;
-
-            counts_max = normalized.maxCoeff();
-            counts_min = normalized.minCoeff();
-
-    		//get user min max from contrast control
-			m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
-
-            float max_min = counts_max - counts_min;
-            for (int row = 0; row < height; row++)
-            {
-                for (int col = 0; col < width; col++)
-                {
-                    //first clamp the data to max min
-                    float cnts = normalized(row, col);
-                    cnts = std::min(counts_max, cnts);
-                    cnts = std::max(counts_min, cnts);
-                    //convert to pixel
-                    uint data = (uint)(((cnts - counts_min) / max_min) * 255);
-                    image.setPixel(col, row, data);
-                }
-            }
-            if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
-            {
-                image = image.mirrored(false, true);
-            }
-            m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
-        }
-	}
-    if (m_imageViewWidget != nullptr)
-    {
-        m_imageViewWidget->resetCoordsToZero();
-    }
-
 }
 
 //---------------------------------------------------------------------------

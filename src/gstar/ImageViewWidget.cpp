@@ -245,8 +245,8 @@ QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& co
 {
     float counts_max = int_img.maxCoeff();
     float counts_min = int_img.minCoeff();
-    int width = static_cast<int>(int_img.cols());
-    int height = static_cast<int>(int_img.rows());
+    int width = static_cast<unsigned int>(int_img.cols());
+    int height = static_cast<unsigned int>(int_img.rows());
     QImage image(width, height, QImage::Format_Indexed8);
     image.setColorTable(colormap);
 
@@ -260,7 +260,7 @@ QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& co
             cnts = std::min(counts_max, cnts);
             cnts = std::max(counts_min, cnts);
             //convert to pixel
-            char data = static_cast<char>(((cnts - counts_min) / max_min) * 255.0);
+            unsigned char data = static_cast<unsigned char>(((cnts - counts_min) / max_min) * 255.0);
             image.setPixel(col, row, (uint)data);
         }
     }
