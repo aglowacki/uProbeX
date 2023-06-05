@@ -224,8 +224,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setWidgetResizable(true);
-    scrollArea->setMinimumHeight(100);
-    scrollArea->setMaximumHeight(120);
+    scrollArea->setMinimumHeight(110);
+    scrollArea->setMaximumHeight(140);
     scrollArea->setWidget(toolbar_widget);
 
     counts_layout->addWidget(scrollArea);
