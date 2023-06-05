@@ -27,6 +27,8 @@
 #include <qfileinfo.h>
 #include <thread>
 #include <unordered_map>
+#include <data_struct/analysis_job.h>
+#include "mvc/OptimizerOptionsWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -50,9 +52,13 @@ public:
 
     void updateFileList(std::unordered_map<QString, QFileInfo> roi_map);
 
+    void status_callback(size_t cur_itr, size_t total_itr);
+
 public slots:
     void runProcessing();
    
+    void optimizer_changed(QString val);
+
 protected:
 
    /**
@@ -81,6 +87,14 @@ protected:
    QComboBox* _cb_opt_method;
 
    std::unordered_map<QString, QFileInfo> _roi_map;
+
+   size_t _total_itr;
+
+   OptimizerOptionsWidget* _optimizer_widget;
+
+   data_struct::Analysis_Job<double> _analysis_job;
+
+   bool _canceled;
 };
 
 

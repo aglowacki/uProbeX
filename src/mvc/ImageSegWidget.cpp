@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/ImageSegWidget.h>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 
@@ -45,6 +46,10 @@ void ImageSegWidget::createLayout()
 void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap)
 {
     QImage image = m_imageViewWidget->generate_img(img_arr, colormap);
+    if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
+    {
+        image = image.mirrored(false, true);
+    }
     setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
 }
 

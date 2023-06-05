@@ -44,11 +44,7 @@ public:
 
 public slots:
 
-	void redrawCounts();
-
     void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
-
-    void displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx = 0);
 
     void onNewGridLayout(int rows, int cols);
 
