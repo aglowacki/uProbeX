@@ -14,8 +14,14 @@ ImageSegWidget::ImageSegWidget(QWidget* parent)
     _draw_action_mode = gstar::DRAW_ACTION_MODES::OFF;
     _selected_roi = nullptr;
     _mouse_down = false;
+
     createLayout();
     createActions();
+
+    disconnect(m_imageViewWidget,
+        SIGNAL(customContextMenuRequested(const QPoint&)),
+        this,
+        SLOT(viewContextMenu(const QPoint&)));
 }
 
 //---------------------------------------------------------------------------
