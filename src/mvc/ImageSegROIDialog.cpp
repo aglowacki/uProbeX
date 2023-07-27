@@ -21,6 +21,8 @@ const int TAB_MANUAL = 1;
 
 const int ACTION_ADD = 0;
 const int ACTION_ERASE = 1;
+const int ACTION_ADD_POLY = 2;
+const int ACTION_ERASE_POLY = 3;
 
 //---------------------------------------------------------------------------
 
@@ -310,6 +312,8 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_cb_action = new QComboBox();
 	_manual_cb_action->addItem("Brush Add");
 	_manual_cb_action->addItem("Brush Erase");
+	_manual_cb_action->addItem("Polygon Add");
+	_manual_cb_action->addItem("Polygon Erase");
 	connect(_manual_cb_action, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ImageSegRoiDialog::manualActionChanged);
 
 	hlayout = new QHBoxLayout();
@@ -510,16 +514,29 @@ void ImageSegRoiDialog::updateCustomCursor(int val)
 {
 	
 	QPixmap pmap(val, val);
-	_int_img_widget->setRoiBrushSize(val);
 	if (_manual_cb_action->currentIndex() == ACTION_ADD)
 	{
+		_int_img_widget->setRoiBrushSize(val);
 		pmap.fill(QColor(Qt::green));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD);
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_DRAW);
 	}
 	else if (_manual_cb_action->currentIndex() == ACTION_ERASE)
 	{
+		_int_img_widget->setRoiBrushSize(val);
 		pmap.fill(QColor(Qt::red));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE);
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_DRAW);
+	}
+	else if (_manual_cb_action->currentIndex() == ACTION_ADD_POLY)
+	{
+		_int_img_widget->setRoiBrushSize(0);
+		pmap.fill(QColor(Qt::green));
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_POLY);
+	}
+	else if (_manual_cb_action->currentIndex() == ACTION_ERASE_POLY)
+	{
+		_int_img_widget->setRoiBrushSize(0);
+		pmap.fill(QColor(Qt::red));
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_POLY);
 	}
 	
 	_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));

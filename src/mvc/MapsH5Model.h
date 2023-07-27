@@ -230,6 +230,8 @@ protected:
 
     data_struct::Spectra<double> _integrated_spectra;
 
+    data_struct::ArrayTr<double> _energy_array;
+
     data_struct::Params_Override<double>* _params_override;
 
     std::map<std::string, data_struct::ArrayXXr<float>> _scalers;
