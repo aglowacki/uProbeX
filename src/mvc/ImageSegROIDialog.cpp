@@ -302,6 +302,10 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_btn_add_roi = new QPushButton("New ROI");
 	connect(_manual_btn_add_roi, &QPushButton::pressed, this, &ImageSegRoiDialog::onNewROI);
 
+	_manual_invert_roi = new QPushButton("Invert Selection");
+	connect(_manual_invert_roi, &QPushButton::pressed, this, &ImageSegRoiDialog::onInvertROI);
+
+
 	hlayout = new QHBoxLayout();
 	//hlayout->addWidget(new QLabel("Selected ROI"));
 	//hlayout->addWidget(_cb_selected_roi);
@@ -331,6 +335,8 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	hlayout->addWidget(new QLabel("Brush Size"));
 	hlayout->addWidget(_manual_sp_brush_size);
 	layout->addItem(hlayout);
+
+	layout->addWidget(_manual_invert_roi);
 
 	QWidget* widget = new QWidget();
 	widget->setLayout(layout);
@@ -506,6 +512,13 @@ void ImageSegRoiDialog::onNewROI()
 		_int_img_widget->addRoiMask(roi);
 		_next_color++;
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onInvertROI()
+{
+	_int_img_widget->invertSelectedRoiMask();
 }
 
 //---------------------------------------------------------------------------

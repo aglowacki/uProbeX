@@ -154,6 +154,16 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 
 //---------------------------------------------------------------------------
 
+void ImageSegWidget::invertSelectedRoiMask()
+{
+    if (_selected_roi != nullptr)
+    {
+        _selected_roi->invertMask();
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegWidget::currentRoiChanged(const QModelIndex& current, const QModelIndex& previous)
 {
     if (_selected_roi != nullptr)

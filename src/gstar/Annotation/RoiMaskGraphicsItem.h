@@ -102,6 +102,8 @@ public:
 
    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
+   void invertMask();
+
 public slots:
    /**
     * @brief updateModel

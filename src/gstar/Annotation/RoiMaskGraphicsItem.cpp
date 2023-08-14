@@ -65,8 +65,22 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, Abstrac
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage();
-    *_mask = mask.copy();
+    _mask = new QImage(mask.width(), mask.height(), QImage::Format_ARGB32);
+    QColor black_col = QColor(0, 0, 0, 0);
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            if (mask.pixelColor(i, j) == black_col)
+            {
+                _mask->setPixelColor(i, j, black_col);
+            }
+            else
+            {
+                _mask->setPixelColor(i, j, color);
+            }
+        }
+    }
     _init(color, alpha);
 }
 
@@ -207,6 +221,32 @@ void RoiMaskGraphicsItem::add_to_roi(QPolygon polygon)
             if( polygon.containsPoint(point, Qt::OddEvenFill) )
             {
                 _mask->setPixelColor(i, j, col);
+            }
+        }
+    }
+    QRect rect(0, 0, _mask->width(), _mask->height());
+    update(rect);
+}
+
+//-----------------------------------------------------------------------------
+
+void RoiMaskGraphicsItem::invertMask()
+{
+    QVariant variant = _color_ano->getValue();
+    QColor col = variant.value<QColor>();
+    QColor black_col = QColor(0, 0, 0, 0);
+    col.setAlpha(_alpha_value->getValue().toInt());
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            if (_mask->pixelColor(i, j) == black_col)
+            {
+                _mask->setPixelColor(i, j, col);
+            }
+            else
+            {
+                _mask->setPixelColor(i, j, black_col);
             }
         }
     }

@@ -235,12 +235,14 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _counts_window->setLayout(counts_layout);
 
     _co_loc_widget = new CoLocalizationWidget();
+    _quant_widget = new QuantificationWidget();
 
     _scatter_plot_widget = new ScatterPlotWidget();
     connect(_scatter_plot_widget, &ScatterPlotWidget::updateProgressBar, this, &MapsElementsWidget::loaded_perc);
 
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
+    _tab_widget->addTab(_quant_widget, "Quantification");
     _tab_widget->addTab(_co_loc_widget, "CoLocalization");
     _tab_widget->addTab(_scatter_plot_widget, "Scatter Plot");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");

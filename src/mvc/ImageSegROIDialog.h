@@ -70,6 +70,8 @@ public slots:
 
 	void onNewROI();
 
+	void onInvertROI();
+
 private slots:
 
 	void onTabChanged(int);
@@ -130,6 +132,7 @@ private:
 	QPushButton* _manual_btn_add_roi;
 	QComboBox* _manual_cb_action;
 	QSpinBox* _manual_sp_brush_size;
+	QPushButton* _manual_invert_roi;
 
 	int _next_color;
 };
