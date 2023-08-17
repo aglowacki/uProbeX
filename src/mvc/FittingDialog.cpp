@@ -113,19 +113,23 @@ void FittingDialog::_createLayout()
     QWidget* bottomWidget = new QWidget();
     bottomWidget->setLayout(hbox_tables);
 
+    _tabWidget = new QTabWidget(this);
+    _tabWidget->addTab(bottomWidget, QIcon(), "Fit Parameters");
+    _tabWidget->addTab(_optimizer_widget, QIcon(), "Optimizer Options");
+  
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(_spectra_widget);
     splitter->setStretchFactor(0, 1);
-    splitter->addWidget(bottomWidget);
+    splitter->addWidget(_tabWidget);
+    
     layout->addWidget(splitter);
-    layout->addWidget(_optimizer_widget);
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
 
     //setLayout(layout);
 
-    setGeometry(100, 100, 1024, 768);
+    setGeometry(100, 100, 1920, 1024);
 
     QScrollArea* scrollArea = new QScrollArea(this);
     scrollArea->setBackgroundRole(QPalette::Dark);
