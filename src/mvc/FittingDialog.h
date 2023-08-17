@@ -131,6 +131,12 @@ protected:
 
    QPushButton *_btn_cancel;
 
+   QLineEdit* _le_outcome;
+
+   QLineEdit* _le_residual;
+
+   QLineEdit* _le_num_itr;
+
    QTabWidget * _tabWidget;
 
    OptimizerOptionsWidget* _optimizer_widget;
