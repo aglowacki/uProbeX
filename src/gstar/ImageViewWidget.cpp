@@ -284,6 +284,7 @@ void ImageViewWidget::setUnitLabel(int idx, QString label)
     if (idx > -1 && idx < _sub_windows.size())
     {
         _sub_windows[idx].counts_coord_widget->setUnitsLabel(label);
+        _sub_windows[idx].counts_stats_widget->setUnitsLabel(label);
     }
 }
 
@@ -294,6 +295,7 @@ void ImageViewWidget::setUnitLabels(QString label)
     for (auto& itr : _sub_windows)
     {
         itr.counts_coord_widget->setUnitsLabel(label);
+        itr.counts_stats_widget->setUnitsLabel(label);
     }
 }
 
@@ -775,13 +777,13 @@ QString ImageViewWidget::getLabelAt(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-CountsLookupTransformer* ImageViewWidget::getMouseTrasnformAt(int idx)
+ void ImageViewWidget::getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats)
 {
     if(idx < _sub_windows.size())
     {
-        return _sub_windows[idx].counts_lookup;
+        *counts_lookup = _sub_windows[idx].counts_lookup;
+        *counts_stats = _sub_windows[idx].counts_stats;
     }
-    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -838,6 +840,7 @@ void ImageViewWidget::resetCoordsToZero()
     for( auto& itr : _sub_windows)
     {
         itr.counts_coord_widget->setCoordinate(0, 0, 0);
+        itr.counts_stats_widget->setCoordinate(0, 0, 0);
     }
 }
 

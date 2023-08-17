@@ -1368,10 +1368,16 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 }
             }
 
-            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            gstar::CountsLookupTransformer* counts_lookup = nullptr;
+            gstar::CountsStatsTransformer* counts_stats = nullptr;
+            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
             if (counts_lookup != nullptr)
             {
                 counts_lookup->setCounts(normalized);
+            }
+            if (counts_stats != nullptr)
+            {
+                counts_stats->setCounts(normalized);
             }
 
             counts_max = normalized.maxCoeff();
@@ -1532,11 +1538,18 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 }
             }
 
-            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            gstar::CountsLookupTransformer* counts_lookup = nullptr;
+            gstar::CountsStatsTransformer* counts_stats = nullptr;
+            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
             if (counts_lookup != nullptr)
             {
                 counts_lookup->setCounts(normalized);
             }
+            if (counts_stats != nullptr)
+            {
+                counts_stats->setCounts(normalized);
+            }
+
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();

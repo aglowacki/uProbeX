@@ -17,6 +17,7 @@
 #include <QListView>
 
 #include <gstar/CountsLookupTransformer.h>
+#include <gstar/CountsStatsTransformer.h>
 #include "gstar/ContrastDialog.h"
 
 
@@ -52,9 +53,14 @@ namespace gstar
         QGraphicsView* view;
         ImageViewScene* scene;
         QComboBox* cb_image_label;
+
         gstar::CountsLookupTransformer* counts_lookup;
         gstar::CoordinateModel* counts_coord_model;
         gstar::CoordinateWidget* counts_coord_widget;
+
+        gstar::CountsStatsTransformer* counts_stats;
+        gstar::CoordinateModel* counts_stats_model; 
+        gstar::CoordinateWidget* counts_stats_widget;
         QPushButton* btn_contrast;
 
         QVBoxLayout* layout;

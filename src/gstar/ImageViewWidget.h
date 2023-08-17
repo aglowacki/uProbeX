@@ -185,7 +185,7 @@ public:
 
    QString getLabelAt(int idx);
 
-   CountsLookupTransformer* getMouseTrasnformAt(int idx);
+   void getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats);
 
    void resetCoordsToZero();
 

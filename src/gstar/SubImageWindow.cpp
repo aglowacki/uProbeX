@@ -31,12 +31,20 @@ SubImageWindow::SubImageWindow() : QObject()
     counts_coord_widget->setLabel("Counts: ", "Min:  ", "Max:  ");
     counts_coord_widget->setUnitsLabel("cts/s");
 
+    counts_stats = new gstar::CountsStatsTransformer();
+    counts_stats_model = new gstar::CoordinateModel(counts_stats);
+    counts_stats_widget = new gstar::CoordinateWidget(true);
+    counts_stats_widget->setModel(counts_stats_model);
+    counts_stats_widget->setLabel("Avg: ", "Median:  ", "StDev:  ");
+    counts_stats_widget->setUnitsLabel("cts/s");
+
     btn_contrast = new QPushButton("C");
     connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
     btn_contrast->setVisible(false);
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->addWidget(counts_coord_widget);
+    hbox->addWidget(counts_stats_widget);
     hbox->addWidget(btn_contrast);
 
     layout = new QVBoxLayout();
@@ -57,8 +65,10 @@ SubImageWindow::SubImageWindow(const SubImageWindow& win)
     cb_image_label = win.cb_image_label;
     counts_coord_model = win.counts_coord_model;
     counts_coord_widget = win.counts_coord_widget;
+    counts_stats_widget = win.counts_stats_widget;
     btn_contrast = win.btn_contrast;
     counts_lookup = win.counts_lookup;
+    counts_stats = win.counts_stats;
     layout = win.layout;
     _contrast_dialog = win._contrast_dialog;
 }

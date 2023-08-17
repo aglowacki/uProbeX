@@ -129,13 +129,11 @@ void FittingDialog::_createLayout()
 
     QWidget* ouput_widget = new QWidget();
     ouput_widget->setLayout(glayout);
-    ouput_widget->setBackgroundRole(QPalette::Dark);
 
     _tabWidget = new QTabWidget(this);
     _tabWidget->addTab(bottomWidget, QIcon(), "Fit Parameters");
     _tabWidget->addTab(_optimizer_widget, QIcon(), "Optimizer Options");
     _tabWidget->addTab(ouput_widget, QIcon(), "Output");
-    _tabWidget->setBackgroundRole(QPalette::Dark);
   
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Vertical);
@@ -147,12 +145,9 @@ void FittingDialog::_createLayout()
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
 
-    //setLayout(layout);
-
     setGeometry(100, 100, 1920, 1024);
 
     QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidgetResizable(true);
     scrollArea->setLayout(layout);
 
@@ -160,9 +155,6 @@ void FittingDialog::_createLayout()
     l->addWidget(scrollArea);
     
     setLayout(l);
-
-    setBackgroundRole(QPalette::Dark);
-
 }
 
 /*---------------------------------------------------------------------------*/
