@@ -65,6 +65,7 @@ SubImageWindow::SubImageWindow(const SubImageWindow& win)
     cb_image_label = win.cb_image_label;
     counts_coord_model = win.counts_coord_model;
     counts_coord_widget = win.counts_coord_widget;
+    counts_stats_model = win.counts_stats_model;
     counts_stats_widget = win.counts_stats_widget;
     btn_contrast = win.btn_contrast;
     counts_lookup = win.counts_lookup;
@@ -82,6 +83,8 @@ SubImageWindow::~SubImageWindow()
     delete cb_image_label;
     delete counts_coord_model;
     delete counts_coord_widget;
+    delete counts_stats_model;
+    delete counts_stats_widget;
     delete btn_contrast;
 }
 /*---------------------------------------------------------------------------*/

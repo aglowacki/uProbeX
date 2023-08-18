@@ -245,17 +245,19 @@ void MapsH5Model::saveAllRoiMaps()
     rootJson[STR_MAPS_ROIS.c_str()] = json_rois;
     QByteArray save_data = QJsonDocument(rootJson).toJson();
     
-    QFile saveFile(roi_file_name);
-    if (!saveFile.open(QIODevice::WriteOnly)) 
+    if (_map_rois.size() > 0)
     {
-        logW<<"Couldn't open save file: "<< roi_file_name.toStdString();
+        QFile saveFile(roi_file_name);
+        if (!saveFile.open(QIODevice::WriteOnly))
+        {
+            logW << "Couldn't open save file: " << roi_file_name.toStdString();
+        }
+        else
+        {
+            saveFile.write(save_data);
+            saveFile.close();
+        }
     }
-    else
-    {
-        saveFile.write(save_data);
-        saveFile.close();
-    }
-    
 }
 
 /*---------------------------------------------------------------------------*/
