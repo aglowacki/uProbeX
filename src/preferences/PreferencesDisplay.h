@@ -12,7 +12,7 @@
 #include <QLineEdit>
 #include <QWidget>
 #include <QButtonGroup>
-#include <QCheckBox>
+#include <QComboBox>
 
 class QSpinBox;
 
@@ -61,8 +61,6 @@ public:
     */
    int getDecimalPrecision();
 
-   bool getUseDarkTheme();
-
    /**
     * Set the font size
     */
@@ -79,6 +77,11 @@ public:
     * @param number
     */
    void setDecimalPrecision(int number);
+
+   void reload_themes();
+
+public slots:
+   void themeChanged(QString);
 
 private:
 
@@ -97,9 +100,7 @@ private:
     */
    QLineEdit* m_windowTitle;
 
-   QCheckBox* _useDarkTheme;
-
-
+   QComboBox* _cb_themes;
 };
 
 /*---------------------------------------------------------------------------*/

@@ -109,6 +109,8 @@ public:
 
     QPixmap getPngofChart();
 
+    void setBackgroundBlack(bool val);
+
 signals:
 
     void trigger_connect_markers();

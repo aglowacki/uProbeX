@@ -65,6 +65,8 @@ protected:
 
    QCheckBox* _chkMax_Chan;
 
+   QCheckBox* _chkSpec_Blk_Bg;
+
    //QTextEdit *_textEdit;
 
    QPushButton *_btn_run;

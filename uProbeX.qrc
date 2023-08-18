@@ -27,8 +27,7 @@
         <file>images/circle_gray.png</file>
         <file>images/circle_green.png</file>
         <file>images/circle_red.png</file>
-        <file>qss/dark.qss</file>
-        <file>images/grid.png</file>
+		<file>images/grid.png</file>
         <file>images/question.png</file>
         <file>images/gear.png</file>
     </qresource>

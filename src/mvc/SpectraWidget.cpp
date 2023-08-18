@@ -165,7 +165,7 @@ void SpectraWidget::createLayout()
     vlayout->addItem(spectra_layout);
     vlayout->addItem(options_layout);
 
-    if (Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool())
+    if (Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool())
     {
         _chart->setBackgroundBrush(QBrush(QColor("black")));
     }
@@ -174,6 +174,18 @@ void SpectraWidget::createLayout()
 }
 
 /*---------------------------------------------------------------------------*/
+
+void SpectraWidget::setBackgroundBlack(bool val)
+{
+    if (val)
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("black")));
+    }
+    else
+    {
+        _chart->setBackgroundBrush(QBrush(QColor("white")));
+    }
+}
 
 void SpectraWidget::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
 {

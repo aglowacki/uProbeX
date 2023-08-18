@@ -46,7 +46,7 @@ namespace gstar
 
         void setImageLabelVisible(bool val) { cb_image_label->setVisible(val); }
 
-        void setCountsVisible(bool val) { counts_coord_widget->setVisible(val, val, val); }
+        void setCountsVisible(bool val);
 
         void redraw() { emit redraw_event(); }
 

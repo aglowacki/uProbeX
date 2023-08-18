@@ -87,6 +87,15 @@ SubImageWindow::~SubImageWindow()
     delete counts_stats_widget;
     delete btn_contrast;
 }
+
+/*---------------------------------------------------------------------------*/
+
+void SubImageWindow::setCountsVisible(bool val)
+{
+    counts_coord_widget->setVisible(val, val, val); 
+    counts_stats_widget->setVisible(val, val, val);
+}
+
 /*---------------------------------------------------------------------------*/
 
 void SubImageWindow::on_contrast_show()

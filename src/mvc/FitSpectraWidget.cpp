@@ -298,6 +298,7 @@ void FitSpectraWidget::onSettingsDialog()
     if (settings_dialog->isAccepted())
     {
         _spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
+        _spectra_widget->setBackgroundBlack(Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool());
 
         _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool(); 
         if (_showDetailedFitSpec)
