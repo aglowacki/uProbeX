@@ -145,7 +145,7 @@ void FitSpectraWidget::createLayout()
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
     _fit_elements_table->setItemDelegateForColumn(1, npDelegate);
-    _fit_elements_table->sortByColumn(0);
+    _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     QItemSelectionModel* mod = _fit_elements_table->selectionModel();
@@ -208,10 +208,7 @@ void FitSpectraWidget::createLayout()
     _cb_opttimizer->addItem(STR_LM_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
     _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
-    connect(_cb_opttimizer,
-            SIGNAL(currentIndexChanged(QString)),
-            this,
-            SLOT(optimizer_changed(QString)));
+    connect(_cb_opttimizer, &QComboBox::currentTextChanged, this, &FitSpectraWidget::optimizer_changed);
 
     _chk_auto_model = new QCheckBox("Auto Update Model");
     _chk_auto_model->setChecked(false);

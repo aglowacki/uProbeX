@@ -9,7 +9,6 @@
 /*---------------------------------------------------------------------------*/
 
 #include <QMainWindow>
-#include <QDesktopWidget>
 #include <QApplication>
 #include <QMap>
 #include <QUuid>
@@ -50,7 +49,7 @@ public:
    /**
     * Constructor. See Qt documentation for QMainWindow.
     */
-    uProbeX(QWidget* parent, Qt::WindowFlags flags = 0);
+    uProbeX(QWidget* parent, Qt::WindowFlags flags = Qt::Widget);
 
    /**
     * Destructor

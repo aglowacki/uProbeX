@@ -19,50 +19,50 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     _model = nullptr;
     _curAnalysis = QString(STR_FIT_NNLS.c_str());
 
-    _axisXLog10 = new QtCharts::QLogValueAxis();
+    _axisXLog10 = new QLogValueAxis();
     _axisXLog10->setTitleText("");
     _axisXLog10->setLabelFormat("%.1e");
     _axisXLog10->setBase(10.0);
 
-    _axisX = new QtCharts::QValueAxis();
+    _axisX = new QValueAxis();
     _axisX->setTitleText("");
     _axisX->setLabelFormat("%f");
     
-    _axisYLog10 = new QtCharts::QLogValueAxis();
+    _axisYLog10 = new QLogValueAxis();
     _axisYLog10->setTitleText("");
     _axisYLog10->setLabelFormat("%.1e");
     _axisYLog10->setBase(10.0);
 
-    _axisY = new QtCharts::QValueAxis();
+    _axisY = new QValueAxis();
     _axisY->setTitleText("");
     _axisY->setLabelFormat("%f");
 
-    _chart = new QtCharts::QChart();
+    _chart = new QChart();
 
     _lb_roi = new QLabel("ROI:");
     _lb_roi->setAlignment(Qt::AlignRight);
     _cb_roi = new QComboBox();
     _cb_roi->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(_cb_roi, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
+    connect(_cb_roi, &QComboBox::currentTextChanged, this, &ScatterPlotView::onNameChange);
     _cb_x_axis_element = new QComboBox();
     _cb_x_axis_element->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(_cb_x_axis_element, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
+    connect(_cb_x_axis_element, &QComboBox::currentTextChanged, this, &ScatterPlotView::onNameChange);
     _cb_y_axis_element = new QComboBox();
     _cb_y_axis_element->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(_cb_y_axis_element, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ScatterPlotView::onNameChange);
+    connect(_cb_y_axis_element, &QComboBox::currentTextChanged, this, &ScatterPlotView::onNameChange);
 
-    _chartView = new QtCharts::QChartView(_chart);
+    _chartView = new QChartView(_chart);
 
     //setRenderHint(QPainter::Antialiasing);
-    _scatter_series = new QtCharts::QScatterSeries();
+    _scatter_series = new QScatterSeries();
     QString marker_shape = Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString();
     if (marker_shape == "Circle")
     {
-        _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+        _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     }
     else
     {
-        _scatter_series->setMarkerShape(QtCharts::QScatterSeries::MarkerShapeRectangle);
+        _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     }
     _scatter_series->setMarkerSize(1.0);
     _scatter_series->setUseOpenGL(true);
@@ -225,7 +225,7 @@ void ScatterPlotView::setXYAxis(QString roi_name, QString x_axis_name, QString y
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotView::setShape(QtCharts::QScatterSeries::MarkerShape shape)
+void ScatterPlotView::setShape(QScatterSeries::MarkerShape shape)
 {
     _scatter_series->setMarkerShape(shape);
     _updatePlot();

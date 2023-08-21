@@ -11,7 +11,6 @@
 #include <QLineEdit>
 #include <QHeaderView>
 #include <QItemSelectionModel>
-#include <QRegExp>
 #include <QMessageBox>
 #include "core/GlobalThreadPool.h"
 
@@ -235,11 +234,12 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     _model->load_v9_rois(name, h5Model);
 
                     int idx = -1;
-                    for (unsigned char b = '0'; b < '7'; b++)
+                    for (int b = 0; b < 7; b++)
                     {
-                        if (name.endsWith(b))
+                        QString bs = QString::number(b);
+                        if (name.endsWith(bs))
                         {
-                            idx = b - '0';
+                            idx = b;
                             break;
                         }
                     }

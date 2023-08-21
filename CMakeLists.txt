@@ -50,7 +50,7 @@ project(uProbeX)
 
 #include(${PROJECT_SOURCE_DIR}/../XRF-Maps/build/XRF_MapsConfig.cmake)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt5" "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt5" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt6" "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt6" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../XRF-Maps/build )
 
 option(BUILD_WITH_TIRPC "Build tripc library for libxrpc (RedHat 8)" OFF)
@@ -109,13 +109,13 @@ ENDIF()
 
 IF(NOT DEFINED CMAKE_PREFIX_PATH)
   set(CMAKE_PREFIX_PATH CACHE PATH "")
-  MESSAGE( "IF qt5-config.cmake is not found, set CMAKE_PREFIX_PATH = Qt root directory")
+  MESSAGE( "IF qt6-config.cmake is not found, set CMAKE_PREFIX_PATH = Qt root directory")
 ENDIF()
 add_definitions(-D_BUILD_WITH_QT)
 set(CMAKE_CXX_STANDARD 17)
-find_package(Qt5 COMPONENTS Core Charts REQUIRED)
-include_directories(${Qt5Charts_INCLUDES})
-set(CMAKE_CXX_FLAGS "${Qt5Charts_EXECUTABLE_COMPILE_FLAGS}")
+find_package(Qt6 COMPONENTS Core Charts REQUIRED)
+include_directories(${Qt6Charts_INCLUDES})
+set(CMAKE_CXX_FLAGS "${Qt6Charts_EXECUTABLE_COMPILE_FLAGS}")
 
 # Set a default build configuration if none is specified. 'Release' produces the smallest binaries
 IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -201,7 +201,7 @@ foreach(CompilerFlag ${CompilerFlags})
 endforeach()
 
 
-#qt5_use_modules(uProbeX Core Widgets Gui)
+#qt_use_modules(uProbeX Core Widgets Gui)
 IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
@@ -213,8 +213,8 @@ IF (MSVC)
             						rpcrt4.lib
             						iphlpapi.lib
                         ${TIFF_LIBRARIES}
-                        ${Qt5Core_LIBRARIES}
-                        ${Qt5Charts_LIBRARIES}
+                        ${Qt6Core_LIBRARIES}
+                        ${Qt6Charts_LIBRARIES}
                         opencv_ml
                         opencv_dnn
                         opencv_core
@@ -232,8 +232,8 @@ ELSEIF (UNIX)
                         libzmq
                         yaml-cpp
                         ${TIFF_LIBRARIES}
-                        ${Qt5Core_LIBRARIES}
-                        ${Qt5Charts_LIBRARIES}
+                        ${Qt6Core_LIBRARIES}
+                        ${Qt6Charts_LIBRARIES}
                         opencv_ml
                         opencv_dnn
                         opencv_core

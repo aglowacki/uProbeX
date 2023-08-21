@@ -553,13 +553,17 @@ void ImageViewScene::sceneSelectionChanged()
                     m_model->index(parent->row(), 0, QModelIndex());
                 if (groupIndex.isValid())
                 {
-                    QModelIndex cIndex = groupIndex.child(tItem->row(), 0);
-                    if (cIndex.isValid())
+                    const QAbstractItemModel* mmodel = groupIndex.model();
+                    if (mmodel != nullptr)
                     {
-                        for (int i = 0; i < tItem->columnCount(); i++)
+                        QModelIndex cIndex = mmodel->index(tItem->row(), 0);
+                        if (cIndex.isValid())
                         {
-                            cIndex = groupIndex.child(tItem->row(), i);
-                            m_selectionModel->select(cIndex, QItemSelectionModel::Select);
+                            for (int i = 0; i < tItem->columnCount(); i++)
+                            {
+                                cIndex = mmodel->index(tItem->row(), i);
+                                m_selectionModel->select(cIndex, QItemSelectionModel::Select);
+                            }
                         }
                     }
                 }

@@ -119,7 +119,7 @@ QRectF UProbeMarkerGraphicsItem::boundingRect() const
 
    QFont myFont;
    QFontMetrics fm(myFont);
-   int currentStringWidth=fm.width(this->propertyValue(UPROBE_NAME).toString());
+   int currentStringWidth=fm.horizontalAdvance(this->propertyValue(UPROBE_NAME).toString());
 
    int width;
    if(currentStringWidth < m_lastStringWidth)
@@ -490,7 +490,7 @@ void UProbeMarkerGraphicsItem::updateStringSize()
    QString str = this->propertyValue(UPROBE_NAME).toString();
 
    QFontMetrics fm(m_font);
-   int currentStringWidth=fm.width(str);
+   int currentStringWidth=fm.horizontalAdvance(str);
    m_lastStringWidth = currentStringWidth;
 
 }

@@ -64,13 +64,13 @@ void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& count
     _stdev = 0.0;
     Eigen::ArrayXf cnts(counts.size());
     int i = 0;
-    for (int x = 0; x < counts.cols(); x++)
+    for (int y = 0; y < counts.rows(); y++)
     {
-        for (int y = 0; y < counts.rows(); y++)
+        for (int x = 0; x < counts.cols(); x++)
         {
-            cnts[i] = counts(x,y);
+            cnts[i] = counts(y,x);
             i++;
-            _stdev += pow((counts(x, y) - _avg), 2);
+            _stdev += pow((counts(y,x) - _avg), 2);
         }
     }
     _stdev = sqrtf(_stdev / cnts.size());

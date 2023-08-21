@@ -318,7 +318,7 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_cb_action->addItem("Brush Erase");
 	_manual_cb_action->addItem("Polygon Add");
 	_manual_cb_action->addItem("Polygon Erase");
-	connect(_manual_cb_action, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ImageSegRoiDialog::manualActionChanged);
+	connect(_manual_cb_action, &QComboBox::currentTextChanged, this, &ImageSegRoiDialog::manualActionChanged);
 
 	hlayout = new QHBoxLayout();
 	hlayout->addWidget(new QLabel("Action:"));

@@ -162,7 +162,7 @@ void ImageViewWidget::clickZoomOriginal()
 
     for (auto& itr : _sub_windows)
 	{
-		itr.view->resetMatrix();
+		itr.view->resetTransform();
 		itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 		itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	}
@@ -233,7 +233,7 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 		connect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
         connect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
        
-        connect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+        connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 
 		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
@@ -311,7 +311,7 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 		disconnect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
 		disconnect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
 		disconnect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
-		disconnect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+		disconnect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
     _sub_windows.clear();
@@ -338,7 +338,7 @@ void ImageViewWidget::enterEvent(QEvent * event)
 {
 
    m_mouseLeaveState = false;
-   QWidget::enterEvent(event);
+   QWidget::enterEvent(static_cast<QEnterEvent*>(event));
 
 }
 

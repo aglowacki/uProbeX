@@ -281,7 +281,7 @@ void MapsH5Model::loadAllRoiMaps()
     QFile roiFile(roi_file_name);
     if (!roiFile.open(QIODevice::ReadOnly))
     {
-        logW << "Couldn't open save file: " << roi_file_name.toStdString();
+        //logW << "Couldn't open save file: " << roi_file_name.toStdString();
         return;
     }
 

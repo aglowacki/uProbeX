@@ -6,7 +6,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <QEventLoop>
 #include "core/GlobalThreadPool.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include "io/file/hdf5_io.h"
 #include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
@@ -365,19 +365,18 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
         // TODO: check and load ROI's
             // check V9 ROI's first
             // get 4 numbers in dataset name to ref roi's
-        QRegExp re("[0-9][0-9][0-9][0-9]");
-        //re.setPatternSyntax(QRegExp::Wildcard);
-        int pos = re.indexIn(name);
-        if (pos > -1)
+        QRegularExpression re("[0-9][0-9][0-9][0-9]");
+   
+        QRegularExpressionMatch match = re.match(name);
+        if (match.hasMatch())
         {
-            int len = re.matchedLength();
-            QString dataset_num = name.mid(pos, len);
-
-            QRegExp re2(dataset_num);
+            QStringList matched_tests = match.capturedTexts();
+            QString dataset_num = matched_tests.first();
+            QRegularExpression re2(dataset_num);    
             for (auto& itr : _roi_fileinfo_list)
             {
-                int pos2 = re.indexIn(itr.first);
-                if (pos2 > -1)
+                QRegularExpressionMatch match2 = re2.match(name);
+                if (match2.hasMatch())
                 {
                     logI << "ROI : H5 = " << name.toStdString() << " roi = " << itr.first.toStdString() << "\n";
 

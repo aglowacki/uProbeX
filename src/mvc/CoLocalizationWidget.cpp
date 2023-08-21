@@ -44,11 +44,11 @@ void CoLocalizationWidget::_createLayout()
     m_imageViewWidget->setCountsVisible(false);
     
     _cb_red_element = new QComboBox();
-    connect(_cb_red_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColorSelected(QString)));
+    connect(_cb_red_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
     _cb_green_element = new QComboBox();
-    connect(_cb_green_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColorSelected(QString)));
+    connect(_cb_green_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
     _cb_blue_element = new QComboBox();
-    connect(_cb_blue_element, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColorSelected(QString)));
+    connect(_cb_blue_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
 
     _btn_export_as_image = new QPushButton("Export as PNG");
     connect(_btn_export_as_image, &QPushButton::released, this, &CoLocalizationWidget::onExportPng);

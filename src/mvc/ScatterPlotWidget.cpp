@@ -152,7 +152,7 @@ void ScatterPlotWidget::onShapeChange(QString val)
     {
         for (auto& itr : _plot_view_list)
         {
-            itr->setShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+            itr->setShape(QScatterSeries::MarkerShapeCircle);
         }
         Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Circle");
     }
@@ -160,7 +160,7 @@ void ScatterPlotWidget::onShapeChange(QString val)
     {
         for (auto& itr : _plot_view_list)
         {
-            itr->setShape(QtCharts::QScatterSeries::MarkerShapeRectangle);
+            itr->setShape(QScatterSeries::MarkerShapeRectangle);
         }
         Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Rectangle");
     }

@@ -30,7 +30,7 @@ void Scaler_Widget::createLayout()
 {
 
     _cb_scaler = new QComboBox(this);
-    connect(_cb_scaler, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &Scaler_Widget::onScalerSelect);
+    connect(_cb_scaler, &QComboBox::currentTextChanged, this, &Scaler_Widget::onScalerSelect);
 
     QVBoxLayout* vbox = new QVBoxLayout();
     QHBoxLayout* hbox = new QHBoxLayout();

@@ -58,36 +58,36 @@ SpectraWidget::~SpectraWidget()
 
 void SpectraWidget::createLayout()
 {
-    _axisYLog10 = new QtCharts::QLogValueAxis();
+    _axisYLog10 = new QLogValueAxis();
     _axisYLog10->setTitleText("Counts Log10");
     _axisYLog10->setLabelFormat("%.1e");
     //_axisYLog10->setRange(1.0, 10000.0);
     _axisYLog10->setBase(10.0);
 
 
-    _axisX = new QtCharts::QValueAxis();
+    _axisX = new QValueAxis();
     _axisX->setTitleText("Energy (keV)");
     _axisX->setLabelFormat("%.2f");
     _axisX->setTickAnchor(0.0);
     _axisX->setTickInterval(0.5);
-    _axisX->setTickType(QtCharts::QValueAxis::TicksDynamic);
+    _axisX->setTickType(QValueAxis::TicksDynamic);
     _axisX->setTickCount(20);
 
-    _top_axis_elements = new QtCharts::QCategoryAxis();
+    _top_axis_elements = new QCategoryAxis();
     //_top_axis_elements->setTickAnchor(0.0);
     //_top_axis_elements->setTickInterval(0.5);
-    //_top_axis_elements->setTickType(QtCharts::QValueAxis::TicksDynamic);
+    //_top_axis_elements->setTickType(QValueAxis::TicksDynamic);
     //_top_axis_elements->setTickCount(20);
-    _top_axis_elements->setLabelsPosition(QtCharts::QCategoryAxis::AxisLabelsPositionOnValue);
+    _top_axis_elements->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
     _top_axis_elements->setGridLineVisible(false);
 
-    _axisY = new QtCharts::QValueAxis();
+    _axisY = new QValueAxis();
     _axisY->setTitleText("Counts");
     _axisY->setLabelFormat("%i");
     //_axisY->setTickCount(series->count());
 
 
-    _chart = new QtCharts::QChart();
+    _chart = new QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
     _chart->addAxis(_top_axis_elements, Qt::AlignTop);
 
@@ -272,13 +272,13 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
         return;
 
 
-    QtCharts::QLineSeries *series = nullptr;
+    QLineSeries *series = nullptr;
 
     for( auto& itr : _chart->series())
     {
         if(itr->name() == name)
         {
-            series = (QtCharts::QLineSeries*)itr;
+            series = (QLineSeries*)itr;
 			break;
         }
     }
@@ -291,7 +291,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 
     if(series == nullptr)
     {
-        series = new QtCharts::QLineSeries();
+        series = new QLineSeries();
 
         //float new_max = spectra->maxCoeff();
         //_max_log_range = std::max(_max_log_range, new_max);
@@ -406,7 +406,7 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 {
     if(_line_series == nullptr)
     {
-        _line_series = new QtCharts::QLineSeries();
+        _line_series = new QLineSeries();
         _line_series->append(center, 1.0f);
         _line_series->append(center, 100000.0f);
         _line_series->setName(label);
@@ -435,7 +435,7 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
 void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* element)
 {
 	//clear old one
-	for (QtCharts::QLineSeries* itr : _element_lines)
+	for (QLineSeries* itr : _element_lines)
 	{
 		itr->detachAxis(_axisX);
         itr->detachAxis(_currentYAxis);
@@ -447,15 +447,15 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
     float line_min = 0.1;
     float line_max = 9999;
 
-    line_min = std::max(0.1, ((QtCharts::QValueAxis*)_currentYAxis)->min());
-    line_max = ((QtCharts::QValueAxis*)_currentYAxis)->max();
+    line_min = std::max(0.1, ((QValueAxis*)_currentYAxis)->min());
+    line_max = ((QValueAxis*)_currentYAxis)->max();
 
     if(element != nullptr)
     {
         const std::vector<data_struct::Element_Energy_Ratio<double>>& energy_ratios = element->energy_ratios();
         for(auto& itr : energy_ratios)
         {
-            QtCharts::QLineSeries* line = new QtCharts::QLineSeries();
+            QLineSeries* line = new QLineSeries();
             QPen pen = line->pen();
             switch (itr.ptype)
             {
@@ -532,8 +532,8 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
 void SpectraWidget::remove_spectra(QString name)
 {
 
-    QList<QtCharts::QAbstractSeries*> series = _chart->series();
-    for(QtCharts::QAbstractSeries* spec : series)
+    QList<QAbstractSeries*> series = _chart->series();
+    for(QAbstractSeries* spec : series)
     {
         if(spec->name() == name)
         {
@@ -559,14 +559,14 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 void SpectraWidget::set_log10(bool val)
 {
 
-    QList<QtCharts::QAbstractSeries*> series = _chart->series();
+    QList<QAbstractSeries*> series = _chart->series();
 
-    for(QtCharts::QAbstractSeries* ser : _element_lines)
+    for(QAbstractSeries* ser : _element_lines)
     {
         series.removeOne(ser);
     }
 
-    for(QtCharts::QAbstractSeries* ser : series)
+    for(QAbstractSeries* ser : series)
     {
         ser->detachAxis(_currentYAxis);
     }
@@ -585,7 +585,7 @@ void SpectraWidget::set_log10(bool val)
 
     _chart->addAxis(_currentYAxis, Qt::AlignLeft);
 
-    for(QtCharts::QAbstractSeries* ser : series)
+    for(QAbstractSeries* ser : series)
     {
         ser->attachAxis(_currentYAxis);
     }
@@ -610,7 +610,7 @@ void SpectraWidget::_update_series()
     _chart->removeAllSeries();
     for(auto& itr : _spectra_map)
     {
-        QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+        QLineSeries *series = new QLineSeries();
 
         series->setName(itr.first);
         for(unsigned int i =0; i < itr.second.size(); i++)
@@ -635,11 +635,11 @@ void SpectraWidget::connectMarkers()
 {
     // Connect all markers to handler
     const auto markers = _chart->legend()->markers();
-    for (QtCharts::QLegendMarker *marker : markers)
+    for (QLegendMarker *marker : markers)
     {
         // Disconnect possible existing connection to avoid multiple connections
-        QObject::disconnect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
-        QObject::connect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+        QObject::disconnect(marker, &QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+        QObject::connect(marker, &QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
     }
 }
 
@@ -648,9 +648,9 @@ void SpectraWidget::connectMarkers()
 void SpectraWidget::disconnectMarkers()
 {
     const auto markers = _chart->legend()->markers();
-    for (QtCharts::QLegendMarker *marker : markers)
+    for (QLegendMarker *marker : markers)
     {
-        QObject::disconnect(marker, &QtCharts::QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
+        QObject::disconnect(marker, &QLegendMarker::clicked, this, &SpectraWidget::handleMarkerClicked);
     }
 }
 
@@ -658,12 +658,12 @@ void SpectraWidget::disconnectMarkers()
 
 void SpectraWidget::handleMarkerClicked()
 {
-    QtCharts::QLegendMarker* marker = qobject_cast<QtCharts::QLegendMarker*> (sender());
+    QLegendMarker* marker = qobject_cast<QLegendMarker*> (sender());
     Q_ASSERT(marker);
 
     switch (marker->type())
     {
-        case QtCharts::QLegendMarker::LegendMarkerTypeXY:
+        case QLegendMarker::LegendMarkerTypeXY:
         {
         // Toggle visibility of series
         marker->series()->setVisible(!marker->series()->isVisible());

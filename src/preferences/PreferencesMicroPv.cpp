@@ -20,7 +20,7 @@ PreferencesMicroPv::PreferencesMicroPv(QWidget* parent) : QWidget(parent)
 
    QFont font;
    font.setBold(true);
-   font.setWeight(75);
+   font.setWeight(QFont::Thin);
 
    QLabel* lblX = new QLabel("MicroProbe X motor PV:");
    QLabel* lblY = new QLabel("MicroProbe Y motor PV:");

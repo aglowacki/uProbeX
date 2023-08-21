@@ -131,7 +131,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
         _cb_colormap->addItem(itr.first);
     }
 
-    connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
+    connect(_cb_colormap, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onColormapSelect);
 
     _color_map_ledgend_lbl = new QLabel();
     _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
@@ -182,9 +182,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _cb_normalize = new QComboBox();
     _cb_normalize->setMinimumContentsLength(20);
-    _cb_normalize->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    _cb_normalize->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     _cb_normalize->addItem("1");
-    connect(_cb_normalize, SIGNAL(currentIndexChanged(QString)), this, SLOT(onSelectNormalizer(QString)));
+    connect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
 
     _global_contrast_chk = new QCheckBox("Global Contrast");
     _global_contrast_chk->setChecked(true);
@@ -942,7 +942,7 @@ void MapsElementsWidget::model_updated()
         return;
     }
 
-    disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
+    disconnect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
@@ -1149,7 +1149,7 @@ void MapsElementsWidget::model_updated()
 
     redrawCounts();
 
-    connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
+    connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 }
 
 //---------------------------------------------------------------------------

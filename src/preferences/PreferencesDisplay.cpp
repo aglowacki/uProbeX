@@ -31,7 +31,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
 
    QFont font;
    font.setBold(true);
-   font.setWeight(75);
+   font.setWeight(QFont::Thin);
 
    QLabel* lblFont = new QLabel("Font size:");
    lblFont->setFont(font);
@@ -60,7 +60,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblDeciPrecision, m_decimalPreci);
    mainLayout->addRow(lblUseDarkTheme, _cb_themes);
 
-   connect(_cb_themes, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &PreferencesDisplay::themeChanged);
+   connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
    setLayout(mainLayout);
 
