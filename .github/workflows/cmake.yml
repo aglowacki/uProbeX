@@ -37,10 +37,10 @@ jobs:
       run: |
         python -m pip install aqtinstall
         if [ "$RUNNER_OS" == "macOS" ]; then  
-          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 mac desktop clang_64 -m qtcharts --archives qtbase
+          python -m aqt install --outputdir ${{github.workspace}}/Qt 6.2.4 mac desktop clang_64 -m qtcharts --archives qtbase
         else
-          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 --archives qtbase icu qtimageformats 
-          python -m aqt install --outputdir ${{github.workspace}}/Qt 5.15.2 linux desktop gcc_64 -m qtcharts
+          python -m aqt install --outputdir ${{github.workspace}}/Qt 6.2.4 linux desktop gcc_64 --archives qtbase icu qtimageformats 
+          python -m aqt install --outputdir ${{github.workspace}}/Qt 6.2.4 linux desktop gcc_64 -m qtcharts
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
@@ -75,9 +75,9 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.2.4/clang_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
           else
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.2.4/gcc_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
           fi
     - name: Build XRF-Maps
       working-directory: ${{github.workspace}}/XRF-Maps/build
@@ -98,9 +98,9 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
         if [ "$RUNNER_OS" == "macOS" ]; then
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.2.4/clang_64/lib/cmake/Qt6" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build
         else
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="${{github.workspace}}/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build -DBUILD_WITH_TIRPC=ON
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=./XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.2.4/gcc_64/lib/cmake/Qt6" -DXRF_Maps_DIR=${{github.workspace}}/XRF-Maps/build -DBUILD_WITH_TIRPC=ON
         fi
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -119,9 +119,9 @@ jobs:
         rsync -RavzP reference install
         rsync -RavzP bin install
         if [ "$RUNNER_OS" == "macOS" ]; then
-          rsync -RavzP ${{github.workspace}}/Qt/5.15.2/clang_64/plugins/platforms install/plugins
+          rsync -RavzP ${{github.workspace}}/Qt/6.2.4/clang_64/plugins/platforms install/plugins
         else
-          rsync -RavzP ${{github.workspace}}/Qt/5.15.2/gcc_64/plugins/platforms install/plugins
+          rsync -RavzP ${{github.workspace}}/Qt/6.2.4/gcc_64/plugins/platforms install/plugins
         fi
         ls -lh
         ls -lh ../
