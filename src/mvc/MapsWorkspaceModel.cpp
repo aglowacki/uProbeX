@@ -383,6 +383,7 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
                     std::map<std::string, std::vector<std::pair<int, int>>> rois;
                     std::string search_filename;
                     //data_struct::Detector<double>* detector;
+                    /*
                     try
                     {
                         if (io::file::aps::load_v9_rois(itr.second.absoluteFilePath().toStdString(), rois))
@@ -412,6 +413,7 @@ bool MapsWorkspaceModel::load_v9_rois(QString fname, MapsH5Model* model)
                     {
                         logE << e.what() << "\n";
                     }
+                    */
                 }
             }
         }

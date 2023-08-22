@@ -12,6 +12,8 @@
 #include <QTableWidget>
 #include <QComboBox>
 #include <QSplitter>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QCategoryAxis>
 #include <mvc/MapsH5Model.h>
 #include <mvc/FitSpectraWidget.h>
 #include "gstar/ImageViewWidget.h"
@@ -53,7 +55,29 @@ protected:
     */
    void _createLayout();
 
+   bool _display_log10;
+
+   QLogValueAxis* _axisYLog10;
+
+   QCategoryAxis* _axisX;
+
+   QValueAxis* _axisY;
+
+   QAbstractAxis* _currentYAxis;
+
+   QChart* _chart;
+
+   QChartView* _chartView;
+
+   QLineSeries* _line_series;
+
+   QComboBox* _cb_analysis_types;
+
+   QComboBox* _cb_scalers;
+
    MapsH5Model *_model;
+
+   Calibration_curve<double>* _calib_curve;
 
 };
 

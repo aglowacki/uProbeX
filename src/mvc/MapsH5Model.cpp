@@ -1951,6 +1951,38 @@ bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct:
 
 /*---------------------------------------------------------------------------*/
 
+QStringList MapsH5Model::get_calibration_curve_scalers(std::string analysis_type)
+{
+    QStringList keys;
+    if (analysis_type == STR_FIT_GAUSS_MATRIX)
+    {
+        for (auto& itr : _quant_map_matrix)
+        {
+            keys.append(itr.first.c_str());
+        }
+    }
+    else if (analysis_type == STR_FIT_NNLS)
+    {
+        for (auto& itr : _quant_map_nnls)
+        {
+            keys.append(itr.first.c_str());
+        }
+   
+    }
+    else if (analysis_type == STR_FIT_ROI)
+    {
+        for (auto& itr : _quant_map_roi)
+        {
+            keys.append(itr.first.c_str());
+        }
+        
+    }
+
+    return keys;
+}
+
+/*---------------------------------------------------------------------------*/
+
 Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analysis_type, std::string scaler_name)
 {
     if (analysis_type == STR_FIT_GAUSS_MATRIX)

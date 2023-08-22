@@ -178,6 +178,10 @@ public:
 
     void generateNameLists(QString analysis_type, std::vector<std::string>& names);
 
+    QStringList get_calibration_curve_scalers(std::string analysis_type);
+
+    QStringList get_analysis_types();
+
 signals:
     void model_data_updated();
 

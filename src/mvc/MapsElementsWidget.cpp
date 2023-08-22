@@ -769,6 +769,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
             _co_loc_widget->setModel(_model);
             _scatter_plot_widget->setModel(_model);
+            _quant_widget->setModel(_model);
 
             QString analysis_text = _cb_analysis->currentText();
             if (analysis_text.length() > 0)
