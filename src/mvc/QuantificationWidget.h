@@ -8,22 +8,19 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include <gstar/AbstractImageWidget.h>
-#include <QTableWidget>
 #include <QComboBox>
-#include <QSplitter>
+#include <QVBoxLayout>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QCategoryAxis>
+#include <QtCharts/QLogValueAxis>
+#include "mvc/ChartView.h"
 #include <mvc/MapsH5Model.h>
-#include <mvc/FitSpectraWidget.h>
-#include "gstar/ImageViewWidget.h"
-#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include "preferences/Preferences.h"
 
 
 /*---------------------------------------------------------------------------*/
 
-class QuantificationWidget : public gstar::AbstractImageWidget
+class QuantificationWidget : public QWidget
 {
 
    Q_OBJECT
@@ -45,8 +42,7 @@ public:
    MapsH5Model *getModel(){return _model;}
 
 public slots:
-
-    void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
+    void update(const QString&);
 
 protected:
 
@@ -56,6 +52,8 @@ protected:
    void _createLayout();
 
    bool _display_log10;
+
+   QLineSeries* _calib_curve_series;
 
    QLogValueAxis* _axisYLog10;
 
