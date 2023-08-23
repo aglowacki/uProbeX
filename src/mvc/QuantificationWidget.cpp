@@ -13,7 +13,12 @@ QuantificationWidget::QuantificationWidget(QWidget* parent) : QWidget(parent)
     _model = nullptr;
     _calib_curve = nullptr;
     _display_log10 = false;
-    _calib_curve_series = new QLineSeries();
+    _calib_curve_series_k = new QLineSeries();
+    _calib_curve_series_k->setName("K");
+    _calib_curve_series_l = new QLineSeries();
+    _calib_curve_series_l->setName("L");
+    _calib_curve_series_m = new QLineSeries();
+    _calib_curve_series_m->setName("M");
     _createLayout();
 }
 
@@ -125,24 +130,52 @@ void QuantificationWidget::update(const QString& val)
     _calib_curve = _model->get_calibration_curve(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
     if (_calib_curve != nullptr)
     {
-        _calib_curve_series->detachAxis(_axisX);
-        _calib_curve_series->detachAxis(_axisY);
-        _chart->removeSeries(_calib_curve_series);
-        _calib_curve_series->clear();
+        _calib_curve_series_k->detachAxis(_axisX);
+        _calib_curve_series_k->detachAxis(_axisY);
+        _chart->removeSeries(_calib_curve_series_k);
+        _calib_curve_series_k->clear();
+
+        _calib_curve_series_l->detachAxis(_axisX);
+        _calib_curve_series_l->detachAxis(_axisY);
+        _chart->removeSeries(_calib_curve_series_l);
+        _calib_curve_series_l->clear();
+
+        _calib_curve_series_m->detachAxis(_axisX);
+        _calib_curve_series_m->detachAxis(_axisY);
+        _chart->removeSeries(_calib_curve_series_m);
+        _calib_curve_series_m->clear();
+
         int i = 0;
         float x = 1.0;
         double max_val = 0.0;
         for (int i = 0; i < 91; i++)
         {
             _axisX->append(QString::fromStdString(data_struct::Element_Symbols[i + 1]), x);
-            double val = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1]);
-            max_val = std::max(max_val, val);
-            _calib_curve_series->append(i, val);
+            double kval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1]);
+            double lval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_L");
+            double mval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_M");
+            max_val = std::max(max_val, kval);
+            max_val = std::max(max_val, lval);
+            max_val = std::max(max_val, mval);
+            _calib_curve_series_k->append(i, kval);
+            _calib_curve_series_k->append(i+1, kval);
+            _calib_curve_series_l->append(i, lval);
+            _calib_curve_series_l->append(i+1, lval);
+            _calib_curve_series_m->append(i, mval);
+            _calib_curve_series_m->append(i+1, mval);
             x += 1;
         }
-        _chart->addSeries(_calib_curve_series);
-        _calib_curve_series->attachAxis(_axisX);
-        _calib_curve_series->attachAxis(_axisY);
+        _chart->addSeries(_calib_curve_series_k);
+        _calib_curve_series_k->attachAxis(_axisX);
+        _calib_curve_series_k->attachAxis(_axisY);
+
+        _chart->addSeries(_calib_curve_series_l);
+        _calib_curve_series_l->attachAxis(_axisX);
+        _calib_curve_series_l->attachAxis(_axisY);
+
+        _chart->addSeries(_calib_curve_series_m);
+        _calib_curve_series_m->attachAxis(_axisX);
+        _calib_curve_series_m->attachAxis(_axisY);
 
         _axisY->setRange(0, max_val);
         //_calib_curve_series->attachAxis(_currentYAxis);

@@ -53,7 +53,9 @@ protected:
 
    bool _display_log10;
 
-   QLineSeries* _calib_curve_series;
+   QLineSeries* _calib_curve_series_k;
+   QLineSeries* _calib_curve_series_l;
+   QLineSeries* _calib_curve_series_m;
 
    QLogValueAxis* _axisYLog10;
 
