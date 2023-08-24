@@ -68,6 +68,7 @@ void SpectraWidget::createLayout()
     _axisX = new QValueAxis();
     _axisX->setTitleText("Energy (keV)");
     _axisX->setLabelFormat("%.2f");
+    _axisX->setTruncateLabels(false);
     _axisX->setTickAnchor(0.0);
     _axisX->setTickInterval(0.5);
     _axisX->setTickType(QValueAxis::TicksDynamic);

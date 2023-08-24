@@ -48,7 +48,10 @@ void QuantificationWidget::_createLayout()
 
     _axisX = new QCategoryAxis();
     _axisX->setTitleText("Element");
-    //_axisX->setLabelFormat("");
+    //QFont font("Sans", 6);
+  
+    //_axisX->setLabelsFont(font);
+    _axisX->setTruncateLabels(false);
     //_axisX->setTickAnchor(0.0);
     //_axisX->setTickInterval(0.5);
     //_axisX->setTickType(QValueAxis::TicksDynamic);
@@ -178,6 +181,7 @@ void QuantificationWidget::update(const QString& val)
         _calib_curve_series_m->attachAxis(_axisY);
 
         _axisY->setRange(0, max_val);
+        //_axisX->setRange(10, 30);
         //_calib_curve_series->attachAxis(_currentYAxis);
     }
     else
