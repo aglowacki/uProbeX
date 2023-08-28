@@ -13,12 +13,6 @@ QuantificationWidget::QuantificationWidget(QWidget* parent) : QWidget(parent)
     _model = nullptr;
     _calib_curve = nullptr;
     _display_log10 = false;
-    _calib_curve_series_k = new QLineSeries();
-    _calib_curve_series_k->setName("K");
-    _calib_curve_series_l = new QLineSeries();
-    _calib_curve_series_l->setName("L");
-    _calib_curve_series_m = new QLineSeries();
-    _calib_curve_series_m->setName("M");
     _createLayout();
 }
 
@@ -66,6 +60,10 @@ void QuantificationWidget::_createLayout()
     //_axisY->setLabelFormat("%i");
     //_axisY->setTickCount(series->count());
 
+    _calib_curve_series_k = new QLineSeries();
+    _calib_curve_series_l = new QLineSeries();
+    _calib_curve_series_m = new QLineSeries();
+    
 
     _chart = new QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
@@ -89,6 +87,18 @@ void QuantificationWidget::_createLayout()
     */
     //_chart->addAxis(_currentYAxis, Qt::AlignLeft);
     _chart->addAxis(_axisY, Qt::AlignLeft);
+
+    _chart->addSeries(_calib_curve_series_k);
+    _calib_curve_series_k->attachAxis(_axisX);
+    _calib_curve_series_k->attachAxis(_axisY);
+
+    _chart->addSeries(_calib_curve_series_l);
+    _calib_curve_series_l->attachAxis(_axisX);
+    _calib_curve_series_l->attachAxis(_axisY);
+
+    _chart->addSeries(_calib_curve_series_m);
+    _calib_curve_series_m->attachAxis(_axisX);
+    _calib_curve_series_m->attachAxis(_axisY);
 
     _chartView = new ChartView(_chart);
     
@@ -133,6 +143,11 @@ void QuantificationWidget::update(const QString& val)
     _calib_curve = _model->get_calibration_curve(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
     if (_calib_curve != nullptr)
     {
+        
+        _calib_curve_series_k->setName("K");
+        _calib_curve_series_l->setName("L");
+        _calib_curve_series_m->setName("M");
+
         _calib_curve_series_k->detachAxis(_axisX);
         _calib_curve_series_k->detachAxis(_axisY);
         _chart->removeSeries(_calib_curve_series_k);
@@ -147,7 +162,8 @@ void QuantificationWidget::update(const QString& val)
         _calib_curve_series_m->detachAxis(_axisY);
         _chart->removeSeries(_calib_curve_series_m);
         _calib_curve_series_m->clear();
-
+        
+        
         int i = 0;
         float x = 1.0;
         double max_val = 0.0;

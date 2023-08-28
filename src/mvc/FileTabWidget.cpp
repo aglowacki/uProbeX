@@ -73,8 +73,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     hlayout2->addWidget(_unload_all_btn);
 
     QHBoxLayout* hlayout3 = new QHBoxLayout();
-    hlayout2->addWidget(_process_btn);
-    hlayout2->addWidget(_batch_roi_btn);
+    hlayout3->addWidget(_process_btn);
+    hlayout3->addWidget(_batch_roi_btn);
 
     QLayout* vlayout = new QVBoxLayout();
     vlayout->addItem(hlayout1);
