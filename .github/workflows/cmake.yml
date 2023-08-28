@@ -37,10 +37,10 @@ jobs:
       run: |
         python -m pip install aqtinstall
         if [ "$RUNNER_OS" == "macOS" ]; then  
-          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 6.5.2 mac desktop clang_64 -m qtcharts --archives qtbase
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt mac desktop 6.5.2 clang_64 -m qtcharts --archives qtbase
         else
-          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 6.5.2 linux desktop gcc_64 --archives qtbase icu qtimageformats 
-          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt 6.5.2 linux desktop gcc_64 -m qtcharts
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.5.2 gcc_64 --archives qtbase icu qtimageformats 
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.5.2 gcc_64 -m qtcharts
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
