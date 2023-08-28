@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: ubuntu-latest #[macos-latest, ubuntu-latest]
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -75,9 +75,9 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="${{github.workspace}}/Qt/6.5.2/clang_64/lib/cmake/Qt6" -DQt6_DIR="${{github.workspace}}/Qt/6.5.2/clang_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.5.2/clang_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON 
           else
-            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MODULE_PATH="${{github.workspace}}/Qt/6.5.2/gcc_64/lib/cmake/Qt6" -DQt6_DIR="${{github.workspace}}/Qt/6.5.2/gcc_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
+            cmake $GITHUB_WORKSPACE/XRF-Maps -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt6_DIR="${{github.workspace}}/Qt/6.5.2/gcc_64/lib/cmake/Qt6" -DBUILD_WITH_ZMQ=ON -DBUILD_WITH_QT=ON -DBUILD_WITH_TIRPC=ON
           fi
     - name: Build XRF-Maps
       working-directory: ${{github.workspace}}/XRF-Maps/build
