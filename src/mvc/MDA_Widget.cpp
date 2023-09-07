@@ -41,7 +41,7 @@ void MDA_Widget::createLayout()
     connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MDA_Widget::on_export_csv);
 
     _cb_detector = new QComboBox(this);
-    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+    connect(_cb_detector, &QComboBox::currentTextChanged, this, &MDA_Widget::onDetectorSelect);
 
     _scaler_widget = new Scaler_Widget(this);
 
@@ -112,7 +112,7 @@ void MDA_Widget::model_updated()
 		}
 	}
     
-    disconnect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+    disconnect(_cb_detector, &QComboBox::currentTextChanged, this, &MDA_Widget::onDetectorSelect);
 
     _cb_detector->clear();
     auto keys = _model->getDetectorKeys();
@@ -129,7 +129,7 @@ void MDA_Widget::model_updated()
         }
     }
 
-    connect(_cb_detector, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &MDA_Widget::onDetectorSelect);
+    connect(_cb_detector, &QComboBox::currentTextChanged, this, &MDA_Widget::onDetectorSelect);
 
     if (_model->getNumIntegratedSpectra() > 0)
     {

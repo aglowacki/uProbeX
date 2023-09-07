@@ -21,6 +21,8 @@ const int TAB_MANUAL = 1;
 
 const int ACTION_ADD = 0;
 const int ACTION_ERASE = 1;
+const int ACTION_ADD_POLY = 2;
+const int ACTION_ERASE_POLY = 3;
 
 //---------------------------------------------------------------------------
 
@@ -300,6 +302,10 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_btn_add_roi = new QPushButton("New ROI");
 	connect(_manual_btn_add_roi, &QPushButton::pressed, this, &ImageSegRoiDialog::onNewROI);
 
+	_manual_invert_roi = new QPushButton("Invert Selection");
+	connect(_manual_invert_roi, &QPushButton::pressed, this, &ImageSegRoiDialog::onInvertROI);
+
+
 	hlayout = new QHBoxLayout();
 	//hlayout->addWidget(new QLabel("Selected ROI"));
 	//hlayout->addWidget(_cb_selected_roi);
@@ -310,7 +316,9 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_cb_action = new QComboBox();
 	_manual_cb_action->addItem("Brush Add");
 	_manual_cb_action->addItem("Brush Erase");
-	connect(_manual_cb_action, qOverload<const QString&>(&QComboBox::currentIndexChanged), this, &ImageSegRoiDialog::manualActionChanged);
+	_manual_cb_action->addItem("Polygon Add");
+	_manual_cb_action->addItem("Polygon Erase");
+	connect(_manual_cb_action, &QComboBox::currentTextChanged, this, &ImageSegRoiDialog::manualActionChanged);
 
 	hlayout = new QHBoxLayout();
 	hlayout->addWidget(new QLabel("Action:"));
@@ -327,6 +335,8 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	hlayout->addWidget(new QLabel("Brush Size"));
 	hlayout->addWidget(_manual_sp_brush_size);
 	layout->addItem(hlayout);
+
+	layout->addWidget(_manual_invert_roi);
 
 	QWidget* widget = new QWidget();
 	widget->setLayout(layout);
@@ -506,20 +516,40 @@ void ImageSegRoiDialog::onNewROI()
 
 //---------------------------------------------------------------------------
 
+void ImageSegRoiDialog::onInvertROI()
+{
+	_int_img_widget->invertSelectedRoiMask();
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegRoiDialog::updateCustomCursor(int val)
 {
 	
 	QPixmap pmap(val, val);
-	_int_img_widget->setRoiBrushSize(val);
 	if (_manual_cb_action->currentIndex() == ACTION_ADD)
 	{
+		_int_img_widget->setRoiBrushSize(val);
 		pmap.fill(QColor(Qt::green));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD);
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_DRAW);
 	}
 	else if (_manual_cb_action->currentIndex() == ACTION_ERASE)
 	{
+		_int_img_widget->setRoiBrushSize(val);
 		pmap.fill(QColor(Qt::red));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE);
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_DRAW);
+	}
+	else if (_manual_cb_action->currentIndex() == ACTION_ADD_POLY)
+	{
+		_int_img_widget->setRoiBrushSize(0);
+		pmap.fill(QColor(Qt::green));
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_POLY);
+	}
+	else if (_manual_cb_action->currentIndex() == ACTION_ERASE_POLY)
+	{
+		_int_img_widget->setRoiBrushSize(0);
+		pmap.fill(QColor(Qt::red));
+		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_POLY);
 	}
 	
 	_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));

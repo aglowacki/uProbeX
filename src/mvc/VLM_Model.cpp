@@ -8,9 +8,13 @@
 #include <gstar/GStarResource.h>
 #include <QMessageBox>
 
+const QString STR_MARKERS = "markers";
+const QString STR_MARKER = "marker";
+const QString STR_REGION_MARKER = "regionmarker";
+
 /*----------------src/mvc/VLM_Model.cpp \-----------------------------------------------------------*/
 
-VLM_Model::VLM_Model()
+VLM_Model::VLM_Model() : AbstractWindowModel()
 {
     _coord_model = nullptr;
 
@@ -63,16 +67,16 @@ void VLM_Model::_load_xml_markers_and_regions()
 
 		if (token == QXmlStreamReader::StartElement)
 		{
-			if (xml.name() == "markers")
+			if (xml.name() == STR_MARKERS)
 			{
 				continue;
 			}
-			if (xml.name() == "marker")
+			if (xml.name() == STR_MARKER)
 			{
 				_markersLoaded.prepend(_parseMarker(xml));
 				continue;
 			}
-			if (xml.name() == "regionmarker")
+			if (xml.name() == STR_REGION_MARKER)
 			{
 				_regionMarkersLoaded.prepend(_parseRegionMarker(xml));
 			}

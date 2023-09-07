@@ -172,7 +172,6 @@ void PreferencesDialog::accept()
         Preferences::inst()->setValue(STR_PRF_FontSize, m_displaySettings->getFontSize());
         Preferences::inst()->setValue(STR_PRF_WindowTitle, m_displaySettings->getWindowTitle());
         Preferences::inst()->setValue(STR_PRF_DecimalPrecision, m_displaySettings->getDecimalPrecision());
-        Preferences::inst()->setValue(STR_PFR_USE_DARK_THEME, m_displaySettings->getUseDarkTheme());
     }
     Preferences::inst()->setValue(STR_PRF_RegionMenuList,m_pythonFuncWidget->getGroupStringList());
 

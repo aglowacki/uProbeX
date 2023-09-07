@@ -162,7 +162,7 @@ void ImageViewWidget::clickZoomOriginal()
 
     for (auto& itr : _sub_windows)
 	{
-		itr.view->resetMatrix();
+		itr.view->resetTransform();
 		itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 		itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	}
@@ -233,7 +233,7 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 		connect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
         connect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
        
-        connect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+        connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 
 		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
@@ -284,6 +284,7 @@ void ImageViewWidget::setUnitLabel(int idx, QString label)
     if (idx > -1 && idx < _sub_windows.size())
     {
         _sub_windows[idx].counts_coord_widget->setUnitsLabel(label);
+        _sub_windows[idx].counts_stats_widget->setUnitsLabel(label);
     }
 }
 
@@ -294,6 +295,7 @@ void ImageViewWidget::setUnitLabels(QString label)
     for (auto& itr : _sub_windows)
     {
         itr.counts_coord_widget->setUnitsLabel(label);
+        itr.counts_stats_widget->setUnitsLabel(label);
     }
 }
 
@@ -309,7 +311,7 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 		disconnect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
 		disconnect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
 		disconnect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
-		disconnect(itr.cb_image_label, SIGNAL(currentIndexChanged(QString)), this, SLOT(onComboBoxChange(QString)));
+		disconnect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
 	}
     _sub_windows.clear();
@@ -336,7 +338,7 @@ void ImageViewWidget::enterEvent(QEvent * event)
 {
 
    m_mouseLeaveState = false;
-   QWidget::enterEvent(event);
+   QWidget::enterEvent(static_cast<QEnterEvent*>(event));
 
 }
 
@@ -775,13 +777,13 @@ QString ImageViewWidget::getLabelAt(int idx)
 
 /*---------------------------------------------------------------------------*/
 
-CountsLookupTransformer* ImageViewWidget::getMouseTrasnformAt(int idx)
+ void ImageViewWidget::getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats)
 {
     if(idx < _sub_windows.size())
     {
-        return _sub_windows[idx].counts_lookup;
+        *counts_lookup = _sub_windows[idx].counts_lookup;
+        *counts_stats = _sub_windows[idx].counts_stats;
     }
-    return nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -838,6 +840,7 @@ void ImageViewWidget::resetCoordsToZero()
     for( auto& itr : _sub_windows)
     {
         itr.counts_coord_widget->setCoordinate(0, 0, 0);
+        itr.counts_stats_widget->setCoordinate(0, 0, 0);
     }
 }
 

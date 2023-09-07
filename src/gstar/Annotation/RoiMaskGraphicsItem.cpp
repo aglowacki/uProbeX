@@ -65,8 +65,22 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, Abstrac
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage();
-    *_mask = mask.copy();
+    _mask = new QImage(mask.width(), mask.height(), QImage::Format_ARGB32);
+    QColor black_col = QColor(0, 0, 0, 0);
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            if (mask.pixelColor(i, j) == black_col)
+            {
+                _mask->setPixelColor(i, j, black_col);
+            }
+            else
+            {
+                _mask->setPixelColor(i, j, color);
+            }
+        }
+    }
     _init(color, alpha);
 }
 
@@ -194,6 +208,54 @@ void RoiMaskGraphicsItem::add_to_roi(QPointF pos)
 
 //-----------------------------------------------------------------------------
 
+void RoiMaskGraphicsItem::add_to_roi(QPolygon polygon)
+{
+    QVariant variant = _color_ano->getValue();
+    QColor col = variant.value<QColor>();
+    col.setAlpha(_alpha_value->getValue().toInt());
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            QPoint point(i, j);
+            if( polygon.containsPoint(point, Qt::OddEvenFill) )
+            {
+                _mask->setPixelColor(i, j, col);
+            }
+        }
+    }
+    QRect rect(0, 0, _mask->width(), _mask->height());
+    update(rect);
+}
+
+//-----------------------------------------------------------------------------
+
+void RoiMaskGraphicsItem::invertMask()
+{
+    QVariant variant = _color_ano->getValue();
+    QColor col = variant.value<QColor>();
+    QColor black_col = QColor(0, 0, 0, 0);
+    col.setAlpha(_alpha_value->getValue().toInt());
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            if (_mask->pixelColor(i, j) == black_col)
+            {
+                _mask->setPixelColor(i, j, col);
+            }
+            else
+            {
+                _mask->setPixelColor(i, j, black_col);
+            }
+        }
+    }
+    QRect rect(0, 0, _mask->width(), _mask->height());
+    update(rect);
+}
+
+//-----------------------------------------------------------------------------
+
 void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
 {
 
@@ -220,6 +282,25 @@ void RoiMaskGraphicsItem::erase_from_roi(QPointF pos)
             update(rect);
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void RoiMaskGraphicsItem::erase_from_roi(QPolygon polygon)
+{
+    for (int i = 0; i < _mask->width(); i++)
+    {
+        for (int j = 0; j < _mask->height(); j++)
+        {
+            QPoint point(i, j);
+            if (polygon.containsPoint(point, Qt::OddEvenFill))
+            {
+                _mask->setPixelColor(i, j, QColor(0, 0, 0, 0));
+            }
+        }
+    }
+    QRect rect(0, 0, _mask->width(), _mask->height());
+    update(rect);
 }
 
 //-----------------------------------------------------------------------------
@@ -362,6 +443,31 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
     Q_UNUSED(widget);
     setPos(0, 0);
     painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
+    if (_roi_polygon.size() > 0)
+    {
+        QPainterPath path;
+        path.setFillRule(Qt::WindingFill);
+        path.addPolygon(_roi_polygon);
+        QPen pen;
+        QVariant variant = _color_ano->getValue();
+        pen.setColor(variant.value<QColor>());
+        painter->setPen(pen);
+        painter->drawPath(path);
+        //painter->drawConvexPolygon(_roi_polygon);
+        //painter->drawPolygon(_roi_polygon);
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+void RoiMaskGraphicsItem::setDrawAction(DRAW_ACTION_MODES action_mode)
+{
+    _draw_action = action_mode; 
+    if (_draw_action == DRAW_ACTION_MODES::ADD_POLY || _draw_action == DRAW_ACTION_MODES::ERASE_POLY)
+    {
+        _roi_polygon.clear();
+        update();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -371,15 +477,42 @@ void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         _mouse_down = true;
-        if (_draw_action == DRAW_ACTION_MODES::ADD)
+        if (_draw_action == DRAW_ACTION_MODES::ADD_DRAW)
         {
             add_to_roi(event->scenePos());
         }
-        else if (_draw_action == DRAW_ACTION_MODES::ERASE)
+        else if (_draw_action == DRAW_ACTION_MODES::ERASE_DRAW)
         {
             erase_from_roi(event->scenePos());
         }
+        else if (_draw_action == DRAW_ACTION_MODES::ADD_POLY)
+        {
+            _roi_polygon.push_back(event->scenePos().toPoint());
+            update();
+        }
+        else if (_draw_action == DRAW_ACTION_MODES::ERASE_POLY)
+        {
+            _roi_polygon.push_back(event->scenePos().toPoint());
+            update();
+        }
     }
+    else if (event->button() == Qt::RightButton)
+    {
+        if (_roi_polygon.size() > 2)
+        {
+            _roi_polygon.push_back(_roi_polygon[0]);
+            if (_draw_action == DRAW_ACTION_MODES::ADD_POLY)
+            {
+                add_to_roi(_roi_polygon);
+            }
+            else if (_draw_action == DRAW_ACTION_MODES::ERASE_POLY)
+            {
+                erase_from_roi(_roi_polygon);
+            }
+            _roi_polygon.clear();
+        }
+    }
+
     QGraphicsItem::mousePressEvent(event);
 }
 
@@ -389,14 +522,24 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
    if(_mouse_down == true)
    {
-       if (_draw_action == DRAW_ACTION_MODES::ADD)
+       if (_draw_action == DRAW_ACTION_MODES::ADD_DRAW)
        {
            add_to_roi(event->scenePos());
        }
-       else if (_draw_action == DRAW_ACTION_MODES::ERASE)
+       else if (_draw_action == DRAW_ACTION_MODES::ERASE_DRAW)
        {
            erase_from_roi(event->scenePos());
        }
+       /*
+       else if (_draw_action == DRAW_ACTION_MODES::ADD_POLY)
+       {
+
+       }
+       else if (_draw_action == DRAW_ACTION_MODES::ERASE_POLY)
+       {
+
+       }
+       */
    }
    _cursor->setPos(event->scenePos());
    QGraphicsItem::mouseMoveEvent(event);

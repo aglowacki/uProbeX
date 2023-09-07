@@ -36,7 +36,7 @@ public:
     * @param parent
     * @param f
     */
-   RulerUnitsDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+   RulerUnitsDialog(QWidget* parent = 0, Qt::WindowFlags f = Qt::Widget);
 
    /**
     * @brief getUnitLabel

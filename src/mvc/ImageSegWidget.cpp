@@ -14,8 +14,14 @@ ImageSegWidget::ImageSegWidget(QWidget* parent)
     _draw_action_mode = gstar::DRAW_ACTION_MODES::OFF;
     _selected_roi = nullptr;
     _mouse_down = false;
+
     createLayout();
     createActions();
+
+    disconnect(m_imageViewWidget,
+        SIGNAL(customContextMenuRequested(const QPoint&)),
+        this,
+        SLOT(viewContextMenu(const QPoint&)));
 }
 
 //---------------------------------------------------------------------------
@@ -144,6 +150,16 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
     connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
     connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
     connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegWidget::invertSelectedRoiMask()
+{
+    if (_selected_roi != nullptr)
+    {
+        _selected_roi->invertMask();
+    }
 }
 
 //---------------------------------------------------------------------------

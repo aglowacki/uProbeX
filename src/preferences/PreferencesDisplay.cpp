@@ -9,6 +9,8 @@
 #include <QSpinBox>
 #include <QLabel>
 #include <QFormLayout>
+#include <QDir>
+#include <QCoreApplication>
 
 /*---------------------------------------------------------------------------*/
 
@@ -29,7 +31,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
 
    QFont font;
    font.setBold(true);
-   font.setWeight(75);
+   font.setWeight(QFont::Thin);
 
    QLabel* lblFont = new QLabel("Font size:");
    lblFont->setFont(font);
@@ -40,18 +42,25 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    QLabel* lblDeciPrecision = new QLabel("Number of precision:");
    lblDeciPrecision->setFont(font);
 
-   QLabel* lblUseDarkTheme = new QLabel("Use Dark Theme:");
+   QLabel* lblUseDarkTheme = new QLabel("Display Theme (Restart required):");
    lblUseDarkTheme->setFont(font);
 
-   bool use_dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
-   _useDarkTheme = new QCheckBox("Restart required");
-   _useDarkTheme->setChecked(use_dark_theme);
+   _cb_themes = new QComboBox();
+   reload_themes();
+   QString str_theme = Preferences::inst()->getValue(STR_PFR_THEME).toString();
+   int idx = _cb_themes->findText(str_theme);
+   if (idx > -1)
+   {
+       _cb_themes->setCurrentIndex(idx);
+   }
 
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
    mainLayout->addRow(lblTitle, m_windowTitle);
    mainLayout->addRow(lblDeciPrecision, m_decimalPreci);
-   mainLayout->addRow(lblUseDarkTheme, _useDarkTheme);
+   mainLayout->addRow(lblUseDarkTheme, _cb_themes);
+
+   connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
    setLayout(mainLayout);
 
@@ -62,6 +71,44 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
 PreferencesDisplay::~PreferencesDisplay()
 {
 
+}
+
+/*---------------------------------------------------------------------------*/
+
+void PreferencesDisplay::reload_themes()
+{
+    QString colormapDir = QCoreApplication::applicationDirPath();
+    QDir directory(colormapDir);
+    directory.cd("../themes");
+
+    if (!directory.exists())
+    {
+        QString warn_msg = "Cannot find the " + colormapDir + " directory";
+        qWarning(warn_msg.toStdString().c_str());
+        //logW<< "Cannot find the " << directory.path()<<"\n";
+        return;
+    }
+    directory.setFilter(QDir::Files | QDir::NoSymLinks);
+
+    QFileInfoList list = directory.entryInfoList();
+
+    _cb_themes->clear();
+    _cb_themes->addItem(STR_DEFAULT);
+    for (int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.suffix() == "qss")
+        {
+            _cb_themes->addItem(fileInfo.baseName());
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void PreferencesDisplay::themeChanged(QString val)
+{
+    Preferences::inst()->setValue(STR_PFR_THEME, val);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -87,13 +134,6 @@ QString PreferencesDisplay::getWindowTitle()
 
    return m_windowTitle->text();
 
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool PreferencesDisplay::getUseDarkTheme()
-{
-    return _useDarkTheme->isChecked();
 }
 
 /*---------------------------------------------------------------------------*/

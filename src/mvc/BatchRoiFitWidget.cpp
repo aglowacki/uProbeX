@@ -56,7 +56,7 @@ void BatchRoiFitWidget::createLayout()
     _cb_opt_method->addItem(STR_LM_FIT);
     _cb_opt_method->addItem(STR_MP_FIT);
     _cb_opt_method->addItem(STR_HYBRID_MP_FIT);
-    connect(_cb_opt_method, SIGNAL(currentIndexChanged(QString)), this, SLOT(optimizer_changed(QString)));
+    connect(_cb_opt_method, &QComboBox::currentTextChanged, this, &BatchRoiFitWidget::optimizer_changed);
 
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();

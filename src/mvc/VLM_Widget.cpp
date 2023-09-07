@@ -712,15 +712,15 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
       QFont painterFont = painter->font();
       QFontMetrics fm(painterFont);
       if (printNameOnImage) {
-         maxWidth = std::max(fm.width(itemName), maxWidth);
+         maxWidth = std::max(fm.horizontalAdvance(itemName), maxWidth);
       }
       if (printPredictedXYOnImage) {
-         maxWidth = std::max(fm.width(predPositionXText), maxWidth);
-         maxWidth = std::max(fm.width(predPositionYText), maxWidth);
+         maxWidth = std::max(fm.horizontalAdvance(predPositionXText), maxWidth);
+         maxWidth = std::max(fm.horizontalAdvance(predPositionYText), maxWidth);
       }
       if (printWidthHeightOnImage) {
-         maxWidth = std::max(fm.width(widthText), maxWidth);
-         maxWidth = std::max(fm.width(heightText), maxWidth);
+         maxWidth = std::max(fm.horizontalAdvance(widthText), maxWidth);
+         maxWidth = std::max(fm.horizontalAdvance(heightText), maxWidth);
       }
 
       maxWidth += textLeftOffset;

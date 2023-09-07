@@ -109,6 +109,8 @@ public:
 
     QPixmap getPngofChart();
 
+    void setBackgroundBlack(bool val);
+
 signals:
 
     void trigger_connect_markers();
@@ -150,11 +152,11 @@ protected:
 
     bool _display_log10;
 
-    QtCharts::QChart *_chart;
+    QChart *_chart;
 
     ChartView *_chartView;
 
-    QtCharts::QLineSeries *_line_series;
+    QLineSeries *_line_series;
 
 private slots:
 
@@ -180,21 +182,21 @@ private:
 
     float _max_log_range;
 
-    QtCharts::QLogValueAxis *_axisYLog10;
+    QLogValueAxis *_axisYLog10;
 
-    QtCharts::QValueAxis * _axisX;
+    QValueAxis * _axisX;
 
-    QtCharts::QValueAxis * _axisY;
+    QValueAxis * _axisY;
 
-    QtCharts::QAbstractAxis * _currentYAxis;
+    QAbstractAxis * _currentYAxis;
 
     bool m_isTouching;
 
     QMenu *_contextMenu;
 
-    std::vector<QtCharts::QLineSeries*> _element_lines;
+    std::vector<QLineSeries*> _element_lines;
 
-    QtCharts::QCategoryAxis* _top_axis_elements;
+    QCategoryAxis* _top_axis_elements;
 
     float _int_spec_max_x;
 

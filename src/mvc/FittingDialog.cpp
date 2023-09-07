@@ -113,32 +113,48 @@ void FittingDialog::_createLayout()
     QWidget* bottomWidget = new QWidget();
     bottomWidget->setLayout(hbox_tables);
 
+
+    _le_outcome = new QLineEdit();
+    _le_residual = new QLineEdit();
+    _le_num_itr = new QLineEdit();
+
+    QGridLayout* glayout = new QGridLayout();
+    glayout->setAlignment(Qt::AlignTop);
+    glayout->addWidget(new QLabel("Outcome: "), 0, 0, Qt::AlignRight);
+    glayout->addWidget(_le_outcome, 0, 1);
+    glayout->addWidget(new QLabel("Residual Error: "), 1, 0, Qt::AlignRight);
+    glayout->addWidget(_le_residual, 1, 1);
+    glayout->addWidget(new QLabel("Number of Iterations: "), 2, 0, Qt::AlignRight);
+    glayout->addWidget(_le_num_itr, 2, 1);
+
+    QWidget* ouput_widget = new QWidget();
+    ouput_widget->setLayout(glayout);
+
+    _tabWidget = new QTabWidget(this);
+    _tabWidget->addTab(bottomWidget, QIcon(), "Fit Parameters");
+    _tabWidget->addTab(_optimizer_widget, QIcon(), "Optimizer Options");
+    _tabWidget->addTab(ouput_widget, QIcon(), "Output");
+  
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Vertical);
     splitter->addWidget(_spectra_widget);
     splitter->setStretchFactor(0, 1);
-    splitter->addWidget(bottomWidget);
+    splitter->addWidget(_tabWidget);
+    
     layout->addWidget(splitter);
-    layout->addWidget(_optimizer_widget);
     layout->addItem(buttonlayout);
     layout->addItem(hbox_progresss_blocks);
 
-    //setLayout(layout);
-
-    setGeometry(100, 100, 1024, 768);
+    setGeometry(100, 100, 1920, 1024);
 
     QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidgetResizable(true);
     scrollArea->setLayout(layout);
 
     QLayout* l = new QVBoxLayout();
     l->addWidget(scrollArea);
-
-    setLayout(l);
-
     
-
+    setLayout(l);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -271,8 +287,11 @@ void FittingDialog::onAccepted()
 
 void FittingDialog::onCancel()
 {
-    _canceled = true;
-    if (_running == false)
+    if (_running)
+    {
+        _canceled = true;
+    }
+    else
     {
         close();
     }
@@ -339,13 +358,25 @@ void FittingDialog::runProcessing()
             {
                 _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
+
+            std::string out_str = optimizer_outcome_to_str(_outcome);
+            _le_outcome->setText(QString(out_str.c_str()));
+
+            if (_new_out_fit_params.contains(STR_RESIDUAL))
+            {
+                auto res_val = _new_out_fit_params.value(STR_RESIDUAL);
+                _le_residual->setText(QString::number(res_val));
+            }
+            if (_new_out_fit_params.contains(STR_NUM_ITR))
+            {
+                auto itr_val = _new_out_fit_params.value(STR_NUM_ITR);
+                _le_num_itr->setText(QString::number(itr_val));
+            }
         }
         catch (int e)
         {
             logI << "Exception Thrown" << std::endl;
             _running = false;
-            close();
-            return;
         }
         /*
         //std::future<data_struct::Fit_Parameters<double>> ret = global_threadpool.enqueue(&fitting::routines::Param_Optimized_Fit_Routine::fit_spectra_parameters, _fit_routine, &_model, _int_spec, _elements_to_fit, &_cb_func);
@@ -377,30 +408,39 @@ void FittingDialog::runProcessing()
         
         _new_out_fit_params = ret.get();
         */
-        _new_fit_params_table_model->setFitParams(_new_out_fit_params);
 
-        //don't want to display element counts, so removing them
-        _new_fit_params_table_model->only_keep_these_keys(_out_fit_params);
-
-		_progressBarBlocks->setValue(_total_itr);
-
-        _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);
-        
-        if (_new_fit_spec.size() == _spectra_background.size())
+        if (false == _canceled)
         {
-            _new_fit_spec += _spectra_background;
-        }
-        
-        for (int i = 0; i < _new_fit_spec.size(); i++)
-        {
-            if (_new_fit_spec[i] <= 0.0)
+
+            _new_fit_params_table_model->setFitParams(_new_out_fit_params);
+
+            //don't want to display element counts, so removing them
+            _new_fit_params_table_model->only_keep_these_keys(_out_fit_params);
+
+            _progressBarBlocks->setValue(_total_itr);
+
+            _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);
+
+            if (_new_fit_spec.size() == _spectra_background.size())
             {
-                _new_fit_spec[i] = 0.1;
+                _new_fit_spec += _spectra_background;
             }
+
+            for (int i = 0; i < _new_fit_spec.size(); i++)
+            {
+                if (_new_fit_spec[i] <= 0.0)
+                {
+                    _new_fit_spec[i] = 0.1;
+                }
+            }
+
+            _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &_new_fit_spec, &_ev);
         }
-
-        _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &_new_fit_spec, &_ev);
-
+        else
+        {
+            _le_outcome->setText("Canceled");
+        }
+        _canceled = false;
         _running = false;
 		_btn_accept->setEnabled(true);
         _btn_run->setEnabled(true);
@@ -413,6 +453,7 @@ void FittingDialog::status_callback(size_t cur_itr, size_t total_itr)
 {
     if (_canceled)
     {
+        _progressBarBlocks->setValue(_total_itr);
         throw 20;
     }
 

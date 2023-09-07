@@ -9,9 +9,9 @@
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
-ChartView::ChartView(QtCharts::QChart* chart, QWidget *parent) : QtCharts::QChartView(chart, parent)
+ChartView::ChartView(QChart* chart, QWidget *parent) : QChartView(chart, parent)
 {
-    setRubberBand(QtCharts::QChartView::HorizontalRubberBand);
+    setRubberBand(QChartView::HorizontalRubberBand);
     setMouseTracking(true);
     setInteractive(true);
     //setRenderHint(QPainter::Antialiasing);
@@ -29,7 +29,7 @@ ChartView::~ChartView()
 void ChartView::mousePressEvent(QMouseEvent* event)
 {
     
-    QtCharts::QChartView::mousePressEvent(event);
+    QChartView::mousePressEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -43,7 +43,7 @@ void ChartView::mouseReleaseEvent(QMouseEvent* event)
 
     emit(view_zoomed());
 
-    QtCharts::QChartView::mouseReleaseEvent(event);
+    QChartView::mouseReleaseEvent(event);
 }
 
 /*---------------------------------------------------------------------------*/

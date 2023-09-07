@@ -282,8 +282,13 @@ QModelIndex AnnotationTreeModel::duplicateNode(const QModelIndex& index)
    QModelIndex pIndex = appendNode(newItem);
    if (pIndex.isValid())
    {
-      QModelIndex cIndex = pIndex.child(newItem->row(), 0);
-      return cIndex;
+       const QAbstractItemModel* mmodel = pIndex.model();
+       if (mmodel != nullptr)
+       {
+           QModelIndex cIndex = mmodel->index(newItem->row(), 0);
+
+           return cIndex;
+       }
    }
 
    return QModelIndex();
@@ -296,7 +301,7 @@ Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
 
    // Check for valid index
    if (!index.isValid())
-      return 0;
+      return Qt::NoItemFlags;
 
    // Get desired index
    int c = index.column();
@@ -304,24 +309,24 @@ Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
    // Invalid column
    if (c < 0 || c >= columnCount(QModelIndex()))
    {
-      return 0;
+      return Qt::NoItemFlags;
    }
 
    if (m_root->childCount() == 0)
    {
-       return 0;
+        return Qt::NoItemFlags;
    }
 
    AbstractGraphicsItem* item = static_cast<AbstractGraphicsItem*>(index.internalPointer());
 
    if (item == nullptr)
    {
-       return 0;
+       return Qt::NoItemFlags;
    }
 
    if (m_root->hasChild(item) == false)
    {
-       return 0;
+       return Qt::NoItemFlags;
    }
 
    if (item->parent() == m_root || item == m_root)

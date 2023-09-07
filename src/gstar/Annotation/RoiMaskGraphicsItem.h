@@ -18,7 +18,7 @@ namespace gstar
 {
 
     
-    enum class DRAW_ACTION_MODES { OFF, ADD, ERASE };
+    enum class DRAW_ACTION_MODES { OFF, ADD_DRAW, ERASE_DRAW, ADD_POLY, ERASE_POLY };
 
 /**
  * @brief The RulerGraphicsItem class
@@ -84,19 +84,25 @@ public:
  
    void add_to_roi(QPointF pos);
 
+   void add_to_roi(QPolygon polygon);
+
    void erase_from_roi(QPointF pos);
+
+   void erase_from_roi(QPolygon polygon);
 
    void setMaskSize(QRectF size);
 
    void setBrushSize(QSize brushSize);
 
-   void setDrawAction(DRAW_ACTION_MODES action_mode) { _draw_action = action_mode; }
+   void setDrawAction(DRAW_ACTION_MODES action_mode);
 
    QPainterPath shape() const;
 
    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
 
    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+
+   void invertMask();
 
 public slots:
    /**
@@ -142,6 +148,8 @@ protected:
     QSize _brush_size;
 
     QPolygon _polygon;
+
+    QPolygon _roi_polygon;
 
     DRAW_ACTION_MODES _draw_action;
 

@@ -33,7 +33,7 @@ public:
     * @param parent the parent widget.
     * @param flags window flags.
     */
-   SubWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = 0);
+   SubWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::Widget);
 
    /**
     * Destructor

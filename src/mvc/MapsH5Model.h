@@ -34,6 +34,8 @@ const std::string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
 const std::string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
 const std::string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
 const std::string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
+const std::string QUANT_V10_NUM_STANDARDS_STR = "Quantification/Number_Of_Standards";
+const std::string QUANT_V10_STANDARD_STR = "Quantification/Standard";
 
 const std::string STR_SR_CURRENT_V9 = "SRcurrent";
 const std::string STR_US_IC_V9 = "us_ic";
@@ -178,6 +180,10 @@ public:
 
     void generateNameLists(QString analysis_type, std::vector<std::string>& names);
 
+    QStringList get_calibration_curve_scalers(std::string analysis_type);
+
+    QStringList get_analysis_types();
+
 signals:
     void model_data_updated();
 
@@ -210,6 +216,8 @@ protected:
 
     bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant);
 
+    bool _load_quantification_standard_10(hid_t maps_grp_id);
+
     bool _load_quantification_10(hid_t maps_grp_id);
 
     bool _load_scalers_10(hid_t maps_grp_id);
@@ -229,6 +237,8 @@ protected:
     std::map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
 
     data_struct::Spectra<double> _integrated_spectra;
+
+    data_struct::ArrayTr<double> _energy_array;
 
     data_struct::Params_Override<double>* _params_override;
 
@@ -257,6 +267,8 @@ private:
 
     std::vector<float> _x_axis;
     std::vector<float> _y_axis;
+
+    std::vector<data_struct::Quantification_Standard<double> > _quant_standards;
 
     float _version;
 

@@ -47,7 +47,7 @@ public:
 
     void setBlackBackground(int  val);
 
-    void setShape(QtCharts::QScatterSeries::MarkerShape shape);
+    void setShape(QScatterSeries::MarkerShape shape);
 
     void setGridLinesVisible(int val);
 
@@ -73,13 +73,13 @@ private:
 
     void _exportScatterPlotCSV(QString filePath);
 
-    QtCharts::QLogValueAxis* _axisXLog10;
+    QLogValueAxis* _axisXLog10;
 
-    QtCharts::QLogValueAxis* _axisYLog10;
+    QLogValueAxis* _axisYLog10;
 
-    QtCharts::QValueAxis* _axisX;
+    QValueAxis* _axisX;
 
-    QtCharts::QValueAxis* _axisY;
+    QValueAxis* _axisY;
 
     QLabel* _lb_roi;
 
@@ -91,11 +91,11 @@ private:
 
     QLabel* _lb_corr_coef;
 
-    QtCharts::QChart* _chart;
+    QChart* _chart;
 
-    QtCharts::QChartView* _chartView;
+    QChartView* _chartView;
 
-    QtCharts::QScatterSeries* _scatter_series;
+    QScatterSeries* _scatter_series;
 
     QString _curAnalysis;
 

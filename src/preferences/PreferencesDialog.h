@@ -53,7 +53,7 @@ public:
 
    PreferencesDialog(QList<gstar::AbstractImageWidget*> windowList,
                      QWidget* parent = 0,
-                     Qt::WindowFlags f = 0);
+                     Qt::WindowFlags f = Qt::Widget);
 
    /**
     * Set preferences object

@@ -147,7 +147,7 @@ void SolverProfileWidget::createCompontent()
 
     QFont font;
     font.setBold(true);
-    font.setWeight(75);
+    font.setWeight(QFont::Thin);
 
     m_lblPofileTable = new QLabel("Profile:");
     m_lblPofileTable->setFont(font);

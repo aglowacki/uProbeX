@@ -148,7 +148,7 @@ void OptimizerOptionsWidget::_createLayout()
     setGeometry(100, 100, 1024, 768);
 
     QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setBackgroundRole(QPalette::Dark);
+    //scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidgetResizable(true);
     scrollArea->setMinimumWidth(800);
     scrollArea->setLayout(layout);

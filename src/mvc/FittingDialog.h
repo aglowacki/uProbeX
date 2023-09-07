@@ -28,6 +28,7 @@
 #include <QHeaderView>
 #include <QDoubleSpinBox>
 #include <QGroupBox>
+#include <QTabBar>
 #include "mvc/ComboBoxDelegate.h"
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/SpectraWidget.h"
@@ -129,6 +130,14 @@ protected:
    QPushButton* _btn_accept;
 
    QPushButton *_btn_cancel;
+
+   QLineEdit* _le_outcome;
+
+   QLineEdit* _le_residual;
+
+   QLineEdit* _le_num_itr;
+
+   QTabWidget * _tabWidget;
 
    OptimizerOptionsWidget* _optimizer_widget;
 

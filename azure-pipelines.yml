@@ -22,18 +22,6 @@ jobs:
     - checkout: XrfMapsGithub
       submodules: true
       path: s/XRF-Maps
-    #- task: PythonScript@0
-    #  displayName: 'Download Qt Installer'
-    #  inputs:
-    #    scriptSource: 'inline'
-    #    script: from urllib.request import urlretrieve; urlretrieve('https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe', 'qt-unified-windows-x64-online.exe')
-    #- script: qt-unified-windows-x64-online.exe install --root D:\a\1\Qt --auto-answer telemetry-question=Yes,AssociateCommonFiletypes=Yes --default-answer --accept-licenses --accept-obligations --file-query PathForSDP7=<path_to_sdp> --email <your_email --pw <your_pw> --confirm-command
-    #- script: maintenancetool.exe install qt.qt5.5150.qtcharts qt.qt5.5150.win64_mingw81 --default-answer --accept-licenses --confirm-command
-    #- script: choco install -y qt5-default
-    #- script: choco install -y qt-installer-framework
-    #- task: CmdLine@2
-    #  inputs:
-    #    script: C:/Qt/QtIFW-4.4.2/bin/installerbase.exe --accept-licenses --default-answer --confirm-command install qt.qt5.5152 qt.qt5.5152.qtcharts
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'
@@ -43,8 +31,8 @@ jobs:
       displayName: 'Install aqtinstall'
     - script: |
         cd $(Build.SourcesDirectory)
-        python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt 5.15.2 windows desktop win64_msvc2019_64 -m qtcharts --archives qtbase
-      displayName: 'Install Qt 5.15.2'
+        python -m aqt install-qt --outputdir $(Build.BinariesDirectory)\\Qt windows desktop 6.5.2 win64_msvc2019_64 -m qtcharts --archives qtbase
+      displayName: 'Install Qt 6.5.2'
     - script: $(System.DefaultWorkingDirectory)/XRF-Maps/vcpkg/bootstrap-vcpkg.bat
     - task: Cache@2
       inputs:
@@ -65,7 +53,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: 'XRF-Maps/build'
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR="D:/a/1/b/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DQT_ADDITIONAL_PACKAGES_PREFIX_PATH="D:/a/1/b/Qt/6.5.2/msvc2019_64/lib/cmake" -DQt6_DIR="D:/a/1/b/Qt/6.5.2/msvc2019_64/lib/cmake/Qt6" -DBUILD_WITH_QT=ON -DBUILD_WITH_ZMQ=ON -DAVX2=ON ..'
     - task: MSBuild@1
       inputs:
         solution: 'XRF-Maps/build/ALL_BUILD.vcxproj'
@@ -82,7 +70,7 @@ jobs:
     - task: CMake@1
       inputs:
         workingDirectory: "$(System.DefaultWorkingDirectory)/uProbeX/build"
-        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQt5_DIR=D:/a/1/b/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 -DAVX2=ON -DXRF_Maps_DIR=D:/a/1/s/XRF-Maps/build ..'
+        cmakeArgs: '-G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/XRF-Maps/vcpkg/scripts/buildsystems/vcpkg.cmake -DQT_ADDITIONAL_PACKAGES_PREFIX_PATH="D:/a/1/b/Qt/6.5.2/msvc2019_64/lib/cmake" -DQt6_DIR=D:/a/1/b/Qt/6.5.2/msvc2019_64/lib/cmake/Qt6 -DAVX2=ON -DXRF_Maps_DIR=D:/a/1/s/XRF-Maps/build ..'
     - task: MSBuild@1
       inputs:
         solution: 'uProbeX/build/ALL_BUILD.vcxproj'

@@ -15,7 +15,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-class ChartView : public QtCharts::QChartView
+class ChartView : public QChartView
 {
 
    Q_OBJECT
@@ -25,7 +25,7 @@ public:
     /**
      * Constructor.
      */
-    ChartView(QtCharts::QChart* chart, QWidget *parent = nullptr);
+    ChartView(QChart* chart, QWidget *parent = nullptr);
 
     /**
      * Destructor.

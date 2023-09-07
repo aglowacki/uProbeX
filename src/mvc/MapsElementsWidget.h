@@ -26,6 +26,7 @@
 #include <mvc/CoLocalizationWidget.h>
 #include <mvc/ImageSegROIDialog.h>
 #include <mvc/ScatterPlotWidget.h>
+#include <mvc/QuantificationWidget.h>
 
 using gstar::AbstractGraphicsItem;
 /*---------------------------------------------------------------------------*/
@@ -193,6 +194,8 @@ protected:
    QImage* _color_maps_ledgend;
 
    QLabel *_color_map_ledgend_lbl;
+
+   QuantificationWidget* _quant_widget;
 
    CoLocalizationWidget* _co_loc_widget;
 

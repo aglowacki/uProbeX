@@ -85,10 +85,11 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 	//dark style
 	
-	bool use_dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
-	if (use_dark_theme)
+	QString str_theme = Preferences::inst()->getValue(STR_PFR_THEME).toString();
+	if (str_theme.length() > 0 && str_theme != STR_DEFAULT)
 	{
-		QFile* file = new QFile(":/qss/dark.qss");
+		QString theme_file = "../themes/" + str_theme + ".qss";
+		QFile* file = new QFile(theme_file);
 		file->open(QFile::ReadOnly | QFile::Text);
 		QTextStream* stream = new QTextStream(file);
 		app.setStyleSheet(stream->readAll());

@@ -73,7 +73,7 @@ void ImageStackControlWidget::createLayout()
     hlayout1->addWidget(_image_name_cb);
     hlayout1->addWidget(_right_btn);
 
-	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
+	connect(_image_name_cb, &QComboBox::currentTextChanged, this, &ImageStackControlWidget::model_IndexChanged);
 
 	connect(_imageGrid, &MapsElementsWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
@@ -240,7 +240,7 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 
 void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYPE mt)
 {
-	disconnect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
+	disconnect(_image_name_cb, &QComboBox::currentTextChanged, this, &ImageStackControlWidget::model_IndexChanged);
 
     _imageGrid->setModel(nullptr);
     foreach (QString s, sl)
@@ -270,8 +270,8 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
             }
         }
     }
-	connect(_image_name_cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(model_IndexChanged(QString)));
-	emit _image_name_cb->currentIndexChanged(_image_name_cb->currentText());
+	connect(_image_name_cb, &QComboBox::currentTextChanged, this, &ImageStackControlWidget::model_IndexChanged);
+	emit _image_name_cb->currentTextChanged(_image_name_cb->currentText());
 }
 
 

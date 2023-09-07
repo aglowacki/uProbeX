@@ -11,7 +11,7 @@
 #include <QLineEdit>
 #include <QHeaderView>
 #include <QItemSelectionModel>
-#include <QRegExp>
+#include <QRegularExpression>
 
 /*---------------------------------------------------------------------------*/
 
@@ -73,8 +73,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     hlayout2->addWidget(_unload_all_btn);
 
     QHBoxLayout* hlayout3 = new QHBoxLayout();
-    hlayout2->addWidget(_process_btn);
-    hlayout2->addWidget(_batch_roi_btn);
+    hlayout3->addWidget(_process_btn);
+    hlayout3->addWidget(_batch_roi_btn);
 
     QLayout* vlayout = new QVBoxLayout();
     vlayout->addItem(hlayout1);
@@ -260,14 +260,14 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
     _filter_line->setText(filter_text);
     if(filter_text.length() > 0)
     {
-        QRegExp re (filter_text);
-        re.setPatternSyntax(QRegExp::Wildcard);
-
+        QRegularExpression re (QRegularExpression::wildcardToRegularExpression(filter_text));
+     
         for(int i=0; i < _file_list_model->rowCount(); i++)
         {
             _file_list_view->setRowHidden(i, true);
             QStandardItem *val = _file_list_model->item(i, 0);
-            if(re.exactMatch(val->text()))
+            QRegularExpressionMatchIterator j = re.globalMatch(val->text());
+            if (j.hasNext())
             {
                 _file_list_view->setRowHidden(i, false);
             }

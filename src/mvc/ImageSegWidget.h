@@ -56,6 +56,8 @@ public:
 
    void setRoiBrushSize(int val);
 
+   void invertSelectedRoiMask();
+
 public slots:
 
    /**

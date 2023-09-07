@@ -39,7 +39,7 @@ void ScatterPlotWidget::_createLayout()
     int num_wins = Preferences::inst()->getValue(STR_PRF_ScatterPlot_NumWindows).toInt();
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
-    bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool();
     
     _ck_display_log10 = new QCheckBox("Display log10");
     _ck_display_log10->setChecked(_display_log10);
@@ -116,7 +116,7 @@ void ScatterPlotWidget::onAdd()
 {
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
-    bool dark_theme = Preferences::inst()->getValue(STR_PFR_USE_DARK_THEME).toBool();
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool();
     
     _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, this));
     int idx = _plot_view_list.size() - 1;
@@ -152,7 +152,7 @@ void ScatterPlotWidget::onShapeChange(QString val)
     {
         for (auto& itr : _plot_view_list)
         {
-            itr->setShape(QtCharts::QScatterSeries::MarkerShapeCircle);
+            itr->setShape(QScatterSeries::MarkerShapeCircle);
         }
         Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Circle");
     }
@@ -160,7 +160,7 @@ void ScatterPlotWidget::onShapeChange(QString val)
     {
         for (auto& itr : _plot_view_list)
         {
-            itr->setShape(QtCharts::QScatterSeries::MarkerShapeRectangle);
+            itr->setShape(QScatterSeries::MarkerShapeRectangle);
         }
         Preferences::inst()->setValue(STR_PFR_MARKER_SHAPE, "Rectangle");
     }

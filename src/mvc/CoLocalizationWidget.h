@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef IMAGE_SEGMENT_WIDGET_H
-#define IMAGE_SEGMENT_WIDGET_H
+#ifndef COLOCALIZATION_WIDGET_H
+#define COLOCALIZATION_WIDGET_H
 
 /*---------------------------------------------------------------------------*/
 

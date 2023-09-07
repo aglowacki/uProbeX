@@ -131,7 +131,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
         _cb_colormap->addItem(itr.first);
     }
 
-    connect(_cb_colormap, SIGNAL(currentIndexChanged(QString)), this, SLOT(onColormapSelect(QString)));
+    connect(_cb_colormap, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onColormapSelect);
 
     _color_map_ledgend_lbl = new QLabel();
     _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
@@ -182,9 +182,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     _cb_normalize = new QComboBox();
     _cb_normalize->setMinimumContentsLength(20);
-    _cb_normalize->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    _cb_normalize->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     _cb_normalize->addItem("1");
-    connect(_cb_normalize, SIGNAL(currentIndexChanged(QString)), this, SLOT(onSelectNormalizer(QString)));
+    connect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
 
     _global_contrast_chk = new QCheckBox("Global Contrast");
     _global_contrast_chk->setChecked(true);
@@ -235,12 +235,14 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _counts_window->setLayout(counts_layout);
 
     _co_loc_widget = new CoLocalizationWidget();
+    _quant_widget = new QuantificationWidget();
 
     _scatter_plot_widget = new ScatterPlotWidget();
     connect(_scatter_plot_widget, &ScatterPlotWidget::updateProgressBar, this, &MapsElementsWidget::loaded_perc);
 
     _tab_widget->addTab(_counts_window, "Analyzed Counts");
     _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
+    _tab_widget->addTab(_quant_widget, "Quantification");
     _tab_widget->addTab(_co_loc_widget, "CoLocalization");
     _tab_widget->addTab(_scatter_plot_widget, "Scatter Plot");
     _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
@@ -767,6 +769,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
             _co_loc_widget->setModel(_model);
             _scatter_plot_widget->setModel(_model);
+            _quant_widget->setModel(_model);
 
             QString analysis_text = _cb_analysis->currentText();
             if (analysis_text.length() > 0)
@@ -940,7 +943,7 @@ void MapsElementsWidget::model_updated()
         return;
     }
 
-    disconnect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
+    disconnect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
@@ -1147,7 +1150,7 @@ void MapsElementsWidget::model_updated()
 
     redrawCounts();
 
-    connect(_cb_analysis, SIGNAL(currentIndexChanged(QString)), this, SLOT(onAnalysisSelect(QString)));
+    connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 }
 
 //---------------------------------------------------------------------------
@@ -1366,10 +1369,16 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 }
             }
 
-            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            gstar::CountsLookupTransformer* counts_lookup = nullptr;
+            gstar::CountsStatsTransformer* counts_stats = nullptr;
+            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
             if (counts_lookup != nullptr)
             {
                 counts_lookup->setCounts(normalized);
+            }
+            if (counts_stats != nullptr)
+            {
+                counts_stats->setCounts(normalized);
             }
 
             counts_max = normalized.maxCoeff();
@@ -1530,11 +1539,18 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 }
             }
 
-            gstar::CountsLookupTransformer* counts_lookup = m_imageViewWidget->getMouseTrasnformAt(grid_idx);
+            gstar::CountsLookupTransformer* counts_lookup = nullptr;
+            gstar::CountsStatsTransformer* counts_stats = nullptr;
+            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
             if (counts_lookup != nullptr)
             {
                 counts_lookup->setCounts(normalized);
             }
+            if (counts_stats != nullptr)
+            {
+                counts_stats->setCounts(normalized);
+            }
+
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();
