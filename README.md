@@ -20,13 +20,13 @@ Cmake 3.5 or greater
 2) cd XRF-Maps
 3) mkdir build
 4) cd vcpkg
- Note that if you have Qt installed though the QT installer, you don't need to have qt5-base or qt5-charts, you will have to point cmake to them.
+ Note that if you have Qt installed though the QT installer, you don't need to have qt6-base or qt6-charts, you will have to point cmake to them.
 5) vcpkg set Linux
    1) ./bootstrap-vcpkg.sh
-   2) ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qt5-base qt5-charts
+   2) ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qt6-base qt6-charts
 6) vcpkg setup windows
    1) .\bootstrap-vcpkg.bat
-   2) .\vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qt5-base qt5-charts --triplet x64-windows
+   2) .\vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qt6-base qt6-charts --triplet x64-windows
 7) cd ../build
 8) cmake `-DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_WITH_ZMQ=ON ..`
 9) make
