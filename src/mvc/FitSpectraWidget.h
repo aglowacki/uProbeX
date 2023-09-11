@@ -162,6 +162,12 @@ private slots:
 
    void set_fit_params_bounds_fit(bool v) {set_fit_params_bounds(data_struct::E_Bound_Type::FIT);}
 
+   void set_fit_params_bounds_limited_lo_hi(bool v) { set_fit_params_bounds(data_struct::E_Bound_Type::LIMITED_LO_HI); }
+
+   void set_fit_params_bounds_limited_lo(bool v) { set_fit_params_bounds(data_struct::E_Bound_Type::LIMITED_LO); }
+
+   void set_fit_params_bounds_limited_hi(bool v) { set_fit_params_bounds(data_struct::E_Bound_Type::LIMITED_HI); }
+
    void set_fit_params_bounds(data_struct::E_Bound_Type e_type);
 
    void pileup_chk_changed(int state);
