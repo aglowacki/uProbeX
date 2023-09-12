@@ -71,13 +71,13 @@ protected:
 
    QCheckBox* _ck_use_weights;
 
-   QDoubleSpinBox* _opt_ftol;
+   QLineEdit* _opt_ftol;
 
-   QDoubleSpinBox* _opt_xtol;
+   QLineEdit* _opt_xtol;
 
-   QDoubleSpinBox* _opt_gtol;
+   QLineEdit* _opt_gtol;
 
-   QDoubleSpinBox* _opt_epsilon;
+   QLineEdit* _opt_epsilon;
 
    QDoubleSpinBox* _opt_stepbound;
 

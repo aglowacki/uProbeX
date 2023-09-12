@@ -13,6 +13,10 @@
 
 using namespace std::chrono_literals;
 
+#define FP_INDEX 0
+#define OPT_INDEX 1
+#define OUTPUT_INDEX 2
+
  /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 
@@ -305,6 +309,8 @@ void FittingDialog::runProcessing()
     {
         _running = true;
         _btn_run->setEnabled(false);
+
+        _tabWidget->setCurrentIndex(OUTPUT_INDEX);
 
         if (_new_fit_spec.size() > 0)
         {
