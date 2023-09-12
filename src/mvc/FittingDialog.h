@@ -97,6 +97,8 @@ public slots:
 	void onAccepted();
 
     void onCancel();
+
+    void onUpdateSelected();
    
 protected:
 
@@ -138,6 +140,8 @@ protected:
    QLineEdit* _le_num_itr;
 
    QTabWidget * _tabWidget;
+
+   QPushButton* _btn_update_fitp;
 
    OptimizerOptionsWidget* _optimizer_widget;
 

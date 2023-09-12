@@ -59,6 +59,11 @@ public:
 
    double getFitParamValue(const std::string name) { return _fit_parameters.at(name).value; }
 
+   double getDataValueForRow(int row);
+
+   void setDataValueForRow(int row, double val);
+
+   void updateAll();
 
    /**
     * @brief Clear all

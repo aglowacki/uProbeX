@@ -102,9 +102,25 @@ void FittingDialog::_createLayout()
 
     _spectra_widget = new SpectraWidget();
     
+    QVBoxLayout* vbox_fitp = new QVBoxLayout();
+
+    QHBoxLayout* hbox_btn_update = new QHBoxLayout();
+    _btn_update_fitp = new QPushButton();
+    _btn_update_fitp->setText("<- Update Selected Values");
+    _btn_update_fitp->setMaximumWidth(200);
+    connect(_btn_update_fitp, &QPushButton::released, this, &FittingDialog::onUpdateSelected);
+
     QHBoxLayout* hbox_tables = new QHBoxLayout();
     hbox_tables->addWidget(_fit_params_table);
     hbox_tables->addWidget(_new_fit_params_table);
+
+
+    hbox_btn_update->addStretch();
+    hbox_btn_update->addWidget(_btn_update_fitp);
+    hbox_btn_update->addStretch();
+
+    vbox_fitp->addLayout(hbox_btn_update);
+    vbox_fitp->addLayout(hbox_tables);
 
     QHBoxLayout* hbox_progresss_blocks = new QHBoxLayout();
     hbox_progresss_blocks->addWidget(new QLabel("Current Iteration:"));
@@ -115,7 +131,7 @@ void FittingDialog::_createLayout()
     QVBoxLayout* layout = new QVBoxLayout();
 
     QWidget* bottomWidget = new QWidget();
-    bottomWidget->setLayout(hbox_tables);
+    bottomWidget->setLayout(vbox_fitp);
 
 
     _le_outcome = new QLineEdit();
@@ -299,6 +315,20 @@ void FittingDialog::onCancel()
     {
         close();
     }
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+void FittingDialog::onUpdateSelected()
+{
+    QModelIndexList selectedRows = _new_fit_params_table->selectionModel()->selectedIndexes();
+    
+    for (int i = selectedRows.count() - 1; i >= 0; i--)
+    {
+        _fit_params_table_model->setDataValueForRow(selectedRows[i].row(), _new_fit_params_table_model->getDataValueForRow(selectedRows[i].row()));
+    }
+    _fit_params_table_model->updateAll();
 }
 
 /*---------------------------------------------------------------------------*/
