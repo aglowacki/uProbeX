@@ -495,7 +495,7 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
     }
     if(_vlm_fileinfo_list.count(name) > 0)
     {
-        VLM_Model * model;
+        VLM_Model * model = nullptr;
         QFileInfo fileInfo = _vlm_fileinfo_list[name];
         QString ext = fileInfo.suffix().toLower();
         if (ext == "tif" || ext == "tiff")
@@ -506,14 +506,17 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
         {
             model = new SWSModel();
         }
-        if(model->load(fileInfo.absoluteFilePath()))
+        if (model != nullptr)
         {
-            _vlm_models.insert( {fileInfo.fileName(), model} );
-            return model;
-        }
-        else
-        {
-            delete model;
+            if (model->load(fileInfo.absoluteFilePath()))
+            {
+                _vlm_models.insert({ fileInfo.fileName(), model });
+                return model;
+            }
+            else
+            {
+                delete model;
+            }
         }
     }
 
