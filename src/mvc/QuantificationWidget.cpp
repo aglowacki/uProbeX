@@ -170,18 +170,32 @@ void QuantificationWidget::update(const QString& val)
         for (int i = 0; i < 91; i++)
         {
             _axisX->append(QString::fromStdString(data_struct::Element_Symbols[i + 1]), x);
-            double kval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1]);
-            double lval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_L");
-            double mval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_M");
-            max_val = std::max(max_val, kval);
-            max_val = std::max(max_val, lval);
-            max_val = std::max(max_val, mval);
+            double kval = 0.0;
+            double lval = 0.0;
+            double mval = 0.0;
+            if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1]) > 0)
+            {
+                kval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1]);
+                max_val = std::max(max_val, kval);
+            }
             _calib_curve_series_k->append(i, kval);
-            _calib_curve_series_k->append(i+1, kval);
+            _calib_curve_series_k->append(i + 1, kval);
+
+            if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1] + "_L") > 0)
+            {
+                lval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_L");
+                max_val = std::max(max_val, lval);
+            }
             _calib_curve_series_l->append(i, lval);
-            _calib_curve_series_l->append(i+1, lval);
+            _calib_curve_series_l->append(i + 1, lval);
+
+            if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1] + "_M") > 0)
+            {
+                mval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_M");
+                max_val = std::max(max_val, mval);
+            }
             _calib_curve_series_m->append(i, mval);
-            _calib_curve_series_m->append(i+1, mval);
+            _calib_curve_series_m->append(i + 1, mval);
             x += 1;
         }
         _chart->addSeries(_calib_curve_series_k);
