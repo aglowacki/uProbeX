@@ -43,35 +43,23 @@ void OptimizerOptionsWidget::_createLayout()
 
     QGridLayout* optimizerLayout = new QGridLayout();
 
-    _opt_ftol = new QDoubleSpinBox();
+    _opt_ftol = new QLineEdit();
     _opt_ftol->setToolTip(tip_ftol);
-    _opt_ftol->setDecimals(30);
-    _opt_ftol->setRange(0.0, 1.0);
-    _opt_ftol->setSingleStep(1.0e-12);
     QLabel* lbl_ftol = new QLabel("FTol: ");
     lbl_ftol->setToolTip(tip_ftol);
     
-    _opt_xtol = new QDoubleSpinBox();
+    _opt_xtol = new QLineEdit();
     _opt_xtol->setToolTip(tip_xtol);
-    _opt_xtol->setDecimals(30);
-    _opt_xtol->setRange(0.0, 1.0);
-    _opt_xtol->setSingleStep(1.0e-12);
     QLabel* lbl_xtol = new QLabel("XTol: ");
     lbl_xtol->setToolTip(tip_xtol);
 
-    _opt_gtol = new QDoubleSpinBox();
+    _opt_gtol = new QLineEdit();
     _opt_gtol->setToolTip(tip_gtol);
-    _opt_gtol->setDecimals(30);
-    _opt_gtol->setRange(0.0, 1.0);
-    _opt_gtol->setSingleStep(1.0e-12);
     QLabel* lbl_gtol = new QLabel("GTol: ");
     lbl_gtol->setToolTip(tip_gtol);
     
-    _opt_epsilon = new QDoubleSpinBox();
+    _opt_epsilon = new QLineEdit();
     _opt_epsilon->setToolTip(tip_epsilon);
-    _opt_epsilon->setDecimals(30);
-    _opt_epsilon->setRange(0.0, 1.0);
-    _opt_epsilon->setSingleStep(1.0e-12);
     QLabel* lbl_epsilon = new QLabel("Epsilon: ");
     lbl_epsilon->setToolTip(tip_epsilon);
 
@@ -108,7 +96,7 @@ void OptimizerOptionsWidget::_createLayout()
     lbl_covtol->setToolTip(tip_covtol);
 
     _ck_use_weights = new QCheckBox("Use Weights");
-    _ck_use_weights->setChecked(false);
+    _ck_use_weights->setChecked(true);
 
     optimizerLayout->addWidget(lbl_ftol, 0, 0, Qt::AlignRight);
     optimizerLayout->addWidget(_opt_ftol, 0, 1, Qt::AlignLeft);
@@ -169,19 +157,16 @@ void OptimizerOptionsWidget::setOptimizer(QString opt, fitting::optimizers::Opti
     {
         _mp_fit_ctrl_grp->setVisible(false);
         _lm_fit_ctrl_grp->setVisible(true);
-        _ck_use_weights->setChecked(false);
     }
     else if (opt == STR_MP_FIT)
     {
         _lm_fit_ctrl_grp->setVisible(false);
         _mp_fit_ctrl_grp->setVisible(true);
-        _ck_use_weights->setChecked(true);
     }
     else if (opt == STR_HYBRID_MP_FIT)
     {
         _lm_fit_ctrl_grp->setVisible(false);
         _mp_fit_ctrl_grp->setVisible(true);
-        _ck_use_weights->setChecked(false);
     }
     updateGUIOptimizerOptions(optimizer);
 }
@@ -194,19 +179,19 @@ void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Opt
     std::unordered_map<std::string, double> opt = optimizer.get_options();
     if (opt.count(STR_OPT_FTOL) > 0)
     {
-        _opt_ftol->setValue(opt.at(STR_OPT_FTOL));
+        _opt_ftol->setText(QString::number(opt.at(STR_OPT_FTOL), 'e', 0));
     }
     if (opt.count(STR_OPT_XTOL) > 0)
     {
-        _opt_xtol->setValue(opt.at(STR_OPT_XTOL));
+        _opt_xtol->setText(QString::number(opt.at(STR_OPT_XTOL), 'e', 0));
     }
     if (opt.count(STR_OPT_GTOL) > 0)
     {
-        _opt_gtol->setValue(opt.at(STR_OPT_GTOL));
+        _opt_gtol->setText(QString::number(opt.at(STR_OPT_GTOL), 'e', 0));
     }
     if (opt.count(STR_OPT_EPSILON) > 0)
     {
-        _opt_epsilon->setValue(opt.at(STR_OPT_EPSILON));
+        _opt_epsilon->setText(QString::number(opt.at(STR_OPT_EPSILON), 'e', 0));
     }
     if (opt.count(STR_OPT_STEP) > 0)
     {
@@ -231,10 +216,10 @@ void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Opt
 void  OptimizerOptionsWidget::updateOptimizerOptions(fitting::optimizers::Optimizer<double>& optimizer)
 {
     std::unordered_map<std::string, double> opt;
-    opt[STR_OPT_FTOL] = _opt_ftol->value();
-    opt[STR_OPT_XTOL] = _opt_xtol->value();
-    opt[STR_OPT_GTOL] = _opt_gtol->value();
-    opt[STR_OPT_EPSILON] = _opt_epsilon->value();
+    opt[STR_OPT_FTOL] = _opt_ftol->text().toDouble();
+    opt[STR_OPT_XTOL] = _opt_xtol->text().toDouble();
+    opt[STR_OPT_GTOL] = _opt_gtol->text().toDouble();
+    opt[STR_OPT_EPSILON] = _opt_epsilon->text().toDouble();
     opt[STR_OPT_STEP] = _opt_stepbound->value();
     opt[STR_OPT_MAXITER] = _opt_maxiter->value();
     opt[STR_OPT_SCALE_DIAG] = _opt_lm_scale_diag->value();

@@ -86,6 +86,14 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     action_bounds = _set_fit_params_bounds_menu->addAction("FIT");
     connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_fit(bool)));
 
+    action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_LO_HI");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_lo_hi(bool)));
+
+    action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_LO");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_lo(bool)));
+
+    action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_HI");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_hi(bool)));
  //FIXED=1, LIMITED_LO_HI=2, LIMITED_LO=3, LIMITED_HI=4, FIT=5};
     _fit_param_contextMenu = new QMenu(("Context menu"), this);
     _fit_param_contextMenu->addMenu(_set_fit_params_bounds_menu);

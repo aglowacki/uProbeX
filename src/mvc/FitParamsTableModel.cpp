@@ -168,6 +168,45 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
 
 /*---------------------------------------------------------------------------*/
 
+double FitParamsTableModel::getDataValueForRow(int row)
+{
+    // Check valid index
+    if (row >= _row_indicies.size() || row < 0)
+    {
+        return 0.0;
+    }
+    if (_fit_parameters.contains(_row_indicies.at(row)))
+    {
+        return _fit_parameters.at(_row_indicies.at(row)).value;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitParamsTableModel::setDataValueForRow(int row, double val)
+{
+    // Check valid index
+    if (row >= _row_indicies.size() || row < 0)
+    {
+        return;
+    }
+    if (_fit_parameters.contains(_row_indicies.at(row)))
+    {
+        _fit_parameters[_row_indicies.at(row)].value = val;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FitParamsTableModel::updateAll()
+{
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+    emit dataChanged(topLeft, bottomRight);
+}
+
+/*---------------------------------------------------------------------------*/
+
 Qt::ItemFlags FitParamsTableModel::flags(const QModelIndex &index) const
 {
 

@@ -13,7 +13,7 @@ NumericPrecDelegate::NumericPrecDelegate(QObject* parent) :	QStyledItemDelegate(
 
 QString NumericPrecDelegate::displayText(const QVariant& value, const QLocale& locale) const
 {
-	QString formattedNum = locale.toString(value.toDouble(), 'f', 14);
+	QString formattedNum = locale.toString(value.toDouble(), 'f', 7);
 	return formattedNum;
 
 };

@@ -50,7 +50,7 @@ project(uProbeX)
 
 #include(${PROJECT_SOURCE_DIR}/../XRF-Maps/build/XRF_MapsConfig.cmake)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake "c:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt6" "c:/Qt/5.11.1/msvc2017_64/lib/cmake/Qt6" ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../XRF-Maps/build )
 
 option(BUILD_WITH_TIRPC "Build tripc library for libxrpc (RedHat 8)" OFF)
