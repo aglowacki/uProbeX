@@ -184,6 +184,8 @@ public:
 
     QStringList get_analysis_types();
 
+    const std::vector<data_struct::Quantification_Standard<double> >& quant_standards() { return _quant_standards; }
+
 signals:
     void model_data_updated();
 

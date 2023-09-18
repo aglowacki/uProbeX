@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/QuantificationWidget.h>
+#include <QtCharts/QScatterSeries>
 #include "data_struct/element_info.h"
 
 //---------------------------------------------------------------------------
@@ -63,7 +64,6 @@ void QuantificationWidget::_createLayout()
     _calib_curve_series_k = new QLineSeries();
     _calib_curve_series_l = new QLineSeries();
     _calib_curve_series_m = new QLineSeries();
-    
 
     _chart = new QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
@@ -143,7 +143,6 @@ void QuantificationWidget::update(const QString& val)
     _calib_curve = _model->get_calibration_curve(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
     if (_calib_curve != nullptr)
     {
-        
         _calib_curve_series_k->setName("K");
         _calib_curve_series_l->setName("L");
         _calib_curve_series_m->setName("M");
@@ -218,6 +217,23 @@ void QuantificationWidget::update(const QString& val)
     {
         // dispaly label that says no quant data found?
     }
+
+    for (auto& itr : _model->quant_standards())
+    {
+        QScatterSeries *scatter_series = new QScatterSeries();
+        scatter_series->setName(QString::fromStdString(itr.standard_filename));
+
+        for (auto& w_itr : itr.element_standard_weights)
+        {
+            data_struct::Element_Info<double>* e_info = data_struct::Element_Info_Map<double>::inst()->get_element(w_itr.first);
+            if (e_info != nullptr)
+            {
+                scatter_series->append(e_info->number, w_itr.second);
+            }
+        }
+        _chart->addSeries(scatter_series);
+    }
+
 }
 
 //---------------------------------------------------------------------------

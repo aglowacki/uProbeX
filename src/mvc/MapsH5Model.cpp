@@ -1414,8 +1414,17 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
 {
     hid_t ns_dset_id = -1, ns_dspace_id = -1;
     hid_t st_dset_id = -1, st_dspace_id = -1;
+    hid_t wn_dset_id = -1, wn_dspace_id = -1;
+    hid_t w_dset_id = -1, w_dspace_id = -1;
+    hsize_t count_name[1] = { 1 };
+    hsize_t offset[1] = { 0 };
+    hsize_t count[1] = { 1 };
+    hid_t memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
     int num_standards = 0;
+    herr_t err;
 
+    hid_t memtype = H5Tcopy(H5T_C_S1);
+    hid_t status = H5Tset_size(memtype, 254);
 
     ns_dset_id = H5Dopen(maps_grp_id, QUANT_V10_NUM_STANDARDS_STR.c_str(), H5P_DEFAULT);
     if (ns_dset_id < 0)
@@ -1427,34 +1436,121 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
     {
         ns_dspace_id = H5Dget_space(ns_dset_id);
     }
-
-    // read number of standards 
-
     
-    // read in each standard
-    for (int i = 0; i < num_standards; i++)
+    // read number of standards 
+    err = H5Dread(ns_dset_id, H5T_NATIVE_INT, ns_dspace_id, ns_dspace_id, H5P_DEFAULT, &num_standards);
+    
+    if (err == 0)
     {
-        std::string standard_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + STR_STANDARD_NAME; 
-        // STR_ELEMENT_WEIGHTS
-        // STR_ELEMENT_WEIGHTS_NAMES
-        st_dset_id = H5Dopen(maps_grp_id, standard_name_str.c_str(), H5P_DEFAULT);
-        if (st_dset_id < 0)
+        // read in each standard
+        for (int i = 0; i < num_standards; i++)
         {
-            logW << "Error opening group /MAPS/" << standard_name_str << "\n";
-            //return false;
-        }
-        else
-        {
-            st_dspace_id = H5Dget_space(st_dset_id);
-        }
-        
-        if (st_dset_id > -1)
-        {
-            //_quant_standards.emplace_back(data_struct::Quantification_Standard<double>(standard_filename, element_names, element_weights, disable_Ka_quant, disable_La_quant));
+            std::string str_std_name = "";
+            std::vector<std::string> element_names;
+            std::vector<double> element_weights;
 
 
-            H5Sclose(st_dspace_id);
-            H5Dclose(st_dset_id);
+            std::string standard_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_STANDARD_NAME;
+            st_dset_id = H5Dopen(maps_grp_id, standard_name_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_name_str << "\n";
+                continue;
+            }
+            else
+            {
+                st_dspace_id = H5Dget_space(st_dset_id);
+            }
+
+            if (st_dset_id > -1)
+            {
+                char c_standard_name[256] = { 0 };
+                err = H5Dread(st_dset_id, memtype, memoryspace_name_id, st_dspace_id, H5P_DEFAULT, (void*)&c_standard_name[0]);
+                if (err > -1)
+                {
+                    str_std_name = std::string(c_standard_name);
+                }
+                H5Sclose(st_dspace_id);
+                H5Dclose(st_dset_id);
+            }
+
+            // element weight names
+            std::string standard_weight_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_ELEMENT_WEIGHTS_NAMES;
+            wn_dset_id = H5Dopen(maps_grp_id, standard_weight_name_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_weight_name_str << "\n";
+                continue;
+            }
+            else
+            {
+                wn_dspace_id = H5Dget_space(wn_dset_id);
+            }
+
+            if (wn_dset_id > -1)
+            {                          
+                status = H5Sget_simple_extent_dims(wn_dspace_id, &count[0], nullptr);
+                memtype = H5Tcopy(H5T_C_S1);
+                status = H5Tset_size(memtype, 254);
+
+                int amt = count[0];
+                count[0] = 1;
+                hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+                for (int i = 0; i < amt; i++)
+                {
+                    char name[256] = { 0 };
+                    offset[0] = i;
+                    H5Sselect_hyperslab(wn_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    if (0 == H5Dread(wn_dset_id, memtype, memoryspace_id, wn_dspace_id, H5P_DEFAULT, (void*)&name[0]))
+                    {
+                        element_names.push_back(std::string(name));
+                    }
+                }
+
+                H5Sclose(memoryspace_id);
+                H5Sclose(wn_dspace_id);
+                H5Dclose(wn_dset_id);
+            }
+
+            // element weights
+            std::string standard_weight_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_ELEMENT_WEIGHTS;            
+            w_dset_id = H5Dopen(maps_grp_id, standard_weight_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_weight_str << "\n";
+                continue;
+            }
+            else
+            {
+                w_dspace_id = H5Dget_space(w_dset_id);
+            }
+
+            if (w_dset_id > -1)
+            {
+                status = H5Sget_simple_extent_dims(w_dspace_id, &count[0], nullptr);                
+                int amt = count[0];
+                count[0] = 1;
+                hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+                for (int i = 0; i < amt; i++)
+                {
+                    double val;
+                    offset[0] = i;
+                    H5Sselect_hyperslab(w_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    if (0 == H5Dread(w_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, w_dspace_id, H5P_DEFAULT, (void*)&val))
+                    {
+                        element_weights.push_back(val);
+                    }
+                }
+                H5Sclose(memoryspace_id);
+                H5Sclose(w_dspace_id);
+                H5Dclose(w_dset_id);
+            }
+
+            if (str_std_name.length() > 0 && element_names.size() == element_weights.size())
+            {
+                _quant_standards.emplace_back(data_struct::Quantification_Standard<double>(str_std_name, element_names, element_weights, false, false));
+            }
+
         }
     }
 
