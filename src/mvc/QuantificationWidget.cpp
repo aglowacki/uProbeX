@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/QuantificationWidget.h>
-#include <QtCharts/QScatterSeries>
 #include "data_struct/element_info.h"
 
 //---------------------------------------------------------------------------
@@ -210,7 +209,7 @@ void QuantificationWidget::update(const QString& val)
         _calib_curve_series_m->attachAxis(_axisY);
 
         _axisY->setRange(0, max_val);
-        //_axisX->setRange(10, 30);
+        _axisX->setRange(10, 80);
         //_calib_curve_series->attachAxis(_currentYAxis);
     }
     else
@@ -218,9 +217,19 @@ void QuantificationWidget::update(const QString& val)
         // dispaly label that says no quant data found?
     }
 
+    foreach(QScatterSeries * sitr, _scatter_list)
+    {
+        _chart->removeSeries(sitr);
+        sitr->detachAxis(_axisX);
+        sitr->detachAxis(_axisY);
+        delete sitr;
+    }
+    _scatter_list.clear();
+    /*
     for (auto& itr : _model->quant_standards())
     {
         QScatterSeries *scatter_series = new QScatterSeries();
+        _scatter_list.append(scatter_series);
         scatter_series->setName(QString::fromStdString(itr.standard_filename));
 
         for (auto& w_itr : itr.element_standard_weights)
@@ -232,8 +241,10 @@ void QuantificationWidget::update(const QString& val)
             }
         }
         _chart->addSeries(scatter_series);
+        scatter_series->attachAxis(_axisX);
+        scatter_series->attachAxis(_axisY);
     }
-
+    */
 }
 
 //---------------------------------------------------------------------------

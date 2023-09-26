@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QScatterSeries>
 #include <QtCharts/QCategoryAxis>
 #include <QtCharts/QLogValueAxis>
 #include "mvc/ChartView.h"
@@ -78,6 +79,8 @@ protected:
    MapsH5Model *_model;
 
    Calibration_curve<double>* _calib_curve;
+
+   QList< QScatterSeries*> _scatter_list;
 
 };
 
