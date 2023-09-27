@@ -57,7 +57,7 @@ void QuantificationWidget::_createLayout()
 
     _axisY = new QValueAxis();
     _axisY->setTitleText("Energy Calibration");
-    _axisY->setLabelFormat("%i");
+    //_axisY->setLabelFormat("%i");
     //_axisY->setTickCount(series->count());
 
     _calib_curve_series_k = new QLineSeries();
@@ -70,22 +70,15 @@ void QuantificationWidget::_createLayout()
     
     if (_display_log10)
     {
-//        ymax = _axisYLog10->max();
-//        ymin = _axisYLog10->min();
         _currentYAxis = _axisYLog10;
     }
     else
     {
-//        ymax = _axisY->max();
-//        ymin = _axisY->min();
         _currentYAxis = _axisY;
     }
     
     _chart->addAxis(_currentYAxis, Qt::AlignLeft);
-    //_chart->addAxis(_axisY, Qt::AlignLeft);
-    //_chart->addAxis(_axisYLog10, Qt::AlignLeft);
     
-
     _chart->addSeries(_calib_curve_series_k);
     _calib_curve_series_k->attachAxis(_axisX);
     _calib_curve_series_k->attachAxis(_currentYAxis);
@@ -175,12 +168,15 @@ void QuantificationWidget::update(const QString& val)
             if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1]) > 0)
             {
                 kval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1]);
-                if (false == std::isfinite(kval) || kval <= 0.0)
+                if (_display_log10)
                 {
-                    kval = 1.0e-1;
+                    if (false == std::isfinite(kval) || kval <= 0.0)
+                    {
+                        kval = 1.0e-1;
+                    }
                 }
-                //max_val = std::max(max_val, kval);
-                //min_val = std::min(min_val, kval);
+                max_val = std::max(max_val, kval);
+                min_val = std::min(min_val, kval);
             }
             _calib_curve_series_k->append(i, kval);
             _calib_curve_series_k->append(i + 1, kval);
@@ -188,12 +184,15 @@ void QuantificationWidget::update(const QString& val)
             if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1] + "_L") > 0)
             {
                 lval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_L");
-                if (false == std::isfinite(lval) || lval <= 0.0)
+                if (_display_log10)
                 {
-                    lval = 1.0e-1;
+                    if (false == std::isfinite(lval) || lval <= 0.0)
+                    {
+                        lval = 1.0e-1;
+                    }
                 }
-                //max_val = std::max(max_val, lval);
-                //min_val = std::min(min_val, lval);
+                max_val = std::max(max_val, lval);
+                min_val = std::min(min_val, lval);
             }
             _calib_curve_series_l->append(i, lval);
             _calib_curve_series_l->append(i + 1, lval);
@@ -201,12 +200,15 @@ void QuantificationWidget::update(const QString& val)
             if (_calib_curve->calib_curve.count(data_struct::Element_Symbols[i + 1] + "_M") > 0)
             {
                 mval = _calib_curve->calib_curve.at(data_struct::Element_Symbols[i + 1] + "_M");
-                if (false == std::isfinite(mval) || mval <= 0.0)
+                if (_display_log10)
                 {
-                    mval = 1.0e-1;
+                    if (false == std::isfinite(mval) || mval <= 0.0)
+                    {
+                        mval = 1.0e-1;
+                    }
                 }
-                //max_val = std::max(max_val, mval);
-                //min_val = std::min(min_val, mval);
+                max_val = std::max(max_val, mval);
+                min_val = std::min(min_val, mval);
             }
             _calib_curve_series_m->append(i, mval);
             _calib_curve_series_m->append(i + 1, mval);
@@ -224,13 +226,23 @@ void QuantificationWidget::update(const QString& val)
         _calib_curve_series_m->attachAxis(_axisX);
         _calib_curve_series_m->attachAxis(_currentYAxis);
 
-        //double ymax = _axisY->max();
-        //double ymin = _axisY->min();
-        //_axisY->setRange(0.0, max_val);
-        //_axisYLog10->setRange(min_val, max_val);
-       // _axisYLog10->setRange(1.0e-2, max_val);
+        /*
+        double ymax;
+        double ymin;
+        if (_display_log10)
+        {
+            ymax = _axisYLog10->max();
+            ymin = _axisYLog10->min();
+        }
+        else
+        {
+            ymax = _axisY->max();
+            ymin = _axisY->min();
+        }
+        */
+        double diff = (max_val - min_val) / 10.0;
+        _currentYAxis->setRange(min_val, max_val+ diff);
         _axisX->setRange(10, 80);
-        //_calib_curve_series->attachAxis(_currentYAxis);
     }
     else
     {
@@ -240,9 +252,9 @@ void QuantificationWidget::update(const QString& val)
 
     foreach(QScatterSeries * sitr, _scatter_list)
     {
-        _chart->removeSeries(sitr);
         sitr->detachAxis(_axisX);
         sitr->detachAxis(_currentYAxis);
+        _chart->removeSeries(sitr);
         delete sitr;
     }
     _scatter_list.clear();
@@ -257,9 +269,12 @@ void QuantificationWidget::update(const QString& val)
     {
         double val = itr.second->e_cal_ratio;
         //val = log10(val);
-        if (false == std::isfinite(val) || val <= 0.0)
+        if (_display_log10)
         {
-            val = 0.1;
+            if (false == std::isfinite(val) || val <= 0.0)
+            {
+                val = 0.1;
+            }
         }
         scatter_series->append((itr.second->Z-0.5), val);
         max_z = std::max(itr.second->Z, max_z);
