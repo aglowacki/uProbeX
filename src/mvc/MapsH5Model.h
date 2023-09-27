@@ -184,6 +184,10 @@ public:
 
     QStringList get_analysis_types();
 
+    const std::vector<data_struct::Quantification_Standard<double> >& quant_standards() { return _quant_standards; }
+
+    const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
+
 signals:
     void model_data_updated();
 
@@ -214,7 +218,7 @@ protected:
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
 
-    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant);
+    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>> &e_quants);
 
     bool _load_quantification_standard_10(hid_t maps_grp_id);
 
@@ -269,6 +273,9 @@ private:
     std::vector<float> _y_axis;
 
     std::vector<data_struct::Quantification_Standard<double> > _quant_standards;
+
+    //  proc_type          quantifier            element    quant_prop
+    std::map<std::string, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>> _all_element_quants;
 
     float _version;
 

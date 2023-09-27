@@ -1212,12 +1212,17 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 /*---------------------------------------------------------------------------*/
 
 
-bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant)
+bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
 {
     hid_t channels_dset_id = -1, channels_dspace_id = -1;
     hid_t sr_dset_id = -1, sr_dspace_id = -1;
     hid_t us_dset_id = -1, us_dspace_id = -1;
     hid_t ds_dset_id = -1, ds_dspace_id = -1;
+
+    hid_t sr_qv_id = -1, sr_qv_dspace = -1;
+    hid_t us_qv_id = -1, us_qv_dspace = -1;
+    hid_t ds_qv_id = -1, ds_qv_dspace = -1;
+
     hid_t grp_id = -1;
     hid_t memoryspace_id = -1, memoryspace_name_id = -1;
     hid_t error = -1;
@@ -1379,7 +1384,197 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
     quant[STR_US_IC] = us_ic_curve;
     quant[STR_DS_IC] = ds_ic_curve;
 
-    delete[]dims_out;
+    count[0] = 1;
+    count[1] = 1;
+    hid_t memspace_id = H5Screate_simple(1, count, nullptr);
+
+    // try to open quantification values for refitting
+    sr_qv_id = H5Dopen(grp_id, STR_SR_CURRENT_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
+    if (sr_qv_id > -1)
+    {
+        sr_qv_dspace = H5Dget_space(sr_qv_id);
+        unsigned int status_n = H5Sget_simple_extent_dims(sr_qv_dspace, &dims_out[0], nullptr);
+        for (int i = 0; i < dims_out[0]; i++)
+        {
+            offset[0] = i;
+            offset[1] = 7; // get Z first 
+            int Z = -1;
+            H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            ds_error = H5Dread(sr_qv_id, H5T_NATIVE_INT, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&Z);
+            
+            if (Z < 100)
+            {
+                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
+                
+                offset[1] = 0;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
+
+                offset[1] = 1;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
+
+                offset[1] = 2;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
+
+                offset[1] = 3;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
+
+                offset[1] = 4;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
+                
+                offset[1] = 5;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
+
+                offset[1] = 6;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
+
+                offset[1] = 8;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
+                
+                offset[1] = 9;
+                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
+                
+                e_quants[STR_SR_CURRENT][data_struct::Element_Symbols[Z]] = e_quant;
+            }
+        }
+        H5Sclose(sr_qv_dspace);
+        H5Dclose(sr_qv_id);
+    }
+    
+
+    us_qv_id = H5Dopen(grp_id, STR_US_IC_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
+    if (us_qv_id > -1)
+    {
+        us_qv_dspace = H5Dget_space(us_qv_id);
+        unsigned int status_n = H5Sget_simple_extent_dims(us_qv_dspace, &dims_out[0], nullptr);
+        for (int i = 0; i < dims_out[0]; i++)
+        {
+            offset[0] = i;
+            offset[1] = 7; // get Z first 
+            int Z = -1;
+            H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            ds_error = H5Dread(us_qv_id, H5T_NATIVE_INT, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&Z);
+
+            if (Z < 100)
+            {
+                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
+
+                offset[1] = 0;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
+
+                offset[1] = 1;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
+
+                offset[1] = 2;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
+
+                offset[1] = 3;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
+
+                offset[1] = 4;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
+
+                offset[1] = 5;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
+
+                offset[1] = 6;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
+
+                offset[1] = 8;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
+
+                offset[1] = 9;
+                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
+
+                e_quants[STR_US_IC][data_struct::Element_Symbols[Z]] = e_quant;
+            }
+        }
+        H5Sclose(us_qv_dspace);
+        H5Dclose(us_qv_id);
+    }
+
+
+    ds_qv_id = H5Dopen(grp_id, STR_DS_IC_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
+    if (ds_qv_id > -1)
+    {
+        ds_qv_dspace = H5Dget_space(ds_qv_id);
+        unsigned int status_n = H5Sget_simple_extent_dims(ds_qv_dspace, &dims_out[0], nullptr);
+        for (int i = 0; i < dims_out[0]; i++)
+        {
+            offset[0] = i;
+            offset[1] = 7; // get Z first 
+            int Z = -1;
+            H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            ds_error = H5Dread(ds_qv_id, H5T_NATIVE_INT, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&Z);
+
+            if (Z < 100)
+            {
+                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
+
+                offset[1] = 0;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
+
+                offset[1] = 1;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
+
+                offset[1] = 2;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
+
+                offset[1] = 3;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
+
+                offset[1] = 4;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
+
+                offset[1] = 5;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
+
+                offset[1] = 6;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
+
+                offset[1] = 8;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
+
+                offset[1] = 9;
+                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
+
+                e_quants[STR_DS_IC][data_struct::Element_Symbols[Z]] = e_quant;
+            }
+        }
+        H5Sclose(ds_qv_dspace);
+        H5Dclose(ds_qv_id);
+    }
+
+    H5Sclose(memspace_id);
+
+
+    delete [] dims_out;
 
     H5Sclose(memoryspace_name_id);
     H5Sclose(memoryspace_id);
@@ -1401,9 +1596,9 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
 
 bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
 {
-    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_MATRIX_STR, _quant_map_matrix);
-    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_NNLS_STR, _quant_map_nnls);
-    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_ROI_STR, _quant_map_roi);
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_MATRIX_STR, _quant_map_matrix, _all_element_quants[STR_FIT_GAUSS_MATRIX]);
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_NNLS_STR, _quant_map_nnls, _all_element_quants[STR_FIT_NNLS]);
+    _load_quantification_10_single(maps_grp_id, QUANT_V10_LOC_ROI_STR, _quant_map_roi, _all_element_quants[STR_FIT_ROI]);
     _load_quantification_standard_10(maps_grp_id);
     return true;
 }
@@ -1414,8 +1609,17 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
 {
     hid_t ns_dset_id = -1, ns_dspace_id = -1;
     hid_t st_dset_id = -1, st_dspace_id = -1;
+    hid_t wn_dset_id = -1, wn_dspace_id = -1;
+    hid_t w_dset_id = -1, w_dspace_id = -1;
+    hsize_t count_name[1] = { 1 };
+    hsize_t offset[1] = { 0 };
+    hsize_t count[1] = { 1 };
+    hid_t memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
     int num_standards = 0;
+    herr_t err;
 
+    hid_t memtype = H5Tcopy(H5T_C_S1);
+    hid_t status = H5Tset_size(memtype, 254);
 
     ns_dset_id = H5Dopen(maps_grp_id, QUANT_V10_NUM_STANDARDS_STR.c_str(), H5P_DEFAULT);
     if (ns_dset_id < 0)
@@ -1427,34 +1631,121 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
     {
         ns_dspace_id = H5Dget_space(ns_dset_id);
     }
-
-    // read number of standards 
-
     
-    // read in each standard
-    for (int i = 0; i < num_standards; i++)
+    // read number of standards 
+    err = H5Dread(ns_dset_id, H5T_NATIVE_INT, ns_dspace_id, ns_dspace_id, H5P_DEFAULT, &num_standards);
+    
+    if (err == 0)
     {
-        std::string standard_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + STR_STANDARD_NAME; 
-        // STR_ELEMENT_WEIGHTS
-        // STR_ELEMENT_WEIGHTS_NAMES
-        st_dset_id = H5Dopen(maps_grp_id, standard_name_str.c_str(), H5P_DEFAULT);
-        if (st_dset_id < 0)
+        // read in each standard
+        for (int i = 0; i < num_standards; i++)
         {
-            logW << "Error opening group /MAPS/" << standard_name_str << "\n";
-            //return false;
-        }
-        else
-        {
-            st_dspace_id = H5Dget_space(st_dset_id);
-        }
-        
-        if (st_dset_id > -1)
-        {
-            //_quant_standards.emplace_back(data_struct::Quantification_Standard<double>(standard_filename, element_names, element_weights, disable_Ka_quant, disable_La_quant));
+            std::string str_std_name = "";
+            std::vector<std::string> element_names;
+            std::vector<double> element_weights;
 
 
-            H5Sclose(st_dspace_id);
-            H5Dclose(st_dset_id);
+            std::string standard_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_STANDARD_NAME;
+            st_dset_id = H5Dopen(maps_grp_id, standard_name_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_name_str << "\n";
+                continue;
+            }
+            else
+            {
+                st_dspace_id = H5Dget_space(st_dset_id);
+            }
+
+            if (st_dset_id > -1)
+            {
+                char c_standard_name[256] = { 0 };
+                err = H5Dread(st_dset_id, memtype, memoryspace_name_id, st_dspace_id, H5P_DEFAULT, (void*)&c_standard_name[0]);
+                if (err > -1)
+                {
+                    str_std_name = std::string(c_standard_name);
+                }
+                H5Sclose(st_dspace_id);
+                H5Dclose(st_dset_id);
+            }
+
+            // element weight names
+            std::string standard_weight_name_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_ELEMENT_WEIGHTS_NAMES;
+            wn_dset_id = H5Dopen(maps_grp_id, standard_weight_name_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_weight_name_str << "\n";
+                continue;
+            }
+            else
+            {
+                wn_dspace_id = H5Dget_space(wn_dset_id);
+            }
+
+            if (wn_dset_id > -1)
+            {                          
+                status = H5Sget_simple_extent_dims(wn_dspace_id, &count[0], nullptr);
+                memtype = H5Tcopy(H5T_C_S1);
+                status = H5Tset_size(memtype, 254);
+
+                int amt = count[0];
+                count[0] = 1;
+                hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+                for (int i = 0; i < amt; i++)
+                {
+                    char name[256] = { 0 };
+                    offset[0] = i;
+                    H5Sselect_hyperslab(wn_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    if (0 == H5Dread(wn_dset_id, memtype, memoryspace_id, wn_dspace_id, H5P_DEFAULT, (void*)&name[0]))
+                    {
+                        element_names.push_back(std::string(name));
+                    }
+                }
+
+                H5Sclose(memoryspace_id);
+                H5Sclose(wn_dspace_id);
+                H5Dclose(wn_dset_id);
+            }
+
+            // element weights
+            std::string standard_weight_str = QUANT_V10_STANDARD_STR + std::to_string(i) + "/" + STR_ELEMENT_WEIGHTS;            
+            w_dset_id = H5Dopen(maps_grp_id, standard_weight_str.c_str(), H5P_DEFAULT);
+            if (st_dset_id < 0)
+            {
+                logW << "Error opening group /MAPS/" << standard_weight_str << "\n";
+                continue;
+            }
+            else
+            {
+                w_dspace_id = H5Dget_space(w_dset_id);
+            }
+
+            if (w_dset_id > -1)
+            {
+                status = H5Sget_simple_extent_dims(w_dspace_id, &count[0], nullptr);                
+                int amt = count[0];
+                count[0] = 1;
+                hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+                for (int i = 0; i < amt; i++)
+                {
+                    double val;
+                    offset[0] = i;
+                    H5Sselect_hyperslab(w_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    if (0 == H5Dread(w_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, w_dspace_id, H5P_DEFAULT, (void*)&val))
+                    {
+                        element_weights.push_back(val);
+                    }
+                }
+                H5Sclose(memoryspace_id);
+                H5Sclose(w_dspace_id);
+                H5Dclose(w_dset_id);
+            }
+
+            if (str_std_name.length() > 0 && element_names.size() == element_weights.size())
+            {
+                _quant_standards.emplace_back(data_struct::Quantification_Standard<double>(str_std_name, element_names, element_weights, false, false));
+            }
+
         }
     }
 
@@ -2069,6 +2360,11 @@ Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analys
     }
 
     return nullptr;
+}
+
+const std::unordered_map < std::string, Element_Quant<double>*>& MapsH5Model::get_quant_fit_info(std::string analysis_type, std::string scaler_name)
+{
+    return _all_element_quants[analysis_type][scaler_name];
 }
 
 /*---------------------------------------------------------------------------*/
