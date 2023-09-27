@@ -260,42 +260,40 @@ void QuantificationWidget::update(const QString& val)
     _scatter_list.clear();
     
 
+    const std::vector<data_struct::Quantification_Standard<double> > quant_standards = _model->quant_standards();
+
     std::unordered_map<std::string, Element_Quant<double>*> e_quant_map = _model->get_quant_fit_info(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
-    QScatterSeries *scatter_series = new QScatterSeries();
-    _scatter_list.append(scatter_series);
     int max_z = 0;
 
-    for (auto& itr : e_quant_map)
+    for (const auto& sitr : quant_standards)
     {
-        double val = itr.second->e_cal_ratio;
-        //val = log10(val);
-        if (_display_log10)
-        {
-            if (false == std::isfinite(val) || val <= 0.0)
-            {
-                val = 0.1;
-            }
-        }
-        scatter_series->append((itr.second->Z-0.5), val);
-        max_z = std::max(itr.second->Z, max_z);
-        max_val = std::max(max_val, val);
-        min_val = std::min(min_val, val);
-    }
-    /*
-        scatter_series->setName(QString::fromStdString(itr.standard_filename));
+        QScatterSeries* scatter_series = new QScatterSeries();
+        _scatter_list.append(scatter_series);
+        scatter_series->setName(QString::fromStdString(sitr.standard_filename));
 
-        for (auto& w_itr : itr.element_standard_weights)
+        for (auto& itr : e_quant_map)
         {
-            data_struct::Element_Info<double>* e_info = data_struct::Element_Info_Map<double>::inst()->get_element(w_itr.first);
-            if (e_info != nullptr)
-            {
-                scatter_series->append(e_info->number, w_itr.second);
+            if(sitr.element_standard_weights.count(itr.first) > 0 || sitr.element_standard_weights.count(itr.first+"_L") > 0 || sitr.element_standard_weights.count(itr.first+"_M") > 0)
+            {    
+                double val = itr.second->e_cal_ratio;
+                if (_display_log10)
+                {
+                    if (false == std::isfinite(val) || val <= 0.0)
+                    {
+                        val = 0.1;
+                    }
+                }
+                scatter_series->append((itr.second->Z - 0.5), val);
+                max_z = std::max(itr.second->Z, max_z);
+                max_val = std::max(max_val, val);
+                min_val = std::min(min_val, val);
             }
         }
-        */
-    _chart->addSeries(scatter_series);
-    scatter_series->attachAxis(_axisX);
-    scatter_series->attachAxis(_currentYAxis);
+        _chart->addSeries(scatter_series);
+        scatter_series->attachAxis(_axisX);
+        scatter_series->attachAxis(_currentYAxis);
+    }
+    
     _axisX->setRange(10, max_z + 1);
     double diff = (max_val - min_val) / 10.0;
 
