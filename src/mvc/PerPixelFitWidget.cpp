@@ -234,12 +234,13 @@ void PerPixelFitWidget::runProcessing()
         io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_directory);
         Callback_Func_Status_Def cb_func = std::bind(&PerPixelFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         //std::function<void(const Fit_Parameters* const, const  Range* const, Spectra*)> cb_func = std::bind(&PerPixelFitWidget::model_spectrum, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
+        process_dataset_files(&analysis_job, &cb_func);
         if (_perform_quantification->isChecked())
         {
             analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
             perform_quantification(&analysis_job, true);
         }
-        process_dataset_files(&analysis_job, &cb_func);
         //QCoreApplication::processEvents();
         _progressBarFiles->setValue(total_file_range);
         _progressBarBlocks->setValue(_total_blocks);
