@@ -26,6 +26,7 @@ ScatterPlotWidget::~ScatterPlotWidget()
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, (int)_plot_view_list.size());
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, _ck_display_log10->isChecked());
     Preferences::inst()->save();
+    _plot_view_list.clear();
 }
 
 /*---------------------------------------------------------------------------*/
