@@ -116,7 +116,11 @@ void QuantificationWidget::setModel(MapsH5Model* model)
             {
                 _cb_analysis_types->addItem(itr.c_str());
             }
-            QString first_an = analysis_types.front().c_str();
+            QString first_an = "";
+            if (analysis_types.size() > 0)
+            {
+                first_an = analysis_types.front().c_str();
+            }
 
             QStringList quant_scalers = _model->get_calibration_curve_scalers(first_an.toStdString());
             _cb_scalers->clear();

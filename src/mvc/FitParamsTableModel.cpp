@@ -179,6 +179,7 @@ double FitParamsTableModel::getDataValueForRow(int row)
     {
         return _fit_parameters.at(_row_indicies.at(row)).value;
     }
+    return 0.0;
 }
 
 /*---------------------------------------------------------------------------*/

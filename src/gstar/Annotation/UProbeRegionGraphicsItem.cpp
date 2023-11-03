@@ -167,7 +167,7 @@ QRectF UProbeRegionGraphicsItem::boundingRect() const
                        regionSize);
       }
    }
-
+   return QRectF();
 }
 
 /*---------------------------------------------------------------------------*/

@@ -1757,6 +1757,7 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
     {
         H5Dclose(ns_dset_id);
     }
+    return true;
 }
 
 /*---------------------------------------------------------------------------*/

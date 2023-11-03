@@ -8,7 +8,7 @@
 #include "core/GlobalThreadPool.h"
 #include <QRegularExpression>
 #include "io/file/hdf5_io.h"
-#include "io/file/aps/aps_roi.h"
+//#include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 

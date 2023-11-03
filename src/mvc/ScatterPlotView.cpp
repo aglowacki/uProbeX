@@ -65,7 +65,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     }
     _scatter_series->setMarkerSize(1.0);
-    _scatter_series->setUseOpenGL(true);
+    //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);
     _display_log10 = display_log10;
     if (_display_log10)
@@ -125,8 +125,10 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
 ScatterPlotView::~ScatterPlotView()
 {
-
+    _model = nullptr;
 }
+
+//---------------------------------------------------------------------------
 
 void ScatterPlotView::exportPngCsv()
 {
@@ -384,46 +386,48 @@ bool ScatterPlotView::_getXY_Maps(data_struct::ArrayXXr<float> &x_map, data_stru
     bool foundX = false;
     bool foundY = false;
 
-    std::string xName = _cb_x_axis_element->currentText().toStdString();
-    std::string yName = _cb_y_axis_element->currentText().toStdString();
-
-    data_struct::Fit_Count_Dict<float> fit_counts;
-    _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
-    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-
-    int xCnt = fit_counts.count(xName);
-    if (xCnt != 0)
+    if (_model != nullptr)
     {
-        x_map = fit_counts.at(xName);
-        foundX = true;
-    }
-    else
-    {
-        xCnt = scalers->count(xName);
+        std::string xName = _cb_x_axis_element->currentText().toStdString();
+        std::string yName = _cb_y_axis_element->currentText().toStdString();
+
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+
+        int xCnt = fit_counts.count(xName);
         if (xCnt != 0)
         {
-            x_map = scalers->at(xName);
+            x_map = fit_counts.at(xName);
             foundX = true;
         }
-    }
+        else
+        {
+            xCnt = scalers->count(xName);
+            if (xCnt != 0)
+            {
+                x_map = scalers->at(xName);
+                foundX = true;
+            }
+        }
 
 
-    int yCnt = fit_counts.count(yName);
-    if (yCnt != 0)
-    {
-        y_map = fit_counts.at(yName);
-        foundY = true;
-    }
-    else
-    {
-        yCnt = scalers->count(yName);
+        int yCnt = fit_counts.count(yName);
         if (yCnt != 0)
         {
-            y_map = scalers->at(yName);
+            y_map = fit_counts.at(yName);
             foundY = true;
         }
+        else
+        {
+            yCnt = scalers->count(yName);
+            if (yCnt != 0)
+            {
+                y_map = scalers->at(yName);
+                foundY = true;
+            }
+        }
     }
-
     return foundX && foundY;
 }
 
