@@ -207,7 +207,7 @@ IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
     target_link_libraries (uProbeX PRIVATE 
-                        yaml-cpp
+                        yaml-cpp::yaml-cpp
                         libzmq-static
             						ws2_32.lib
             						rpcrt4.lib
@@ -230,7 +230,7 @@ ELSEIF (UNIX)
 
     target_link_libraries (uProbeX PRIVATE
                         libzmq
-                        yaml-cpp
+                        yaml-cpp::yaml-cpp
                         ${TIFF_LIBRARIES}
                         ${Qt6Core_LIBRARIES}
                         ${Qt6Charts_LIBRARIES}
