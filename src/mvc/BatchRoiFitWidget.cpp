@@ -234,6 +234,14 @@ void BatchRoiFitWidget::runProcessing()
     {
         _progressBarFiles->setRange(0, _roi_map.size() * _analysis_job.detector_num_arr.size());
 
+        _analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
+        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_analysis_job.dataset_directory);
+
+        if (_analysis_job.quantification_standard_filename.length() > 0)
+        {
+            perform_quantification(&_analysis_job, false);
+        }
+
         std::map<int, std::map<std::string, data_struct::Fit_Parameters<double>>> roi_fit_params;
         int i = 0;
         for (auto& itr : _roi_map)
@@ -243,8 +251,22 @@ void BatchRoiFitWidget::runProcessing()
             _progressBarFiles->setValue(i);
             QCoreApplication::processEvents();
         }
+
+        // save all to csv
+        for (auto detector_num : _analysis_job.detector_num_arr)
+        {
+            std::string save_path = _analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + ".csv";
+            std::string quant_save_path = _analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + "_quantified.csv";
+            io::file::csv::save_v9_specfit(save_path, roi_fit_params.at(detector_num));
+            if (_analysis_job.get_detector(detector_num)->quantification_standards.size() > 0)
+            {
+                io::file::csv::save_v9_specfit_quantified(quant_save_path, _analysis_job.get_detector(detector_num), _analysis_job.fitting_routines, roi_fit_params.at(detector_num));
+            }
+        }
     }
     
+
+
     _btn_run->setEnabled(true);
     _le_detectors->setEnabled(true);
     _file_list_view->setEnabled(true);
