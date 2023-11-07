@@ -168,14 +168,21 @@ void BatchRoiFitWidget::runProcessing()
 
     //run in thread
     _analysis_job.dataset_directory = _directory;
-    if (_cb_opt_method->currentText() == "Hybrid NNLS")
+    if (_cb_opt_method->currentText() == STR_HYBRID_MP_FIT)
     {
-        _analysis_job.set_optimizer("MPFIT");
+        _analysis_job.set_optimizer("mpfit");
         _analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
     }
     else
     {
-        _analysis_job.set_optimizer(_cb_opt_method->currentText().toStdString());
+        if (_cb_opt_method->currentText() == STR_MP_FIT)
+        {
+            _analysis_job.set_optimizer("mpfit");
+        }
+        else
+        {
+            _analysis_job.set_optimizer("lmfit");
+        }
     }
 
     _optimizer_widget->updateOptimizerOptions(*(_analysis_job.optimizer()));
@@ -230,6 +237,8 @@ void BatchRoiFitWidget::runProcessing()
     
     Callback_Func_Status_Def cb_func = std::bind(&BatchRoiFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
     
+    _analysis_job.fitting_routines.push_back(Fitting_Routines::NNLS);
+
     if (io::file::init_analysis_job_detectors(&_analysis_job))
     {
         _progressBarFiles->setRange(0, _roi_map.size() * _analysis_job.detector_num_arr.size());
