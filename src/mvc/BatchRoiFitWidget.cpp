@@ -241,7 +241,8 @@ void BatchRoiFitWidget::runProcessing()
 
     if (io::file::init_analysis_job_detectors(&_analysis_job))
     {
-        _progressBarFiles->setRange(0, _roi_map.size() * _analysis_job.detector_num_arr.size());
+        int proc_total = _roi_map.size() * _analysis_job.detector_num_arr.size();
+        _progressBarFiles->setRange(0, proc_total);
 
         _analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
         io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_analysis_job.dataset_directory);
@@ -260,6 +261,9 @@ void BatchRoiFitWidget::runProcessing()
             _progressBarFiles->setValue(i);
             QCoreApplication::processEvents();
         }
+
+        _progressBarBlocks->setValue(_total_itr);
+        _progressBarFiles->setValue(proc_total);
 
         // save all to csv
         for (auto detector_num : _analysis_job.detector_num_arr)
