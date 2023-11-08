@@ -236,18 +236,21 @@ void BatchRoiFitWidget::runProcessing()
     }
     
     Callback_Func_Status_Def cb_func = std::bind(&BatchRoiFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
-    
+    // TODO: will need to update to fitting routes instead of getting fit parameters
+
     _analysis_job.fitting_routines.push_back(Fitting_Routines::NNLS);
 
     if (io::file::init_analysis_job_detectors(&_analysis_job))
     {
         // lock all fit parameters except elastic/inelastic amp and elements
+        
+        _analysis_job.optimize_fit_params_preset = fitting::models::Fit_Params_Preset::NOT_SET;
         std::vector<std::string> except_list = { STR_COMPTON_AMPLITUDE, STR_COHERENT_SCT_AMPLITUDE };
         for (auto detector_num : _analysis_job.detector_num_arr)
         {
             _analysis_job.get_detector(detector_num)->fit_params_override_dict.fit_params.set_all_except(data_struct::E_Bound_Type::FIXED, except_list);
         }
-
+        
         int proc_total = _roi_map.size() * _analysis_job.detector_num_arr.size();
         _progressBarFiles->setRange(0, proc_total);
 
