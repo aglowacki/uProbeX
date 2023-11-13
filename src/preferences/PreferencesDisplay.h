@@ -13,6 +13,7 @@
 #include <QWidget>
 #include <QButtonGroup>
 #include <QComboBox>
+#include <QCheckBox>
 
 class QSpinBox;
 
@@ -101,6 +102,8 @@ private:
    QLineEdit* m_windowTitle;
 
    QComboBox* _cb_themes;
+
+   QCheckBox* _ck_show_dataset_on_select;
 };
 
 /*---------------------------------------------------------------------------*/

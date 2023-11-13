@@ -36,6 +36,9 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     _file_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
     _file_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
 
+    // if preferences saves on select changes loaded dataset
+    connect(_file_list_view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &FileTabWidget::onFileRowChange);
+
     connect(_file_list_view, SIGNAL(doubleClicked(const QModelIndex)),
                 this, SLOT(onDoubleClickElement(const QModelIndex)));
     connect(_file_list_view, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -345,6 +348,16 @@ void FileTabWidget::onCustomContext()
     QAction *act = qobject_cast<QAction *>(sender());
     QVariant v = act->data();
     emit customContext(v.toString(), sl);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::onFileRowChange(const QModelIndex& current, const QModelIndex& previous)
+{
+    if (current.isValid())
+    {
+        emit selectNewRow(current.data(0).toString());
+    }
 }
 
 /*---------------------------------------------------------------------------*/

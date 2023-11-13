@@ -68,6 +68,8 @@ signals:
 
     void onRefresh();
 
+    void selectNewRow(const QString&);
+
 public slots:
     void onDoubleClickElement(const QModelIndex);
 
@@ -93,6 +95,7 @@ public slots:
 
     void onCustomContext();
 
+    void onFileRowChange(const QModelIndex& current, const QModelIndex& previous);
 protected:
 
     void _gen_visible_list(QStringList *sl);

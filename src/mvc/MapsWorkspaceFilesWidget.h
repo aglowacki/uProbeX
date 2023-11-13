@@ -63,6 +63,8 @@ signals:
 
    void loaded_perc(int, int);
 
+   void datasetSelected(const QString);
+
 public slots:
 
     void updatedMDA();
@@ -86,6 +88,8 @@ public slots:
     void onBatchRoiList(const QStringList& file_list);
 
     void onProcessed_list_update(QStringList file_list);
+
+    void onDatasetSelected(const QString name);
 
 protected:
 

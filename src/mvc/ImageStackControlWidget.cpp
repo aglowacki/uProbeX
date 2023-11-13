@@ -55,6 +55,7 @@ void ImageStackControlWidget::createLayout()
 	_mapsFilsWidget = new MapsWorkspaceFilesWidget();
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_model, this, &ImageStackControlWidget::onLoad_Model);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::unloadList_model, this, &ImageStackControlWidget::onUnloadList_Model);
+	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::datasetSelected, this, &ImageStackControlWidget::onChangeDatasetName);
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
@@ -338,6 +339,17 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 		
 		_raw_file_dialog.show();
 		*/
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ImageStackControlWidget::onChangeDatasetName(const QString & name)
+{
+	int i = _image_name_cb->findText(name);
+	if (i > -1)
+	{
+		_image_name_cb->setCurrentIndex(i);
 	}
 }
 
