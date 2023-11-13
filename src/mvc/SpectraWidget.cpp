@@ -116,12 +116,12 @@ void SpectraWidget::createLayout()
     connect(_chartView, &ChartView::view_zoomed, this, &SpectraWidget::onUpdateChartLineEdits);
 
     // Toolbar zoom out action
-    _display_eneergy_min = new QLineEdit(QString::number(_axisX->min()));
+    _display_eneergy_min = new QLineEdit(QString::number(_axisX->min(), 'f', 2));
  //   _display_eneergy_min->setMinimumWidth(100);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
-    _display_eneergy_max = new QLineEdit(QString::number(_axisX->max()));
+    _display_eneergy_max = new QLineEdit(QString::number(_axisX->max(), 'f', 2));
 //    _display_eneergy_max->setMinimumWidth(100);
     connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
@@ -230,8 +230,8 @@ void SpectraWidget::onResetChartViewOnlyY()
 
 void SpectraWidget::onResetChartView()
 {
-    _display_eneergy_min->setText(QString::number(0));
-    _display_eneergy_max->setText(QString::number(_int_spec_max_x));
+    _display_eneergy_min->setText(QString::number(0, 'f', 2));
+    _display_eneergy_max->setText(QString::number(_int_spec_max_x, 'f', 2));
 
     _display_height_min->setText(QString::number(1));
     _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
@@ -247,8 +247,8 @@ void SpectraWidget::onResetChartView()
 
 void SpectraWidget::onUpdateChartLineEdits()
 {
-    _display_eneergy_min->setText(QString::number(_axisX->min()));
-    _display_eneergy_max->setText(QString::number(_axisX->max()));
+    _display_eneergy_min->setText(QString::number(_axisX->min(), 'f', 2));
+    _display_eneergy_max->setText(QString::number(_axisX->max(), 'f', 2));
     if (_display_log10)
     {
         _display_height_min->setText(QString::number(_axisYLog10->min()));
@@ -322,8 +322,8 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
         _chart->addSeries(series);
         series->attachAxis(_axisX);
         series->attachAxis(_top_axis_elements);
-        _display_eneergy_min->setText(QString::number(_axisX->min()));
-        _display_eneergy_max->setText(QString::number(_axisX->max()));
+        _display_eneergy_min->setText(QString::number(_axisX->min(), 'f', 2));
+        _display_eneergy_max->setText(QString::number(_axisX->max(), 'f', 2));
 
         series->attachAxis(_currentYAxis);
         QPen pen = series->pen();
