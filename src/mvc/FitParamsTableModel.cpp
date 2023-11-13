@@ -342,7 +342,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
         if (ok)
         {
             _fit_parameters[fitp_name].value = dval;
-            if (fitp_name == STR_ENERGY_OFFSET || fitp_name == STR_ENERGY_SLOPE || fitp_name == STR_ENERGY_QUADRATIC)
+            if (fitp_name == STR_ENERGY_OFFSET || fitp_name == STR_ENERGY_SLOPE || fitp_name == STR_ENERGY_QUADRATIC || fitp_name == STR_SNIP_WIDTH)
             {
                 emit(onEnergyChange());
             }
