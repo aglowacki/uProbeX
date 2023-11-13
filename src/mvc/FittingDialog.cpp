@@ -27,7 +27,6 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _running = false;
     _is_hybrid_fit = false;
     _elements_to_fit = nullptr;
-    _int_spec = nullptr;
     _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _createLayout();
@@ -225,24 +224,39 @@ void FittingDialog::setOptimizer(QString opt)
 
 void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr energy)
 {
-    _int_spec = spectra;
     _ev = energy;
     if (spectra != nullptr)
     {
+        _int_spec = *spectra;
         _energy_range;
         _energy_range.min = 0;
-        _energy_range.max = _int_spec->rows() - 1;
-        _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, &_ev);
+        _energy_range.max = _int_spec.rows() - 1;
 
-        _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
+        _spectra_background = snip_background<double>((Spectra<double>*)&_int_spec,
                 _out_fit_params[STR_ENERGY_OFFSET].value,
                 _out_fit_params[STR_ENERGY_SLOPE].value,
                 _out_fit_params[STR_ENERGY_QUADRATIC].value,
                 _out_fit_params[STR_SNIP_WIDTH].value,
                 0, //spectra energy start range
-                _int_spec->size() - 1);
+                _int_spec.size() - 1);
         
+        data_struct::Range energy_range = data_struct::get_energy_range(_int_spec.rows(), &(_out_fit_params));
+        for (int i = 0; i < energy_range.min; i++)
+        {
+            _int_spec[i] = 0.0;
+            _spectra_background[i] = 0.0;
+        }
+        for (int i = energy_range.max; i < _int_spec.rows(); i++)
+        {
+            _int_spec[i] = 0.0;
+            _spectra_background[i] = 0.0;
+        }
+
+        _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, &_int_spec, &_ev);
         _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
+        //get original back
+        _int_spec = *spectra;
     }
 }
 
@@ -335,7 +349,7 @@ void FittingDialog::onUpdateSelected()
 
 void FittingDialog::runProcessing()
 {
-    if (_elements_to_fit != nullptr && _int_spec != nullptr)
+    if (_elements_to_fit != nullptr && _int_spec.size() > 0)
     {
         _running = true;
         _btn_run->setEnabled(false);
@@ -352,7 +366,7 @@ void FittingDialog::runProcessing()
         //Range of energy in spectra to fit
         _energy_range;
 		_energy_range.min = 0;
-		_energy_range.max = _int_spec->rows() - 1;
+		_energy_range.max = _int_spec.rows() - 1;
 
         _optimizer_widget->updateOptimizerOptions(*_optimizer);
 
@@ -388,11 +402,11 @@ void FittingDialog::runProcessing()
         {
             if (_is_hybrid_fit)
             {
-                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
+                _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, &_int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
             else
             {
-                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, _int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
+                _outcome = _param_fit_routine.fit_spectra_parameters(&_model, &_int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
 
             std::string out_str = optimizer_outcome_to_str(_outcome);
@@ -461,12 +475,24 @@ void FittingDialog::runProcessing()
             {
                 _new_fit_spec += _spectra_background;
             }
+            
+            data_struct::Range energy_range = data_struct::get_energy_range(_new_fit_spec.rows(), &(_out_fit_params));
+            for (int i = 0; i < energy_range.min; i++)
+            {
+                _new_fit_spec[i] = 0.0;
+                _spectra_background[i] = 0.0;
+            }
+            for (int i = energy_range.max; i < _new_fit_spec.rows(); i++)
+            {
+                _new_fit_spec[i] = 0.0;
+                _spectra_background[i] = 0.0;
+            }
 
             for (int i = 0; i < _new_fit_spec.size(); i++)
             {
                 if (_new_fit_spec[i] <= 0.0)
                 {
-                    _new_fit_spec[i] = 0.1;
+                    _new_fit_spec[i] = 0.01;
                 }
             }
 

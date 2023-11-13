@@ -851,6 +851,24 @@ void FitSpectraWidget::Fit_Spectra_Click()
                     _spectra_widget->append_spectra(QString(itr.first.c_str()), (Spectra<double>*)&itr.second, (data_struct::Spectra<double>*) & _ev);
                 }
             }
+
+            // update background 
+            data_struct::Fit_Parameters<double> *fit_params = _fitting_dialog->get_new_fit_params();
+            if (fit_params != nullptr && fit_params->contains(STR_SNIP_WIDTH))
+            {
+                if (fit_params->at(STR_SNIP_WIDTH).bound_type != E_Bound_Type::FIXED)
+                {
+                    _spectra_background = snip_background<double>((Spectra<double>*) & _fit_spec,
+                        fit_params->at(STR_ENERGY_OFFSET).value,
+                        fit_params->at(STR_ENERGY_SLOPE).value,
+                        fit_params->at(STR_ENERGY_QUADRATIC).value,
+                        fit_params->at(STR_SNIP_WIDTH).value,
+                        0, //spectra energy start range
+                        _fit_spec.size() - 1);
+
+                    _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+                }
+            }
             emit signal_finished_fit();		
         }
 
