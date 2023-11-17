@@ -235,7 +235,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 if (h5Model != nullptr)
                 {
                     // have to call from main thread because ifstream.open locks up in threadpool
-                    _model->load_v9_rois(name, h5Model);
+                    //_model->load_v9_rois(name, h5Model);
 
                     int idx = -1;
                     for (int b = 0; b < 7; b++)

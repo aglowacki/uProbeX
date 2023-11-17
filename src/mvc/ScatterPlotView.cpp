@@ -64,6 +64,8 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     {
         _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     }
+    
+    _scatter_series->setColor(QColor(Qt::blue));
     _scatter_series->setMarkerSize(1.0);
     //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);

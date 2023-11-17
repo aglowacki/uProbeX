@@ -1664,7 +1664,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
         {
             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
             {
-                struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, *int_spectra);
+                struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
 
                 _model->appendMapRoi(itr->getName().toStdString(), roi);
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());

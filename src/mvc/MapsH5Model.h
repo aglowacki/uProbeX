@@ -72,17 +72,18 @@ struct Map_ROI
     {
 
     }
-    Map_ROI(std::string name_, QColor color_, int color_alpha_, std::vector<std::pair<int, int>> pixel_list_, data_struct::Spectra<double> int_spec_)
+    Map_ROI(std::string name_, QColor color_, int color_alpha_, std::vector<std::pair<int, int>> pixel_list_, std::string filename, data_struct::Spectra<double> int_spec_)
     {
         name = name_;
         color = color_;
         color_alpha = color_alpha_;
         pixel_list = pixel_list_;
-        int_spec = int_spec_;
+        int_spec[filename] = int_spec_;
     }
     std::string name;
     std::vector<std::pair<int, int>> pixel_list;
-    data_struct::Spectra<double> int_spec;
+    // file name (usually detector)  and spectra
+    std::map<std::string, data_struct::Spectra<double> > int_spec;
     QColor color;
     int color_alpha;
 };
@@ -173,6 +174,8 @@ public:
     void appendMapRoi(std::string name, struct Map_ROI roi);
 
     void saveAllRoiMaps();
+
+    void saveAllRoiMaps(QString save_dir);
 
     void loadAllRoiMaps();
 
