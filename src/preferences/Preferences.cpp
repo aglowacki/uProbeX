@@ -57,7 +57,8 @@ Preferences::Preferences()
         {STR_PFR_LOG_10, QVariant(true)},
         {STR_PFR_DETAILED_FIT_SPEC, QVariant()},
         {STR_GRID_ROWS, QVariant()},
-        {STR_GRID_COLS, QVariant()}
+        {STR_GRID_COLS, QVariant()},
+        {STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant()}
     };
    load();
 }

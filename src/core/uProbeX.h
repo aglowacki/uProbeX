@@ -27,6 +27,7 @@
 #include <mvc/RAW_Model.h>
 #include <mvc/TIFF_Model.h>
 #include <mvc/VLM_Widget.h>
+#include "mvc/UpgradeRoiDialog.h"
 
 class SubWindow;
 class AbstractWindowController;
@@ -205,6 +206,8 @@ private slots:
    */
    void mapsControllerClosed(MapsWorkspaceController*);
 
+   void upgradeV9Rois();
+
 private:
 
    /**
@@ -304,6 +307,8 @@ private:
 
    // log dock
    QDockWidget *_log_dock;
+
+   UpgradeRoiDialog _upgradeRoiDialog;
 
 };
 

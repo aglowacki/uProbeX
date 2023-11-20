@@ -764,7 +764,10 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 int height = (int)m_imageViewWidget->scene()->height();
                 gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
-                _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec), itr.second.color);
+                if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
+                {
+                    _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec.at(_model->getDatasetName().toStdString())), itr.second.color);
+                }
             }
 
             _co_loc_widget->setModel(_model);
@@ -1664,7 +1667,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
         {
             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
             {
-                struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, *int_spectra);
+                struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
 
                 _model->appendMapRoi(itr->getName().toStdString(), roi);
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());

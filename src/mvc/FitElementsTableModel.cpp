@@ -11,7 +11,7 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
 {
     // Initialize header data
     m_headers[HEADERS::SYMBOL] = tr("Symbol");
-    m_headers[HEADERS::COUNTS] = tr("Counts");
+    m_headers[HEADERS::COUNTS] = tr("Counts (10^Cnts)");
     m_headers[HEADERS::RATIO_MULTI] = tr("Multiplier");
     m_headers[HEADERS::RATIO] = tr("Ratio");
     _detector_element = detector_element;
@@ -66,6 +66,26 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 void FitElementsTableModel::update_counts_log10(bool is_log10)
 {
 
+    for (auto& itr : _nodes)
+    {
+        TreeItem* node = itr.second;
+        if (is_log10)
+        {
+            double val = node->itemData[COUNTS].toDouble();
+            node->itemData[COUNTS] = std::log10(val);
+            m_headers[HEADERS::COUNTS] = tr("Counts (10^Cnts)");
+        }
+        else
+        {
+            double val = node->itemData[COUNTS].toDouble();
+            node->itemData[COUNTS] = std::pow(10, val);
+            m_headers[HEADERS::COUNTS] = tr("Counts");
+        }
+    }
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
 }
 
 /*---------------------------------------------------------------------------*/

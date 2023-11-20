@@ -54,11 +54,19 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
        _cb_themes->setCurrentIndex(idx);
    }
 
+   QLabel* lblShowDatasetOnSelect = new QLabel("Show dataset when selecting filename");
+   lblShowDatasetOnSelect->setFont(font);
+   _ck_show_dataset_on_select = new QCheckBox();
+   _ck_show_dataset_on_select->setChecked(Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT).toBool());
+   
+
+
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
    mainLayout->addRow(lblTitle, m_windowTitle);
    mainLayout->addRow(lblDeciPrecision, m_decimalPreci);
    mainLayout->addRow(lblUseDarkTheme, _cb_themes);
+   mainLayout->addRow(lblShowDatasetOnSelect, _ck_show_dataset_on_select);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
@@ -115,7 +123,10 @@ void PreferencesDisplay::themeChanged(QString val)
 
 void PreferencesDisplay::acceptChanges()
 {
-
+    Preferences::inst()->setValue(STR_PRF_FontSize, getFontSize());
+    Preferences::inst()->setValue(STR_PRF_WindowTitle, getWindowTitle());
+    Preferences::inst()->setValue(STR_PRF_DecimalPrecision, getDecimalPrecision());
+    Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, _ck_show_dataset_on_select->isChecked());
 }
 
 /*---------------------------------------------------------------------------*/

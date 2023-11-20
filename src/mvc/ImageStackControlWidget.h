@@ -67,6 +67,7 @@ public slots:
 
    void onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image);
 
+   void onChangeDatasetName(const QString& name);
 protected:
 
 	void closeEvent(QCloseEvent *event);

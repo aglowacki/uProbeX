@@ -157,7 +157,18 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
         else if (index.column() == MIN_VAL) return fitp.min_val;
         else if (index.column() == MAX_VAL) return fitp.max_val;
         else if (index.column() == STEP_SIZE) return fitp.step_size;
-        else if (index.column() == BOUND_TYPE) return (int)fitp.bound_type;
+        else if (index.column() == BOUND_TYPE)
+        {
+            if (_optimizer_supports_min_max)
+            {
+                return (int)fitp.bound_type;
+            }
+            if (fitp.bound_type == data_struct::E_Bound_Type::NOT_INIT || fitp.bound_type == data_struct::E_Bound_Type::FIXED)
+            {
+                return (int)data_struct::E_Bound_Type::FIXED;
+            }
+            return (int)data_struct::E_Bound_Type::FIT;
+        }
     }
 
 
@@ -342,7 +353,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
         if (ok)
         {
             _fit_parameters[fitp_name].value = dval;
-            if (fitp_name == STR_ENERGY_OFFSET || fitp_name == STR_ENERGY_SLOPE || fitp_name == STR_ENERGY_QUADRATIC)
+            if (fitp_name == STR_ENERGY_OFFSET || fitp_name == STR_ENERGY_SLOPE || fitp_name == STR_ENERGY_QUADRATIC || fitp_name == STR_SNIP_WIDTH)
             {
                 emit(onEnergyChange());
             }

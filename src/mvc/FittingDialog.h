@@ -165,7 +165,7 @@ protected:
 
    bool _running;
 
-   data_struct::Spectra<double>* _int_spec;
+   data_struct::Spectra<double> _int_spec;
 
    data_struct::Fit_Element_Map_Dict<double>* _elements_to_fit;
 

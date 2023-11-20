@@ -169,9 +169,7 @@ void PreferencesDialog::accept()
     
     if (m_displaySettings != nullptr)
     {
-        Preferences::inst()->setValue(STR_PRF_FontSize, m_displaySettings->getFontSize());
-        Preferences::inst()->setValue(STR_PRF_WindowTitle, m_displaySettings->getWindowTitle());
-        Preferences::inst()->setValue(STR_PRF_DecimalPrecision, m_displaySettings->getDecimalPrecision());
+        m_displaySettings->acceptChanges();
     }
     Preferences::inst()->setValue(STR_PRF_RegionMenuList,m_pythonFuncWidget->getGroupStringList());
 

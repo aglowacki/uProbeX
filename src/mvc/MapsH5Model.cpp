@@ -183,19 +183,8 @@ void MapsH5Model::appendMapRoi(std::string name, struct Map_ROI roi)
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::saveAllRoiMaps()
+void MapsH5Model::saveAllRoiMaps(QString savename)
 {
-    QDir model_dir = _dir;
-    model_dir.cdUp();
-    model_dir.cdUp();
-    if (false == model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str()))
-    {
-        model_dir.mkdir(STR_MAPS_ROIS_DIR_NAME.c_str());
-        model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str());
-    }
-    QFileInfo finfo(_dir.absolutePath());
-    QString roi_file_name = model_dir.absolutePath() + QDir::separator() + finfo.baseName() + ".r0i";
-
     QJsonObject rootJson;
 
     QJsonArray json_rois;
@@ -224,33 +213,35 @@ void MapsH5Model::saveAllRoiMaps()
 
         QJsonObject json_int_spec;
 
-        QJsonArray json_spec;
-        for (auto& iItr : itr.second.int_spec)
+        for (const auto &spec_itr : itr.second.int_spec)
         {
-            json_spec.append(iItr);
-        }
-        json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = finfo.fileName();
-        json_int_spec[STR_SPECTRA.c_str()] = json_spec;
-        json_int_spec[STR_ELT.c_str()] = itr.second.int_spec.elapsed_livetime();
-        json_int_spec[STR_ERT.c_str()] = itr.second.int_spec.elapsed_realtime();
-        json_int_spec[STR_ICR.c_str()] = itr.second.int_spec.input_counts();
-        json_int_spec[STR_OCR.c_str()] = itr.second.int_spec.output_counts();
-        
-        json_arr_specs.append(json_int_spec);
+            QJsonArray json_spec;
+            for (auto& iItr : spec_itr.second)
+            {
+                json_spec.append(iItr);
+            }
+            json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = spec_itr.first.c_str();
+            json_int_spec[STR_SPECTRA.c_str()] = json_spec;
+            json_int_spec[STR_ELT.c_str()] = spec_itr.second.elapsed_livetime();
+            json_int_spec[STR_ERT.c_str()] = spec_itr.second.elapsed_realtime();
+            json_int_spec[STR_ICR.c_str()] = spec_itr.second.input_counts();
+            json_int_spec[STR_OCR.c_str()] = spec_itr.second.output_counts();
 
+            json_arr_specs.append(json_int_spec);
+        }
         json_roi_object[STR_MAP_ROI_INT_SPEC.c_str()] = json_arr_specs;
         json_rois.append(json_roi_object);
     }
 
     rootJson[STR_MAPS_ROIS.c_str()] = json_rois;
     QByteArray save_data = QJsonDocument(rootJson).toJson();
-    
+
     if (_map_rois.size() > 0)
     {
-        QFile saveFile(roi_file_name);
+        QFile saveFile(savename);
         if (!saveFile.open(QIODevice::WriteOnly))
         {
-            logW << "Couldn't open save file: " << roi_file_name.toStdString();
+            logW << "Couldn't open save file: " << savename.toStdString();
         }
         else
         {
@@ -258,6 +249,24 @@ void MapsH5Model::saveAllRoiMaps()
             saveFile.close();
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsH5Model::saveAllRoiMaps()
+{
+    QDir model_dir = _dir;
+    model_dir.cdUp();
+    model_dir.cdUp();
+    if (false == model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str()))
+    {
+        model_dir.mkdir(STR_MAPS_ROIS_DIR_NAME.c_str());
+        model_dir.cd(STR_MAPS_ROIS_DIR_NAME.c_str());
+    }
+    QFileInfo finfo(_dir.absolutePath());
+    QString roi_file_name = model_dir.absolutePath() + QDir::separator() + finfo.baseName() + ".r0i";
+
+    saveAllRoiMaps(roi_file_name);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -321,19 +330,20 @@ void MapsH5Model::loadAllRoiMaps()
                     if (json_int_spec.contains(STR_MAP_ROI_INT_SPEC_FILENAME.c_str()))
                     {
                         QString filename = json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()].toString();
+                        std::string stdFilename = filename.toStdString();
                         // if we found our int spectra then load it
                         if (filename == finfo.fileName())
                         {
                             QJsonArray json_spec_arr = json_int_spec[STR_SPECTRA.c_str()].toArray();
-                            mroi.int_spec.resize(json_spec_arr.size());
+                            mroi.int_spec[stdFilename].resize(json_spec_arr.size());
                             for (int n = 0; n < json_spec_arr.size(); ++n)
                             {
-                                mroi.int_spec(n) = json_spec_arr[n].toInt();
+                                mroi.int_spec[stdFilename](n) = json_spec_arr[n].toInt();
                             }
-                            mroi.int_spec.elapsed_livetime(json_int_spec[STR_ELT.c_str()].toDouble());
-                            mroi.int_spec.elapsed_realtime(json_int_spec[STR_ERT.c_str()].toDouble());
-                            mroi.int_spec.input_counts(json_int_spec[STR_ICR.c_str()].toDouble());
-                            mroi.int_spec.output_counts(json_int_spec[STR_OCR.c_str()].toDouble());
+                            mroi.int_spec[stdFilename].elapsed_livetime(json_int_spec[STR_ELT.c_str()].toDouble());
+                            mroi.int_spec[stdFilename].elapsed_realtime(json_int_spec[STR_ERT.c_str()].toDouble());
+                            mroi.int_spec[stdFilename].input_counts(json_int_spec[STR_ICR.c_str()].toDouble());
+                            mroi.int_spec[stdFilename].output_counts(json_int_spec[STR_OCR.c_str()].toDouble());
                             int_spec_loaded = true;
                         }
                     }
@@ -346,8 +356,9 @@ void MapsH5Model::loadAllRoiMaps()
 
             if (false == int_spec_loaded)
             {
+                std::string stdFileName = finfo.fileName().toStdString();
                 // load it 
-                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), &(mroi.int_spec), mroi.pixel_list))
+                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), &(mroi.int_spec[stdFileName]), mroi.pixel_list))
                 {
                     QJsonArray jsonIntSpecArr = jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].toArray();
 
@@ -355,15 +366,15 @@ void MapsH5Model::loadAllRoiMaps()
                     json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = finfo.fileName();
 
                     QJsonArray json_spec;
-                    for (auto& iItr : mroi.int_spec)
+                    for (auto& iItr : mroi.int_spec[stdFileName])
                     {
                         json_spec.append(iItr);
                     }
                     json_int_spec[STR_SPECTRA.c_str()] = json_spec;
-                    json_int_spec[STR_ELT.c_str()] = mroi.int_spec.elapsed_livetime();
-                    json_int_spec[STR_ERT.c_str()] = mroi.int_spec.elapsed_realtime();
-                    json_int_spec[STR_ICR.c_str()] = mroi.int_spec.input_counts();
-                    json_int_spec[STR_OCR.c_str()] = mroi.int_spec.output_counts();
+                    json_int_spec[STR_ELT.c_str()] = mroi.int_spec[stdFileName].elapsed_livetime();
+                    json_int_spec[STR_ERT.c_str()] = mroi.int_spec[stdFileName].elapsed_realtime();
+                    json_int_spec[STR_ICR.c_str()] = mroi.int_spec[stdFileName].input_counts();
+                    json_int_spec[STR_OCR.c_str()] = mroi.int_spec[stdFileName].output_counts();
 
                     jsonIntSpecArr.append(json_int_spec);
                     jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()] = jsonIntSpecArr;

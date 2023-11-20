@@ -28,7 +28,6 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <mvc/FitSpectraWidget.h>
 #include <mvc/MDA_Widget.h>
-
 #include <gstar/Splash.h>
 
 #include <stdio.h>
@@ -230,6 +229,9 @@ void uProbeX::createMenuBar()
     action = m_menuFile->addAction("Save All VLM DATA");
     connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
     m_menuFile->addSeparator();
+    action = m_menuFile->addAction("Convert v9 ROI's to V10");
+    connect(action, SIGNAL(triggered()), this, SLOT(upgradeV9Rois()));
+
     //action = m_menuFile->addAction("Save preferences");
     //connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
     //action = m_menuFile->addAction("Load preferences");
@@ -959,6 +961,15 @@ bool uProbeX::saveActivatedXmlRequired()
         }
     }
     return false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void uProbeX::upgradeV9Rois()
+{
+    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
+    _upgradeRoiDialog.setDirectory(QDir(dirName));
+    _upgradeRoiDialog.show();    
 }
 
 /*---------------------------------------------------------------------------*/

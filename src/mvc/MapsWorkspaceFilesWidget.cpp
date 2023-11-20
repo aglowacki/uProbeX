@@ -12,6 +12,7 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QMessageBox>
+#include <preferences/Preferences.h>
 #include "core/GlobalThreadPool.h"
 
 
@@ -64,6 +65,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
     connect(_h5_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    connect(_h5_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
@@ -71,6 +73,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
     connect(_mda_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    connect(_mda_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
     _mda_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
 
     _vlm_tab_widget = new FileTabWidget();
@@ -83,6 +86,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(tif_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tif"); });
     connect(_vlm_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::VLM); });
     connect(_vlm_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::VLM); });
+    connect(_vlm_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
     _vlm_tab_widget->appendFilterHelpAction(sws_file);
     _vlm_tab_widget->appendFilterHelpAction(tiff_file);
     _vlm_tab_widget->appendFilterHelpAction(tif_file);
@@ -231,7 +235,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 if (h5Model != nullptr)
                 {
                     // have to call from main thread because ifstream.open locks up in threadpool
-                    _model->load_v9_rois(name, h5Model);
+                    //_model->load_v9_rois(name, h5Model);
 
                     int idx = -1;
                     for (int b = 0; b < 7; b++)
@@ -468,6 +472,16 @@ void MapsWorkspaceFilesWidget::onProcessed_list_update(QStringList file_list)
         _model->reload_analyzed();
 
         onOpenModel(file_list, MODEL_TYPE::MAPS_H5);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onDatasetSelected(const QString name)
+{
+    if (Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT).toBool())
+    {
+        emit datasetSelected(name);
     }
 }
 

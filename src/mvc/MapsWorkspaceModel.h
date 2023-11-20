@@ -95,8 +95,6 @@ public:
 
     QDir get_directory() { return *_dir; }
 
-    bool load_v9_rois(QString fname, MapsH5Model* model);
-
 signals:
 
     void doneLoadingMDA();
