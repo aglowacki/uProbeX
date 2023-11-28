@@ -135,6 +135,8 @@ protected:
 
    QLineEdit* _le_outcome;
 
+   QLineEdit* _le_detailed_outcome;
+
    QLineEdit* _le_residual;
 
    QLineEdit* _le_num_itr;
