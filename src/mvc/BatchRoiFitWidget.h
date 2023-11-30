@@ -28,8 +28,7 @@
 #include <thread>
 #include <unordered_map>
 #include <data_struct/analysis_job.h>
-#include <mvc/PerPixelOptionsWidget.h>
-//#include "mvc/OptimizerOptionsWidget.h"
+#include "mvc/OptimizerOptionsWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -53,8 +52,12 @@ public:
 
     void updateFileList(std::unordered_map<QString, QFileInfo> roi_map);
 
+    void status_callback(size_t cur_itr, size_t total_itr);
+
 public slots:
     void runProcessing();
+   
+    void optimizer_changed(QString val);
 
 protected:
 
@@ -62,24 +65,32 @@ protected:
     * @brief Create layout
     */
    void createLayout();
-   /*
+
+   QStringList _file_list;
+   
+   QProgressBar *_progressBarFiles;
+
+   QProgressBar* _progressBarBlocks;
+
+   QPushButton *_btn_run;
+
+   QPushButton *_btn_cancel;
+
    QListView* _file_list_view;
 
    QStandardItemModel* _file_list_model;
-   */
+
    std::string _directory;
 
-   //QLineEdit* _le_detectors;
+   QLineEdit* _le_detectors;
 
-   //QComboBox* _cb_opt_method;
+   QComboBox* _cb_opt_method;
 
    std::unordered_map<QString, QFileInfo> _roi_map;
 
-   //size_t _total_itr;
+   size_t _total_itr;
 
-   PerPixelOptionsWidget* _optionsWidget;
-
-   //OptimizerOptionsWidget* _optimizer_widget;
+   OptimizerOptionsWidget* _optimizer_widget;
 
    data_struct::Analysis_Job<double> _analysis_job;
 
