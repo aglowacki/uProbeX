@@ -59,6 +59,8 @@ public slots:
    
     void optimizer_changed(QString val);
 
+    void onClose();
+
 protected:
 
    /**
