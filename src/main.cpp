@@ -63,6 +63,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 				abort();
 				break;
 			}
+			uProbeX::log_textedit->ensureCursorVisible();
 		}
 	}
 }
