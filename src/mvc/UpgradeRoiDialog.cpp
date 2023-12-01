@@ -152,8 +152,6 @@ void UpgradeRoiDialog::runProcessing()
     int i = 0;
     for (auto& itr : _roi_fileinfo_list)
     {
-        i++;
-        _progressBarFiles->setValue(i);
         QCoreApplication::processEvents();
         MapsH5Model model;
         QString hdf_filename;
@@ -173,6 +171,8 @@ void UpgradeRoiDialog::runProcessing()
                 break;
             }
         }
+        i++;
+        _progressBarFiles->setValue(i);
     }
 
     _progressBarFiles->setValue(proc_total);
@@ -229,13 +229,25 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
     // check V9 ROI's first
     // get 4 numbers in dataset name to ref roi's
     QRegularExpression re("[0-9][0-9][0-9][0-9]");
+    QRegularExpression axo_re("axo_std");
 
     QRegularExpressionMatch match = re.match(fname);
-    if (match.hasMatch())
+    QRegularExpressionMatch axo_match = axo_re.match(fname);
+    if (match.hasMatch() || axo_match.hasMatch())
     {
-        QStringList matched_tests = match.capturedTexts();
-        QString dataset_num = matched_tests.first();
+        QString dataset_num;
+        if (match.hasMatch())
+        {
+            QStringList matched_tests = match.capturedTexts();
+            dataset_num = matched_tests.first();
+        }
+        if (axo_match.hasMatch())
+        {
+            dataset_num = axo_match.capturedTexts().first();
+        }
         QRegularExpression re2(dataset_num);
+
+
         for (auto& itr : _h5_fileinfo_list)
         {
             QRegularExpressionMatch match2 = re2.match(itr.first);
@@ -295,6 +307,10 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
                     
             }
         }
+    }
+    else
+    {
+        logW << "Cound not match regular expression [0-9][0-9][0-9][0-9] with filename " << fname.toStdString() << "\n";
     }
     return false;
 }

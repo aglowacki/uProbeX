@@ -381,6 +381,10 @@ void MapsH5Model::loadAllRoiMaps()
                     rois[i] = jsonRoi;
                     resave = true;
                 }
+                else
+                {
+                    logW << "Failed to load roi spectra for " << _dir.absolutePath().toStdString() << "\n";
+                }
             }
             _map_rois[mroi.name] = mroi;
         }

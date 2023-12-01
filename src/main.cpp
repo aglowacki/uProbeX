@@ -41,17 +41,27 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 		}
 		else
 		{
-			switch (type) {
+			QString h_msg(msg);
+			switch (type) 
+			{
 			case QtDebugMsg:
+				//h_msg = "<span style=\"color : green; \">" + msg + "</span>\r";
+				h_msg.replace("\033[1;31mError: \033[0;m", "<span style=\"color : red; font-weight: bold; \">Error: </span>");
+				h_msg.replace("\033[1;33mWarning: \033[0;m", "<span style=\"color : yellow; font-weight: bold; \">Warning: </span>");
+				h_msg.replace("\n", "<br />");
+				uProbeX::log_textedit->append(h_msg);
+				break;
 			case QtWarningMsg:
+				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
+				uProbeX::log_textedit->append(h_msg);
+				break;
 			case QtCriticalMsg:
-				// redundant check, could be removed, or the 
-				// upper if statement could be removed
-				if (uProbeX::log_textedit != nullptr)
-					uProbeX::log_textedit->append(msg);
+				h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
+				uProbeX::log_textedit->append(h_msg);
 				break;
 			case QtFatalMsg:
 				abort();
+				break;
 			}
 		}
 	}
