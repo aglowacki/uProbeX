@@ -134,6 +134,7 @@ void FittingDialog::_createLayout()
 
 
     _le_outcome = new QLineEdit();
+    _le_detailed_outcome = new QLineEdit();
     _le_residual = new QLineEdit();
     _le_num_itr = new QLineEdit();
 
@@ -141,10 +142,12 @@ void FittingDialog::_createLayout()
     glayout->setAlignment(Qt::AlignTop);
     glayout->addWidget(new QLabel("Outcome: "), 0, 0, Qt::AlignRight);
     glayout->addWidget(_le_outcome, 0, 1);
-    glayout->addWidget(new QLabel("Residual Error: "), 1, 0, Qt::AlignRight);
-    glayout->addWidget(_le_residual, 1, 1);
-    glayout->addWidget(new QLabel("Number of Iterations: "), 2, 0, Qt::AlignRight);
-    glayout->addWidget(_le_num_itr, 2, 1);
+    glayout->addWidget(new QLabel("Detailed Outcome: "), 1, 0, Qt::AlignRight);
+    glayout->addWidget(_le_detailed_outcome, 1, 1);
+    glayout->addWidget(new QLabel("Residual Error: "), 2, 0, Qt::AlignRight);
+    glayout->addWidget(_le_residual, 2, 1);
+    glayout->addWidget(new QLabel("Number of Iterations: "), 3, 0, Qt::AlignRight);
+    glayout->addWidget(_le_num_itr, 3, 1);
 
     QWidget* ouput_widget = new QWidget();
     ouput_widget->setLayout(glayout);
@@ -408,9 +411,12 @@ void FittingDialog::runProcessing()
             {
                 _outcome = _param_fit_routine.fit_spectra_parameters(&_model, &_int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
-
+            
             std::string out_str = optimizer_outcome_to_str(_outcome);
             _le_outcome->setText(QString(out_str.c_str()));
+
+            std::string det_out = _optimizer->get_last_detailed_outcome();
+            _le_detailed_outcome->setText(QString(det_out.c_str()));
 
             if (_new_out_fit_params.contains(STR_RESIDUAL))
             {
