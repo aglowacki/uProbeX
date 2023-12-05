@@ -42,14 +42,22 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 		else
 		{
 			QString h_msg(msg);
-			switch (type) 
+			int cnt = 0;
+			switch (type)
 			{
 			case QtDebugMsg:
-				//h_msg = "<span style=\"color : green; \">" + msg + "</span>\r";
+				cnt += h_msg.count("Info: ");
+				cnt += h_msg.count("Warning: ");
+				cnt += h_msg.count("Error: ");
+				h_msg.replace("Info: ", "<span style=\" font-weight: bold; \">Info: </span>");
 				h_msg.replace("\033[1;31mError: \033[0;m", "<span style=\"color : red; font-weight: bold; \">Error: </span>");
 				h_msg.replace("\033[1;33mWarning: \033[0;m", "<span style=\"color : yellow; font-weight: bold; \">Warning: </span>");
-				h_msg.replace("\n", "<br />");
+				if (cnt > 0)
+				{
+					h_msg.replace("\n", "<br>");
+				}
 				uProbeX::log_textedit->append(h_msg);
+				//uProbeX::log_textedit->ensureCursorVisible();
 				break;
 			case QtWarningMsg:
 				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";

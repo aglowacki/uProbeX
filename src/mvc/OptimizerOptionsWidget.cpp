@@ -20,6 +20,7 @@ const QString tip_step = "Used in determining the initial step bound. This bound
 const QString tip_maxitr = "Used to set the maximum number of function evaluations to maxiter*(number_of_parameters+1).";
 const QString tip_scale = "If 1, the variables will be rescaled internally. Recommended value is 1.";
 const QString tip_covtol = "Range tolerance for covariance calculation Default: 1e-14";
+const QString tip_verbose = "OR'ed: 1: print some messages; 2: print Jacobian.";
 
 
 /*---------------------------------------------------------------------------*/
@@ -81,17 +82,21 @@ void OptimizerOptionsWidget::_createLayout()
 
     _opt_lm_scale_diag = new QSpinBox();
     _opt_lm_scale_diag->setToolTip(tip_scale);
-    //_opt_lm_scale_diag->setDecimals(1);
     _opt_lm_scale_diag->setRange(0, 1);
     _opt_lm_scale_diag->setSingleStep(1.0);
     QLabel* lbl_scale = new QLabel("Scale Diag: ");
     lbl_scale->setToolTip(tip_scale);
 
-    _opt_mp_covtol = new QDoubleSpinBox();
+    _opt_lm_verbose = new QSpinBox();
+    _opt_lm_verbose->setToolTip(tip_scale);
+    _opt_lm_verbose->setRange(0, 3);
+    _opt_lm_verbose->setSingleStep(1.0);
+    QLabel* lbl_verbose = new QLabel("Verbose Level: ");
+    lbl_verbose->setToolTip(tip_verbose);
+
+    _opt_mp_covtol = new QLineEdit();
     _opt_mp_covtol->setToolTip(tip_covtol);
-    _opt_mp_covtol->setDecimals(30);
-    _opt_mp_covtol->setRange(0.0, 1.0);
-    _opt_mp_covtol->setSingleStep(1.0e-15);
+    
     QLabel* lbl_covtol = new QLabel("CovTol: ");
     lbl_covtol->setToolTip(tip_covtol);
 
@@ -117,6 +122,8 @@ void OptimizerOptionsWidget::_createLayout()
     QHBoxLayout* hbox_lm = new QHBoxLayout();
     hbox_lm->addWidget(lbl_scale);
     hbox_lm->addWidget(_opt_lm_scale_diag);
+    hbox_lm->addWidget(lbl_verbose);
+    hbox_lm->addWidget(_opt_lm_verbose);
     _lm_fit_ctrl_grp = new QGroupBox();
     _lm_fit_ctrl_grp->setLayout(hbox_lm);
     optimizerLayout->addWidget(_lm_fit_ctrl_grp, 0, 7, Qt::AlignLeft);
@@ -207,8 +214,13 @@ void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Opt
     }
     if (opt.count(STR_OPT_COVTOL) > 0)
     {
-        _opt_mp_covtol->setValue(opt.at(STR_OPT_COVTOL));
+        _opt_mp_covtol->setText(QString::number(opt.at(STR_OPT_COVTOL), 'e', 0));
     }
+    if (opt.count(STR_OPT_VERBOSE_LEVEL) > 0)
+    {
+        _opt_lm_verbose->setValue(opt.at(STR_OPT_VERBOSE_LEVEL));
+    }
+
 }
 
 /*---------------------------------------------------------------------------*/
@@ -223,7 +235,8 @@ void  OptimizerOptionsWidget::updateOptimizerOptions(fitting::optimizers::Optimi
     opt[STR_OPT_STEP] = _opt_stepbound->value();
     opt[STR_OPT_MAXITER] = _opt_maxiter->value();
     opt[STR_OPT_SCALE_DIAG] = _opt_lm_scale_diag->value();
-    opt[STR_OPT_COVTOL] = _opt_mp_covtol->value();
+    opt[STR_OPT_COVTOL] = _opt_mp_covtol->text().toDouble();
+    opt[STR_OPT_VERBOSE_LEVEL] = _opt_lm_verbose->value();
     optimizer.set_options(opt);
 }
 
