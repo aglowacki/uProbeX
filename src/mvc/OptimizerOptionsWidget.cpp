@@ -87,11 +87,9 @@ void OptimizerOptionsWidget::_createLayout()
     QLabel* lbl_scale = new QLabel("Scale Diag: ");
     lbl_scale->setToolTip(tip_scale);
 
-    _opt_mp_covtol = new QDoubleSpinBox();
+    _opt_mp_covtol = new QLineEdit();
     _opt_mp_covtol->setToolTip(tip_covtol);
-    _opt_mp_covtol->setDecimals(30);
-    _opt_mp_covtol->setRange(0.0, 1.0);
-    _opt_mp_covtol->setSingleStep(1.0e-15);
+    
     QLabel* lbl_covtol = new QLabel("CovTol: ");
     lbl_covtol->setToolTip(tip_covtol);
 
@@ -207,7 +205,7 @@ void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Opt
     }
     if (opt.count(STR_OPT_COVTOL) > 0)
     {
-        _opt_mp_covtol->setValue(opt.at(STR_OPT_COVTOL));
+        _opt_mp_covtol->setText(QString::number(opt.at(STR_OPT_COVTOL), 'e', 0));
     }
 }
 
@@ -223,7 +221,7 @@ void  OptimizerOptionsWidget::updateOptimizerOptions(fitting::optimizers::Optimi
     opt[STR_OPT_STEP] = _opt_stepbound->value();
     opt[STR_OPT_MAXITER] = _opt_maxiter->value();
     opt[STR_OPT_SCALE_DIAG] = _opt_lm_scale_diag->value();
-    opt[STR_OPT_COVTOL] = _opt_mp_covtol->value();
+    opt[STR_OPT_COVTOL] = _opt_mp_covtol->text().toDouble();
     optimizer.set_options(opt);
 }
 

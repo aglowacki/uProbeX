@@ -85,7 +85,7 @@ protected:
 
    QSpinBox* _opt_lm_scale_diag;
 
-   QDoubleSpinBox* _opt_mp_covtol;
+   QLineEdit* _opt_mp_covtol;
 
 };
 
