@@ -5,6 +5,7 @@
 
 #include "FitParamsTableModel.h"
 #include "fitting/models/gaussian_model.h"
+#include <QColor>
 
 /*---------------------------------------------------------------------------*/
 
@@ -168,6 +169,33 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
                 return (int)data_struct::E_Bound_Type::FIXED;
             }
             return (int)data_struct::E_Bound_Type::FIT;
+        }
+    }
+    else if (role == Qt::BackgroundRole)
+    {
+        if (_optimizer_supports_min_max)
+        {
+            data_struct::Fit_Param<double> fitp = _fit_parameters.at(_row_indicies[row]);
+            if (index.column() == VALUE || index.column() == MIN_VAL)
+            {
+                if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
+                {
+                    if (fitp.value <= fitp.min_val)
+                    {
+                        return QColor(Qt::red);
+                    }
+                }
+            }
+            if (index.column() == VALUE || index.column() == MAX_VAL)
+            {
+                if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_HI || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
+                {
+                    if (fitp.value >= fitp.max_val)
+                    {
+                        return QColor(Qt::red);
+                    }
+                }
+            }
         }
     }
 
