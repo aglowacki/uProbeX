@@ -155,12 +155,14 @@ void BatchRoiFitWidget::status_callback(size_t cur_itr, size_t total_itr)
         _progressBarBlocks->setRange(0, _total_itr);
     }
 
+    /*
     if (cur_itr == _total_itr)
     {
         int val = _progressBarFiles->value() + 1;
         _progressBarFiles->setValue(val);
         
     }
+    */
 
     _progressBarBlocks->setValue(cur_itr);
     QCoreApplication::processEvents();
@@ -174,7 +176,7 @@ void BatchRoiFitWidget::runProcessing()
     _btn_run->setEnabled(false);
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
-
+    _canceled = false;
     //run in thread
     _analysis_job.dataset_directory = _directory;
     if (_cb_opt_method->currentText() == STR_HYBRID_MP_FIT)
@@ -195,6 +197,9 @@ void BatchRoiFitWidget::runProcessing()
     }
 
     _optimizer_widget->updateOptimizerOptions(*(_analysis_job.optimizer()));
+
+    _analysis_job.use_weights = _optimizer_widget->useWeights();
+    _analysis_job.detector_num_arr.clear();
 
     QString dstring = _le_detectors->text();
     if (dstring.length() > 0)
@@ -257,6 +262,10 @@ void BatchRoiFitWidget::runProcessing()
         
         int proc_total = _roi_map.size() * _analysis_job.detector_num_arr.size();
         _progressBarFiles->setRange(0, proc_total);
+        _progressBarBlocks->setRange(0, _total_itr);
+
+        _progressBarBlocks->setValue(0);
+        _progressBarFiles->setValue(0);
 
         _analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
         io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_analysis_job.dataset_directory);
