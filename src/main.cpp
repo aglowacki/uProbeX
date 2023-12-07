@@ -59,7 +59,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 					h_msg.replace("\n", "<br>");
 				}
 				uProbeX::log_textedit->insertHtml(h_msg);
-				//uProbeX::log_textedit->ensureCursorVisible();
+				uProbeX::log_textedit->ensureCursorVisible();
 				break;
 			case QtWarningMsg:
 				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
