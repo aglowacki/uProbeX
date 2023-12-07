@@ -80,7 +80,8 @@ void BatchRoiFitWidget::createLayout()
     detector_hbox->addWidget(_le_detectors);
 
     _optimizer_widget = new OptimizerOptionsWidget();
-    _optimizer_widget->setOptimizer(STR_LM_FIT, *(_analysis_job.optimizer()));
+    fitting::optimizers::LMFit_Optimizer<double> lmfit_optimizer;
+    _optimizer_widget->setOptimizer(STR_LM_FIT, lmfit_optimizer);
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(detector_hbox);
@@ -98,8 +99,16 @@ void BatchRoiFitWidget::createLayout()
 
 void BatchRoiFitWidget::optimizer_changed(QString val)
 {
-    _analysis_job.set_optimizer(val.toStdString());
-    _optimizer_widget->setOptimizer(val, *(_analysis_job.optimizer()));
+    if (val == STR_LM_FIT)
+    {
+        fitting::optimizers::LMFit_Optimizer<double> lmfit_optimizer;
+        _optimizer_widget->setOptimizer(val, lmfit_optimizer);
+    }
+    else if (val == STR_MP_FIT || val == STR_HYBRID_MP_FIT)
+    {
+        fitting::optimizers::MPFit_Optimizer<double> mpfit_optimizer;
+        _optimizer_widget->setOptimizer(val, mpfit_optimizer);
+    }
 }
 
 void BatchRoiFitWidget::onClose()
@@ -177,29 +186,36 @@ void BatchRoiFitWidget::runProcessing()
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
     _canceled = false;
+
+    data_struct::Analysis_Job<double> analysis_job;
+
+    QString val = _cb_opt_method->currentText();
+    analysis_job.set_optimizer(val.toStdString());
+    
+
     //run in thread
-    _analysis_job.dataset_directory = _directory;
+    analysis_job.dataset_directory = _directory;
     if (_cb_opt_method->currentText() == STR_HYBRID_MP_FIT)
     {
-        _analysis_job.set_optimizer("mpfit");
-        _analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
+        analysis_job.set_optimizer("mpfit");
+        analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
     }
     else
     {
         if (_cb_opt_method->currentText() == STR_MP_FIT)
         {
-            _analysis_job.set_optimizer("mpfit");
+            analysis_job.set_optimizer("mpfit");
         }
         else
         {
-            _analysis_job.set_optimizer("lmfit");
+            analysis_job.set_optimizer("lmfit");
         }
     }
 
-    _optimizer_widget->updateOptimizerOptions(*(_analysis_job.optimizer()));
+    _optimizer_widget->updateOptimizerOptions(*(analysis_job.optimizer()));
 
-    _analysis_job.use_weights = _optimizer_widget->useWeights();
-    _analysis_job.detector_num_arr.clear();
+    analysis_job.use_weights = _optimizer_widget->useWeights();
+    analysis_job.detector_num_arr.clear();
 
     QString dstring = _le_detectors->text();
     if (dstring.length() > 0)
@@ -209,7 +225,7 @@ void BatchRoiFitWidget::runProcessing()
             QStringList dlist = dstring.split(",");
             foreach(QString str, dlist)
             {
-                _analysis_job.detector_num_arr.push_back(str.toInt());
+                analysis_job.detector_num_arr.push_back(str.toInt());
             }
         }
         else if (dstring.count(":") > 0)
@@ -221,7 +237,7 @@ void BatchRoiFitWidget::runProcessing()
                 int high = dlist[1].toInt();
                 for (int i = low; i < high + 1; i++)
                 {
-                    _analysis_job.detector_num_arr.push_back(i);
+                    analysis_job.detector_num_arr.push_back(i);
                 }
             }
             catch (...)
@@ -234,7 +250,7 @@ void BatchRoiFitWidget::runProcessing()
         {
             try
             {
-                _analysis_job.detector_num_arr.push_back(dstring.toInt());
+                analysis_job.detector_num_arr.push_back(dstring.toInt());
             }
             catch (...)
             {
@@ -252,27 +268,27 @@ void BatchRoiFitWidget::runProcessing()
     Callback_Func_Status_Def cb_func = std::bind(&BatchRoiFitWidget::status_callback, this, std::placeholders::_1, std::placeholders::_2);
     // TODO: will need to update to fitting routes instead of getting fit parameters
 
-    _analysis_job.fitting_routines.push_back(Fitting_Routines::NNLS);
+    analysis_job.fitting_routines.push_back(Fitting_Routines::NNLS);
 
-    if (io::file::init_analysis_job_detectors(&_analysis_job))
+    if (io::file::init_analysis_job_detectors(&analysis_job))
     {
         // lock all fit parameters except elastic/inelastic amp and elements
         
-        _analysis_job.optimize_fit_params_preset = fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS;
+        analysis_job.optimize_fit_params_preset = fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS;
         
-        int proc_total = _roi_map.size() * _analysis_job.detector_num_arr.size();
+        int proc_total = _roi_map.size() * analysis_job.detector_num_arr.size();
         _progressBarFiles->setRange(0, proc_total);
         _progressBarBlocks->setRange(0, _total_itr);
 
         _progressBarBlocks->setValue(0);
         _progressBarFiles->setValue(0);
 
-        _analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
-        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(_analysis_job.dataset_directory);
+        analysis_job.quantification_standard_filename = "maps_standardinfo.txt";
+        io::file::File_Scan::inst()->populate_netcdf_hdf5_files(analysis_job.dataset_directory);
 
-        if (_analysis_job.quantification_standard_filename.length() > 0)
+        if (analysis_job.quantification_standard_filename.length() > 0)
         {
-            perform_quantification(&_analysis_job, false);
+            perform_quantification(&analysis_job, false);
         }
 
         std::map<int, std::map<std::string, data_struct::Fit_Parameters<double>>> roi_fit_params;
@@ -280,7 +296,7 @@ void BatchRoiFitWidget::runProcessing()
         for (auto& itr : _roi_map)
         {
             i++;
-            optimize_single_roi(_analysis_job, itr.second.fileName().toStdString(), roi_fit_params, &cb_func);
+            optimize_single_roi(analysis_job, itr.second.fileName().toStdString(), roi_fit_params, &cb_func);
             _progressBarFiles->setValue(i);
             QCoreApplication::processEvents();
         }
@@ -289,14 +305,14 @@ void BatchRoiFitWidget::runProcessing()
         _progressBarFiles->setValue(proc_total);
 
         // save all to csv
-        for (auto detector_num : _analysis_job.detector_num_arr)
+        for (auto detector_num : analysis_job.detector_num_arr)
         {
-            std::string save_path = _analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + ".csv";
-            std::string quant_save_path = _analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + "_quantified.csv";
+            std::string save_path = analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + ".csv";
+            std::string quant_save_path = analysis_job.dataset_directory + "output/specfit_results" + std::to_string(detector_num) + "_quantified.csv";
             io::file::csv::save_v9_specfit(save_path, roi_fit_params.at(detector_num));
-            if (_analysis_job.get_detector(detector_num)->quantification_standards.size() > 0)
+            if (analysis_job.get_detector(detector_num)->quantification_standards.size() > 0)
             {
-                io::file::csv::save_v9_specfit_quantified(quant_save_path, _analysis_job.get_detector(detector_num), _analysis_job.fitting_routines, roi_fit_params.at(detector_num));
+                io::file::csv::save_v9_specfit_quantified(quant_save_path, analysis_job.get_detector(detector_num), analysis_job.fitting_routines, roi_fit_params.at(detector_num));
             }
         }
     }
