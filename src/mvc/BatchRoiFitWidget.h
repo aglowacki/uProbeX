@@ -94,8 +94,6 @@ protected:
 
    OptimizerOptionsWidget* _optimizer_widget;
 
-   data_struct::Analysis_Job<double> _analysis_job;
-
    bool _canceled;
 };
 
