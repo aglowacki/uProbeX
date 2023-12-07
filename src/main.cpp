@@ -14,7 +14,9 @@
 #include "mvc/LiveMapsElementsWidget.h"
 
 bool running = true;
- /*---------------------------------------------------------------------------*/
+static std::ostringstream strCout;
+
+/*---------------------------------------------------------------------------*/
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -79,19 +81,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 // This redirects console logs from DLL's to out log widget
 void readSTDOUT()
 {
-	std::string line;
-	std::ostringstream strCout;
-	std::cout.rdbuf(strCout.rdbuf());
-
-	while (running)
+	std::string line = strCout.str();
+	strCout.str(std::string());
+	if (line.length() > 0)
 	{
-		line = strCout.str();
-		strCout.str(std::string());
-		if (line.length() > 0)
-		{
-			qDebug() << line.c_str();
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		qDebug() << line.c_str();
 	}
 }
 
@@ -114,7 +108,10 @@ int main(int argc, char** argv)
 	}
 	qInstallMessageHandler(myMessageOutput);
 
-	std::thread stdio_stream_thread(readSTDOUT);
+	std::cout.rdbuf(strCout.rdbuf());
+	QTimer timer;
+	QObject::connect(&timer, &QTimer::timeout, readSTDOUT);
+	timer.start(1000);
 
 	if(argc > 1)
 	{
@@ -153,8 +150,6 @@ int main(int argc, char** argv)
 	int ret = app.exec();
 
 	running = false;
-
-	stdio_stream_thread.join();
 
 	// Clean up
 	if (widget != nullptr)
