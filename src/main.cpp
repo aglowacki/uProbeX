@@ -56,16 +56,16 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 				{
 					h_msg.replace("\n", "<br>");
 				}
-				uProbeX::log_textedit->append(h_msg);
+				uProbeX::log_textedit->insertHtml(h_msg);
 				//uProbeX::log_textedit->ensureCursorVisible();
 				break;
 			case QtWarningMsg:
 				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
-				uProbeX::log_textedit->append(h_msg);
+				uProbeX::log_textedit->insertHtml(h_msg);
 				break;
 			case QtCriticalMsg:
 				h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
-				uProbeX::log_textedit->append(h_msg);
+				uProbeX::log_textedit->insertHtml(h_msg);
 				break;
 			case QtFatalMsg:
 				abort();
