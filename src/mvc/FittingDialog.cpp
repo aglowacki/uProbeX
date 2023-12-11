@@ -231,9 +231,8 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
     if (spectra != nullptr)
     {
         _int_spec = *spectra;
-        _energy_range;
         _energy_range.min = 0;
-        _energy_range.max = _int_spec.rows() - 1;
+        _energy_range.max = _int_spec.size() - 1;
 
         _spectra_background = snip_background<double>((Spectra<double>*)&_int_spec,
                 _out_fit_params[STR_ENERGY_OFFSET].value,
@@ -277,6 +276,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
     _elements_to_fit = elements_to_fit;
     if (_elements_to_fit != nullptr)
     {
+       
         data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);
         /*
         if (fit_spec.size() == _spectra_background.size())
@@ -366,11 +366,6 @@ void FittingDialog::runProcessing()
 
         bool use_weights = _optimizer_widget->useWeights();
 
-        //Range of energy in spectra to fit
-        _energy_range;
-		_energy_range.min = 0;
-		_energy_range.max = _int_spec.rows() - 1;
-
         _optimizer_widget->updateOptimizerOptions(*_optimizer);
 
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
@@ -383,6 +378,8 @@ void FittingDialog::runProcessing()
         //Update fit parameters by override values
         _model.update_fit_params_values(&_out_fit_params);
         _model.update_and_add_fit_params_values_gt_zero(&_element_fit_params);
+
+        _energy_range = data_struct::get_energy_range(_int_spec.rows(), &(_out_fit_params));
 
         //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
@@ -475,7 +472,11 @@ void FittingDialog::runProcessing()
 
             _progressBarBlocks->setValue(_total_itr);
 
-            _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);
+            data_struct::Range energy_range_whole;
+            energy_range_whole.min = 0;
+            energy_range_whole.max = _int_spec.size() - 1;
+
+            _new_fit_spec = _model.model_spectrum(&_new_out_fit_params, _elements_to_fit, &_labeled_spectras, energy_range_whole);
 
             if (_new_fit_spec.size() == _spectra_background.size())
             {
