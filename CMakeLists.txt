@@ -215,9 +215,10 @@ IF (MSVC)
                         ${TIFF_LIBRARIES}
                         ${Qt6Core_LIBRARIES}
                         ${Qt6Charts_LIBRARIES}
+                        opencv_core
+                        opencv_imgcodecs
                         opencv_ml
                         opencv_dnn
-                        opencv_core
                         opencv_flann
                         netCDF::netcdf
                         hdf5::hdf5-shared
@@ -234,9 +235,10 @@ ELSEIF (UNIX)
                         ${TIFF_LIBRARIES}
                         ${Qt6Core_LIBRARIES}
                         ${Qt6Charts_LIBRARIES}
+                        opencv_core
+                        opencv_imgcodecs
                         opencv_ml
                         opencv_dnn
-                        opencv_core
                         opencv_flann
                         netCDF::netcdf
                         libxrf_fit
