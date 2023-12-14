@@ -96,6 +96,9 @@ public slots:
     void onCustomContext();
 
     void onFileRowChange(const QModelIndex& current, const QModelIndex& previous);
+
+    void onUpdateFilter();
+
 protected:
 
     void _gen_visible_list(QStringList *sl);
