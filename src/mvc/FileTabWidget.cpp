@@ -45,8 +45,9 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
             this, SLOT(ShowContextMenu(const QPoint &)));
 
     _filter_line = new QLineEdit();
-    connect(_filter_line, SIGNAL(textChanged(const QString &)),
-            this, SLOT(filterTextChanged(const QString &)));
+    //connect(_filter_line, SIGNAL(textChanged(const QString &)), this, SLOT(filterTextChanged(const QString &)));
+
+    connect(_filter_line, &QLineEdit::returnPressed, this, &FileTabWidget::onUpdateFilter);
 
 	_filter_suggest_btn = new QPushButton();
 	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));
@@ -100,6 +101,13 @@ void FileTabWidget::_gen_visible_list(QStringList *sl)
             sl->append(val->text());
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void FileTabWidget::onUpdateFilter()
+{
+    filterTextChanged(_filter_line->text());
 }
 
 /*---------------------------------------------------------------------------*/
