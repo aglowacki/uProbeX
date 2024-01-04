@@ -113,6 +113,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 
     _mda_suffex.append("mda");
     _mda_suffex.append("mca");
+    _mda_suffex.append("h5");
     for (int i = 0; i < 20; i++)
     {
         _all_h5_suffex.append(QString("h5") + QString::number(i));
