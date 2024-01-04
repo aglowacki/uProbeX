@@ -15,7 +15,6 @@
 #include <preferences/Preferences.h>
 #include "core/GlobalThreadPool.h"
 
-
 const QString STR_PROCESS("process");
 const QString STR_BATCH_ROI("batch_roi");
 const QString STR_H5_EXPORT("hdf5_export");
@@ -211,6 +210,7 @@ void MapsWorkspaceFilesWidget::setFileTabActionsEnabled(bool val)
 void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_TYPE mt)
 {
     setFileTabActionsEnabled(false);
+    QCoreApplication::processEvents();
     if (_model != nullptr)
     {
 
@@ -238,7 +238,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     //_model->load_v9_rois(name, h5Model);
 
                     int idx = -1;
-                    for (int b = 0; b < 7; b++)
+                    for (int b = 0; b <MAX_DETECTORS; b++)
                     {
                         QString bs = QString::number(b);
                         if (name.endsWith(bs))

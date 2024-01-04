@@ -114,7 +114,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _mda_suffex.append("mda");
     _mda_suffex.append("mca");
     _mda_suffex.append("h5");
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < MAX_DETECTORS; i++)
     {
         _all_h5_suffex.append(QString("h5") + QString::number(i));
         _mda_suffex.append(QString("mca") + QString::number(i));
@@ -543,7 +543,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 {
 
     std::string dataset_dir = _dir->absolutePath().toStdString() + "/";
-    for(size_t detector_num = 0; detector_num <= 7; detector_num++)
+    for(size_t detector_num = 0; detector_num <= MAX_DETECTORS; detector_num++)
     {
         data_struct::Params_Override<double> params_override(dataset_dir, detector_num);
         if( io::file::load_override_params(dataset_dir, detector_num, &params_override) )

@@ -25,6 +25,8 @@
 
 /*---------------------------------------------------------------------------*/
 
+#define MAX_DETECTORS 30
+
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
 
 const std::string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";

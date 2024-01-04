@@ -181,6 +181,7 @@ void ScanCorrCoefDialog::onRun()
     //int foundCnt = 0;
     _btn_run->setEnabled(false);
     _running = true;
+    QCoreApplication::processEvents();
     if (_model != nullptr)
     {
         bool use_elements = _ck_use_elements->isChecked();
