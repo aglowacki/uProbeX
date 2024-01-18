@@ -358,7 +358,7 @@ void FittingDialog::runProcessing()
         _btn_run->setEnabled(false);
 
         _tabWidget->setCurrentIndex(OUTPUT_INDEX);
-
+        QCoreApplication::processEvents();
         if (_new_fit_spec.size() > 0)
         {
             setFitSpectra(&_new_fit_spec);

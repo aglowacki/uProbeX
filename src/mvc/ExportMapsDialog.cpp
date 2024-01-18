@@ -96,6 +96,7 @@ void ExportMapsDialog::setRunEnabled(bool val)
 {
     _processing_grp->setEnabled(val);
     _btn_run->setEnabled(val); 
+    QCoreApplication::processEvents();
 }
 
 /*---------------------------------------------------------------------------*/

@@ -138,7 +138,7 @@ void UpgradeRoiDialog::runProcessing()
     _file_list_view->setEnabled(false);
     _btn_cancel->setText("Cancel");
     _running = true;
-
+    QCoreApplication::processEvents();
     QDir v9RoiDir(_directory.absolutePath() + QDir::separator() + STR_V9_ROIS_DIR);
     
     if (false == v9RoiDir.exists())

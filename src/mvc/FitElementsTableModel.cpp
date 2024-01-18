@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "FitElementsTableModel.h"
+#include <QMessageBox>
 
 /*---------------------------------------------------------------------------*/
 
@@ -21,7 +22,7 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
 
 FitElementsTableModel::~FitElementsTableModel()
 {
-
+    _is_log10 = true;
     for(auto& itr : _nodes)
     {
         delete itr.second;
@@ -69,6 +70,7 @@ void FitElementsTableModel::update_counts_log10(bool is_log10)
     for (auto& itr : _nodes)
     {
         TreeItem* node = itr.second;
+        _is_log10 = is_log10;
         if (is_log10)
         {
             double val = node->itemData[COUNTS].toDouble();
@@ -317,7 +319,12 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
                 return node->itemData.at(index.column());
         }
     }
+    /*
+    else if (role == Qt::BackgroundRole)
+    {
 
+    }
+    */
     /*
     // Check valid index
     if (index.row() >= _row_indicies.size() || index.row() < 0)
@@ -536,6 +543,39 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
     {
         if(index.column() == HEADERS::COUNTS)
         {
+            bool ok = false;
+            double dval = value.toDouble(&ok);
+            if (false == ok)
+            {
+                QMessageBox::warning(nullptr, "Could not convert to double", "Could not convert your value to a double.");
+                return false;
+            }
+            if (_is_log10)
+            {
+                if (dval > 10)
+                {
+                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range -10 : 10 .");
+                    return false;
+                }
+                else if (dval < -10)
+                {
+                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range -10 : 10 .");
+                    return false;
+                }
+            }
+            else
+            {
+                if (dval > 1.0e10)
+                {
+                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range 1.0e-10 : 1.0e10 .");
+                    return false;
+                }
+                else if (dval < 1.0e-20)
+                {
+                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range 1.0e-10 : 1.0e10 .");
+                    return false;
+                }
+            }
             node->itemData[1] = value;
         }
     }
