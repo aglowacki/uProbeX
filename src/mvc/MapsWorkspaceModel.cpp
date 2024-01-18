@@ -167,6 +167,7 @@ void MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
+        std::vector<std::string> ignore_dir_list = { "img.dat", "mda", "output" };
 
         _dir = new QDir(filepath);
         if (!_dir->exists())
@@ -177,13 +178,21 @@ void MapsWorkspaceModel::load(QString filepath)
 
         {
             std::map<int, std::future<bool>> job_queue;
- 
-            job_queue[0] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5);
-            job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
-            job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
-            job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
-            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi);
-            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
+            // get list of directories in the root
+            std::string dataset_dir = filepath.toStdString();
+            std::vector<std::string> root_dir_list = io::file::File_Scan::inst()->find_all_dirs(dataset_dir + DIR_END_CHAR, ignore_dir_list, false);
+            for (const auto& itr : root_dir_list)
+            {
+                get_filesnames_in_directory(*_dir, QString(itr.c_str()), _raw_suffex, &_raw_fileinfo_list, check_raw_h5, true);
+                QCoreApplication::processEvents();
+            }
+
+            job_queue[0] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5, false);
+            job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda, false);
+            job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm, false);
+            job_queue[3] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5, false);
+            job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi, false);
+            job_queue[5] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 
             _is_fit_params_loaded = _load_fit_params();
             io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
@@ -225,6 +234,9 @@ void MapsWorkspaceModel::load(QString filepath)
                             to_delete.push_back(itr.first);
                             //emit doneLoadingImgDat();
                             break;
+                        default:
+                            to_delete.push_back(itr.first);
+                            break;
                         }
                     }
                 }
@@ -253,7 +265,7 @@ void MapsWorkspaceModel::load(QString filepath)
 
 void MapsWorkspaceModel::reload_raw()
 {
-    _is_raw_loaded = get_filesnames_in_directory(*_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda);
+    _is_raw_loaded = get_filesnames_in_directory(*_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda, false);
     emit doneLoadingRAW();
 }
 
@@ -261,7 +273,7 @@ void MapsWorkspaceModel::reload_raw()
 
 void MapsWorkspaceModel::reload_analyzed()
 {
-    _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5);
+    _is_imgdat_loaded = get_filesnames_in_directory(*_dir, "img.dat", _all_h5_suffex, &_h5_fileinfo_list, check_imgdat_h5, false);
     emit doneLoadingImgDat();
 }
 
@@ -269,7 +281,7 @@ void MapsWorkspaceModel::reload_analyzed()
 
 void MapsWorkspaceModel::reload_vlm()
 {
-    _is_vlm_loaded = get_filesnames_in_directory(*_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm);
+    _is_vlm_loaded = get_filesnames_in_directory(*_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm, false);
     emit doneLoadingVLM();
 }
 
@@ -278,7 +290,7 @@ void MapsWorkspaceModel::reload_vlm()
 void MapsWorkspaceModel::reload_roi()
 {
     _roi_fileinfo_list.clear();
-    get_filesnames_in_directory(*_dir, "rois", _vlm_suffex, &_roi_fileinfo_list, check_roi);
+    get_filesnames_in_directory(*_dir, "rois", _vlm_suffex, &_roi_fileinfo_list, check_roi, false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -286,7 +298,7 @@ void MapsWorkspaceModel::reload_roi()
 void MapsWorkspaceModel::reload_region_link()
 {
     _region_links_fileinfo_list.clear();
-    get_filesnames_in_directory(*_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link);
+    get_filesnames_in_directory(*_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -566,7 +578,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 /*---------------------------------------------------------------------------*/
 
-bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func)
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func, bool prepend_sub_dir)
 {
     if(sub_dir_name.length() > 0)
     {
@@ -589,7 +601,14 @@ bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString>
         {
             //if (chk_func(fileInfo)) //TODO: maybe have option for checks 
             {
-                fileinfo_list->emplace(fileInfo.fileName(), fileInfo);
+                if (prepend_sub_dir)
+                {
+                    fileinfo_list->emplace(sub_dir_name + QDir::separator() + fileInfo.fileName(), fileInfo);
+                }
+                else
+                {
+                    fileinfo_list->emplace(fileInfo.fileName(), fileInfo);
+                }
             }
         }
     }
