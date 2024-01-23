@@ -161,7 +161,7 @@ private:
     bool _is_rois_loaded;
 };
 
-bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func);
+bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func, bool prepend_sub_dir);
 
 /*---------------------------------------------------------------------------*/
 

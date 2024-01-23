@@ -186,6 +186,7 @@ void PerPixelOptionsWidget::setRunning()
     _saving_grp->setEnabled(false);
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
+    QCoreApplication::processEvents();
 }
 
 //---------------------------------------------------------------------------
@@ -200,6 +201,7 @@ void PerPixelOptionsWidget::setStoped()
     _saving_grp->setEnabled(true);
     _le_detectors->setEnabled(true);
     _file_list_view->setEnabled(true);
+    QCoreApplication::processEvents();
 }
 
 //---------------------------------------------------------------------------

@@ -186,7 +186,7 @@ void BatchRoiFitWidget::runProcessing()
     _le_detectors->setEnabled(false);
     _file_list_view->setEnabled(false);
     _canceled = false;
-
+    QCoreApplication::processEvents();
     data_struct::Analysis_Job<double> analysis_job;
 
     QString val = _cb_opt_method->currentText();

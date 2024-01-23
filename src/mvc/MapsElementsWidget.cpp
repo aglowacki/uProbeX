@@ -873,39 +873,16 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
 
 		if (path_list.size() > 1)
 		{
-				QString dataset_leftover = path_list[1];
-				if (dataset_leftover.endsWith("h50"))
-				{
-					dataset_path += "0";
-				}
-				else if (dataset_leftover.endsWith("h51"))
-				{
-					dataset_path += "1";
-				}
-				else if (dataset_leftover.endsWith("h52"))
-				{
-					dataset_path += "2";
-				}
-				else if (dataset_leftover.endsWith("h53"))
-				{
-					dataset_path += "3";
-				}
-				else if (dataset_leftover.endsWith("h54"))
-				{
-					dataset_path += "4";
-				}
-				else if (dataset_leftover.endsWith("h55"))
-				{
-					dataset_path += "5";
-				}
-				else if (dataset_leftover.endsWith("h56"))
-				{
-					dataset_path += "6";
-				}
-				else if (dataset_leftover.endsWith("h57"))
-				{
-					dataset_path += "7";
-				}
+            QString dataset_leftover = path_list[1];
+            for (int a = 0; a < MAX_DETECTORS; a++)
+            {
+                QString check = "h5" + QString::number(a);
+                if (dataset_leftover.endsWith(check))
+                {
+                    dataset_path += QString::number(a);
+                    break;
+                }
+            }
 		}
 
         data_struct::Params_Override<double>* param_overrides = _model->getParamOverride();
