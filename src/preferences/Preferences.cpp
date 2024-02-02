@@ -58,7 +58,8 @@ Preferences::Preferences()
         {STR_PFR_DETAILED_FIT_SPEC, QVariant()},
         {STR_GRID_ROWS, QVariant()},
         {STR_GRID_COLS, QVariant()},
-        {STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant()}
+        {STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant()},
+        {STR_SEARCH_SUB_DIR_FOR_DATASETS, QVariant()}
     };
    load();
 }

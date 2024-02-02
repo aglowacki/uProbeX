@@ -104,6 +104,8 @@ private:
    QComboBox* _cb_themes;
 
    QCheckBox* _ck_show_dataset_on_select;
+
+   QCheckBox* _ck_search_datasets;
 };
 
 /*---------------------------------------------------------------------------*/

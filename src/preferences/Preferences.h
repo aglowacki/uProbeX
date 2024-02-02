@@ -70,6 +70,7 @@
 #define STR_PRF_ScatterPlot_GridLines "ScatterPlotGridLines"
 #define STR_DEFAULT "Default"
 #define STR_PRF_SHOW_DATASET_ON_FILE_SELECT "ShowDatasetOnFileSelect" // if you select file name on left side, it will change the current viewed dataset to that if it is loaded
+#define STR_SEARCH_SUB_DIR_FOR_DATASETS "SearchSubDirForDatasets"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

@@ -8,6 +8,7 @@
 #include "core/GlobalThreadPool.h"
 #include <QRegularExpression>
 #include "io/file/hdf5_io.h"
+#include "preferences/Preferences.h"
 //#include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
@@ -180,13 +181,17 @@ void MapsWorkspaceModel::load(QString filepath)
             std::map<int, std::future<bool>> job_queue;
             // get list of directories in the root
             std::string dataset_dir = filepath.toStdString();
-            std::vector<std::string> root_dir_list = io::file::File_Scan::inst()->find_all_dirs(dataset_dir + DIR_END_CHAR, ignore_dir_list, false);
-            for (const auto& itr : root_dir_list)
-            {
-                get_filesnames_in_directory(*_dir, QString(itr.c_str()), _raw_suffex, &_raw_fileinfo_list, check_raw_h5, true);
-                QCoreApplication::processEvents();
-            }
 
+            // if check for esrf
+            if (Preferences::inst()->getValue(STR_SEARCH_SUB_DIR_FOR_DATASETS).toBool())
+            {
+                std::vector<std::string> root_dir_list = io::file::File_Scan::inst()->find_all_dirs(dataset_dir + DIR_END_CHAR, ignore_dir_list, false);
+                for (const auto& itr : root_dir_list)
+                {
+                    get_filesnames_in_directory(*_dir, QString(itr.c_str()), _raw_suffex, &_raw_fileinfo_list, check_raw_h5, true);
+                    QCoreApplication::processEvents();
+                }
+            }
             job_queue[0] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, ".", _raw_suffex, &_raw_fileinfo_list, check_raw_h5, false);
             job_queue[1] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "mda", _mda_suffex, &_raw_fileinfo_list, check_raw_mda, false);
             job_queue[2] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "vlm", _vlm_suffex, &_vlm_fileinfo_list, check_vlm, false);
