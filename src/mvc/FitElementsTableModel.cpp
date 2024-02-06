@@ -552,27 +552,27 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
             }
             if (_is_log10)
             {
-                if (dval > 10)
+                if (dval > 20)
                 {
-                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range -10 : 10 .");
+                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range -10 : 20 .");
                     return false;
                 }
                 else if (dval < -10)
                 {
-                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range -10 : 10 .");
+                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range -10 : 20 .");
                     return false;
                 }
             }
             else
             {
-                if (dval > 1.0e10)
+                if (dval > 1.0e20)
                 {
-                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range 1.0e-10 : 1.0e10 .");
+                    QMessageBox::warning(nullptr, "Value too large", "Value is too large and will create NaN/Inf. Use range 1.0e-10 : 1.0e20 .");
                     return false;
                 }
-                else if (dval < 1.0e-20)
+                else if (dval < 1.0e-10)
                 {
-                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range 1.0e-10 : 1.0e10 .");
+                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range 1.0e-10 : 1.0e20 .");
                     return false;
                 }
             }
