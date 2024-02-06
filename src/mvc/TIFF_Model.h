@@ -12,6 +12,7 @@
 
 #include <QString>
 #include <QImageReader>
+#include "data_struct/fit_parameters.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -88,6 +89,9 @@ private:
     void computeImageDims();
 
     QImage _img;
+
+    // if tiff is 32bit float
+    data_struct::ArrayXXr<float> _pixel_values;
 
     bool _loaded;
 

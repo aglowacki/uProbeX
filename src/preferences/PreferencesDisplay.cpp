@@ -60,6 +60,12 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_show_dataset_on_select->setChecked(Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT).toBool());
    
 
+   QLabel* lblSearchDatasets = new QLabel("Search sub folders for datasets (ESRF datasets).");
+   lblSearchDatasets->setFont(font);
+   _ck_search_datasets = new QCheckBox();
+   _ck_search_datasets->setChecked(Preferences::inst()->getValue(STR_SEARCH_SUB_DIR_FOR_DATASETS).toBool());
+
+
 
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
@@ -67,6 +73,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblDeciPrecision, m_decimalPreci);
    mainLayout->addRow(lblUseDarkTheme, _cb_themes);
    mainLayout->addRow(lblShowDatasetOnSelect, _ck_show_dataset_on_select);
+   mainLayout->addRow(lblSearchDatasets, _ck_search_datasets);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
@@ -127,6 +134,7 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_PRF_WindowTitle, getWindowTitle());
     Preferences::inst()->setValue(STR_PRF_DecimalPrecision, getDecimalPrecision());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, _ck_show_dataset_on_select->isChecked());
+    Preferences::inst()->setValue(STR_SEARCH_SUB_DIR_FOR_DATASETS, _ck_search_datasets->isChecked());
 }
 
 /*---------------------------------------------------------------------------*/

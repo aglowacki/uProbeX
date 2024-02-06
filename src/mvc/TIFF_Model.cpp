@@ -10,6 +10,9 @@
 #include <vector>
 
 #include <gstar/LinearTransformer.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+
 using gstar::LinearTransformer;
 
 using std::vector;
@@ -21,6 +24,7 @@ using std::string;
 TIFF_Model::TIFF_Model() : VLM_Model()
 {
     _loaded = false;
+    //_tif_ptr = nullptr;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -49,6 +53,36 @@ bool TIFF_Model::load(QString filepath)
         if (_img.width() > 0 && _img.height() > 0)
         {
             _loaded = true;
+        }
+        else
+        {
+            cv::Mat mat = cv::imread(filepath.toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
+            if (mat.rows > 0 && mat.cols > 0)
+            {
+                _loaded = true;
+                _pixel_values.resize(mat.rows, mat.cols);
+                double minVal;
+                double maxVal;
+                cv::Point minLoc;
+                cv::Point maxLoc;
+
+                cv::minMaxLoc(mat, &minVal, &maxVal, &minLoc, &maxLoc);
+                double range = maxVal - minVal;
+
+                _img = QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
+                for (int w = 0; w < mat.cols; w++)
+                {
+                    for (int h = 0; h < mat.rows; h++)
+                    {
+                        float val = mat.at<float>(h, w);
+                        _pixel_values(h, w) = val;
+                        val = (val - minVal) / range;
+                        int c = val * 255;
+                        _img.setPixelColor(w, h, QColor(c, c, c, 255));
+                    }
+                }
+            }
+            
         }
     }
     catch (std::string& s)
