@@ -29,6 +29,7 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _elements_to_fit = nullptr;
     _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    ////_model.set_num_threads(std::thread::hardware_concurrency());
     _createLayout();
 }
 

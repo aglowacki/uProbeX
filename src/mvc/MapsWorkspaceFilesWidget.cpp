@@ -313,25 +313,48 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
             }
             else if (mt == MODEL_TYPE::VLM)
             {
-                std::future< VLM_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_VLM_Model(name); });
-                std::future_status status;
-                do
-                {
-                    status = ret.wait_for(std::chrono::milliseconds(100));
-                    QCoreApplication::processEvents();
-                } while (status != std::future_status::ready);
-
-                VLM_Model* Model = ret.get();
+                VLM_Model* Model = _model->get_VLM_Model(name);
+                
                 if (Model != nullptr)
                 {
                     load_status = LOADED;
                     Model->getImage();
-                    emit loaded_model(name, mt);
                 }
                 else
                 {
                     load_status = FAILED_LOADING;
                 }
+                emit loaded_model(name, mt);
+                QCoreApplication::processEvents();
+                /*
+                std::future< VLM_Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_VLM_Model(name); });
+                std::future_status status;
+                int cntr = 0;
+                do
+                {
+                    status = ret.wait_for(std::chrono::milliseconds(100));
+                    QCoreApplication::processEvents();
+                    cntr++;
+                    if (cntr > 1200)
+                    {
+                        load_status = FAILED_LOADING;
+                        break;
+                    }
+                } while (status != std::future_status::ready);
+                if (load_status == UNLOADED)
+                {
+                    VLM_Model* Model = ret.get();
+                    if (Model != nullptr)
+                    {
+                        load_status = LOADED;
+                        Model->getImage();
+                        emit loaded_model(name, mt);
+                    }
+                    else
+                    {
+                        load_status = FAILED_LOADING;
+                    }
+                }*/
                 _vlm_tab_widget->loaded_file_status_changed(load_status, name);
             }
 
