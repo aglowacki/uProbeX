@@ -70,11 +70,39 @@ bool TIFF_Model::load(QString filepath)
                 double range = maxVal - minVal;
 
                 _img = QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
+                float val = 0.f;
                 for (int w = 0; w < mat.cols; w++)
                 {
                     for (int h = 0; h < mat.rows; h++)
                     {
-                        float val = mat.at<float>(h, w);
+                        uchar depth = mat.type() & CV_MAT_DEPTH_MASK;
+                        switch (depth) {
+                        case CV_8U: 
+                            val = (float)mat.at<unsigned char>(h, w);
+                            break;
+                        case CV_8S:
+                            val = (float)mat.at<char>(h, w); 
+                            break;
+                        case CV_16U:
+                            val = (float)mat.at<unsigned short>(h, w); 
+                            break;
+                        case CV_16S:
+                            val = (float)mat.at<short>(h, w); 
+                            break;
+                        case CV_32S:
+                            val = (float)mat.at<int>(h, w); 
+                            break;
+                        case CV_32F:
+                            val = (float)mat.at<float>(h, w); 
+                            break;
+                        case CV_64F:
+                            val = (float)mat.at<double>(h, w); 
+                            break;
+                        default:
+                            val = 0.f; 
+                            break;
+                        }
+                        //float val = mat.at<float>(h, w);
                         _pixel_values(h, w) = val;
                         val = (val - minVal) / range;
                         int c = val * 255;
@@ -87,10 +115,12 @@ bool TIFF_Model::load(QString filepath)
     }
     catch (std::string& s)
     {
+        logE << s << "\n";
         return false;
     }
-    catch (...)
+    catch (std::exception e)
     {
+        logE << e.what() << "\n";
         return false;
     }
 
