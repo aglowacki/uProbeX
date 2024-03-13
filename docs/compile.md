@@ -9,7 +9,8 @@ GCC 11 or greater (Linux build)
 Cmake 3.21 or greater
 
 Python with meson and jinja2 installed
-..* conda install meson jinja2
+
+* conda install meson jinja2
 
 ## Compile Default
 
@@ -29,15 +30,15 @@ Python with meson and jinja2 installed
 
 * vcpkg set Linux
 
-   ..* ./bootstrap-vcpkg.sh
+   ** ./bootstrap-vcpkg.sh
 
-   ..* ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qtbase qtcharts
+   ** ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qtbase qtcharts
 
 * vcpkg setup windows
 
-   ..* .\bootstrap-vcpkg.bat
+   ** .\bootstrap-vcpkg.bat
 
-   ..* .\vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qtbase qtcharts --triplet x64-windows
+   ** .\vcpkg install hdf5 netcdf-c yaml-cpp zeromq opencv tiff jsoncpp qtbase qtcharts --triplet x64-windows
 
 * cd ../build
 
