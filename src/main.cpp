@@ -137,6 +137,38 @@ int main(int argc, char** argv)
 			return app.exec();
 		}
 	}
+
+
+    // get location of where we are running from and use it to find ref files
+    std::string exe_loc = std::string(argv[0]);
+    int prog_idx = exe_loc.find("bin/uProbeX");
+    if (prog_idx > 0)
+    {
+        exe_loc = exe_loc.substr(0, prog_idx);
+    }
+
+    //////// HENKE and ELEMENT INFO /////////////
+    const std::string element_csv_filename = exe_loc + "./reference/xrf_library.csv";
+    const std::string element_henke_filename = exe_loc + "./reference/henke.xdr";
+    const std::string scaler_lookup_yaml = exe_loc + "./reference/Scaler_to_PV_map.yaml";
+
+    if (false == io::file::load_scalers_lookup(scaler_lookup_yaml))
+    {
+        logE << " Could not load " << scaler_lookup_yaml << ". Won't be able to translate from PV to Label for scalers!\n";
+    }
+
+    //load element information
+    if (false == io::file::load_element_info<float>(element_henke_filename, element_csv_filename))
+    {
+        logE << "loading element information: " << "\n";
+        return -1;
+    }
+    if (false == io::file::load_element_info<double>(element_henke_filename, element_csv_filename))
+    {
+        logE << "loading element information: " << "\n";
+        return -1;
+    }
+    
 #if defined _WIN32 || defined __CYGWIN__
 	FreeConsole();
 #endif
