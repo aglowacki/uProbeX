@@ -119,6 +119,11 @@ void FitSpectraWidget::createLayout()
 
     _spectra_widget = new SpectraWidget();
 
+    _spectra_dock = new QDockWidget("Spectra", this);
+	//_spectra_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _spectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_spectra_dock->setWidget(_spectra_widget);
+
     _fit_params_tab_widget = new QTabWidget();
 
     fitting::models::Gaussian_Model<double> g_model;
@@ -244,7 +249,7 @@ void FitSpectraWidget::createLayout()
 
 	QSplitter* splitter = new QSplitter();
 	splitter->setOrientation(Qt::Vertical);
-	splitter->addWidget(_spectra_widget);
+	splitter->addWidget(_spectra_dock);
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
 

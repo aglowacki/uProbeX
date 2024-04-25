@@ -51,6 +51,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
 	_log_dock = new QDockWidget("Log", this);
 	_log_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _log_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_log_dock->setWidget(log_textedit);
 	this->addDockWidget(Qt::BottomDockWidgetArea, _log_dock);
 

@@ -240,12 +240,36 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _scatter_plot_widget = new ScatterPlotWidget();
     connect(_scatter_plot_widget, &ScatterPlotWidget::updateProgressBar, this, &MapsElementsWidget::loaded_perc);
 
-    _tab_widget->addTab(_counts_window, "Analyzed Counts");
-    _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
-    _tab_widget->addTab(_quant_widget, "Quantification");
-    _tab_widget->addTab(_co_loc_widget, "CoLocalization");
-    _tab_widget->addTab(_scatter_plot_widget, "Scatter Plot");
-    _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
+    _counts_dock = new QDockWidget("Analyzed Counts", this);
+    _counts_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_counts_dock->setWidget(_counts_window);
+
+    _intspectra_dock = new QDockWidget(DEF_STR_INT_SPECTRA, this);
+    _intspectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_intspectra_dock->setWidget(_spectra_widget);
+
+    _quant_dock = new QDockWidget("Quantification", this);
+    _quant_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_quant_dock->setWidget(_quant_widget);
+
+    _coloc_dock = new QDockWidget("CoLocalization", this);
+    _coloc_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_coloc_dock->setWidget(_co_loc_widget);
+
+    _scatter_dock = new QDockWidget("Scatter Plot", this);
+    _scatter_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_scatter_dock->setWidget(_scatter_plot_widget);
+ 
+    _extra_dock = new QDockWidget("Extra PV's", this);
+    _extra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_extra_dock->setWidget(_extra_pvs_table_widget);
+
+    _tab_widget->addTab(_counts_dock, "Analyzed Counts");
+    _tab_widget->addTab(_intspectra_dock, DEF_STR_INT_SPECTRA);
+    _tab_widget->addTab(_quant_dock, "Quantification");
+    _tab_widget->addTab(_coloc_dock, "CoLocalization");
+    _tab_widget->addTab(_scatter_dock, "Scatter Plot");
+    _tab_widget->addTab(_extra_dock, "Extra PV's");
 
 
     layout->addItem(hbox2);

@@ -15,6 +15,7 @@
 #include <QTreeView>
 #include <QPushButton>
 #include <mutex>
+#include <QDockWidget>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
@@ -133,6 +134,8 @@ protected:
 
    SpectraWidget* _spectra_widget;
 
+   QDockWidget* _spectra_dock;
+   
    FitParamsTableModel* _fit_params_table_model;
 
    FitElementsTableModel* _fit_elements_table_model;

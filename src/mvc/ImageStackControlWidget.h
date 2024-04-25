@@ -100,6 +100,9 @@ protected:
 
    QProgressBar* _load_progress;
 
+   QDockWidget* _files_dock;
+
+   QDockWidget* _nav_dock;
    //QDialog _raw_file_dialog;
 
 };

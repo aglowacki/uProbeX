@@ -50,9 +50,9 @@ protected:
 
 	MapsWorkspaceModel* _mapsWorkspaceModel;
 
-	QDockWidget *_maps_workspace_dock;
+	//QDockWidget *_maps_workspace_dock;
 
-	QDockWidget *_image_stack_control_dock;
+	//QDockWidget *_image_stack_control_dock;
 };
 
 
