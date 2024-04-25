@@ -89,6 +89,9 @@ MapsElementsWidget::~MapsElementsWidget()
 void MapsElementsWidget::_createLayout(bool create_image_nav)
 {
 
+    QHBoxLayout *tmp_layout;
+    QWidget *tmp_widget;
+    
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
@@ -264,12 +267,42 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _extra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_extra_dock->setWidget(_extra_pvs_table_widget);
 
-    _tab_widget->addTab(_counts_dock, "Analyzed Counts");
-    _tab_widget->addTab(_intspectra_dock, DEF_STR_INT_SPECTRA);
-    _tab_widget->addTab(_quant_dock, "Quantification");
-    _tab_widget->addTab(_coloc_dock, "CoLocalization");
-    _tab_widget->addTab(_scatter_dock, "Scatter Plot");
-    _tab_widget->addTab(_extra_dock, "Extra PV's");
+    // This is done this way so that you can undock a widget and change tabs without hiding it.
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_counts_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Analyzed Counts");
+    
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_intspectra_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, DEF_STR_INT_SPECTRA);
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_quant_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Quantification");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_coloc_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "CoLocalization");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_scatter_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Scatter Plot");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_extra_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Extra PV's");
 
 
     layout->addItem(hbox2);
