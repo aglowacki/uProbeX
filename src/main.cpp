@@ -146,6 +146,19 @@ int main(int argc, char** argv)
     {
         exe_loc = exe_loc.substr(0, prog_idx);
     }
+	else // windows
+	{
+		int prog_idx = exe_loc.find("bin\\uProbeX.exe");
+		if (prog_idx > 0)
+		{
+			exe_loc = exe_loc.substr(0, prog_idx);
+		}
+		else
+		{
+			logE << "Could not parse executable location to load reference files. Exiting.\n";
+			return -1;
+		}
+	}
 
     //////// HENKE and ELEMENT INFO /////////////
     const std::string element_csv_filename = exe_loc + "./reference/xrf_library.csv";
