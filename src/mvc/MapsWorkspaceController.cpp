@@ -49,6 +49,11 @@ MapsWorkspaceController::~MapsWorkspaceController()
 
 void MapsWorkspaceController::imgWidgetClosed()
 {
+	if (_imgStackControllWidget != nullptr)
+	{
+		_imgStackControllWidget->savePref();
+		delete _imgStackControllWidget;
+	}
 	_imgStackControllWidget = nullptr;
 	emit controllerClosed(this);
 

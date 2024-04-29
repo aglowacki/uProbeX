@@ -84,6 +84,9 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
     ColorMap::inst()->reload_color_maps();
 
+    restoreGeometry(Preferences::inst()->getValue(STR_GEOMETRY).toByteArray());
+    restoreState(Preferences::inst()->getValue(STR_WINDOWSTATE).toByteArray());
+
     show();
 }
 
@@ -167,7 +170,8 @@ void uProbeX::closeEvent(QCloseEvent* event)
     saveAllXML(!saveWithoutPrompt);
 
     cleanUpAutoSafeData();
-
+    Preferences::inst()->setValue(STR_GEOMETRY, saveGeometry());
+    Preferences::inst()->setValue(STR_WINDOWSTATE, saveState());
     // Quit
     exitApplication();
 

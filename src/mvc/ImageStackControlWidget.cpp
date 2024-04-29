@@ -39,6 +39,13 @@ ImageStackControlWidget::~ImageStackControlWidget()
 
 }
 
+//---------------------------------------------------------------------------
+
+void ImageStackControlWidget::savePref()
+{
+	_imageGrid->savePref();
+}
+
 /*---------------------------------------------------------------------------*/
 
 void ImageStackControlWidget::createLayout()

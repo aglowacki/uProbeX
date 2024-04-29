@@ -48,6 +48,8 @@ public:
 
    void update_file_list();
 
+   void savePref();
+
 signals:
 
 	void widgetClosed();
