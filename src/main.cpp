@@ -155,8 +155,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			logE << "Could not parse executable location to load reference files. Exiting.\n";
-			return -1;
+			exe_loc = ".";
 		}
 	}
 
