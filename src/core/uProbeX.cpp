@@ -44,11 +44,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 	log_textedit = new QTextEdit();
     //m_autosaveTimer = nullptr;
     _liveMapsViewer = nullptr;
-	
-    //////// HENKE and ELEMENT INFO /////////////
-    const std::string element_csv_filename = "../reference/xrf_library.csv";
-    const std::string element_henke_filename = "../reference/henke.xdr";
-    const std::string scaler_lookup_yaml = "../reference/Scaler_to_PV_map.yaml";
 
     PythonLoader::inst()->safeCheck();
 
@@ -56,6 +51,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
 
 	_log_dock = new QDockWidget("Log", this);
 	_log_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _log_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_log_dock->setWidget(log_textedit);
 	this->addDockWidget(Qt::BottomDockWidgetArea, _log_dock);
 
@@ -78,22 +74,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     // Update preferences; also creates solver
     processPreferencesUpdate();
 
-    if (false == io::file::load_scalers_lookup(scaler_lookup_yaml))
-    {
-        logE << " Could not load " << scaler_lookup_yaml << ". Won't be able to translate from PV to Label for scalers!\n";
-    }
-
-
-    if (false == io::file::load_element_info<double>(element_henke_filename, element_csv_filename ) )
-    {
-        QString msg = QString("Error loading ");
-        msg += QString(element_henke_filename.c_str());
-        msg += QString(" and ");
-        msg += QString(element_csv_filename.c_str());
-
-        QMessageBox::critical(this, "Warning", msg);
-    }
-
     // Creat MDI window
     m_mdiArea = new QMdiArea();
 
@@ -103,6 +83,9 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     setCentralWidget(m_mdiArea);
 
     ColorMap::inst()->reload_color_maps();
+
+    restoreGeometry(Preferences::inst()->getValue(STR_GEOMETRY).toByteArray());
+    restoreState(Preferences::inst()->getValue(STR_WINDOWSTATE).toByteArray());
 
     show();
 }
@@ -187,7 +170,8 @@ void uProbeX::closeEvent(QCloseEvent* event)
     saveAllXML(!saveWithoutPrompt);
 
     cleanUpAutoSafeData();
-
+    Preferences::inst()->setValue(STR_GEOMETRY, saveGeometry());
+    Preferences::inst()->setValue(STR_WINDOWSTATE, saveState());
     // Quit
     exitApplication();
 

@@ -40,7 +40,7 @@ public:
    /**
     * Constructor.
     */
-	PerPixelFitWidget(std::string directory, QWidget *parent = nullptr);
+	PerPixelFitWidget(QWidget *parent = nullptr);
 
    /**
     * Destructor.
@@ -48,6 +48,8 @@ public:
    ~PerPixelFitWidget();
 
    void updateFileList(QStringList file_list) { _optionsWidget->updateFileList(file_list); }
+
+   void setDir(std::string directory);
 
 signals:
 

@@ -72,6 +72,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 option(AVX2 "Compule with arch AVX2 on MSVC" OFF)
 option(AVX "Compule with arch AVX on MSVC" OFF)
 option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
+option(MSVC_DEBUG_INFO_REL "Compule with debug info in Release build for MSVC" OFF)
 
 IF (UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
@@ -154,6 +155,11 @@ ENDIF()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
       ENDIF()
     ENDIF()
+  ENDIF()
+
+  IF(MSVC_DEBUG_INFO_REL)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi ")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /ASSEMBLYDEBUG /DEBUG:FULL")
   ENDIF()
 
 # Compile with compiler warnings turned on

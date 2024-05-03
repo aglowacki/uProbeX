@@ -16,6 +16,7 @@
 #include "core/GlobalThreadPool.h"
 
 const QString STR_PROCESS("process");
+const QString STR_PROCESS_ANALYZED("process_analyzed");
 const QString STR_BATCH_ROI("batch_roi");
 const QString STR_H5_EXPORT("hdf5_export");
 
@@ -54,14 +55,14 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->appendFilterHelpAction(h5avg_file);
     _h5_tab_widget->appendFilterHelpAction(h5det_file);
 
-    _h5_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
+    _h5_tab_widget->addCustomContext(STR_PROCESS_ANALYZED, "Per Pixel Process");
     _h5_tab_widget->addCustomContext(STR_BATCH_ROI, "Process ROI's");
     // TODO: need to implement
     //_h5_tab_widget->addCustomContext(STR_H5_EXPORT, "Export Images"); 
 
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
-    connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
+    connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed);
     connect(_h5_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
     connect(_h5_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
@@ -127,6 +128,13 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 	_model = model;
 	if (_model != nullptr)
 	{
+         //create per pixel process widget and pass workspace
+        if(_per_pixel_fit_widget == nullptr)
+        {
+            _per_pixel_fit_widget = new PerPixelFitWidget();
+            connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+        }
+
 		QString path = _model->get_directory_name();
 		if (path.length() > 0)
 		{
@@ -415,6 +423,10 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
     {
         onPerPixelProcessList(file_list);
     }
+    if (context_label == STR_PROCESS_ANALYZED)
+    {
+        onPerPixelProcessListAnalyzed(file_list);
+    }
     else if (context_label == STR_BATCH_ROI)
     {
         onBatchRoiList(file_list);
@@ -430,15 +442,46 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
 
 void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_list)
 {
-
-    //create per pixel process widget and pass workspace
-    if(_per_pixel_fit_widget == nullptr)
+    if (_model != nullptr)
     {
-        _per_pixel_fit_widget = new PerPixelFitWidget(_model->get_directory_name().toStdString());
-        connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+        _per_pixel_fit_widget->setDir(_model->get_directory_name().toStdString());
     }
     onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     _per_pixel_fit_widget->updateFileList(file_list);
+    _per_pixel_fit_widget->show();
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed(const QStringList& file_list)
+{
+    if (_model != nullptr)
+    {
+        _per_pixel_fit_widget->setDir(_model->get_directory_name().toStdString());
+    }
+    onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
+    QStringList nfile_list = file_list;
+    // for each files replace .mda.h5[0-n] to .mda and remove duplicates
+    for(QString &str : nfile_list)
+    {
+        if(str.endsWith(".h5"))
+        {
+            str = str.replace(".h5", ".mda");
+        }
+        else
+        {
+            for(int i =0; i<30; i++)
+            {
+                QString cmp = ".h5"+QString::number(i);
+                if(str.endsWith(cmp))
+                {
+                    str = str.replace(cmp, "");
+                }
+            }
+        }
+    }
+    nfile_list.removeDuplicates();
+    _per_pixel_fit_widget->updateFileList(nfile_list);
     _per_pixel_fit_widget->show();
 }
 

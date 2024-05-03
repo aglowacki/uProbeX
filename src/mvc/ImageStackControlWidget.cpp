@@ -39,6 +39,13 @@ ImageStackControlWidget::~ImageStackControlWidget()
 
 }
 
+//---------------------------------------------------------------------------
+
+void ImageStackControlWidget::savePref()
+{
+	_imageGrid->savePref();
+}
+
 /*---------------------------------------------------------------------------*/
 
 void ImageStackControlWidget::createLayout()
@@ -79,12 +86,23 @@ void ImageStackControlWidget::createLayout()
 	connect(_imageGrid, &MapsElementsWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 
-    vlayout->addItem(hlayout1);
+	QWidget *navWidget = new QWidget();
+	navWidget->setLayout(hlayout1);
+
+	_nav_dock = new QDockWidget("Files", this);
+    _nav_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_nav_dock->setWidget(navWidget);
+
+    vlayout->addWidget(_nav_dock);
 	vlayout->addWidget(_imageGrid);
 	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
 
-	hlayout2->addWidget(_mapsFilsWidget);
+	_files_dock = new QDockWidget("Files", this);
+    _files_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_files_dock->setWidget(_mapsFilsWidget);
+
+	hlayout2->addWidget(_files_dock);
 
 	QWidget *leftWidget = new QWidget();
 	leftWidget->setLayout(hlayout2);

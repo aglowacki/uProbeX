@@ -119,6 +119,10 @@ public slots:
 
    void annoTabChanged(int);
 
+   void savePref();
+
+   void onDockFloatChanged(bool floating);
+
 protected:
 
    /**
@@ -217,6 +221,19 @@ protected:
 
    QPushButton* _btn_roi_img_seg;
 
+   QDockWidget* _counts_dock;
+
+   QDockWidget* _intspectra_dock;
+
+   QDockWidget* _quant_dock;
+
+   QDockWidget* _coloc_dock;
+
+   QDockWidget* _scatter_dock;
+
+   QDockWidget* _extra_dock;
+
+   std::map< QString, QDockWidget*> _dockMap;
 };
 
 

@@ -85,6 +85,8 @@ public slots:
 
     void onPerPixelProcessList(const QStringList& file_list);
 
+    void onPerPixelProcessListAnalyzed(const QStringList& file_list);
+    
     void onBatchRoiList(const QStringList& file_list);
 
     void onProcessed_list_update(QStringList file_list);

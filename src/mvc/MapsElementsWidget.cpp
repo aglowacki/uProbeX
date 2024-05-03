@@ -64,7 +64,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 	_selected_colormap = &_gray_colormap;
 
     connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
-
+    setAttribute(Qt::WA_DeleteOnClose, true);
+    connect(this, SIGNAL(destroyed()), this, SLOT(closeEvent()));
     _createLayout(create_image_nav);
 }
 
@@ -88,6 +89,9 @@ MapsElementsWidget::~MapsElementsWidget()
 
 void MapsElementsWidget::_createLayout(bool create_image_nav)
 {
+
+    QHBoxLayout *tmp_layout;
+    QWidget *tmp_widget;
 
     _tab_widget = new QTabWidget();
     _spectra_widget = new FitSpectraWidget();
@@ -240,12 +244,72 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     _scatter_plot_widget = new ScatterPlotWidget();
     connect(_scatter_plot_widget, &ScatterPlotWidget::updateProgressBar, this, &MapsElementsWidget::loaded_perc);
 
-    _tab_widget->addTab(_counts_window, "Analyzed Counts");
-    _tab_widget->addTab(_spectra_widget, DEF_STR_INT_SPECTRA);
-    _tab_widget->addTab(_quant_widget, "Quantification");
-    _tab_widget->addTab(_co_loc_widget, "CoLocalization");
-    _tab_widget->addTab(_scatter_plot_widget, "Scatter Plot");
-    _tab_widget->addTab(_extra_pvs_table_widget, "Extra PV's");
+    _counts_dock = new QDockWidget("Analyzed Counts", this);
+    _counts_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_counts_dock->setWidget(_counts_window);
+    _dockMap[STR_COUNTS_DOCK] = _counts_dock;
+        
+    _intspectra_dock = new QDockWidget(DEF_STR_INT_SPECTRA, this);
+    _intspectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_intspectra_dock->setWidget(_spectra_widget);
+    _dockMap[STR_INTSPEC_DOCK] = _intspectra_dock;
+
+    _quant_dock = new QDockWidget("Quantification", this);
+    _quant_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_quant_dock->setWidget(_quant_widget);
+    _dockMap[STR_QUANT_DOCK] = _quant_dock;
+
+    _coloc_dock = new QDockWidget("CoLocalization", this);
+    _coloc_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_coloc_dock->setWidget(_co_loc_widget);
+    _dockMap[STR_COLOR_DOCK] = _coloc_dock;
+
+    _scatter_dock = new QDockWidget("Scatter Plot", this);
+    _scatter_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_scatter_dock->setWidget(_scatter_plot_widget);
+    _dockMap[STR_SCATTER_DOCK] = _scatter_dock;
+ 
+    _extra_dock = new QDockWidget("Extra PV's", this);
+    _extra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	_extra_dock->setWidget(_extra_pvs_table_widget);
+    _dockMap[STR_EXTRA_DOCK] = _extra_dock;
+
+    // This is done this way so that you can undock a widget and change tabs without hiding it.
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_counts_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Analyzed Counts");
+    
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_intspectra_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, DEF_STR_INT_SPECTRA);
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_quant_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Quantification");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_coloc_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "CoLocalization");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_scatter_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Scatter Plot");
+
+    tmp_layout = new QHBoxLayout();
+    tmp_layout->addWidget(_extra_dock);
+    tmp_widget = new QWidget();
+    tmp_widget->setLayout(tmp_layout);
+    _tab_widget->addTab(tmp_widget, "Extra PV's");
 
 
     layout->addItem(hbox2);
@@ -284,8 +348,50 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     connect(m_tabWidget, &QTabWidget::currentChanged, this, &MapsElementsWidget::annoTabChanged);
 
+    restoreGeometry(Preferences::inst()->getValue(STR_MAPS_WIDGET_GEOMETRY).toByteArray());
+    //restoreState(Preferences::inst()->getValue(STR_MAPS_WIDGET_WINDOWSTATE).toByteArray());
+
     setLayout(layout);
 
+
+    for (auto& mItr : _dockMap)
+    {
+        QVariant variant = Preferences::inst()->getValue(mItr.first+"_floating");
+        if (variant.isValid())
+        {
+            mItr.second->setFloating(variant.toBool());
+        }
+        variant = Preferences::inst()->getValue(mItr.first + "_geometry");
+        if (variant.isValid())
+        {
+            mItr.second->restoreGeometry(variant.toByteArray());
+        }
+        
+        connect(mItr.second, &QDockWidget::topLevelChanged, this, &MapsElementsWidget::onDockFloatChanged);
+    }
+   
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::onDockFloatChanged(bool floating)
+{
+    for (auto& mItr : _dockMap)
+    {
+        Preferences::inst()->setValue(mItr.first + "_floating", mItr.second->isFloating());
+        //Preferences::inst()->setValue(mItr.first + "_geometry", mItr.second->saveGeometry());
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::savePref()
+{
+    for (auto& mItr : _dockMap)
+    {
+        Preferences::inst()->setValue(mItr.first+"_floating", mItr.second->isFloating());
+        Preferences::inst()->setValue(mItr.first + "_geometry", mItr.second->saveGeometry());
+    }
 }
 
 //---------------------------------------------------------------------------

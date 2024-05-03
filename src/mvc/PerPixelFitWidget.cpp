@@ -8,14 +8,9 @@
 
 /*---------------------------------------------------------------------------*/
 
-PerPixelFitWidget::PerPixelFitWidget(std::string directory, QWidget *parent) : QWidget(parent)
+PerPixelFitWidget::PerPixelFitWidget(QWidget *parent) : QWidget(parent)
 {
 
-    _directory = directory;
-    if (_directory[directory.length() - 1] != DIR_END_CHAR)
-    {
-        _directory += DIR_END_CHAR;
-    }
     createLayout();
 
 }
@@ -42,6 +37,17 @@ void PerPixelFitWidget::createLayout()
     layout->addWidget(_optionsWidget);
     
     setLayout(layout);
+}
+
+//---------------------------------------------------------------------------
+
+void PerPixelFitWidget::setDir(std::string directory)
+{
+    _directory = directory;
+    if (_directory[directory.length() - 1] != DIR_END_CHAR)
+    {
+        _directory += DIR_END_CHAR;
+    }
 }
 
 /*---------------------------------------------------------------------------*/

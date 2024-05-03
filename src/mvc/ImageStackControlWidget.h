@@ -48,6 +48,8 @@ public:
 
    void update_file_list();
 
+   void savePref();
+
 signals:
 
 	void widgetClosed();
@@ -100,6 +102,9 @@ protected:
 
    QProgressBar* _load_progress;
 
+   QDockWidget* _files_dock;
+
+   QDockWidget* _nav_dock;
    //QDialog _raw_file_dialog;
 
 };

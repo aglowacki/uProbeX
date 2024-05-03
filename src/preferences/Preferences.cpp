@@ -59,7 +59,9 @@ Preferences::Preferences()
         {STR_GRID_ROWS, QVariant()},
         {STR_GRID_COLS, QVariant()},
         {STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant()},
-        {STR_SEARCH_SUB_DIR_FOR_DATASETS, QVariant()}
+        {STR_SEARCH_SUB_DIR_FOR_DATASETS, QVariant()},
+        {STR_GEOMETRY, QVariant()},
+        {STR_WINDOWSTATE, QVariant()}
     };
    load();
 }
