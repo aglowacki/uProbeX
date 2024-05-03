@@ -550,7 +550,9 @@ void MapsWorkspaceModel::unload_VLM_Model(QString name)
 QString MapsWorkspaceModel::get_directory_name()
 {
     if( _dir != nullptr)
+    {
         return _dir->path();
+    }
     return "";
 }
 
