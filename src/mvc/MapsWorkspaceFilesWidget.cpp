@@ -131,7 +131,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
          //create per pixel process widget and pass workspace
         if(_per_pixel_fit_widget == nullptr)
         {
-            _per_pixel_fit_widget = new PerPixelFitWidget(_model->get_directory_name().toStdString());
+            _per_pixel_fit_widget = new PerPixelFitWidget();
             connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
         }
 
@@ -442,6 +442,10 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
 
 void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_list)
 {
+    if (_model != nullptr)
+    {
+        _per_pixel_fit_widget->setDir(_model->get_directory_name().toStdString());
+    }
     onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     _per_pixel_fit_widget->updateFileList(file_list);
     _per_pixel_fit_widget->show();
@@ -451,6 +455,10 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
 
 void MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed(const QStringList& file_list)
 {
+    if (_model != nullptr)
+    {
+        _per_pixel_fit_widget->setDir(_model->get_directory_name().toStdString());
+    }
     onCloseModel(file_list, MODEL_TYPE::MAPS_H5);
     QStringList nfile_list = file_list;
     // for each files replace .mda.h5[0-n] to .mda and remove duplicates
