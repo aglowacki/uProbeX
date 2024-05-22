@@ -104,6 +104,19 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, 
     {
         _mask->setPixelColor(itr.first, itr.second, color);
     }
+    bool found_name = false;
+    for (const auto& itr : m_data)
+    {
+        if (itr->getName() == DEF_STR_DISPLAY_NAME)
+        {
+            itr->setValue(name);
+            found_name = true;
+        }
+    }
+    if(false == found_name)
+    {
+        appendProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, name));
+    }
     
 }
 
