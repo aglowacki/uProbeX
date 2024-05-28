@@ -6,12 +6,12 @@
 #include <mvc/RoiStatisticsWidget.h>
 
 //---------------------------------------------------------------------------
-
+enum HEADER_NAME { ROI_Name=0, MapName=1, SumCnts=2, MeanCts=3, MedianCts=4, StdDevCts=5, SumUgcm2=6, MeanUg=7, MedianUg=8, StdDevUg=9, Area=10, MinCnts=11, MinPixel=12, MaxCnts=13, MaxPixel=14, Min_ugcm2=15, Max_ugcm2=16, Num_Spectra=17, TotalConcentrationCts=18, TotalConcentrationUg=19, TotalContentCts=20, TotalContentUg=21 };
 //---------------------------------------------------------------------------
 
 RoiStatisticsWidget::RoiStatisticsWidget() : QWidget()
 {
-	_base_header = { "ROI Name", "Element", "Cnt/s", "Min Cnts/s", "Max Cnts/s", "ug/cm2", "Min ug/cm2", "Max ug/cm2", "Mean", "Median", "Std Dev", "Area", "Num Spectra" }; 
+	_base_header = { "ROI Name", "Map Name", "Sum Cnt/s",  "Mean Cts/s", "Median Cts/s", "Std Dev Cts/s", "Sum ug/cm2", "Mean ug/cm2", "Median ug/cm2", "Std Dev ug/cm2", "Area", "Min Cnts/s", "Mix Pixel(x|y)", "Max Cnts/s", "Max Pixel (x|y)", "Min ug/cm2", "Max ug/cm2", "Num Spectra", "Total Concentration Cts/s (mean x # of pixels)", "Total Concentration ug/cm2", "Total Content Cts/s(mean x scan area with unit of femtogram 10^-15)", "Total Content ug/cm2" }; 
 
 	//create save ordered vector by element Z number with K , L, M lines
 	for (std::string el_name : data_struct::Element_Symbols)
@@ -80,7 +80,138 @@ RoiStatisticsWidget::~RoiStatisticsWidget()
 
 //---------------------------------------------------------------------------
 
-void RoiStatisticsWidget::setData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, std::vector<gstar::RoiMaskGraphicsItem*>& roi_list)
+void RoiStatisticsWidget::_insert_item(QString roiName, 
+										QString imgName,
+										const data_struct::ArrayXXr<float>& img,
+										const std::vector<std::pair<int, int>>& roi_pixels,
+										int i,
+										data_struct::ArrayXXr<float>* normalizer,
+										Calibration_curve<double>* calib_curve)
+{
+	_table_widget->setItem(i, ROI_Name, new QTableWidgetItem(roiName));
+	_table_widget->setItem(i, MapName, new QTableWidgetItem(imgName));
+	double sum_cts = 0.0;
+	double min_cts = std::numeric_limits<float>::max();
+	double max_cts = std::numeric_limits<float>::min();
+	double std_dev_cts = 0.0;
+	double median_cts = 0.0;
+	double sum_ugcm2 = 0.0;
+	double min_ug = std::numeric_limits<float>::max();
+	double max_ug = std::numeric_limits<float>::min();
+	double std_dev_ug = 0.0;
+	double median_ug = 0.0;
+	
+	std::pair<int, int> min_pixel;
+	std::pair<int, int> max_pixel;
+	Eigen::ArrayXf cts_arr(roi_pixels.size());
+	Eigen::ArrayXf ug_arr(roi_pixels.size());
+	int j = 0;
+	double calib_val = 1.0;
+	bool hasNorm = false;
+	if (calib_curve != nullptr && normalizer != nullptr)
+    {
+		if( calib_curve->calib_curve.count(imgName.toStdString()) > 0 )
+		{
+    		calib_val = static_cast<float>(calib_curve->calib_curve.at(imgName.toStdString()));
+			hasNorm = true;
+		}
+	}
+
+	for(auto pitr : roi_pixels)
+	{
+		double val = img(pitr.first, pitr.second);
+		sum_cts += val;
+		min_cts = std::min(val,min_cts);
+		if(min_cts == val)
+		{
+			min_pixel = pitr;
+		}
+		max_cts = std::max(val,max_cts);
+		if(max_cts == val)
+		{
+			max_pixel = pitr;
+		}
+		cts_arr[j] = val;
+		if(hasNorm)
+		{
+			double ug = (val / (*normalizer)(pitr.first, pitr.second) / calib_val);
+			sum_ugcm2 += ug;
+			min_ug = std::min(ug,min_ug);
+			max_ug = std::max(ug,max_ug);
+			ug_arr[j] = ug;
+		}
+		j++;
+	}
+	double mean_cts = sum_cts / (double)roi_pixels.size();
+	double mean_ug = sum_ugcm2 / (double)roi_pixels.size();
+	for(auto pitr : roi_pixels)
+	{
+		double val = img(pitr.first, pitr.second);
+		std_dev_cts += pow((val - mean_cts), 2);
+		if(hasNorm)
+		{
+			double ug = (val / (*normalizer)(pitr.first, pitr.second) / calib_val);
+			std_dev_ug +=  pow((ug - mean_ug), 2);
+		}
+	}
+	std_dev_cts = sqrtf(std_dev_cts / (double)roi_pixels.size());
+	if(hasNorm)
+	{
+		std_dev_ug = sqrtf(std_dev_ug / (double)roi_pixels.size());
+		std::sort(ug_arr.begin(), ug_arr.end(), [](float const& t1, float const& t2) { return t1 < t2; });
+	    int idx = ug_arr.size() / 2;
+   		median_ug = ug_arr(idx);
+	}
+	
+	std::sort(cts_arr.begin(), cts_arr.end(), [](float const& t1, float const& t2) { return t1 < t2; });
+    int idx = cts_arr.size() / 2;
+    median_cts = cts_arr(idx);
+	
+	QString str_min_pixel = QString::number(min_pixel.first) + " | " + QString::number(min_pixel.second);
+	QString str_max_pixel = QString::number(max_pixel.first) + " | " + QString::number(max_pixel.second);
+	_table_widget->setItem(i, SumCnts, new QTableWidgetItem(QString::number(sum_cts)));
+	_table_widget->setItem(i, MinCnts, new QTableWidgetItem(QString::number(min_cts)));
+	_table_widget->setItem(i, MinPixel, new QTableWidgetItem(str_min_pixel));
+	_table_widget->setItem(i, MaxCnts, new QTableWidgetItem(QString::number(max_cts)));
+	_table_widget->setItem(i, MaxPixel, new QTableWidgetItem(str_max_pixel));
+	_table_widget->setItem(i, MeanCts, new QTableWidgetItem(QString::number(mean_cts)));
+	_table_widget->setItem(i, MedianCts, new QTableWidgetItem(QString::number(median_cts)));
+	_table_widget->setItem(i, StdDevCts, new QTableWidgetItem(QString::number(std_dev_cts)));
+	_table_widget->setItem(i, Num_Spectra, new QTableWidgetItem(QString::number(roi_pixels.size())));
+
+	if(hasNorm)
+	{
+		_table_widget->setItem(i, SumUgcm2, new QTableWidgetItem(QString::number(sum_ugcm2)));
+		_table_widget->setItem(i, Min_ugcm2, new QTableWidgetItem(QString::number(min_ug)));
+		_table_widget->setItem(i, Max_ugcm2, new QTableWidgetItem(QString::number(max_ug)));
+		_table_widget->setItem(i, MeanUg, new QTableWidgetItem(QString::number(mean_ug)));
+		_table_widget->setItem(i, MedianUg, new QTableWidgetItem(QString::number(median_ug)));
+		_table_widget->setItem(i, StdDevUg, new QTableWidgetItem(QString::number(std_dev_ug)));
+	}
+	else
+	{
+		_table_widget->setItem(i, SumUgcm2, new QTableWidgetItem(" "));
+		_table_widget->setItem(i, Min_ugcm2, new QTableWidgetItem(" "));
+		_table_widget->setItem(i, Max_ugcm2, new QTableWidgetItem(" "));
+		_table_widget->setItem(i, MeanUg, new QTableWidgetItem(" "));
+		_table_widget->setItem(i, MedianUg, new QTableWidgetItem(" "));
+		_table_widget->setItem(i, StdDevUg, new QTableWidgetItem(" "));
+	}
+
+
+//  Area, TotalConcentration, TotalContent
+	_table_widget->setItem(i, TotalConcentrationCts, new QTableWidgetItem(QString::number(mean_cts * (double)roi_pixels.size())));
+	_table_widget->setItem(i, TotalConcentrationUg, new QTableWidgetItem(QString::number(mean_ug * (double)roi_pixels.size())));
+
+
+}
+
+//---------------------------------------------------------------------------
+
+void RoiStatisticsWidget::setData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, 
+								std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
+                     			data_struct::ArrayXXr<float>* normalizer,
+                     			Calibration_curve<double>* calib_curve)
 {
 
 	int total = img_data.size() * roi_list.size();
@@ -91,107 +222,48 @@ void RoiStatisticsWidget::setData(std::unordered_map<std::string, data_struct::A
 	int i = 0;
 	for (auto roi_itr : roi_list)
 	{
-		/*
-		_table_widget->setItem(i, 0, new QTableWidgetItem(QString::fromLatin1(itr.name.c_str(), itr.name.length())));
-		_table_widget->setItem(i, 1, new QTableWidgetItem());
-		_table_widget->setItem(i, 2, new QTableWidgetItem(QString::fromLatin1(itr.unit.c_str(), itr.unit.length())));
-		_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
-		*/
-
+		std::vector<std::pair<int, int>> roi_pixels;
+		roi_itr->to_roi_vec(roi_pixels);
 		// insert in z order
 		for (auto itr : _element_lines_list)
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_table_widget->setItem(i, 0, new QTableWidgetItem(roi_itr->getName()));
-				_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.c_str(), itr.length())));
-		
-				/*
-				_img_data[QString(el_name.c_str())] = img_data.at(el_name);
-				QStandardItem* item0 = new QStandardItem(false);
-				item0->setCheckable(true);
-				item0->setCheckState(Qt::Unchecked);
-				item0->setText(QString(el_name.c_str()));
-				_img_list_model->appendRow(item0);
-
-				if (_image_size.isEmpty())
-				{
-					_image_size = QSize(img_data.at(el_name).cols(), img_data.at(el_name).rows());
-				}
-				img_data.erase(el_name);
-				*/
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);				
 				done_map[itr] = 1;
 				i++;
 			}
 
 		}
-		
-	
 		// add end of element list that are not elements
 		for (auto itr : _final_counts_to_add_before_scalers)
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_table_widget->setItem(i, 0, new QTableWidgetItem(roi_itr->getName()));
-				_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.c_str(), itr.length())));
-		
-				/*
-				_img_data[QString(itr.c_str())] = img_data.at(itr);
-				QStandardItem* item0 = new QStandardItem(false);
-				item0->setCheckable(true);
-				item0->setCheckState(Qt::Unchecked);
-				item0->setText(QString(itr.c_str()));
-				_img_list_model->appendRow(item0);
-
-				img_data.erase(itr);
-				*/
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
 				done_map[itr] = 1;
 				i++;
 			}
 		}
-
 		// add scalers in certain order
 		for (auto itr : _scalers_to_add_first_list)
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_table_widget->setItem(i, 0, new QTableWidgetItem(roi_itr->getName()));
-				_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.c_str(), itr.length())));
-		
-				/*
-				_img_data[QString(itr.c_str())] = img_data.at(itr);
-				QStandardItem* item0 = new QStandardItem(false);
-				item0->setCheckable(true);
-				item0->setCheckState(Qt::Unchecked);
-				item0->setText(QString(itr.c_str()));
-				_img_list_model->appendRow(item0);
-
-				img_data.erase(itr);
-				*/
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
 				done_map[itr] = 1;
 				i++;
 			}
 		}
-
 		// add rest of scalers
 		for (auto itr : img_data)
 		{
 			if(done_map.count(itr.first) == 0)
 			{
-				_table_widget->setItem(i, 0, new QTableWidgetItem(roi_itr->getName()));
-				_table_widget->setItem(i, 1, new QTableWidgetItem(QString::fromLatin1(itr.first.c_str(), itr.first.length())));
-		
-				/*
-				_img_data[QString(itr.first.c_str())] = img_data.at(itr.first);
-				QStandardItem* item0 = new QStandardItem(false);
-				item0->setCheckable(true);
-				item0->setCheckState(Qt::Unchecked);
-				item0->setText(QString(itr.first.c_str()));
-				_img_list_model->appendRow(item0);
-				*/
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.first.c_str(), itr.first.length()), itr.second, roi_pixels, i, normalizer, calib_curve);
 				i++;
 			}
-		}			
+		}
 	}
 }
 
@@ -241,7 +313,7 @@ void RoiStatisticsWidget::onClose()
 
 void RoiStatisticsWidget::clear_all()
 {
-	//_table_widget->clear();
+	_table_widget->setRowCount(0);
 }
 
 //---------------------------------------------------------------------------

@@ -73,7 +73,7 @@ void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& count
             _stdev += pow((counts(y,x) - _avg), 2);
         }
     }
-    _stdev = sqrtf(_stdev / cnts.size());
+    _stdev = sqrtf(_stdev / (float)cnts.size());
 
     std::sort(cnts.begin(), cnts.end(), [](float const& t1, float const& t2) { return t1 < t2; });
     int idx = cnts.size() / 2;

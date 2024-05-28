@@ -16,6 +16,7 @@
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include "core/defines.h"
 #include "data_struct/element_info.h"
+#include "mvc/MapsH5Model.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -36,7 +37,10 @@ public:
     */
    ~RoiStatisticsWidget();
 
-   void setData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, std::vector<gstar::RoiMaskGraphicsItem*>& roi_list);
+   void setData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data,
+                     std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
+                     data_struct::ArrayXXr<float>* normalizer,
+                     Calibration_curve<double>* calib_curve);
   
    void clear_all();
 
@@ -53,6 +57,8 @@ protected:
    void _createLayout();
 
 private:
+
+   void _insert_item(QString roiName, QString imgName, const data_struct::ArrayXXr<float>& img, const std::vector<std::pair<int, int>>& roi_pixels, int i,data_struct::ArrayXXr<float>* normalizer,Calibration_curve<double>* calib_curve);
 
 	QTableWidget* _table_widget;
 
