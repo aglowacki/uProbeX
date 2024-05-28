@@ -35,6 +35,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 {
     
     _model = nullptr;
+    _roi_stats_diag = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
 	_min_contrast_perc = 0;
@@ -634,6 +635,12 @@ void MapsElementsWidget::openRoiStatsWidget()
 {
     if (_model != nullptr)
     {
+        if (_roi_stats_diag == nullptr)
+        {
+            _roi_stats_diag = new RoiStatisticsWidget();
+        }
+        _roi_stats_diag->clear_all();
+
         std::string analysis_text = _cb_analysis->currentText().toStdString();
 
         data_struct::Fit_Count_Dict<float> fit_counts;
@@ -646,25 +653,19 @@ void MapsElementsWidget::openRoiStatsWidget()
                 fit_counts.insert(itr);
             }
         }
-        //_img_seg_diag.setImageData(fit_counts);
-        
         // add any roi's that were loaded.
         std::vector<gstar::RoiMaskGraphicsItem*> roi_list;
         QImage i;
-        QColor q;
-        gstar::RoiMaskGraphicsItem item(i, q, 0);
+        QColor c;
+        gstar::RoiMaskGraphicsItem item(i, c, 0);
         if (m_treeModel != nullptr)
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
-        for (auto itr : roi_list)
-        {
-        //    _img_seg_diag.append_roi((gstar::RoiMaskGraphicsItem*)(itr->duplicate()));
-        }
-        //m_roiTreeModel->clearAll();
-        //_spectra_widget->deleteAllROISpectra();
+        
+        _roi_stats_diag->setData(fit_counts, roi_list);
 
-        //_roi_stats_diag->show();
+        _roi_stats_diag->show();
     }
 }
 
