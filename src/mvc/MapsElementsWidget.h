@@ -27,6 +27,7 @@
 #include <mvc/ImageSegROIDialog.h>
 #include <mvc/ScatterPlotWidget.h>
 #include <mvc/QuantificationWidget.h>
+#include <mvc/RoiStatisticsWidget.h>
 
 using gstar::AbstractGraphicsItem;
 /*---------------------------------------------------------------------------*/
@@ -80,6 +81,8 @@ public slots:
    void model_updated();
 
    void openImageSegDialog();
+
+   void openRoiStatsWidget();
 
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
@@ -207,6 +210,8 @@ protected:
 
    ImageSegRoiDialog _img_seg_diag;
 
+   RoiStatisticsWidget* _roi_stats_diag;
+
    float _min_contrast_perc;
 
    float _max_contrast_perc;
@@ -220,6 +225,8 @@ protected:
    QWidget* m_roiTreeTabWidget;
 
    QPushButton* _btn_roi_img_seg;
+
+   QPushButton* _btn_roi_stats;
 
    QDockWidget* _counts_dock;
 

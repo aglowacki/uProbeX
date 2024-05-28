@@ -387,6 +387,7 @@ void MapsH5Model::loadAllRoiMaps()
                 }
             }
             _map_rois[mroi.name] = mroi;
+            logI<< "Loading roi: "<< mroi.name<<"\n";
         }
         if (resave)
         {

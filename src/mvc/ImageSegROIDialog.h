@@ -94,6 +94,8 @@ protected:
 
    QWidget* _createKMeansLayout();
 
+   QWidget* _createDBScanLayout();
+
    QWidget* _createManualLayout();
 
 private:

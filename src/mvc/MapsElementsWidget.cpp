@@ -426,11 +426,20 @@ void MapsElementsWidget::_appendRoiTab()
         SLOT(roiTreeDoubleClicked(const QModelIndex&)));
         */
     //infoLayout->addWidget(m_annotationToolbar->getToolBar());
+
+    QHBoxLayout *roi_button_layout = new QHBoxLayout();
+
     QVBoxLayout* roiVbox = new QVBoxLayout();
     _btn_roi_img_seg = new QPushButton("ROI Dialog");
     connect(_btn_roi_img_seg, &QPushButton::released, this, &MapsElementsWidget::openImageSegDialog);
 
-    roiVbox->addWidget(_btn_roi_img_seg);
+    _btn_roi_stats = new QPushButton("ROI Statistics");
+    connect(_btn_roi_stats, &QPushButton::released, this, &MapsElementsWidget::openRoiStatsWidget);
+
+    roi_button_layout->addWidget(_btn_roi_img_seg);
+    roi_button_layout->addWidget(_btn_roi_stats);
+
+    roiVbox->addItem(roi_button_layout);
     roiVbox->addWidget(m_roiTreeView);
 
     m_roiTreeTabWidget = new QWidget(this);
@@ -616,6 +625,46 @@ void MapsElementsWidget::openImageSegDialog()
         _spectra_widget->deleteAllROISpectra();
 
         _img_seg_diag.show();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::openRoiStatsWidget()
+{
+    if (_model != nullptr)
+    {
+        std::string analysis_text = _cb_analysis->currentText().toStdString();
+
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        _model->getAnalyzedCounts(analysis_text, fit_counts);
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        if (scalers != nullptr)
+        {
+            for (auto& itr : *scalers)
+            {
+                fit_counts.insert(itr);
+            }
+        }
+        //_img_seg_diag.setImageData(fit_counts);
+        
+        // add any roi's that were loaded.
+        std::vector<gstar::RoiMaskGraphicsItem*> roi_list;
+        QImage i;
+        QColor q;
+        gstar::RoiMaskGraphicsItem item(i, q, 0);
+        if (m_treeModel != nullptr)
+        {
+            m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
+        }
+        for (auto itr : roi_list)
+        {
+        //    _img_seg_diag.append_roi((gstar::RoiMaskGraphicsItem*)(itr->duplicate()));
+        }
+        //m_roiTreeModel->clearAll();
+        //_spectra_widget->deleteAllROISpectra();
+
+        //_roi_stats_diag->show();
     }
 }
 
@@ -868,6 +917,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             {
                 int width = (int)m_imageViewWidget->scene()->width();
                 int height = (int)m_imageViewWidget->scene()->height();
+                logI<< "Loading roi: "<< itr.first<<"\n";
                 gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
                 if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
