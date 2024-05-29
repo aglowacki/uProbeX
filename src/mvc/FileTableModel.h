@@ -18,7 +18,7 @@ enum File_Loaded_Status {UNLOADED, LOADED, FAILED_LOADING};
 //---------------------------------------------------------------------------
 struct RowData 
 {
-    RowData(QIcon i, QString s, int n)
+    RowData(QIcon i, QString s, double n)
     {
         icon = i;
         text = s;
