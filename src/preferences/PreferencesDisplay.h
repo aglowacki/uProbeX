@@ -106,6 +106,8 @@ private:
    QCheckBox* _ck_show_dataset_on_select;
 
    QCheckBox* _ck_search_datasets;
+
+   QCheckBox* _ck_strict_regex;
 };
 
 /*---------------------------------------------------------------------------*/

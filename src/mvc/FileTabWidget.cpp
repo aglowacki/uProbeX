@@ -12,6 +12,7 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QRegularExpression>
+#include <preferences/Preferences.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -271,7 +272,14 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
     _filter_line->setText(filter_text);
     if(filter_text.length() > 0)
     {
-        QRegularExpression re (QRegularExpression::wildcardToRegularExpression(filter_text));
+        // if not strict then prepend and append '*'
+        QString filter_t = filter_text;
+        if(false == Preferences::inst()->getValue(STR_PRF_STRICT_REGEX).toBool())
+        {
+            filter_t.prepend('*');
+            filter_t.append('*');
+        }
+        QRegularExpression re (QRegularExpression::wildcardToRegularExpression(filter_t));
      
         for(int i=0; i < _file_list_model->rowCount(); i++)
         {

@@ -61,7 +61,8 @@ Preferences::Preferences()
         {STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant()},
         {STR_SEARCH_SUB_DIR_FOR_DATASETS, QVariant()},
         {STR_GEOMETRY, QVariant()},
-        {STR_WINDOWSTATE, QVariant()}
+        {STR_WINDOWSTATE, QVariant()},
+        {STR_PRF_STRICT_REGEX, QVariant()}
     };
    load();
 }

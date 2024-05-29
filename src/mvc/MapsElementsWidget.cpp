@@ -662,7 +662,6 @@ void MapsElementsWidget::openRoiStatsWidget()
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
-        
         _roi_stats_diag->setData(fit_counts, roi_list, _normalizer, _calib_curve);
 
         _roi_stats_diag->show();

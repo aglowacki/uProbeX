@@ -119,7 +119,7 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 
 	for(auto pitr : roi_pixels)
 	{
-		double val = img(pitr.first, pitr.second);
+		double val = img(pitr.second, pitr.first);
 		sum_cts += val;
 		min_cts = std::min(val,min_cts);
 		if(min_cts == val)
@@ -134,7 +134,7 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 		cts_arr[j] = val;
 		if(hasNorm)
 		{
-			double ug = (val / (*normalizer)(pitr.first, pitr.second) / calib_val);
+			double ug = (val / (*normalizer)(pitr.second, pitr.first) / calib_val);
 			sum_ugcm2 += ug;
 			min_ug = std::min(ug,min_ug);
 			max_ug = std::max(ug,max_ug);
@@ -146,11 +146,11 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 	double mean_ug = sum_ugcm2 / (double)roi_pixels.size();
 	for(auto pitr : roi_pixels)
 	{
-		double val = img(pitr.first, pitr.second);
+		double val = img(pitr.second, pitr.first);
 		std_dev_cts += pow((val - mean_cts), 2);
 		if(hasNorm)
 		{
-			double ug = (val / (*normalizer)(pitr.first, pitr.second) / calib_val);
+			double ug = (val / (*normalizer)(pitr.second, pitr.first) / calib_val);
 			std_dev_ug +=  pow((ug - mean_ug), 2);
 		}
 	}
@@ -167,8 +167,8 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
     int idx = cts_arr.size() / 2;
     median_cts = cts_arr(idx);
 	
-	QString str_min_pixel = QString::number(min_pixel.first) + " | " + QString::number(min_pixel.second);
-	QString str_max_pixel = QString::number(max_pixel.first) + " | " + QString::number(max_pixel.second);
+	QString str_min_pixel = QString::number(min_pixel.second) + " | " + QString::number(min_pixel.first);
+	QString str_max_pixel = QString::number(max_pixel.second) + " | " + QString::number(max_pixel.first);
 	_table_widget->setItem(i, SumCnts, new QTableWidgetItem(QString::number(sum_cts)));
 	_table_widget->setItem(i, MinCnts, new QTableWidgetItem(QString::number(min_cts)));
 	_table_widget->setItem(i, MinPixel, new QTableWidgetItem(str_min_pixel));

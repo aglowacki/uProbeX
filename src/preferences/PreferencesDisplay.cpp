@@ -65,6 +65,11 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_search_datasets = new QCheckBox();
    _ck_search_datasets->setChecked(Preferences::inst()->getValue(STR_SEARCH_SUB_DIR_FOR_DATASETS).toBool());
 
+   QLabel* lblStrictRegex = new QLabel("Strict Regular Expressions for file filter.\n True: The file filter string is unchanged.\n False: Prepend and append '*' to file filter.");
+   lblSearchDatasets->setFont(font);
+   _ck_strict_regex = new QCheckBox();
+   _ck_strict_regex->setChecked(Preferences::inst()->getValue(STR_PRF_STRICT_REGEX).toBool());
+
 
 
    QFormLayout* mainLayout = new QFormLayout();
@@ -74,6 +79,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblUseDarkTheme, _cb_themes);
    mainLayout->addRow(lblShowDatasetOnSelect, _ck_show_dataset_on_select);
    mainLayout->addRow(lblSearchDatasets, _ck_search_datasets);
+   mainLayout->addRow(lblStrictRegex, _ck_strict_regex);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
@@ -135,6 +141,7 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_PRF_DecimalPrecision, getDecimalPrecision());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, _ck_show_dataset_on_select->isChecked());
     Preferences::inst()->setValue(STR_SEARCH_SUB_DIR_FOR_DATASETS, _ck_search_datasets->isChecked());
+    Preferences::inst()->setValue(STR_PRF_STRICT_REGEX, _ck_strict_regex->isChecked());
 }
 
 /*---------------------------------------------------------------------------*/
