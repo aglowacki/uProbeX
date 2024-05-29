@@ -4,6 +4,8 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/RoiStatisticsWidget.h>
+#include <QDesktopServices>
+#include <QUrl>
 
 //---------------------------------------------------------------------------
 enum HEADER_NAME { ROI_Name=0, MapName=1, SumCnts=2, MeanCts=3, MedianCts=4, StdDevCts=5, SumUgcm2=6, MeanUg=7, MedianUg=8, StdDevUg=9, Area=10, MinCnts=11, MinPixel=12, MaxCnts=13, MaxPixel=14, Min_ugcm2=15, Max_ugcm2=16, Num_Spectra=17, TotalConcentrationCts=18, TotalConcentrationUg=19, TotalContentCts=20, TotalContentUg=21 };
@@ -208,7 +210,11 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 
 //---------------------------------------------------------------------------
 
-void RoiStatisticsWidget::setData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, 
+void RoiStatisticsWidget::setData(QDir model_dir,
+								QString dataset_name,
+								QString fitting_name, 
+								QString normalizer_name,
+								std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, 
 								std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
                      			data_struct::ArrayXXr<float>* normalizer,
                      			Calibration_curve<double>* calib_curve)
@@ -218,6 +224,24 @@ void RoiStatisticsWidget::setData(std::unordered_map<std::string, data_struct::A
 	_table_widget->setRowCount(total);
 
 	std::unordered_map<std::string, int> done_map;
+
+	_export_dir = model_dir;
+    _export_dir.cdUp();
+    _export_dir.cdUp();
+    _export_dir.cd("output");
+
+
+	QString filename = "roi_export_" + dataset_name + "_" + fitting_name + "_";
+	if(normalizer != nullptr)
+	{
+		filename += normalizer_name + "_";
+	}
+	
+	QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+	filename += formattedTime + ".csv";
+
+	_str_export_filename = _export_dir.absolutePath() + QDir::separator() + filename;
 
 	int i = 0;
 	for (auto roi_itr : roi_list)
@@ -298,6 +322,44 @@ void RoiStatisticsWidget::_createLayout()
 
 void RoiStatisticsWidget::onExport()
 {
+	QFile file(_str_export_filename);
+    if (!file.open(QIODevice::WriteOnly)) 
+	{
+        logW<< "Could not open file for writing:"<< _str_export_filename.toStdString()<<"\n";
+        return;
+    }
+
+    QTextStream out(&file);
+
+    // Write header row
+    QStringList headers = _base_header;
+    out << headers.join(",") << "\n";
+
+    // Write data rows
+    for (int i = 0; i < _table_widget->rowCount(); ++i) 
+	{
+        QStringList rowData;
+        for (int j = 0; j < _table_widget->columnCount(); ++j) 
+		{
+            QTableWidgetItem* item = _table_widget->item(i, j);
+            if (item) 
+			{
+                rowData.append(item->text());
+            }
+			else 
+			{
+                rowData.append(""); 
+            }
+        }
+        out << rowData.join(",") << "\n";
+    }
+
+    file.close();
+
+	if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(_export_dir.absolutePath())))
+	{
+		logE << "Failed to open dir " << _export_dir.absolutePath().toStdString() << "\n";
+	}
 
 }
 
@@ -314,6 +376,7 @@ void RoiStatisticsWidget::onClose()
 void RoiStatisticsWidget::clear_all()
 {
 	_table_widget->setRowCount(0);
+	_str_export_filename = "";
 }
 
 //---------------------------------------------------------------------------

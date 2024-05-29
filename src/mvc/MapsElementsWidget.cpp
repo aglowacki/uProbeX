@@ -662,7 +662,7 @@ void MapsElementsWidget::openRoiStatsWidget()
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
-        _roi_stats_diag->setData(fit_counts, roi_list, _normalizer, _calib_curve);
+        _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), fit_counts, roi_list, _normalizer, _calib_curve);
 
         _roi_stats_diag->show();
     }

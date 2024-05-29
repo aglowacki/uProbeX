@@ -230,6 +230,15 @@ void uProbeX::createMenuBar()
 
     connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
 
+    // Batch menu
+    //m_menuBatch = new QMenu(tr("Batch Processing"));
+    //action = m_menuBatch->addAction("Per Pixel Processing");
+    //connect(action, SIGNAL(triggered()), this, SLOT(perPixel()));
+    //action = "Export Images"
+    //action = "Roi Stats"
+    //m_menu->addMenu(m_menuBatch);
+
+
     // Stream menu
     m_menuStream = new QMenu(tr("Live Stream"));
     action = m_menuStream->addAction("Open Live Stream Viewer");
