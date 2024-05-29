@@ -166,10 +166,28 @@ void FileTabWidget::unload_all()
 
 void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
+    double divisor = 1;
+    switch(Preferences::inst()->getValue(STR_PRF_FILE_SIZE).toInt())
+    {
+        case 0:
+            break;
+        case 1: 
+            divisor = 1024;
+            break;
+        case 2: 
+            divisor = 1024*1024;
+            break;
+        case 3: 
+            divisor = 1024*1024*1024;
+            break;
+        default:
+            break;
+    }
+
 	_file_list_model->clear();
     for(auto & itr : fileinfo_list)
     {
-        _file_list_model->appendRow( RowData(QIcon(":/images/circle_gray.png"), itr.first, itr.second.size()/1024));       
+        _file_list_model->appendRow( RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));       
     }
 
     _file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
@@ -180,6 +198,24 @@ void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_l
 
 void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
+    double divisor = 1;
+    switch(Preferences::inst()->getValue(STR_PRF_FILE_SIZE).toInt())
+    {
+        case 0:
+            break;
+        case 1: 
+            divisor = 1024;
+            break;
+        case 2: 
+            divisor = 1024*1024;
+            break;
+        case 3: 
+            divisor = 1024*1024*1024;
+            break;
+        default:
+            break;
+    }
+
     int rows = _file_list_model->rowCount();
     for (const auto& itr : fileinfo_list)
     {
@@ -196,7 +232,7 @@ void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinf
 
         if (false == found)
         {
-            _file_list_model->appendRow(RowData(QIcon(":/images/circle_gray.png"), itr.first, itr.second.size()/1024));
+            _file_list_model->appendRow(RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));
         }
     }
 

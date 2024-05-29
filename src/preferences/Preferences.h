@@ -81,6 +81,7 @@
 #define STR_SCATTER_DOCK "ScatterDock"
 #define STR_EXTRA_DOCK "ExtraDock"
 #define STR_PRF_STRICT_REGEX "StrictRegEx"
+#define STR_PRF_FILE_SIZE "FileSize"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

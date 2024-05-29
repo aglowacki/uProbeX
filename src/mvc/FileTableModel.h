@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QAbstractTableModel>
+#include <preferences/Preferences.h>
 
 //---------------------------------------------------------------------------
 
@@ -23,11 +24,13 @@ struct RowData
         text = s;
         number = n;
         status = UNLOADED;
+        number2 = 0;
     }
     QIcon icon;
     QString text;
-    int number;
+    double number;
     File_Loaded_Status status;
+    int number2;
 };
 //---------------------------------------------------------------------------
 
@@ -36,9 +39,27 @@ class FileTableModel : public QAbstractTableModel
 public:
     FileTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
+        QString fs = "Size ";
+        switch(Preferences::inst()->getValue(STR_PRF_FILE_SIZE).toInt())
+        {
+            case 0:
+                break;
+            case 1: 
+                fs += "(Kb)";
+                break;
+            case 2: 
+                fs += "(Mb)";
+                break;
+            case 3: 
+                fs += "(Gb)";
+                break;
+            default:
+                break;
+        }
         _headers[0] = tr("L");
         _headers[1] = tr("Name");
-        _headers[2] = tr("Size (MB)");
+        _headers[2] = fs;
+        _headers[3] = tr("# ROI's");
     }
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
@@ -48,7 +69,7 @@ public:
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
-        return 3; // Three columns: icon, string, integer
+        return 4; 
     }
 
     void appendRow(const RowData& row)
@@ -91,7 +112,7 @@ public:
             }
             else if (index.column() == 2)
             {
-                return rowData.number;
+                return QString::number(rowData.number, 'f', 2);
             }
         }
         return QVariant();
@@ -105,7 +126,7 @@ public:
         // Horizontal headers
         if (orientation == Qt::Horizontal)
         {
-            if(section > (2))
+            if(section > 3)
             {
                 return QVariant();
             }
@@ -190,6 +211,14 @@ public:
                         case Qt::DescendingOrder:
                             return rowA.number > rowB.number;
                     };
+                case 3: // # roi's
+                    switch(order)
+                    {
+                        case Qt::AscendingOrder:
+                            return rowA.number2 < rowB.number2;
+                        case Qt::DescendingOrder:
+                            return rowA.number2 > rowB.number2;
+                    };
             };
         });
         endResetModel();
@@ -198,7 +227,7 @@ public:
 private:
     QList<RowData> _data;
 
-    QString _headers[3];
+    QString _headers[4];
 };
 
 

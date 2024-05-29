@@ -108,6 +108,8 @@ private:
    QCheckBox* _ck_search_datasets;
 
    QCheckBox* _ck_strict_regex;
+
+   QComboBox* _cb_file_size;
 };
 
 /*---------------------------------------------------------------------------*/
