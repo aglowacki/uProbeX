@@ -20,10 +20,9 @@
 #include <QPushButton>
 #include "FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
+#include <mvc/FileTableModel.h>
 
 /*---------------------------------------------------------------------------*/
-
-enum File_Loaded_Status {UNLOADED, LOADED, FAILED_LOADING};
 
 /*---------------------------------------------------------------------------*/
 
@@ -103,9 +102,9 @@ protected:
 
     void _gen_visible_list(QStringList *sl);
 
-    QListView* _file_list_view;
+    QTableView* _file_list_view;
 
-    QStandardItemModel* _file_list_model;
+    FileTableModel* _file_list_model;
 
     QMenu *_contextMenu;
 

@@ -325,7 +325,7 @@ void RoiStatisticsWidget::onExport()
 	QFile file(_str_export_filename);
     if (!file.open(QIODevice::WriteOnly)) 
 	{
-        logW<< "Could not open file for writing:"<< _str_export_filename.toStdString()<<"\n";
+        logE<< "Could not open file for writing:"<< _str_export_filename.toStdString()<<"\n";
         return;
     }
 
@@ -358,9 +358,9 @@ void RoiStatisticsWidget::onExport()
 
 	if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(_export_dir.absolutePath())))
 	{
-		logE << "Failed to open dir " << _export_dir.absolutePath().toStdString() << "\n";
+		logW << "Failed to open dir " << _export_dir.absolutePath().toStdString() << "\n";
 	}
-
+	close();
 }
 
 //---------------------------------------------------------------------------
