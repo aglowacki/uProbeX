@@ -194,10 +194,18 @@ void MapsWorkspaceFilesWidget::updatedHDF()
 void MapsWorkspaceFilesWidget::updateROIS()
 {
     _h5_tab_widget->set_roi_num_list(_model->get_roi_num_list());
-    _vlm_tab_widget->set_roi_num_list(_model->get_roi_num_list());
+    _mda_tab_widget->set_roi_num_list(_model->get_roi_num_list());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::update_roi_num(QString name, int val)
+{
+    _h5_tab_widget->set_roi_num(name, val);
+    _mda_tab_widget->set_roi_num(name, val);
+}
+
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
 {

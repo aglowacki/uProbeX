@@ -1788,16 +1788,16 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
 {
-    _model->clearAllMapRois();
-    for (auto& itr : roi_list)
+    if (_model != nullptr)
     {
-        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
-        std::vector<std::pair<int, int>> pixel_list;
-        itr->to_roi_vec(pixel_list);
-        
-        data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
-        if (_model != nullptr)
+        _model->clearAllMapRois();
+
+        for (auto& itr : roi_list)
         {
+            insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
+            std::vector<std::pair<int, int>> pixel_list;
+            itr->to_roi_vec(pixel_list);
+            data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
             {
                 struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
@@ -1806,14 +1806,14 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
             }
         }
-    }
-    if (_model != nullptr)
-    {
+    
         _model->saveAllRoiMaps();
+    
+        //refresh roi's
+        _scatter_plot_widget->setModel(_model);
+        // update num rois in file widget
+        emit new_rois(_model->getDatasetName(), roi_list.size());
     }
-    //refresh roi's
-    _scatter_plot_widget->setModel(_model);
-
     _spectra_widget->replot_integrated_spectra(false);
     annoTabChanged(ROI_TAB);
     _img_seg_diag.clear_all_rois();

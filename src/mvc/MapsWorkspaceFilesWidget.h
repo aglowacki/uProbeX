@@ -75,6 +75,8 @@ public slots:
 
     void updateROIS();
 
+   void update_roi_num(QString, int);
+
     void clearLists();
 
     void loadedFitParams(int idx);

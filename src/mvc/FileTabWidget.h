@@ -40,6 +40,8 @@ class FileTabWidget : public QWidget
 
     void set_roi_num_list(const std::map<QString, int>& roi_num_map);
 
+    void set_roi_num(QString name, int val);
+
     void update_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
     void unload_all();

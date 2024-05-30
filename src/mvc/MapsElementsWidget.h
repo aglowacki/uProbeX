@@ -60,7 +60,9 @@ public:
    MapsH5Model *getModel(){return _model;}
 
 signals:
-    void loaded_perc(int, int);
+   void loaded_perc(int, int);
+
+   void new_rois(QString, int);
 
 public slots:
 

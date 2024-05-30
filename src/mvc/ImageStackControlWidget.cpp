@@ -16,6 +16,7 @@
 
 ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(parent)
 {
+	_model = nullptr;
 	createLayout();
 
 }
@@ -63,6 +64,8 @@ void ImageStackControlWidget::createLayout()
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_model, this, &ImageStackControlWidget::onLoad_Model);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::unloadList_model, this, &ImageStackControlWidget::onUnloadList_Model);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::datasetSelected, this, &ImageStackControlWidget::onChangeDatasetName);
+
+	connect(_imageGrid, &MapsElementsWidget::new_rois, _mapsFilsWidget, &MapsWorkspaceFilesWidget::update_roi_num);
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));

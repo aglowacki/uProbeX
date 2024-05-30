@@ -99,6 +99,27 @@ public:
         endResetModel();
     }
     //---------------------------------------------------------------------------
+    void update_single_roi_num(QString name, int val)
+    {
+        QStringList s0 = name.split(".");
+        if(s0.size() > 0)
+        {
+            beginResetModel();
+            for(auto &itr : _data)
+            {
+                QStringList sl = itr.text.split('.');
+                if(sl.size() > 0)
+                {
+                    if(s0[0] == sl[0])
+                    {
+                        itr.number2 = val;
+                    }
+                }
+            }
+            endResetModel();
+        }
+    }
+    //---------------------------------------------------------------------------
     void clear()
     {
         _data.clear();

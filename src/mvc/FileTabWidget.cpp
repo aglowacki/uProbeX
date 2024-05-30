@@ -195,9 +195,16 @@ void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_l
 
 //---------------------------------------------------------------------------
 
-void FileTabWidget:: set_roi_num_list(const std::map<QString, int>& roi_num_map)
+void FileTabWidget::set_roi_num_list(const std::map<QString, int>& roi_num_map)
 {
     _file_list_model->update_roi_num(roi_num_map);
+}
+
+//---------------------------------------------------------------------------
+
+void FileTabWidget::set_roi_num(QString name, int val)
+{
+    _file_list_model->update_single_roi_num(name, val);
 }
 
 //---------------------------------------------------------------------------
@@ -270,6 +277,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 void FileTabWidget::setActionsAndButtonsEnabled(bool val)
 {
     _load_all_btn->setEnabled(val);
+    _file_list_view->setEnabled(val);
     _unload_all_btn->setEnabled(val);
     _action_load->setEnabled(val);
     _action_unload->setEnabled(val);
