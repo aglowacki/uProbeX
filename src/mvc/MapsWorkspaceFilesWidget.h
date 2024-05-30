@@ -73,6 +73,8 @@ public slots:
 
     void updatedHDF();
 
+    void updateROIS();
+
     void clearLists();
 
     void loadedFitParams(int idx);

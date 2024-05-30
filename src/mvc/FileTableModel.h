@@ -61,7 +61,7 @@ public:
         _headers[2] = fs;
         _headers[3] = tr("# ROI's");
     }
-
+    //---------------------------------------------------------------------------
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
     {
         return _data.size();
@@ -71,7 +71,7 @@ public:
     {
         return 4; 
     }
-
+    //---------------------------------------------------------------------------
     void appendRow(const RowData& row)
     {
         int rown = _data.size();
@@ -80,20 +80,47 @@ public:
         _data.append(row);
         endInsertRows();
     }
-
+    //---------------------------------------------------------------------------
+    void update_roi_num(const std::map<QString, int>& roi_num_map)
+    {
+        beginResetModel();
+        for(auto &itr : _data)
+        {
+            itr.number2 = 0;
+            QStringList sl = itr.text.split('.');
+            if(sl.size() > 0)
+            {
+                if(roi_num_map.count(sl[0]) > 0)
+                {
+                    itr.number2 = roi_num_map.at(sl[0]);
+                }
+            }
+        }
+        endResetModel();
+    }
+    //---------------------------------------------------------------------------
     void clear()
     {
         _data.clear();
     }
-
+    //---------------------------------------------------------------------------
     const RowData& item(int row)
     {
         return _data.at(row);
     }
-
+    //---------------------------------------------------------------------------
+    const QString& getNameAtRow(int row)
+    {
+        if(_data.size() > row)
+        {
+            return _data.at(row).text;
+        }
+        return "";
+    }
+    //---------------------------------------------------------------------------
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
-        if (!index.isValid() || index.row() >= _data.size() || index.column() >= 3)
+        if (!index.isValid() || index.row() >= _data.size() || index.column() >= 4)
         {
             return QVariant();
         }
@@ -106,18 +133,19 @@ public:
         }
         else if (role == Qt::DisplayRole) 
         {
-            if (index.column() == 1)
+            switch(index.column())
             {
+            case 1:
                 return rowData.text;
-            }
-            else if (index.column() == 2)
-            {
+            case 2:
                 return QString::number(rowData.number, 'f', 2);
-            }
+            case 3:
+                return rowData.number2;
+            };
         }
         return QVariant();
     }
-
+    //---------------------------------------------------------------------------
     QVariant headerData(int section, Qt::Orientation orientation, int role) const
     {
         // Check this is DisplayRole
@@ -126,7 +154,7 @@ public:
         // Horizontal headers
         if (orientation == Qt::Horizontal)
         {
-            if(section > 3)
+            if(section > 4)
             {
                 return QVariant();
             }
@@ -139,12 +167,12 @@ public:
         // Return empty data
         return QVariant();
     }
-
+    //---------------------------------------------------------------------------
     Qt::ItemFlags flags(const QModelIndex &index) const
     {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
-
+    //---------------------------------------------------------------------------
     void updateStatus(File_Loaded_Status status, const QString& filename)
     {
         int i=0;
@@ -174,7 +202,7 @@ public:
             i++;
         }
     }
-
+    //---------------------------------------------------------------------------
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override
     {
         if(column < 0)
@@ -223,7 +251,7 @@ public:
         });
         endResetModel();
     }
-
+    //---------------------------------------------------------------------------
 private:
     QList<RowData> _data;
 

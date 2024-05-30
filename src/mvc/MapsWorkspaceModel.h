@@ -87,6 +87,10 @@ public:
 
     const std::map<QString, QFileInfo>& get_vlm_file_list() { return _vlm_fileinfo_list; }
 
+    const std::map<QString, QFileInfo>& get_roi_file_list() { return _roi_fileinfo_list; }
+
+    const std::map<QString, int>& get_roi_num_list() { return _roi_count_map; }
+
     std::vector<QString> get_loaded_raw_names();
 
     std::vector<QString> get_loaded_h5_names();
@@ -104,6 +108,8 @@ signals:
     void doneLoadingVLM();
 
     void doneLoadingImgDat();
+
+    void doneLoadingROIS();
 
     void doneLoading();
 
@@ -124,6 +130,7 @@ public slots:
     void reload_region_link();
 
 protected:
+    void _roi_files_to_num();
 
     bool _load_fit_params();
 
@@ -151,6 +158,8 @@ private:
     std::map<QString, QFileInfo> _vlm_fileinfo_list;
     std::map<QString, QFileInfo> _roi_fileinfo_list;
     std::map<QString, QFileInfo> _region_links_fileinfo_list;
+
+    std::map<QString, int> _roi_count_map;
 
     QDir* _dir;
 

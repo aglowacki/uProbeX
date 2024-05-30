@@ -6,6 +6,8 @@
 #include <mvc/RoiStatisticsWidget.h>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QGuiApplication>
+#include <QScreen>
 
 //---------------------------------------------------------------------------
 enum HEADER_NAME { ROI_Name=0, MapName=1, SumCnts=2, MeanCts=3, MedianCts=4, StdDevCts=5, SumUgcm2=6, MeanUg=7, MedianUg=8, StdDevUg=9, Area=10, MinCnts=11, MinPixel=12, MaxCnts=13, MaxPixel=14, Min_ugcm2=15, Max_ugcm2=16, Num_Spectra=17, TotalConcentrationCts=18, TotalConcentrationUg=19, TotalContentCts=20, TotalContentUg=21 };
@@ -316,6 +318,12 @@ void RoiStatisticsWidget::_createLayout()
 	setLayout(mainLayout);
 
 	setWindowTitle("ROI Stats");
+
+	QRect rec = QGuiApplication::screens()[0]->geometry();
+	int height1 = rec.height() - 20;
+	int width1 = rec.width() - 20;
+	resize(width1,height1);
+	
 }
 
 //---------------------------------------------------------------------------

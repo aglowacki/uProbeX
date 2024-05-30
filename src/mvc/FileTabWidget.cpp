@@ -13,8 +13,7 @@
 #include <QItemSelectionModel>
 #include <QRegularExpression>
 #include <preferences/Preferences.h>
-
-
+#include "core/defines.h"
 /*---------------------------------------------------------------------------*/
 
 FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
@@ -194,7 +193,14 @@ void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_l
     _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget:: set_roi_num_list(const std::map<QString, int>& roi_num_map)
+{
+    _file_list_model->update_roi_num(roi_num_map);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
@@ -254,7 +260,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
     if (_load_all_btn->isEnabled())
     {
         QStringList sl;
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
         emit loadList(sl);
     }
 }

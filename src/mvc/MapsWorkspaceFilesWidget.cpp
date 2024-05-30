@@ -144,6 +144,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
         connect(_model, &MapsWorkspaceModel::doneLoadingMDA, this, &MapsWorkspaceFilesWidget::updatedMDA);
         connect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
         connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
+        connect(_model, &MapsWorkspaceModel::doneLoadingROIS, this, &MapsWorkspaceFilesWidget::updateROIS);
         connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
         connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
         connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
@@ -186,6 +187,14 @@ void MapsWorkspaceFilesWidget::updatedHDF()
     {
         _h5_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
     }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::updateROIS()
+{
+    _h5_tab_widget->set_roi_num_list(_model->get_roi_num_list());
+    _vlm_tab_widget->set_roi_num_list(_model->get_roi_num_list());
 }
 
 /*---------------------------------------------------------------------------*/
