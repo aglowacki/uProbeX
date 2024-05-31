@@ -41,6 +41,7 @@ public:
 					QString dataset_name,
                QString fitting_name, 
 					QString normalizer_name,
+               float sq_area,
                std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data,
                std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
                data_struct::ArrayXXr<float>* normalizer,
@@ -62,7 +63,14 @@ protected:
 
 private:
 
-   void _insert_item(QString roiName, QString imgName, const data_struct::ArrayXXr<float>& img, const std::vector<std::pair<int, int>>& roi_pixels, int i,data_struct::ArrayXXr<float>* normalizer,Calibration_curve<double>* calib_curve);
+   void _insert_item(QString roiName,
+                     QString imgName, 
+                     float sq_area,
+                     const data_struct::ArrayXXr<float>& img,
+                     const std::vector<std::pair<int, int>>& roi_pixels, 
+                     int i,
+                     data_struct::ArrayXXr<float>* normalizer,
+                     Calibration_curve<double>* calib_curve);
 
    QString _str_export_filename;
 

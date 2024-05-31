@@ -662,7 +662,16 @@ void MapsElementsWidget::openRoiStatsWidget()
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
-        _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), fit_counts, roi_list, _normalizer, _calib_curve);
+
+        const std::vector<float> x_axis = _model->get_x_axis();
+        const std::vector<float> y_axis = _model->get_y_axis();
+
+        int xidx = x_axis.size() / 2;
+        int yidx = y_axis.size() / 2;
+
+        float sq_area = ((x_axis[xidx+1] - x_axis[xidx]) * (y_axis[yidx+1] - y_axis[yidx]));
+
+        _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), sq_area, fit_counts, roi_list, _normalizer, _calib_curve);
 
         _roi_stats_diag->show();
     }

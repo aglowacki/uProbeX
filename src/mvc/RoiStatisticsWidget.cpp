@@ -86,6 +86,7 @@ RoiStatisticsWidget::~RoiStatisticsWidget()
 
 void RoiStatisticsWidget::_insert_item(QString roiName, 
 										QString imgName,
+										float sq_area,
 										const data_struct::ArrayXXr<float>& img,
 										const std::vector<std::pair<int, int>>& roi_pixels,
 										int i,
@@ -104,7 +105,7 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 	double max_ug = std::numeric_limits<float>::min();
 	double std_dev_ug = 0.0;
 	double median_ug = 0.0;
-	
+	double area = sq_area * roi_pixels.size();
 	std::pair<int, int> min_pixel;
 	std::pair<int, int> max_pixel;
 	Eigen::ArrayXf cts_arr(roi_pixels.size());
@@ -183,6 +184,10 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 	_table_widget->setItem(i, StdDevCts, new QTableWidgetItem(QString::number(std_dev_cts)));
 	_table_widget->setItem(i, Num_Spectra, new QTableWidgetItem(QString::number(roi_pixels.size())));
 
+	_table_widget->setItem(i, Area, new QTableWidgetItem(QString::number(area)));
+	_table_widget->setItem(i, TotalContentCts, new QTableWidgetItem(QString::number(area*mean_cts)));
+	_table_widget->setItem(i, TotalConcentrationCts, new QTableWidgetItem(QString::number(mean_cts * (double)roi_pixels.size())));
+
 	if(hasNorm)
 	{
 		_table_widget->setItem(i, SumUgcm2, new QTableWidgetItem(QString::number(sum_ugcm2)));
@@ -191,6 +196,8 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 		_table_widget->setItem(i, MeanUg, new QTableWidgetItem(QString::number(mean_ug)));
 		_table_widget->setItem(i, MedianUg, new QTableWidgetItem(QString::number(median_ug)));
 		_table_widget->setItem(i, StdDevUg, new QTableWidgetItem(QString::number(std_dev_ug)));
+		_table_widget->setItem(i, TotalContentUg, new QTableWidgetItem(QString::number(area*mean_ug)));
+		_table_widget->setItem(i, TotalConcentrationUg, new QTableWidgetItem(QString::number(mean_ug * (double)roi_pixels.size())));
 	}
 	else
 	{
@@ -201,13 +208,6 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 		_table_widget->setItem(i, MedianUg, new QTableWidgetItem(" "));
 		_table_widget->setItem(i, StdDevUg, new QTableWidgetItem(" "));
 	}
-
-
-//  Area, TotalConcentration, TotalContent
-	_table_widget->setItem(i, TotalConcentrationCts, new QTableWidgetItem(QString::number(mean_cts * (double)roi_pixels.size())));
-	_table_widget->setItem(i, TotalConcentrationUg, new QTableWidgetItem(QString::number(mean_ug * (double)roi_pixels.size())));
-
-
 }
 
 //---------------------------------------------------------------------------
@@ -216,6 +216,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 								QString dataset_name,
 								QString fitting_name, 
 								QString normalizer_name,
+								float sq_area,
 								std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, 
 								std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
                      			data_struct::ArrayXXr<float>* normalizer,
@@ -255,7 +256,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);				
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), sq_area, img_data.at(itr), roi_pixels, i, normalizer, calib_curve);				
 				done_map[itr] = 1;
 				i++;
 			}
@@ -266,7 +267,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), sq_area, img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
 				done_map[itr] = 1;
 				i++;
 			}
@@ -276,7 +277,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 		{
 			if (img_data.count(itr) > 0)
 			{
-				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()), img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.c_str(), itr.length()),sq_area, img_data.at(itr), roi_pixels, i, normalizer, calib_curve);
 				done_map[itr] = 1;
 				i++;
 			}
@@ -286,7 +287,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 		{
 			if(done_map.count(itr.first) == 0)
 			{
-				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.first.c_str(), itr.first.length()), itr.second, roi_pixels, i, normalizer, calib_curve);
+				_insert_item(roi_itr->getName(), QString::fromLatin1(itr.first.c_str(), itr.first.length()), sq_area, itr.second, roi_pixels, i, normalizer, calib_curve);
 				i++;
 			}
 		}
