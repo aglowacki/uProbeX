@@ -187,6 +187,7 @@ void MapsWorkspaceFilesWidget::updatedHDF()
     {
         _h5_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
     }
+    _h5_tab_widget->set_roi_num_list(_model->get_roi_num_list());
 }
 
 //---------------------------------------------------------------------------

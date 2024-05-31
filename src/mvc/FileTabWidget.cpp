@@ -301,7 +301,7 @@ void FileTabWidget::onLoadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     emit loadList(sl);
 }
@@ -317,7 +317,7 @@ void FileTabWidget::onUnloadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     emit unloadList(sl);
 
@@ -397,7 +397,7 @@ void FileTabWidget::onCustomContext()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     QAction *act = qobject_cast<QAction *>(sender());
     QVariant v = act->data();
