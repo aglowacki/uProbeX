@@ -255,6 +255,10 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 		}
 		
 		_image_name_cb->addItem(name);
+		if(Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_LOAD).toBool())
+		{
+			_image_name_cb->setCurrentText(name);
+		}
 	}
 }
 

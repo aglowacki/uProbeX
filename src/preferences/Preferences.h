@@ -82,6 +82,7 @@
 #define STR_EXTRA_DOCK "ExtraDock"
 #define STR_PRF_STRICT_REGEX "StrictRegEx"
 #define STR_PRF_FILE_SIZE "FileSize"
+#define STR_PRF_SHOW_DATASET_ON_LOAD "ShowOnLoad"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key
