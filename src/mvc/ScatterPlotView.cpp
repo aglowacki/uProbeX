@@ -55,6 +55,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
     //setRenderHint(QPainter::Antialiasing);
     _scatter_series = new QScatterSeries();
+    _scatter_series->setColor(QColor(Qt::blue));
     QString marker_shape = Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString();
     if (marker_shape == "Circle")
     {
@@ -65,7 +66,8 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     }
     
-    _scatter_series->setColor(QColor(Qt::blue));
+    setBlackBackground(Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool());
+    _scatter_series->setBorderColor(Qt::transparent);
     _scatter_series->setMarkerSize(1.0);
     //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);
@@ -339,11 +341,20 @@ void ScatterPlotView::_updateNames()
 
         _cb_roi->clear();
         _cb_roi->addItem(" ");
+        int itemAmt = 0;
         for (auto& itr : rois)
         {
             _cb_roi->addItem(QString(itr.first.c_str()));
+            itemAmt++;
         }
-
+        if(itemAmt == 0)
+        {
+            _cb_roi->setEnabled(false);
+        }
+        else
+        {
+            _cb_roi->setEnabled(true);
+        }
         std::vector<std::string> map_names;
         _model->generateNameLists(_curAnalysis, map_names);
         QString xSavedName = _cb_x_axis_element->currentText();
@@ -523,7 +534,7 @@ void ScatterPlotView::_updatePlot()
 
             double corr_coef = find_coefficient(x_arr, y_arr);
             _lb_corr_coef->setText(QString::number(corr_coef));
-
+            _scatter_series->setBorderColor(Qt::transparent);
             _chart->addSeries(_scatter_series);
 
             _axisX->setTitleText(_cb_x_axis_element->currentText());

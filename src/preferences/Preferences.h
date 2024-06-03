@@ -67,7 +67,9 @@
 #define STR_PRF_ScatterPlot_NumWindows "ScatterPlot_NumWindows"
 #define STR_PRF_ScatterPlot_Log10 "ScatterPlot_Log10"
 #define STR_PFR_MARKER_SHAPE "ScatterPlotMarkerShape"
+#define STR_PFR_SCATTER_DARK_BACKGROUND "ScatterPlotDarkBackground"
 #define STR_PRF_ScatterPlot_GridLines "ScatterPlotGridLines"
+#define STR_PRF_ScatterPlot_Size "ScatterPlotSize"
 #define STR_DEFAULT "Default"
 #define STR_PRF_SHOW_DATASET_ON_FILE_SELECT "ShowDatasetOnFileSelect" // if you select file name on left side, it will change the current viewed dataset to that if it is loaded
 #define STR_SEARCH_SUB_DIR_FOR_DATASETS "SearchSubDirForDatasets"
