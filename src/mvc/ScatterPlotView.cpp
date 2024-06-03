@@ -208,12 +208,12 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                 out_stream << "X Axis Name: " << _cb_x_axis_element->currentText().toStdString() << "\n";
                 out_stream << "Y Axis Name: " << _cb_y_axis_element->currentText().toStdString() << "\n";
                 out_stream << "Units: Cts/s\n";
-                out_stream << "Rows: " << x_map.rows() << "\n";
-                out_stream << "Cols: " << x_map.cols() << "\n";
-                out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n";
                 if (rois.count(roi_name.toStdString()) > 0)
                 {
                     Map_ROI map_roi = rois.at(roi_name.toStdString());
+                    out_stream << "Num Points: " << map_roi.pixel_list.size() << "\n";
+                    out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n";
+                    
                     for (auto& itr : map_roi.pixel_list)
                     {
                         out_stream << itr.first << "," << itr.second << "," << x_map(itr.second, itr.first) << "," << y_map(itr.second, itr.first) << "," << x_motor[itr.first] << ","<< y_motor[itr.second]<< "\n";
@@ -221,6 +221,10 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                 }
                 else
                 {
+                    out_stream << "Rows: " << x_map.rows() << "\n";
+                    out_stream << "Cols: " << x_map.cols() << "\n";
+                    out_stream << "Num Points: " << x_map.rows() * x_map.cols()  << "\n";
+                    out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n"; 
                     for (int y = 0; y < x_map.rows(); y++)
                     {
                         for (int x = 0; x < x_map.cols(); x++)
