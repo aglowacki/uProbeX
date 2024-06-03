@@ -155,7 +155,7 @@ void ScatterPlotView::exportPngCsv()
         QString apath;
         if (roi_name.length() > 0)
         {
-            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _cb_roi->currentText() + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + roi_name + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
         }
         else
         {
@@ -186,8 +186,12 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
 {
     if (_model != nullptr)
     {
+        const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
         data_struct::ArrayXXr<float> x_map;
         data_struct::ArrayXXr<float> y_map;
+        std::vector<float> x_motor = _model->get_x_axis();
+        std::vector<float> y_motor = _model->get_y_axis();
+        QString roi_name = _cb_roi->currentText(); 
         if (_getXY_Maps(x_map, y_map))
         {
             std::ofstream out_stream(filePath.toStdString());
@@ -195,16 +199,32 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
             {
                 out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
                 out_stream << "Analysis Type: " << _curAnalysis.toStdString() << "\n";
+                if (roi_name.length() > 0)
+                {
+                    out_stream << "ROI Name: " << roi_name.toStdString() << "\n";
+                }
                 out_stream << "X Axis Name: " << _cb_x_axis_element->currentText().toStdString() << "\n";
                 out_stream << "Y Axis Name: " << _cb_y_axis_element->currentText().toStdString() << "\n";
+                out_stream << "Units: Cts/s\n";
                 out_stream << "Rows: " << x_map.rows() << "\n";
                 out_stream << "Cols: " << x_map.cols() << "\n";
-                out_stream << "X Index, Y Index, X Value, Y Value \n";
-                for (int y = 0; y < x_map.rows(); y++)
+                out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n";
+                if (rois.count(roi_name.toStdString()) > 0)
                 {
-                    for (int x = 0; x < x_map.cols(); x++)
+                    Map_ROI map_roi = rois.at(roi_name.toStdString());
+                    for (auto& itr : map_roi.pixel_list)
                     {
-                        out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "\n";
+                        out_stream << itr.first << "," << itr.second << "," << x_map(itr.second, itr.first) << "," << y_map(itr.second, itr.first) << "," << x_motor[itr.first] << ","<< y_motor[itr.second]<< "\n";
+                    }
+                }
+                else
+                {
+                    for (int y = 0; y < x_map.rows(); y++)
+                    {
+                        for (int x = 0; x < x_map.cols(); x++)
+                        {
+                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << x_motor[x] << ","<< y_motor[y]<< "\n";
+                        }
                     }
                 }
             }

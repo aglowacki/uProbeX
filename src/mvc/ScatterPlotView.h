@@ -64,7 +64,6 @@ public slots:
     void onNameChange(QString);
 
 private:
-
     bool _getXY_Maps(data_struct::ArrayXXr<float>& x_map, data_struct::ArrayXXr<float>& y_map);
 
     void _updateNames();
