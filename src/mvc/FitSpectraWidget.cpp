@@ -218,9 +218,9 @@ void FitSpectraWidget::createLayout()
     _fit_params_tab_widget->addTab(element_widget, "Fit Elements");
 
     _cb_opttimizer = new QComboBox();
+    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     _cb_opttimizer->addItem(STR_LM_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
-    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     connect(_cb_opttimizer, &QComboBox::currentTextChanged, this, &FitSpectraWidget::optimizer_changed);
 
     _chk_auto_model = new QCheckBox("Auto Update Model");
