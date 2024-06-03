@@ -215,6 +215,15 @@ void ScatterPlotWidget::setAnalysisType(QString name)
     }
 }
 
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::setQuantType(QString name)
+{
+    for (auto& itr : _plot_view_list)
+    {
+        itr->setQuantType(name);
+    }
+}
 
 //---------------------------------------------------------------------------
 

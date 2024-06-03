@@ -41,6 +41,8 @@ public:
 
     void setAnalysisType(QString curAnalysis);
 
+    void setQuantType(QString curAnalysis);
+
     void updateMarkerSize(qreal val);
 
     void setLog10(int val);
@@ -98,6 +100,8 @@ private:
 
     QString _curAnalysis;
 
+    QString _curQuant;
+    
     bool _display_log10;
 
     MapsH5Model* _model;

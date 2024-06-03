@@ -18,6 +18,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
     _model = nullptr;
     _curAnalysis = QString(STR_FIT_NNLS.c_str());
+    _curQuant = QString("1");
 
     _axisXLog10 = new QLogValueAxis();
     _axisXLog10->setTitleText("");
@@ -157,11 +158,11 @@ void ScatterPlotView::exportPngCsv()
         QString apath;
         if (roi_name.length() > 0)
         {
-            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + roi_name + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _curQuant + "_" + roi_name + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
         }
         else
         {
-            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _curQuant + "_" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
         }
         QString png_path = QDir::cleanPath(apath + ".png");
         if (false == pixmap.save(png_path, "PNG"))
@@ -201,6 +202,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
             {
                 out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
                 out_stream << "Analysis Type: " << _curAnalysis.toStdString() << "\n";
+                out_stream << "Quantification Type: " << _curQuant.toStdString() << "\n";
                 if (roi_name.length() > 0)
                 {
                     out_stream << "ROI Name: " << roi_name.toStdString() << "\n";
@@ -337,6 +339,13 @@ void ScatterPlotView::setAnalysisType(QString name)
 
 //---------------------------------------------------------------------------
 
+void ScatterPlotView::setQuantType(QString name)
+{
+    _curQuant = name;
+}
+
+//---------------------------------------------------------------------------
+
 void ScatterPlotView::_updateNames()
 {
     if (_model != nullptr)
@@ -429,7 +438,10 @@ bool ScatterPlotView::_getXY_Maps(data_struct::ArrayXXr<float> &x_map, data_stru
         std::string yName = _cb_y_axis_element->currentText().toStdString();
 
         data_struct::Fit_Count_Dict<float> fit_counts;
-        _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        if(false == _model->getAnalyzedQuantified(_curAnalysis.toStdString(), _curQuant.toStdString(), fit_counts))
+        {
+            _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        }
         std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
 
         int xCnt = fit_counts.count(xName);

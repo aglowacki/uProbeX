@@ -50,7 +50,7 @@ void MapsH5Model::clear_analyzed_counts()
 
 /*---------------------------------------------------------------------------*/
 
-void MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts)
+bool MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_counts.clear();
@@ -61,11 +61,58 @@ void MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_
         {
             out_counts[itr.first] = itr.second;
         }
-
+        return true;
     }
+    return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::getAnalyzedQuantified(std::string analysis_type, std::string quant_type, data_struct::Fit_Count_Dict<float>& out_counts)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    out_counts.clear();
+    std::unordered_map<std::string, Calibration_curve<double> > *calib_map = nullptr;
+    if(analysis_type.length() > 0 && quant_type.length() > 0 && _analyzed_counts.count(analysis_type) > 0 && _scalers.count(quant_type) > 0)
+    {
+        if (analysis_type == STR_FIT_NNLS)
+        {
+            calib_map = &_quant_map_nnls;
+        }
+        else if(analysis_type == STR_FIT_GAUSS_MATRIX)
+        {
+            calib_map = &_quant_map_matrix;
+        }
+        else
+        {
+            return false;
+        }
+        if(calib_map->count(quant_type) > 0)
+        {
+            // get scaler quant type
+            auto calib = calib_map->at(quant_type).calib_curve;
+            auto quant_scaler = _scalers.at(quant_type);
+            for (const auto& itr : *(_analyzed_counts[analysis_type]))
+            {
+                if(calib.count(itr.first) > 0)
+                {
+                    out_counts[itr.first] = itr.second / quant_scaler/ calib.at(itr.first);
+                    float min_coef = out_counts.at(itr.first).minCoeff();
+                    out_counts[itr.first] = out_counts.at(itr.first).unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
+                }
+                else
+                {
+                    out_counts[itr.first] = itr.second;  
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+//---------------------------------------------------------------------------
 
 std::vector<std::string> MapsH5Model::count_names()
 {

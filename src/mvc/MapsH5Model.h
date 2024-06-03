@@ -122,7 +122,9 @@ public:
     bool is_fully_loaded() { return _is_fully_loaded; }
 
     //data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
-    void getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts);
+    bool getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts);
+
+    bool getAnalyzedQuantified(std::string analysis_type, std::string quant_type, data_struct::Fit_Count_Dict<float>& out_counts);
 
     //const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
     void getIntegratedSpectra(data_struct::Spectra<double>& out_spectra);

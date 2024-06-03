@@ -865,6 +865,8 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         
     }
 
+    _scatter_plot_widget->setQuantType(name);
+
     redrawCounts();
 }
 
