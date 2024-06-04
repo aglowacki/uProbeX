@@ -76,8 +76,6 @@ public:
         if (_proc_matrix->isChecked())
         {
             analysis_job.fitting_routines.push_back(data_struct::Fitting_Routines::GAUSS_MATRIX);
-            
-            analysis_job.optimizer()->set_options({ { STR_OPT_STEP, (T_real)0.1 } });
         }
 
         if (_save_avg->isChecked())
