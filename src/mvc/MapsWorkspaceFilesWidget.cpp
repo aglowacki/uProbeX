@@ -91,17 +91,6 @@ void MapsWorkspaceFilesWidget::createLayout()
     _vlm_tab_widget->appendFilterHelpAction(tiff_file);
     _vlm_tab_widget->appendFilterHelpAction(tif_file);
 
-    _fit_params_table_model = new FitParamsTableModel();
-    ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
-
-    /*
-    _fit_params_table = new QTableView();
-    _fit_params_table->setModel(_fit_params_table_model);
-    //_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //_fit_params_table->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
-    _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
-    */
     QLayout* vlayout = new QVBoxLayout();
 
     _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
@@ -122,7 +111,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
         disconnect(_model, &MapsWorkspaceModel::doneLoadingVLM, this, &MapsWorkspaceFilesWidget::updatedVLM);
         disconnect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
         disconnect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
-        disconnect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
+        //disconnect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
 	}
 	
 	_model = model;
@@ -146,7 +135,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
         connect(_model, &MapsWorkspaceModel::doneLoadingImgDat, this, &MapsWorkspaceFilesWidget::updatedHDF);
         connect(_model, &MapsWorkspaceModel::doneLoadingROIS, this, &MapsWorkspaceFilesWidget::updateROIS);
         connect(_model, &MapsWorkspaceModel::doneUnloading, this, &MapsWorkspaceFilesWidget::clearLists);
-        connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
+        //connect(_model, &MapsWorkspaceModel::newFitParamsFileLoaded, this, &MapsWorkspaceFilesWidget::loadedFitParams);
         connect(_h5_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_analyzed);
         connect(_vlm_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_vlm);
         connect(_mda_tab_widget, &FileTabWidget::onRefresh, _model, &MapsWorkspaceModel::reload_raw);
@@ -204,20 +193,6 @@ void MapsWorkspaceFilesWidget::update_roi_num(QString name, int val)
 {
     _h5_tab_widget->set_roi_num(name, val);
     _mda_tab_widget->set_roi_num(name, val);
-}
-
-//---------------------------------------------------------------------------
-
-void MapsWorkspaceFilesWidget::loadedFitParams(int idx)
-{
-    if(idx == -1) //avg fit params
-    {
-        data_struct::Fit_Parameters<double>* fit_params = _model->getFitParameters(idx);
-        if(fit_params != nullptr)
-        {
-            _fit_params_table_model->setFitParams(*fit_params);
-        }
-    }
 }
 
 /*---------------------------------------------------------------------------*/
