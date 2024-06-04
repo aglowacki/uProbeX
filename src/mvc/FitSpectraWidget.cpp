@@ -143,7 +143,7 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(3, npDelegate);
     _fit_params_table->setItemDelegateForColumn(4, npDelegate);
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
-    _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table,
             SIGNAL(customContextMenuRequested(QPoint)),
@@ -252,6 +252,8 @@ void FitSpectraWidget::createLayout()
 	splitter->addWidget(_spectra_dock);
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
+
+    optimizer_changed(STR_HYBRID_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
