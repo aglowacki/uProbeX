@@ -12,7 +12,8 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QRegularExpression>
-
+#include <preferences/Preferences.h>
+#include "core/defines.h"
 /*---------------------------------------------------------------------------*/
 
 FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
@@ -28,13 +29,14 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     _action_refresh = _contextMenu->addAction("Refresh");
     connect(_action_refresh, SIGNAL(triggered()), this, SIGNAL(onRefresh()));
 
-    _file_list_model = new QStandardItemModel();
-    _file_list_view = new QListView();
+    _file_list_model = new FileTableModel();
+    _file_list_view = new QTableView();
    // _file_list_view->setViewMode(QListView::IconMode);
     _file_list_view->setModel(_file_list_model);
     _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _file_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
     _file_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
+    _file_list_view->setSortingEnabled(true);
 
     // if preferences saves on select changes loaded dataset
     connect(_file_list_view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &FileTabWidget::onFileRowChange);
@@ -97,8 +99,8 @@ void FileTabWidget::_gen_visible_list(QStringList *sl)
     {
         if(false == _file_list_view->isRowHidden(i))
         {
-            QStandardItem *val = _file_list_model->item(i, 0);
-            sl->append(val->text());
+            auto val = _file_list_model->item(i);
+            sl->append(val.text);
         }
     }
 }
@@ -163,25 +165,78 @@ void FileTabWidget::unload_all()
 
 void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
+    double divisor = 1;
+    switch(Preferences::inst()->getValue(STR_PRF_FILE_SIZE).toInt())
+    {
+        case 0:
+            break;
+        case 1: 
+            divisor = 1024;
+            break;
+        case 2: 
+            divisor = 1024*1024;
+            break;
+        case 3: 
+            divisor = 1024*1024*1024;
+            break;
+        default:
+            break;
+    }
+
 	_file_list_model->clear();
     for(auto & itr : fileinfo_list)
     {
-        _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr.first));
+        _file_list_model->appendRow( RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));       
     }
+
+    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget::set_roi_num_list(const std::map<QString, int>& roi_num_map)
+{
+    _file_list_model->update_roi_num(roi_num_map);
+}
+
+//---------------------------------------------------------------------------
+
+void FileTabWidget::set_roi_num(QString name, int val)
+{
+    _file_list_model->update_single_roi_num(name, val);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
+    double divisor = 1;
+    switch(Preferences::inst()->getValue(STR_PRF_FILE_SIZE).toInt())
+    {
+        case 0:
+            break;
+        case 1: 
+            divisor = 1024;
+            break;
+        case 2: 
+            divisor = 1024*1024;
+            break;
+        case 3: 
+            divisor = 1024*1024*1024;
+            break;
+        default:
+            break;
+    }
+
     int rows = _file_list_model->rowCount();
     for (const auto& itr : fileinfo_list)
     {
         bool found = false;
         for(int i=0; i<rows; i++)
         {
-            QStandardItem* item = _file_list_model->item(i);
-            if (item->text() == itr.first)
+            auto item = _file_list_model->item(i);
+            if (item.text == itr.first)
             {
                 found = true;
                 break;
@@ -190,9 +245,12 @@ void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinf
 
         if (false == found)
         {
-            _file_list_model->appendRow(new QStandardItem(QIcon(":/images/circle_gray.png"), itr.first));
+            _file_list_model->appendRow(RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));
         }
     }
+
+    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -209,7 +267,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
     if (_load_all_btn->isEnabled())
     {
         QStringList sl;
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
         emit loadList(sl);
     }
 }
@@ -219,6 +277,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 void FileTabWidget::setActionsAndButtonsEnabled(bool val)
 {
     _load_all_btn->setEnabled(val);
+    _file_list_view->setEnabled(val);
     _unload_all_btn->setEnabled(val);
     _action_load->setEnabled(val);
     _action_unload->setEnabled(val);
@@ -242,7 +301,7 @@ void FileTabWidget::onLoadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     emit loadList(sl);
 }
@@ -258,7 +317,7 @@ void FileTabWidget::onUnloadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     emit unloadList(sl);
 
@@ -271,13 +330,20 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
     _filter_line->setText(filter_text);
     if(filter_text.length() > 0)
     {
-        QRegularExpression re (QRegularExpression::wildcardToRegularExpression(filter_text));
+        // if not strict then prepend and append '*'
+        QString filter_t = filter_text;
+        if(false == Preferences::inst()->getValue(STR_PRF_STRICT_REGEX).toBool())
+        {
+            filter_t.prepend('*');
+            filter_t.append('*');
+        }
+        QRegularExpression re (QRegularExpression::wildcardToRegularExpression(filter_t));
      
         for(int i=0; i < _file_list_model->rowCount(); i++)
         {
             _file_list_view->setRowHidden(i, true);
-            QStandardItem *val = _file_list_model->item(i, 0);
-            QRegularExpressionMatchIterator j = re.globalMatch(val->text());
+            auto val = _file_list_model->item(i);
+            QRegularExpressionMatchIterator j = re.globalMatch(val.text);
             if (j.hasNext())
             {
                 _file_list_view->setRowHidden(i, false);
@@ -297,27 +363,7 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
 
 void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const QString& filename)
 {
-    for(int i=0; i < _file_list_model->rowCount(); i++)
-    {
-        QStandardItem *val = _file_list_model->item(i, 0);
-        if(filename == val->text())
-        {
-            switch(status)
-            {
-            case UNLOADED:
-                val->setIcon(QIcon(":/images/circle_gray.png"));
-                break;
-            case LOADED:
-                val->setIcon(QIcon(":/images/circle_green.png"));
-                break;
-            case FAILED_LOADING:
-                val->setIcon(QIcon(":/images/circle_red.png"));
-                break;
-            }
-            break;
-        }
-    }
-
+    _file_list_model->updateStatus(status, filename);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -351,7 +397,7 @@ void FileTabWidget::onCustomContext()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(idx.data(0).toString());
+        sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     QAction *act = qobject_cast<QAction *>(sender());
     QVariant v = act->data();

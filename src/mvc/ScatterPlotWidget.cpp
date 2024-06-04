@@ -40,7 +40,7 @@ void ScatterPlotWidget::_createLayout()
     int num_wins = Preferences::inst()->getValue(STR_PRF_ScatterPlot_NumWindows).toInt();
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
-    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool();
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool();
     
     _ck_display_log10 = new QCheckBox("Display log10");
     _ck_display_log10->setChecked(_display_log10);
@@ -107,6 +107,13 @@ void ScatterPlotWidget::_createLayout()
     _mainlayout->addItem(_subPlotLayout);
     _mainlayout->addItem(_options_layout);
 
+
+    setGridLinesVisible(Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool());
+    setBlackBackground(Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool());
+    set_log10(Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool());
+    updateMarkerSize(Preferences::inst()->getValue(STR_PRF_ScatterPlot_Size).toInt());
+    onShapeChange(Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString());
+
     setLayout(_mainlayout);
 
 }
@@ -117,7 +124,7 @@ void ScatterPlotWidget::onAdd()
 {
     bool _display_log10 = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Log10).toBool();
     bool display_gird_lines = Preferences::inst()->getValue(STR_PRF_ScatterPlot_GridLines).toBool();
-    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool();
+    bool dark_theme = Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool();
     
     _plot_view_list.push_back(new ScatterPlotView(_display_log10, dark_theme, this));
     int idx = _plot_view_list.size() - 1;
@@ -127,6 +134,11 @@ void ScatterPlotWidget::onAdd()
 
     update();
     _plot_view_list[idx]->show();
+
+
+    //updateMarkerSize(Preferences::inst()->getValue(STR_PRF_ScatterPlot_Size).toInt());
+    //onShapeChange(Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString());
+
     Preferences::inst()->setValue(STR_PRF_ScatterPlot_NumWindows, (int)_plot_view_list.size());
 }
 
@@ -176,16 +188,21 @@ void ScatterPlotWidget::setBlackBackground(int val)
     {
         itr->setBlackBackground(val);
     }
+
+    Preferences::inst()->setValue(STR_PFR_SCATTER_DARK_BACKGROUND, val);
 }
 
 //---------------------------------------------------------------------------
 
 void ScatterPlotWidget::updateMarkerSize(int val)
 {
+    val = std::min(val, 1);
     for (auto& itr : _plot_view_list)
     {
         itr->updateMarkerSize(val);
     }
+
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_Size, val);
 }
 
 //---------------------------------------------------------------------------
@@ -198,6 +215,15 @@ void ScatterPlotWidget::setAnalysisType(QString name)
     }
 }
 
+//---------------------------------------------------------------------------
+
+void ScatterPlotWidget::setQuantType(QString name)
+{
+    for (auto& itr : _plot_view_list)
+    {
+        itr->setQuantType(name);
+    }
+}
 
 //---------------------------------------------------------------------------
 
@@ -222,7 +248,8 @@ void ScatterPlotWidget::set_log10(int val)
     {
         itr->setLog10(val);
     }
-    
+
+    Preferences::inst()->setValue(STR_PRF_ScatterPlot_Log10, val);
 }
 
 //---------------------------------------------------------------------------

@@ -20,10 +20,9 @@
 #include <QPushButton>
 #include "FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
+#include <mvc/FileTableModel.h>
 
 /*---------------------------------------------------------------------------*/
-
-enum File_Loaded_Status {UNLOADED, LOADED, FAILED_LOADING};
 
 /*---------------------------------------------------------------------------*/
 
@@ -38,6 +37,10 @@ class FileTabWidget : public QWidget
     ~FileTabWidget(){}
 
     void set_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
+
+    void set_roi_num_list(const std::map<QString, int>& roi_num_map);
+
+    void set_roi_num(QString name, int val);
 
     void update_file_list(const std::map<QString, QFileInfo>& fileinfo_list);
 
@@ -103,9 +106,9 @@ protected:
 
     void _gen_visible_list(QStringList *sl);
 
-    QListView* _file_list_view;
+    QTableView* _file_list_view;
 
-    QStandardItemModel* _file_list_model;
+    FileTableModel* _file_list_model;
 
     QMenu *_contextMenu;
 

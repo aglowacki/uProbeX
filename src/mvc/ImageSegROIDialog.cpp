@@ -11,9 +11,11 @@
 #include <QIcon>
 #include <QGridLayout>
 #include <opencv2/core/eigen.hpp>
+//#include <opencv2/ximgproc/scansegment.hpp> // out in version 4.10
 
 //---------------------------------------------------------------------------
 static const QString STR_KMEANS = QString("KMeans");
+static const QString STR_DBSCAN = QString("DBSCAN");
 static const QString STR_MANUAL = QString("Manual");
 
 const int TAB_KMEANS = 0;
@@ -47,6 +49,7 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	_color_map.insert({ 15, QColor(Qt::black) });
 	
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
+	_layout_map[STR_DBSCAN] = _createDBScanLayout();
 	_layout_map[STR_MANUAL] = _createManualLayout();
 	_next_color = 0;
     createLayout();
@@ -293,6 +296,84 @@ QWidget* ImageSegRoiDialog::_createKMeansLayout()
 
 //---------------------------------------------------------------------------
 
+QWidget* ImageSegRoiDialog::_createDBScanLayout()
+{
+	QVBoxLayout* layout = new QVBoxLayout();
+/*
+	QLabel* label = new QLabel("Number of Features:");
+	_km_nfeatures = new QLineEdit();
+	_km_nfeatures->setValidator(new QIntValidator(0, 10, this));
+	_km_nfeatures->setText("2");
+
+	QHBoxLayout* hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_nfeatures);
+	layout->addItem(hlayout);
+
+	label = new QLabel("Term Criteria:");
+	_km_TermCriteria = new QComboBox();
+	_km_TermCriteria->addItem("COUNT");
+	_km_TermCriteria->addItem("EPS"); 
+	_km_TermCriteria->addItem("COUNT + EPS");
+	_km_TermCriteria->setCurrentIndex(2); // default to EPS
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_TermCriteria);
+	layout->addItem(hlayout);
+
+	label = new QLabel("Centers:");
+	_km_Centers = new QComboBox();
+	_km_Centers->addItem("Random");
+	_km_Centers->addItem("PP");
+	_km_Centers->setCurrentIndex(0); // default to Random
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_Centers);
+	layout->addItem(hlayout);
+	
+	label = new QLabel("Attempts:");
+	_km_attempts = new QLineEdit();
+	_km_attempts->setValidator(new QIntValidator(0, 100, this));
+	_km_attempts->setText("3");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_attempts);
+	layout->addItem(hlayout);
+
+	label = new QLabel("MAX_Iter");
+	_km_le_MAX_ITER = new QLineEdit();
+	_km_le_MAX_ITER->setValidator(new QIntValidator(0, 10000, this));
+	_km_le_MAX_ITER->setText("10");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_le_MAX_ITER);
+	layout->addItem(hlayout);
+
+	label = new QLabel("Epsilon");
+	_km_le_epsilon = new QLineEdit();
+	_km_le_epsilon->setValidator(new QDoubleValidator());
+	_km_le_epsilon->setText("1.0");
+
+	hlayout = new QHBoxLayout();
+	hlayout->addWidget(label);
+	hlayout->addWidget(_km_le_epsilon);
+	layout->addItem(hlayout);
+	
+	_runBtn = new QPushButton("Run");
+	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
+	layout->addWidget(_runBtn);
+*/
+	QWidget* widget = new QWidget();
+	widget->setLayout(layout);
+	return widget;
+}
+
+//---------------------------------------------------------------------------
+
 QWidget* ImageSegRoiDialog::_createManualLayout()
 {
 	QHBoxLayout* hlayout;
@@ -349,6 +430,7 @@ void ImageSegRoiDialog::createLayout()
 {
 	_techTabs = new QTabWidget();
 	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
+	_techTabs->addTab(_layout_map[STR_DBSCAN], STR_DBSCAN);
 	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
 	_techTabs->setEnabled(false);
 	connect(_techTabs, &QTabWidget::currentChanged, this, &ImageSegRoiDialog::onTabChanged);
@@ -458,7 +540,7 @@ void ImageSegRoiDialog::onRun()
 		}
 		catch (std::exception& e)
 		{
-			QMessageBox::critical(nullptr, "PythonRegionCaller Error", e.what());
+			QMessageBox::critical(nullptr, "ImageSegROIDialog Error", e.what());
 			_acceptBtn->setEnabled(true);
 			return;
 		}
@@ -477,6 +559,14 @@ void ImageSegRoiDialog::onRun()
 			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
 			_int_img_widget->addRoiMask(roi);
 		}
+	}
+	else if(_techTabs->currentIndex() == 1) // DBSCAN
+	{
+		/*
+		int slices=8;
+		bool merge_small=true;
+		cv::Ptr< cv::ximgproc::ScanSegment > scanSeg = cv::ximgproc::createScanSegment(int_img.cols(), int_img.rows(), 1, slices=8, merge_small);
+		*/
 	}
 	_acceptBtn->setEnabled(true);
 }

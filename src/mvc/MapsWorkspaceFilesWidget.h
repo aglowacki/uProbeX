@@ -67,31 +67,33 @@ signals:
 
 public slots:
 
-    void updatedMDA();
+   void updatedMDA();
 
-    void updatedVLM();
+   void updatedVLM();
 
-    void updatedHDF();
+   void updatedHDF();
 
-    void clearLists();
+   void updateROIS();
 
-    void loadedFitParams(int idx);
- 
-    void onOpenModel(const QStringList& names_list, MODEL_TYPE mt);
+   void update_roi_num(QString, int);
 
-    void onCloseModel(const QStringList& names_list, MODEL_TYPE mt);
+   void clearLists();
 
-    void onCustomContext(const QString& context_label, const QStringList& file_list);
+   void onOpenModel(const QStringList& names_list, MODEL_TYPE mt);
 
-    void onPerPixelProcessList(const QStringList& file_list);
+   void onCloseModel(const QStringList& names_list, MODEL_TYPE mt);
 
-    void onPerPixelProcessListAnalyzed(const QStringList& file_list);
-    
-    void onBatchRoiList(const QStringList& file_list);
+   void onCustomContext(const QString& context_label, const QStringList& file_list);
 
-    void onProcessed_list_update(QStringList file_list);
+   void onPerPixelProcessList(const QStringList& file_list);
 
-    void onDatasetSelected(const QString name);
+   void onPerPixelProcessListAnalyzed(const QStringList& file_list);
+
+   void onBatchRoiList(const QStringList& file_list);
+
+   void onProcessed_list_update(QStringList file_list);
+
+   void onDatasetSelected(const QString name);
 
 protected:
 
@@ -113,10 +115,6 @@ private:
    QLabel* _lbl_workspace;
 
    MapsWorkspaceModel* _model;
-
-   QTableView* _fit_params_table;
-
-   FitParamsTableModel* _fit_params_table_model;
 
    PerPixelFitWidget* _per_pixel_fit_widget;
 

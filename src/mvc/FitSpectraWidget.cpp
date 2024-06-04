@@ -143,7 +143,7 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(3, npDelegate);
     _fit_params_table->setItemDelegateForColumn(4, npDelegate);
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
-    _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table,
             SIGNAL(customContextMenuRequested(QPoint)),
@@ -218,9 +218,9 @@ void FitSpectraWidget::createLayout()
     _fit_params_tab_widget->addTab(element_widget, "Fit Elements");
 
     _cb_opttimizer = new QComboBox();
+    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     _cb_opttimizer->addItem(STR_LM_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
-    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     connect(_cb_opttimizer, &QComboBox::currentTextChanged, this, &FitSpectraWidget::optimizer_changed);
 
     _chk_auto_model = new QCheckBox("Auto Update Model");
@@ -252,6 +252,8 @@ void FitSpectraWidget::createLayout()
 	splitter->addWidget(_spectra_dock);
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
+
+    optimizer_changed(STR_HYBRID_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);

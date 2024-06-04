@@ -41,6 +41,8 @@ public:
 
     void setAnalysisType(QString curAnalysis);
 
+    void setQuantType(QString curAnalysis);
+
     void updateMarkerSize(qreal val);
 
     void setLog10(int val);
@@ -64,7 +66,6 @@ public slots:
     void onNameChange(QString);
 
 private:
-
     bool _getXY_Maps(data_struct::ArrayXXr<float>& x_map, data_struct::ArrayXXr<float>& y_map);
 
     void _updateNames();
@@ -99,6 +100,8 @@ private:
 
     QString _curAnalysis;
 
+    QString _curQuant;
+    
     bool _display_log10;
 
     MapsH5Model* _model;

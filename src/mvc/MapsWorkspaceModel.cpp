@@ -129,7 +129,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _vlm_suffex.append("tif");
     _vlm_suffex.append("tiff");
 
-    _all_roi_suffex.append("roi");
+    _all_roi_suffex.append("r0i");
 
     _all_region_links_suffex.append("tif");
 }
@@ -237,7 +237,6 @@ void MapsWorkspaceModel::load(QString filepath)
                         case 4:
                             _is_rois_loaded = itr.second.get();
                             to_delete.push_back(itr.first);
-                            //emit doneLoadingImgDat();
                             break;
                         default:
                             to_delete.push_back(itr.first);
@@ -248,9 +247,11 @@ void MapsWorkspaceModel::load(QString filepath)
                 for (const auto& itr : to_delete)
                 {
                     job_queue.erase(itr);
-                }
-
+                }   
             }
+            // wait for all datasets to finish loading and then update roi's
+            _roi_files_to_num();
+            emit doneLoadingROIS();
         }
     }
     catch (std::string& s)
@@ -295,7 +296,7 @@ void MapsWorkspaceModel::reload_vlm()
 void MapsWorkspaceModel::reload_roi()
 {
     _roi_fileinfo_list.clear();
-    get_filesnames_in_directory(*_dir, "rois", _vlm_suffex, &_roi_fileinfo_list, check_roi, false);
+    get_filesnames_in_directory(*_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi, false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -660,4 +661,28 @@ data_struct::Fit_Element_Map_Dict<double>* MapsWorkspaceModel::getElementToFit(i
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceModel::_roi_files_to_num()
+{
+    for(auto itr : _roi_fileinfo_list)
+    {
+        _roi_count_map[itr.second.baseName()] = 0;
+        QFile roiFile(itr.second.absoluteFilePath());
+        if (!roiFile.open(QIODevice::ReadOnly))
+        {
+            continue;
+        }
+
+        QJsonObject rootJson = QJsonDocument::fromJson(roiFile.readAll()).object();
+        roiFile.close();
+
+        if (rootJson.contains(STR_MAPS_ROIS.c_str()) && rootJson[STR_MAPS_ROIS.c_str()].isArray())
+        {
+            QJsonArray rois = rootJson[STR_MAPS_ROIS.c_str()].toArray();
+            _roi_count_map[itr.second.baseName()] = rois.size();
+        }
+    }
+}
+
+//---------------------------------------------------------------------------

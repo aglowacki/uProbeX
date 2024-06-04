@@ -35,6 +35,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 {
     
     _model = nullptr;
+    _roi_stats_diag = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
 	_min_contrast_perc = 0;
@@ -426,11 +427,20 @@ void MapsElementsWidget::_appendRoiTab()
         SLOT(roiTreeDoubleClicked(const QModelIndex&)));
         */
     //infoLayout->addWidget(m_annotationToolbar->getToolBar());
+
+    QHBoxLayout *roi_button_layout = new QHBoxLayout();
+
     QVBoxLayout* roiVbox = new QVBoxLayout();
     _btn_roi_img_seg = new QPushButton("ROI Dialog");
     connect(_btn_roi_img_seg, &QPushButton::released, this, &MapsElementsWidget::openImageSegDialog);
 
-    roiVbox->addWidget(_btn_roi_img_seg);
+    _btn_roi_stats = new QPushButton("ROI Statistics");
+    connect(_btn_roi_stats, &QPushButton::released, this, &MapsElementsWidget::openRoiStatsWidget);
+
+    roi_button_layout->addWidget(_btn_roi_img_seg);
+    roi_button_layout->addWidget(_btn_roi_stats);
+
+    roiVbox->addItem(roi_button_layout);
     roiVbox->addWidget(m_roiTreeView);
 
     m_roiTreeTabWidget = new QWidget(this);
@@ -616,6 +626,54 @@ void MapsElementsWidget::openImageSegDialog()
         _spectra_widget->deleteAllROISpectra();
 
         _img_seg_diag.show();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::openRoiStatsWidget()
+{
+    if (_model != nullptr)
+    {
+        if (_roi_stats_diag == nullptr)
+        {
+            _roi_stats_diag = new RoiStatisticsWidget();
+        }
+        _roi_stats_diag->clear_all();
+
+        std::string analysis_text = _cb_analysis->currentText().toStdString();
+
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        _model->getAnalyzedCounts(analysis_text, fit_counts);
+        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        if (scalers != nullptr)
+        {
+            for (auto& itr : *scalers)
+            {
+                fit_counts.insert(itr);
+            }
+        }
+        // add any roi's that were loaded.
+        std::vector<gstar::RoiMaskGraphicsItem*> roi_list;
+        QImage i;
+        QColor c;
+        gstar::RoiMaskGraphicsItem item(i, c, 0);
+        if (m_treeModel != nullptr)
+        {
+            m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
+        }
+
+        const std::vector<float> x_axis = _model->get_x_axis();
+        const std::vector<float> y_axis = _model->get_y_axis();
+
+        int xidx = x_axis.size() / 2;
+        int yidx = y_axis.size() / 2;
+
+        float sq_area = ((x_axis[xidx+1] - x_axis[xidx]) * (y_axis[yidx+1] - y_axis[yidx]));
+
+        _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), sq_area, fit_counts, roi_list, _normalizer, _calib_curve);
+
+        _roi_stats_diag->show();
     }
 }
 
@@ -807,6 +865,8 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         
     }
 
+    _scatter_plot_widget->setQuantType(name);
+
     redrawCounts();
 }
 
@@ -868,6 +928,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             {
                 int width = (int)m_imageViewWidget->scene()->width();
                 int height = (int)m_imageViewWidget->scene()->height();
+                logI<< "Loading roi: "<< itr.first<<"\n";
                 gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
                 if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
@@ -1738,16 +1799,16 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 
 void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list)
 {
-    _model->clearAllMapRois();
-    for (auto& itr : roi_list)
+    if (_model != nullptr)
     {
-        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
-        std::vector<std::pair<int, int>> pixel_list;
-        itr->to_roi_vec(pixel_list);
-        
-        data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
-        if (_model != nullptr)
+        _model->clearAllMapRois();
+
+        for (auto& itr : roi_list)
         {
+            insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
+            std::vector<std::pair<int, int>> pixel_list;
+            itr->to_roi_vec(pixel_list);
+            data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
             {
                 struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
@@ -1756,14 +1817,14 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
             }
         }
-    }
-    if (_model != nullptr)
-    {
+    
         _model->saveAllRoiMaps();
+    
+        //refresh roi's
+        _scatter_plot_widget->setModel(_model);
+        // update num rois in file widget
+        emit new_rois(_model->getDatasetName(), roi_list.size());
     }
-    //refresh roi's
-    _scatter_plot_widget->setModel(_model);
-
     _spectra_widget->replot_integrated_spectra(false);
     annoTabChanged(ROI_TAB);
     _img_seg_diag.clear_all_rois();

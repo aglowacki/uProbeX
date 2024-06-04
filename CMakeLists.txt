@@ -233,6 +233,9 @@ IF (MSVC)
                         ${CMAKE_THREAD_LIBS_INIT}
                         ws2_32.lib )
 ELSEIF (UNIX)
+  #IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  #  set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
+  #ENDIF()
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
 
     target_link_libraries (uProbeX PRIVATE

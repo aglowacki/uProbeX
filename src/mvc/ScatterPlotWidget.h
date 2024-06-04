@@ -47,6 +47,8 @@ public:
 
     void setAnalysisType(QString name);
 
+    void setQuantType(QString name);
+
 signals:
     void updateProgressBar(int, int);
 

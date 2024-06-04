@@ -18,6 +18,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
     _model = nullptr;
     _curAnalysis = QString(STR_FIT_NNLS.c_str());
+    _curQuant = QString("1");
 
     _axisXLog10 = new QLogValueAxis();
     _axisXLog10->setTitleText("");
@@ -55,6 +56,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
     //setRenderHint(QPainter::Antialiasing);
     _scatter_series = new QScatterSeries();
+    _scatter_series->setColor(QColor(Qt::blue));
     QString marker_shape = Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString();
     if (marker_shape == "Circle")
     {
@@ -65,7 +67,8 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         _scatter_series->setMarkerShape(QScatterSeries::MarkerShapeRectangle);
     }
     
-    _scatter_series->setColor(QColor(Qt::blue));
+    setBlackBackground(Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool());
+    _scatter_series->setBorderColor(Qt::transparent);
     _scatter_series->setMarkerSize(1.0);
     //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);
@@ -155,11 +158,11 @@ void ScatterPlotView::exportPngCsv()
         QString apath;
         if (roi_name.length() > 0)
         {
-            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _cb_roi->currentText() + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _curQuant + "_" + roi_name + "-" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
         }
         else
         {
-            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
+            apath = dir.absolutePath() + QDir::separator() + finfo.fileName() + QString("_scatter_" + _curAnalysis + "_" + _curQuant + "_" + _cb_x_axis_element->currentText() + "-" + _cb_y_axis_element->currentText() + "_" + formattedTime);
         }
         QString png_path = QDir::cleanPath(apath + ".png");
         if (false == pixmap.save(png_path, "PNG"))
@@ -186,8 +189,12 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
 {
     if (_model != nullptr)
     {
+        const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
         data_struct::ArrayXXr<float> x_map;
         data_struct::ArrayXXr<float> y_map;
+        std::vector<float> x_motor = _model->get_x_axis();
+        std::vector<float> y_motor = _model->get_y_axis();
+        QString roi_name = _cb_roi->currentText(); 
         if (_getXY_Maps(x_map, y_map))
         {
             std::ofstream out_stream(filePath.toStdString());
@@ -195,16 +202,37 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
             {
                 out_stream << "ascii information for file: " << _model->getDatasetName().toStdString() << "\n";
                 out_stream << "Analysis Type: " << _curAnalysis.toStdString() << "\n";
+                out_stream << "Quantification Type: " << _curQuant.toStdString() << "\n";
+                if (roi_name.length() > 0)
+                {
+                    out_stream << "ROI Name: " << roi_name.toStdString() << "\n";
+                }
                 out_stream << "X Axis Name: " << _cb_x_axis_element->currentText().toStdString() << "\n";
                 out_stream << "Y Axis Name: " << _cb_y_axis_element->currentText().toStdString() << "\n";
-                out_stream << "Rows: " << x_map.rows() << "\n";
-                out_stream << "Cols: " << x_map.cols() << "\n";
-                out_stream << "X Index, Y Index, X Value, Y Value \n";
-                for (int y = 0; y < x_map.rows(); y++)
+                out_stream << "Units: Cts/s\n";
+                if (rois.count(roi_name.toStdString()) > 0)
                 {
-                    for (int x = 0; x < x_map.cols(); x++)
+                    Map_ROI map_roi = rois.at(roi_name.toStdString());
+                    out_stream << "Num Points: " << map_roi.pixel_list.size() << "\n";
+                    out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n";
+                    
+                    for (auto& itr : map_roi.pixel_list)
                     {
-                        out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "\n";
+                        out_stream << itr.first << "," << itr.second << "," << x_map(itr.second, itr.first) << "," << y_map(itr.second, itr.first) << "," << x_motor[itr.first] << ","<< y_motor[itr.second]<< "\n";
+                    }
+                }
+                else
+                {
+                    out_stream << "Rows: " << x_map.rows() << "\n";
+                    out_stream << "Cols: " << x_map.cols() << "\n";
+                    out_stream << "Num Points: " << x_map.rows() * x_map.cols()  << "\n";
+                    out_stream << "X Index, Y Index, X Value, Y Value, X Motor, Y Motor \n"; 
+                    for (int y = 0; y < x_map.rows(); y++)
+                    {
+                        for (int x = 0; x < x_map.cols(); x++)
+                        {
+                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << x_motor[x] << ","<< y_motor[y]<< "\n";
+                        }
                     }
                 }
             }
@@ -311,6 +339,13 @@ void ScatterPlotView::setAnalysisType(QString name)
 
 //---------------------------------------------------------------------------
 
+void ScatterPlotView::setQuantType(QString name)
+{
+    _curQuant = name;
+}
+
+//---------------------------------------------------------------------------
+
 void ScatterPlotView::_updateNames()
 {
     if (_model != nullptr)
@@ -319,11 +354,20 @@ void ScatterPlotView::_updateNames()
 
         _cb_roi->clear();
         _cb_roi->addItem(" ");
+        int itemAmt = 0;
         for (auto& itr : rois)
         {
             _cb_roi->addItem(QString(itr.first.c_str()));
+            itemAmt++;
         }
-
+        if(itemAmt == 0)
+        {
+            _cb_roi->setEnabled(false);
+        }
+        else
+        {
+            _cb_roi->setEnabled(true);
+        }
         std::vector<std::string> map_names;
         _model->generateNameLists(_curAnalysis, map_names);
         QString xSavedName = _cb_x_axis_element->currentText();
@@ -394,7 +438,10 @@ bool ScatterPlotView::_getXY_Maps(data_struct::ArrayXXr<float> &x_map, data_stru
         std::string yName = _cb_y_axis_element->currentText().toStdString();
 
         data_struct::Fit_Count_Dict<float> fit_counts;
-        _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        if(false == _model->getAnalyzedQuantified(_curAnalysis.toStdString(), _curQuant.toStdString(), fit_counts))
+        {
+            _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
+        }
         std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
 
         int xCnt = fit_counts.count(xName);
@@ -503,7 +550,7 @@ void ScatterPlotView::_updatePlot()
 
             double corr_coef = find_coefficient(x_arr, y_arr);
             _lb_corr_coef->setText(QString::number(corr_coef));
-
+            _scatter_series->setBorderColor(Qt::transparent);
             _chart->addSeries(_scatter_series);
 
             _axisX->setTitleText(_cb_x_axis_element->currentText());

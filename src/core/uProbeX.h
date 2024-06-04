@@ -280,6 +280,8 @@ private:
     */
    QMenu* m_menuStream;
 
+   QMenu* m_menuBatch;
+
    /**
     * @brief Help menu
     */
