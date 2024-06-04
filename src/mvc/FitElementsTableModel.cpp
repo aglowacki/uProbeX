@@ -113,7 +113,7 @@ data_struct::Fit_Parameters<double> FitElementsTableModel::getAsFitParams()
     {
         TreeItem* node = itr.second;
         data_struct::Fit_Element_Map<double>* element = node->element_data;
-        fit_params.add_parameter(data_struct::Fit_Param<double>(element->full_name(), node->itemData[1].toDouble(), data_struct::E_Bound_Type::FIT));
+        fit_params.add_parameter(data_struct::Fit_Param<double>(element->full_name(), 1.0e-10, 20.0, node->itemData[1].toDouble(), 0.0005, data_struct::E_Bound_Type::LIMITED_LO_HI));
     }
     return fit_params;
 }
