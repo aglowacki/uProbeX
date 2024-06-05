@@ -10,12 +10,12 @@
 #include <QScreen>
 
 //---------------------------------------------------------------------------
-enum HEADER_NAME { ROI_Name=0, MapName=1, SumCnts=2, MeanCts=3, MedianCts=4, StdDevCts=5, SumUgcm2=6, MeanUg=7, MedianUg=8, StdDevUg=9, Area=10, MinCnts=11, MinPixel=12, MaxCnts=13, MaxPixel=14, Min_ugcm2=15, Max_ugcm2=16, Num_Spectra=17, TotalConcentrationCts=18, TotalConcentrationUg=19, TotalContentCts=20, TotalContentUg=21 };
+enum HEADER_NAME { ROI_Name=0, MapName=1, SumCnts=2, MeanCts=3, MedianCts=4, StdDevCts=5, SumUgcm2=6, MeanUg=7, MedianUg=8, StdDevUg=9, Area=10, MinCnts=11, MinPixel=12, MaxCnts=13, MaxPixel=14, Min_ugcm2=15, Max_ugcm2=16, Num_Spectra=17, TotalConcentrationCts=18, TotalConcentrationUg=19, TotalContentUg=20 };
 //---------------------------------------------------------------------------
 
 RoiStatisticsWidget::RoiStatisticsWidget() : QWidget()
 {
-	_base_header = { "ROI Name", "Map Name", "Sum Cnt/s",  "Mean Cts/s", "Median Cts/s", "Std Dev Cts/s", "Sum ug/cm2", "Mean ug/cm2", "Median ug/cm2", "Std Dev ug/cm2", "Area", "Min Cnts/s", "Mix Pixel(x|y)", "Max Cnts/s", "Max Pixel (x|y)", "Min ug/cm2", "Max ug/cm2", "Num Spectra", "Total Concentration Cts/s (mean x # of pixels)", "Total Concentration ug/cm2", "Total Content Cts/s(mean x scan area with unit of femtogram 10^-15)", "Total Content ug/cm2" }; 
+	_base_header = { "ROI Name", "Map Name", "Sum Cnt/s",  "Mean Cts/s", "Median Cts/s", "Std Dev Cts/s", "Sum ug/cm2", "Mean ug/cm2", "Median ug/cm2", "Std Dev ug/cm2", "Area", "Min Cnts/s", "Mix Pixel(x|y)", "Max Cnts/s", "Max Pixel (x|y)", "Min ug/cm2", "Max ug/cm2", "Num Spectra", "Total Concentration Cts/s (mean x # of pixels)", "Total Concentration ug/cm2", "Total Content ug/cm2 (mean x scan area with unit of femtogram 10^-15)" }; 
 
 	//create save ordered vector by element Z number with K , L, M lines
 	for (std::string el_name : data_struct::Element_Symbols)
@@ -185,7 +185,6 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 	_table_widget->setItem(i, Num_Spectra, new QTableWidgetItem(QString::number(roi_pixels.size())));
 
 	_table_widget->setItem(i, Area, new QTableWidgetItem(QString::number(area)));
-	_table_widget->setItem(i, TotalContentCts, new QTableWidgetItem(QString::number(area*mean_cts)));
 	_table_widget->setItem(i, TotalConcentrationCts, new QTableWidgetItem(QString::number(mean_cts * (double)roi_pixels.size())));
 
 	if(hasNorm)
