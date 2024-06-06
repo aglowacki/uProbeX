@@ -85,7 +85,12 @@ void ScatterPlotWidget::_createLayout()
     _sp_maker_size->setPrefix("Marker Size:");
     _sp_maker_size->setRange(1, 100);
     _sp_maker_size->setSingleStep(1.0);
-    _sp_maker_size->setValue(1);
+    int val = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Size).toInt();
+    if (val < 1)
+    {
+        val = 1;
+    }
+    _sp_maker_size->setValue(val);
     connect(_sp_maker_size, qOverload<int>(&QSpinBox::valueChanged), this, &ScatterPlotWidget::updateMarkerSize);
 
 
@@ -196,7 +201,7 @@ void ScatterPlotWidget::setBlackBackground(int val)
 
 void ScatterPlotWidget::updateMarkerSize(int val)
 {
-    val = std::min(val, 1);
+    val = std::max(val, 1);
     for (auto& itr : _plot_view_list)
     {
         itr->updateMarkerSize(val);

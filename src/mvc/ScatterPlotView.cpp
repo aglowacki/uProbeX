@@ -69,7 +69,12 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
     
     setBlackBackground(Preferences::inst()->getValue(STR_PFR_SCATTER_DARK_BACKGROUND).toBool());
     _scatter_series->setBorderColor(Qt::transparent);
-    _scatter_series->setMarkerSize(1.0);
+    int val = Preferences::inst()->getValue(STR_PRF_ScatterPlot_Size).toInt();
+    if (val < 1)
+    {
+        val = 1;
+    }
+    _scatter_series->setMarkerSize(val);
     //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);
     _display_log10 = display_log10;
