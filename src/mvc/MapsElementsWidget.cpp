@@ -352,6 +352,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
     restoreGeometry(Preferences::inst()->getValue(STR_MAPS_WIDGET_GEOMETRY).toByteArray());
     //restoreState(Preferences::inst()->getValue(STR_MAPS_WIDGET_WINDOWSTATE).toByteArray());
 
+    setCoordinateModel(new gstar::CoordinateModel(&_motor_trans));
+
     setLayout(layout);
 
 
@@ -948,6 +950,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _scatter_plot_widget->setAnalysisType(analysis_text);
             }
 
+            _motor_trans.setMotors(_model->get_x_axis(), _model->get_y_axis());
+            
             annoTabChanged(m_tabWidget->currentIndex());
         }
         m_imageWidgetToolBar->clickFill();

@@ -28,6 +28,7 @@
 #include <mvc/ScatterPlotWidget.h>
 #include <mvc/QuantificationWidget.h>
 #include <mvc/RoiStatisticsWidget.h>
+#include <gstar/MotorLookupTransformer.h>
 
 using gstar::AbstractGraphicsItem;
 /*---------------------------------------------------------------------------*/
@@ -243,6 +244,9 @@ protected:
    QDockWidget* _extra_dock;
 
    std::map< QString, QDockWidget*> _dockMap;
+
+   gstar::MotorLookupTransformer _motor_trans;
+
 };
 
 
