@@ -28,6 +28,7 @@
 #include <mvc/TIFF_Model.h>
 #include <mvc/VLM_Widget.h>
 #include "mvc/UpgradeRoiDialog.h"
+#include <mvc/GenScanVlmWidget.h>
 
 class SubWindow;
 class AbstractWindowController;
@@ -333,6 +334,8 @@ private:
    PerPixelFitWidget _per_pixel_fit_widget;
 
    QList<MapsWorkspaceController*> _mapsWorkspaceControllers;
+
+   GenScanVlmWidget _gen_scan_vlm_widget;
 
 };
 

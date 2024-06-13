@@ -195,6 +195,8 @@ public:
 
     const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
 
+    static bool load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr);
+
 signals:
     void model_data_updated();
 

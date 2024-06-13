@@ -501,13 +501,100 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* blo
     }
 }
 
+//---------------------------------------------------------------------------
+
 void MapsH5Model::getIntegratedSpectra(data_struct::Spectra<double>& out_spectra)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_spectra = _integrated_spectra;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr)
+{
+    std::string x_axis_loc_9 = "/MAPS/x_axis";
+    std::string x_axis_loc_10 = "/MAPS/Scan/x_axis";
+    std::string y_axis_loc_9 = "/MAPS/y_axis";
+    std::string y_axis_loc_10 = "/MAPS/Scan/y_axis";
+    hid_t file_id, x_id, y_id;
+    file_id = H5Fopen(filepath.toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(file_id < 0)
+    {
+        logW<<"Error opening file "<<filepath.toStdString() << "\n";
+        return false;
+    }
+
+    x_id = H5Dopen(file_id, x_axis_loc_10.c_str(), H5P_DEFAULT);
+    if(x_id < 0)
+    {
+        logW<<"Error opening"<<x_axis_loc_10.c_str()<<"\n";
+        x_id = H5Dopen(file_id, x_axis_loc_9.c_str(), H5P_DEFAULT);
+        if(x_id < 0)
+        {
+            H5Fclose(file_id);
+            logW<<"Error opening"<<x_axis_loc_9.c_str()<<"\n";
+            return false;
+        }
+    }
+
+    y_id = H5Dopen(file_id, y_axis_loc_10.c_str(), H5P_DEFAULT);
+    if(x_id < 0)
+    {
+        logW<<"Error opening"<<y_axis_loc_10.c_str()<<"\n";
+        y_id = H5Dopen(file_id, y_axis_loc_9.c_str(), H5P_DEFAULT);
+        if(y_id < 0)
+        {
+            H5Fclose(file_id);
+            logW<<"Error opening"<<y_axis_loc_9.c_str()<<"\n";
+            return false;
+        }
+    }
+
+    if (x_id > -1 && y_id > -1)
+    {
+        hid_t x_space_id = H5Dget_space(x_id);
+        hid_t y_space_id = H5Dget_space(y_id);
+        
+        hsize_t x_dims_in[1] = { 0 };
+        hsize_t y_dims_in[1] = { 0 };
+        int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
+        int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
+        if (xstatus_n > -1 && ystatus_n > -1)
+        {
+            x_arr.resize(x_dims_in[0]);
+            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, x_arr.data());
+            if (error > 0)
+            {
+                logW << "Could not load x_axis\n";
+            }
+            y_arr.resize(y_dims_in[0]);
+            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, y_arr.data());
+            if (error > 0)
+            {
+                logW << "Could not load y_axis\n";
+            }
+        }
+
+        if (x_space_id > -1)
+        {
+            H5Sclose(x_space_id);
+        }
+        if (y_space_id > -1)
+        {
+            H5Sclose(y_space_id);
+        }
+
+        H5Dclose(x_id);
+        H5Dclose(y_id);
+
+    }
+
+    H5Fclose(file_id);
+    return true;
+}
+
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::load(QString filepath)
 {

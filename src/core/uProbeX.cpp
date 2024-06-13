@@ -321,6 +321,28 @@ void uProbeX::BatchRoiStats()
 
 void uProbeX::BatcGenScanVlm()
 {
+    if(_mapsWorkspaceControllers.size() > 0)
+    {
+        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
+        if(controller != nullptr)
+        {
+            MapsWorkspaceModel* model =  controller->get_model();
+            if(model != nullptr)
+            {
+                _gen_scan_vlm_widget.setDir(model->get_directory_name());
+                _gen_scan_vlm_widget.updateFileList(model->get_hdf5_file_list());
+                _gen_scan_vlm_widget.show();
+            }
+            else
+            {
+                logW<<"Model is nullptr\n";
+            }
+        }
+        else
+        {
+            logW<<"Controller is nullptr\n";
+        }
+    }
 
 }
 
