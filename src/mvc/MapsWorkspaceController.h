@@ -36,6 +36,8 @@ public:
 
    void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
 
+   MapsWorkspaceModel* get_model(){ return _mapsWorkspaceModel;}
+   
 signals:
 
 	void controllerClosed(MapsWorkspaceController*);

@@ -75,6 +75,12 @@ public:
 
     void unload_VLM_Model(QString name);
 
+    void unload_all_H5_Model();
+    
+    void unload_all_RAW_Model();
+
+    void unload_all_VLM_Model();
+
     data_struct::Fit_Parameters<double>* getFitParameters(int idx);
 
     data_struct::Fit_Element_Map_Dict<double>* getElementToFit(int idx);
@@ -96,6 +102,12 @@ public:
     std::vector<QString> get_loaded_h5_names();
 
     std::vector<QString> get_loaded_vlm_names();
+
+    QStringList get_raw_names_as_qstringlist();
+
+    QStringList get_h5_names_as_qstringlist();
+
+    QStringList get_vlm_names_as_qstringlist();
 
     QDir get_directory() { return *_dir; }
 

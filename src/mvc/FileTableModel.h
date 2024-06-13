@@ -188,12 +188,16 @@ public:
         // Return empty data
         return QVariant();
     }
+    
     //---------------------------------------------------------------------------
+
     Qt::ItemFlags flags(const QModelIndex &index) const
     {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
+
     //---------------------------------------------------------------------------
+
     void updateStatus(File_Loaded_Status status, const QString& filename)
     {
         int i=0;
@@ -223,6 +227,35 @@ public:
             i++;
         }
     }
+    //---------------------------------------------------------------------------
+
+    void updateAllStatus(File_Loaded_Status status)
+    {
+        int i=0;
+        for(auto &itr : _data)
+        {        
+            QModelIndex index = createIndex(i, 0, &itr);
+            itr.status = status;
+            switch(status)
+            {
+            case UNLOADED:
+                itr.icon = QIcon(":/images/circle_gray.png");
+                emit dataChanged(index, index);
+                break;
+            case LOADED:
+                itr.icon = QIcon(":/images/circle_green.png");
+                emit dataChanged(index, index);
+                break;
+            case FAILED_LOADING:
+                itr.icon = QIcon(":/images/circle_red.png");
+                emit dataChanged(index, index);
+                break;
+            }
+            break;
+        }
+        i++;
+    }
+    
     //---------------------------------------------------------------------------
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override
     {

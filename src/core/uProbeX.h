@@ -208,6 +208,14 @@ private slots:
 
    void upgradeV9Rois();
 
+   void batchPerPixel();
+
+   void BatchExportImages();
+
+   void BatchRoiStats();
+
+   void BatcGenScanVlm();
+
 private:
 
    /**
@@ -261,6 +269,8 @@ private:
     */
    bool saveActivatedXmlRequired();
 
+   void setBatchActionsEnabled(bool val);
+
 private:
 
    /**
@@ -311,6 +321,18 @@ private:
    QDockWidget *_log_dock;
 
    UpgradeRoiDialog _upgradeRoiDialog;
+
+   QAction* _action_per_pixel;
+
+   QAction* _action_export_images;
+   
+   QAction* _action_roi_stats;
+
+   QAction* _action_gen_scan_vlm;
+
+   PerPixelFitWidget _per_pixel_fit_widget;
+
+   QList<MapsWorkspaceController*> _mapsWorkspaceControllers;
 
 };
 

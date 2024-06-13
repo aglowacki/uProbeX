@@ -90,6 +90,8 @@ public slots:
 
     void loaded_file_status_changed(File_Loaded_Status status, const QString& filename);
 
+    void loaded_file_status_changed_all(File_Loaded_Status status);
+
     void load_all_visible();
 
     void unload_all_visible();

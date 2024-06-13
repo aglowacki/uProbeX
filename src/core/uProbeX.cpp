@@ -231,13 +231,19 @@ void uProbeX::createMenuBar()
     connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
 
     // Batch menu
-    //m_menuBatch = new QMenu(tr("Batch Processing"));
-    //action = m_menuBatch->addAction("Per Pixel Processing");
-    //connect(action, SIGNAL(triggered()), this, SLOT(perPixel()));
-    //action = "Export Images"
-    //action = "Roi Stats"
-    //m_menu->addMenu(m_menuBatch);
+    m_menuBatch = new QMenu(tr("Batch Processing"));
+    _action_per_pixel = m_menuBatch->addAction("Per Pixel Processing");
+    connect(_action_per_pixel, SIGNAL(triggered()), this, SLOT(batchPerPixel()));
+    _action_export_images = m_menuBatch->addAction("Export Images");
+    connect(_action_export_images, SIGNAL(triggered()), this, SLOT(BatchExportImages()));
+    _action_roi_stats = m_menuBatch->addAction("Roi Stats");
+    connect(_action_roi_stats, SIGNAL(triggered()), this, SLOT(BatchRoiStats()));
+    _action_gen_scan_vlm = m_menuBatch->addAction("Generate Scan VLM");
+    connect(_action_gen_scan_vlm, SIGNAL(triggered()), this, SLOT(BatcGenScanVlm()));
 
+    m_menu->addMenu(m_menuBatch);
+
+    setBatchActionsEnabled(false);
 
     // Stream menu
     m_menuStream = new QMenu(tr("Live Stream"));
@@ -254,7 +260,71 @@ void uProbeX::createMenuBar()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void uProbeX::setBatchActionsEnabled(bool val)
+{
+    /*
+   _action_per_pixel->setEnabled(val);
+   _action_export_images->setEnabled(val);
+   _action_roi_stats->setEnabled(val);
+   _action_gen_scan_vlm->setEnabled(val);
+   */
+  m_menuBatch->setEnabled(val);
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::batchPerPixel()
+{
+    if(_mapsWorkspaceControllers.size() > 0)
+    {
+        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
+        if(controller != nullptr)
+        {
+            MapsWorkspaceModel* model =  controller->get_model();
+            if(model != nullptr)
+            {
+                model->unload_all_H5_Model();
+                model->unload_all_RAW_Model();
+                _per_pixel_fit_widget.setDir(model->get_directory_name().toStdString());
+                _per_pixel_fit_widget.updateFileList(model->get_raw_names_as_qstringlist());
+                _per_pixel_fit_widget.show();
+            }
+            else
+            {
+                logW<<"Model is nullptr\n";
+            }
+        }
+        else
+        {
+            logW<<"Controller is nullptr\n";
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatchExportImages()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatchRoiStats()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatcGenScanVlm()
+{
+
+}
+
+//---------------------------------------------------------------------------
 
 void uProbeX::openLiveStreamViewer()
 {
@@ -569,8 +639,13 @@ void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
     if (controller != nullptr)
     {
         delete controller;
+        int i = _mapsWorkspaceControllers.indexOf(controller);
+        _mapsWorkspaceControllers.removeAt(i);
     }
-    controller = nullptr;
+    if(_mapsWorkspaceControllers.size() == 0)
+    {
+        setBatchActionsEnabled(false);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -768,8 +843,10 @@ void uProbeX::openMapsWorkspace(QString dirName)
 
     MapsWorkspaceController* mapsWorkspaceController = new MapsWorkspaceController(this);
     connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
+    _mapsWorkspaceControllers.append(mapsWorkspaceController);
 
     mapsWorkspaceController->setWorkingDir(dirName);
+    setBatchActionsEnabled(true);
 
 }
 

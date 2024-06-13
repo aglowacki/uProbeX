@@ -359,14 +359,21 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const QString& filename)
 {
     _file_list_model->updateStatus(status, filename);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget::loaded_file_status_changed_all(File_Loaded_Status status)
+{
+    _file_list_model->updateAllStatus(status);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::filterBtnClicked()
 {

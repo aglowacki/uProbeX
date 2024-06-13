@@ -367,7 +367,39 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
     setFileTabActionsEnabled(true);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::closeAllModels(MODEL_TYPE mt)
+{
+    setFileTabActionsEnabled(false);
+    File_Loaded_Status load_status = UNLOADED;
+    QStringList names_list;
+    if (_model != nullptr)
+    {
+        switch (mt)
+        {
+        case MODEL_TYPE::MAPS_H5:
+            _model->unload_all_H5_Model();
+            _h5_tab_widget->loaded_file_status_changed_all(load_status);
+            names_list = _model->get_h5_names_as_qstringlist();
+            break;
+        case MODEL_TYPE::RAW:
+            _model->unload_all_RAW_Model();
+            _mda_tab_widget->loaded_file_status_changed_all(load_status);
+            break;
+        case MODEL_TYPE::VLM:
+            _model->unload_all_VLM_Model();
+            _vlm_tab_widget->loaded_file_status_changed_all(load_status);
+            break;
+        }
+    
+    }
+
+    setFileTabActionsEnabled(true);
+    emit unloadList_model(names_list, mt);
+}
+
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL_TYPE mt)
 {

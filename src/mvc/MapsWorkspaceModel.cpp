@@ -510,7 +510,43 @@ std::vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
     return ret;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+QStringList MapsWorkspaceModel::get_raw_names_as_qstringlist()
+{
+    QStringList  ret;
+    for (auto& itr : _raw_fileinfo_list)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+//---------------------------------------------------------------------------
+
+QStringList MapsWorkspaceModel::get_h5_names_as_qstringlist()
+{
+    QStringList  ret;
+    for (auto& itr : _h5_fileinfo_list)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+//---------------------------------------------------------------------------
+
+QStringList MapsWorkspaceModel::get_vlm_names_as_qstringlist()
+{
+    QStringList  ret;
+    for (auto& itr : _vlm_fileinfo_list)
+    {
+        ret.push_back(itr.first);
+    }
+    return ret;
+}
+
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::unload_H5_Model(QString name)
 {
@@ -520,6 +556,17 @@ void MapsWorkspaceModel::unload_H5_Model(QString name)
         _h5_models.erase(name);
         delete model;
     }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceModel::unload_all_H5_Model()
+{
+    for(auto &itr : _h5_models)
+    {
+        delete itr.second;
+    }
+    _h5_models.clear();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -534,6 +581,17 @@ void MapsWorkspaceModel::unload_RAW_Model(QString name)
     }
 }
 
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceModel::unload_all_RAW_Model()
+{
+    for(auto &itr : _raw_models)
+    {
+        delete itr.second;
+    }
+    _raw_models.clear();
+}
+
 /*---------------------------------------------------------------------------*/
 
 void MapsWorkspaceModel::unload_VLM_Model(QString name)
@@ -544,6 +602,17 @@ void MapsWorkspaceModel::unload_VLM_Model(QString name)
         _vlm_models.erase(name);
         delete model;
     }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceModel::unload_all_VLM_Model()
+{
+    for(auto &itr : _vlm_models)
+    {
+        delete itr.second;
+    }
+    _vlm_models.clear();
 }
 
 /*---------------------------------------------------------------------------*/
