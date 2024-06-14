@@ -23,6 +23,7 @@
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
 #include "mvc/BatchRoiFitWidget.h"
+#include <mvc/GenScanVlmWidget.h>
 
 enum class MODEL_TYPE { MAPS_H5, RAW, VLM };
 
@@ -87,6 +88,8 @@ public slots:
 
    void onCustomContext(const QString& context_label, const QStringList& file_list);
 
+   void onCustomButton(const QString& context_label, const QStringList& file_list);
+
    void onPerPixelProcessList(const QStringList& file_list);
 
    void onPerPixelProcessListAnalyzed(const QStringList& file_list);
@@ -96,6 +99,8 @@ public slots:
    void onProcessed_list_update(QStringList file_list);
 
    void onDatasetSelected(const QString name);
+
+   void onGenScanArea(const QStringList& file_list);
 
 protected:
 
@@ -121,6 +126,8 @@ private:
    PerPixelFitWidget* _per_pixel_fit_widget;
 
    BatchRoiFitWidget* _batch_roi_fit_widget;
+
+   GenScanVlmWidget _gen_scan_vlm_widget;
 };
 
 

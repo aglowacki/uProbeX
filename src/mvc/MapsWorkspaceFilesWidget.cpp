@@ -15,10 +15,12 @@
 #include <preferences/Preferences.h>
 #include "core/GlobalThreadPool.h"
 
-const QString STR_PROCESS("process");
-const QString STR_PROCESS_ANALYZED("process_analyzed");
-const QString STR_BATCH_ROI("batch_roi");
-const QString STR_H5_EXPORT("hdf5_export");
+const static QString STR_PROCESS("Per Pixel Process");
+const static QString STR_PROCESS_ANALYZED("Per Pixel ReProcess");
+const static QString STR_PROCESS_ANALYZED_ALL("Per Pixel ReProcess All");
+const static QString STR_BATCH_ROI("Process ROI's");
+const static QString STR_H5_EXPORT("hdf5_export");
+const static QString STR_GEN_SCAN_AREA("Generate Scan Area");
 
 /*---------------------------------------------------------------------------*/
 
@@ -55,30 +57,29 @@ void MapsWorkspaceFilesWidget::createLayout()
     _h5_tab_widget->appendFilterHelpAction(h5avg_file);
     _h5_tab_widget->appendFilterHelpAction(h5det_file);
 
-    _h5_tab_widget->addCustomContext(STR_PROCESS_ANALYZED, "Per Pixel Process");
-    _h5_tab_widget->addCustomContext(STR_BATCH_ROI, "Process ROI's");
+    _h5_tab_widget->addCustomContext(STR_PROCESS_ANALYZED);
+    _h5_tab_widget->addCustomContext(STR_BATCH_ROI);
+    _h5_tab_widget->addCustomButtonRow(STR_PROCESS_ANALYZED, STR_BATCH_ROI);    
     // TODO: need to implement
     //_h5_tab_widget->addCustomContext(STR_H5_EXPORT, "Export Images"); 
 
     connect(_h5_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::MAPS_H5); });
     connect(_h5_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::MAPS_H5); });
-    connect(_h5_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed);
-    connect(_h5_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_h5_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    connect(_h5_tab_widget, &FileTabWidget::customButton, this, &MapsWorkspaceFilesWidget::onCustomButton);
     connect(_h5_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
 
     _mda_tab_widget = new FileTabWidget();
     connect(_mda_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::RAW); });
     connect(_mda_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::RAW); });
-    connect(_mda_tab_widget, &FileTabWidget::processList, this, &MapsWorkspaceFilesWidget::onPerPixelProcessList);
-    connect(_mda_tab_widget, &FileTabWidget::batchRoiList, this, &MapsWorkspaceFilesWidget::onBatchRoiList);
     connect(_mda_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    connect(_mda_tab_widget, &FileTabWidget::customButton, this, &MapsWorkspaceFilesWidget::onCustomButton);
     connect(_mda_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
-    _mda_tab_widget->addCustomContext(STR_PROCESS, "Per Pixel Process");
+    _mda_tab_widget->addCustomContext(STR_PROCESS);
+    _mda_tab_widget->addCustomContext(STR_BATCH_ROI);
+    _mda_tab_widget->addCustomButtonRow(STR_PROCESS, STR_BATCH_ROI);
 
     _vlm_tab_widget = new FileTabWidget();
-    _vlm_tab_widget->setProcessButtonVisible(false);
-    _vlm_tab_widget->setROIButtonVisible(false);
     QAction* sws_file = new QAction("SWS | *.sws", this);
     connect(sws_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.sws"); });
     QAction* tiff_file = new QAction("TIFF | *.tiff", this);
@@ -87,10 +88,14 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(tif_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tif"); });
     connect(_vlm_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::VLM); });
     connect(_vlm_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::VLM); });
+    connect(_vlm_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
+    connect(_vlm_tab_widget, &FileTabWidget::customButton, this, &MapsWorkspaceFilesWidget::onCustomButton);
     connect(_vlm_tab_widget, &FileTabWidget::selectNewRow, this, &MapsWorkspaceFilesWidget::onDatasetSelected);
     _vlm_tab_widget->appendFilterHelpAction(sws_file);
     _vlm_tab_widget->appendFilterHelpAction(tiff_file);
     _vlm_tab_widget->appendFilterHelpAction(tif_file);
+    _vlm_tab_widget->addCustomContext(STR_GEN_SCAN_AREA);
+    _vlm_tab_widget->addCustomButtonRow(STR_GEN_SCAN_AREA);
 
     QLayout* vlayout = new QVBoxLayout();
 
@@ -442,7 +447,7 @@ void MapsWorkspaceFilesWidget::clearLists()
 	_vlm_tab_widget->unload_all();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, const QStringList& file_list)
 {
@@ -462,10 +467,35 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
     {
         //onExportImages(file_list);
     }
-
+    else if (context_label == STR_GEN_SCAN_AREA)
+    {
+        onGenScanArea(file_list);
+    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::onCustomButton(const QString& context_label, const QStringList& file_list)
+{
+    if (context_label == STR_PROCESS)
+    {
+        onPerPixelProcessList(file_list);
+    }
+    if (context_label == STR_PROCESS_ANALYZED)
+    {
+        onPerPixelProcessListAnalyzed(file_list);
+    }
+    else if (context_label == STR_BATCH_ROI)
+    {
+        onBatchRoiList(file_list);
+    }
+    else if (context_label == STR_GEN_SCAN_AREA)
+    {
+        onGenScanArea(file_list);
+    }
+}
+
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_list)
 {
@@ -512,7 +542,7 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed(const QStringList& 
     _per_pixel_fit_widget->show();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onBatchRoiList(const QStringList& file_list)
 {
@@ -554,6 +584,18 @@ void MapsWorkspaceFilesWidget::onBatchRoiList(const QStringList& file_list)
     _batch_roi_fit_widget->updateFileList(roi_map);
     _batch_roi_fit_widget->show();
     
+}
+
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::onGenScanArea(const QStringList& file_list)
+{
+    if(_model!= nullptr)
+    {
+        _gen_scan_vlm_widget.setDir(_model->get_directory_name());
+        _gen_scan_vlm_widget.updateFileList(_model->get_hdf5_file_list());
+    }
+    _gen_scan_vlm_widget.show();
 }
 
 /*---------------------------------------------------------------------------*/
