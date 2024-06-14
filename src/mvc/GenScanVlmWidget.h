@@ -55,13 +55,17 @@ signals:
 
 public slots:
 
-    void runProcessing();
+   void runProcessing();
 
    void setStoped();
 
+   void on_browse();
+
 protected:
 
-    void _clear_regions();
+   void _generate();
+
+   void _clear_regions();
 
    /**
     * @brief Create layout
@@ -71,6 +75,10 @@ protected:
    bool _processing;
 
    QString _directory_name;
+
+   QLineEdit *_background_img_loc_le;
+
+   QPushButton *_btn_browse;
 
    QLineEdit* _gen_name_le;
 
@@ -89,6 +97,8 @@ protected:
    std::map<QString, QFileInfo> _file_map;
 
    QProgressBar *_progressBarFiles;
+
+   QPushButton* _btn_scan;
 
    QPushButton* _btn_gen;
 
