@@ -52,6 +52,8 @@ class FileTabWidget : public QWidget
 
     void setProcessButtonVisible(bool val) { _process_btn->setVisible(val); }
 
+    void setROIButtonVisible(bool val) { _batch_roi_btn->setVisible(val); }
+
     void setActionsAndButtonsEnabled(bool val);
 
 signals:

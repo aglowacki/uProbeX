@@ -78,6 +78,7 @@ void MapsWorkspaceFilesWidget::createLayout()
 
     _vlm_tab_widget = new FileTabWidget();
     _vlm_tab_widget->setProcessButtonVisible(false);
+    _vlm_tab_widget->setROIButtonVisible(false);
     QAction* sws_file = new QAction("SWS | *.sws", this);
     connect(sws_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.sws"); });
     QAction* tiff_file = new QAction("TIFF | *.tiff", this);
@@ -165,6 +166,7 @@ void MapsWorkspaceFilesWidget::updatedVLM()
     {
         _vlm_tab_widget->loaded_file_status_changed(File_Loaded_Status::LOADED, itr);
     }
+    //_vlm_tab_widget->set_roi_num_list(_model->get_region_num_list());
 }
 /*---------------------------------------------------------------------------*/
 

@@ -61,6 +61,8 @@ public slots:
 
 protected:
 
+    void _clear_regions();
+
    /**
     * @brief Create layout
     */
@@ -69,6 +71,20 @@ protected:
    bool _processing;
 
    QString _directory_name;
+
+   QLineEdit* _gen_name_le;
+
+   QLineEdit* _scene_width;
+
+   QLineEdit* _scene_heigh;
+
+   QLineEdit* _scene_motor_x_start;
+
+   QLineEdit* _scene_motor_x_end;
+
+   QLineEdit* _scene_motor_y_start;
+
+   QLineEdit* _scene_motor_y_end;
 
    std::map<QString, QFileInfo> _file_map;
 
@@ -82,6 +98,7 @@ protected:
 
    QListView* _file_list_view;
 
+   std::map<QString, gstar::UProbeRegionGraphicsItem*> _dataset_region_map;
 };
 
 

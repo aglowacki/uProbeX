@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/GenScanVlmWidget.h>
+#include <gstar/GStarResource.h>
 
 //---------------------------------------------------------------------------
 
@@ -20,7 +21,8 @@ GenScanVlmWidget::GenScanVlmWidget(QWidget *parent) : QWidget(parent)
 GenScanVlmWidget::~GenScanVlmWidget()
 {
 
- 
+    _clear_regions();
+
 }
 
 //---------------------------------------------------------------------------
@@ -43,9 +45,48 @@ void GenScanVlmWidget::createLayout()
     buttonlayout->addWidget(_btn_gen);
     buttonlayout->addWidget(_btn_cancel);
 
+    QLabel* gen_name_label = new QLabel("File Name:");
+    _gen_name_le = new QLineEdit("ScanArea");
+    QHBoxLayout* name_hbox = new QHBoxLayout();
+    name_hbox->addWidget(gen_name_label);
+    name_hbox->addWidget(_gen_name_le);
+
+    _scene_width = new QLineEdit("5000");
+    _scene_heigh = new QLineEdit("5000");
+    _scene_motor_x_start = new QLineEdit("0");
+    _scene_motor_x_end = new QLineEdit("10");
+    _scene_motor_y_start = new QLineEdit("0");
+    _scene_motor_y_end = new QLineEdit("10");
+    
+    QHBoxLayout* scene_box = new QHBoxLayout();
+    scene_box->addWidget(new QLabel("Scene Width:"));
+    scene_box->addWidget(_scene_width);
+    scene_box->addWidget(new QLabel("px    "));
+    scene_box->addWidget(new QLabel("Scene Height:"));
+    scene_box->addWidget(_scene_heigh);
+    scene_box->addWidget(new QLabel("px"));
+
+    QHBoxLayout* motor_box = new QHBoxLayout();
+    motor_box->addWidget(new QLabel("Motor X Start:"));
+    motor_box->addWidget(_scene_motor_x_start);
+    motor_box->addWidget(new QLabel("mm    "));
+    motor_box->addWidget(new QLabel("Motor X End:"));
+    motor_box->addWidget(_scene_motor_x_end);
+    motor_box->addWidget(new QLabel("mm"));
+    QHBoxLayout* motor_y_box = new QHBoxLayout();
+    motor_y_box->addWidget(new QLabel("Motor Y Start:"));
+    motor_y_box->addWidget(_scene_motor_y_start);
+    motor_y_box->addWidget(new QLabel("mm    "));
+    motor_y_box->addWidget(new QLabel("Motor Y End:"));
+    motor_y_box->addWidget(_scene_motor_y_end);
+    motor_y_box->addWidget(new QLabel("mm"));
+
+
     QVBoxLayout* layout = new QVBoxLayout();
-    //layout->addItem(detector_hbox);
-    //layout->addItem(_proc_save_layout);
+    layout->addItem(name_hbox);
+    layout->addItem(scene_box);
+    layout->addItem(motor_box);
+    layout->addItem(motor_y_box);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
     layout->addWidget(_progressBarFiles);
@@ -92,10 +133,34 @@ void GenScanVlmWidget::setStoped()
 
 //---------------------------------------------------------------------------
 
+void GenScanVlmWidget::_clear_regions()
+{
+    for (auto& itr : _dataset_region_map)
+    {
+        delete itr.second;
+    }
+
+    _dataset_region_map.clear();
+}
+
+//---------------------------------------------------------------------------
+
 void GenScanVlmWidget::runProcessing()
 {
     _btn_gen->setEnabled(false);
     _processing = true;
+
+    _clear_regions();
+    float min_x_val = std::numeric_limits<float>::max();
+    float max_x_val = std::numeric_limits<float>::min();
+    float min_y_val = std::numeric_limits<float>::max();
+    float max_y_val = std::numeric_limits<float>::min();
+
+    int x_amt = 0;
+    int y_amt = 0;
+    float avg_x_diff = 0;
+    float avg_y_diff = 0;
+    int idx = 0;
     int i=0;
     for(auto& itr: _file_map)
     {
@@ -107,11 +172,49 @@ void GenScanVlmWidget::runProcessing()
         }
         if(MapsH5Model::load_x_y_motors_only(itr.second.absoluteFilePath(), x_arr, y_arr))
         {
+            // only load rect greater than 9x9
+            if (x_arr.size() > 9 && y_arr.size() > 9)
+            {
+                idx = x_arr.size() / 2;
+                avg_x_diff += std::abs(x_arr[idx + 1] - x_arr[idx]);
+                x_amt++;
 
+                idx = y_arr.size() / 2;
+                avg_y_diff += std::abs(y_arr[idx + 1] - y_arr[idx]);
+                y_amt++;
+
+                min_x_val = std::min(min_x_val, x_arr.minCoeff());
+                max_x_val = std::max(max_x_val, x_arr.maxCoeff());
+
+                min_y_val = std::min(min_y_val, y_arr.minCoeff());
+                max_y_val = std::max(max_y_val, y_arr.maxCoeff());
+
+                gstar::UProbeRegionGraphicsItem* region = new gstar::UProbeRegionGraphicsItem();
+                region->setHeight(y_arr.size());
+                region->setWidth(x_arr.size());
+
+                //region->setPos(QPointF(marker[gstar::UPROBE_REAL_POS_X].toDouble(), marker[gstar::UPROBE_REAL_POS_Y].toDouble()));
+                region->setPropertyValue(gstar::UPROBE_NAME, QVariant(itr.first));
+                region->setPropertyValue(gstar::UPROBE_PRED_POS_X, QVariant(x_arr[0]));
+                region->setPropertyValue(gstar::UPROBE_PRED_POS_Y, QVariant(y_arr[0]));
+
+                _dataset_region_map[itr.first] = region;
+            }
         }
         i++;
         _progressBarFiles->setValue(i);
     }
+
+    if (x_amt > 0)
+    {
+        avg_x_diff /= (float)(x_amt);
+    }
+
+    if (y_amt > 0)
+    {
+        avg_y_diff /= (float)(y_amt);
+    }
+
     _processing = false;
     _btn_gen->setEnabled(true);  
 
