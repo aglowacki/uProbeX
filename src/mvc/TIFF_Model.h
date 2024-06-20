@@ -77,6 +77,10 @@ public:
      */
     virtual QImage* getImage() { return &_img; }
 
+    bool save_img(QString filename);
+
+    void set_background_img(QImage img) {_img = img;}
+
 protected:
 
     virtual void _initializeCoordModel();

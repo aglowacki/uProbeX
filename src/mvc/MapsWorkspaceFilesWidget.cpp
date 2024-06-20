@@ -97,6 +97,9 @@ void MapsWorkspaceFilesWidget::createLayout()
     _vlm_tab_widget->addCustomContext(STR_GEN_SCAN_AREA);
     _vlm_tab_widget->addCustomButtonRow(STR_GEN_SCAN_AREA);
 
+
+    connect(&_gen_scan_vlm_widget, &GenScanVlmWidget::new_scan_area, this, &MapsWorkspaceFilesWidget::newScanArea);
+
     QLayout* vlayout = new QVBoxLayout();
 
     _tab_widget->insertTab(0, _h5_tab_widget, "Analyized Data");
@@ -598,7 +601,21 @@ void MapsWorkspaceFilesWidget::onGenScanArea(const QStringList& file_list)
     _gen_scan_vlm_widget.show();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void MapsWorkspaceFilesWidget::newScanArea(const QString &name)
+{
+    QStringList vlm_list;
+    vlm_list.append(name);
+    if(_model != nullptr)
+    {
+        _model->reload_vlm();
+    }
+    onOpenModel(vlm_list, MODEL_TYPE::VLM);
+    
+}
+
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onProcessed_list_update(QStringList file_list)
 {

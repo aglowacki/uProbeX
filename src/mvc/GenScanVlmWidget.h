@@ -19,11 +19,9 @@
 #include <QListWidgetItem>
 #include <QStringListModel>
 #include <QStandardItemModel>
-//#include <QCheckBox>
 #include <QEventLoop>
 #include <QFileInfo>
 #include <mvc/MapsH5Model.h>
-#include "gstar/Annotation/UProbeRegionGraphicsItem.h"
 
 //---------------------------------------------------------------------------
 
@@ -52,6 +50,8 @@ public:
 signals:
 
     void processed_list_update(QStringList);
+
+   void new_scan_area(const QString &);
 
 public slots:
 
@@ -108,7 +108,9 @@ protected:
 
    QListView* _file_list_view;
 
-   std::map<QString, gstar::UProbeRegionGraphicsItem*> _dataset_region_map;
+   std::map<QString, QMap<QString, QString> > _dataset_calib_map;
+
+   std::map<QString, QMap<QString, QString> > _dataset_region_map;
 };
 
 

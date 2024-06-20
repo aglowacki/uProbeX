@@ -62,6 +62,10 @@ public:
     */
    VLM_Widget(QWidget* parent = nullptr);
 
+   /**
+    * Constructor.
+    */
+   VLM_Widget(QString dataset_name, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -146,6 +150,11 @@ public:
     * @brief widgetChanged
     */
    void widgetChanged(bool enable);
+
+   /**
+    * @brief addMicroProbeRegion
+    */
+   void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
 
 public slots:
 
@@ -283,6 +292,8 @@ protected slots:
 
 protected:
 
+   void _init();
+
    /**
     * @brief callbackPvXUpdatedFloat
     * @param val
@@ -382,7 +393,7 @@ signals:
 
    void onLinkRegionToDataset(QString, QString, QImage);
 
-private:     
+private:
 
    /**
     * @brief saveXMLCoordinateInfo

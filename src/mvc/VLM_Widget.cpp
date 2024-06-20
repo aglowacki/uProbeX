@@ -59,35 +59,25 @@ enum TabIndex{
 static const int ID_NELDER_MEAD = 0;
 static const int ID_PYTHON = 1;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 VLM_Widget::VLM_Widget(QWidget* parent)
 : AbstractImageWidget(1,1,parent)
 {
 
-   m_microProbePvSet = false;
-//   m_pvXHandler = nullptr;
-//   m_pvYHandler = nullptr;
-   m_solverWidget = nullptr;
-   m_calSelectionModel = nullptr;
-   m_lightToMicroCoordModel = nullptr;
-   m_coordinateModel = nullptr;
-   m_solver = nullptr;
-   m_solverParameterParse = new SolverParameterParse();
-
-   checkMicroProbePVs();
-   createLayout();
-   createActions();
-   createMicroProbeMenu();
-   _createSolver();
-   m_imageViewWidget->clickFill(true);
-
-   m_grabbingPvsX = false;
-   m_grabbingPvsY = false;
+   _init();
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+VLM_Widget::VLM_Widget(QString dataset_name, QWidget* parent) : AbstractImageWidget(1,1,parent)
+{
+   m_datasetPath = dataset_name;
+   _init();
+}
+
+//---------------------------------------------------------------------------
 
 VLM_Widget::~VLM_Widget()
 {
@@ -119,7 +109,32 @@ VLM_Widget::~VLM_Widget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void VLM_Widget::_init()
+{
+   m_microProbePvSet = false;
+//   m_pvXHandler = nullptr;
+//   m_pvYHandler = nullptr;
+   m_solverWidget = nullptr;
+   m_calSelectionModel = nullptr;
+   m_lightToMicroCoordModel = nullptr;
+   m_coordinateModel = nullptr;
+   m_solver = nullptr;
+   m_solverParameterParse = new SolverParameterParse();
+
+   checkMicroProbePVs();
+   createLayout();
+   createActions();
+   createMicroProbeMenu();
+   _createSolver();
+   m_imageViewWidget->clickFill(true);
+
+   m_grabbingPvsX = false;
+   m_grabbingPvsY = false;
+}
+
+//---------------------------------------------------------------------------
 
 void VLM_Widget::addCalibration()
 {
@@ -213,7 +228,7 @@ void VLM_Widget::addTopWindowPoints()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::addMicroProbeRegion()
 {
@@ -229,9 +244,20 @@ void VLM_Widget::addMicroProbeRegion()
 
 }
 
+//---------------------------------------------------------------------------
 
+void VLM_Widget::addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation)
+{
+   annotation->setMouseOverPixelCoordModel(m_coordinateModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
 
-/*---------------------------------------------------------------------------*/
+   insertAndSelectAnnotation(m_mpTreeModel,
+                             m_mpAnnoTreeView,
+                             m_mpSelectionModel,
+                             annotation);
+}
+
+//---------------------------------------------------------------------------
 
 void VLM_Widget::_createLightToMicroCoords(int id)
 {

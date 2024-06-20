@@ -6,6 +6,7 @@
 #include <mvc/GenScanVlmWidget.h>
 #include <gstar/GStarResource.h>
 #include <QFileDialog>
+#include "mvc/TIFF_Model.h"
 
 //---------------------------------------------------------------------------
 
@@ -52,8 +53,11 @@ void GenScanVlmWidget::createLayout()
     buttonlayout->addWidget(_btn_gen);
     buttonlayout->addWidget(_btn_cancel);
 
+    QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
+
     QLabel* gen_name_label = new QLabel("VLM Scene Name: ");
-    _gen_name_le = new QLineEdit("ScanArea");
+    _gen_name_le = new QLineEdit("ScanArea_"+formattedTime);
     QHBoxLayout* name_hbox = new QHBoxLayout();
     name_hbox->addWidget(gen_name_label);
     name_hbox->addWidget(_gen_name_le);
@@ -68,9 +72,9 @@ void GenScanVlmWidget::createLayout()
 
     _scene_width = new QLineEdit("5000");
     _scene_heigh = new QLineEdit("5000");
-    _scene_motor_x_start = new QLineEdit("0");
+    _scene_motor_x_start = new QLineEdit("-10");
     _scene_motor_x_end = new QLineEdit("10");
-    _scene_motor_y_start = new QLineEdit("0");
+    _scene_motor_y_start = new QLineEdit("-10");
     _scene_motor_y_end = new QLineEdit("10");
     
     QHBoxLayout* scene_box = new QHBoxLayout();
@@ -169,11 +173,7 @@ void GenScanVlmWidget::setStoped()
 
 void GenScanVlmWidget::_clear_regions()
 {
-    for (auto& itr : _dataset_region_map)
-    {
-        delete itr.second;
-    }
-
+    _dataset_calib_map.clear();
     _dataset_region_map.clear();
 }
 
@@ -227,6 +227,19 @@ void GenScanVlmWidget::runProcessing()
                 min_y_val = std::min(min_y_val, y_arr.minCoeff());
                 max_y_val = std::max(max_y_val, y_arr.maxCoeff());
 
+                QMap<QString, QString> region_map;
+                region_map[gstar::UPROBE_PRED_POS_X] = QString::number(x_arr[xidx]);
+                region_map[gstar::UPROBE_PRED_POS_Y] = QString::number(y_arr[yidx]);
+                region_map[gstar::UPROBE_WIDTH] = QString::number(x_arr.size());
+                region_map[gstar::UPROBE_RECT_W] = QString::number(x_arr.size());
+                region_map[gstar::UPROBE_HEIGHT] = QString::number(y_arr.size());
+                region_map[gstar::UPROBE_RECT_H] = QString::number(y_arr.size());
+                region_map[gstar::UPROBE_MICRO_POS_X] = QString::number(x_arr[xidx]);
+                region_map[gstar::UPROBE_MICRO_POS_Y] = QString::number(y_arr[yidx]);
+                region_map[gstar::UPROBE_NAME] = fname;
+                _dataset_region_map[fname] = region_map;
+
+                /*
                 gstar::UProbeRegionGraphicsItem* region = new gstar::UProbeRegionGraphicsItem();
                 region->setPropertyValue(gstar::UPROBE_PRED_POS_X, QVariant(x_arr[xidx]));
                 region->setPropertyValue(gstar::UPROBE_PRED_POS_Y, QVariant(y_arr[yidx]));
@@ -236,6 +249,7 @@ void GenScanVlmWidget::runProcessing()
                 region->setPropertyValue(gstar::UPROBE_NAME, QVariant(fname));
                 
                 _dataset_region_map[fname] = region;
+                */
                 _file_list_model->item(i)->setData(QIcon(":/images/circle_green.png"), Qt::DecorationRole);
             }
             else
@@ -263,17 +277,68 @@ void GenScanVlmWidget::runProcessing()
     float diff_x = max_x_val - min_x_val;
     float diff_y = max_y_val - min_y_val;
 
-    min_x_val = min_x_val - (diff_x * .1);
-    max_x_val = max_x_val + (diff_x * .1);
+    float pad_min_x_val = min_x_val - (diff_x * .1);
+    float pad_max_x_val = max_x_val + (diff_x * .1);
 
-    min_y_val = min_y_val - (diff_y * .1);
-    max_y_val = max_y_val + (diff_y * .1);
+    float pad_min_y_val = min_y_val - (diff_y * .1);
+    float pad_max_y_val = max_y_val + (diff_y * .1);
 
-    _scene_motor_x_start->setText(QString::number(min_x_val));
-    _scene_motor_x_end->setText(QString::number(max_x_val));
+    _scene_motor_x_start->setText(QString::number(pad_min_x_val));
+    _scene_motor_x_end->setText(QString::number(pad_max_x_val));
 
-    _scene_motor_y_start->setText(QString::number(min_y_val));
-    _scene_motor_y_end->setText(QString::number(max_y_val));
+    _scene_motor_y_start->setText(QString::number(pad_min_y_val));
+    _scene_motor_y_end->setText(QString::number(pad_max_y_val));
+
+    //
+    //  A      B
+    //
+    //  C      D
+    //
+
+    QMap<QString, QString> a_marker;
+    a_marker[gstar::UPROBE_NAME] = "a";
+    a_marker[gstar::UPROBE_LIGHT_POS_X] = "0.0";
+    a_marker[gstar::UPROBE_LIGHT_POS_Y] = "0.0";
+    a_marker[gstar::UPROBE_LIGHT_POS_Z] = "0.0";
+    a_marker[gstar::UPROBE_PRED_POS_X] = QString::number(min_x_val);
+    a_marker[gstar::UPROBE_PRED_POS_Y] = QString::number(min_y_val);
+    a_marker[gstar::UPROBE_MICRO_POS_X] = QString::number(min_x_val);
+    a_marker[gstar::UPROBE_MICRO_POS_Y] = QString::number(min_y_val);
+
+    QMap<QString, QString> b_marker;
+    b_marker[gstar::UPROBE_NAME] = "b";
+    b_marker[gstar::UPROBE_LIGHT_POS_X] = "0.0";
+    b_marker[gstar::UPROBE_LIGHT_POS_Y] = "0.0";
+    b_marker[gstar::UPROBE_LIGHT_POS_Z] = "0.0";
+    b_marker[gstar::UPROBE_PRED_POS_X] = QString::number(max_x_val);
+    b_marker[gstar::UPROBE_PRED_POS_Y] = QString::number(min_y_val);
+    b_marker[gstar::UPROBE_MICRO_POS_X] = QString::number(max_x_val);
+    b_marker[gstar::UPROBE_MICRO_POS_Y] = QString::number(min_y_val);
+
+    QMap<QString, QString> c_marker;
+    c_marker[gstar::UPROBE_NAME] = "c";
+    c_marker[gstar::UPROBE_LIGHT_POS_X] = "0.0";
+    c_marker[gstar::UPROBE_LIGHT_POS_Y] = "0.0";
+    c_marker[gstar::UPROBE_LIGHT_POS_Z] = "0.0";
+    c_marker[gstar::UPROBE_PRED_POS_X] = QString::number(min_x_val);
+    c_marker[gstar::UPROBE_PRED_POS_Y] = QString::number(max_y_val);
+    c_marker[gstar::UPROBE_MICRO_POS_X] = QString::number(min_x_val);
+    c_marker[gstar::UPROBE_MICRO_POS_Y] = QString::number(max_y_val);
+    
+    QMap<QString, QString> d_marker;
+    d_marker[gstar::UPROBE_NAME] = "d";
+    d_marker[gstar::UPROBE_LIGHT_POS_X] = "0.0";
+    d_marker[gstar::UPROBE_LIGHT_POS_Y] = "0.0";
+    d_marker[gstar::UPROBE_LIGHT_POS_Z] = "0.0";
+    d_marker[gstar::UPROBE_PRED_POS_X] = QString::number(max_x_val);
+    d_marker[gstar::UPROBE_PRED_POS_Y] = QString::number(max_y_val);
+    d_marker[gstar::UPROBE_MICRO_POS_X] = QString::number(max_x_val);
+    d_marker[gstar::UPROBE_MICRO_POS_Y] = QString::number(max_y_val);
+
+    _dataset_calib_map["A"] = a_marker;
+    _dataset_calib_map["B"] = b_marker;
+    _dataset_calib_map["C"] = c_marker;
+    _dataset_calib_map["D"] = d_marker;
 
     _processing = false;
     _btn_gen->setEnabled(true);  
@@ -284,7 +349,83 @@ void GenScanVlmWidget::runProcessing()
 
 void GenScanVlmWidget::_generate()
 {
+    QString xml_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".xml";
+    QString tif_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".tif";
+    TIFF_Model model;
+    if(_background_img_loc_le->text().size() > 0)
+    {
+        //QImage img(_background_img_loc_le->text());
+        //model.set_background_img(img);
+        // copy tiff to vlm folder as name
+    }
+    else
+    {
+        QImage img(QSize(_scene_width->text().toInt(), _scene_heigh->text().toInt()), QImage::Format_RGB32);
+        img.fill(Qt::gray);
+        model.set_background_img(img);
+    }
+    float f_scene_w = _scene_width->text().toFloat();
+    float f_scene_h = _scene_heigh->text().toFloat();
 
+    float w10 = f_scene_w * .1;
+    float h10 = f_scene_h * .1;
+    _dataset_calib_map["A"][gstar::UPROBE_LIGHT_POS_X] = QString::number(w10);
+    _dataset_calib_map["A"][gstar::UPROBE_REAL_POS_X] = QString::number(w10);
+    _dataset_calib_map["A"][gstar::UPROBE_LIGHT_POS_Y] = QString::number(h10);
+    _dataset_calib_map["A"][gstar::UPROBE_REAL_POS_Y] = QString::number(h10);
+    _dataset_calib_map["B"][gstar::UPROBE_LIGHT_POS_X] = QString::number(f_scene_w - w10);
+    _dataset_calib_map["B"][gstar::UPROBE_REAL_POS_X] = QString::number(f_scene_w - w10);
+    _dataset_calib_map["B"][gstar::UPROBE_LIGHT_POS_Y] = QString::number(h10);
+    _dataset_calib_map["B"][gstar::UPROBE_REAL_POS_Y] = QString::number(h10);
+    _dataset_calib_map["C"][gstar::UPROBE_LIGHT_POS_X] = QString::number(w10);
+    _dataset_calib_map["C"][gstar::UPROBE_REAL_POS_X] = QString::number(w10);
+    _dataset_calib_map["C"][gstar::UPROBE_LIGHT_POS_Y] = QString::number(f_scene_h - h10);
+    _dataset_calib_map["C"][gstar::UPROBE_REAL_POS_Y] = QString::number(f_scene_h - h10);
+    _dataset_calib_map["D"][gstar::UPROBE_LIGHT_POS_X] = QString::number(f_scene_w - w10);
+    _dataset_calib_map["D"][gstar::UPROBE_REAL_POS_X] = QString::number(f_scene_w - w10);
+    _dataset_calib_map["D"][gstar::UPROBE_LIGHT_POS_Y] = QString::number(f_scene_h - h10);
+    _dataset_calib_map["D"][gstar::UPROBE_REAL_POS_Y] = QString::number(f_scene_h - h10);
+
+    float min_x_mot = _scene_motor_x_start->text().toFloat();
+    float max_x_mot = _scene_motor_x_end->text().toFloat();
+
+    float x_tot_mot = std::abs(max_x_mot - min_x_mot);
+
+    float min_y_mot = _scene_motor_y_start->text().toFloat();
+    float max_y_mot = _scene_motor_y_end->text().toFloat();
+
+    float y_tot_mot = std::abs(max_y_mot - min_y_mot);
+
+    for (auto itr : _dataset_calib_map)
+    {
+        model.add_calib_marker(itr.second);
+    }
+    for (auto itr : _dataset_region_map)
+    {
+        float mx = itr.second[gstar::UPROBE_MICRO_POS_X].toFloat();
+        float per_x = std::abs( mx - min_x_mot) / x_tot_mot;
+        float px = per_x * f_scene_w;
+        int width = itr.second[gstar::UPROBE_WIDTH].toInt();
+        int tlx = px - (width * 0.5);
+        itr.second[gstar::UPROBE_REAL_POS_X] = QString::number(px);
+        itr.second[gstar::UPROBE_LIGHT_POS_X] = QString::number(px);
+        itr.second[gstar::UPROBE_RECT_TLX] = QString::number(tlx);
+        float my = itr.second[gstar::UPROBE_MICRO_POS_Y].toFloat();
+        float per_y = std::abs( my - min_y_mot) / y_tot_mot;
+        float py = per_y * f_scene_h;
+        int height = itr.second[gstar::UPROBE_HEIGHT].toInt();
+        int tly = py - (height * 0.5);
+        itr.second[gstar::UPROBE_REAL_POS_Y] = QString::number(py);
+        itr.second[gstar::UPROBE_LIGHT_POS_Y] = QString::number(py);
+        itr.second[gstar::UPROBE_RECT_TLY] = QString::number(tly);
+        model.add_region_marker(itr.second);
+    }
+    if(model.save_img(tif_name))
+    {
+        model.save_xml(xml_name);
+    }
+    emit new_scan_area(tif_name);
+    close();
 }
 
 //---------------------------------------------------------------------------

@@ -102,6 +102,8 @@ public slots:
 
    void onGenScanArea(const QStringList& file_list);
 
+   void newScanArea(const QString& name);
+   
 protected:
 
    /**

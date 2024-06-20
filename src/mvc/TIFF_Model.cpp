@@ -102,10 +102,13 @@ bool TIFF_Model::load(QString filepath)
                             val = 0.f; 
                             break;
                         }
-                        //float val = mat.at<float>(h, w);
                         _pixel_values(h, w) = val;
-                        val = (val - minVal) / range;
-                        int c = val * 255;
+                        int c = val;
+                        if(range > 0)
+                        {
+                            val = (val - minVal) / range;
+                            c = val * 255;
+                        }
                         _img.setPixelColor(w, h, QColor(c, c, c, 255));
                     }
                 }
@@ -204,7 +207,7 @@ int TIFF_Model::getNumberOfImages()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int TIFF_Model::getRank()
 {
@@ -213,5 +216,38 @@ int TIFF_Model::getRank()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
+bool TIFF_Model::save_img(QString filename)
+{
+    QImageWriter writer(filename);
+    if (false == writer.write(_img))
+    {
+        cv::Mat mat(_img.height(), _img.width(), CV_8UC4);
+        for (int h = 0; h < mat.rows; ++h)
+        {
+            for (int w = 0; w < mat.cols; ++w)
+            {                
+                QColor c = _img.pixelColor(w,h);
+                cv::Vec4b& bgra = mat.at<cv::Vec4b>(h, w);
+                bgra[0] = c.blue(); // blue
+                bgra[1] = c.green(); // Green
+                bgra[2] = c.red(); // Red
+                bgra[3] = UCHAR_MAX; // Alpha
+            }
+        }
+
+        try
+        {
+            return imwrite(filename.toStdString(), mat);
+        }
+        catch (const cv::Exception& ex)
+        {
+            logW<<"Exception converting image to PNG format: "<< ex.what()<<"\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+//---------------------------------------------------------------------------
