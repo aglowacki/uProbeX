@@ -12,6 +12,7 @@
 const QString STR_MARKERS = "markers";
 const QString STR_MARKER = "marker";
 const QString STR_REGION_MARKER = "regionmarker";
+const QString STR_SOLVER = "solver";
 
 /*----------------src/mvc/VLM_Model.cpp \-----------------------------------------------------------*/
 
@@ -86,14 +87,19 @@ void VLM_Model::_load_xml_markers_and_regions()
 			{
 				continue;
 			}
-			if (xml.name() == STR_MARKER)
+			else if (xml.name() == STR_MARKER)
 			{
 				_markersLoaded.prepend(_parseMarker(xml));
 				continue;
 			}
-			if (xml.name() == STR_REGION_MARKER)
+			else if (xml.name() == STR_REGION_MARKER)
 			{
 				_regionMarkersLoaded.prepend(_parseRegionMarker(xml));
+			}
+			else if (xml.name() == STR_SOLVER)
+			{
+				// TODO: load and config solver 
+				//_regionMarkersLoaded.prepend(_parseRegionMarker(xml));
 			}
 		}
 	}

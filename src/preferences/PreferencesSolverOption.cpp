@@ -27,7 +27,7 @@ PreferencesSolverOption::PreferencesSolverOption(
 
    m_windowList = windowList;
    m_solverWidget = nullptr;
-   m_transformer = new CoordinateTransformer();
+   m_transformer = new SV_CoordTransformer();
    m_solverParameterParse = new SolverParameterParse();
    //m_solver = solver;
 

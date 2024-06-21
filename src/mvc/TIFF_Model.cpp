@@ -154,15 +154,6 @@ void TIFF_Model::_initializeCoordModel()
 {
     double xScale = 1.0;
     double yScale = 1.0;
-    double imgWidth;
-    double imgHeight;
-
-    int topLeftIdx = 0;
-    int topRightIdx;
-    int bottomLeftIdx;
-
-    imgWidth = _img.width();
-    imgHeight = _img.height();
 
     LinearTransformer* lt = new LinearTransformer();
     lt->setTopLeft(0, 0);

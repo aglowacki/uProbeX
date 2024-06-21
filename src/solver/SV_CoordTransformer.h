@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef COORDINATE_TRANSFORMER_H
-#define COORDINATE_TRANSFORMER_H
+#ifndef SV_COORDINATE_TRANSFORMER_H
+#define SV_COORDINATE_TRANSFORMER_H
 
 /*---------------------------------------------------------------------------*/
 
@@ -20,7 +20,7 @@
  * @brief
  *
  */
-class CoordinateTransformer : public gstar::ITransformer
+class SV_CoordTransformer : public gstar::ITransformer
 {
 
 public:
@@ -28,12 +28,12 @@ public:
    /**
     * Constructor.
     */
-   CoordinateTransformer();
+   SV_CoordTransformer();
 
    /**
     * Destructor.
     */
-   virtual ~CoordinateTransformer();
+   virtual ~SV_CoordTransformer();
 
    /**
     * @brief Init

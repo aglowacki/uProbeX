@@ -62,11 +62,6 @@ public:
     */
    void getOptions(QMap<QString, double>& dict_options);
 
-   /**
-    * @brief getCoefficientAndTransform
-    *
-    * @param coefList
-    */
    bool parseSolverCoefList(QStringList& coefList);
 
    /**

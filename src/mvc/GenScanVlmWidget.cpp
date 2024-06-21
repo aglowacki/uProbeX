@@ -277,11 +277,11 @@ void GenScanVlmWidget::runProcessing()
     float diff_x = max_x_val - min_x_val;
     float diff_y = max_y_val - min_y_val;
 
-    float pad_min_x_val = min_x_val - (diff_x * .1);
-    float pad_max_x_val = max_x_val + (diff_x * .1);
+    float pad_min_x_val = min_x_val - (diff_x * .05);
+    float pad_max_x_val = max_x_val + (diff_x * .05);
 
-    float pad_min_y_val = min_y_val - (diff_y * .1);
-    float pad_max_y_val = max_y_val + (diff_y * .1);
+    float pad_min_y_val = min_y_val - (diff_y * .05);
+    float pad_max_y_val = max_y_val + (diff_y * .05);
 
     _scene_motor_x_start->setText(QString::number(pad_min_x_val));
     _scene_motor_x_end->setText(QString::number(pad_max_x_val));
@@ -349,6 +349,9 @@ void GenScanVlmWidget::runProcessing()
 
 void GenScanVlmWidget::_generate()
 {
+    _btn_browse->setEnabled(false);
+    _btn_gen->setEnabled(false);
+    _btn_scan->setEnabled(false);
     QString xml_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".xml";
     QString tif_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".tif";
     TIFF_Model model;
@@ -367,8 +370,8 @@ void GenScanVlmWidget::_generate()
     float f_scene_w = _scene_width->text().toFloat();
     float f_scene_h = _scene_heigh->text().toFloat();
 
-    float w10 = f_scene_w * .1;
-    float h10 = f_scene_h * .1;
+    float w10 = f_scene_w * .05;
+    float h10 = f_scene_h * .05;
     _dataset_calib_map["A"][gstar::UPROBE_LIGHT_POS_X] = QString::number(w10);
     _dataset_calib_map["A"][gstar::UPROBE_REAL_POS_X] = QString::number(w10);
     _dataset_calib_map["A"][gstar::UPROBE_LIGHT_POS_Y] = QString::number(h10);
@@ -426,6 +429,10 @@ void GenScanVlmWidget::_generate()
     }
     emit new_scan_area(tif_name);
     close();
+
+    _btn_browse->setEnabled(true);
+    _btn_gen->setEnabled(true);
+    _btn_scan->setEnabled(true);
 }
 
 //---------------------------------------------------------------------------

@@ -27,7 +27,8 @@
 #include <solver/Solver.h>
 #include <solver/NelderMeadSolver.h>
 #include <solver/PythonSolver.h>
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
+#include <solver/LinearCoordTransformer.h>
 #include <solver/PythonTransformer.h>
 
 

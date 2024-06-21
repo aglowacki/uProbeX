@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
 #include <math.h>
 
 #ifndef M_PI
@@ -13,7 +13,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-CoordinateTransformer::CoordinateTransformer() : ITransformer()
+SV_CoordTransformer::SV_CoordTransformer() : ITransformer()
 {
 
 
@@ -21,14 +21,14 @@ CoordinateTransformer::CoordinateTransformer() : ITransformer()
 
 /*---------------------------------------------------------------------------*/
 
-CoordinateTransformer::~CoordinateTransformer()
+SV_CoordTransformer::~SV_CoordTransformer()
 {
 
 }
 
 /*---------------------------------------------------------------------------*/
 
-QMap<QString, double> CoordinateTransformer::getAllCoef()
+QMap<QString, double> SV_CoordTransformer::getAllCoef()
 {
 
     QMap<QString, double> m_coefs {
@@ -53,7 +53,7 @@ QMap<QString, double> CoordinateTransformer::getAllCoef()
 
 /*---------------------------------------------------------------------------*/
 
-bool CoordinateTransformer::Init(QMap<QString, double> globalVars)
+bool SV_CoordTransformer::Init(QMap<QString, double> globalVars)
 {
 
     
@@ -120,7 +120,7 @@ bool CoordinateTransformer::Init(QMap<QString, double> globalVars)
 
 /*---------------------------------------------------------------------------*/
 
-bool CoordinateTransformer::getVariable(QString name, double *val)
+bool SV_CoordTransformer::getVariable(QString name, double *val)
 {
 
    if(name == STR_m2xfm_x)
@@ -200,7 +200,7 @@ bool CoordinateTransformer::getVariable(QString name, double *val)
 
 /*---------------------------------------------------------------------------*/
 
-bool CoordinateTransformer::setVariable(QString name, double val)
+bool SV_CoordTransformer::setVariable(QString name, double val)
 {
 
    if(name == STR_m2xfm_x)
@@ -280,7 +280,7 @@ bool CoordinateTransformer::setVariable(QString name, double val)
 
 /*---------------------------------------------------------------------------*/
 
-void CoordinateTransformer::transformCommand(double inX,
+void SV_CoordTransformer::transformCommand(double inX,
                                              double inY,
                                              double inZ,
                                              double *outX,

@@ -56,8 +56,9 @@ enum TabIndex{
                MICROPROBE_IDX
              };
 
-static const int ID_NELDER_MEAD = 0;
-static const int ID_PYTHON = 1;
+static const int ID_LINEAR = 0;
+static const int ID_NELDER_MEAD = 1;
+static const int ID_PYTHON = 2;
 
 //---------------------------------------------------------------------------
 
@@ -275,75 +276,82 @@ void VLM_Widget::_createLightToMicroCoords(int id)
         lightTransformer = nullptr;
     }
 
-    if (id == ID_NELDER_MEAD)
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
-        if (m_solverParameterParse->parseSolverCoefList(coefList))
-        {
-            m_solverParameterParse->getTransform(allCoefs);
-        }
-        else
-        {
-            //generate defaults
-            CoordinateTransformer c;
-            allCoefs = c.getAllCoef();
-        }
-        
+   if(id == ID_LINEAR)
+   {
+      if (lightTransformer == nullptr)
+      {
+         lightTransformer = new LinearCoordTransformer();
+      }
+   }
+   else if (id == ID_NELDER_MEAD)
+   {
+      QStringList coefList = Preferences::inst()->getValue(STR_PRF_NMCoefficient).toStringList();
+      if (m_solverParameterParse->parseSolverCoefList(coefList))
+      {
+         m_solverParameterParse->getTransform(allCoefs);
+      }
+      else
+      {
+         //generate defaults
+         SV_CoordTransformer c;
+         allCoefs = c.getAllCoef();
+      }
+      
 
-        if (lightTransformer == nullptr)
-        {
-            lightTransformer = new CoordinateTransformer();
-        }
-    }
-    else
-    {
-        QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
+      if (lightTransformer == nullptr)
+      {
+         lightTransformer = new SV_CoordTransformer();
+      }
+   }
+   else
+   {
+      QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
 
-        if (false == m_solverParameterParse->parseSolverCoefList(coefList))
-        {
-            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-            _createSolver();
-            return;
-        }
-        m_solverParameterParse->getTransform(allCoefs);
+      if (false == m_solverParameterParse->parseSolverCoefList(coefList))
+      {
+         Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+         _createSolver();
+         return;
+      }
+      m_solverParameterParse->getTransform(allCoefs);
 
-        if (lightTransformer == nullptr)
-        {
-            QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
-            if (pythonFileName.isEmpty())
-            {
-                QMessageBox::critical(nullptr, "Error",
-                    "Must have a python script having a transform function, using default transformer right now.");
-                Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-                _createSolver();
-                return;
-            }
-            QFileInfo fileInfo = QFileInfo(pythonFileName);
-            lightTransformer = new PythonTransformer(
-                fileInfo.path(),
-                fileInfo.baseName(),
-                QString("my_transform"));
-        }
-    }
+      if (lightTransformer == nullptr)
+      {
+         QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
+         if (pythonFileName.isEmpty())
+         {
+               QMessageBox::critical(nullptr, "Error",
+                  "Must have a python script having a transform function, using default transformer right now.");
+               Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+               _createSolver();
+               return;
+         }
+         QFileInfo fileInfo = QFileInfo(pythonFileName);
+         lightTransformer = new PythonTransformer(
+               fileInfo.path(),
+               fileInfo.baseName(),
+               QString("my_transform"));
+      }
+   }
 
-    if (lightTransformer->Init(allCoefs))
-    {
-        if (m_lightToMicroCoordModel != nullptr)
-        {
-            m_lightToMicroCoordModel->setTransformer(lightTransformer);
-        }
-        else
-        {
-            m_lightToMicroCoordModel = new gstar::CoordinateModel(lightTransformer);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
-        logW << "Could not init Transformer\n";
-    }
+   if (lightTransformer->Init(allCoefs))
+   {
+      if (m_lightToMicroCoordModel != nullptr)
+      {
+         m_lightToMicroCoordModel->setTransformer(lightTransformer);
+      }
+      else
+      {
+         m_lightToMicroCoordModel = new gstar::CoordinateModel(lightTransformer);
+      }
+   }
+   else
+   {
+      QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Transformer!");
+      logW << "Could not init Transformer\n";
+   }
 
-    m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel);
+   m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel);
 
 }
 
@@ -363,54 +371,59 @@ void VLM_Widget::_createSolver()
 
     _createLightToMicroCoords(id);
 
-    if (id == ID_NELDER_MEAD)
-    {
-        NelderMeadSolver* nm = new NelderMeadSolver();
 
-        ///nm->setTransformer();
-        QStringList optionList = Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList();
-        if (false == m_solverParameterParse->parseSolverOptionList(optionList))
-        {
-            logE << "Error reading options for NM solver\n";
-            // Initialize with the default option
-            dict_options = nm->getOptions();
-        }
-        else
-        {
-            m_solverParameterParse->getOptions(dict_options);
-        }
+   if (id == ID_LINEAR)
+   {
 
-        m_solver->setImpl(nm);
-    }
-    else
-    {
-        PythonSolver* ps = new PythonSolver();
+   }
+   else if (id == ID_NELDER_MEAD)
+   {
+      NelderMeadSolver* nm = new NelderMeadSolver();
 
-        QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
-        QFileInfo fileInfo = QFileInfo(pythonFileName);
+      ///nm->setTransformer();
+      QStringList optionList = Preferences::inst()->getValue(STR_PRF_NMOptions).toStringList();
+      if (false == m_solverParameterParse->parseSolverOptionList(optionList))
+      {
+         logE << "Error reading options for NM solver\n";
+         // Initialize with the default option
+         dict_options = nm->getOptions();
+      }
+      else
+      {
+         m_solverParameterParse->getOptions(dict_options);
+      }
 
-        QStringList optionList = Preferences::inst()->getValue(STR_PRF_PythonOptions).toStringList();
+      m_solver->setImpl(nm);
+   }
+   else
+   {
+      PythonSolver* ps = new PythonSolver();
 
-        if (pythonFileName.isEmpty()
-            || false == m_solverParameterParse->parseSolverOptionList(optionList)
-            || false == ps->initialPythonSolver(fileInfo.path(),
-                fileInfo.baseName(),
-                QString("my_solver")))
-        {
-            logE << "Error reading options for python solver, reverting to NelderMeadSolver\n";
-            QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
-            Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
-            _createSolver();
-            return;
-        }
-        m_solverParameterParse->getOptions(dict_options);
-        m_solver->setImpl(ps);
+      QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
+      QFileInfo fileInfo = QFileInfo(pythonFileName);
 
-    }
-    ITransformer* trans = m_lightToMicroCoordModel->getTransformer();
-    m_solver->setAllCoef(trans->getAllCoef());
-    m_solver->setOptions(dict_options);
-    m_solver->setTransformer(trans);
+      QStringList optionList = Preferences::inst()->getValue(STR_PRF_PythonOptions).toStringList();
+
+      if (pythonFileName.isEmpty()
+         || false == m_solverParameterParse->parseSolverOptionList(optionList)
+         || false == ps->initialPythonSolver(fileInfo.path(),
+               fileInfo.baseName(),
+               QString("my_solver")))
+      {
+         logE << "Error reading options for python solver, reverting to NelderMeadSolver\n";
+         QMessageBox::critical(nullptr, "uProbeX", "Error initializeing Python solver,  reverting to NelderMeadSolver");
+         Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+         _createSolver();
+         return;
+      }
+      m_solverParameterParse->getOptions(dict_options);
+      m_solver->setImpl(ps);
+
+   }
+   ITransformer* trans = m_lightToMicroCoordModel->getTransformer();
+   m_solver->setAllCoef(trans->getAllCoef());
+   m_solver->setOptions(dict_options);
+   m_solver->setTransformer(trans);
 
 }
 

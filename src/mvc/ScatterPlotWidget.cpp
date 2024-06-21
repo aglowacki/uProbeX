@@ -67,7 +67,7 @@ void ScatterPlotWidget::_createLayout()
     connect(_btn_del, &QPushButton::released, this, &ScatterPlotWidget::onDel);
     _btn_scan_corr_coef = new QPushButton("Scan Corr Coef");
     connect(_btn_scan_corr_coef, &QPushButton::released, this, &ScatterPlotWidget::onScan);
-    _btn_save_png = new QPushButton("Save PNG");
+    _btn_save_png = new QPushButton("Export");
     connect(_btn_save_png, &QPushButton::released, this, &ScatterPlotWidget::onSavePng);
 
     if (num_wins < 1)

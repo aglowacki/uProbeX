@@ -174,7 +174,7 @@ void SolverProfileWidget::createCompontent()
 
 void SolverProfileWidget::addDefaultTransformers()
 {
-    CoordinateTransformer ctrans;
+    SV_CoordTransformer ctrans;
     gstar::LinearTransformer ltrans;
     addProfile(QSTR_2IDE_COORD_TRANS, QSTR_2IDE_COORD_TRANS_DESC, ctrans.getAllCoef());
     addProfile(QSTR_LINEAR_COORD_TRANS, QSTR_LINEAR_COORD_TRANS_DESC, ltrans.getAllCoef() );

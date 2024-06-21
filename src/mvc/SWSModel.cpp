@@ -196,7 +196,6 @@ int SWSModel::getRank()
 
 void SWSModel::_initializeCoordModel()
 {
-
    vec2 topLeft;
    vec2 topRight;
    vec2 bottomLeft;
@@ -373,9 +372,6 @@ void SWSModel::_initializeCoordModel()
         lt->setScale(xScale, yScale, 1.0);
         lt->setDivider(1000.0, 1000.0, 1.0);
         _coord_model = new gstar::CoordinateModel(lt);
-
-      
-
    }
 }
 

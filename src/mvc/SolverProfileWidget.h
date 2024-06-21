@@ -22,7 +22,7 @@
 #include <preferences/SolverParameterWidget.h>
 #include <solver/PythonSolver.h>
 #include <mvc/SolverWidget.h>
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
 #include <gstar/LinearTransformer.h>
 
 
