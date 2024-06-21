@@ -247,6 +247,8 @@ protected:
 
    gstar::MotorLookupTransformer _motor_trans;
 
+   QTabWidget* _tw_image_controls;
+
 };
 
 

@@ -132,7 +132,7 @@ private slots:
    /**
     * @brief openMAPSWorkspace
     */
-   void openMapsWorkspace();
+   void openMapsWorkspaceA();
 
    void openRecentMapsWorkspace();
 
@@ -158,7 +158,7 @@ private slots:
    /**
     * @brief saveAllXML
     */
-   void saveAllXML();
+   void saveAllXMLA();
 
    /**
     * @brief Show about dialog.Triggered from the menu.
@@ -279,24 +279,19 @@ private:
     */
    QMenuBar* m_menu;
 
-   QMenu* _recentWorkspaceMenu;
+   QMenu* _menu_file;
+   QMenu* _menu_recent_workspace;
 
-   /**
-    * @brief File menu
-    */
-   QMenu* m_menuFile;
+   QMenu* _menu_stream;
 
-   /**
-    * @brief Stream menu
-    */
-   QMenu* m_menuStream;
+   QMenu* _menu_batch;
 
-   QMenu* m_menuBatch;
+   QMenu* _menu_view;
+   QMenu* _menu_view_file_top;
+   QMenu* _menu_view_file_side;
+   QMenu* _menu_view_marker;
 
-   /**
-    * @brief Help menu
-    */
-   QMenu* m_menuHelp;
+   QMenu* _menu_help;
 
    /**
     * @brief MDI area that serves as a central widget

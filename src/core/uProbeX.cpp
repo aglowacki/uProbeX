@@ -188,75 +188,79 @@ void uProbeX::createMenuBar()
     setMenuBar(m_menu);
 
     // File menu
-    m_menuFile = new QMenu(tr("File"));
-    action = m_menuFile->addAction("Open Maps Workspace");
-    connect(action, SIGNAL(triggered()), this, SLOT(openMapsWorkspace()));
+    _menu_file = new QMenu("File");
+    action = _menu_file->addAction("Open Maps Workspace");
+    connect(action, &QAction::triggered, this, &uProbeX::openMapsWorkspaceA);
 
-    _recentWorkspaceMenu = m_menuFile->addMenu("Open Recent Workspace");
+    _menu_recent_workspace = _menu_file->addMenu("Open Recent Workspace");
     updateRecentMapsWorkspaces();
 
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Open VLM Workspace");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_VLM_File()));
-    action = m_menuFile->addAction("Open HDF5 Analyzed");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_HDF_File()));
-    action = m_menuFile->addAction("Open Raw Spectra");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_file()));
-    action = m_menuFile->addAction("Open Raw Spectra and Override");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_and_override_file()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Screen Shot");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Activated VLM DATA");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveActivatedXML()));
-    action = m_menuFile->addAction("Save All VLM DATA");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Convert v9 ROI's to V10");
-    connect(action, SIGNAL(triggered()), this, SLOT(upgradeV9Rois()));
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Open VLM Workspace");
+    connect(action, &QAction::triggered, this, &uProbeX::open_VLM_File);
+    action = _menu_file->addAction("Open HDF5 Analyzed");
+    connect(action, &QAction::triggered, this, &uProbeX::open_HDF_File);
+    action = _menu_file->addAction("Open Raw Spectra");
+    connect(action, &QAction::triggered, this, &uProbeX::open_spectra_file);
+    action = _menu_file->addAction("Open Raw Spectra and Override");
+    connect(action, &QAction::triggered, this, &uProbeX::open_spectra_and_override_file);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Save Screen Shot");
+    connect(action, &QAction::triggered, this, &uProbeX::saveScreenShot);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Save Activated VLM DATA");
+    connect(action, &QAction::triggered, this, &uProbeX::saveActivatedXML);
+    action = _menu_file->addAction("Save All VLM DATA");
+    connect(action, &QAction::triggered, this, &uProbeX::saveAllXMLA);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Convert v9 ROI's to V10");
+    connect(action, &QAction::triggered, this, &uProbeX::upgradeV9Rois);
 
-    //action = m_menuFile->addAction("Save preferences");
-    //connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
-    //action = m_menuFile->addAction("Load preferences");
-    //connect(action, SIGNAL(triggered()), this, SLOT(loadPreferencesXMLData()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Preferences");
-    connect(action, SIGNAL(triggered()), this, SLOT(showPreferences()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Exit");
-    connect(action, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    m_menu->addMenu(m_menuFile);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Preferences");
+    connect(action, &QAction::triggered, this, &uProbeX::showPreferences);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Exit");
+    connect(action, &QAction::triggered, this, &uProbeX::exitApplication);
+    m_menu->addMenu(_menu_file);
 
-    connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
+    connect(_menu_file, &QMenu::aboutToShow, this, &uProbeX::menuBarEnable);
+
+    // TODO: finish view options
+    _menu_view = new QMenu("View");
+    _menu_view_file_top = _menu_view->addMenu("File Nav Top");
+    _menu_view_file_side = _menu_view->addMenu("File Nav Side");
+    _menu_view_marker = _menu_view->addMenu("Annotation : ROI");
+    //action = _menu_file->addAction("File Navigate");
+    //connect(action, &QAction::triggered, this, &uProbeX::exitApplication);
+    //m_menu->addMenu(_menu_view);
 
     // Batch menu
-    m_menuBatch = new QMenu(tr("Batch Processing"));
-    _action_per_pixel = m_menuBatch->addAction("Per Pixel Processing");
-    connect(_action_per_pixel, SIGNAL(triggered()), this, SLOT(batchPerPixel()));
-    _action_export_images = m_menuBatch->addAction("Export Images");
-    connect(_action_export_images, SIGNAL(triggered()), this, SLOT(BatchExportImages()));
-    _action_roi_stats = m_menuBatch->addAction("Roi Stats");
-    connect(_action_roi_stats, SIGNAL(triggered()), this, SLOT(BatchRoiStats()));
-    _action_gen_scan_vlm = m_menuBatch->addAction("Generate Scan VLM");
-    connect(_action_gen_scan_vlm, SIGNAL(triggered()), this, SLOT(BatcGenScanVlm()));
-
-    m_menu->addMenu(m_menuBatch);
+    _menu_batch = new QMenu("Batch Processing");
+    _action_per_pixel = _menu_batch->addAction("Per Pixel Processing");
+    connect(_action_per_pixel, &QAction::triggered, this, &uProbeX::batchPerPixel);
+    _action_export_images = _menu_batch->addAction("Export Images");
+    connect(_action_export_images, &QAction::triggered, this, &uProbeX::BatchExportImages);
+    _action_roi_stats = _menu_batch->addAction("Roi Stats");
+    connect(_action_roi_stats, &QAction::triggered, this, &uProbeX::BatchRoiStats);
+    _action_gen_scan_vlm = _menu_batch->addAction("Generate Scan VLM");
+    connect(_action_gen_scan_vlm, &QAction::triggered, this, &uProbeX::BatcGenScanVlm);
+    m_menu->addMenu(_menu_batch);
 
     setBatchActionsEnabled(false);
 
     // Stream menu
-    m_menuStream = new QMenu(tr("Live Stream"));
-    action = m_menuStream->addAction("Open Live Stream Viewer");
-    connect(action, SIGNAL(triggered()), this, SLOT(openLiveStreamViewer()));
-    m_menu->addMenu(m_menuStream);
+    _menu_stream = new QMenu(tr("Live Stream"));
+    action = _menu_stream->addAction("Open Live Stream Viewer");
+    connect(action, &QAction::triggered, this, &uProbeX::openLiveStreamViewer);
+    m_menu->addMenu(_menu_stream);
 
     // Help menu
-    m_menuHelp = new QMenu(tr("Help"));
-    action = m_menuHelp->addAction("About");
-    connect(action, SIGNAL(triggered()), this, SLOT(showAbout()));
-	m_menuHelp->addAction(_log_dock->toggleViewAction());
-    m_menu->addMenu(m_menuHelp);
+    _menu_help = new QMenu(tr("Help"));
+    action = _menu_help->addAction("About");
+    connect(action, &QAction::triggered, this, &uProbeX::showAbout);
+	_menu_help->addAction(_log_dock->toggleViewAction());
+    m_menu->addMenu(_menu_help);
 
 }
 
@@ -270,7 +274,7 @@ void uProbeX::setBatchActionsEnabled(bool val)
    _action_roi_stats->setEnabled(val);
    _action_gen_scan_vlm->setEnabled(val);
    */
-  m_menuBatch->setEnabled(val);
+  _menu_batch->setEnabled(val);
 }
 
 //---------------------------------------------------------------------------
@@ -809,19 +813,19 @@ void uProbeX::open_VLM_File()
 
 void uProbeX::updateRecentMapsWorkspaces()
 {
-    _recentWorkspaceMenu->clear();
+    _menu_recent_workspace->clear();
 
     QStringList recentPaths = Preferences::inst()->getValue(STR_RECENT_MAPS_WORKSPACES).toStringList();
     foreach(QString path, recentPaths)
     {
-        QAction* action = _recentWorkspaceMenu->addAction(path);
+        QAction* action = _menu_recent_workspace->addAction(path);
         connect(action, &QAction::triggered, this, &uProbeX::openRecentMapsWorkspace);
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::openMapsWorkspace()
+void uProbeX::openMapsWorkspaceA()
 {
 
     QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
@@ -970,7 +974,7 @@ void uProbeX::saveActivatedXML()
 
 /*---------------------------------------------------------------------------*/
 
-void uProbeX::saveAllXML()
+void uProbeX::saveAllXMLA()
 {
     saveAllXML(true);
 }
