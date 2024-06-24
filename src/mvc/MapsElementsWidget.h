@@ -60,6 +60,8 @@ public:
 
    MapsH5Model *getModel(){return _model;}
 
+   void setTabVisible(int idx, bool val) { _tab_widget->setTabVisible(idx, val);}
+
 signals:
    void loaded_perc(int, int);
 

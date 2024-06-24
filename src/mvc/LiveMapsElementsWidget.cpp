@@ -97,6 +97,11 @@ void LiveMapsElementsWidget::createLayout()
  //   _textEdit->resize(1024, 800);
  //   _textEdit->scrollBarWidgets(Qt::AlignRight);
     _mapsElementsWidget = new MapsElementsWidget(1,1,true,this);
+    //_mapsElementsWidget->setTabVisible(1, false);
+    _mapsElementsWidget->setTabVisible(2, false);
+    _mapsElementsWidget->setTabVisible(3, false);
+    _mapsElementsWidget->setTabVisible(4, false);
+    _mapsElementsWidget->setTabVisible(5, false);
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
  //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 
@@ -112,7 +117,19 @@ void LiveMapsElementsWidget::createLayout()
 	            _mapsElementsWidget,
 	            SLOT(model_updated()));
 	}
-    layout->addWidget(_mapsElementsWidget);
+
+
+    _vlm_widget = new VLM_Widget();
+
+    _scan_queue_widget = new ScanQueueWidget();
+
+    _tab_widget = new QTabWidget();
+    _tab_widget->addTab(_mapsElementsWidget, "Counts");
+    _tab_widget->addTab(_vlm_widget, "Scan Area");
+    _tab_widget->addTab(_scan_queue_widget, "Queue");
+
+
+    layout->addWidget(_tab_widget);
 
     _progressBar = new QProgressBar(this);
     layout->addWidget(_progressBar);

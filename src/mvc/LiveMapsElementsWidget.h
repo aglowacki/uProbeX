@@ -14,8 +14,11 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QTabWidget>
 #include "NetStreamWorker.h"
 #include "mvc/MapsElementsWidget.h"
+#include "mvc/VLM_Widget.h"
+#include "mvc/ScanQueueWidget.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -57,6 +60,12 @@ protected:
    void createLayout();
 
    MapsElementsWidget *_mapsElementsWidget;
+
+   VLM_Widget *_vlm_widget;
+
+   ScanQueueWidget* _scan_queue_widget;
+
+   QTabWidget *_tab_widget;
 
    QTextEdit *_textEdit;
 
