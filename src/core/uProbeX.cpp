@@ -169,7 +169,7 @@ void uProbeX::closeEvent(QCloseEvent* event)
     bool saveWithoutPrompt = Preferences::inst()->getValue(STR_PRF_AutoSaveOnExit).toBool();
     saveAllXML(!saveWithoutPrompt);
 
-    cleanUpAutoSafeData();
+    //cleanUpAutoSafeData();
     Preferences::inst()->setValue(STR_GEOMETRY, saveGeometry());
     Preferences::inst()->setValue(STR_WINDOWSTATE, saveState());
     // Quit
@@ -1098,7 +1098,7 @@ void uProbeX::savePreferencesXMLData()
     xmlWriter.writeEndDocument();
 }
 
-/*---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 void uProbeX::loadPreferencesXMLData()
 {
@@ -1170,7 +1170,7 @@ void uProbeX::cleanUpAutoSafeData() {
         }
     }
 }
-
+*/
 //---------------------------------------------------------------------------
 
 void uProbeX::showAbout()

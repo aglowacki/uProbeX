@@ -194,12 +194,12 @@ private slots:
    /**
     * @brief perform autosave for the open datasets.
     */
-   void performAutoSave();
+   //void performAutoSave();
 
    /**
     * @brief cleanUpAutoSafeData
     */
-   void cleanUpAutoSafeData();
+   //void cleanUpAutoSafeData();
    /*
    void savePreferencesXMLData();
 

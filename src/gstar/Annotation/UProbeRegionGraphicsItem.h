@@ -57,7 +57,7 @@ public:
     * @param uProbeRegion
     * @return
     */
-   UProbeRegionGraphicsItem* cloneRegion();
+   virtual UProbeRegionGraphicsItem* cloneRegion();
 
    /**
     * Get item's boudning rectangle
@@ -298,7 +298,7 @@ private:
     */
    int predictFontPixelSizeByScale(qreal scale);
 
-private:
+protected:
 
    /**
     * The boudning graphics item for this item

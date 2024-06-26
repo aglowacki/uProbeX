@@ -24,6 +24,7 @@
 
 #include "gstar/Annotation/UProbeMarkerGraphicsItem.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
+#include "gstar/Annotation/ScanRegionGraphicsItem.h"
 #include "gstar/Annotation/MarkerGraphicsItem.h"
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/Annotation/EmptyGraphicsItem.h"
@@ -233,8 +234,8 @@ void VLM_Widget::addTopWindowPoints()
 
 void VLM_Widget::addMicroProbeRegion()
 {
-
-   UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
+   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+   ////UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
 
