@@ -11,8 +11,8 @@
 #include <QIcon>
 #include <QSplitter>
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(parent)
 {
@@ -21,7 +21,7 @@ ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(pare
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageStackControlWidget::~ImageStackControlWidget()
 {
@@ -47,7 +47,7 @@ void ImageStackControlWidget::savePref()
 	_imageGrid->savePref();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::createLayout()
 {
@@ -139,7 +139,7 @@ void ImageStackControlWidget::createLayout()
 	setLayout(mainLayout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::closeEvent(QCloseEvent *event)
 {
@@ -147,7 +147,7 @@ void ImageStackControlWidget::closeEvent(QCloseEvent *event)
 	event->accept();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::model_IndexChanged(const QString &text)
 {
@@ -180,7 +180,7 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onPrevFilePressed()
 {
@@ -193,7 +193,7 @@ void ImageStackControlWidget::onPrevFilePressed()
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onNextFilePressed()
 {
@@ -206,7 +206,7 @@ void ImageStackControlWidget::onNextFilePressed()
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 {
@@ -220,7 +220,7 @@ void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::update_progress_bar(int val, int amt)
 {
@@ -232,7 +232,7 @@ void ImageStackControlWidget::update_progress_bar(int val, int amt)
 	_load_progress->setValue(val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 {
@@ -262,7 +262,7 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYPE mt)
 {
@@ -301,7 +301,7 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::update_file_list()
 {
@@ -313,7 +313,7 @@ void ImageStackControlWidget::update_file_list()
 	} 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image)
 {
@@ -367,7 +367,7 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onChangeDatasetName(const QString & name)
 {
@@ -378,5 +378,5 @@ void ImageStackControlWidget::onChangeDatasetName(const QString & name)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

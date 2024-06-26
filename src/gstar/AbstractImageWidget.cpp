@@ -22,7 +22,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 : QWidget(parent)
@@ -92,7 +92,7 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
       //m_lblPixelXCoordinate = nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractImageWidget::~AbstractImageWidget()
 {
@@ -120,7 +120,7 @@ AbstractImageWidget::~AbstractImageWidget()
    */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::addMarker()
 {
@@ -130,7 +130,7 @@ void AbstractImageWidget::addMarker()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::addRuler()
 {
@@ -140,7 +140,7 @@ void AbstractImageWidget::addRuler()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::appendAnnotationTab(bool bToolbar)
 {
@@ -159,14 +159,14 @@ void AbstractImageWidget::appendAnnotationTab(bool bToolbar)
     m_tabWidget->addTab(m_treeTabWidget, QIcon(), "Annotations");
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::appendTab(QWidget *widget, QString name)
 {
     m_tabWidget->addTab(widget, QIcon(), name);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::createActions()
 {
@@ -201,7 +201,7 @@ void AbstractImageWidget::createActions()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav)
 {
@@ -228,7 +228,7 @@ void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool c
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::createAnnotationToolBar()
 {
@@ -251,7 +251,7 @@ void AbstractImageWidget::createAnnotationToolBar()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::createRangeWidget()
 {
@@ -272,7 +272,7 @@ void AbstractImageWidget::createRangeWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::deleteAllItems()
 {
@@ -307,7 +307,7 @@ void AbstractImageWidget::deleteAllItems()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::deleteItem()
 {
@@ -343,7 +343,7 @@ void AbstractImageWidget::deleteItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::displayContextMenu(QWidget* parent,
                                              const QPoint& pos)
@@ -379,7 +379,7 @@ void AbstractImageWidget::displayContextMenu(QWidget* parent,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::duplicateItem()
 {
@@ -398,7 +398,7 @@ void AbstractImageWidget::duplicateItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 {
@@ -424,7 +424,7 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QLayout* AbstractImageWidget::getImageViewLayout()
 {
@@ -433,7 +433,7 @@ QLayout* AbstractImageWidget::getImageViewLayout()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationTreeModel* AbstractImageWidget::getAnnotationModel()
 {
@@ -442,7 +442,7 @@ AnnotationTreeModel* AbstractImageWidget::getAnnotationModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewWidget* AbstractImageWidget::imageViewWidget() const
 {
@@ -451,7 +451,7 @@ ImageViewWidget* AbstractImageWidget::imageViewWidget() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                                     QTreeView* annoTreeView,
@@ -493,7 +493,7 @@ void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeMod
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::reloadAndSelectAnnotation(AnnotationTreeModel* treeModel,
                                                     QTreeView* annoTreeView,
@@ -531,7 +531,7 @@ void AbstractImageWidget::reloadAndSelectAnnotation(AnnotationTreeModel* treeMod
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::modelDataChanged(const QModelIndex& topLeft,
                                            const QModelIndex& bottomRight)
@@ -542,7 +542,7 @@ void AbstractImageWidget::modelDataChanged(const QModelIndex& topLeft,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setAnnotationModel(AnnotationTreeModel *model)
 {
@@ -553,7 +553,7 @@ void AbstractImageWidget::setAnnotationModel(AnnotationTreeModel *model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setCoordinateModel(CoordinateModel *model)
 {
@@ -565,7 +565,7 @@ void AbstractImageWidget::setCoordinateModel(CoordinateModel *model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setHeightDims(int h)
 {
@@ -580,7 +580,7 @@ void AbstractImageWidget::setHeightDims(int h)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setNumberOfImages(int images)
 {
@@ -591,7 +591,7 @@ void AbstractImageWidget::setNumberOfImages(int images)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setAnnotationsEnabled(bool value)
 {
@@ -602,7 +602,7 @@ void AbstractImageWidget::setAnnotationsEnabled(bool value)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setRank(int m_rankDim)
 {
@@ -620,7 +620,7 @@ void AbstractImageWidget::setRank(int m_rankDim)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setRangeWidgetStartIndex(int index)
 {
@@ -630,7 +630,7 @@ void AbstractImageWidget::setRangeWidgetStartIndex(int index)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractImageWidget::getRangeWidgetStartIndex()
 {
@@ -641,7 +641,7 @@ int AbstractImageWidget::getRangeWidgetStartIndex()
     return 0;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setRangeWidgetVisible(bool m_rangeVisible)
 {
@@ -651,7 +651,7 @@ void AbstractImageWidget::setRangeWidgetVisible(bool m_rangeVisible)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setToolBarVisible(bool visible)
 {
@@ -660,7 +660,7 @@ void AbstractImageWidget::setToolBarVisible(bool visible)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::setWidthDims(int w)
 {
@@ -674,7 +674,7 @@ void AbstractImageWidget::setWidthDims(int w)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::showRulerUnitsDialog()
 {
@@ -702,7 +702,7 @@ void AbstractImageWidget::showRulerUnitsDialog()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::treeContextMenu(const QPoint& pos)
 {
@@ -712,7 +712,7 @@ void AbstractImageWidget::treeContextMenu(const QPoint& pos)
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 {
@@ -724,13 +724,21 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 
       if (item != nullptr)
       {
-         QVariant data = item->data(0, index.column());
-         if (data.type() == QVariant::Color)
+         QDialog* custom_dialog = item->get_custom_dialog();
+         if(custom_dialog != nullptr)
          {
-            QColor color = QColorDialog::getColor(data.toString(), this);
-            if (color.isValid())
+            custom_dialog->show();
+         }
+         else
+         {
+            QVariant data = item->data(0, index.column());
+            if (data.type() == QVariant::Color)
             {
-               item->setData(index, color);
+               QColor color = QColorDialog::getColor(data.toString(), this);
+               if (color.isValid())
+               {
+                  item->setData(index, color);
+               }
             }
          }
       }
@@ -738,7 +746,7 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::updateFrame(QImage *img)
 {
@@ -750,7 +758,7 @@ void AbstractImageWidget::updateFrame(QImage *img)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractImageWidget::viewContextMenu(const QPoint& pos)
 {
@@ -759,5 +767,5 @@ void AbstractImageWidget::viewContextMenu(const QPoint& pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

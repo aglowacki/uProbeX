@@ -15,7 +15,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -64,7 +64,7 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(QMap<QString, QString>& marker, AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -111,7 +111,7 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(QMap<QString, QString>& marke
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF UProbeMarkerGraphicsItem::boundingRect() const
 {
@@ -152,7 +152,7 @@ QRectF UProbeMarkerGraphicsItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF UProbeMarkerGraphicsItem::boundingRectMarker() const
 {
@@ -161,7 +161,7 @@ QRectF UProbeMarkerGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::calculate()
 {
@@ -170,7 +170,7 @@ void UProbeMarkerGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString UProbeMarkerGraphicsItem::displayName() const
 {
@@ -180,7 +180,7 @@ const QString UProbeMarkerGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* UProbeMarkerGraphicsItem::duplicate()
 {
@@ -197,7 +197,7 @@ AbstractGraphicsItem* UProbeMarkerGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::paint(QPainter* painter,
            const QStyleOptionGraphicsItem* option,
@@ -265,7 +265,7 @@ void UProbeMarkerGraphicsItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* model)
 {
@@ -290,7 +290,7 @@ void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 {
@@ -315,7 +315,7 @@ void UProbeMarkerGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setColor(QColor color)
 {
@@ -323,7 +323,7 @@ void UProbeMarkerGraphicsItem::setColor(QColor color)
    m_outlineColor = color;
 
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setColorProperty(QVariant color)
 {
@@ -332,7 +332,7 @@ void UProbeMarkerGraphicsItem::setColorProperty(QVariant color)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setMeasuredXProperty(QVariant mx)
 {
@@ -341,7 +341,7 @@ void UProbeMarkerGraphicsItem::setMeasuredXProperty(QVariant mx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setMeasuredYProperty(QVariant my)
 {
@@ -350,7 +350,7 @@ void UProbeMarkerGraphicsItem::setMeasuredYProperty(QVariant my)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setPositionXProperty(QVariant lx)
 {
@@ -359,7 +359,7 @@ void UProbeMarkerGraphicsItem::setPositionXProperty(QVariant lx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setPositionYProperty(QVariant ly)
 {
@@ -368,7 +368,7 @@ void UProbeMarkerGraphicsItem::setPositionYProperty(QVariant ly)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setPositionZProperty(QVariant lz)
 {
@@ -377,7 +377,7 @@ void UProbeMarkerGraphicsItem::setPositionZProperty(QVariant lz)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setPredictXProperty(QVariant px)
 {
@@ -386,7 +386,7 @@ void UProbeMarkerGraphicsItem::setPredictXProperty(QVariant px)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setPredictYProperty(QVariant py)
 {
@@ -395,7 +395,7 @@ void UProbeMarkerGraphicsItem::setPredictYProperty(QVariant py)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::setSize(double size)
 {
@@ -424,7 +424,7 @@ void UProbeMarkerGraphicsItem::setSize(double size)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPainterPath UProbeMarkerGraphicsItem::shape() const
 {
@@ -435,7 +435,7 @@ QPainterPath UProbeMarkerGraphicsItem::shape() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::updateModel()
 {
@@ -479,7 +479,7 @@ void UProbeMarkerGraphicsItem::updateModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::updateStringSize()
 {
@@ -495,7 +495,7 @@ void UProbeMarkerGraphicsItem::updateStringSize()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeMarkerGraphicsItem::updateView()
 {
@@ -511,4 +511,4 @@ void UProbeMarkerGraphicsItem::updateView()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

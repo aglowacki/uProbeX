@@ -9,7 +9,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 IntensityPieGraphicsItem::IntensityPieGraphicsItem() : PieGraphicsItem()
 {
@@ -23,7 +23,7 @@ IntensityPieGraphicsItem::IntensityPieGraphicsItem() : PieGraphicsItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void IntensityPieGraphicsItem::calculate()
 {
@@ -33,7 +33,7 @@ void IntensityPieGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString IntensityPieGraphicsItem::displayName() const
 {
@@ -43,7 +43,7 @@ const QString IntensityPieGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* IntensityPieGraphicsItem::duplicate()
 {
@@ -55,4 +55,4 @@ AbstractGraphicsItem* IntensityPieGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

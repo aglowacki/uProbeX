@@ -8,12 +8,12 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #define STR_MOTOR_X "X"
 #define STR_MOTOR_Y "Y"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MotorLookupTransformer::MotorLookupTransformer() : ITransformer()
 {
@@ -25,14 +25,14 @@ MotorLookupTransformer::MotorLookupTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MotorLookupTransformer::~MotorLookupTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MotorLookupTransformer::Init(QMap<QString, double> globalVars)
 { 
@@ -41,7 +41,7 @@ bool MotorLookupTransformer::Init(QMap<QString, double> globalVars)
 
 } 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> MotorLookupTransformer::getAllCoef()
 {
@@ -55,7 +55,7 @@ QMap<QString, double> MotorLookupTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MotorLookupTransformer::setMotors(const std::vector<float>& motor_x, const std::vector<float>& motor_y)
 {
@@ -65,7 +65,7 @@ void MotorLookupTransformer::setMotors(const std::vector<float>& motor_x, const 
     _cols = motor_x.size();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MotorLookupTransformer::getVariable(QString name, double *val)
 {
@@ -85,7 +85,7 @@ bool MotorLookupTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MotorLookupTransformer::setVariable(QString name, double val)
 {
@@ -105,7 +105,7 @@ bool MotorLookupTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MotorLookupTransformer::transformCommand(double inX,
                                          double inY,
@@ -132,4 +132,4 @@ void MotorLookupTransformer::transformCommand(double inX,
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

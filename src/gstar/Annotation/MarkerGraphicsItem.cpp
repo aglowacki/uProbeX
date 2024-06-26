@@ -12,7 +12,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MarkerGraphicsItem::MarkerGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -40,7 +40,7 @@ MarkerGraphicsItem::MarkerGraphicsItem(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF MarkerGraphicsItem::boundingRect() const
 {
@@ -49,7 +49,7 @@ QRectF MarkerGraphicsItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF MarkerGraphicsItem::boundingRectMarker() const
 {
@@ -58,7 +58,7 @@ QRectF MarkerGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::calculate()
 {
@@ -67,7 +67,7 @@ void MarkerGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString MarkerGraphicsItem::displayName() const
 {
@@ -77,7 +77,7 @@ const QString MarkerGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* MarkerGraphicsItem::duplicate()
 {
@@ -92,7 +92,7 @@ AbstractGraphicsItem* MarkerGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::paint(QPainter* painter,
            const QStyleOptionGraphicsItem* option,
@@ -140,7 +140,7 @@ void MarkerGraphicsItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::setColor(QColor color)
 {
@@ -149,7 +149,7 @@ void MarkerGraphicsItem::setColor(QColor color)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::setSize(double size)
 {
@@ -166,7 +166,7 @@ void MarkerGraphicsItem::setSize(double size)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPainterPath MarkerGraphicsItem::shape() const
 {
@@ -177,7 +177,7 @@ QPainterPath MarkerGraphicsItem::shape() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::updateModel()
 {
@@ -189,7 +189,7 @@ void MarkerGraphicsItem::updateModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MarkerGraphicsItem::updateView()
 {
@@ -205,4 +205,4 @@ void MarkerGraphicsItem::updateView()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

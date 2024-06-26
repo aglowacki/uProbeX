@@ -17,8 +17,8 @@ using namespace std::chrono_literals;
 #define OPT_INDEX 1
 #define OUTPUT_INDEX 2
 
- /*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+ //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
 {
@@ -33,7 +33,7 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _createLayout();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FittingDialog::~FittingDialog()
 {
@@ -48,7 +48,7 @@ FittingDialog::~FittingDialog()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::_createLayout()
 {
@@ -180,7 +180,7 @@ void FittingDialog::_createLayout()
     setLayout(l);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_params, data_struct::Fit_Parameters<double> element_fit_params)
 {
@@ -195,7 +195,7 @@ void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_
 	_btn_accept->setEnabled(false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::setOptimizer(QString opt)
 {
@@ -224,7 +224,7 @@ void FittingDialog::setOptimizer(QString opt)
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr energy)
 {
@@ -263,14 +263,14 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::setFitSpectra(data_struct::Spectra<double>* spectra)
 {
     _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, spectra, &_ev);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
@@ -297,7 +297,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Spectra<double> FittingDialog::get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
@@ -305,14 +305,14 @@ data_struct::Spectra<double> FittingDialog::get_fit_spectra(std::unordered_map<s
     return _new_fit_spec;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
 {
     _spectra_widget->setDisplayRange(wmin, wmax, hmin, hmax);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::onAccepted()
 {
@@ -321,7 +321,7 @@ void FittingDialog::onAccepted()
 	close();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::onCancel()
 {
@@ -336,7 +336,7 @@ void FittingDialog::onCancel()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::onUpdateSelected()
 {
@@ -349,7 +349,7 @@ void FittingDialog::onUpdateSelected()
     _fit_params_table_model->updateAll();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::runProcessing()
 {
@@ -517,7 +517,7 @@ void FittingDialog::runProcessing()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FittingDialog::status_callback(size_t cur_itr, size_t total_itr)
 {
@@ -545,4 +545,4 @@ void FittingDialog::waitToFinishRunning()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -16,7 +16,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationTreeModel::AnnotationTreeModel(QObject* parent) : QAbstractItemModel(parent)
 {
@@ -26,7 +26,7 @@ AnnotationTreeModel::AnnotationTreeModel(QObject* parent) : QAbstractItemModel(p
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationTreeModel::~AnnotationTreeModel()
 {  
@@ -38,7 +38,7 @@ AnnotationTreeModel::~AnnotationTreeModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
 {
@@ -82,7 +82,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationTreeModel::calculate()
 {
@@ -91,7 +91,7 @@ void AnnotationTreeModel::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AnnotationTreeModel::columnCount(const QModelIndex& parent) const
 {
@@ -111,7 +111,7 @@ int AnnotationTreeModel::columnCount(const QModelIndex& parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* AnnotationTreeModel::createGroup(AbstractGraphicsItem* item)
 {
@@ -155,7 +155,7 @@ AbstractGraphicsItem* AnnotationTreeModel::createGroup(AbstractGraphicsItem* ite
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
 {
@@ -210,7 +210,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
  bool AnnotationTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
  {
@@ -255,7 +255,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AnnotationTreeModel::duplicateNode(const QModelIndex& index)
 {
@@ -294,7 +294,7 @@ QModelIndex AnnotationTreeModel::duplicateNode(const QModelIndex& index)
    return QModelIndex();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
 {
@@ -338,7 +338,7 @@ Qt::ItemFlags AnnotationTreeModel::flags(const QModelIndex& index) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AnnotationTreeModel::headerData(int section,
                                    Qt::Orientation orientation,
@@ -377,7 +377,7 @@ QVariant AnnotationTreeModel::headerData(int section,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AnnotationTreeModel::index(int row,
                                  int column,
@@ -426,7 +426,7 @@ QModelIndex AnnotationTreeModel::index(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AnnotationTreeModel::insertRows(int row,
                                int count,
@@ -454,14 +454,14 @@ bool AnnotationTreeModel::insertRows(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AnnotationTreeModel::getRootModelIndex()const
 {
     return createIndex(0, 0, m_root);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AnnotationTreeModel::parent(const QModelIndex& index)const
 {
@@ -494,7 +494,7 @@ QModelIndex AnnotationTreeModel::parent(const QModelIndex& index)const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationTreeModel::recursiveCalculate(AbstractGraphicsItem* pItem)
 {
@@ -507,7 +507,7 @@ void AnnotationTreeModel::recursiveCalculate(AbstractGraphicsItem* pItem)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationTreeModel::refreshModel(AbstractGraphicsItem* item)
 {
@@ -518,7 +518,7 @@ void AnnotationTreeModel::refreshModel(AbstractGraphicsItem* item)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationTreeModel::clearAll()
 {
@@ -531,7 +531,7 @@ void AnnotationTreeModel::clearAll()
     m_groupsCnt.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AnnotationTreeModel::removeRow(int row,
                               const QModelIndex& parent)
@@ -631,7 +631,7 @@ bool AnnotationTreeModel::removeRow(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AnnotationTreeModel::removeRows(int row,
                                int count,
@@ -669,7 +669,7 @@ bool AnnotationTreeModel::removeRows(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
 {
@@ -691,5 +691,5 @@ int AnnotationTreeModel::rowCount(const QModelIndex& parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

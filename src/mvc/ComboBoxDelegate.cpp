@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ComboBoxDelegate::ComboBoxDelegate(std::vector<std::string> cbItems, QObject *parent)
     :QItemDelegate(parent)
@@ -20,7 +20,7 @@ ComboBoxDelegate::ComboBoxDelegate(std::vector<std::string> cbItems, QObject *pa
     Items = cbItems;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QWidget *ComboBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/* option */, const QModelIndex &/* index */) const
 {
@@ -32,7 +32,7 @@ QWidget *ComboBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
     return editor;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
@@ -41,7 +41,7 @@ void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     comboBox->setCurrentIndex(value);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
@@ -49,14 +49,14 @@ void ComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
     model->setData(index, comboBox->currentIndex(), Qt::EditRole);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
 {
     editor->setGeometry(option.rect);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ComboBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -69,4 +69,4 @@ void ComboBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &myOption, painter);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

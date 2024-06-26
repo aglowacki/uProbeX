@@ -16,7 +16,7 @@
 #include <math.h>
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 {
@@ -47,14 +47,14 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SpectraWidget::~SpectraWidget()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::createLayout()
 {
@@ -174,7 +174,7 @@ void SpectraWidget::createLayout()
     setLayout(vlayout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::setBackgroundBlack(bool val)
 {
@@ -198,7 +198,7 @@ void SpectraWidget::setDisplayRange(QString wmin, QString wmax, QString hmin, QS
     onSpectraDisplayHeightChanged(hmin);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::onSpectraDisplayChanged(const QString &)
 {
@@ -208,7 +208,7 @@ void SpectraWidget::onSpectraDisplayChanged(const QString &)
     _top_axis_elements->setRange(minRange, maxRange);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
 {
@@ -217,7 +217,7 @@ void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
     _currentYAxis->setRange(minRange, maxRange);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::onResetChartViewOnlyY()
 {
@@ -226,7 +226,7 @@ void SpectraWidget::onResetChartViewOnlyY()
     _currentYAxis->setRange(1, _int_spec_max_y);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::onResetChartView()
 {
@@ -243,7 +243,7 @@ void SpectraWidget::onResetChartView()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::onUpdateChartLineEdits()
 {
@@ -261,7 +261,7 @@ void SpectraWidget::onUpdateChartLineEdits()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy, QColor* color)
 {
@@ -391,7 +391,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
     emit trigger_connect_markers();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::clearAllSpectra()
 {
@@ -401,7 +401,7 @@ void SpectraWidget::clearAllSpectra()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::set_vertical_line(qreal center, QString label)
 {
@@ -431,7 +431,7 @@ void SpectraWidget::set_vertical_line(qreal center, QString label)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* element)
 {
@@ -528,7 +528,7 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::remove_spectra(QString name)
 {
@@ -546,7 +546,7 @@ void SpectraWidget::remove_spectra(QString name)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::ShowContextMenu(const QPoint &pos)
 {
@@ -555,7 +555,7 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::set_log10(bool val)
 {
@@ -595,7 +595,7 @@ void SpectraWidget::set_log10(bool val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPixmap SpectraWidget::getPngofChart()
 {
@@ -604,7 +604,7 @@ QPixmap SpectraWidget::getPngofChart()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void SpectraWidget::_update_series()
 {
@@ -630,7 +630,7 @@ void SpectraWidget::_update_series()
     //_chart->createDefaultAxes();
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::connectMarkers()
 {
@@ -644,7 +644,7 @@ void SpectraWidget::connectMarkers()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::disconnectMarkers()
 {
@@ -655,7 +655,7 @@ void SpectraWidget::disconnectMarkers()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::handleMarkerClicked()
 {
@@ -708,7 +708,7 @@ void SpectraWidget::handleMarkerClicked()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::clear_top_axis()
 {
@@ -719,7 +719,7 @@ void SpectraWidget::clear_top_axis()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidget::set_top_axis(std::map < float, std::string> elements)
 {  
@@ -729,4 +729,4 @@ void SpectraWidget::set_top_axis(std::map < float, std::string> elements)
     } 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

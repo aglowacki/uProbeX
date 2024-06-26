@@ -8,7 +8,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 RectItem::RectItem(qreal x, qreal y, qreal w, qreal h,
                    QGraphicsItem* parent)
@@ -29,7 +29,7 @@ RectItem::RectItem(qreal x, qreal y, qreal w, qreal h,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF RectItem::boundingRect() const
 {
@@ -39,7 +39,7 @@ QRectF RectItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 char* RectItem::getMask()
 {
@@ -79,7 +79,7 @@ char* RectItem::getMask()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double RectItem::getSceneScale()
 {
@@ -107,7 +107,7 @@ double RectItem::getSceneScale()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -125,7 +125,7 @@ void RectItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -138,7 +138,7 @@ void RectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -169,7 +169,7 @@ void RectItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant RectItem::itemChange(GraphicsItemChange change,
                               const QVariant& value)
@@ -211,7 +211,7 @@ QVariant RectItem::itemChange(GraphicsItemChange change,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -283,7 +283,7 @@ void RectItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -315,7 +315,7 @@ void RectItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -331,7 +331,7 @@ void RectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::paint(QPainter* painter,
                      const QStyleOptionGraphicsItem* option,
@@ -394,7 +394,7 @@ void RectItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setColor(const QColor& color)
 {
@@ -407,7 +407,7 @@ void RectItem::setColor(const QColor& color)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setHeight(double height)
 {
@@ -420,7 +420,7 @@ void RectItem::setHeight(double height)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setText(const QString& text)
 {
@@ -430,7 +430,7 @@ void RectItem::setText(const QString& text)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setWidth(double width)
 {
@@ -443,7 +443,7 @@ void RectItem::setWidth(double width)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setX(double x)
 {
@@ -456,7 +456,7 @@ void RectItem::setX(double x)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RectItem::setY(double y)
 {
@@ -469,4 +469,4 @@ void RectItem::setY(double y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

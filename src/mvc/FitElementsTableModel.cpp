@@ -6,7 +6,7 @@
 #include "FitElementsTableModel.h"
 #include <QMessageBox>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObject* parent) : QAbstractTableModel(parent)
 {
@@ -18,7 +18,7 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
     _detector_element = detector_element;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FitElementsTableModel::~FitElementsTableModel()
 {
@@ -32,7 +32,7 @@ FitElementsTableModel::~FitElementsTableModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void FitElementsTableModel::setFitParams(data_struct::Fit_Parameters fit_params)
 {
@@ -62,7 +62,7 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
     }
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitElementsTableModel::update_counts_log10(bool is_log10)
 {
@@ -90,7 +90,7 @@ void FitElementsTableModel::update_counts_log10(bool is_log10)
     emit layoutChanged();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Fit_Element_Map_Dict<double> FitElementsTableModel::getElementsToFit()
 {
@@ -104,7 +104,7 @@ data_struct::Fit_Element_Map_Dict<double> FitElementsTableModel::getElementsToFi
 	return elements_to_fit;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Fit_Parameters<double> FitElementsTableModel::getAsFitParams()
 {
@@ -118,7 +118,7 @@ data_struct::Fit_Parameters<double> FitElementsTableModel::getAsFitParams()
     return fit_params;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters<double>*fit_params)
 {
@@ -135,7 +135,7 @@ void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters<doub
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int FitElementsTableModel::columnCount(const QModelIndex &parent) const
 {
@@ -147,7 +147,7 @@ int FitElementsTableModel::columnCount(const QModelIndex &parent) const
     return NUM_PROPS+1;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
@@ -197,7 +197,7 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString FitElementsTableModel::element_at_row(int row)
 {
@@ -213,7 +213,7 @@ QString FitElementsTableModel::element_at_row(int row)
 	return QString("");
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* element)
 {
@@ -252,7 +252,7 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* 
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitElementsTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
@@ -283,7 +283,7 @@ bool FitElementsTableModel::removeRows(int row, int count, const QModelIndex &pa
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitElementsTableModel::clearAll()
 {
@@ -296,7 +296,7 @@ void FitElementsTableModel::clearAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
 {
@@ -363,7 +363,7 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
 {
@@ -390,7 +390,7 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant FitElementsTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -416,7 +416,7 @@ QVariant FitElementsTableModel::headerData(int section, Qt::Orientation orientat
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int FitElementsTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -433,7 +433,7 @@ int FitElementsTableModel::rowCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex &parent) const
 {
@@ -469,7 +469,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
     return QModelIndex();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Fit_Element_Map<double>* FitElementsTableModel::getElementByIndex(QModelIndex index) const
 {
@@ -486,7 +486,7 @@ data_struct::Fit_Element_Map<double>* FitElementsTableModel::getElementByIndex(Q
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
 {
@@ -521,7 +521,7 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
     return createIndex(row, 0, parentItem);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitElementsTableModel::setData(const QModelIndex &index,
                                   const QVariant &value,
@@ -614,7 +614,7 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitElementsTableModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
 {
@@ -643,7 +643,7 @@ bool FitElementsTableModel::setHeaderData(int section, Qt::Orientation orientati
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 

@@ -151,7 +151,7 @@ void VLM_Widget::addCalibration()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::addTopWindowPoints()
 {
@@ -355,7 +355,7 @@ void VLM_Widget::_createLightToMicroCoords(int id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::_createSolver()
 {
@@ -427,7 +427,7 @@ void VLM_Widget::_createSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeRegionGraphicsItem* VLM_Widget::getSelectedRegion()
 {
@@ -446,7 +446,7 @@ UProbeRegionGraphicsItem* VLM_Widget::getSelectedRegion()
    return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::zoomMicroProbeRegion()
 {
@@ -456,7 +456,7 @@ void VLM_Widget::zoomMicroProbeRegion()
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::exportSelectedRegionInformation(QList<QString>* summaryInformation, QList<QString>* summaryWarnings)
 {
@@ -662,7 +662,7 @@ void VLM_Widget::exportSelectedRegionInformation(QList<QString>* summaryInformat
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
                                         QString filePathToSave,
@@ -839,7 +839,7 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::callbackPvXUpdatedFloat(float val)
 {
@@ -849,7 +849,7 @@ void VLM_Widget::callbackPvXUpdatedFloat(float val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::callbackPvYUpdatedFloat(float val)
 {
@@ -859,7 +859,7 @@ void VLM_Widget::callbackPvYUpdatedFloat(float val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::callbackPvXUpdatedDouble(double val)
 {
@@ -890,7 +890,7 @@ void VLM_Widget::callbackPvXUpdatedDouble(double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::callbackPvYUpdatedDouble(double val)
 {
@@ -921,7 +921,7 @@ void VLM_Widget::callbackPvYUpdatedDouble(double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::calModelDataChanged(const QModelIndex& topLeft,
                                     const QModelIndex& bottomRight)
@@ -932,7 +932,7 @@ void VLM_Widget::calModelDataChanged(const QModelIndex& topLeft,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::createActions()
 {
@@ -975,7 +975,7 @@ void VLM_Widget::createActions()
            SLOT(grabMicroProbePV()));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::linkRegionToDataset()
 {
@@ -1026,7 +1026,7 @@ void VLM_Widget::linkRegionToDataset()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::cancelUpdatedSolverVariables()
 {
@@ -1035,7 +1035,7 @@ void VLM_Widget::cancelUpdatedSolverVariables()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::createCalibrationTab()
 {
@@ -1139,7 +1139,7 @@ void VLM_Widget::createCalibrationTab()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::CallPythonFunc()
 {
@@ -1177,7 +1177,7 @@ void VLM_Widget::CallPythonFunc()
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::createMicroProbeMenu()
 {
@@ -1249,7 +1249,7 @@ void VLM_Widget::createMicroProbeMenu()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::createMicroProbeTab()
 {
@@ -1298,7 +1298,7 @@ void VLM_Widget::createMicroProbeTab()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::createLayout()
 {
@@ -1341,7 +1341,7 @@ void VLM_Widget::createLayout()
    m_tabWidget->setCurrentIndex(MICROPROBE_IDX);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::displayContextMenu(QWidget* parent,
                                    const QPoint& pos)
@@ -1503,7 +1503,7 @@ void VLM_Widget::checkMicroProbePVs()
    */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::deleteItem()
 {
@@ -1550,7 +1550,7 @@ void VLM_Widget::deleteItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::duplicateItem()
 {
@@ -1587,7 +1587,7 @@ void VLM_Widget::duplicateItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
 {
@@ -1644,7 +1644,7 @@ void VLM_Widget::getMarkerInfo(QXmlStreamWriter* xmlWriter)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
 {
@@ -1698,7 +1698,7 @@ void VLM_Widget::getRegionMarkerInfo(QXmlStreamWriter* xmlWriter)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString VLM_Widget::getModelFileName()
 {
@@ -1707,7 +1707,7 @@ QString VLM_Widget::getModelFileName()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool VLM_Widget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
                                           listCoordPoints)
@@ -1802,7 +1802,7 @@ bool VLM_Widget::getMarkerCoordinatePoints(QList < QMap<QString,double> >&
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::grabMicroProbePV()
 {
@@ -1823,7 +1823,7 @@ void VLM_Widget::grabMicroProbePV()
    */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::microModelDataChanged(const QModelIndex& topLeft,
                                       const QModelIndex& bottomRight)
@@ -1834,7 +1834,7 @@ void VLM_Widget::microModelDataChanged(const QModelIndex& topLeft,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::offsetReturnPressed()
 {
@@ -1895,7 +1895,7 @@ void VLM_Widget::offsetReturnPressed()
 */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::setModel(VLM_Model* model)
 {
@@ -1914,7 +1914,7 @@ void VLM_Widget::setModel(VLM_Model* model)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::preferenceChanged()
 {
@@ -1948,7 +1948,7 @@ void VLM_Widget::preferenceChanged()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::restoreMarkerLoaded()
 {
@@ -2027,7 +2027,7 @@ void VLM_Widget::restoreMarkerLoaded()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::openSolver()
 {
@@ -2045,7 +2045,7 @@ void VLM_Widget::openSolver()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::runSolver()
 {
@@ -2138,7 +2138,7 @@ void VLM_Widget::runSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 
 void PreferencesSolverOption::runSolver()
@@ -2242,7 +2242,7 @@ void PreferencesSolverOption::runSolver()
 }
 */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 {
@@ -2274,7 +2274,7 @@ void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
    */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
 {
@@ -2305,7 +2305,7 @@ void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 //void VLM_Widget::setMarker(QString filepath)
 //{
@@ -2358,7 +2358,7 @@ void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
 //
 //}
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::saveScreenShot()
 {
@@ -2390,14 +2390,14 @@ void VLM_Widget::saveScreenShot()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString VLM_Widget::getTemporaryDatasetPath()
 {
    return m_datasetPath + ".tmp";
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::cleanUpTemoraryXMLFiles()
 {
@@ -2408,7 +2408,7 @@ void VLM_Widget::cleanUpTemoraryXMLFiles()
    file.remove();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool VLM_Widget::verifySaveIsRequired()
 {
@@ -2446,7 +2446,7 @@ bool VLM_Widget::verifySaveIsRequired()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::saveTemporaryXMLCoordinateInfo()
 {
@@ -2455,7 +2455,7 @@ void VLM_Widget::saveTemporaryXMLCoordinateInfo()
    saveXMLCoordinateInfo(tempDatasetPath);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::saveXMLCoordinateInfo()
 {
@@ -2465,7 +2465,7 @@ void VLM_Widget::saveXMLCoordinateInfo()
    cleanUpTemoraryXMLFiles();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::saveXMLCoordinateInfo(QString path)
 {
@@ -2481,7 +2481,7 @@ void VLM_Widget::saveXMLCoordinateInfo(QString path)
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::writeXMLSaveData(QIODevice* device)
 {
@@ -2502,7 +2502,7 @@ void VLM_Widget::writeXMLSaveData(QIODevice* device)
    delete xmlWriter;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::tabIndexChanged(int index)
 {
@@ -2525,7 +2525,7 @@ void VLM_Widget::tabIndexChanged(int index)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::treeContextMenu(const QPoint& pos)
 {
@@ -2546,7 +2546,7 @@ void VLM_Widget::treeContextMenu(const QPoint& pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void VLM_Widget::updatedPixelToLight(double x, double y, double z)
 {

@@ -7,7 +7,7 @@
 
 #include <preferences/SolverAttributesGroup.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverAttributesModel::SolverAttributesModel(QObject* parent)
 : QAbstractTableModel(parent)
@@ -20,7 +20,7 @@ SolverAttributesModel::SolverAttributesModel(QObject* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverAttributesModel::clearAll()
 {
@@ -33,7 +33,7 @@ void SolverAttributesModel::clearAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int SolverAttributesModel::columnCount(const QModelIndex &parent) const
 {
@@ -46,7 +46,7 @@ int SolverAttributesModel::columnCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant SolverAttributesModel::data(const QModelIndex &index, int role) const
 {
@@ -93,7 +93,7 @@ QVariant SolverAttributesModel::data(const QModelIndex &index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags SolverAttributesModel::flags(const QModelIndex &index) const
 {
@@ -130,7 +130,7 @@ Qt::ItemFlags SolverAttributesModel::flags(const QModelIndex &index) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverAttributesGroup SolverAttributesModel::getSolverAttributes()
 {
@@ -140,7 +140,7 @@ SolverAttributesGroup SolverAttributesModel::getSolverAttributes()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant SolverAttributesModel::headerData(int section,
                                            Qt::Orientation orientation,
@@ -171,7 +171,7 @@ QVariant SolverAttributesModel::headerData(int section,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int SolverAttributesModel::rowCount(const QModelIndex &parent) const
 {
@@ -184,7 +184,7 @@ int SolverAttributesModel::rowCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverAttributesModel::setSolverAttributes(SolverAttributesGroup attrs)
 {
@@ -200,7 +200,7 @@ void SolverAttributesModel::setSolverAttributes(SolverAttributesGroup attrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SolverAttributesModel::setData(const QModelIndex &index,
                                     const QVariant &value,
@@ -252,4 +252,4 @@ bool SolverAttributesModel::setData(const QModelIndex &index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

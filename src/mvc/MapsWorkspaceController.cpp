@@ -27,7 +27,7 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsWorkspaceController::~MapsWorkspaceController()
 {
@@ -44,7 +44,7 @@ MapsWorkspaceController::~MapsWorkspaceController()
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 void MapsWorkspaceController::imgWidgetClosed()
@@ -59,7 +59,7 @@ void MapsWorkspaceController::imgWidgetClosed()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceController::setWorkingDir(QString path)
 {
@@ -71,6 +71,6 @@ void MapsWorkspaceController::setWorkingDir(QString path)
 	_imgStackControllWidget->setWindowTitle(path);
 
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

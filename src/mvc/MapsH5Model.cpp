@@ -26,7 +26,7 @@ MapsH5Model::MapsH5Model() : QObject()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsH5Model::~MapsH5Model()
 {
@@ -35,7 +35,7 @@ MapsH5Model::~MapsH5Model()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::clear_analyzed_counts()
 {
@@ -48,7 +48,7 @@ void MapsH5Model::clear_analyzed_counts()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts)
 {
@@ -131,7 +131,7 @@ std::vector<std::string> MapsH5Model::count_names()
     return count_names;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<std::string> MapsH5Model::getAnalyzedTypes()
 {
@@ -144,7 +144,7 @@ std::vector<std::string> MapsH5Model::getAnalyzedTypes()
     return keys;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val)
 {
@@ -171,14 +171,14 @@ std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val
     return "";
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::set_fit_parameters_override(data_struct::Params_Override<double>* override)
 {
     _params_override = override;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>* block)
 {
@@ -214,21 +214,21 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
     emit model_data_updated();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::clearAllMapRois()
 {
     _map_rois.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::appendMapRoi(std::string name, struct Map_ROI roi)
 {
     _map_rois[name] = roi;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::saveAllRoiMaps(QString savename)
 {
@@ -298,7 +298,7 @@ void MapsH5Model::saveAllRoiMaps(QString savename)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::saveAllRoiMaps()
 {
@@ -316,7 +316,7 @@ void MapsH5Model::saveAllRoiMaps()
     saveAllRoiMaps(roi_file_name);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::loadAllRoiMaps()
 {
@@ -451,7 +451,7 @@ void MapsH5Model::loadAllRoiMaps()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* block)
 {
@@ -767,7 +767,7 @@ bool MapsH5Model::load(QString filepath)
     return _is_fully_loaded;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra<double>& spec)
 {
@@ -799,7 +799,7 @@ bool MapsH5Model::_load_version_9(hid_t maps_grp_id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >&quant)
 {
@@ -895,7 +895,7 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_quantification_9(hid_t maps_grp_id)
 {
@@ -905,7 +905,7 @@ bool MapsH5Model::_load_quantification_9(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
 {
@@ -1011,7 +1011,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
 {
@@ -1065,7 +1065,7 @@ bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 {
@@ -1206,7 +1206,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_counts_9(hid_t maps_grp_id)
 {
@@ -1222,7 +1222,7 @@ bool MapsH5Model::_load_counts_9(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name)
 {
@@ -1329,7 +1329,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
 {
@@ -1359,7 +1359,7 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
@@ -1742,7 +1742,7 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
 {
@@ -1753,7 +1753,7 @@ bool MapsH5Model::_load_quantification_10(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
 {
@@ -1910,7 +1910,7 @@ bool MapsH5Model::_load_quantification_standard_10(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 {
@@ -2015,7 +2015,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
@@ -2150,7 +2150,7 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 {
@@ -2250,7 +2250,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
 {
@@ -2276,7 +2276,7 @@ bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name)
 {
@@ -2444,7 +2444,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
 {
@@ -2452,7 +2452,7 @@ bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct:
     return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList MapsH5Model::get_calibration_curve_scalers(std::string analysis_type)
 {
@@ -2484,7 +2484,7 @@ QStringList MapsH5Model::get_calibration_curve_scalers(std::string analysis_type
     return keys;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analysis_type, std::string scaler_name)
 {
@@ -2518,7 +2518,7 @@ const std::unordered_map < std::string, Element_Quant<double>*>& MapsH5Model::ge
     return _all_element_quants[analysis_type][scaler_name];
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::string> &names)
 {
@@ -2628,4 +2628,4 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

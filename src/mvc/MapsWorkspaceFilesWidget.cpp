@@ -22,7 +22,7 @@ const static QString STR_BATCH_ROI("Process ROI's");
 const static QString STR_H5_EXPORT("hdf5_export");
 const static QString STR_GEN_SCAN_AREA("Generate Scan Area");
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(parent)
 {
@@ -34,14 +34,14 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 {
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::createLayout()
 {
@@ -110,7 +110,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     setLayout(vlayout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 {
@@ -152,7 +152,7 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::updatedMDA()
 {
@@ -164,7 +164,7 @@ void MapsWorkspaceFilesWidget::updatedMDA()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::updatedVLM()
 {
@@ -176,7 +176,7 @@ void MapsWorkspaceFilesWidget::updatedVLM()
     }
     //_vlm_tab_widget->set_roi_num_list(_model->get_region_num_list());
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::updatedHDF()
 {
@@ -205,7 +205,7 @@ void MapsWorkspaceFilesWidget::update_roi_num(QString name, int val)
     _mda_tab_widget->set_roi_num(name, val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::setFileTabActionsEnabled(bool val)
 {
@@ -216,7 +216,7 @@ void MapsWorkspaceFilesWidget::setFileTabActionsEnabled(bool val)
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_TYPE mt)
 {
@@ -441,7 +441,7 @@ void MapsWorkspaceFilesWidget::onCloseModel(const QStringList& names_list, MODEL
     emit unloadList_model(names_list, mt);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::clearLists()
 {
@@ -511,7 +511,7 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessList(const QStringList& file_lis
     _per_pixel_fit_widget->show();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed(const QStringList& file_list)
 {
@@ -627,7 +627,7 @@ void MapsWorkspaceFilesWidget::onProcessed_list_update(QStringList file_list)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceFilesWidget::onDatasetSelected(const QString name)
 {
@@ -637,4 +637,4 @@ void MapsWorkspaceFilesWidget::onDatasetSelected(const QString name)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

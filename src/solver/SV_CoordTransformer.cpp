@@ -11,7 +11,7 @@
 #endif
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SV_CoordTransformer::SV_CoordTransformer() : ITransformer()
 {
@@ -19,14 +19,14 @@ SV_CoordTransformer::SV_CoordTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SV_CoordTransformer::~SV_CoordTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> SV_CoordTransformer::getAllCoef()
 {
@@ -51,7 +51,7 @@ QMap<QString, double> SV_CoordTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SV_CoordTransformer::Init(QMap<QString, double> globalVars)
 {
@@ -118,7 +118,7 @@ bool SV_CoordTransformer::Init(QMap<QString, double> globalVars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SV_CoordTransformer::getVariable(QString name, double *val)
 {
@@ -198,7 +198,7 @@ bool SV_CoordTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SV_CoordTransformer::setVariable(QString name, double val)
 {
@@ -278,7 +278,7 @@ bool SV_CoordTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SV_CoordTransformer::transformCommand(double inX,
                                              double inY,
@@ -310,5 +310,5 @@ void SV_CoordTransformer::transformCommand(double inX,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

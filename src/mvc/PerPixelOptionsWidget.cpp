@@ -10,7 +10,7 @@
 #include <QScrollArea>
 #include <QMessageBox>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PerPixelOptionsWidget::PerPixelOptionsWidget(QWidget *parent) : QWidget(parent)
 {
@@ -24,7 +24,7 @@ PerPixelOptionsWidget::PerPixelOptionsWidget(QWidget *parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PerPixelOptionsWidget::~PerPixelOptionsWidget()
 {
@@ -32,7 +32,7 @@ PerPixelOptionsWidget::~PerPixelOptionsWidget()
  
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PerPixelOptionsWidget::createLayout()
 {
@@ -115,7 +115,7 @@ void PerPixelOptionsWidget::createLayout()
     setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PerPixelOptionsWidget::updateFileList(QStringList file_list)
 {
@@ -150,7 +150,7 @@ void PerPixelOptionsWidget::onCancel()
     emit onStop();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PerPixelOptionsWidget::status_callback(size_t cur_block, size_t total_blocks)
 {

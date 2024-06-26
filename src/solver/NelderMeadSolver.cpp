@@ -10,14 +10,14 @@
 
 using gstar::ITransformer;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <string>
 
 const QString NelderMeadSolver::STR_ITER = "Iterations";
 const QString NelderMeadSolver::STR_STEP_SIZE = "StepSize";
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double TotalErrorFunction(double vars[], void *p)
 {
@@ -77,7 +77,7 @@ NelderMeadSolver::NelderMeadSolver() : AbstractSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 NelderMeadSolver::~NelderMeadSolver()
 {
@@ -88,7 +88,7 @@ NelderMeadSolver::~NelderMeadSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ITransformer* NelderMeadSolver::getTransformer()
 {
@@ -97,7 +97,7 @@ ITransformer* NelderMeadSolver::getTransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 unsigned int NelderMeadSolver::getNumPoints()
 {
@@ -106,7 +106,7 @@ unsigned int NelderMeadSolver::getNumPoints()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 NelderMeadSolver::LightPoint* NelderMeadSolver::getPoints()
 {
@@ -115,7 +115,7 @@ NelderMeadSolver::LightPoint* NelderMeadSolver::getPoints()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, int> NelderMeadSolver::getVarIndexes()
 {
@@ -124,7 +124,7 @@ QMap<QString, int> NelderMeadSolver::getVarIndexes()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> NelderMeadSolver::getAllCoef()
 {
@@ -135,7 +135,7 @@ QMap<QString, double> NelderMeadSolver::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> NelderMeadSolver::getMinCoef()
 {
@@ -144,7 +144,7 @@ QMap<QString, double> NelderMeadSolver::getMinCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> NelderMeadSolver::getOptions()
 {
@@ -153,7 +153,7 @@ QMap<QString, double> NelderMeadSolver::getOptions()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void NelderMeadSolver::setAllCoef(QMap<QString, double> vars)
 {
@@ -168,7 +168,7 @@ void NelderMeadSolver::setAllCoef(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void NelderMeadSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 {
@@ -203,7 +203,7 @@ void NelderMeadSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void NelderMeadSolver::setMinCoef(QMap<QString, double> vars)
 {
@@ -212,7 +212,7 @@ void NelderMeadSolver::setMinCoef(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void NelderMeadSolver::setOptions(QMap<QString, double> vars)
 {
@@ -225,7 +225,7 @@ void NelderMeadSolver::setOptions(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void NelderMeadSolver::setTransformer(gstar::ITransformer* transformer)
 {
@@ -234,7 +234,7 @@ void NelderMeadSolver::setTransformer(gstar::ITransformer* transformer)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool NelderMeadSolver::run()
 {
@@ -301,4 +301,4 @@ bool NelderMeadSolver::run()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

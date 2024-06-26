@@ -6,7 +6,7 @@
 #ifndef MAPS_WORKSPACE_MODEL_H
 #define MAPS_WORKSPACE_MODEL_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QString>
 #include "RawH5Model.h"
@@ -18,7 +18,7 @@
 #include <map>
 #include <QDir>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 typedef std::function<bool(const QFileInfo fileInfo)> Check_Func_Def;
 
@@ -184,8 +184,8 @@ private:
 
 bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func, bool prepend_sub_dir);
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* MapsWorkspaceModel_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

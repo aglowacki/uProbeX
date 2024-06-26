@@ -10,7 +10,7 @@
 #include <QScrollArea>
 #include <mvc/NumericPrecDelegate.h>
 
- /*---------------------------------------------------------------------------*/
+ //---------------------------------------------------------------------------
 
 const QString tip_ftol = "Relative error desired in the sum of squares. Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most ftol.";
 const QString tip_xtol = "Relative error between last two approximations. Termination occurs when the relative error between two consecutive iterates is at most xtol.";
@@ -23,21 +23,21 @@ const QString tip_covtol = "Range tolerance for covariance calculation Default: 
 const QString tip_verbose = "OR'ed: 1: print some messages; 2: print Jacobian.";
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 OptimizerOptionsWidget::OptimizerOptionsWidget(QWidget *parent) : QWidget(parent)
 {
     _createLayout();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 OptimizerOptionsWidget::~OptimizerOptionsWidget()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void OptimizerOptionsWidget::_createLayout()
 {
@@ -156,7 +156,7 @@ void OptimizerOptionsWidget::_createLayout()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void OptimizerOptionsWidget::setOptimizer(QString opt, fitting::optimizers::Optimizer<double>& optimizer)
 {
@@ -178,7 +178,7 @@ void OptimizerOptionsWidget::setOptimizer(QString opt, fitting::optimizers::Opti
     updateGUIOptimizerOptions(optimizer);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Optimizer<double>& optimizer)
 {
@@ -223,7 +223,7 @@ void  OptimizerOptionsWidget::updateGUIOptimizerOptions(fitting::optimizers::Opt
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void  OptimizerOptionsWidget::updateOptimizerOptions(fitting::optimizers::Optimizer<double>& optimizer)
 {
@@ -240,5 +240,5 @@ void  OptimizerOptionsWidget::updateOptimizerOptions(fitting::optimizers::Optimi
     optimizer.set_options(opt);
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

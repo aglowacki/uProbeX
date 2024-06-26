@@ -9,7 +9,7 @@
 #include <core/PythonLoader.h>
 
 #include "core/defines.h"
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonTransformer::PythonTransformer(QString path,
                                      QString filename,
@@ -60,14 +60,14 @@ PythonTransformer::PythonTransformer(QString path,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonTransformer::~PythonTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> PythonTransformer::getAllCoef()
 {
@@ -76,7 +76,7 @@ QMap<QString, double> PythonTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonTransformer::getVariable(QString name, double *val)
 {
@@ -93,7 +93,7 @@ bool PythonTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonTransformer::foundFunctions()
 {
@@ -102,7 +102,7 @@ bool PythonTransformer::foundFunctions()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonTransformer::Init(QMap<QString, double> globalVars)
 {
@@ -122,7 +122,7 @@ bool PythonTransformer::Init(QMap<QString, double> globalVars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonTransformer::setVariable(QString name, double val)
 {
@@ -149,7 +149,7 @@ bool PythonTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonTransformer::transformCommand(double inX,
                                          double inY,
@@ -184,4 +184,4 @@ void PythonTransformer::transformCommand(double inX,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

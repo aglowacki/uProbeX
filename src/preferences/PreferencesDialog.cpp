@@ -25,7 +25,7 @@
 #include <QPair>
 #include <QHeaderView>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowList,
                                      QWidget* parent,
@@ -132,7 +132,7 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDialog::accept()
 {
@@ -193,7 +193,7 @@ void PreferencesDialog::accept()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDialog::changePage(QListWidgetItem* current,
                                    QListWidgetItem* previous)
@@ -206,7 +206,7 @@ void PreferencesDialog::changePage(QListWidgetItem* current,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDialog::reject()
 {
@@ -216,7 +216,7 @@ void PreferencesDialog::reject()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDialog::setPreferences(bool passMode)
 {
@@ -294,5 +294,5 @@ void PreferencesDialog::setPreferences(bool passMode)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@
 #include <QRegularExpression>
 #include <preferences/Preferences.h>
 #include "core/defines.h"
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 {
@@ -99,7 +99,7 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::_gen_visible_list(QStringList *sl)
 {
@@ -134,7 +134,7 @@ void FileTabWidget::onUpdateFilter()
     filterTextChanged(_filter_line->text());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::load_all_visible()
 {
@@ -155,7 +155,7 @@ void FileTabWidget::load_all_visible()
     emit loadList(sl);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::unload_all_visible()
 {
@@ -275,14 +275,14 @@ void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinf
     _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::ShowContextMenu(const QPoint &pos)
 {
     _contextMenu->exec(mapToGlobal(pos));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 {
@@ -294,7 +294,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::setActionsAndButtonsEnabled(bool val)
 {
@@ -314,7 +314,7 @@ void FileTabWidget::setActionsAndButtonsEnabled(bool val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onLoadFile()
 {
@@ -328,7 +328,7 @@ void FileTabWidget::onLoadFile()
     emit loadList(sl);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onUnloadFile()
 {
@@ -343,7 +343,7 @@ void FileTabWidget::onUnloadFile()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::filterTextChanged(const QString &filter_text)
 {
@@ -485,4 +485,4 @@ void FileTabWidget::onFileRowChange(const QModelIndex& current, const QModelInde
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_raw_mda(QFileInfo fileInfo)
 {
@@ -23,7 +23,7 @@ bool check_raw_mda(QFileInfo fileInfo)
     return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_raw_h5(QFileInfo fileInfo)
 {
@@ -47,7 +47,7 @@ bool check_raw_h5(QFileInfo fileInfo)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_region_link(QFileInfo fileInfo)
 {
@@ -57,7 +57,7 @@ bool check_region_link(QFileInfo fileInfo)
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_roi(QFileInfo fileInfo)
 {
@@ -66,7 +66,7 @@ bool check_roi(QFileInfo fileInfo)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_vlm(QFileInfo fileInfo)
 {
@@ -75,7 +75,7 @@ bool check_vlm(QFileInfo fileInfo)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool check_imgdat_h5(QFileInfo fileInfo)
 {
@@ -134,7 +134,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _all_region_links_suffex.append("tif");
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsWorkspaceModel::~MapsWorkspaceModel()
 {
@@ -162,7 +162,7 @@ MapsWorkspaceModel::~MapsWorkspaceModel()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::load(QString filepath)
 {
@@ -267,7 +267,7 @@ void MapsWorkspaceModel::load(QString filepath)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::reload_raw()
 {
@@ -275,7 +275,7 @@ void MapsWorkspaceModel::reload_raw()
     emit doneLoadingRAW();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::reload_analyzed()
 {
@@ -283,7 +283,7 @@ void MapsWorkspaceModel::reload_analyzed()
     emit doneLoadingImgDat();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::reload_vlm()
 {
@@ -291,7 +291,7 @@ void MapsWorkspaceModel::reload_vlm()
     emit doneLoadingVLM();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::reload_roi()
 {
@@ -299,7 +299,7 @@ void MapsWorkspaceModel::reload_roi()
     get_filesnames_in_directory(*_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi, false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::reload_region_link()
 {
@@ -307,7 +307,7 @@ void MapsWorkspaceModel::reload_region_link()
     get_filesnames_in_directory(*_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::unload()
 {
@@ -346,7 +346,7 @@ void MapsWorkspaceModel::unload()
     emit doneUnloading();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::_load_region_links(QString name, MapsH5Model* model)
 {
@@ -372,7 +372,7 @@ void MapsWorkspaceModel::_load_region_links(QString name, MapsH5Model* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
 {
@@ -405,7 +405,7 @@ MapsH5Model* MapsWorkspaceModel::get_MapsH5_Model(QString name)
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 {
@@ -436,7 +436,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
 {
@@ -474,7 +474,7 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
 {
@@ -486,7 +486,7 @@ std::vector<QString> MapsWorkspaceModel::get_loaded_raw_names()
     return ret;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
 {
@@ -498,7 +498,7 @@ std::vector<QString> MapsWorkspaceModel::get_loaded_h5_names()
     return ret;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<QString> MapsWorkspaceModel::get_loaded_vlm_names()
 {
@@ -569,7 +569,7 @@ void MapsWorkspaceModel::unload_all_H5_Model()
     _h5_models.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::unload_RAW_Model(QString name)
 {
@@ -592,7 +592,7 @@ void MapsWorkspaceModel::unload_all_RAW_Model()
     _raw_models.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsWorkspaceModel::unload_VLM_Model(QString name)
 {
@@ -615,7 +615,7 @@ void MapsWorkspaceModel::unload_all_VLM_Model()
     _vlm_models.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString MapsWorkspaceModel::get_directory_name()
 {
@@ -626,7 +626,7 @@ QString MapsWorkspaceModel::get_directory_name()
     return "";
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool MapsWorkspaceModel::_load_fit_params()
 {
@@ -653,7 +653,7 @@ bool MapsWorkspaceModel::_load_fit_params()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func, bool prepend_sub_dir)
 {
@@ -697,7 +697,7 @@ bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString>
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Fit_Parameters<double>* MapsWorkspaceModel::getFitParameters(int idx)
 {
@@ -708,7 +708,7 @@ data_struct::Fit_Parameters<double>* MapsWorkspaceModel::getFitParameters(int id
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Params_Override<double>* MapsWorkspaceModel::getParamOverride(int idx)
 {
@@ -719,7 +719,7 @@ data_struct::Params_Override<double>* MapsWorkspaceModel::getParamOverride(int i
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 data_struct::Fit_Element_Map_Dict<double>* MapsWorkspaceModel::getElementToFit(int idx)
 {

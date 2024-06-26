@@ -6,7 +6,7 @@
 #include <solver/LinearCoordTransformer.h>
 #include <math.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LinearCoordTransformer::LinearCoordTransformer() : ITransformer()
 {
@@ -14,14 +14,14 @@ LinearCoordTransformer::LinearCoordTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LinearCoordTransformer::~LinearCoordTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> LinearCoordTransformer::getAllCoef()
 {
@@ -34,7 +34,7 @@ QMap<QString, double> LinearCoordTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearCoordTransformer::Init(QMap<QString, double> globalVars)
 {
@@ -53,7 +53,7 @@ bool LinearCoordTransformer::Init(QMap<QString, double> globalVars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearCoordTransformer::getVariable(QString name, double *val)
 {
@@ -73,7 +73,7 @@ bool LinearCoordTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearCoordTransformer::setVariable(QString name, double val)
 {
@@ -93,7 +93,7 @@ bool LinearCoordTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearCoordTransformer::transformCommand(double inX,
                                              double inY,
@@ -125,5 +125,5 @@ void LinearCoordTransformer::transformCommand(double inX,
 */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 #include <QGroupBox>
 #include <preferences/Preferences.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SpectraWidgetSettingsDialog::SpectraWidgetSettingsDialog(QWidget *parent) : QDialog(parent)
 {
@@ -17,14 +17,14 @@ SpectraWidgetSettingsDialog::SpectraWidgetSettingsDialog(QWidget *parent) : QDia
     createLayout();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SpectraWidgetSettingsDialog::~SpectraWidgetSettingsDialog()
 {
   
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidgetSettingsDialog::createLayout()
 {
@@ -77,7 +77,7 @@ void SpectraWidgetSettingsDialog::createLayout()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidgetSettingsDialog::onAccepted()
 {
@@ -92,11 +92,11 @@ void SpectraWidgetSettingsDialog::onAccepted()
 	close();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SpectraWidgetSettingsDialog::onCancel()
 {
     close();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

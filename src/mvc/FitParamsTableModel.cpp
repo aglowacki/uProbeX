@@ -7,7 +7,7 @@
 #include "fitting/models/gaussian_model.h"
 #include <QColor>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(parent)
 {
@@ -24,7 +24,7 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters<double> fit_params)
 {
@@ -42,7 +42,7 @@ void FitParamsTableModel::setFitParams(data_struct::Fit_Parameters<double> fit_p
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int FitParamsTableModel::columnCount(const QModelIndex &parent) const
 {
@@ -52,7 +52,7 @@ int FitParamsTableModel::columnCount(const QModelIndex &parent) const
         return NUM_PROPS - 3;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
 {
@@ -63,7 +63,7 @@ void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
     emit layoutChanged();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters<double>* fit_params)
 {
@@ -83,7 +83,7 @@ void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters<double>* f
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::only_keep_these_keys(data_struct::Fit_Parameters<double> fit_params)
 {
@@ -113,7 +113,7 @@ void FitParamsTableModel::only_keep_these_keys(data_struct::Fit_Parameters<doubl
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::clearAll()
 {
@@ -126,7 +126,7 @@ void FitParamsTableModel::clearAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
 {
@@ -205,7 +205,7 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double FitParamsTableModel::getDataValueForRow(int row)
 {
@@ -221,7 +221,7 @@ double FitParamsTableModel::getDataValueForRow(int row)
     return 0.0;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::setDataValueForRow(int row, double val)
 {
@@ -236,7 +236,7 @@ void FitParamsTableModel::setDataValueForRow(int row, double val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitParamsTableModel::updateAll()
 {
@@ -245,7 +245,7 @@ void FitParamsTableModel::updateAll()
     emit dataChanged(topLeft, bottomRight);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags FitParamsTableModel::flags(const QModelIndex &index) const
 {
@@ -274,7 +274,7 @@ Qt::ItemFlags FitParamsTableModel::flags(const QModelIndex &index) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant FitParamsTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -300,7 +300,7 @@ QVariant FitParamsTableModel::headerData(int section, Qt::Orientation orientatio
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitParamsTableModel::removeRows(int row,
                                      int count,
@@ -314,7 +314,7 @@ bool FitParamsTableModel::removeRows(int row,
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int FitParamsTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -327,7 +327,7 @@ int FitParamsTableModel::rowCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitParamsTableModel::setDataFitBounds(const QModelIndex &index,
                                            const data_struct::E_Bound_Type &value)
@@ -350,7 +350,7 @@ bool FitParamsTableModel::setDataFitBounds(const QModelIndex &index,
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitParamsTableModel::setData(const QModelIndex &index,
                                   const QVariant &value,
@@ -427,7 +427,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool FitParamsTableModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
 {
@@ -456,7 +456,7 @@ bool FitParamsTableModel::setHeaderData(int section, Qt::Orientation orientation
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 

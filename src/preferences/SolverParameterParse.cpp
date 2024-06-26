@@ -5,7 +5,7 @@
 
 #include <preferences/SolverParameterParse.h>
 #include "core/defines.h"
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverParameterParse::SolverParameterParse()
 : QObject(0)
@@ -15,7 +15,7 @@ SolverParameterParse::SolverParameterParse()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverParameterParse::~SolverParameterParse()
 {
@@ -23,7 +23,7 @@ SolverParameterParse::~SolverParameterParse()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterParse::getCoefficient(QMap<QString, double>& dict_min_coef)
 {
@@ -35,7 +35,7 @@ void SolverParameterParse::getCoefficient(QMap<QString, double>& dict_min_coef)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterParse::getCoefficientAndTransform(
       QMap<QString, double>& dict_min_coef,
@@ -54,7 +54,7 @@ void SolverParameterParse::getCoefficientAndTransform(
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterParse::getTransform(QMap<QString, double>& dict_transform_coef)
 {
@@ -66,7 +66,7 @@ void SolverParameterParse::getTransform(QMap<QString, double>& dict_transform_co
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterParse::getOptions(QMap<QString, double>& dict_options)
 {
@@ -78,7 +78,7 @@ void SolverParameterParse::getOptions(QMap<QString, double>& dict_options)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SolverParameterParse::parseSolverCoefList(QStringList& coefList)
 {
@@ -159,7 +159,7 @@ bool SolverParameterParse::parseSolverCoefList(QStringList& coefList)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool SolverParameterParse::parseSolverOptionList(QStringList& optionList)
 {
@@ -209,4 +209,4 @@ bool SolverParameterParse::parseSolverOptionList(QStringList& optionList)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

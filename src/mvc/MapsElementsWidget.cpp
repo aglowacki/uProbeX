@@ -475,7 +475,7 @@ void MapsElementsWidget::_appendRoiTab()
     m_tabWidget->addTab(m_roiTreeTabWidget, QIcon(), "ROI's");
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::roiTreeContextMenu(const QPoint& pos)
 {
@@ -515,7 +515,7 @@ void MapsElementsWidget::displayRoiContextMenu(QWidget* parent, const QPoint& po
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MapsElementsWidget::roiModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
 {

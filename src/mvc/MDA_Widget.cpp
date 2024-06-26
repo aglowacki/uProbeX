@@ -13,7 +13,7 @@
 #include "io/file/aps/aps_fit_params_import.h"
 #include "io/file/csv_io.h"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MDA_Widget::MDA_Widget(QWidget* parent) : QWidget(parent)
 {
@@ -23,14 +23,14 @@ MDA_Widget::MDA_Widget(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 MDA_Widget::~MDA_Widget()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::createLayout()
 {
@@ -71,7 +71,7 @@ void MDA_Widget::createLayout()
     setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::setModel(RAW_Model* model)
 {
@@ -83,7 +83,7 @@ void MDA_Widget::setModel(RAW_Model* model)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::model_updated()
 {
@@ -137,7 +137,7 @@ void MDA_Widget::model_updated()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit)
 {
@@ -195,7 +195,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_pa
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, ArrayDr* back_spec, ArrayDr* fit_spec, std::unordered_map<std::string, ArrayDr>* labeled_spectras)
 {
@@ -245,7 +245,7 @@ void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, Arra
     QMessageBox::information(nullptr, "Export to CSV", mesg);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::onDetectorSelect(const QString& det)
 {
@@ -268,7 +268,7 @@ void MDA_Widget::onDetectorSelect(const QString& det)
     _spectra_widget->setIntegratedSpectra(_model->getIntegratedSpectra(detector));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void MDA_Widget::onDetectorSelectIdx(int idx)
 {
@@ -279,4 +279,4 @@ void MDA_Widget::onDetectorSelectIdx(int idx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

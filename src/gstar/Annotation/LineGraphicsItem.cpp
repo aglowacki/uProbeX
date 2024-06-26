@@ -18,7 +18,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LineGraphicsItem::LineGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -53,7 +53,7 @@ LineGraphicsItem::LineGraphicsItem(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LineGraphicsItem::~LineGraphicsItem()
 {
@@ -62,7 +62,7 @@ LineGraphicsItem::~LineGraphicsItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF LineGraphicsItem::boundingRect() const
 {
@@ -73,7 +73,7 @@ QRectF LineGraphicsItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF LineGraphicsItem::boundingRectMarker() const
 {
@@ -84,7 +84,7 @@ QRectF LineGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LineGraphicsItem::checkBoundPos(QPointF newPos, QPointF offset)
 {
@@ -130,7 +130,7 @@ bool LineGraphicsItem::checkBoundPos(QPointF newPos, QPointF offset)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::connectAll()
 {
@@ -140,7 +140,7 @@ void LineGraphicsItem::connectAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString LineGraphicsItem::displayName() const
 {
@@ -150,7 +150,7 @@ const QString LineGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::disconnectAll()
 {
@@ -160,7 +160,7 @@ void LineGraphicsItem::disconnectAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPointF LineGraphicsItem::endNodePos()
 {
@@ -169,7 +169,7 @@ QPointF LineGraphicsItem::endNodePos()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant LineGraphicsItem::itemChange(GraphicsItemChange change,
                                           const QVariant& value)
@@ -205,7 +205,7 @@ QVariant LineGraphicsItem::itemChange(GraphicsItemChange change,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -257,7 +257,7 @@ void LineGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -284,7 +284,7 @@ void LineGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -294,7 +294,7 @@ void LineGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::paint(QPainter* painter,
                              const QStyleOptionGraphicsItem* option,
@@ -420,7 +420,7 @@ void LineGraphicsItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::setEndPos(QPointF pos)
 {
@@ -430,7 +430,7 @@ void LineGraphicsItem::setEndPos(QPointF pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::setLine(QLineF line)
 {
@@ -440,7 +440,7 @@ void LineGraphicsItem::setLine(QLineF line)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::setLinkColor(QColor color)
 {
@@ -450,7 +450,7 @@ void LineGraphicsItem::setLinkColor(QColor color)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::setStartPos(QPointF pos)
 {
@@ -460,7 +460,7 @@ void LineGraphicsItem::setStartPos(QPointF pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPointF LineGraphicsItem::startNodePos()
 {
@@ -471,7 +471,7 @@ QPointF LineGraphicsItem::startNodePos()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPainterPath LineGraphicsItem::shape() const
 {
@@ -512,7 +512,7 @@ QPainterPath LineGraphicsItem::shape() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF LineGraphicsItem::textBoundingRect() const
 {
@@ -524,7 +524,7 @@ QRectF LineGraphicsItem::textBoundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::updateModel()
 {
@@ -550,7 +550,7 @@ void LineGraphicsItem::updateModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LineGraphicsItem::updateView()
 {
@@ -578,4 +578,4 @@ void LineGraphicsItem::updateView()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

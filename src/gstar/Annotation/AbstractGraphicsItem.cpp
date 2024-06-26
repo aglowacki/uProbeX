@@ -11,7 +11,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem::AbstractGraphicsItem(AbstractGraphicsItem* parent) :
    QGraphicsObject(parent)
@@ -30,7 +30,7 @@ AbstractGraphicsItem::AbstractGraphicsItem(AbstractGraphicsItem* parent) :
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem::~AbstractGraphicsItem()
 {
@@ -40,7 +40,7 @@ AbstractGraphicsItem::~AbstractGraphicsItem()
     m_parent = nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::clearChildren()
 {
@@ -54,7 +54,7 @@ void AbstractGraphicsItem::clearChildren()
     m_children.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::appendChild(AbstractGraphicsItem* child)
 {
@@ -65,14 +65,14 @@ void AbstractGraphicsItem::appendChild(AbstractGraphicsItem* child)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::appendLinkedDisplayChild(AbstractGraphicsItem* child)
 {
     _linkedDisplayChildren.push_back(child);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::removeLinkedDisplayChild(AbstractGraphicsItem* child)
 {
@@ -82,7 +82,7 @@ void AbstractGraphicsItem::removeLinkedDisplayChild(AbstractGraphicsItem* child)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::appendProperty(AnnotationProperty* prop)
 {
@@ -92,7 +92,7 @@ void AbstractGraphicsItem::appendProperty(AnnotationProperty* prop)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* AbstractGraphicsItem::child(int row)
 {
@@ -108,7 +108,7 @@ AbstractGraphicsItem* AbstractGraphicsItem::child(int row)
     return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString AbstractGraphicsItem::classId()
 {
@@ -117,7 +117,7 @@ QString AbstractGraphicsItem::classId()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::list<AbstractGraphicsItem*> AbstractGraphicsItem::childList() const
 {
@@ -126,7 +126,7 @@ std::list<AbstractGraphicsItem*> AbstractGraphicsItem::childList() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractGraphicsItem::childCount() const
 {
@@ -135,7 +135,7 @@ int AbstractGraphicsItem::childCount() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::clearProperties()
 {
@@ -148,7 +148,7 @@ void AbstractGraphicsItem::clearProperties()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::copyPropertyValues(QList<AnnotationProperty*> prop_list)
 {
@@ -168,7 +168,7 @@ void AbstractGraphicsItem::copyPropertyValues(QList<AnnotationProperty*> prop_li
     connectAllProperties();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::linkProperties(QList<AnnotationProperty*> prop_list)
 {
@@ -179,7 +179,7 @@ void AbstractGraphicsItem::linkProperties(QList<AnnotationProperty*> prop_list)
     connectAllLinkedProperties();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractGraphicsItem::columnCount() const
 {
@@ -188,7 +188,7 @@ int AbstractGraphicsItem::columnCount() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::connectAllProperties()
 {
@@ -200,7 +200,7 @@ void AbstractGraphicsItem::connectAllProperties()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::connectAllLinkedProperties()
 {
@@ -212,7 +212,7 @@ void AbstractGraphicsItem::connectAllLinkedProperties()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::disconnectAllLinkedProperties()
 {
@@ -224,7 +224,7 @@ void AbstractGraphicsItem::disconnectAllLinkedProperties()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::unlinkAllAnnotations()
 {
@@ -232,7 +232,7 @@ void AbstractGraphicsItem::unlinkAllAnnotations()
     _linked_props.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::connectAllViewItems()
 {
@@ -272,7 +272,7 @@ void AbstractGraphicsItem::connectAllViewItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AbstractGraphicsItem::data(int row, int column) const
 {
@@ -314,7 +314,7 @@ QVariant AbstractGraphicsItem::data(int row, int column) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::disconnectAllProperties()
 {
@@ -326,7 +326,7 @@ void AbstractGraphicsItem::disconnectAllProperties()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::disconnectAllViewItems()
 {
@@ -366,7 +366,7 @@ void AbstractGraphicsItem::disconnectAllViewItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
 {
@@ -403,7 +403,7 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
    return flags;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AbstractGraphicsItem::hasChild(AbstractGraphicsItem* child)
 {
@@ -418,7 +418,7 @@ bool AbstractGraphicsItem::hasChild(AbstractGraphicsItem* child)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QTransform AbstractGraphicsItem::getFirstViewTransform() const
 {
@@ -440,7 +440,7 @@ QTransform AbstractGraphicsItem::getFirstViewTransform() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::initializePropertyName()
 {
@@ -449,7 +449,7 @@ void AbstractGraphicsItem::initializePropertyName()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AbstractGraphicsItem::itemChange(GraphicsItemChange change,
                                           const QVariant& value)
@@ -531,7 +531,7 @@ QVariant AbstractGraphicsItem::itemChange(GraphicsItemChange change,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::modelChanged(AnnotationProperty* prop, QVariant val)
 {
@@ -546,7 +546,7 @@ void AbstractGraphicsItem::modelChanged(AnnotationProperty* prop, QVariant val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant val)
 {
@@ -563,7 +563,7 @@ void AbstractGraphicsItem::linkPropChanged(AnnotationProperty* prop, QVariant va
     connectAllLinkedProperties();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* AbstractGraphicsItem::parent() const
 {
@@ -572,7 +572,7 @@ AbstractGraphicsItem* AbstractGraphicsItem::parent() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::prependProperty(AnnotationProperty* prop)
 {
@@ -581,7 +581,7 @@ void AbstractGraphicsItem::prependProperty(AnnotationProperty* prop)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QList<AnnotationProperty*> AbstractGraphicsItem::properties() const
 {
@@ -590,7 +590,7 @@ QList<AnnotationProperty*> AbstractGraphicsItem::properties() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AbstractGraphicsItem::propertyValue(QString name) const
 {
@@ -605,7 +605,7 @@ QVariant AbstractGraphicsItem::propertyValue(QString name) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::setPropertyValue(QString name, QVariant value)
 {
@@ -618,7 +618,7 @@ void AbstractGraphicsItem::setPropertyValue(QString name, QVariant value)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::removeChild(AbstractGraphicsItem* item)
 {
@@ -627,7 +627,7 @@ void AbstractGraphicsItem::removeChild(AbstractGraphicsItem* item)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::removeChildAt(int row)
 {
@@ -642,7 +642,7 @@ void AbstractGraphicsItem::removeChildAt(int row)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child, AbstractGraphicsItem **out_child)
 {
@@ -661,7 +661,7 @@ int AbstractGraphicsItem::indexOfName(AbstractGraphicsItem* child, AbstractGraph
     return -1;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractGraphicsItem::indexOf(AbstractGraphicsItem* child)
 {
@@ -675,7 +675,7 @@ int AbstractGraphicsItem::indexOf(AbstractGraphicsItem* child)
     return -1;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AbstractGraphicsItem::row() const
 {
@@ -689,7 +689,7 @@ int AbstractGraphicsItem::row() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::setAllChildrenSelected(bool select)
 {
@@ -701,7 +701,7 @@ void AbstractGraphicsItem::setAllChildrenSelected(bool select)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 //void AbstractGraphicsItem::setCoordinatePrecision(int number)
 //{
@@ -710,7 +710,7 @@ void AbstractGraphicsItem::setAllChildrenSelected(bool select)
 
 //}
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AbstractGraphicsItem::setData(const QModelIndex& index,
                                const QVariant& value)
@@ -803,7 +803,7 @@ bool AbstractGraphicsItem::setData(const QModelIndex& index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void AbstractGraphicsItem::setSelected(bool selected)
 {
@@ -812,7 +812,7 @@ void AbstractGraphicsItem::setSelected(bool selected)
 
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::setParent(AbstractGraphicsItem* parent)
 {
@@ -821,7 +821,7 @@ void AbstractGraphicsItem::setParent(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AbstractGraphicsItem::viewChanged()
 {
@@ -836,4 +836,4 @@ void AbstractGraphicsItem::viewChanged()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

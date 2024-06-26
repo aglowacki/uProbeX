@@ -26,7 +26,7 @@
 
 using namespace data_struct;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 {
@@ -100,7 +100,7 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FitSpectraWidget::~FitSpectraWidget()
 {
@@ -111,7 +111,7 @@ FitSpectraWidget::~FitSpectraWidget()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::createLayout()
 {    
@@ -260,7 +260,7 @@ void FitSpectraWidget::createLayout()
     setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::displayROIs(bool val)
 {
@@ -277,7 +277,7 @@ void FitSpectraWidget::displayROIs(bool val)
     replot_integrated_spectra(false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::setParamOverride(data_struct::Params_Override<double>* po)
 {
@@ -290,7 +290,7 @@ void FitSpectraWidget::setParamOverride(data_struct::Params_Override<double>* po
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::on_braching_ratio_update(data_struct::Fit_Element_Map<double>* element)
 {
@@ -300,7 +300,7 @@ void FitSpectraWidget::on_braching_ratio_update(data_struct::Fit_Element_Map<dou
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::onSettingsDialog()
 {
@@ -382,7 +382,7 @@ void FitSpectraWidget::onSettingsDialog()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::on_export_fit_paramters()
 {
@@ -396,14 +396,14 @@ void FitSpectraWidget::on_export_fit_paramters()
     emit export_fit_paramters(fit_params, element_to_fit);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::on_export_csv()
 {
     emit export_csv_and_png(_spectra_widget->getPngofChart(), &_ev, _int_spec, &_spectra_background, &_fit_spec, &_labeled_spectras);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
@@ -517,21 +517,21 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::appendFitIntSpectra(std::string name, ArrayDr* spec)
 {
     _fit_int_spec_map[name] = spec;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::appendMaxChanSpectra(std::string name, ArrayDr* spec)
 {
     _max_chan_spec_map[name] = spec;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::appendROISpectra(std::string name, ArrayDr* spec, QColor color)
 {
@@ -539,7 +539,7 @@ void FitSpectraWidget::appendROISpectra(std::string name, ArrayDr* spec, QColor 
     _roi_spec_colors[name] = color;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::deleteROISpectra(std::string name)
 {
@@ -557,7 +557,7 @@ void FitSpectraWidget::deleteROISpectra(std::string name)
     replot_integrated_spectra(false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::deleteAllROISpectra()
 {
@@ -575,7 +575,7 @@ void FitSpectraWidget::deleteAllROISpectra()
     replot_integrated_spectra(false);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::clearFitIntSpectra()
 {
@@ -588,7 +588,7 @@ void FitSpectraWidget::clearFitIntSpectra()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::clearMaxChanSpectra()
 {
@@ -599,7 +599,7 @@ void FitSpectraWidget::clearMaxChanSpectra()
     _max_chan_spec_map.clear();
 
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::clearROISpectra()
 {
@@ -610,7 +610,7 @@ void FitSpectraWidget::clearROISpectra()
     _roi_spec_map.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::add_element()
 {
@@ -671,7 +671,7 @@ void FitSpectraWidget::add_element()
     update_spectra_top_axis();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::del_element()
 {
@@ -708,7 +708,7 @@ void FitSpectraWidget::del_element()
     update_spectra_top_axis();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::pileup_chk_changed(int state)
 {
@@ -726,7 +726,7 @@ void FitSpectraWidget::pileup_chk_changed(int state)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::Fit_Spectra_Click()
 {
@@ -886,7 +886,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::Fit_ROI_Spectra_Click()
 {
@@ -1000,14 +1000,14 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)
 {
     Model_Spectra_Click();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::Model_Spectra_Click()
 {
@@ -1050,7 +1050,7 @@ void FitSpectraWidget::Model_Spectra_Click()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::finished_fitting()
 {
@@ -1063,14 +1063,14 @@ void FitSpectraWidget::finished_fitting()
 	replot_integrated_spectra(true);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::fit_params_customMenuRequested(QPoint pos)
 {
     _fit_param_contextMenu->exec(_fit_params_table->mapToGlobal(pos));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::set_fit_params_bounds(data_struct::E_Bound_Type e_type)
 {
@@ -1081,7 +1081,7 @@ void FitSpectraWidget::set_fit_params_bounds(data_struct::E_Bound_Type e_type)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::check_auto_model(int state)
 {
@@ -1113,7 +1113,7 @@ void FitSpectraWidget::check_auto_model(int state)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 //void FitSpectraWidget::element_clicked(QModelIndex index)
 //{
@@ -1133,14 +1133,14 @@ void FitSpectraWidget::check_auto_model(int state)
 //    }
 //}
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::element_selection_changed(QModelIndex current, QModelIndex previous)
 {
     _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::element_selection_changed(int index)
 {
@@ -1175,7 +1175,7 @@ void FitSpectraWidget::element_selection_changed(int index)
     _spectra_widget->set_element_lines(&em);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::optimizer_changed(QString val)
 {
@@ -1188,7 +1188,7 @@ void FitSpectraWidget::optimizer_changed(QString val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
 {
@@ -1200,14 +1200,14 @@ void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
     _spectra_widget->onResetChartViewOnlyY();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters<double>* fit_params)
 {
     _fit_params_table_model->updateFitParams(fit_params);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
@@ -1216,7 +1216,7 @@ void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict<double
     update_spectra_top_axis();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FitSpectraWidget::update_spectra_top_axis()
 {
@@ -1247,4 +1247,4 @@ void FitSpectraWidget::update_spectra_top_axis()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

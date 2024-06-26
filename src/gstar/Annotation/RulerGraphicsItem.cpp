@@ -14,7 +14,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 RulerGraphicsItem::RulerGraphicsItem(AbstractGraphicsItem* parent)
    : LineGraphicsItem(parent)
@@ -33,7 +33,7 @@ RulerGraphicsItem::RulerGraphicsItem(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void RulerGraphicsItem::calculate()
 {
@@ -66,7 +66,7 @@ void RulerGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString RulerGraphicsItem::displayName() const
 {
@@ -76,7 +76,7 @@ const QString RulerGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* RulerGraphicsItem::duplicate()
 {
@@ -91,4 +91,4 @@ AbstractGraphicsItem* RulerGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CheckBoxDelegate::CheckBoxDelegate(QObject* parent)
 : QStyledItemDelegate(parent)
@@ -18,7 +18,7 @@ CheckBoxDelegate::CheckBoxDelegate(QObject* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRect CheckBoxDelegate::checkBoxRect(const QStyleOptionViewItem&
                                      itemStyleOptions)
@@ -40,7 +40,7 @@ QRect CheckBoxDelegate::checkBoxRect(const QStyleOptionViewItem&
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CheckBoxDelegate::editorEvent(QEvent* event,
                                    QAbstractItemModel* model,
@@ -87,7 +87,7 @@ bool CheckBoxDelegate::editorEvent(QEvent* event,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CheckBoxDelegate::paint(QPainter* painter,
                              const QStyleOptionViewItem& option,
@@ -121,4 +121,4 @@ void CheckBoxDelegate::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

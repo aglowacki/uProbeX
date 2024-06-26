@@ -10,7 +10,7 @@
 #include <QLabel>
 #include "core/defines.h"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget* parent) : QWidget(parent)
 {
@@ -40,7 +40,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LiveMapsElementsWidget::~LiveMapsElementsWidget()
 {
@@ -76,7 +76,7 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LiveMapsElementsWidget::createLayout()
 {
@@ -137,7 +137,7 @@ void LiveMapsElementsWidget::createLayout()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LiveMapsElementsWidget::updateIp()
 {
@@ -158,7 +158,7 @@ void LiveMapsElementsWidget::updateIp()
     _last_packet = nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* new_packet)
 {
@@ -247,7 +247,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
     _last_packet = new_packet;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LiveMapsElementsWidget::image_changed(int start, int end)
 {

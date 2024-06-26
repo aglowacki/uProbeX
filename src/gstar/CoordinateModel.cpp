@@ -8,14 +8,14 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateModel::CoordinateModel() : QObject(0)
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateModel::CoordinateModel(ITransformer *transformer) : QObject(0)
 {
@@ -24,7 +24,7 @@ CoordinateModel::CoordinateModel(ITransformer *transformer) : QObject(0)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateModel::~CoordinateModel()
 {
@@ -37,7 +37,7 @@ CoordinateModel::~CoordinateModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ITransformer* CoordinateModel::getTransformer()
 {
@@ -46,7 +46,7 @@ ITransformer* CoordinateModel::getTransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CoordinateModel::getTransformerVariable(QString name, double *val)
 {
@@ -60,7 +60,7 @@ bool CoordinateModel::getTransformerVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CoordinateModel::setTransformerVariable(QString name, double val)
 {
@@ -78,7 +78,7 @@ bool CoordinateModel::setTransformerVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateModel::setTransformer(ITransformer *transformer)
 {
@@ -87,7 +87,7 @@ void CoordinateModel::setTransformer(ITransformer *transformer)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateModel::setTransformerPrecision(int number)
 {
@@ -96,7 +96,7 @@ void CoordinateModel::setTransformerPrecision(int number)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateModel::runTransformer(double inX,
                                      double inY,
@@ -117,4 +117,4 @@ void CoordinateModel::runTransformer(double inX,
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
