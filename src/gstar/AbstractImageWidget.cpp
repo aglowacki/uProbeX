@@ -409,10 +409,15 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
    splitter->setOrientation(Qt::Horizontal);
 
    splitter->addWidget(m_imageViewWidget);
+   splitter->setStretchFactor(0, 1);
    if (add_tab_widget)
    {
-       splitter->setStretchFactor(0, 1);
-       splitter->addWidget(m_tabWidget);
+      //_anim_widget = new AnnimateSlideWidget();
+      //_anim_widget->setAnimWidget(m_tabWidget, "<");
+      splitter->addWidget(m_tabWidget);
+      splitter->setStretchFactor(1, 1);
+	   //splitter->setCollapsible(0, false);
+	   //splitter->setCollapsible(1, true);
    }
    createToolBar(m_imageViewWidget);
 

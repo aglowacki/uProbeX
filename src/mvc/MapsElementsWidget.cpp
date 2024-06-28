@@ -120,11 +120,17 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     //hbox2->addWidget(_dataset_name);
     hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
+
+    _anim_widget = new AnnimateSlideWidget();
+    _anim_widget->setAnimWidget(m_tabWidget, "<");
+      
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Horizontal);
     splitter->addWidget(m_imageViewWidget);
     splitter->setStretchFactor(0, 1);
-    splitter->addWidget(m_tabWidget);
+    splitter->addWidget(_anim_widget);
+    splitter->setCollapsible(0, false);
+    splitter->setCollapsible(1, true);
 
     createToolBar(m_imageViewWidget, create_image_nav);
 

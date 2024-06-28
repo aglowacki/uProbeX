@@ -27,6 +27,7 @@
 #include "gstar/ImageViewToolBar.h"
 #include "gstar/RangeWidget.h"
 #include "gstar/RulerUnitsDialog.h"
+#include "mvc/AnnimateSlideWidget.h"
 
 //---------------------------------------------------------------------------
 
@@ -413,6 +414,8 @@ protected:
     * @brief m_treeTabWidget
     */
    QWidget* m_treeTabWidget;
+
+   AnnimateSlideWidget* _anim_widget;
 
 };
 
