@@ -45,6 +45,7 @@ MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 
 void MapsWorkspaceFilesWidget::createLayout()
 {
+
     std::vector<std::string> bound_types {"Not Initialized", "Fixed", "Limited Low High", "Limited Low", "Limited High", "Fit"};
     _lbl_workspace = new QLabel();
     _tab_widget = new QTabWidget();

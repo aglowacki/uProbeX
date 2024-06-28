@@ -104,22 +104,27 @@ void ImageStackControlWidget::createLayout()
 	_files_dock = new QDockWidget("Files", this);
     _files_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_files_dock->setWidget(_mapsFilsWidget);
+	connect(_files_dock, &QDockWidget::topLevelChanged, this, &ImageStackControlWidget::onDockFloatChanged);
 
-	hlayout2->addWidget(_files_dock);
+	//hlayout2->addWidget(_files_dock);
 
-	QWidget *leftWidget = new QWidget();
-	leftWidget->setLayout(hlayout2);
+	_files_anim_widget = new AnnimateSlideWidget();
+	//QWidget *leftWidget = new QWidget();
+	//leftWidget->setLayout(hlayout2);
+	_files_anim_widget->setAnimWidget(_files_dock, ">");
 	QWidget *rightWidget = new QWidget();
 	rightWidget->setLayout(vlayout);
 
 	QSplitter* single_data_splitter = new QSplitter();
 	single_data_splitter->setOrientation(Qt::Horizontal);
-	single_data_splitter->addWidget(leftWidget);
+	single_data_splitter->addWidget(_files_anim_widget);
 	single_data_splitter->setStretchFactor(0, 1);
 	single_data_splitter->addWidget(rightWidget);
 	//createToolBar(m_imageViewWidget);
 	//counts_layout->addWidget(m_toolbar);
 	//counts_layout->addWidget(splitter);
+	single_data_splitter->setCollapsible(0, true);
+	single_data_splitter->setCollapsible(1, false);
 
 	_load_progress = new QProgressBar();
 	
@@ -177,6 +182,20 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 			_imageGrid->hide();
 		_vlm_widget->setModel(_vlm_model_map[text]);
 		_vlm_widget->show();
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageStackControlWidget::onDockFloatChanged(bool floating)
+{
+	if(floating)
+	{
+		_files_anim_widget->setAnimEnabled(false);
+	}
+	else
+	{
+		_files_anim_widget->setAnimEnabled(true);
 	}
 }
 

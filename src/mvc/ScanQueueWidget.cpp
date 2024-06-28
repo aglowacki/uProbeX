@@ -50,7 +50,7 @@ void ScanQueueWidget::_createLayout()
     hlayout->addWidget(_btn_update);
     layout->addLayout(hlayout);
 
-    _mapsElementsWidget = new MapsElementsWidget(1,1,true,this);
+    _mapsElementsWidget = new MapsElementsWidget(1,1,true);
     //_mapsElementsWidget->setTabVisible(1, false);
     _mapsElementsWidget->setTabVisible(2, false);
     _mapsElementsWidget->setTabVisible(3, false);

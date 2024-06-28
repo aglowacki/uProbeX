@@ -49,7 +49,7 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(int rows = 1, int cols = 1, bool create_image_nav=false, QWidget* parent = nullptr);
+   MapsElementsWidget(int rows = 1, int cols = 1, bool create_image_nav=false, bool restore_floating=true, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -136,7 +136,7 @@ protected:
    /**
     * @brief Create layout
     */
-   void _createLayout(bool create_image_nav);
+   void _createLayout(bool create_image_nav, bool restore_floating);
 
    virtual void createActions();
 

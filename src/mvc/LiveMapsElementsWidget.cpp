@@ -96,7 +96,7 @@ void LiveMapsElementsWidget::createLayout()
  //   _textEdit = new QTextEdit(this);
  //   _textEdit->resize(1024, 800);
  //   _textEdit->scrollBarWidgets(Qt::AlignRight);
-    _mapsElementsWidget = new MapsElementsWidget(1,1,true,this);
+    _mapsElementsWidget = new MapsElementsWidget(1,1,true,false);
     //_mapsElementsWidget->setTabVisible(1, false);
     _mapsElementsWidget->setTabVisible(2, false);
     _mapsElementsWidget->setTabVisible(3, false);

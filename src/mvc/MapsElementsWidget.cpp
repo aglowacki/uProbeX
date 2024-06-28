@@ -30,7 +30,7 @@ using gstar::ImageViewWidget;
 
 //---------------------------------------------------------------------------
 
-MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, QWidget* parent)
+MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, bool restore_floating, QWidget* parent)
     : AbstractImageWidget(rows, cols, parent)
 {
     
@@ -67,7 +67,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
     connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
     setAttribute(Qt::WA_DeleteOnClose, true);
     connect(this, SIGNAL(destroyed()), this, SLOT(closeEvent()));
-    _createLayout(create_image_nav);
+    _createLayout(create_image_nav, restore_floating);
 }
 
 //---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ MapsElementsWidget::~MapsElementsWidget()
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::_createLayout(bool create_image_nav)
+void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_floating)
 {
 
     QHBoxLayout *tmp_layout;
@@ -378,21 +378,23 @@ void MapsElementsWidget::_createLayout(bool create_image_nav)
 
     setLayout(layout);
 
-
-    for (auto& mItr : _dockMap)
+    if(restore_floating)
     {
-        QVariant variant = Preferences::inst()->getValue(mItr.first+"_floating");
-        if (variant.isValid())
+        for (auto& mItr : _dockMap)
         {
-            mItr.second->setFloating(variant.toBool());
+            QVariant variant = Preferences::inst()->getValue(mItr.first+"_floating");
+            if (variant.isValid())
+            {
+                mItr.second->setFloating(variant.toBool());
+            }
+            variant = Preferences::inst()->getValue(mItr.first + "_geometry");
+            if (variant.isValid())
+            {
+                mItr.second->restoreGeometry(variant.toByteArray());
+            }
+            
+            connect(mItr.second, &QDockWidget::topLevelChanged, this, &MapsElementsWidget::onDockFloatChanged);
         }
-        variant = Preferences::inst()->getValue(mItr.first + "_geometry");
-        if (variant.isValid())
-        {
-            mItr.second->restoreGeometry(variant.toByteArray());
-        }
-        
-        connect(mItr.second, &QDockWidget::topLevelChanged, this, &MapsElementsWidget::onDockFloatChanged);
     }
    
 }
