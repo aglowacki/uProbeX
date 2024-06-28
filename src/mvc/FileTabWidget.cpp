@@ -95,6 +95,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     vlayout->addItem(hlayout2);
     vlayout->addItem(_custom_btn_box);
     vlayout->addWidget(_file_list_view);
+    vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
 
 }

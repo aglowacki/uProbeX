@@ -23,6 +23,7 @@
 #include "fitting//optimizers/lmfit_optimizer.h"
 #include <mvc/NumericPrecDelegate.h>
 #include <preferences/Preferences.h>
+#include "io/file/aps/aps_roi.h"
 
 using namespace data_struct;
 
@@ -240,10 +241,14 @@ void FitSpectraWidget::createLayout()
     grid_layout->addWidget(_btn_model_spectra, 1, 2);
     grid_layout->addWidget(_btn_export_csv, 1, 3);
     grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
+    //grid_layout->setSpacing(0);
+	//grid_layout->setContentsMargins(0, 0, 0, 0);
 
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
 	vlayout_tab->addItem(grid_layout);
+    vlayout_tab->setSpacing(0);
+	vlayout_tab->setContentsMargins(0, 0, 0, 0);
 	QWidget* tab_and_buttons_widget = new QWidget();
 	tab_and_buttons_widget->setLayout(vlayout_tab);
 
@@ -257,6 +262,8 @@ void FitSpectraWidget::createLayout()
 
     QLayout* layout = new QVBoxLayout();
 	layout->addWidget(splitter);
+    layout->setSpacing(0);
+	layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 }
 
@@ -978,15 +985,20 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             data_struct::Fit_Element_Map_Dict<double> elements_to_fit = _fitting_dialog->get_elements_to_fit();
             data_struct::Fit_Parameters<double>*  new_fit_params = _fitting_dialog->get_new_fit_params();
 
-            int detector_num = -1;
+            //int detector_num = -1;
             QDir tmp_dir = _dataset_dir;
             tmp_dir.cdUp();
             tmp_dir.cdUp();
             QFileInfo finfo(_dataset_dir.absolutePath());
             
-            QString roi_file_name = finfo.fileName() + "_roi_" + roi_name;
+            int detector_num = finfo.completeSuffix().toInt();
 
+            QString roi_file_name = finfo.fileName() + "_roi_" + roi_name;
+            QString roi_override_name = tmp_dir.absolutePath() + QDir::separator() +"maps_fit_parameters_override_"+roi_file_name+".txt"+QString::number(detector_num);
             io::file::save_optimized_fit_params(tmp_dir.absolutePath().toStdString(), roi_file_name.toStdString(), detector_num, result, new_fit_params, (Spectra<double>*)roi_spec, &elements_to_fit);
+            //io::file::aps::create_detector_fit_params_from_avg(roi_override_name.toStdString(), *new_fit_params, detector_num);
+            _param_override->fit_params.update_and_add_values(new_fit_params);
+            io::file::aps::save_parameters_override(roi_override_name.toStdString(), _param_override);
             // open file location
             tmp_dir.cd("output");
             if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(tmp_dir.absolutePath())))

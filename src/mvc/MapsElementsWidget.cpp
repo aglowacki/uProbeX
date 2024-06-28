@@ -261,6 +261,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     counts_layout->addWidget(scrollArea);
     counts_layout->addWidget(splitter);
 
+    counts_layout->setSpacing(0);
+	counts_layout->setContentsMargins(0, 0, 0, 0);
+
     _counts_window = new QWidget();
     _counts_window->setLayout(counts_layout);
 
@@ -273,66 +276,83 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _counts_dock = new QDockWidget("Analyzed Counts", this);
     _counts_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_counts_dock->setWidget(_counts_window);
-    _counts_dock->setProperty("padding", QVariant("1px"));
+    _counts_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_COUNTS_DOCK] = _counts_dock;
         
     _intspectra_dock = new QDockWidget(DEF_STR_INT_SPECTRA, this);
     _intspectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_intspectra_dock->setWidget(_spectra_widget);
+    _intspectra_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_INTSPEC_DOCK] = _intspectra_dock;
 
     _quant_dock = new QDockWidget("Quantification", this);
     _quant_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_quant_dock->setWidget(_quant_widget);
+    _quant_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_QUANT_DOCK] = _quant_dock;
 
     _coloc_dock = new QDockWidget("CoLocalization", this);
     _coloc_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_coloc_dock->setWidget(_co_loc_widget);
+    _coloc_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_COLOR_DOCK] = _coloc_dock;
 
     _scatter_dock = new QDockWidget("Scatter Plot", this);
     _scatter_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_scatter_dock->setWidget(_scatter_plot_widget);
+    _scatter_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_SCATTER_DOCK] = _scatter_dock;
  
     _extra_dock = new QDockWidget("Extra PV's", this);
     _extra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_extra_dock->setWidget(_extra_pvs_table_widget);
+    _extra_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_EXTRA_DOCK] = _extra_dock;
 
     // This is done this way so that you can undock a widget and change tabs without hiding it.
     tmp_layout = new QHBoxLayout();
+	tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_counts_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
     _tab_widget->addTab(tmp_widget, "Analyzed Counts");
     
     tmp_layout = new QHBoxLayout();
+    tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_intspectra_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
     _tab_widget->addTab(tmp_widget, DEF_STR_INT_SPECTRA);
 
     tmp_layout = new QHBoxLayout();
+    tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_quant_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
     _tab_widget->addTab(tmp_widget, "Quantification");
 
     tmp_layout = new QHBoxLayout();
+    tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_coloc_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
     _tab_widget->addTab(tmp_widget, "CoLocalization");
 
     tmp_layout = new QHBoxLayout();
+    tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_scatter_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
     _tab_widget->addTab(tmp_widget, "Scatter Plot");
 
     tmp_layout = new QHBoxLayout();
+    tmp_layout->setSpacing(0);
+	tmp_layout->setContentsMargins(0, 0, 0, 0);
     tmp_layout->addWidget(_extra_dock);
     tmp_widget = new QWidget();
     tmp_widget->setLayout(tmp_layout);
@@ -382,6 +402,13 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     setCoordinateModel(new gstar::CoordinateModel(&_motor_trans));
 
+    hbox->setSpacing(0);
+	hbox->setContentsMargins(0, 0, 0, 0);
+    hbox2->setSpacing(0);
+	hbox2->setContentsMargins(0, 0, 0, 0);
+
+	layout->setSpacing(0);
+	layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     if(restore_floating)

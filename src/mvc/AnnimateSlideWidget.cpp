@@ -22,6 +22,7 @@ void AnnimateSlideWidget::setAnimWidget(QWidget* w, QString btn_name)
         if(_btn_hover == nullptr)
         {
             _btn_hover = new QPushButton(btn_name);
+            _btn_hover->setVisible(false);
         }
         _anim_widget = w; 
     }
@@ -29,6 +30,8 @@ void AnnimateSlideWidget::setAnimWidget(QWidget* w, QString btn_name)
     QHBoxLayout *layout = new QHBoxLayout();
     layout->addWidget(_btn_hover);
     layout->addWidget(_anim_widget);
+	layout->setSpacing(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(layout);
 }

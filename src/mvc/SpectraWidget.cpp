@@ -117,22 +117,22 @@ void SpectraWidget::createLayout()
 
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min(), 'f', 2));
- //   _display_eneergy_min->setMinimumWidth(100);
+    _display_eneergy_min->setMinimumWidth(50);
     connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max(), 'f', 2));
-//    _display_eneergy_max->setMinimumWidth(100);
+    _display_eneergy_max->setMinimumWidth(50);
     connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
 
 
-    _display_height_min = new QLineEdit(QString::number(ymin));
-//    _display_height_min->setMinimumWidth(100);
-    connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+    //_display_height_min = new QLineEdit(QString::number(ymin));
+    //_display_height_min->setMinimumWidth(100);
+    //connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
-    _display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
-//    _display_height_max->setMinimumWidth(100);
-    connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+    //_display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
+    //_display_height_max->setMinimumWidth(100);
+    //connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
 
     _btn_reset_chart_view = new QPushButton("Reset");
     connect(_btn_reset_chart_view, &QPushButton::released, this, &SpectraWidget::onResetChartView);
@@ -171,6 +171,9 @@ void SpectraWidget::createLayout()
         _chart->setBackgroundBrush(QBrush(QColor("black")));
     }
 
+    vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(vlayout);
 }
 
@@ -192,8 +195,8 @@ void SpectraWidget::setDisplayRange(QString wmin, QString wmax, QString hmin, QS
 {
     _display_eneergy_min->setText(wmin);
     _display_eneergy_max->setText(wmax);
-    _display_height_min->setText(hmin);
-    _display_height_max->setText(hmax);
+    //_display_height_min->setText(hmin);
+    //_display_height_max->setText(hmax);
     onSpectraDisplayChanged(wmin);
     onSpectraDisplayHeightChanged(hmin);
 }
@@ -212,17 +215,17 @@ void SpectraWidget::onSpectraDisplayChanged(const QString &)
 
 void SpectraWidget::onSpectraDisplayHeightChanged(const QString&)
 {
-    qreal maxRange = _display_height_max->text().toDouble();
-    qreal minRange = _display_height_min->text().toDouble();
-    _currentYAxis->setRange(minRange, maxRange);
+    //qreal maxRange = _display_height_max->text().toDouble();
+    //qreal minRange = _display_height_min->text().toDouble();
+    //_currentYAxis->setRange(minRange, maxRange);
 }
 
 //---------------------------------------------------------------------------
 
 void SpectraWidget::onResetChartViewOnlyY()
 {
-    _display_height_min->setText(QString::number(1));
-    _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
+    //_display_height_min->setText(QString::number(1));
+    //_display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
     _currentYAxis->setRange(1, _int_spec_max_y);
 }
 
@@ -233,8 +236,8 @@ void SpectraWidget::onResetChartView()
     _display_eneergy_min->setText(QString::number(0, 'f', 2));
     _display_eneergy_max->setText(QString::number(_int_spec_max_x, 'f', 2));
 
-    _display_height_min->setText(QString::number(1));
-    _display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
+    //_display_height_min->setText(QString::number(1));
+    //_display_height_max->setText(QString::number(_int_spec_max_y, 'g', 0));
 
     _currentYAxis->setRange(1, _int_spec_max_y);
     _axisX->setRange(0, _int_spec_max_x);
@@ -249,6 +252,7 @@ void SpectraWidget::onUpdateChartLineEdits()
 {
     _display_eneergy_min->setText(QString::number(_axisX->min(), 'f', 2));
     _display_eneergy_max->setText(QString::number(_axisX->max(), 'f', 2));
+    /*
     if (_display_log10)
     {
         _display_height_min->setText(QString::number(_axisYLog10->min()));
@@ -259,6 +263,7 @@ void SpectraWidget::onUpdateChartLineEdits()
         _display_height_min->setText(QString::number(_axisY->min()));
         _display_height_max->setText(QString::number(_axisY->max()));
     }
+    */
 }
 
 //---------------------------------------------------------------------------

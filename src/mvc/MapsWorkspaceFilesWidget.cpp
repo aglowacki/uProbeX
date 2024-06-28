@@ -46,7 +46,7 @@ MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 void MapsWorkspaceFilesWidget::createLayout()
 {
 
-    std::vector<std::string> bound_types {"Not Initialized", "Fixed", "Limited Low High", "Limited Low", "Limited High", "Fit"};
+    //std::vector<std::string> bound_types {"Not Initialized", "Fixed", "Limited Low High", "Limited Low", "Limited High", "Fit"};
     _lbl_workspace = new QLabel();
     _tab_widget = new QTabWidget();
 
@@ -108,6 +108,8 @@ void MapsWorkspaceFilesWidget::createLayout()
     _tab_widget->insertTab(2, _vlm_tab_widget, "Light Microscope");
     
     vlayout->addWidget(_tab_widget);
+    vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
 }
 

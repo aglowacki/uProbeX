@@ -53,7 +53,7 @@ void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout1 = new QHBoxLayout();
-	QHBoxLayout* hlayout2 = new QHBoxLayout();
+	//QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
@@ -83,6 +83,8 @@ void ImageStackControlWidget::createLayout()
     hlayout1->addWidget(_left_btn);
     hlayout1->addWidget(_image_name_cb);
     hlayout1->addWidget(_right_btn);
+	hlayout1->setSpacing(0);
+	hlayout1->setContentsMargins(0, 0, 0, 0);
 
 	connect(_image_name_cb, &QComboBox::currentTextChanged, this, &ImageStackControlWidget::model_IndexChanged);
 
@@ -100,6 +102,8 @@ void ImageStackControlWidget::createLayout()
 	vlayout->addWidget(_imageGrid);
 	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
+	vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
 
 	_files_dock = new QDockWidget("Files", this);
     _files_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
@@ -129,14 +133,18 @@ void ImageStackControlWidget::createLayout()
 	_load_progress = new QProgressBar();
 	
 	QTabWidget* data_tab = new QTabWidget();
-
 	data_tab->addTab(single_data_splitter, "Single Dataset");
+	//data_tab->setProperty("padding", QVariant("1px"));
+	//data_tab->setSpacing(0);
+	data_tab->setContentsMargins(0, 0, 0, 0);
 	//data_tab->addTab(single_data_splitter, "Multiple Datasets");
 
 	QVBoxLayout *mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(data_tab);
 	mainLayout->addWidget(_load_progress);
-	
+	mainLayout->setSpacing(0);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+
 	//_imageGrid->hide();
 	_vlm_widget->hide();
 	_mda_widget->hide();

@@ -207,12 +207,16 @@ void ImageViewWidget::createLayout()
            _image_view_grid_layout->addItem(_sub_windows[idx].layout, i, j);
 	   }
    }
-   
-   _main_layout->addItem(_image_view_grid_layout);
-   _main_layout->addWidget(m_coordWidget);
 
-   // Set widget's layout
-   setLayout(_main_layout);
+    _main_layout->addItem(_image_view_grid_layout);
+    _main_layout->addWidget(m_coordWidget);
+
+
+    _main_layout->setSpacing(0);
+    _main_layout->setContentsMargins(0, 0, 0, 0);
+
+    // Set widget's layout
+    setLayout(_main_layout);
 
 }
 
