@@ -112,6 +112,8 @@ private:
    QCheckBox* _ck_strict_regex;
 
    QComboBox* _cb_file_size;
+
+   QCheckBox* _ck_int_spec_horiz;
 };
 
 //---------------------------------------------------------------------------

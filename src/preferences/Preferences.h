@@ -86,6 +86,7 @@
 #define STR_PRF_FILE_SIZE "FileSize"
 #define STR_PRF_SHOW_DATASET_ON_LOAD "ShowOnLoad"
 #define STR_PREF_RADIO_LOAD_SELECTED_OPTION "Load_Selected_Opt"
+#define STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION "Spectra_Controls_Horizontal"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

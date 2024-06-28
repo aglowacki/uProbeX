@@ -253,7 +253,14 @@ void FitSpectraWidget::createLayout()
 	tab_and_buttons_widget->setLayout(vlayout_tab);
 
 	QSplitter* splitter = new QSplitter();
-	splitter->setOrientation(Qt::Vertical);
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    {
+        splitter->setOrientation(Qt::Horizontal);
+    }
+    else
+    {
+	    splitter->setOrientation(Qt::Vertical);
+    }
 	splitter->addWidget(_spectra_dock);
 	splitter->setStretchFactor(0, 1);
 	splitter->addWidget(tab_and_buttons_widget);
