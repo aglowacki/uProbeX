@@ -9,7 +9,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 IntensityLineGraphicsItem::IntensityLineGraphicsItem() : LineGraphicsItem()
 {
@@ -25,7 +25,7 @@ IntensityLineGraphicsItem::IntensityLineGraphicsItem() : LineGraphicsItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void IntensityLineGraphicsItem::calculate()
 {
@@ -37,7 +37,7 @@ void IntensityLineGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString IntensityLineGraphicsItem::displayName() const
 {
@@ -47,7 +47,7 @@ const QString IntensityLineGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* IntensityLineGraphicsItem::duplicate()
 {
@@ -63,4 +63,4 @@ AbstractGraphicsItem* IntensityLineGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

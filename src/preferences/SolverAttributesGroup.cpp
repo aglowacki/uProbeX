@@ -5,7 +5,7 @@
 
 #include <preferences/SolverAttributesGroup.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverAttributesGroup::SolverAttributesGroup()
 {
@@ -27,21 +27,21 @@ SolverAttributesGroup::SolverAttributesGroup()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverAttributesGroup::~SolverAttributesGroup()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverAttributesGroup::addSolverAttribute(int type, Attribute attr)
 {
     throw "error";
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Attribute SolverAttributesGroup::getAttribute(QString name) const
 {
@@ -55,7 +55,7 @@ Attribute SolverAttributesGroup::getAttribute(QString name) const
     return Attribute();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Attribute SolverAttributesGroup::getAttribute(unsigned int idx) const
 {
@@ -68,7 +68,7 @@ Attribute SolverAttributesGroup::getAttribute(unsigned int idx) const
     return Attribute();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int SolverAttributesGroup::getSize() const
 {
@@ -77,7 +77,7 @@ int SolverAttributesGroup::getSize() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverAttributesGroup::fromStringList(QStringList args)
 {
@@ -95,7 +95,7 @@ void SolverAttributesGroup::fromStringList(QStringList args)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverAttributesGroup::setAttribute(unsigned int idx, Attribute attr)
 {
@@ -107,7 +107,7 @@ void SolverAttributesGroup::setAttribute(unsigned int idx, Attribute attr)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList SolverAttributesGroup::toStringList()
 {
@@ -123,4 +123,4 @@ QStringList SolverAttributesGroup::toStringList()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

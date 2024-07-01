@@ -6,7 +6,7 @@
 #ifndef MAPS_WORKSPACE_WIDGET_H
 #define MAPS_WORKSPACE_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QAction>
 #include <QMenu>
@@ -23,10 +23,11 @@
 #include "mvc/FileTabWidget.h"
 #include "mvc/PerPixelFitWidget.h"
 #include "mvc/BatchRoiFitWidget.h"
+#include <mvc/GenScanVlmWidget.h>
 
 enum class MODEL_TYPE { MAPS_H5, RAW, VLM };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
  * the image from the area detector writer, the window will also be updated to
@@ -83,7 +84,11 @@ public slots:
 
    void onCloseModel(const QStringList& names_list, MODEL_TYPE mt);
 
+   void closeAllModels(MODEL_TYPE mt);
+
    void onCustomContext(const QString& context_label, const QStringList& file_list);
+
+   void onCustomButton(const QString& context_label, const QStringList& file_list);
 
    void onPerPixelProcessList(const QStringList& file_list);
 
@@ -95,6 +100,10 @@ public slots:
 
    void onDatasetSelected(const QString name);
 
+   void onGenScanArea(const QStringList& file_list);
+
+   void newScanArea(const QString& name);
+   
 protected:
 
    /**
@@ -119,12 +128,14 @@ private:
    PerPixelFitWidget* _per_pixel_fit_widget;
 
    BatchRoiFitWidget* _batch_roi_fit_widget;
+
+   GenScanVlmWidget _gen_scan_vlm_widget;
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* MapsWorkspaceFilesWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

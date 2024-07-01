@@ -11,7 +11,7 @@
 #include <QDesktopServices>
 #include <QDir>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 BatchRoiFitWidget::BatchRoiFitWidget(std::string directory, QWidget *parent) : QWidget(parent)
 {
@@ -27,7 +27,7 @@ BatchRoiFitWidget::BatchRoiFitWidget(std::string directory, QWidget *parent) : Q
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 BatchRoiFitWidget::~BatchRoiFitWidget()
 {
@@ -35,7 +35,7 @@ BatchRoiFitWidget::~BatchRoiFitWidget()
  
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void BatchRoiFitWidget::createLayout()
 {
@@ -95,7 +95,7 @@ void BatchRoiFitWidget::createLayout()
     this->setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void BatchRoiFitWidget::optimizer_changed(QString val)
 {
@@ -120,7 +120,7 @@ void BatchRoiFitWidget::onClose()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void BatchRoiFitWidget::updateFileList(std::unordered_map<QString, QFileInfo> roi_map)
 {
@@ -149,7 +149,7 @@ void BatchRoiFitWidget::updateFileList(std::unordered_map<QString, QFileInfo> ro
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void BatchRoiFitWidget::status_callback(size_t cur_itr, size_t total_itr)
 {
@@ -178,7 +178,7 @@ void BatchRoiFitWidget::status_callback(size_t cur_itr, size_t total_itr)
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void BatchRoiFitWidget::runProcessing()
 {
@@ -334,4 +334,4 @@ void BatchRoiFitWidget::runProcessing()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

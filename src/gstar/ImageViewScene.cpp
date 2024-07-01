@@ -16,7 +16,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
 {
@@ -48,14 +48,14 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewScene::~ImageViewScene()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::addAnnotationsFromModel()
 {
@@ -93,7 +93,7 @@ void ImageViewScene::addAnnotationsFromModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QAbstractItemModel* ImageViewScene::getModel() const
 {
@@ -102,7 +102,7 @@ const QAbstractItemModel* ImageViewScene::getModel() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString ImageViewScene::getUnitsLabel() const
 {
@@ -111,7 +111,7 @@ const QString ImageViewScene::getUnitsLabel() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double ImageViewScene::getUnitsPerPixelX() const
 {
@@ -120,7 +120,7 @@ double ImageViewScene::getUnitsPerPixelX() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double ImageViewScene::getUnitsPerPixelY() const
 {
@@ -129,7 +129,7 @@ double ImageViewScene::getUnitsPerPixelY() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
                                       int start,
@@ -174,7 +174,7 @@ void ImageViewScene::modelRowsInserted(const QModelIndex& parent,
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int end)
 {
@@ -221,7 +221,7 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::enableAnnotations(bool state)
 {
@@ -261,7 +261,7 @@ void ImageViewScene::enableAnnotations(bool state)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void ImageViewScene::lockROIs(bool state)
 {
@@ -279,7 +279,7 @@ void ImageViewScene::lockROIs(bool state)
 }
 */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
                                            const QItemSelection& deselected)
@@ -332,7 +332,7 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -381,7 +381,7 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -420,14 +420,14 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
    emit onMousePressEvent(event);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::updateZoom(QGraphicsItem* zoomObject)
 {
    emit zoomIn(zoomObject);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -446,7 +446,7 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
    emit onMouseReleaseEvent(event);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF ImageViewScene::pixRect()
 {
@@ -455,7 +455,7 @@ QRectF ImageViewScene::pixRect()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
 {
@@ -480,7 +480,7 @@ void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::recursiveSetEnabled(AbstractGraphicsItem* item, bool state)
 {
@@ -494,7 +494,7 @@ void ImageViewScene::recursiveSetEnabled(AbstractGraphicsItem* item, bool state)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::removeAllAnnotationItems()
 {
@@ -508,7 +508,7 @@ void ImageViewScene::removeAllAnnotationItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::removeAllGraphicsItems()
 {
@@ -521,7 +521,7 @@ void ImageViewScene::removeAllGraphicsItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::sceneSelectionChanged()
 {
@@ -587,7 +587,7 @@ void ImageViewScene::sceneSelectionChanged()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setPixmap(QPixmap p)
 {
@@ -621,7 +621,7 @@ void ImageViewScene::setPixmap(QPixmap p)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setMode(Mode mode)
 {
@@ -631,7 +631,7 @@ void ImageViewScene::setMode(Mode mode)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
 {
@@ -672,7 +672,7 @@ void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
 {
@@ -703,7 +703,7 @@ void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setUnitsLabel(QString label)
 {
@@ -712,7 +712,7 @@ void ImageViewScene::setUnitsLabel(QString label)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setUnitsPerPixelX(double x)
 {
@@ -721,7 +721,7 @@ void ImageViewScene::setUnitsPerPixelX(double x)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setUnitsPerPixelY(double y)
 {
@@ -730,7 +730,7 @@ void ImageViewScene::setUnitsPerPixelY(double y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setZoomModeToFit()
 {
@@ -739,7 +739,7 @@ void ImageViewScene::setZoomModeToFit()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setZoomModeToNone()
 {
@@ -748,7 +748,7 @@ void ImageViewScene::setZoomModeToNone()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setZoomModeToZoomIn()
 {
@@ -757,7 +757,7 @@ void ImageViewScene::setZoomModeToZoomIn()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::setZoomModeToZoomOut()
 {
@@ -766,7 +766,7 @@ void ImageViewScene::setZoomModeToZoomOut()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewScene::updateModel()
 {
@@ -779,7 +779,7 @@ void ImageViewScene::updateModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void ImageViewScene::updateROIs()
 {
@@ -814,4 +814,4 @@ void ImageViewScene::updateROIs()
 
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

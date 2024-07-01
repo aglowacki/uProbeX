@@ -12,7 +12,7 @@
 #include <QDir>
 #include <QCoreApplication>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
 {
@@ -64,6 +64,12 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_show_dataset_on_load = new QCheckBox();
    _ck_show_dataset_on_load->setChecked(Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_LOAD).toBool());
 
+   QLabel* lblIntSpecControlLoc = new QLabel("Integreated Spectra Controls On the Right of spectra? (Unchecked = Below)");
+   lblIntSpecControlLoc->setFont(font);
+   _ck_int_spec_horiz = new QCheckBox();
+   _ck_int_spec_horiz->setChecked(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool());
+
+
    QLabel* lblSearchDatasets = new QLabel("Search sub folders for datasets (ESRF datasets).");
    lblSearchDatasets->setFont(font);
    _ck_search_datasets = new QCheckBox();
@@ -92,6 +98,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblFileSize, _cb_file_size);
    mainLayout->addRow(lblShowDatasetOnSelect, _ck_show_dataset_on_select);
    mainLayout->addRow(lblShowDatasetOnLoad, _ck_show_dataset_on_load);
+   mainLayout->addRow(lblIntSpecControlLoc, _ck_int_spec_horiz);
    mainLayout->addRow(lblSearchDatasets, _ck_search_datasets);
    mainLayout->addRow(lblStrictRegex, _ck_strict_regex);
 
@@ -101,14 +108,14 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesDisplay::~PreferencesDisplay()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::reload_themes()
 {
@@ -139,14 +146,14 @@ void PreferencesDisplay::reload_themes()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::themeChanged(QString val)
 {
     Preferences::inst()->setValue(STR_PFR_THEME, val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::acceptChanges()
 {
@@ -155,13 +162,14 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_PRF_DecimalPrecision, getDecimalPrecision());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, _ck_show_dataset_on_select->isChecked());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_LOAD, _ck_show_dataset_on_load->isChecked());
+    Preferences::inst()->setValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, _ck_int_spec_horiz->isChecked());
     Preferences::inst()->setValue(STR_SEARCH_SUB_DIR_FOR_DATASETS, _ck_search_datasets->isChecked());
     Preferences::inst()->setValue(STR_PRF_STRICT_REGEX, _ck_strict_regex->isChecked());
     Preferences::inst()->setValue(STR_PRF_FILE_SIZE, _cb_file_size->currentIndex());
      
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int PreferencesDisplay::getFontSize()
 {
@@ -170,7 +178,7 @@ int PreferencesDisplay::getFontSize()
    
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString PreferencesDisplay::getWindowTitle()
 {
@@ -179,7 +187,7 @@ QString PreferencesDisplay::getWindowTitle()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int PreferencesDisplay::getDecimalPrecision()
 {
@@ -188,7 +196,7 @@ int PreferencesDisplay::getDecimalPrecision()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::setFontSize(int size)
 {
@@ -205,7 +213,7 @@ void PreferencesDisplay::setFontSize(int size)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::setWindowTitle(QString title)
 {
@@ -214,7 +222,7 @@ void PreferencesDisplay::setWindowTitle(QString title)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesDisplay::setDecimalPrecision(int number)
 {
@@ -230,5 +238,5 @@ void PreferencesDisplay::setDecimalPrecision(int number)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

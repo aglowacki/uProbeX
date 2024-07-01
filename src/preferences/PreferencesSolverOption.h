@@ -25,11 +25,11 @@
 #include <solver/NelderMeadSolver.h>
 #include <mvc/VLM_Widget.h>
 #include <mvc/SolverWidget.h>
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
 
 class NelderMeadSolver;
 class SolverWidget;
-class CoordinateTransformer;
+class SV_CoordTransformer;
 class SolverAttributesModel;
 class SolverAttributesGroup;
 
@@ -40,7 +40,7 @@ namespace gstar
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief Preferences dialog page for handling the switching of the solver. It
@@ -240,7 +240,7 @@ private:
    /**
     * @brief m_transformer
     */
-   CoordinateTransformer* m_transformer;
+   SV_CoordTransformer* m_transformer;
 
    /**
     * @brief m_coordTransformer
@@ -299,9 +299,9 @@ private:
 
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

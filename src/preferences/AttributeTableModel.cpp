@@ -5,7 +5,7 @@
 
 #include <preferences/AttributeTableModel.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AttributeTableModel::AttributeTableModel(
    QObject* parent)
@@ -22,7 +22,7 @@ AttributeTableModel::AttributeTableModel(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AttributeTableModel::addSolverAttr(QString name,
                                        QString value,
@@ -46,7 +46,7 @@ int AttributeTableModel::addSolverAttr(QString name,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeTableModel::clearAll()
 {
@@ -59,7 +59,7 @@ void AttributeTableModel::clearAll()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AttributeTableModel::columnCount(
    const QModelIndex &parent) const
@@ -72,7 +72,7 @@ int AttributeTableModel::columnCount(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AttributeTableModel::data(
    const QModelIndex &index, int role) const
@@ -114,7 +114,7 @@ QVariant AttributeTableModel::data(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags AttributeTableModel::flags(
    const QModelIndex &index) const
@@ -158,7 +158,7 @@ Qt::ItemFlags AttributeTableModel::flags(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QList<Attribute> AttributeTableModel::getSolverAttrs()
 {
@@ -168,7 +168,7 @@ QList<Attribute> AttributeTableModel::getSolverAttrs()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AttributeTableModel::headerData(
    int section,
@@ -202,7 +202,7 @@ QVariant AttributeTableModel::headerData(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeTableModel::removeRows(int row,
                                   int count,
@@ -233,7 +233,7 @@ bool AttributeTableModel::removeRows(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AttributeTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -246,7 +246,7 @@ int AttributeTableModel::rowCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeTableModel::setData(const QModelIndex &index,
                                               const QVariant &value,
@@ -308,7 +308,7 @@ bool AttributeTableModel::setData(const QModelIndex &index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeTableModel::setHeaderData(
    int section,
@@ -341,7 +341,7 @@ bool AttributeTableModel::setHeaderData(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeTableModel::setNMModel(bool nmModel)
 {
@@ -350,7 +350,7 @@ void AttributeTableModel::setNMModel(bool nmModel)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeTableModel::setSolverAttrs(
    QList<Attribute> solverAttrs)
@@ -367,7 +367,7 @@ void AttributeTableModel::setSolverAttrs(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 

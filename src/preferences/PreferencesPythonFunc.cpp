@@ -24,7 +24,7 @@
 #include "core/defines.h"
 
 using gstar::CheckBoxDelegate;
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesPythonFunc::PreferencesPythonFunc(QWidget *parent)
 : QWidget(parent)
@@ -37,7 +37,7 @@ PreferencesPythonFunc::PreferencesPythonFunc(QWidget *parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesPythonFunc::~PreferencesPythonFunc()
 {
@@ -46,7 +46,7 @@ PreferencesPythonFunc::~PreferencesPythonFunc()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::acceptChanges()
 {
@@ -54,7 +54,7 @@ void PreferencesPythonFunc::acceptChanges()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::addGroupItem()
 {
@@ -135,7 +135,7 @@ void PreferencesPythonFunc::addGroupItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::addItem()
 {
@@ -187,7 +187,7 @@ void PreferencesPythonFunc::addItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::contextMenuRequest(const QPoint &pos)
 {
@@ -227,7 +227,7 @@ void PreferencesPythonFunc::contextMenuRequest(const QPoint &pos)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::createComponents()
 {
@@ -389,7 +389,7 @@ void PreferencesPythonFunc::createComponents()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Attribute PreferencesPythonFunc::getAttribute(QString grpName,
                                                     QString attrName)
@@ -418,7 +418,7 @@ Attribute PreferencesPythonFunc::getAttribute(QString grpName,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PreferencesPythonFunc::getGroupStringList()
 {
@@ -435,7 +435,7 @@ QStringList PreferencesPythonFunc::getGroupStringList()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString PreferencesPythonFunc::getPVString(QString grpName, QString attrName)
 {
@@ -460,7 +460,7 @@ QString PreferencesPythonFunc::getPVString(QString grpName, QString attrName)
    return pvStr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::linkItem()
 {
@@ -499,7 +499,7 @@ void PreferencesPythonFunc::linkItem()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::mousePressEvent(QMouseEvent *event)
 {
@@ -509,7 +509,7 @@ void PreferencesPythonFunc::mousePressEvent(QMouseEvent *event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::moveDown()
 {
@@ -553,7 +553,7 @@ void PreferencesPythonFunc::moveDown()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::moveUp()
 {
@@ -597,7 +597,7 @@ void PreferencesPythonFunc::moveUp()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::parseGroupStringList(QStringList attrStrList)
 {
@@ -624,7 +624,7 @@ void PreferencesPythonFunc::parseGroupStringList(QStringList attrStrList)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::removeItem()
 {
@@ -678,7 +678,7 @@ void PreferencesPythonFunc::removeItem()
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::tomoLinkPressed()
 {
@@ -692,7 +692,7 @@ void PreferencesPythonFunc::tomoLinkPressed()
 */
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesPythonFunc::treeExpanded(QModelIndex idx)
 {
@@ -703,4 +703,4 @@ void PreferencesPythonFunc::treeExpanded(QModelIndex idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

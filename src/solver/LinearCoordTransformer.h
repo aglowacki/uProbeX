@@ -1,12 +1,12 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2012, UChicago Argonne, LLC
+ * Copyright (c) 2024, UChicago Argonne, LLC
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef COORDINATE_TRANSFORMER_H
-#define COORDINATE_TRANSFORMER_H
+#ifndef LINEAR_COORDINATE_TRANSFORMER_H
+#define LINEAR_COORDINATE_TRANSFORMER_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <gstar/ITransformer.h>
 #include <QString>
@@ -14,13 +14,13 @@
 #include "preferences/Attribute.h"
 #include <unordered_map>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief
  *
  */
-class CoordinateTransformer : public gstar::ITransformer
+class LinearCoordTransformer : public gstar::ITransformer
 {
 
 public:
@@ -28,12 +28,12 @@ public:
    /**
     * Constructor.
     */
-   CoordinateTransformer();
+   LinearCoordTransformer();
 
    /**
     * Destructor.
     */
-   virtual ~CoordinateTransformer();
+   virtual ~LinearCoordTransformer();
 
    /**
     * @brief Init
@@ -91,70 +91,10 @@ protected:
     */
    double m_2xfm_y;
 
-   /**
-    * @brief m_angleAlpha
-    */
-   double m_angle_alpha;
-
-   /**
-    * @brief m_offset_a
-    */
-   double m_offset_a;
-
-   /**
-    * @brief m_offset_b
-    */
-   double m_offset_b;
-
-   /**
-    * @brief m_offsetC
-    */
-   double m_offset_c;
-
-   /**
-    * @brief m_offset_d
-    */
-   double m_offset_d;
-
-   /**
-    * @brief m_omega
-    */
-   double m_omega;
-
-   /**
-    * @brief m_omega_prime
-    */
-   double m_omega_prime;
-
-   /**
-    * @brief m_scaling_XFM_X
-    */
-   double m_scaling_XFM_X;
-
-   /**
-    * @brief m_scaling_XFM_Y
-    */
-   double m_scaling_XFM_Y;
-
-   /**
-    * @brief m_z_offset
-    */
-   double m_z_offset;
-
-   /**
-    * @brief m_z_lin_x
-    */
-   double m_z_lin_x;
-
-   /**
-    * @brief m_z_lin_y
-    */
-   double m_z_lin_y;
-
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 
 #include <preferences/AttributeGroup.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AttributeGroupModel::AttributeGroupModel(QObject* parent)
 : QAbstractTableModel(parent)
@@ -20,7 +20,7 @@ AttributeGroupModel::AttributeGroupModel(QObject* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AttributeGroupModel::AttributeGroupModel(QString nameTitle,
                                          QString valueTitle,
@@ -36,7 +36,7 @@ AttributeGroupModel::AttributeGroupModel(QString nameTitle,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::appendGroup(AttributeGroup *mGroup)
 {
@@ -63,7 +63,7 @@ void AttributeGroupModel::appendGroup(AttributeGroup *mGroup)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::clearAll()
 {
@@ -75,7 +75,7 @@ void AttributeGroupModel::clearAll()
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AttributeGroupModel::columnCount(const QModelIndex &parent) const
 {
@@ -88,7 +88,7 @@ int AttributeGroupModel::columnCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AttributeGroupModel::data(const QModelIndex &index, int role) const
 {
@@ -157,7 +157,7 @@ QVariant AttributeGroupModel::data(const QModelIndex &index, int role) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Qt::ItemFlags AttributeGroupModel::flags(const QModelIndex &index) const
 {
@@ -208,7 +208,7 @@ Qt::ItemFlags AttributeGroupModel::flags(const QModelIndex &index) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QList<AttributeGroup*> AttributeGroupModel::getGroups()
 {
@@ -218,7 +218,7 @@ QList<AttributeGroup*> AttributeGroupModel::getGroups()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AttributeGroupModel::index(int row,
                                  int column,
@@ -260,7 +260,7 @@ QModelIndex AttributeGroupModel::index(int row,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeGroupModel::moveDown(QModelIndex idx)
 {
@@ -286,7 +286,7 @@ bool AttributeGroupModel::moveDown(QModelIndex idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeGroupModel::moveUp(QModelIndex idx)
 {
@@ -312,7 +312,7 @@ bool AttributeGroupModel::moveUp(QModelIndex idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::Inserted(AttributeGroup* grp, int idx)
 {
@@ -327,7 +327,7 @@ void AttributeGroupModel::Inserted(AttributeGroup* grp, int idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::ReOrdered(AttributeGroup* grp, int start, int end)
 {
@@ -342,7 +342,7 @@ void AttributeGroupModel::ReOrdered(AttributeGroup* grp, int start, int end)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::Removed(AttributeGroup* grp, int idx)
 {
@@ -357,7 +357,7 @@ void AttributeGroupModel::Removed(AttributeGroup* grp, int idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AttributeGroupModel::headerData(int section,
                                            Qt::Orientation orientation,
@@ -388,7 +388,7 @@ QVariant AttributeGroupModel::headerData(int section,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QModelIndex AttributeGroupModel::parent(const QModelIndex& index)const
 {
@@ -413,7 +413,7 @@ QModelIndex AttributeGroupModel::parent(const QModelIndex& index)const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AttributeGroupModel::removeGroup(AttributeGroup *grp)
 {
@@ -438,7 +438,7 @@ void AttributeGroupModel::removeGroup(AttributeGroup *grp)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int AttributeGroupModel::rowCount(const QModelIndex &parent) const
 {
@@ -459,7 +459,7 @@ int AttributeGroupModel::rowCount(const QModelIndex &parent) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void AttributeGroupModel::setMotorGroups(AttributesGroup attrs)
 {
@@ -475,7 +475,7 @@ void AttributeGroupModel::setMotorGroups(AttributesGroup attrs)
 
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool AttributeGroupModel::setData(const QModelIndex &index,
                                     const QVariant &value,
@@ -552,4 +552,4 @@ bool AttributeGroupModel::setData(const QModelIndex &index,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

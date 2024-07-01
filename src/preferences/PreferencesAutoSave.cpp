@@ -10,7 +10,7 @@
 #include <QFormLayout>
 #include <QSpacerItem>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesAutoSave::PreferencesAutoSave(QWidget* parent) : QWidget(parent)
 {
@@ -38,14 +38,14 @@ PreferencesAutoSave::PreferencesAutoSave(QWidget* parent) : QWidget(parent)
    connect(m_enableRecoveryAutoSaveFunctionality, SIGNAL(stateChanged(int)), this, SLOT(enableRecoveryAutoSafeChanged(int)));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesAutoSave::~PreferencesAutoSave()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesAutoSave::enableRecoveryAutoSafeChanged(int state)
 {
@@ -57,14 +57,14 @@ void PreferencesAutoSave::enableRecoveryAutoSafeChanged(int state)
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesAutoSave::getEnableRecoveryAutoSaveFunctionality()
 {
    return m_enableRecoveryAutoSaveFunctionality->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesAutoSave::setEnableRecoveryAutoSaveFunctionality(bool enableRecoveryAutoSave)
 {
@@ -72,7 +72,7 @@ void PreferencesAutoSave::setEnableRecoveryAutoSaveFunctionality(bool enableReco
    enableRecoveryAutoSafeChanged(m_enableRecoveryAutoSaveFunctionality->isChecked());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int PreferencesAutoSave::getRecoveryAutoSaveEveryMiliseconds()
 {
@@ -81,7 +81,7 @@ int PreferencesAutoSave::getRecoveryAutoSaveEveryMiliseconds()
    return miliseconds;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesAutoSave::setRecoveryAutoSaveEveryMiliseconds(int recoveryAutoSaveMilisecods)
 {
@@ -89,18 +89,18 @@ void PreferencesAutoSave::setRecoveryAutoSaveEveryMiliseconds(int recoveryAutoSa
    m_autoSaveTemporaryDataEverySeconds->setValue(seconds);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesAutoSave::getEnableSaveOnExit()
 {
    return m_enableSaveOnExit->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesAutoSave::setEnableSaveOnExit(bool saveOnExitAutomatically)
 {
    m_enableSaveOnExit->setChecked(saveOnExitAutomatically);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

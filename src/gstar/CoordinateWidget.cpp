@@ -6,7 +6,7 @@
 #include "gstar/CoordinateWidget.h"
 
 using namespace gstar;
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateWidget::CoordinateWidget(bool vertical, QWidget* parent)
 : QWidget(parent)
@@ -88,14 +88,14 @@ CoordinateWidget::CoordinateWidget(bool vertical, QWidget* parent)
 //   m_decimalPreci = 2;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateWidget::~CoordinateWidget()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setLabel(QString xLabel, QString yLabel)
 {
@@ -105,7 +105,7 @@ void CoordinateWidget::setLabel(QString xLabel, QString yLabel)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setLabel(QString xLabel, QString yLabel, QString zLabel)
 {
@@ -116,7 +116,7 @@ void CoordinateWidget::setLabel(QString xLabel, QString yLabel, QString zLabel)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setVisible(bool xVisible, bool yVisible, bool zVisible)
 {
@@ -136,7 +136,7 @@ void CoordinateWidget::setVisible(bool xVisible, bool yVisible, bool zVisible)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setCoordinate(int x, int y)
 {
@@ -159,7 +159,7 @@ void CoordinateWidget::setCoordinate(int x, int y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setCoordinate(double x, double y, double z)
 {
@@ -183,7 +183,7 @@ void CoordinateWidget::setCoordinate(double x, double y, double z)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setModel(CoordinateModel* model)
 {
@@ -192,7 +192,7 @@ void CoordinateWidget::setModel(CoordinateModel* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setnullptr()
 {
@@ -203,7 +203,7 @@ void CoordinateWidget::setnullptr()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CoordinateWidget::setUnitsLabel(QString units)
 {
@@ -214,6 +214,6 @@ void CoordinateWidget::setUnitsLabel(QString units)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 

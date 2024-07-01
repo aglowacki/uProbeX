@@ -6,14 +6,14 @@
 #ifndef VLM_MODEL_H
 #define VLM_MODEL_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QString>
 
 #include <mvc/AbstractWindowModel.h>
 #include <gstar/CoordinateModel.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief Model for SWS workspace. Used with SWSWidget
@@ -40,6 +40,8 @@ public:
      */
     virtual bool load(QString filepath) = 0;
 
+    void save_xml(QString filename);
+
     virtual bool loaded() = 0;
 
     /**
@@ -55,6 +57,10 @@ public:
 	const QList< QMap<QString, QString> >& getMarkers() { return _markersLoaded; }
 
 	const QList< QMap<QString, QString> >& getRegionMarkers() {return _regionMarkersLoaded;}
+
+    void add_calib_marker(const QMap<QString, QString>& marker);
+
+    void add_region_marker(const QMap<QString, QString>& marker);
 
 protected:
     
@@ -81,8 +87,8 @@ protected:
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* VLM_Model_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

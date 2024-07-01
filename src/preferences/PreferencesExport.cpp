@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <preferences/PreferencesExport.h>
 
@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesExport::PreferencesExport(QWidget* parent) : QWidget(parent)
 {
@@ -50,91 +50,91 @@ PreferencesExport::PreferencesExport(QWidget* parent) : QWidget(parent)
    setLayout(mainLayout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesExport::~PreferencesExport()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString PreferencesExport::getExportToDirInDataset()
 {
    return m_exportToDirInDataset->text();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setExportToDirInDataset(QString directory)
 {
    m_exportToDirInDataset->setText(directory);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesExport::getEnableZoomToRegionOnExport()
 {
    return m_zoomToRegionOnExport->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setEnabledZoomToRegionOnExport(bool enableZoomToRegion)
 {
    m_zoomToRegionOnExport->setChecked(enableZoomToRegion);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesExport::getPrintNameOnExportedImage()
 {
    return m_printNameOnExportedImage->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setPrintNameOnExportedImage(bool printName)
 {
    m_printNameOnExportedImage->setChecked(printName);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesExport::getPrintPyPxOnExportedImage()
 {
    return m_printPredictedXYOnExportedImage->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setPrintPyPxOnExportedImage(bool printPyPx)
 {
    m_printPredictedXYOnExportedImage->setChecked(printPyPx);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PreferencesExport::getPrintWidthHeightOnExportedImage()
 {
    return m_printWidthHeightOnExportedImage->isChecked();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setPrintWidthHeightOnExportedImage(bool printWidthHeight)
 {
    m_printWidthHeightOnExportedImage->setChecked(printWidthHeight);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int PreferencesExport::getSelectedXmlExportOption()
 {
    return m_xmlExportOptions->checkedId();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesExport::setSelectedXmlExportOption(int selectedOption)
 {
@@ -143,4 +143,4 @@ void PreferencesExport::setSelectedXmlExportOption(int selectedOption)
    else if (selectedOption == singleFileXMLExport) m_singleXmlExportButton->setChecked(true);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

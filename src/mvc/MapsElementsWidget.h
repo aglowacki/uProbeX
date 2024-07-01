@@ -6,7 +6,7 @@
 #ifndef MAPS_ELEMENTS_WIDGET_H
 #define MAPS_ELEMENTS_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <gstar/AbstractImageWidget.h>
 
@@ -28,9 +28,10 @@
 #include <mvc/ScatterPlotWidget.h>
 #include <mvc/QuantificationWidget.h>
 #include <mvc/RoiStatisticsWidget.h>
+#include <gstar/MotorLookupTransformer.h>
 
 using gstar::AbstractGraphicsItem;
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
@@ -48,7 +49,7 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(int rows = 1, int cols = 1, bool create_image_nav=false, QWidget* parent = nullptr);
+   MapsElementsWidget(int rows = 1, int cols = 1, bool create_image_nav=false, bool restore_floating=true, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -58,6 +59,8 @@ public:
    void setModel(MapsH5Model* h5_model);
 
    MapsH5Model *getModel(){return _model;}
+
+   void setTabVisible(int idx, bool val) { _tab_widget->setTabVisible(idx, val);}
 
 signals:
    void loaded_perc(int, int);
@@ -133,7 +136,7 @@ protected:
    /**
     * @brief Create layout
     */
-   void _createLayout(bool create_image_nav);
+   void _createLayout(bool create_image_nav, bool restore_floating);
 
    virtual void createActions();
 
@@ -243,12 +246,17 @@ protected:
    QDockWidget* _extra_dock;
 
    std::map< QString, QDockWidget*> _dockMap;
+
+   gstar::MotorLookupTransformer _motor_trans;
+
+   QTabWidget* _tw_image_controls;
+
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* MapsElementsWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

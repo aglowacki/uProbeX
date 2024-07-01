@@ -7,7 +7,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
 : QWidget(parent), m_fillState(false)
@@ -34,7 +34,7 @@ ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewWidget::~ImageViewWidget()
 {
@@ -43,7 +43,7 @@ ImageViewWidget::~ImageViewWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool ImageViewWidget::getMouseLeaveState()
 {
@@ -52,7 +52,7 @@ bool ImageViewWidget::getMouseLeaveState()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setGlobalContrast(bool val)
 {
@@ -62,7 +62,7 @@ void ImageViewWidget::setGlobalContrast(bool val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clickCursor()
 {
@@ -76,7 +76,7 @@ void ImageViewWidget::clickCursor()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::customCursor(QCursor cursor)
 {
@@ -86,14 +86,14 @@ void ImageViewWidget::customCursor(QCursor cursor)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setCoordsVisible(bool val)
 {
     m_coordWidget->setVisible(val, val, val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSelectorVisible(bool val)
 {
@@ -103,7 +103,7 @@ void ImageViewWidget::setSelectorVisible(bool val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setCountsVisible(bool val)
 {
@@ -113,7 +113,7 @@ void ImageViewWidget::setCountsVisible(bool val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clickFill(bool checked)
 {
@@ -142,7 +142,7 @@ void ImageViewWidget::clickFill(bool checked)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clickZoomIn()
 {
@@ -155,7 +155,7 @@ void ImageViewWidget::clickZoomIn()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clickZoomOriginal()
 {
@@ -172,7 +172,7 @@ void ImageViewWidget::clickZoomOriginal()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clickZoomOut()
 {
@@ -186,7 +186,7 @@ void ImageViewWidget::clickZoomOut()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::createLayout()
 {
@@ -207,16 +207,20 @@ void ImageViewWidget::createLayout()
            _image_view_grid_layout->addItem(_sub_windows[idx].layout, i, j);
 	   }
    }
-   
-   _main_layout->addItem(_image_view_grid_layout);
-   _main_layout->addWidget(m_coordWidget);
 
-   // Set widget's layout
-   setLayout(_main_layout);
+    _main_layout->addItem(_image_view_grid_layout);
+    _main_layout->addWidget(m_coordWidget);
+
+
+    _main_layout->setSpacing(0);
+    _main_layout->setContentsMargins(0, 0, 0, 0);
+
+    // Set widget's layout
+    setLayout(_main_layout);
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::createSceneAndView(int rows, int cols)
 {
@@ -267,7 +271,7 @@ QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& co
     return image;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::redrawSubWindows()
 {
@@ -277,7 +281,7 @@ void ImageViewWidget::redrawSubWindows()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setUnitLabel(int idx, QString label)
 {
@@ -288,7 +292,7 @@ void ImageViewWidget::setUnitLabel(int idx, QString label)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setUnitLabels(QString label)
 {
@@ -299,7 +303,7 @@ void ImageViewWidget::setUnitLabels(QString label)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::newGridLayout(int rows, int cols)
 {
@@ -323,7 +327,7 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
     createLayout();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CoordinateWidget* ImageViewWidget::coordinateWidget()
 {
@@ -332,7 +336,7 @@ CoordinateWidget* ImageViewWidget::coordinateWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::enterEvent(QEvent * event)
 {
@@ -342,7 +346,7 @@ void ImageViewWidget::enterEvent(QEvent * event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::onComboBoxChange(QString lbl)
 {
@@ -357,7 +361,7 @@ void ImageViewWidget::onComboBoxChange(QString lbl)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::clearLabels()
 {
@@ -367,7 +371,7 @@ void ImageViewWidget::clearLabels()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::addLabel(QString lbl)
 {
@@ -377,7 +381,7 @@ void ImageViewWidget::addLabel(QString lbl)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 qreal ImageViewWidget::getCurrentZoomPercent()
 {
@@ -392,7 +396,7 @@ qreal ImageViewWidget::getCurrentZoomPercent()
     return wp;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QPointF ImageViewWidget::getCenterPoint() const
 {
@@ -405,7 +409,7 @@ QPointF ImageViewWidget::getCenterPoint() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::leaveEvent(QEvent * event)
 {
@@ -425,7 +429,7 @@ void ImageViewWidget::leaveEvent(QEvent * event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setCoordinateModel(CoordinateModel* model)
 {
@@ -434,7 +438,7 @@ void ImageViewWidget::setCoordinateModel(CoordinateModel* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -448,7 +452,7 @@ void ImageViewWidget::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::resizeEvent(QResizeEvent* event)
 {
@@ -473,7 +477,7 @@ void ImageViewWidget::resizeEvent(QResizeEvent* event)
    update();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageViewScene* ImageViewWidget::scene(int grid_idx)
 {
@@ -487,7 +491,7 @@ ImageViewScene* ImageViewWidget::scene(int grid_idx)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneModel(QAbstractItemModel* model)
 {
@@ -498,7 +502,7 @@ void ImageViewWidget::setSceneModel(QAbstractItemModel* model)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneSelectionModel(QItemSelectionModel* selectionModel)
 {
@@ -508,7 +512,7 @@ void ImageViewWidget::setSceneSelectionModel(QItemSelectionModel* selectionModel
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel)
 {
@@ -520,7 +524,7 @@ void ImageViewWidget::setSceneModelAndSelection(QAbstractItemModel* model, QItem
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::sceneEnableAnnotations(bool state)
 {
@@ -530,7 +534,7 @@ void ImageViewWidget::sceneEnableAnnotations(bool state)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneUnitsLabel(QString label)
 {
@@ -540,7 +544,7 @@ void ImageViewWidget::setSceneUnitsLabel(QString label)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneUnitsPerPixelX(double val)
 {
@@ -550,7 +554,7 @@ void ImageViewWidget::setSceneUnitsPerPixelX(double val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setSceneUnitsPerPixelY(double val)
 {
@@ -560,7 +564,7 @@ void ImageViewWidget::setSceneUnitsPerPixelY(double val)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::sceneUpdateModel()
 {
@@ -570,7 +574,7 @@ void ImageViewWidget::sceneUpdateModel()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setScenetPixmap(QPixmap p)
 {
@@ -580,7 +584,7 @@ void ImageViewWidget::setScenetPixmap(QPixmap p)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
 {
@@ -592,7 +596,7 @@ void ImageViewWidget::sceneRectUpdated(const QRectF& rect)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 {
@@ -603,7 +607,7 @@ void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::updateZoomPercentage()
 {
@@ -620,7 +624,7 @@ void ImageViewWidget::updateZoomPercentage()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QGraphicsView* ImageViewWidget::view()
 {
@@ -634,7 +638,7 @@ QGraphicsView* ImageViewWidget::view()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
 {
@@ -653,7 +657,7 @@ void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
    emit resetZoomToolBar();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
 {
@@ -712,7 +716,7 @@ void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::zoomOut()
 {
@@ -732,7 +736,7 @@ void ImageViewWidget::zoomOut()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::zoomValueChanged(int val)
 {
@@ -764,7 +768,7 @@ void ImageViewWidget::zoomValueChanged(int val)
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString ImageViewWidget::getLabelAt(int idx)
 {
@@ -775,7 +779,7 @@ QString ImageViewWidget::getLabelAt(int idx)
     return QString();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
  void ImageViewWidget::getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats)
 {
@@ -786,7 +790,7 @@ QString ImageViewWidget::getLabelAt(int idx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<QString> ImageViewWidget::getLabelList()
 {
@@ -798,7 +802,7 @@ std::vector<QString> ImageViewWidget::getLabelList()
     return label_list;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
 {
@@ -832,7 +836,7 @@ void ImageViewWidget::restoreLabels(const std::vector<QString>& labels)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::resetCoordsToZero()
 {
@@ -844,7 +848,7 @@ void ImageViewWidget::resetCoordsToZero()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageViewWidget::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
 {
@@ -858,4 +862,4 @@ void ImageViewWidget::getMinMaxAt(int grid_idx, float &counts_min, float &counts
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

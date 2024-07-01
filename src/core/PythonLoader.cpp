@@ -49,12 +49,12 @@
 
 #include "core/defines.h"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 static const char STR_GET_MEMBERS[] = {"getmembers"};
 static const char STR_IS_FUNCTION[] = {"isfunction"};
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonLoader* PythonLoader::m_inst = nullptr;
 
@@ -66,7 +66,7 @@ PythonLoader::PythonLoader()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonLoader::~PythonLoader()
 {
@@ -97,7 +97,7 @@ PythonLoader::~PythonLoader()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonLoader::callFunc(QString module,
                             QString func,
@@ -260,7 +260,7 @@ void PythonLoader::callFunc(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::init()
 {
@@ -269,7 +269,7 @@ bool PythonLoader::init()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonLoader* PythonLoader::inst()
 {
@@ -281,7 +281,7 @@ PythonLoader* PythonLoader::inst()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::init(QString sharedLibName)
 {
@@ -491,7 +491,7 @@ bool PythonLoader::init(QString sharedLibName)
    return m_foundFuncs;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::loadFunction(QString path,
                                 QString moduleName,
@@ -618,7 +618,7 @@ bool PythonLoader::loadFunction(QString path,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PythonLoader::getFunctionList(QString path, QString moduleName)
 {
@@ -699,7 +699,7 @@ QStringList PythonLoader::getFunctionList(QString path, QString moduleName)
    return funcList;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::isLoaded()
 {
@@ -708,7 +708,7 @@ bool PythonLoader::isLoaded()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::getRetDouble(QString module,
                                 QString func,
@@ -737,7 +737,7 @@ bool PythonLoader::getRetDouble(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::getRetDict(QString module,
                               QString func,
@@ -760,7 +760,7 @@ bool PythonLoader::getRetDict(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::getRetStrDict(QString module,
                               QString func,
@@ -783,7 +783,7 @@ bool PythonLoader::getRetStrDict(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::safeCheck()
 {
@@ -808,7 +808,7 @@ bool PythonLoader::safeCheck()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setArgDict(QString module,
                               QString func,
@@ -847,7 +847,7 @@ bool PythonLoader::setArgDict(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setArgTupleTuples(QString module,
                                      QString func,
@@ -886,7 +886,7 @@ bool PythonLoader::setArgTupleTuples(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setArgDouble(QString module,
                                 QString func,
@@ -923,7 +923,7 @@ bool PythonLoader::setArgDouble(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setArgLong(QString module, QString func, int idx, long val)
 {
@@ -957,7 +957,7 @@ bool PythonLoader::setArgLong(QString module, QString func, int idx, long val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setArgString(QString module,
                                 QString func,
@@ -994,7 +994,7 @@ bool PythonLoader::setArgString(QString module,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setNumArgs(QString module, QString func, int amt)
 {
@@ -1013,7 +1013,7 @@ bool PythonLoader::setNumArgs(QString module, QString func, int amt)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonLoader::setRetCnt(QString module, QString func, int amt)
 {
@@ -1034,5 +1034,5 @@ bool PythonLoader::setRetCnt(QString module, QString func, int amt)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

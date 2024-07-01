@@ -15,7 +15,7 @@
 
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverParameterWidget::SolverParameterWidget(QWidget* parent) : QWidget(parent)
 {
@@ -42,14 +42,14 @@ SolverParameterWidget::SolverParameterWidget(QWidget* parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SolverParameterWidget::~SolverParameterWidget()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::addCoefficientItem(Attribute attr)
 {
@@ -58,7 +58,7 @@ void SolverParameterWidget::addCoefficientItem(Attribute attr)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::addCoefficientItems(QList<Attribute> solverAttrs)
 {
@@ -70,7 +70,7 @@ void SolverParameterWidget::addCoefficientItems(QList<Attribute> solverAttrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::addOptionItem(Attribute attr)
 {
@@ -79,7 +79,7 @@ void SolverParameterWidget::addOptionItem(Attribute attr)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::addOptionItems(QList<Attribute> solverAttrs)
 {
@@ -91,7 +91,7 @@ void SolverParameterWidget::addOptionItems(QList<Attribute> solverAttrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::removeCoefficientItems()
 {
@@ -100,7 +100,7 @@ void SolverParameterWidget::removeCoefficientItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::removeOptionItems()
 {
@@ -109,7 +109,7 @@ void SolverParameterWidget::removeOptionItems()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList SolverParameterWidget::getCoefficientAttrs()
 {
@@ -118,7 +118,7 @@ QStringList SolverParameterWidget::getCoefficientAttrs()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QList<Attribute> SolverParameterWidget::getCoefficientAttrsList()
 {
@@ -127,21 +127,21 @@ QList<Attribute> SolverParameterWidget::getCoefficientAttrsList()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> SolverParameterWidget::getCoefficientAttrsMap()
 {
    return m_coefficientTable->toMap();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> SolverParameterWidget::getSelectedCoefficientAttrsMap()
 {
    return m_coefficientTable->toSelectedMap();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList SolverParameterWidget::getOptionAttrs()
 {
@@ -149,7 +149,7 @@ QStringList SolverParameterWidget::getOptionAttrs()
    return m_optionTable -> toStringList();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QList<Attribute> SolverParameterWidget::getOptionAttrsList()
 {
@@ -158,14 +158,14 @@ QList<Attribute> SolverParameterWidget::getOptionAttrsList()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> SolverParameterWidget::getOptionAttrsMap()
 {
    return m_optionTable->toMap();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> SolverParameterWidget::getSelectedOptionAttrsMap()
 {
@@ -173,7 +173,7 @@ QMap<QString, double> SolverParameterWidget::getSelectedOptionAttrsMap()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setButtionVisible(bool visible)
 {
@@ -186,7 +186,7 @@ void SolverParameterWidget::setButtionVisible(bool visible)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setCoefficientAttrs(QStringList attrs)
 {
@@ -195,7 +195,7 @@ void SolverParameterWidget::setCoefficientAttrs(QStringList attrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setCoefficientAttrsFromList(
       QList<Attribute> attrList)
@@ -205,7 +205,7 @@ void SolverParameterWidget::setCoefficientAttrsFromList(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setDefaultCoefficient()
 {
@@ -227,7 +227,7 @@ void SolverParameterWidget::setDefaultCoefficient()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setDefaultOption()
 {
@@ -241,7 +241,7 @@ void SolverParameterWidget::setDefaultOption()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setNMModel()
 {
@@ -251,7 +251,7 @@ void SolverParameterWidget::setNMModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setOptionAttrs(QStringList attrs)
 {
@@ -260,7 +260,7 @@ void SolverParameterWidget::setOptionAttrs(QStringList attrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SolverParameterWidget::setOptionAttrsFromList(
       QList<Attribute> attrList)

@@ -13,7 +13,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -62,7 +62,7 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(AbstractGraphicsItem* parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marker,
                                                    AbstractGraphicsItem* parent)
@@ -106,7 +106,7 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UProbeRegionGraphicsItem* UProbeRegionGraphicsItem::cloneRegion()
 {
@@ -118,7 +118,7 @@ UProbeRegionGraphicsItem* UProbeRegionGraphicsItem::cloneRegion()
    return newRegion;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString UProbeRegionGraphicsItem::getUProbeName()
 {
@@ -129,7 +129,7 @@ QString UProbeRegionGraphicsItem::getUProbeName()
    return nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF UProbeRegionGraphicsItem::boundingRect() const
 {
@@ -170,7 +170,7 @@ QRectF UProbeRegionGraphicsItem::boundingRect() const
    return QRectF();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF UProbeRegionGraphicsItem::boundingRectMarker() const
 {
@@ -179,7 +179,7 @@ QRectF UProbeRegionGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::calculate()
 {
@@ -188,7 +188,7 @@ void UProbeRegionGraphicsItem::calculate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString UProbeRegionGraphicsItem::displayName() const
 {
@@ -198,7 +198,7 @@ const QString UProbeRegionGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* UProbeRegionGraphicsItem::duplicate()
 {
@@ -216,7 +216,7 @@ AbstractGraphicsItem* UProbeRegionGraphicsItem::duplicate()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getFactorX()
 {
@@ -226,7 +226,7 @@ double UProbeRegionGraphicsItem::getFactorX()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getFactorY()
 {
@@ -236,7 +236,7 @@ double UProbeRegionGraphicsItem::getFactorY()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getHeight()
 {
@@ -245,7 +245,7 @@ double UProbeRegionGraphicsItem::getHeight()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getWidth()
 {
@@ -254,7 +254,7 @@ double UProbeRegionGraphicsItem::getWidth()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getX()
 {
@@ -263,7 +263,7 @@ double UProbeRegionGraphicsItem::getX()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double UProbeRegionGraphicsItem::getY()
 {
@@ -272,7 +272,7 @@ double UProbeRegionGraphicsItem::getY()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -290,7 +290,7 @@ void UProbeRegionGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -303,7 +303,7 @@ void UProbeRegionGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
@@ -352,7 +352,7 @@ void UProbeRegionGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::initialScale()
 {
@@ -375,7 +375,7 @@ void UProbeRegionGraphicsItem::initialScale()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -461,7 +461,7 @@ void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
    setGripSize();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::zoomToRegion()
 {
@@ -489,7 +489,7 @@ void UProbeRegionGraphicsItem::zoomToRegion()
    imageViewScene->updateZoom(this);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -540,7 +540,7 @@ void UProbeRegionGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -556,7 +556,7 @@ void UProbeRegionGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::paint(QPainter* painter,
                      const QStyleOptionGraphicsItem* option,
@@ -645,7 +645,7 @@ void UProbeRegionGraphicsItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setColor(const QColor& color)
 {
@@ -655,7 +655,7 @@ void UProbeRegionGraphicsItem::setColor(const QColor& color)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setGripSize()
 {
@@ -671,7 +671,7 @@ void UProbeRegionGraphicsItem::setGripSize()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setHeight(double height)
 {
@@ -684,7 +684,7 @@ void UProbeRegionGraphicsItem::setHeight(double height)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* model)
 {
@@ -709,7 +709,7 @@ void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 {
@@ -734,7 +734,7 @@ void UProbeRegionGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setSameRect(QRectF& rect)
 {
@@ -747,7 +747,7 @@ void UProbeRegionGraphicsItem::setSameRect(QRectF& rect)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setSize(double size)
 {
@@ -758,7 +758,7 @@ void UProbeRegionGraphicsItem::setSize(double size)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setWidth(double width)
 {
@@ -771,7 +771,7 @@ void UProbeRegionGraphicsItem::setWidth(double width)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setX(double x)
 {
@@ -784,7 +784,7 @@ void UProbeRegionGraphicsItem::setX(double x)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::setY(double y)
 {
@@ -797,7 +797,7 @@ void UProbeRegionGraphicsItem::setY(double y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::updateModel()
 {
@@ -889,7 +889,7 @@ void UProbeRegionGraphicsItem::updateModel()
    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::updateStringSize()
 {
@@ -958,7 +958,7 @@ int UProbeRegionGraphicsItem::predictFontPixelSizeByScale(qreal scale) {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UProbeRegionGraphicsItem::updateView()
 {
@@ -973,5 +973,5 @@ void UProbeRegionGraphicsItem::updateView()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

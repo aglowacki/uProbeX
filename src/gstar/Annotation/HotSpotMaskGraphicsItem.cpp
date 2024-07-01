@@ -13,7 +13,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, AbstractGraphicsItem* parent)
    : AbstractGraphicsItem(parent)
@@ -63,14 +63,14 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 HotSpotMaskGraphicsItem::~HotSpotMaskGraphicsItem()
 {
     emit (mask_updated(this, false));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString HotSpotMaskGraphicsItem::getName()
 {
@@ -84,7 +84,7 @@ QString HotSpotMaskGraphicsItem::getName()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::calculate()
 {
@@ -118,14 +118,14 @@ void HotSpotMaskGraphicsItem::calculate()
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::updateModel()
 {
     update();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::updateView()
 {
@@ -154,7 +154,7 @@ void HotSpotMaskGraphicsItem::updateView()
     emit(mask_updated(this, false));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::drawmask_changed()
 {
@@ -166,7 +166,7 @@ void HotSpotMaskGraphicsItem::drawmask_changed()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 std::vector<QPoint> HotSpotMaskGraphicsItem::get_mask_list()
 {
@@ -185,7 +185,7 @@ std::vector<QPoint> HotSpotMaskGraphicsItem::get_mask_list()
     return roi_list;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::erasemask_changed()
 {
@@ -197,7 +197,7 @@ void HotSpotMaskGraphicsItem::erasemask_changed()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF HotSpotMaskGraphicsItem::boundingRect() const
 {
@@ -206,7 +206,7 @@ QRectF HotSpotMaskGraphicsItem::boundingRect() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QRectF HotSpotMaskGraphicsItem::boundingRectMarker() const
 {
@@ -215,7 +215,7 @@ QRectF HotSpotMaskGraphicsItem::boundingRectMarker() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 const QString HotSpotMaskGraphicsItem::displayName() const
 {
@@ -225,7 +225,7 @@ const QString HotSpotMaskGraphicsItem::displayName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AbstractGraphicsItem* HotSpotMaskGraphicsItem::duplicate()
 {
@@ -239,7 +239,7 @@ AbstractGraphicsItem* HotSpotMaskGraphicsItem::duplicate()
    return item;
 
 }
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::paint(QPainter* painter,
                                  const QStyleOptionGraphicsItem* option,
@@ -260,7 +260,7 @@ void HotSpotMaskGraphicsItem::paint(QPainter* painter,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -289,7 +289,7 @@ void HotSpotMaskGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -315,7 +315,7 @@ void HotSpotMaskGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void HotSpotMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -331,4 +331,4 @@ void HotSpotMaskGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

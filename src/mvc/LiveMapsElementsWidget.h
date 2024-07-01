@@ -6,7 +6,7 @@
 #ifndef LIVE_MAPS_ELEMENTS_WIDGET_H
 #define LIVE_MAPS_ELEMENTS_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QWidget>
 #include <QThread>
@@ -14,10 +14,13 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QTabWidget>
 #include "NetStreamWorker.h"
 #include "mvc/MapsElementsWidget.h"
+#include "mvc/VLM_Widget.h"
+#include "mvc/ScanQueueWidget.h"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 class LiveMapsElementsWidget : public QWidget
@@ -58,6 +61,12 @@ protected:
 
    MapsElementsWidget *_mapsElementsWidget;
 
+   VLM_Widget *_vlm_widget;
+
+   ScanQueueWidget* _scan_queue_widget;
+
+   QTabWidget *_tab_widget;
+
    QTextEdit *_textEdit;
 
    QProgressBar *_progressBar;
@@ -82,8 +91,8 @@ protected:
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* LiveLiveMapsElementsWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

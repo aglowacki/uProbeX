@@ -6,7 +6,7 @@
 #ifndef UPROBEREGIONGRAPHICSITEM_H
 #define UPROBEREGIONGRAPHICSITEM_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -23,7 +23,7 @@
 #include "gstar/AnnotationProperty.h"
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeMarkerGraphicsItem.h"
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 namespace gstar
 {
@@ -57,7 +57,7 @@ public:
     * @param uProbeRegion
     * @return
     */
-   UProbeRegionGraphicsItem* cloneRegion();
+   virtual UProbeRegionGraphicsItem* cloneRegion();
 
    /**
     * Get item's boudning rectangle
@@ -298,7 +298,7 @@ private:
     */
    int predictFontPixelSizeByScale(qreal scale);
 
-private:
+protected:
 
    /**
     * The boudning graphics item for this item
@@ -418,8 +418,8 @@ private:
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

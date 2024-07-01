@@ -6,7 +6,7 @@
 #ifndef SPECTRA_WIDGET_H
 #define SPECTRA_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QCategoryAxis>
@@ -67,7 +67,7 @@
 #define LINE_M_G 126
 #define LINE_M_B 126
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
@@ -101,9 +101,9 @@ public:
 
     QString getDisplayEnergyMax() { return _display_eneergy_max->text(); }
 
-    QString getDisplayHeightMin() { return _display_height_min->text(); }
+    QString getDisplayHeightMin() { return QString::number(1.);}//_display_height_min->text(); }
     
-    QString getDisplayHeightMax() { return _display_height_max->text(); }
+    QString getDisplayHeightMax() { return QString::number(_int_spec_max_y);}//_display_height_max->text(); }
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
@@ -174,9 +174,9 @@ private:
 
     QLineEdit *_display_eneergy_min;
 
-    QLineEdit* _display_height_max;
+    //QLineEdit* _display_height_max;
 
-    QLineEdit* _display_height_min;
+    //QLineEdit* _display_height_min;
 
     QPushButton* _btn_reset_chart_view;
 
@@ -204,9 +204,9 @@ private:
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* SpectraWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

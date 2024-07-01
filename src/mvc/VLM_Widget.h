@@ -6,7 +6,7 @@
 #ifndef VLM_WIDGET_H
 #define VLM_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <gstar/AbstractImageWidget.h>
 #include <QApplication>
@@ -27,7 +27,8 @@
 #include <solver/Solver.h>
 #include <solver/NelderMeadSolver.h>
 #include <solver/PythonSolver.h>
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
+#include <solver/LinearCoordTransformer.h>
 #include <solver/PythonTransformer.h>
 
 
@@ -44,7 +45,7 @@ namespace gstar
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief Widget used to display VLM workspaces. Used with VLM_Model.
@@ -62,6 +63,10 @@ public:
     */
    VLM_Widget(QWidget* parent = nullptr);
 
+   /**
+    * Constructor.
+    */
+   VLM_Widget(QString dataset_name, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -146,6 +151,11 @@ public:
     * @brief widgetChanged
     */
    void widgetChanged(bool enable);
+
+   /**
+    * @brief addMicroProbeRegion
+    */
+   void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
 
 public slots:
 
@@ -283,6 +293,8 @@ protected slots:
 
 protected:
 
+   void _init();
+
    /**
     * @brief callbackPvXUpdatedFloat
     * @param val
@@ -382,7 +394,7 @@ signals:
 
    void onLinkRegionToDataset(QString, QString, QImage);
 
-private:     
+private:
 
    /**
     * @brief saveXMLCoordinateInfo
@@ -649,9 +661,9 @@ private:
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* VLM_Widget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

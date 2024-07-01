@@ -8,13 +8,13 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #define STR_COUNTS "Counts"
 #define STR_MIN_COUNTS "Min Counts"
 #define STR_MAX_COUNTS "Max Counts"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CountsLookupTransformer::CountsLookupTransformer() : ITransformer()
 {
@@ -27,14 +27,14 @@ CountsLookupTransformer::CountsLookupTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CountsLookupTransformer::~CountsLookupTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsLookupTransformer::Init(QMap<QString, double> globalVars)
 { 
@@ -43,7 +43,7 @@ bool CountsLookupTransformer::Init(QMap<QString, double> globalVars)
 
 } 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> CountsLookupTransformer::getAllCoef()
 {
@@ -58,7 +58,7 @@ QMap<QString, double> CountsLookupTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CountsLookupTransformer::setCounts(const data_struct::ArrayXXr<float>& counts)
 {
@@ -69,7 +69,7 @@ void CountsLookupTransformer::setCounts(const data_struct::ArrayXXr<float>& coun
     _cols = _counts_arr.cols();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsLookupTransformer::getVariable(QString name, double *val)
 {
@@ -94,7 +94,7 @@ bool CountsLookupTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsLookupTransformer::setVariable(QString name, double val)
 {
@@ -119,7 +119,7 @@ bool CountsLookupTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CountsLookupTransformer::transformCommand(double inX,
                                          double inY,
@@ -144,4 +144,4 @@ void CountsLookupTransformer::transformCommand(double inX,
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -9,7 +9,7 @@
 
 using gstar::ITransformer;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonSolver::PythonSolver() : AbstractSolver()
 {
@@ -18,7 +18,7 @@ PythonSolver::PythonSolver() : AbstractSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PythonSolver::~PythonSolver()
 {
@@ -27,7 +27,7 @@ PythonSolver::~PythonSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> PythonSolver::getAllCoef()
 {
@@ -36,7 +36,7 @@ QMap<QString, double> PythonSolver::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> PythonSolver::getMinCoef()
 {
@@ -45,7 +45,7 @@ QMap<QString, double> PythonSolver::getMinCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> PythonSolver::getOptions()
 {
@@ -54,7 +54,7 @@ QMap<QString, double> PythonSolver::getOptions()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 gstar::ITransformer* PythonSolver::getTransformer()
 {
@@ -63,7 +63,7 @@ gstar::ITransformer* PythonSolver::getTransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonSolver::initialPythonSolver(QString path,
                                        QString module,
@@ -108,7 +108,7 @@ bool PythonSolver::initialPythonSolver(QString path,
    return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool PythonSolver::run()
 {
@@ -132,7 +132,7 @@ bool PythonSolver::run()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonSolver::setAllCoef(QMap<QString, double> vars)
 {
@@ -147,7 +147,7 @@ void PythonSolver::setAllCoef(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 {
@@ -173,7 +173,7 @@ void PythonSolver::setCoordPoints(QList < QMap<QString,double> > vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonSolver::setMinCoef(QMap<QString, double> vars)
 {
@@ -194,7 +194,7 @@ void PythonSolver::setMinCoef(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonSolver::setOptions(QMap<QString, double> vars)
 {
@@ -209,7 +209,7 @@ void PythonSolver::setOptions(QMap<QString, double> vars)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PythonSolver::setTransformer(gstar::ITransformer* transformer)
 {

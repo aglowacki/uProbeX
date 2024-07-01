@@ -19,7 +19,7 @@ using std::vector;
 using std::pair;
 using std::string;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 TIFF_Model::TIFF_Model() : VLM_Model()
 {
@@ -27,14 +27,14 @@ TIFF_Model::TIFF_Model() : VLM_Model()
     //_tif_ptr = nullptr;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 TIFF_Model::~TIFF_Model()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool TIFF_Model::load(QString filepath)
 {
@@ -102,10 +102,13 @@ bool TIFF_Model::load(QString filepath)
                             val = 0.f; 
                             break;
                         }
-                        //float val = mat.at<float>(h, w);
                         _pixel_values(h, w) = val;
-                        val = (val - minVal) / range;
-                        int c = val * 255;
+                        int c = val;
+                        if(range > 0)
+                        {
+                            val = (val - minVal) / range;
+                            c = val * 255;
+                        }
                         _img.setPixelColor(w, h, QColor(c, c, c, 255));
                     }
                 }
@@ -127,7 +130,7 @@ bool TIFF_Model::load(QString filepath)
     return _loaded;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool TIFF_Model::loaded()
 {
@@ -136,7 +139,7 @@ bool TIFF_Model::loaded()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int TIFF_Model::getPixelByteSize()
 {
@@ -145,21 +148,12 @@ int TIFF_Model::getPixelByteSize()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void TIFF_Model::_initializeCoordModel()
 {
     double xScale = 1.0;
     double yScale = 1.0;
-    double imgWidth;
-    double imgHeight;
-
-    int topLeftIdx = 0;
-    int topRightIdx;
-    int bottomLeftIdx;
-
-    imgWidth = _img.width();
-    imgHeight = _img.height();
 
     LinearTransformer* lt = new LinearTransformer();
     lt->setTopLeft(0, 0);
@@ -169,7 +163,7 @@ void TIFF_Model::_initializeCoordModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString TIFF_Model::getDataPath()
 {
@@ -178,7 +172,7 @@ QString TIFF_Model::getDataPath()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int TIFF_Model::getImageDims(int imageIndex)
 {
@@ -195,7 +189,7 @@ int TIFF_Model::getImageDims(int imageIndex)
 return 0;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int TIFF_Model::getNumberOfImages()
 {
@@ -204,7 +198,7 @@ int TIFF_Model::getNumberOfImages()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int TIFF_Model::getRank()
 {
@@ -213,5 +207,38 @@ int TIFF_Model::getRank()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
+bool TIFF_Model::save_img(QString filename)
+{
+    QImageWriter writer(filename);
+    if (false == writer.write(_img))
+    {
+        cv::Mat mat(_img.height(), _img.width(), CV_8UC4);
+        for (int h = 0; h < mat.rows; ++h)
+        {
+            for (int w = 0; w < mat.cols; ++w)
+            {                
+                QColor c = _img.pixelColor(w,h);
+                cv::Vec4b& bgra = mat.at<cv::Vec4b>(h, w);
+                bgra[0] = c.blue(); // blue
+                bgra[1] = c.green(); // Green
+                bgra[2] = c.red(); // Red
+                bgra[3] = UCHAR_MAX; // Alpha
+            }
+        }
+
+        try
+        {
+            return imwrite(filename.toStdString(), mat);
+        }
+        catch (const cv::Exception& ex)
+        {
+            logW<<"Exception converting image to PNG format: "<< ex.what()<<"\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+//---------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SubImageWindow::SubImageWindow() : QObject()
 {
@@ -55,7 +55,7 @@ SubImageWindow::SubImageWindow() : QObject()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SubImageWindow::SubImageWindow(const SubImageWindow& win)
 {
@@ -74,7 +74,7 @@ SubImageWindow::SubImageWindow(const SubImageWindow& win)
     _contrast_dialog = win._contrast_dialog;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 SubImageWindow::~SubImageWindow()
 {
@@ -88,7 +88,7 @@ SubImageWindow::~SubImageWindow()
     delete btn_contrast;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SubImageWindow::setCountsVisible(bool val)
 {
@@ -96,7 +96,7 @@ void SubImageWindow::setCountsVisible(bool val)
     counts_stats_widget->setVisible(val, val, val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SubImageWindow::on_contrast_show()
 {
@@ -115,7 +115,7 @@ void SubImageWindow::on_contrast_show()
     _contrast_dialog->min_max_updated();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SubImageWindow::on_update_min_max(float minCoef, float maxCoef)
 {
@@ -125,14 +125,14 @@ void SubImageWindow::on_update_min_max(float minCoef, float maxCoef)
 	emit redraw_event();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SubImageWindow::on_accept_contrast()
 {
 	_contrast_updated = true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void SubImageWindow::on_cancel_contrast()
 {
@@ -140,4 +140,4 @@ void SubImageWindow::on_cancel_contrast()
 	emit redraw_event();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

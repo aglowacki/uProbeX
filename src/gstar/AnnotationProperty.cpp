@@ -7,14 +7,14 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationProperty::AnnotationProperty() : QObject()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationProperty::AnnotationProperty(QString name) : QObject()
 {
@@ -23,7 +23,7 @@ AnnotationProperty::AnnotationProperty(QString name) : QObject()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationProperty::AnnotationProperty(QString name, QVariant value) : QObject()
 {
@@ -33,7 +33,7 @@ AnnotationProperty::AnnotationProperty(QString name, QVariant value) : QObject()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QString AnnotationProperty::getName() const
 {
@@ -42,7 +42,7 @@ QString AnnotationProperty::getName() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant AnnotationProperty::getValue() const
 {
@@ -51,7 +51,7 @@ QVariant AnnotationProperty::getValue() const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationProperty::setName(const QString name)
 {
@@ -60,7 +60,7 @@ void AnnotationProperty::setName(const QString name)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationProperty::setValue(const QVariant value)
 {
@@ -70,4 +70,4 @@ void AnnotationProperty::setValue(const QVariant value)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

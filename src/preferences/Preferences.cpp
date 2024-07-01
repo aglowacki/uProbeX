@@ -16,7 +16,7 @@
 Preferences* Preferences::_this_inst(nullptr);
 std::mutex Preferences::_mutex;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Preferences::Preferences()
 {
@@ -90,19 +90,21 @@ Preferences::Preferences()
         {STR_EXTRA_DOCK, QVariant()},
         {STR_PRF_STRICT_REGEX, QVariant()},
         {STR_PRF_FILE_SIZE, QVariant()},
-        {STR_PRF_SHOW_DATASET_ON_LOAD, QVariant()}
+        {STR_PRF_SHOW_DATASET_ON_LOAD, QVariant()},
+        {STR_PREF_RADIO_LOAD_SELECTED_OPTION, QVariant()},
+        {STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, QVariant()}
     };
    load();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Preferences::~Preferences()
 {
     save();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 Preferences* Preferences::inst()
 {
@@ -115,7 +117,7 @@ Preferences* Preferences::inst()
     return _this_inst;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QVariant Preferences::getValue(QString key) const
 {
@@ -128,7 +130,7 @@ QVariant Preferences::getValue(QString key) const
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void Preferences::setValue(QString key, QVariant value)
 {
@@ -137,7 +139,7 @@ void Preferences::setValue(QString key, QVariant value)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void Preferences::load()
 {
@@ -155,7 +157,7 @@ void Preferences::load()
     s.endGroup();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void Preferences::save()
 {
@@ -173,4 +175,4 @@ void Preferences::save()
     s.endGroup();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

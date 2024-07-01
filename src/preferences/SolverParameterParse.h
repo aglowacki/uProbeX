@@ -6,14 +6,14 @@
 #ifndef SOLVERPARAMETERPARSE_H
 #define SOLVERPARAMETERPARSE_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include<QMap>
 #include<QString>
 #include <QObject>
 #include<QMessageBox>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief SolverParameterParse parse the list of attributes got from the table
@@ -62,11 +62,6 @@ public:
     */
    void getOptions(QMap<QString, double>& dict_options);
 
-   /**
-    * @brief getCoefficientAndTransform
-    *
-    * @param coefList
-    */
    bool parseSolverCoefList(QStringList& coefList);
 
    /**
@@ -94,8 +89,8 @@ private:
 
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 #ifndef MAPS_WORKSPACE_MODEL_H
 #define MAPS_WORKSPACE_MODEL_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QString>
 #include "RawH5Model.h"
@@ -18,7 +18,7 @@
 #include <map>
 #include <QDir>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 typedef std::function<bool(const QFileInfo fileInfo)> Check_Func_Def;
 
@@ -75,6 +75,12 @@ public:
 
     void unload_VLM_Model(QString name);
 
+    void unload_all_H5_Model();
+    
+    void unload_all_RAW_Model();
+
+    void unload_all_VLM_Model();
+
     data_struct::Fit_Parameters<double>* getFitParameters(int idx);
 
     data_struct::Fit_Element_Map_Dict<double>* getElementToFit(int idx);
@@ -96,6 +102,12 @@ public:
     std::vector<QString> get_loaded_h5_names();
 
     std::vector<QString> get_loaded_vlm_names();
+
+    QStringList get_raw_names_as_qstringlist();
+
+    QStringList get_h5_names_as_qstringlist();
+
+    QStringList get_vlm_names_as_qstringlist();
 
     QDir get_directory() { return *_dir; }
 
@@ -172,8 +184,8 @@ private:
 
 bool get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list, Check_Func_Def chk_func, bool prepend_sub_dir);
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* MapsWorkspaceModel_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

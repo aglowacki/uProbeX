@@ -22,7 +22,7 @@
 #include <preferences/SolverParameterWidget.h>
 #include <solver/PythonSolver.h>
 #include <mvc/SolverWidget.h>
-#include <solver/CoordinateTransformer.h>
+#include <solver/SV_CoordTransformer.h>
 #include <gstar/LinearTransformer.h>
 
 
@@ -31,7 +31,7 @@ const QString QSTR_2IDE_COORD_TRANS_DESC = "Coordiante transform for translating
 const QString QSTR_LINEAR_COORD_TRANS = "Linear Coordinate Transform";
 const QString QSTR_LINEAR_COORD_TRANS_DESC = "General Linear Coordinate Transform";
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief
@@ -284,9 +284,9 @@ private:
 
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

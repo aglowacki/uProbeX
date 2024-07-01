@@ -6,7 +6,7 @@
 #ifndef IMAGE_STACK_CONTROL_WIDGET_H
 #define IMAGE_STACK_CONTROL_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QWidget>
 #include <QLabel>
@@ -19,8 +19,9 @@
 #include "mvc/MDA_Widget.h"
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/MapsWorkspaceFilesWidget.h"
+#include "mvc/AnnimateSlideWidget.h"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief When open the acquisition window, the widget is showing for capturing
@@ -70,6 +71,8 @@ public slots:
    void onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image);
 
    void onChangeDatasetName(const QString& name);
+
+   void onDockFloatChanged(bool floating);
 protected:
 
 	void closeEvent(QCloseEvent *event);
@@ -105,14 +108,15 @@ protected:
    QDockWidget* _files_dock;
 
    QDockWidget* _nav_dock;
-   //QDialog _raw_file_dialog;
+   
+   AnnimateSlideWidget* _files_anim_widget;
 
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* ImageStackControlWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

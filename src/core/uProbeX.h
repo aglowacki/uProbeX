@@ -6,7 +6,7 @@
 #ifndef uProbeX_H
 #define uProbeX_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QMainWindow>
 #include <QApplication>
@@ -28,13 +28,14 @@
 #include <mvc/TIFF_Model.h>
 #include <mvc/VLM_Widget.h>
 #include "mvc/UpgradeRoiDialog.h"
+#include <mvc/GenScanVlmWidget.h>
 
 class SubWindow;
 class AbstractWindowController;
 
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 /**
  * @brief The main uProbeX user interface window. Main application class
@@ -131,7 +132,7 @@ private slots:
    /**
     * @brief openMAPSWorkspace
     */
-   void openMapsWorkspace();
+   void openMapsWorkspaceA();
 
    void openRecentMapsWorkspace();
 
@@ -157,7 +158,7 @@ private slots:
    /**
     * @brief saveAllXML
     */
-   void saveAllXML();
+   void saveAllXMLA();
 
    /**
     * @brief Show about dialog.Triggered from the menu.
@@ -193,12 +194,12 @@ private slots:
    /**
     * @brief perform autosave for the open datasets.
     */
-   void performAutoSave();
+   //void performAutoSave();
 
    /**
     * @brief cleanUpAutoSafeData
     */
-   void cleanUpAutoSafeData();
+   //void cleanUpAutoSafeData();
    /*
    void savePreferencesXMLData();
 
@@ -207,6 +208,14 @@ private slots:
    void mapsControllerClosed(MapsWorkspaceController*);
 
    void upgradeV9Rois();
+
+   void batchPerPixel();
+
+   void BatchExportImages();
+
+   void BatchRoiStats();
+
+   void BatcGenScanVlm();
 
 private:
 
@@ -261,6 +270,8 @@ private:
     */
    bool saveActivatedXmlRequired();
 
+   void setBatchActionsEnabled(bool val);
+
 private:
 
    /**
@@ -268,24 +279,19 @@ private:
     */
    QMenuBar* m_menu;
 
-   QMenu* _recentWorkspaceMenu;
+   QMenu* _menu_file;
+   QMenu* _menu_recent_workspace;
 
-   /**
-    * @brief File menu
-    */
-   QMenu* m_menuFile;
+   QMenu* _menu_stream;
 
-   /**
-    * @brief Stream menu
-    */
-   QMenu* m_menuStream;
+   QMenu* _menu_batch;
 
-   QMenu* m_menuBatch;
+   QMenu* _menu_view;
+   QMenu* _menu_view_file_top;
+   QMenu* _menu_view_file_side;
+   QMenu* _menu_view_marker;
 
-   /**
-    * @brief Help menu
-    */
-   QMenu* m_menuHelp;
+   QMenu* _menu_help;
 
    /**
     * @brief MDI area that serves as a central widget
@@ -312,10 +318,24 @@ private:
 
    UpgradeRoiDialog _upgradeRoiDialog;
 
+   QAction* _action_per_pixel;
+
+   QAction* _action_export_images;
+   
+   QAction* _action_roi_stats;
+
+   QAction* _action_gen_scan_vlm;
+
+   PerPixelFitWidget _per_pixel_fit_widget;
+
+   QList<MapsWorkspaceController*> _mapsWorkspaceControllers;
+
+   GenScanVlmWidget _gen_scan_vlm_widget;
+
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

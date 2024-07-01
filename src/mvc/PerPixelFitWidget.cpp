@@ -6,7 +6,7 @@
 #include <mvc/PerPixelFitWidget.h>
 #include <core/process_whole.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PerPixelFitWidget::PerPixelFitWidget(QWidget *parent) : QWidget(parent)
 {
@@ -15,7 +15,7 @@ PerPixelFitWidget::PerPixelFitWidget(QWidget *parent) : QWidget(parent)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PerPixelFitWidget::~PerPixelFitWidget()
 {
@@ -23,7 +23,7 @@ PerPixelFitWidget::~PerPixelFitWidget()
  
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PerPixelFitWidget::createLayout()
 {
@@ -50,7 +50,7 @@ void PerPixelFitWidget::setDir(std::string directory)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PerPixelFitWidget::runProcessing()
 {

@@ -8,13 +8,13 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #define STR_AVG "Avg"
 #define STR_MEADIAN "Median"
 #define STR_STDEV "StDev"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CountsStatsTransformer::CountsStatsTransformer() : ITransformer()
 {
@@ -25,14 +25,14 @@ CountsStatsTransformer::CountsStatsTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 CountsStatsTransformer::~CountsStatsTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsStatsTransformer::Init(QMap<QString, double> globalVars)
 { 
@@ -41,7 +41,7 @@ bool CountsStatsTransformer::Init(QMap<QString, double> globalVars)
 
 } 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> CountsStatsTransformer::getAllCoef()
 {
@@ -56,7 +56,7 @@ QMap<QString, double> CountsStatsTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& counts)
 {
@@ -80,7 +80,7 @@ void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& count
     _median = cnts(idx);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsStatsTransformer::getVariable(QString name, double *val)
 {
@@ -105,7 +105,7 @@ bool CountsStatsTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool CountsStatsTransformer::setVariable(QString name, double val)
 {
@@ -130,7 +130,7 @@ bool CountsStatsTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void CountsStatsTransformer::transformCommand(double inX,
                                          double inY,
@@ -145,4 +145,4 @@ void CountsStatsTransformer::transformCommand(double inX,
     
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

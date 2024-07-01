@@ -11,8 +11,8 @@
 #include <QIcon>
 #include <QSplitter>
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(parent)
 {
@@ -21,7 +21,7 @@ ImageStackControlWidget::ImageStackControlWidget(QWidget* parent) : QWidget(pare
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ImageStackControlWidget::~ImageStackControlWidget()
 {
@@ -47,13 +47,13 @@ void ImageStackControlWidget::savePref()
 	_imageGrid->savePref();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout1 = new QHBoxLayout();
-	QHBoxLayout* hlayout2 = new QHBoxLayout();
+	//QHBoxLayout* hlayout2 = new QHBoxLayout();
 	_imageGrid = new MapsElementsWidget(1,1);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
@@ -83,6 +83,8 @@ void ImageStackControlWidget::createLayout()
     hlayout1->addWidget(_left_btn);
     hlayout1->addWidget(_image_name_cb);
     hlayout1->addWidget(_right_btn);
+	hlayout1->setSpacing(0);
+	hlayout1->setContentsMargins(0, 0, 0, 0);
 
 	connect(_image_name_cb, &QComboBox::currentTextChanged, this, &ImageStackControlWidget::model_IndexChanged);
 
@@ -100,38 +102,51 @@ void ImageStackControlWidget::createLayout()
 	vlayout->addWidget(_imageGrid);
 	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
+	vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
 
 	_files_dock = new QDockWidget("Files", this);
     _files_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_files_dock->setWidget(_mapsFilsWidget);
+	connect(_files_dock, &QDockWidget::topLevelChanged, this, &ImageStackControlWidget::onDockFloatChanged);
 
-	hlayout2->addWidget(_files_dock);
+	//hlayout2->addWidget(_files_dock);
 
-	QWidget *leftWidget = new QWidget();
-	leftWidget->setLayout(hlayout2);
+	_files_anim_widget = new AnnimateSlideWidget();
+	//QWidget *leftWidget = new QWidget();
+	//leftWidget->setLayout(hlayout2);
+	_files_anim_widget->setAnimWidget(_mapsFilsWidget, _files_dock);
+	//_files_anim_widget->setAnimWidget(_mapsFilsWidget, ">");
+	
 	QWidget *rightWidget = new QWidget();
 	rightWidget->setLayout(vlayout);
 
 	QSplitter* single_data_splitter = new QSplitter();
 	single_data_splitter->setOrientation(Qt::Horizontal);
-	single_data_splitter->addWidget(leftWidget);
+	single_data_splitter->addWidget(_files_anim_widget);
 	single_data_splitter->setStretchFactor(0, 1);
 	single_data_splitter->addWidget(rightWidget);
 	//createToolBar(m_imageViewWidget);
 	//counts_layout->addWidget(m_toolbar);
 	//counts_layout->addWidget(splitter);
+	single_data_splitter->setCollapsible(0, true);
+	single_data_splitter->setCollapsible(1, false);
 
 	_load_progress = new QProgressBar();
 	
 	QTabWidget* data_tab = new QTabWidget();
-
 	data_tab->addTab(single_data_splitter, "Single Dataset");
+	//data_tab->setProperty("padding", QVariant("1px"));
+	//data_tab->setSpacing(0);
+	data_tab->setContentsMargins(0, 0, 0, 0);
 	//data_tab->addTab(single_data_splitter, "Multiple Datasets");
 
 	QVBoxLayout *mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(data_tab);
 	mainLayout->addWidget(_load_progress);
-	
+	mainLayout->setSpacing(0);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+
 	//_imageGrid->hide();
 	_vlm_widget->hide();
 	_mda_widget->hide();
@@ -139,7 +154,7 @@ void ImageStackControlWidget::createLayout()
 	setLayout(mainLayout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::closeEvent(QCloseEvent *event)
 {
@@ -147,7 +162,7 @@ void ImageStackControlWidget::closeEvent(QCloseEvent *event)
 	event->accept();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::model_IndexChanged(const QString &text)
 {
@@ -180,7 +195,21 @@ void ImageStackControlWidget::model_IndexChanged(const QString &text)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void ImageStackControlWidget::onDockFloatChanged(bool floating)
+{
+	if(floating)
+	{
+		_files_anim_widget->setAnimEnabled(false);
+	}
+	else
+	{
+		_files_anim_widget->setAnimEnabled(true);
+	}
+}
+
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onPrevFilePressed()
 {
@@ -193,7 +222,7 @@ void ImageStackControlWidget::onPrevFilePressed()
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onNextFilePressed()
 {
@@ -206,7 +235,7 @@ void ImageStackControlWidget::onNextFilePressed()
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 {
@@ -220,7 +249,7 @@ void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::update_progress_bar(int val, int amt)
 {
@@ -232,7 +261,7 @@ void ImageStackControlWidget::update_progress_bar(int val, int amt)
 	_load_progress->setValue(val);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 {
@@ -262,7 +291,7 @@ void ImageStackControlWidget::onLoad_Model(const QString name, MODEL_TYPE mt)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYPE mt)
 {
@@ -301,7 +330,7 @@ void ImageStackControlWidget::onUnloadList_Model(const QStringList sl, MODEL_TYP
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::update_file_list()
 {
@@ -313,7 +342,7 @@ void ImageStackControlWidget::update_file_list()
 	} 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString vlm_file_path, QImage image)
 {
@@ -367,7 +396,7 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 	}
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ImageStackControlWidget::onChangeDatasetName(const QString & name)
 {
@@ -378,5 +407,5 @@ void ImageStackControlWidget::onChangeDatasetName(const QString & name)
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

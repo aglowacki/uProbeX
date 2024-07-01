@@ -6,7 +6,7 @@
 #ifndef FILE_TAB_WIDGET_H
 #define FILE_TAB_WIDGET_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #include <QAction>
 #include <QMenu>
@@ -15,6 +15,7 @@
 #include <mvc/MapsWorkspaceModel.h>
 #include <QListView>
 #include <QTableView>
+#include <QRadioButton>
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include <QPushButton>
@@ -22,9 +23,9 @@
 #include "mvc/ComboBoxDelegate.h"
 #include <mvc/FileTableModel.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 class FileTabWidget : public QWidget
 {
@@ -48,9 +49,11 @@ class FileTabWidget : public QWidget
 
     void appendFilterHelpAction(QAction * action) { _filterHelpMenu->addAction(action); }
 
-    void addCustomContext(QString Id, QString label);
+    void addCustomContext(QString label);
 
-    void setProcessButtonVisible(bool val) { _process_btn->setVisible(val); }
+    void addCustomButtonRow(QString label);
+
+    void addCustomButtonRow(QString label, QString label2);
 
     void setActionsAndButtonsEnabled(bool val);
 
@@ -63,11 +66,9 @@ signals:
 
     void unloadList(QStringList);
 
-    void processList(const QStringList&);
-
-    void batchRoiList(const QStringList&);
-
     void customContext(QString, QStringList);
+
+    void customButton(QString, QStringList);
 
     void onRefresh();
 
@@ -80,15 +81,13 @@ public slots:
 
     void onUnloadFile();
 
-    void process_all_visible();
-
-    void batch_roi_visible();
-
     void filterTextChanged(const QString &);
 
     void ShowContextMenu(const QPoint &);
 
     void loaded_file_status_changed(File_Loaded_Status status, const QString& filename);
+
+    void loaded_file_status_changed_all(File_Loaded_Status status);
 
     void load_all_visible();
 
@@ -98,9 +97,15 @@ public slots:
 
     void onCustomContext();
 
+    void onCustomButton();
+
     void onFileRowChange(const QModelIndex& current, const QModelIndex& previous);
 
     void onUpdateFilter();
+
+    void onRadioAllChanged(bool val);
+
+    void onRadioSelectChanged(bool val);
 
 protected:
 
@@ -109,6 +114,12 @@ protected:
     QTableView* _file_list_view;
 
     FileTableModel* _file_list_model;
+
+    QLayout* _custom_btn_box;
+
+    QRadioButton *_radio_all_files;
+
+    QRadioButton *_selected_all_files;
 
     QMenu *_contextMenu;
 
@@ -120,10 +131,6 @@ protected:
 
     QPushButton *_unload_all_btn;
 
-    QPushButton* _process_btn;
-
-    QPushButton* _batch_roi_btn;
-
 	QPushButton * _filter_suggest_btn;
 
     QAction* _action_load;
@@ -134,11 +141,13 @@ protected:
 
     QList<QAction*> _custom_action_list;
 
+    QList<QPushButton*> _custom_button_list;
+
 };
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* FileTabWidget_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

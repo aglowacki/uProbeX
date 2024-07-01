@@ -12,7 +12,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
    QWidget(parent)
@@ -126,7 +126,7 @@ AnnotationToolBarWidget::~AnnotationToolBarWidget()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QWidget* AnnotationToolBarWidget::getToolBar()
 {
@@ -135,7 +135,7 @@ QWidget* AnnotationToolBarWidget::getToolBar()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void AnnotationToolBarWidget::setActionsEnabled(int state)
 {
@@ -153,4 +153,4 @@ void AnnotationToolBarWidget::setActionsEnabled(int state)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

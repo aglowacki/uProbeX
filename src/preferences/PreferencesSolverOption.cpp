@@ -18,7 +18,7 @@
 const static int NM_SELECTED = 0;
 const static int PY_SELECTED = 1;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesSolverOption::PreferencesSolverOption(
       QList<gstar::AbstractImageWidget*> windowList,
@@ -27,7 +27,7 @@ PreferencesSolverOption::PreferencesSolverOption(
 
    m_windowList = windowList;
    m_solverWidget = nullptr;
-   m_transformer = new CoordinateTransformer();
+   m_transformer = new SV_CoordTransformer();
    m_solverParameterParse = new SolverParameterParse();
    //m_solver = solver;
 
@@ -39,7 +39,7 @@ PreferencesSolverOption::PreferencesSolverOption(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 PreferencesSolverOption::~PreferencesSolverOption()
 {
@@ -64,7 +64,7 @@ PreferencesSolverOption::~PreferencesSolverOption()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::createLayOut()
 {
@@ -100,7 +100,7 @@ void PreferencesSolverOption::createLayOut()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::createNelMinSolver()
 {
@@ -114,7 +114,7 @@ void PreferencesSolverOption::createNelMinSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::createPythonSolver()
 {
@@ -124,7 +124,7 @@ void PreferencesSolverOption::createPythonSolver()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::createSolverGroup()
 {
@@ -165,7 +165,7 @@ void PreferencesSolverOption::createSolverGroup()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 int PreferencesSolverOption::getCheckedID()
 {
@@ -174,7 +174,7 @@ int PreferencesSolverOption::getCheckedID()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PreferencesSolverOption::getNMCoefficientAttrs()
 {
@@ -186,7 +186,7 @@ QStringList PreferencesSolverOption::getNMCoefficientAttrs()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PreferencesSolverOption::getNMOptionAttrs()
 {
@@ -197,7 +197,7 @@ QStringList PreferencesSolverOption::getNMOptionAttrs()
     return QStringList();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PreferencesSolverOption::getCurrentCoefficientAttrs()
 {
@@ -206,7 +206,7 @@ QStringList PreferencesSolverOption::getCurrentCoefficientAttrs()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QStringList PreferencesSolverOption::getCurrentOptionAttrs()
 {
@@ -215,7 +215,7 @@ QStringList PreferencesSolverOption::getCurrentOptionAttrs()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::getSolverPropertiesFromModel(
       SolverParameterWidget* widget,
@@ -243,7 +243,7 @@ void PreferencesSolverOption::getSolverPropertiesFromModel(
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::setCheckedID(int id)
 {
@@ -261,7 +261,7 @@ void PreferencesSolverOption::setCheckedID(int id)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 
 void PreferencesSolverOption::setNMCoefficientAttrs(QStringList attrs)
@@ -274,7 +274,7 @@ void PreferencesSolverOption::setNMCoefficientAttrs(QStringList attrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::setNMOptionAttrs(QStringList attrs)
 {
@@ -286,7 +286,7 @@ void PreferencesSolverOption::setNMOptionAttrs(QStringList attrs)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void PreferencesSolverOption::useUpdatedSolverVariables(const QMap<QString, double> vals)
 {
@@ -329,4 +329,4 @@ void PreferencesSolverOption::useUpdatedSolverVariables(const QMap<QString, doub
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

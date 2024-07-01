@@ -6,7 +6,7 @@
 #ifndef MAPS_WORKSPACE_CONTROLLER_H
 #define MAPS_WORKSPACE_CONTROLLER_H
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 #include <future>
 #include <QObject>
 #include <QMainWindow>
@@ -36,6 +36,8 @@ public:
 
    void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
 
+   MapsWorkspaceModel* get_model(){ return _mapsWorkspaceModel;}
+   
 signals:
 
 	void controllerClosed(MapsWorkspaceController*);
@@ -56,9 +58,9 @@ protected:
 };
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #endif /* MapsWorkspaceController_H_ */
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

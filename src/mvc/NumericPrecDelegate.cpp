@@ -5,7 +5,7 @@
 
 #include <mvc/NumericPrecDelegate.h>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 NumericPrecDelegate::NumericPrecDelegate(QObject* parent) :	QStyledItemDelegate(parent)
 {

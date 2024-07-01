@@ -8,7 +8,7 @@
 
 using namespace gstar;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 #define STR_SCALE_X "ScaleX"
 #define STR_SCALE_Y "ScaleY"
@@ -20,7 +20,7 @@ using namespace gstar;
 #define STR_DIVIDER_Y "DividerY"
 #define STR_DIVIDER_Z "DividerZ"
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LinearTransformer::LinearTransformer() : ITransformer()
 {
@@ -37,14 +37,14 @@ LinearTransformer::LinearTransformer() : ITransformer()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 LinearTransformer::~LinearTransformer()
 {
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearTransformer::Init(QMap<QString, double> globalVars) 
 { 
@@ -54,7 +54,7 @@ bool LinearTransformer::Init(QMap<QString, double> globalVars)
 
 } 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, double> LinearTransformer::getAllCoef()
 {
@@ -75,7 +75,7 @@ QMap<QString, double> LinearTransformer::getAllCoef()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double LinearTransformer::getScaleX()
 {
@@ -84,7 +84,7 @@ double LinearTransformer::getScaleX()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double LinearTransformer::getScaleY()
 {
@@ -93,7 +93,7 @@ double LinearTransformer::getScaleY()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double LinearTransformer::getScaleZ()
 {
@@ -102,7 +102,7 @@ double LinearTransformer::getScaleZ()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double LinearTransformer::getTopLeftX()
 {
@@ -111,7 +111,7 @@ double LinearTransformer::getTopLeftX()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 double LinearTransformer::getTopLeftY()
 {
@@ -120,7 +120,7 @@ double LinearTransformer::getTopLeftY()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearTransformer::getVariable(QString name, double *val)
 {
@@ -175,7 +175,7 @@ bool LinearTransformer::getVariable(QString name, double *val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setDivider(double dx, double dy, double dz)
 {
@@ -186,7 +186,7 @@ void LinearTransformer::setDivider(double dx, double dy, double dz)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setScale(double x, double y, double z)
 {
@@ -197,7 +197,7 @@ void LinearTransformer::setScale(double x, double y, double z)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setScaleX(double x)
 {
@@ -206,7 +206,7 @@ void LinearTransformer::setScaleX(double x)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setScaleY(double y)
 {
@@ -215,7 +215,7 @@ void LinearTransformer::setScaleY(double y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setScaleZ(double z)
 {
@@ -225,7 +225,7 @@ void LinearTransformer::setScaleZ(double z)
 }
 
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::setTopLeft(double x, double y)
 {
@@ -235,7 +235,7 @@ void LinearTransformer::setTopLeft(double x, double y)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool LinearTransformer::setVariable(QString name, double val)
 {
@@ -290,7 +290,7 @@ bool LinearTransformer::setVariable(QString name, double val)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void LinearTransformer::transformCommand(double inX,
                                          double inY,
@@ -306,4 +306,4 @@ void LinearTransformer::transformCommand(double inX,
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

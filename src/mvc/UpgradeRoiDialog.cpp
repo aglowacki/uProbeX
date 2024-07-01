@@ -11,7 +11,7 @@
 #include <QDesktopServices>
 #include <QDir>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UpgradeRoiDialog::UpgradeRoiDialog() : QDialog()
 {
@@ -43,7 +43,7 @@ UpgradeRoiDialog::UpgradeRoiDialog() : QDialog()
     _createLayout();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 UpgradeRoiDialog::~UpgradeRoiDialog()
 {
@@ -51,7 +51,7 @@ UpgradeRoiDialog::~UpgradeRoiDialog()
  
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UpgradeRoiDialog::_createLayout()
 {
@@ -101,7 +101,7 @@ void UpgradeRoiDialog::_createLayout()
     this->setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UpgradeRoiDialog::setDirectory(QDir directory)
 {
@@ -129,7 +129,7 @@ void UpgradeRoiDialog::onCancelClose()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void UpgradeRoiDialog::runProcessing()
 {
@@ -184,7 +184,7 @@ void UpgradeRoiDialog::runProcessing()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool UpgradeRoiDialog::_get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list)
 {
@@ -221,7 +221,7 @@ bool UpgradeRoiDialog::_get_filesnames_in_directory(QDir dir, QString sub_dir_na
     return true;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString &out_hdf_file)
 {
@@ -315,5 +315,5 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
     return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 

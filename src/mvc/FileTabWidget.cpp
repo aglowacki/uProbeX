@@ -14,7 +14,7 @@
 #include <QRegularExpression>
 #include <preferences/Preferences.h>
 #include "core/defines.h"
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 {
@@ -64,34 +64,44 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     hlayout1->addWidget(_filter_line);
 	hlayout1->addWidget(_filter_suggest_btn);
 
+    bool rad_opt = Preferences::inst()->getValue(STR_PREF_RADIO_LOAD_SELECTED_OPTION).toBool();
 
-    _process_btn = new QPushButton("Process All");
-    connect(_process_btn, SIGNAL(released()), this, SLOT(process_all_visible()));
-    _batch_roi_btn = new QPushButton("Batch ROI");
-    connect(_batch_roi_btn, SIGNAL(released()), this, SLOT(batch_roi_visible()));
-    _load_all_btn = new QPushButton("Load All");
+    _radio_all_files = new QRadioButton("All Visible Files");
+    _radio_all_files->setChecked(!rad_opt);
+    _radio_all_files->setAutoExclusive(true);
+    connect(_radio_all_files, &QAbstractButton::toggled, this, &FileTabWidget::onRadioAllChanged);
+    _selected_all_files = new QRadioButton("Selected Files");
+    _selected_all_files->setChecked(rad_opt);
+    _selected_all_files->setAutoExclusive(true);
+    connect(_selected_all_files, &QAbstractButton::toggled, this, &FileTabWidget::onRadioSelectChanged);
+    QHBoxLayout* hbox_radios = new QHBoxLayout();
+    hbox_radios->addWidget(_radio_all_files);
+    hbox_radios->addWidget(_selected_all_files);
+
+    _load_all_btn = new QPushButton("Load");
     connect(_load_all_btn, SIGNAL(released()), this, SLOT(load_all_visible()));
-    _unload_all_btn = new QPushButton("Unload All");
+    _unload_all_btn = new QPushButton("Unload");
     connect(_unload_all_btn, SIGNAL(released()), this, SLOT(unload_all_visible()));
 
     QHBoxLayout* hlayout2 = new QHBoxLayout();
     hlayout2->addWidget(_load_all_btn);
     hlayout2->addWidget(_unload_all_btn);
 
-    QHBoxLayout* hlayout3 = new QHBoxLayout();
-    hlayout3->addWidget(_process_btn);
-    hlayout3->addWidget(_batch_roi_btn);
+    _custom_btn_box = new QVBoxLayout();
 
     QLayout* vlayout = new QVBoxLayout();
     vlayout->addItem(hlayout1);
+    vlayout->addItem(hbox_radios);
     vlayout->addItem(hlayout2);
-    vlayout->addItem(hlayout3);
+    vlayout->addItem(_custom_btn_box);
     vlayout->addWidget(_file_list_view);
+    vlayout->setSpacing(0);
+	vlayout->setContentsMargins(0, 0, 0, 0);
     setLayout(vlayout);
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::_gen_visible_list(QStringList *sl)
 {
@@ -105,63 +115,77 @@ void FileTabWidget::_gen_visible_list(QStringList *sl)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget::onRadioAllChanged(bool val)
+{
+    Preferences::inst()->setValue(STR_PREF_RADIO_LOAD_SELECTED_OPTION, !val);
+}
+
+//---------------------------------------------------------------------------
+
+void FileTabWidget::onRadioSelectChanged(bool val)
+{
+    Preferences::inst()->setValue(STR_PREF_RADIO_LOAD_SELECTED_OPTION, val);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onUpdateFilter()
 {
     filterTextChanged(_filter_line->text());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::load_all_visible()
 {
-    
-
     QStringList sl;
-    _gen_visible_list(&sl);
+    if(_radio_all_files->isChecked())
+    {
+        _gen_visible_list(&sl);
+    }
+    else
+    {
+        QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
+        for(int i =0; i<list.length(); i++)
+        {
+            QModelIndex idx = list.at(i);
+            sl.append(_file_list_model->getNameAtRow(idx.row()));
+        }
+    }
     emit loadList(sl);
-
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::unload_all_visible()
 {
-    
-
     QStringList sl;
-    _gen_visible_list(&sl);
+    if(_radio_all_files->isChecked())
+    {
+        _gen_visible_list(&sl);
+    }
+    else
+    {
+        QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
+        for(int i =0; i<list.length(); i++)
+        {
+            QModelIndex idx = list.at(i);
+            sl.append(_file_list_model->getNameAtRow(idx.row()));
+        }
+    }
     emit unloadList(sl);
-
 }
 
-/*---------------------------------------------------------------------------*/
-
-void FileTabWidget::process_all_visible()
-{
-    QStringList sl;
-    _gen_visible_list(&sl);
-    emit processList(sl);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void FileTabWidget::batch_roi_visible()
-{
-    QStringList sl;
-    _gen_visible_list(&sl);
-    emit batchRoiList(sl);
-}
-
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::unload_all()
 {
     _file_list_model->clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_list)
 {
@@ -253,14 +277,14 @@ void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinf
     _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::ShowContextMenu(const QPoint &pos)
 {
     _contextMenu->exec(mapToGlobal(pos));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
 {
@@ -272,7 +296,7 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::setActionsAndButtonsEnabled(bool val)
 {
@@ -282,20 +306,20 @@ void FileTabWidget::setActionsAndButtonsEnabled(bool val)
     _action_load->setEnabled(val);
     _action_unload->setEnabled(val);
     _action_refresh->setEnabled(val);
-    _process_btn->setEnabled(val);
-    _batch_roi_btn->setEnabled(val);
     for (QAction* act : _custom_action_list)
     {
         act->setEnabled(val);
     }
+    for (QPushButton* btn : _custom_button_list)
+    {
+        btn->setEnabled(val);
+    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onLoadFile()
 {
-    
-
     QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
     for(int i =0; i<list.length(); i++)
@@ -306,12 +330,10 @@ void FileTabWidget::onLoadFile()
     emit loadList(sl);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onUnloadFile()
 {
-    
-
     QStringList sl;
     QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
     for(int i =0; i<list.length(); i++)
@@ -323,7 +345,7 @@ void FileTabWidget::onUnloadFile()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::filterTextChanged(const QString &filter_text)
 {
@@ -359,14 +381,21 @@ void FileTabWidget::filterTextChanged(const QString &filter_text)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::loaded_file_status_changed(File_Loaded_Status status, const QString& filename)
 {
     _file_list_model->updateStatus(status, filename);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget::loaded_file_status_changed_all(File_Loaded_Status status)
+{
+    _file_list_model->updateAllStatus(status);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::filterBtnClicked()
 {
@@ -375,20 +404,17 @@ void FileTabWidget::filterBtnClicked()
     {
       result->trigger();
     }
-
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-void FileTabWidget::addCustomContext(QString Id, QString label)
+void FileTabWidget::addCustomContext(QString label)
 {
     QAction* action = _contextMenu->addAction(label);
     _custom_action_list.append(action);
-    action->setData(Id);
     connect(action, SIGNAL(triggered()), this, SLOT(onCustomContext()));
 }
-
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onCustomContext()
 {
@@ -400,11 +426,58 @@ void FileTabWidget::onCustomContext()
         sl.append(_file_list_model->getNameAtRow(idx.row()));
     }
     QAction *act = qobject_cast<QAction *>(sender());
-    QVariant v = act->data();
-    emit customContext(v.toString(), sl);
+    emit customContext(act->text(), sl);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void FileTabWidget::addCustomButtonRow(QString label)
+{
+    QPushButton* btn = new QPushButton(label, this);
+    _custom_btn_box->addWidget(btn);
+    _custom_button_list.append(btn);
+    connect(btn, &QPushButton::pressed, this, &FileTabWidget::onCustomButton);
+}
+
+//---------------------------------------------------------------------------
+
+void FileTabWidget::addCustomButtonRow(QString label, QString label2)
+{
+    QPushButton* btn = new QPushButton(label, this);
+    QPushButton* btn2 = new QPushButton(label2, this);
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addWidget(btn);
+    hbox->addWidget(btn2);
+    _custom_button_list.append(btn);
+    _custom_button_list.append(btn2);
+    _custom_btn_box->addItem(hbox);
+    connect(btn, &QPushButton::pressed, this, &FileTabWidget::onCustomButton);
+    connect(btn2, &QPushButton::pressed, this, &FileTabWidget::onCustomButton);
+}
+
+//---------------------------------------------------------------------------
+
+void FileTabWidget::onCustomButton()
+{
+    QStringList sl;
+    if(_radio_all_files->isChecked())
+    {
+        _gen_visible_list(&sl);
+    }
+    else
+    {
+        QModelIndexList list = _file_list_view->selectionModel()->selectedIndexes();
+        for(int i =0; i<list.length(); i++)
+        {
+            QModelIndex idx = list.at(i);
+            sl.append(_file_list_model->getNameAtRow(idx.row()));
+        }
+    }
+    QPushButton *btn = qobject_cast<QPushButton *>(sender());
+    emit customButton(btn->text(), sl);
+}
+
+//---------------------------------------------------------------------------
 
 void FileTabWidget::onFileRowChange(const QModelIndex& current, const QModelIndex& previous)
 {
@@ -414,4 +487,4 @@ void FileTabWidget::onFileRowChange(const QModelIndex& current, const QModelInde
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

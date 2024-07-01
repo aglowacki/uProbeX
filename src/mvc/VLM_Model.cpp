@@ -7,10 +7,12 @@
 #include <QStringList>
 #include <gstar/GStarResource.h>
 #include <QMessageBox>
+#include "core/defines.h"
 
 const QString STR_MARKERS = "markers";
 const QString STR_MARKER = "marker";
 const QString STR_REGION_MARKER = "regionmarker";
+const QString STR_SOLVER = "solver";
 
 /*----------------src/mvc/VLM_Model.cpp \-----------------------------------------------------------*/
 
@@ -20,7 +22,7 @@ VLM_Model::VLM_Model() : AbstractWindowModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 VLM_Model::~VLM_Model()
 {
@@ -34,7 +36,21 @@ VLM_Model::~VLM_Model()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void VLM_Model::add_calib_marker(const QMap<QString, QString>& marker)
+{
+	_markersLoaded.append(marker);
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Model::add_region_marker(const QMap<QString, QString>& marker)
+{
+	_regionMarkersLoaded.append(marker);
+}
+
+//---------------------------------------------------------------------------
 
 void VLM_Model::_load_xml_markers_and_regions()
 {
@@ -71,14 +87,19 @@ void VLM_Model::_load_xml_markers_and_regions()
 			{
 				continue;
 			}
-			if (xml.name() == STR_MARKER)
+			else if (xml.name() == STR_MARKER)
 			{
 				_markersLoaded.prepend(_parseMarker(xml));
 				continue;
 			}
-			if (xml.name() == STR_REGION_MARKER)
+			else if (xml.name() == STR_REGION_MARKER)
 			{
 				_regionMarkersLoaded.prepend(_parseRegionMarker(xml));
+			}
+			else if (xml.name() == STR_SOLVER)
+			{
+				// TODO: load and config solver 
+				//_regionMarkersLoaded.prepend(_parseRegionMarker(xml));
 			}
 		}
 	}
@@ -93,7 +114,72 @@ void VLM_Model::_load_xml_markers_and_regions()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void VLM_Model::save_xml(QString filename)
+{
+ 	QFile file(filename);
+
+   if (!file.open(QIODevice::WriteOnly))
+   {
+      QMessageBox::warning(0, "Read only", "The file is in read only mode");
+	  return;
+   }
+   QXmlStreamWriter* xmlWriter = new QXmlStreamWriter();
+   xmlWriter->setDevice(&file);
+
+   xmlWriter->writeStartDocument();
+   xmlWriter->writeStartElement("markers");
+
+	// Get the crossing marker information
+	for (auto itr :_markersLoaded)
+	{
+		xmlWriter->writeStartElement("marker");
+		xmlWriter->writeAttribute(gstar::UPROBE_COLOR,itr.value(gstar::UPROBE_COLOR, "#ff007f"));
+		xmlWriter->writeAttribute(gstar::UPROBE_LIGHT_POS_X,itr.value(gstar::UPROBE_LIGHT_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_LIGHT_POS_Y,itr.value(gstar::UPROBE_LIGHT_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_LIGHT_POS_Z,itr.value(gstar::UPROBE_LIGHT_POS_Z, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_REAL_POS_X,itr.value(gstar::UPROBE_REAL_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_REAL_POS_Y,itr.value(gstar::UPROBE_REAL_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_X,itr.value(gstar::UPROBE_PRED_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_Y,itr.value(gstar::UPROBE_PRED_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_MICRO_POS_X,itr.value(gstar::UPROBE_MICRO_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_MICRO_POS_Y,itr.value(gstar::UPROBE_MICRO_POS_Y, "0"));
+		xmlWriter->writeCharacters (itr.value(gstar::UPROBE_NAME, "_"));
+		xmlWriter->writeEndElement();
+	}
+
+	// Get the region marker information
+	for (auto itr :_regionMarkersLoaded)
+	{
+		xmlWriter->writeStartElement("regionmarker");
+		
+		xmlWriter->writeAttribute(gstar::UPROBE_COLOR,itr.value(gstar::UPROBE_COLOR, "#ff007f"));
+		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_X,itr.value(gstar::UPROBE_PRED_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_Y,itr.value(gstar::UPROBE_PRED_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_WIDTH,itr.value(gstar::UPROBE_WIDTH, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_HEIGHT,itr.value(gstar::UPROBE_HEIGHT, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_MICRO_POS_X,itr.value(gstar::UPROBE_MICRO_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_MICRO_POS_Y,itr.value(gstar::UPROBE_MICRO_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_REAL_POS_X,itr.value(gstar::UPROBE_REAL_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_REAL_POS_Y,itr.value(gstar::UPROBE_REAL_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_RECT_TLX,itr.value(gstar::UPROBE_RECT_TLX, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_RECT_TLY,itr.value(gstar::UPROBE_RECT_TLY, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_RECT_W,itr.value(gstar::UPROBE_RECT_W, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_RECT_H,itr.value(gstar::UPROBE_RECT_H, "0"));
+		
+		//xmlWriter->writeAttribute(gstar::UPROBE_SIZE,itr.value(gstar::UPROBE_SIZE, "20"));
+		xmlWriter->writeCharacters (itr.value(gstar::UPROBE_NAME));
+		xmlWriter->writeEndElement();
+	}
+
+	xmlWriter->writeEndElement();
+	xmlWriter->writeEndDocument();
+
+	delete xmlWriter;
+}
+
+//---------------------------------------------------------------------------
 /*
 void VLM_Model::check_and_load_autosave()
 {
@@ -144,7 +230,7 @@ void VLM_Model::check_and_load_autosave()
 
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, QString> VLM_Model::_parseMarker(QXmlStreamReader& xml)
 {
@@ -213,7 +299,7 @@ QMap<QString, QString> VLM_Model::_parseMarker(QXmlStreamReader& xml)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 QMap<QString, QString> VLM_Model::_parseRegionMarker(QXmlStreamReader& xml)
 {
@@ -278,7 +364,7 @@ QMap<QString, QString> VLM_Model::_parseRegionMarker(QXmlStreamReader& xml)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 gstar::CoordinateModel* VLM_Model::getCoordModel()
 {
@@ -287,5 +373,5 @@ gstar::CoordinateModel* VLM_Model::getCoordModel()
 
 }
 
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------

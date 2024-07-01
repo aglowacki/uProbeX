@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ExportMapsDialog::ExportMapsDialog(QDir directory, QWidget *parent) : QWidget(parent)
 {
@@ -17,7 +17,7 @@ ExportMapsDialog::ExportMapsDialog(QDir directory, QWidget *parent) : QWidget(pa
     _total_blocks = 100;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 ExportMapsDialog::~ExportMapsDialog()
 {
@@ -25,7 +25,7 @@ ExportMapsDialog::~ExportMapsDialog()
  
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ExportMapsDialog::createLayout()
 {
@@ -90,7 +90,7 @@ void ExportMapsDialog::createLayout()
     setLayout(layout);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ExportMapsDialog::setRunEnabled(bool val)
 {
@@ -99,14 +99,14 @@ void ExportMapsDialog::setRunEnabled(bool val)
     QCoreApplication::processEvents();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ExportMapsDialog::on_browse()
 {
     _directory = QFileDialog::getExistingDirectory(this, "Export Directory", _directory.absolutePath());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ExportMapsDialog::on_open()
 {
@@ -116,7 +116,7 @@ void ExportMapsDialog::on_open()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void ExportMapsDialog::status_callback(size_t cur_block, size_t total_blocks)
 {
@@ -132,4 +132,4 @@ void ExportMapsDialog::status_callback(size_t cur_block, size_t total_blocks)
     QCoreApplication::processEvents();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------

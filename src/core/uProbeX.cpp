@@ -36,7 +36,7 @@ static const QString PREFERENCES_XML_SECTION_NAME = "preferences";
 
 QTextEdit * uProbeX::log_textedit = 0;
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
@@ -90,7 +90,7 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     show();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 uProbeX::~uProbeX()
 {
@@ -119,7 +119,7 @@ uProbeX::~uProbeX()
     m_subWindows.clear();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::adjustDisplaySettings()
 {
@@ -135,7 +135,7 @@ void uProbeX::adjustDisplaySettings()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool uProbeX::checkSameFileWindow(QString& filePath)
 {
@@ -159,7 +159,7 @@ bool uProbeX::checkSameFileWindow(QString& filePath)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::closeEvent(QCloseEvent* event)
 {
@@ -169,7 +169,7 @@ void uProbeX::closeEvent(QCloseEvent* event)
     bool saveWithoutPrompt = Preferences::inst()->getValue(STR_PRF_AutoSaveOnExit).toBool();
     saveAllXML(!saveWithoutPrompt);
 
-    cleanUpAutoSafeData();
+    //cleanUpAutoSafeData();
     Preferences::inst()->setValue(STR_GEOMETRY, saveGeometry());
     Preferences::inst()->setValue(STR_WINDOWSTATE, saveState());
     // Quit
@@ -177,7 +177,7 @@ void uProbeX::closeEvent(QCloseEvent* event)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::createMenuBar()
 {
@@ -188,73 +188,170 @@ void uProbeX::createMenuBar()
     setMenuBar(m_menu);
 
     // File menu
-    m_menuFile = new QMenu(tr("File"));
-    action = m_menuFile->addAction("Open Maps Workspace");
-    connect(action, SIGNAL(triggered()), this, SLOT(openMapsWorkspace()));
+    _menu_file = new QMenu("File");
+    action = _menu_file->addAction("Open Maps Workspace");
+    connect(action, &QAction::triggered, this, &uProbeX::openMapsWorkspaceA);
 
-    _recentWorkspaceMenu = m_menuFile->addMenu("Open Recent Workspace");
+    _menu_recent_workspace = _menu_file->addMenu("Open Recent Workspace");
     updateRecentMapsWorkspaces();
 
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Open VLM Workspace");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_VLM_File()));
-    action = m_menuFile->addAction("Open HDF5 Analyzed");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_HDF_File()));
-    action = m_menuFile->addAction("Open Raw Spectra");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_file()));
-    action = m_menuFile->addAction("Open Raw Spectra and Override");
-    connect(action, SIGNAL(triggered()), this, SLOT(open_spectra_and_override_file()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Screen Shot");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveScreenShot()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Save Activated VLM DATA");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveActivatedXML()));
-    action = m_menuFile->addAction("Save All VLM DATA");
-    connect(action, SIGNAL(triggered()), this, SLOT(saveAllXML()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Convert v9 ROI's to V10");
-    connect(action, SIGNAL(triggered()), this, SLOT(upgradeV9Rois()));
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Open VLM Workspace");
+    connect(action, &QAction::triggered, this, &uProbeX::open_VLM_File);
+    action = _menu_file->addAction("Open HDF5 Analyzed");
+    connect(action, &QAction::triggered, this, &uProbeX::open_HDF_File);
+    action = _menu_file->addAction("Open Raw Spectra");
+    connect(action, &QAction::triggered, this, &uProbeX::open_spectra_file);
+    action = _menu_file->addAction("Open Raw Spectra and Override");
+    connect(action, &QAction::triggered, this, &uProbeX::open_spectra_and_override_file);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Save Screen Shot");
+    connect(action, &QAction::triggered, this, &uProbeX::saveScreenShot);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Save Activated VLM DATA");
+    connect(action, &QAction::triggered, this, &uProbeX::saveActivatedXML);
+    action = _menu_file->addAction("Save All VLM DATA");
+    connect(action, &QAction::triggered, this, &uProbeX::saveAllXMLA);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Convert v9 ROI's to V10");
+    connect(action, &QAction::triggered, this, &uProbeX::upgradeV9Rois);
 
-    //action = m_menuFile->addAction("Save preferences");
-    //connect(action, SIGNAL(triggered()), this, SLOT(savePreferencesXMLData()));
-    //action = m_menuFile->addAction("Load preferences");
-    //connect(action, SIGNAL(triggered()), this, SLOT(loadPreferencesXMLData()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Preferences");
-    connect(action, SIGNAL(triggered()), this, SLOT(showPreferences()));
-    m_menuFile->addSeparator();
-    action = m_menuFile->addAction("Exit");
-    connect(action, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    m_menu->addMenu(m_menuFile);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Preferences");
+    connect(action, &QAction::triggered, this, &uProbeX::showPreferences);
+    _menu_file->addSeparator();
+    action = _menu_file->addAction("Exit");
+    connect(action, &QAction::triggered, this, &uProbeX::exitApplication);
+    m_menu->addMenu(_menu_file);
 
-    connect(m_menuFile, SIGNAL(aboutToShow()), this, SLOT(menuBarEnable()));
+    connect(_menu_file, &QMenu::aboutToShow, this, &uProbeX::menuBarEnable);
+
+    // TODO: finish view options
+    _menu_view = new QMenu("View");
+    _menu_view_file_top = _menu_view->addMenu("File Nav Top");
+    _menu_view_file_side = _menu_view->addMenu("File Nav Side");
+    _menu_view_marker = _menu_view->addMenu("Annotation : ROI");
+    //action = _menu_file->addAction("File Navigate");
+    //connect(action, &QAction::triggered, this, &uProbeX::exitApplication);
+    //m_menu->addMenu(_menu_view);
 
     // Batch menu
-    //m_menuBatch = new QMenu(tr("Batch Processing"));
-    //action = m_menuBatch->addAction("Per Pixel Processing");
-    //connect(action, SIGNAL(triggered()), this, SLOT(perPixel()));
-    //action = "Export Images"
-    //action = "Roi Stats"
-    //m_menu->addMenu(m_menuBatch);
+    _menu_batch = new QMenu("Batch Processing");
+    _action_per_pixel = _menu_batch->addAction("Per Pixel Processing");
+    connect(_action_per_pixel, &QAction::triggered, this, &uProbeX::batchPerPixel);
+    _action_export_images = _menu_batch->addAction("Export Images");
+    connect(_action_export_images, &QAction::triggered, this, &uProbeX::BatchExportImages);
+    _action_roi_stats = _menu_batch->addAction("Roi Stats");
+    connect(_action_roi_stats, &QAction::triggered, this, &uProbeX::BatchRoiStats);
+    _action_gen_scan_vlm = _menu_batch->addAction("Generate Scan VLM");
+    connect(_action_gen_scan_vlm, &QAction::triggered, this, &uProbeX::BatcGenScanVlm);
+    //TODO: Finish implementing and then add
+    ////m_menu->addMenu(_menu_batch);
 
+    setBatchActionsEnabled(false);
 
     // Stream menu
-    m_menuStream = new QMenu(tr("Live Stream"));
-    action = m_menuStream->addAction("Open Live Stream Viewer");
-    connect(action, SIGNAL(triggered()), this, SLOT(openLiveStreamViewer()));
-    m_menu->addMenu(m_menuStream);
+    _menu_stream = new QMenu(tr("Live Stream"));
+    action = _menu_stream->addAction("Open Live Stream Viewer");
+    connect(action, &QAction::triggered, this, &uProbeX::openLiveStreamViewer);
+    m_menu->addMenu(_menu_stream);
 
     // Help menu
-    m_menuHelp = new QMenu(tr("Help"));
-    action = m_menuHelp->addAction("About");
-    connect(action, SIGNAL(triggered()), this, SLOT(showAbout()));
-	m_menuHelp->addAction(_log_dock->toggleViewAction());
-    m_menu->addMenu(m_menuHelp);
+    _menu_help = new QMenu(tr("Help"));
+    action = _menu_help->addAction("About");
+    connect(action, &QAction::triggered, this, &uProbeX::showAbout);
+	_menu_help->addAction(_log_dock->toggleViewAction());
+    m_menu->addMenu(_menu_help);
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
+
+void uProbeX::setBatchActionsEnabled(bool val)
+{
+    /*
+   _action_per_pixel->setEnabled(val);
+   _action_export_images->setEnabled(val);
+   _action_roi_stats->setEnabled(val);
+   _action_gen_scan_vlm->setEnabled(val);
+   */
+  _menu_batch->setEnabled(val);
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::batchPerPixel()
+{
+    if(_mapsWorkspaceControllers.size() > 0)
+    {
+        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
+        if(controller != nullptr)
+        {
+            MapsWorkspaceModel* model =  controller->get_model();
+            if(model != nullptr)
+            {
+                model->unload_all_H5_Model();
+                model->unload_all_RAW_Model();
+                _per_pixel_fit_widget.setDir(model->get_directory_name().toStdString());
+                _per_pixel_fit_widget.updateFileList(model->get_raw_names_as_qstringlist());
+                _per_pixel_fit_widget.show();
+            }
+            else
+            {
+                logW<<"Model is nullptr\n";
+            }
+        }
+        else
+        {
+            logW<<"Controller is nullptr\n";
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatchExportImages()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatchRoiStats()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::BatcGenScanVlm()
+{
+    if(_mapsWorkspaceControllers.size() > 0)
+    {
+        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
+        if(controller != nullptr)
+        {
+            MapsWorkspaceModel* model =  controller->get_model();
+            if(model != nullptr)
+            {
+                _gen_scan_vlm_widget.setDir(model->get_directory_name());
+                _gen_scan_vlm_widget.updateFileList(model->get_hdf5_file_list());
+                _gen_scan_vlm_widget.show();
+            }
+            else
+            {
+                logW<<"Model is nullptr\n";
+            }
+        }
+        else
+        {
+            logW<<"Controller is nullptr\n";
+        }
+    }
+
+}
+
+//---------------------------------------------------------------------------
 
 void uProbeX::openLiveStreamViewer()
 {
@@ -268,7 +365,7 @@ void uProbeX::openLiveStreamViewer()
     _liveMapsViewer->show();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::exitApplication()
 {
@@ -286,7 +383,7 @@ void uProbeX::exitApplication()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::initialize()
 {
@@ -295,7 +392,7 @@ void uProbeX::initialize()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void uProbeX::adjustAutoSaveSettings()
 {
@@ -337,7 +434,7 @@ void uProbeX::adjustAutoSaveSettings()
     }
 }
 */
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_VLM_Window(VLM_Model* model)
 {
@@ -382,7 +479,7 @@ void uProbeX::make_VLM_Window(VLM_Model* model)
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_VLM_Window(QString path, bool newWindow)
 {
@@ -486,7 +583,7 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::open_spectra_file()
 {
@@ -503,7 +600,7 @@ void uProbeX::open_spectra_file()
     make_spectra_window(filePath, nullptr);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::open_spectra_and_override_file()
 {
@@ -534,7 +631,7 @@ void uProbeX::open_spectra_and_override_file()
     make_spectra_window(filePath, po);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_spectra_window(QString path, data_struct::Params_Override<double>* po)
 {
@@ -553,7 +650,7 @@ void uProbeX::make_spectra_window(QString path, data_struct::Params_Override<dou
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::onLoadMapsWorkspace(MapsWorkspaceController* controller, QString path)
 {
@@ -562,18 +659,23 @@ void uProbeX::onLoadMapsWorkspace(MapsWorkspaceController* controller, QString p
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 {
     if (controller != nullptr)
     {
         delete controller;
+        int i = _mapsWorkspaceControllers.indexOf(controller);
+        _mapsWorkspaceControllers.removeAt(i);
     }
-    controller = nullptr;
+    if(_mapsWorkspaceControllers.size() == 0)
+    {
+        setBatchActionsEnabled(false);
+    }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_HDF_Window(QString path)
 {
@@ -598,7 +700,7 @@ void uProbeX::make_HDF_Window(QString path)
     make_HDF_Window(model);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_HDF_Window(MapsH5Model* model)
 {
@@ -632,7 +734,7 @@ void uProbeX::make_HDF_Window(MapsH5Model* model)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::make_MDA_Window(RAW_Model* model)
 {
@@ -662,7 +764,7 @@ void uProbeX::make_MDA_Window(RAW_Model* model)
             SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::menuBarEnable()
 {
@@ -684,7 +786,7 @@ void uProbeX::menuBarEnable()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::open_VLM_File()
 {
@@ -708,23 +810,23 @@ void uProbeX::open_VLM_File()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::updateRecentMapsWorkspaces()
 {
-    _recentWorkspaceMenu->clear();
+    _menu_recent_workspace->clear();
 
     QStringList recentPaths = Preferences::inst()->getValue(STR_RECENT_MAPS_WORKSPACES).toStringList();
     foreach(QString path, recentPaths)
     {
-        QAction* action = _recentWorkspaceMenu->addAction(path);
+        QAction* action = _menu_recent_workspace->addAction(path);
         connect(action, &QAction::triggered, this, &uProbeX::openRecentMapsWorkspace);
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-void uProbeX::openMapsWorkspace()
+void uProbeX::openMapsWorkspaceA()
 {
 
     QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
@@ -733,7 +835,7 @@ void uProbeX::openMapsWorkspace()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::openRecentMapsWorkspace()
 {
@@ -742,7 +844,7 @@ void uProbeX::openRecentMapsWorkspace()
     openMapsWorkspace(v.toString());
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::openMapsWorkspace(QString dirName)
 {
@@ -768,12 +870,14 @@ void uProbeX::openMapsWorkspace(QString dirName)
 
     MapsWorkspaceController* mapsWorkspaceController = new MapsWorkspaceController(this);
     connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
+    _mapsWorkspaceControllers.append(mapsWorkspaceController);
 
     mapsWorkspaceController->setWorkingDir(dirName);
+    setBatchActionsEnabled(true);
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::open_HDF_File()
 {
@@ -791,7 +895,7 @@ void uProbeX::open_HDF_File()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::saveScreenShot()
 {
@@ -821,7 +925,7 @@ void uProbeX::saveScreenShot()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::saveActivatedXML()
 {
@@ -869,14 +973,14 @@ void uProbeX::saveActivatedXML()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
-void uProbeX::saveAllXML()
+void uProbeX::saveAllXMLA()
 {
     saveAllXML(true);
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::saveAllXML(bool verifyWithUser)
 {
@@ -915,7 +1019,7 @@ void uProbeX::saveAllXML(bool verifyWithUser)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool uProbeX::saveAllXMLRequired()
 {
@@ -939,7 +1043,7 @@ return false;
     return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 bool uProbeX::saveActivatedXmlRequired()
 {
@@ -956,7 +1060,7 @@ bool uProbeX::saveActivatedXmlRequired()
     return false;
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::upgradeV9Rois()
 {
@@ -965,7 +1069,7 @@ void uProbeX::upgradeV9Rois()
     _upgradeRoiDialog.show();    
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 /*
 void uProbeX::savePreferencesXMLData()
 {
@@ -995,7 +1099,7 @@ void uProbeX::savePreferencesXMLData()
     xmlWriter.writeEndDocument();
 }
 
-/*---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 void uProbeX::loadPreferencesXMLData()
 {
@@ -1032,7 +1136,7 @@ void uProbeX::loadPreferencesXMLData()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::performAutoSave()
 {
@@ -1049,7 +1153,7 @@ void uProbeX::performAutoSave()
     }
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::cleanUpAutoSafeData() {
     VLM_Widget* widget = nullptr;
@@ -1067,8 +1171,8 @@ void uProbeX::cleanUpAutoSafeData() {
         }
     }
 }
-
-/*---------------------------------------------------------------------------*/
+*/
+//---------------------------------------------------------------------------
 
 void uProbeX::showAbout()
 {
@@ -1092,7 +1196,7 @@ void uProbeX::showAbout()
     splashAbout->exec();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::showPreferences()
 {
@@ -1123,7 +1227,7 @@ void uProbeX::showPreferences()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::processPreferencesUpdate()
 {
@@ -1141,7 +1245,7 @@ void uProbeX::processPreferencesUpdate()
     updatePreference();
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::subWindowClosed(SubWindow* subWindow)
 {
@@ -1167,7 +1271,7 @@ void uProbeX::subWindowClosed(SubWindow* subWindow)
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::updatePreference()
 {
@@ -1186,7 +1290,7 @@ void uProbeX::updatePreference()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
 
 void uProbeX::updateContextMenus()
 {
@@ -1205,4 +1309,4 @@ void uProbeX::updateContextMenus()
 
 }
 
-/*---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------
