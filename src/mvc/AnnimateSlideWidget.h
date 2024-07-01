@@ -26,7 +26,7 @@ public:
 
    ~AnnimateSlideWidget(){}
 
-   void setAnimWidget(QWidget* w, QString btn_name);
+   void setAnimWidget(QWidget* w, QWidget* container_widget=nullptr); 
 
    void setAnimEnabled(bool val);
 
@@ -36,13 +36,7 @@ protected:
    {
       if(_anim_enabled)
       {
-         // Show the widget and start the animation
-         if(_anim_widget!=nullptr)
-         {
-            _anim_widget->setVisible(true);
-            _btn_hover->setVisible(false);
-         }
-         animateSlideIn();
+         animateSlideOut();
       }
    }
 
@@ -50,13 +44,7 @@ protected:
    {
       if(_anim_enabled)
       {
-         // Hide the widget and start the animation
-         if(_anim_widget!=nullptr)
-         {
-            _anim_widget->setVisible(false);
-            _btn_hover->setVisible(true);
-         }
-         animateSlideOut();
+         animateSlideIn();  
       }
    }
 
@@ -64,28 +52,32 @@ private slots:
    void animateSlideIn() 
    {
       // Animate the widget to slide in
-      QPropertyAnimation *animation = new QPropertyAnimation(this, "visibleWidth");
-      animation->setDuration(1000);
-      animation->setStartValue(0);
-      animation->setEndValue(width());
-      animation->start();
+      if(_first)
+      {
+         _saved_width = _anim_widget->width();
+         _first = false;
+      }
+      _anim_hide->setStartValue(_saved_width);
+      _anim_hide->setEndValue(20);
+
+      _anim_show->setStartValue(20);
+      _anim_show->setEndValue(_saved_width);
+
+      _anim_hide->start();
    }
 
    void animateSlideOut() 
    {
-      // Animate the widget to slide out
-      QPropertyAnimation *animation = new QPropertyAnimation(this, "visibleWidth");
-      animation->setDuration(1000);
-      animation->setStartValue(width());
-      animation->setEndValue(0);
-      animation->start();
+      _anim_show->start();
    }
 
 private:
    QWidget* _anim_widget;
-   QPushButton* _btn_hover;
+   QPropertyAnimation *_anim_hide;
+   QPropertyAnimation *_anim_show;
    bool _anim_enabled;
-
+   bool _first;
+   int _saved_width;
 };
 
 //---------------------------------------------------------------------------

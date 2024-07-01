@@ -115,7 +115,9 @@ void ImageStackControlWidget::createLayout()
 	_files_anim_widget = new AnnimateSlideWidget();
 	//QWidget *leftWidget = new QWidget();
 	//leftWidget->setLayout(hlayout2);
-	_files_anim_widget->setAnimWidget(_files_dock, ">");
+	_files_anim_widget->setAnimWidget(_mapsFilsWidget, _files_dock);
+	//_files_anim_widget->setAnimWidget(_mapsFilsWidget, ">");
+	
 	QWidget *rightWidget = new QWidget();
 	rightWidget->setLayout(vlayout);
 

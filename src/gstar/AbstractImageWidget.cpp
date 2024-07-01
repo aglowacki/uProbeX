@@ -412,19 +412,14 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
    splitter->setStretchFactor(0, 1);
    if (add_tab_widget)
    {
-      //_anim_widget = new AnnimateSlideWidget();
-      //_anim_widget->setAnimWidget(m_tabWidget, "<");
       splitter->addWidget(m_tabWidget);
       splitter->setStretchFactor(1, 1);
-	   //splitter->setCollapsible(0, false);
-	   //splitter->setCollapsible(1, true);
    }
    createToolBar(m_imageViewWidget);
 
    mainLayout->addWidget(m_toolbar);
    mainLayout->addWidget(splitter);
 
-   //setLayout(mainLayout);
    return mainLayout;
 
 }

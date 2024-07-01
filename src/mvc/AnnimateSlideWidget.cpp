@@ -11,25 +11,33 @@ AnnimateSlideWidget::AnnimateSlideWidget(QWidget *parent) : QWidget(parent)
 {
     _anim_widget = nullptr;
     _anim_enabled = true;
+    _first = true;
 }
 
 //---------------------------------------------------------------------------
 
-void AnnimateSlideWidget::setAnimWidget(QWidget* w, QString btn_name) 
+void AnnimateSlideWidget::setAnimWidget(QWidget* w, QWidget* container_widget) 
 {
     if(w != nullptr)
     {
-        if(_btn_hover == nullptr)
-        {
-            _btn_hover = new QPushButton(btn_name);
-            _btn_hover->setVisible(false);
-        }
         _anim_widget = w; 
+        _anim_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        _anim_hide = new QPropertyAnimation(_anim_widget, "minimumWidth");
+        _anim_hide->setDuration(100);
+
+        _anim_show = new QPropertyAnimation(_anim_widget, "minimumWidth");
+        _anim_show->setDuration(100);
     }
 
     QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(_btn_hover);
-    layout->addWidget(_anim_widget);
+    if(container_widget != nullptr)
+    {
+        layout->addWidget(container_widget);
+    }
+    else
+    {
+        layout->addWidget(_anim_widget);
+    }
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
 
@@ -42,12 +50,10 @@ void AnnimateSlideWidget::setAnimEnabled(bool val)
 {
     if(val)
     {
-        //_btn_hover->setVisible(true);
         _anim_enabled = val;
     }
     else
     {
-        _btn_hover->setVisible(false);
         _anim_enabled = val;
     }
 }

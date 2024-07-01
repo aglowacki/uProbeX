@@ -122,7 +122,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
 
     _anim_widget = new AnnimateSlideWidget();
-    _anim_widget->setAnimWidget(m_tabWidget, "<");
+    _anim_widget->setAnimWidget(m_tabWidget);
       
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Horizontal);
