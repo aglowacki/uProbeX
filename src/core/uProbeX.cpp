@@ -245,7 +245,8 @@ void uProbeX::createMenuBar()
     connect(_action_roi_stats, &QAction::triggered, this, &uProbeX::BatchRoiStats);
     _action_gen_scan_vlm = _menu_batch->addAction("Generate Scan VLM");
     connect(_action_gen_scan_vlm, &QAction::triggered, this, &uProbeX::BatcGenScanVlm);
-    m_menu->addMenu(_menu_batch);
+    //TODO: Finish implementing and then add
+    ////m_menu->addMenu(_menu_batch);
 
     setBatchActionsEnabled(false);
 
