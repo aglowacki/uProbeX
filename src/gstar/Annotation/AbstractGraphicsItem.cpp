@@ -390,6 +390,7 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
    switch(t)
    {
    case QVariant::Color:
+   case QVariant::Icon:
       flags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
        break;
    case QVariant::Bool:

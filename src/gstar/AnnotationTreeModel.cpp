@@ -184,6 +184,10 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
         {
             return QColor(var.toString());
         }
+        else if (var.type() == QVariant::Icon)
+        {
+            return var.value<QIcon>();
+        } 
     }
     else if ( role == Qt::CheckStateRole  )
     {
@@ -198,7 +202,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
         //this stops the color variants from displaying the color as
         // a hex value in the tree
         QVariant var = item->data(index.row(), index.column());
-        if (var.type() == QVariant::Color || var.type() == QVariant::Bool)
+        if (var.type() == QVariant::Color || var.type() == QVariant::Bool || var.type() == QVariant::Icon )
         {
             return QVariant();
         }

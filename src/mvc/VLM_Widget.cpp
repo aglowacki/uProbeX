@@ -1283,6 +1283,12 @@ void VLM_Widget::createMicroProbeTab()
            this,
            SLOT(treeDoubleClicked(const QModelIndex &)));
 
+   connect(m_mpAnnoTreeView,
+           &QTreeView::clicked,
+           this,
+           &VLM_Widget::treeDoubleClicked);
+
+
    m_btnAddMicroProbe = new QPushButton("Add Micro Probe Region");
    connect(m_btnAddMicroProbe,
            SIGNAL(clicked()),

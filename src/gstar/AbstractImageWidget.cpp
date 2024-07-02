@@ -724,22 +724,23 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
 
       if (item != nullptr)
       {
-         QDialog* custom_dialog = item->get_custom_dialog();
-         if(custom_dialog != nullptr)
+         QVariant data = item->data(0, index.column());
+         if (data.type() == QVariant::Color)
          {
-            custom_dialog->show();
-         }
-         else
-         {
-            QVariant data = item->data(0, index.column());
-            if (data.type() == QVariant::Color)
+            QColor color = QColorDialog::getColor(data.toString(), this);
+            if (color.isValid())
             {
-               QColor color = QColorDialog::getColor(data.toString(), this);
-               if (color.isValid())
-               {
-                  item->setData(index, color);
-               }
+               item->setData(index, color);
             }
+         }
+         else if (data.type() == QVariant::Icon)
+         {
+            QDialog* custom_dialog = item->get_custom_dialog();
+            if(custom_dialog != nullptr)
+            {
+               custom_dialog->show();
+            }
+
          }
       }
    }
