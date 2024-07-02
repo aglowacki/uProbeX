@@ -21,7 +21,7 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
 
    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
-   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/compose.png")));
+   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
 /*
    m_mouseOverPixelCoordModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
