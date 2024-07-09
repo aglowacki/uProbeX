@@ -375,7 +375,8 @@ void VLM_Widget::_createSolver()
 
    if (id == ID_LINEAR)
    {
-
+      LinearSolver* ls = new LinearSolver();
+      m_solver->setImpl(ls);
    }
    else if (id == ID_NELDER_MEAD)
    {
