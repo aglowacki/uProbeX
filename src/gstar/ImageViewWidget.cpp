@@ -26,7 +26,7 @@ ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
    m_zoomOutCursor = QCursor(QPixmap(":/images/zoomout.png"));
 
    m_zoomPercent = nullptr;
-   m_mouseLeaveState = true;
+   m_mouseLeaveState = false;
    set_null_mouse_pos = true;
 
 /*   m_widget = parent;
@@ -341,7 +341,7 @@ CoordinateWidget* ImageViewWidget::coordinateWidget()
 void ImageViewWidget::enterEvent(QEvent * event)
 {
 
-   m_mouseLeaveState = false;
+   //m_mouseLeaveState = false;
    QWidget::enterEvent(static_cast<QEnterEvent*>(event));
 
 }
@@ -414,7 +414,7 @@ QPointF ImageViewWidget::getCenterPoint() const
 void ImageViewWidget::leaveEvent(QEvent * event)
 {
 
-   m_mouseLeaveState = true;
+   //m_mouseLeaveState = true;
 
    if(set_null_mouse_pos)
         m_coordWidget -> setnullptr();

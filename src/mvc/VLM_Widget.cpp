@@ -1992,8 +1992,6 @@ void VLM_Widget::restoreMarkerLoaded()
                                 QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
                                 marker[UPROBE_REAL_POS_Y].toDouble()));
 
-      annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                         marker[UPROBE_REAL_POS_Y].toDouble()));
       annotation->setPropertyValue(UPROBE_NAME,QVariant(marker[UPROBE_NAME]));
       annotation->setPropertyValue(UPROBE_PRED_POS_X,marker[UPROBE_PRED_POS_X]);
       annotation->setPropertyValue(UPROBE_PRED_POS_Y,marker[UPROBE_PRED_POS_Y]);

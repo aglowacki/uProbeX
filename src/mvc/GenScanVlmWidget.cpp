@@ -354,6 +354,7 @@ void GenScanVlmWidget::_generate()
     _btn_scan->setEnabled(false);
     QString xml_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".xml";
     QString tif_name =_directory_name+QDir::separator()+"vlm"+QDir::separator()+_gen_name_le->text()+".tif";
+    QString base_tif_name =_gen_name_le->text()+".tif";
     TIFF_Model model;
     if(_background_img_loc_le->text().size() > 0)
     {
@@ -409,7 +410,7 @@ void GenScanVlmWidget::_generate()
         float per_x = std::abs( mx - min_x_mot) / x_tot_mot;
         float px = per_x * f_scene_w;
         int width = itr.second[gstar::UPROBE_WIDTH].toInt();
-        int tlx = px - (width * 0.5);
+        int tlx = -(width * 0.5);
         itr.second[gstar::UPROBE_REAL_POS_X] = QString::number(px);
         itr.second[gstar::UPROBE_LIGHT_POS_X] = QString::number(px);
         itr.second[gstar::UPROBE_RECT_TLX] = QString::number(tlx);
@@ -417,7 +418,7 @@ void GenScanVlmWidget::_generate()
         float per_y = std::abs( my - min_y_mot) / y_tot_mot;
         float py = per_y * f_scene_h;
         int height = itr.second[gstar::UPROBE_HEIGHT].toInt();
-        int tly = py - (height * 0.5);
+        int tly =  -(height * 0.5);
         itr.second[gstar::UPROBE_REAL_POS_Y] = QString::number(py);
         itr.second[gstar::UPROBE_LIGHT_POS_Y] = QString::number(py);
         itr.second[gstar::UPROBE_RECT_TLY] = QString::number(tly);
@@ -427,7 +428,7 @@ void GenScanVlmWidget::_generate()
     {
         model.save_xml(xml_name);
     }
-    emit new_scan_area(tif_name);
+    emit new_scan_area(base_tif_name);
     close();
 
     _btn_browse->setEnabled(true);

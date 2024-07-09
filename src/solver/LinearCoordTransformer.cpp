@@ -10,8 +10,14 @@
 
 LinearCoordTransformer::LinearCoordTransformer() : ITransformer()
 {
-
-
+   _coefs[QSTR_SlopeX] =  1.0;
+   _coefs[QSTR_SlopeY] =  1.0;
+   _coefs[QSTR_InterceptX] =  0.0;
+   _coefs[QSTR_InterceptY] =  0.0;
+   _coefs[QSTR_SlopeXY] =  0.0;
+   _coefs[QSTR_InterceptXY] =  0.0;
+   _coefs[QSTR_SlopeYX] =  0.0;
+   _coefs[QSTR_InterceptYX] =  0.0;
 }
 
 //---------------------------------------------------------------------------
@@ -26,11 +32,7 @@ LinearCoordTransformer::~LinearCoordTransformer()
 QMap<QString, double> LinearCoordTransformer::getAllCoef()
 {
 
-    QMap<QString, double> m_coefs {
-       {STR_m2xfm_x, 0.0 },
-       {STR_m2xfm_y, 0.0 }
-    };
-   return m_coefs;
+   return _coefs;
 
 }
 
@@ -38,16 +40,6 @@ QMap<QString, double> LinearCoordTransformer::getAllCoef()
 
 bool LinearCoordTransformer::Init(QMap<QString, double> globalVars)
 {
-
-    
-    if(globalVars.count(STR_m2xfm_x) > 0)
-    {
-        m_2xfm_x = globalVars[STR_m2xfm_x];
-    }
-    if(globalVars.count(STR_m2xfm_y) > 0)
-    {
-        m_2xfm_y = globalVars[STR_m2xfm_y];
-    }
     
     return true;
 
@@ -58,14 +50,9 @@ bool LinearCoordTransformer::Init(QMap<QString, double> globalVars)
 bool LinearCoordTransformer::getVariable(QString name, double *val)
 {
 
-   if(name == STR_m2xfm_x)
+   if(_coefs.count(name) > 0)
    {
-      *val = m_2xfm_x;
-      return true;
-   }
-   else if(name == STR_m2xfm_y)
-   {
-      *val = m_2xfm_y;
+      *val = _coefs.value(name);
       return true;
    }
   
@@ -78,14 +65,9 @@ bool LinearCoordTransformer::getVariable(QString name, double *val)
 bool LinearCoordTransformer::setVariable(QString name, double val)
 {
 
-   if(name == STR_m2xfm_x)
+   if(_coefs.count(name) > 0)
    {
-      m_2xfm_x= val;
-      return true;
-   }
-   else if(name == STR_m2xfm_y)
-   {
-      m_2xfm_y = val;
+      _coefs[name] = val;
       return true;
    }
  
@@ -102,27 +84,14 @@ void LinearCoordTransformer::transformCommand(double inX,
                                              double *outY,
                                              double *outZ)
 {
-/*
-    *outX = -(
-            ( inX - m_offset_c ) *
-            sin( (m_angle_alpha + m_omega_prime) / 180.0 * M_PI)
-            / sin( (m_omega_prime) / 180.0 * M_PI ) - (inY - m_offset_d)
-            * sin( ( m_omega - m_omega_prime - m_angle_alpha ) / 180.0 * M_PI )
-            / sin( m_omega_prime / 180.0 * M_PI )
-        )  * m_scaling_XFM_X + m_offset_a
-        + (inZ - m_z_offset) * m_z_lin_x - m_2xfm_x;
 
-
-    *outY = -(
-            -(inX - m_offset_c) * sin( m_angle_alpha / 180.0 * M_PI)
-            / sin( m_omega_prime / 180.0 * M_PI) + (inY - m_offset_d)
-            * sin( ( m_omega_prime + m_angle_alpha ) / 180.0 * M_PI)
-            / sin( m_omega_prime / 180.0 * M_PI)
-        ) * m_scaling_XFM_Y + m_offset_b
-        + (inZ - m_z_offset) * m_z_lin_y - m_2xfm_y;
-
+    double xPred = inX * _coefs.value(QSTR_SlopeX) + _coefs.value(QSTR_InterceptX);
+    double yPred = inY * _coefs.value(QSTR_SlopeY) + _coefs.value(QSTR_InterceptY);
+    *outX = xPred + (yPred * _coefs.value(QSTR_SlopeYX) + _coefs.value(QSTR_InterceptYX));
+    *outY = yPred + (xPred * _coefs.value(QSTR_SlopeXY) + _coefs.value(QSTR_InterceptXY));
+    
     *outZ = 0.0;
-*/
+
 }
 
 //---------------------------------------------------------------------------

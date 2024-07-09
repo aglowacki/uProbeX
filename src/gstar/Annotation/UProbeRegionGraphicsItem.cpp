@@ -874,8 +874,8 @@ void UProbeRegionGraphicsItem::updateModel()
                                                   &bottomRightY1,
                                                   &bottomRightZ1);
 
-         m_widthProp->setValue(topLeftX1-topRightX1);
-         m_heightProp->setValue(topRightY1-bottomRightY1);
+         m_widthProp->setValue(topRightX1-topLeftX1);
+         m_heightProp->setValue(bottomRightY1-topRightY1);
 
       }
 
