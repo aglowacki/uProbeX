@@ -34,16 +34,18 @@ protected:
 
    virtual void enterEvent(QEnterEvent *event) override 
    {
-      if(_anim_enabled)
+      if(_anim_enabled && false == _running)
       {
+         _running = true;
          animateSlideOut();
       }
    }
 
    virtual void leaveEvent(QEvent *event) override 
    {
-      if(_anim_enabled)
+      if(_anim_enabled && false == _running)
       {
+         _running = true;
          animateSlideIn();  
       }
    }
@@ -71,12 +73,18 @@ private slots:
       _anim_show->start();
    }
 
+   void onFinished()
+   {
+      _running = false;
+   }
+
 private:
    QWidget* _anim_widget;
    QPropertyAnimation *_anim_hide;
    QPropertyAnimation *_anim_show;
    bool _anim_enabled;
    bool _first;
+   bool _running;
    int _saved_width;
 };
 
