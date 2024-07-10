@@ -8,7 +8,7 @@
 
 //---------------------------------------------------------------------------
 
-FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObject* parent) : QAbstractTableModel(parent)
+FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObject* parent) : QAbstractItemModel(parent)
 {
     // Initialize header data
     m_headers[HEADERS::SYMBOL] = tr("Symbol");

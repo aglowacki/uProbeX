@@ -19,7 +19,7 @@
  * @brief model to control the solver table
  */
 class FitElementsTableModel
-: public QAbstractTableModel
+: public QAbstractItemModel
 {
 
    Q_OBJECT
