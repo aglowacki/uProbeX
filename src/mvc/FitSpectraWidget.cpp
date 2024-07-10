@@ -468,16 +468,21 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra<double>*) & _ev);
         if (snipback)
         {
+            Range range = get_energy_range(_int_spec->size(), &fit_params);
             // TODO: Look into why memory access violation happens when streaming
             _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
                 fit_params[STR_ENERGY_OFFSET].value,
                 fit_params[STR_ENERGY_SLOPE].value,
                 fit_params[STR_ENERGY_QUADRATIC].value,
                 fit_params[STR_SNIP_WIDTH].value,
-                0, //spectra energy start range
-                _int_spec->size() - 1);
+                range.min,
+                range.max);
 
             _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+            //TESTING
+            //_spectra_background = snip_background2<double>((Spectra<double>*)_int_spec, fit_params[STR_SNIP_WIDTH].value);
+            //_spectra_widget->append_spectra("SNIP", &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
 
         }
         _spectra_widget->setXLabel("Energy (keV)");
@@ -892,15 +897,20 @@ void FitSpectraWidget::Fit_Spectra_Click()
             {
                 if (fit_params->at(STR_SNIP_WIDTH).bound_type != E_Bound_Type::FIXED)
                 {
+                    Range range = get_energy_range(_fit_spec.size(), fit_params);
                     _spectra_background = snip_background<double>((Spectra<double>*) & _fit_spec,
                         fit_params->at(STR_ENERGY_OFFSET).value,
                         fit_params->at(STR_ENERGY_SLOPE).value,
                         fit_params->at(STR_ENERGY_QUADRATIC).value,
                         fit_params->at(STR_SNIP_WIDTH).value,
-                        0, //spectra energy start range
-                        _fit_spec.size() - 1);
+                        range.min,
+                        range.max);
 
                     _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
+                    //TESTING
+                    //_spectra_background = snip_background2<double>((Spectra<double>*)_int_spec, fit_params->at(STR_SNIP_WIDTH).value);
+                    //_spectra_widget->append_spectra("SNIP", &_spectra_background, (data_struct::Spectra<double>*) & _ev);
                 }
             }
             emit signal_finished_fit();		
