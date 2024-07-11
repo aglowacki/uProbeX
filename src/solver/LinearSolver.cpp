@@ -93,7 +93,7 @@ void LinearSolver::setTransformer(gstar::ITransformer* transformer)
 
 bool LinearSolver::run()
 {
-
+   return false;
 }
 
 //--------------------------------------------------------------------------
