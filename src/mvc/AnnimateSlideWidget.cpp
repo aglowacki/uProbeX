@@ -25,7 +25,7 @@ void AnnimateSlideWidget::setAnimWidget(QWidget* w, QWidget* container_widget)
         _anim_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         _anim_hide = new QPropertyAnimation(_anim_widget, "minimumWidth");
         connect(_anim_hide, &QPropertyAnimation::finished, this, &AnnimateSlideWidget::onFinished);
-        _anim_hide->setDuration(100);
+        _anim_hide->setDuration(250);
 
         _anim_show = new QPropertyAnimation(_anim_widget, "minimumWidth");
         connect(_anim_show, &QPropertyAnimation::finished, this, &AnnimateSlideWidget::onFinished);
