@@ -187,7 +187,7 @@ void ScanCorrCoefDialog::onRun()
     {
         bool use_elements = _ck_use_elements->isChecked();
         bool use_scalers = _ck_use_scalers->isChecked();
-        bool use_rois = _ck_use_rois->isChecked();
+        //bool use_rois = _ck_use_rois->isChecked();
 
         std::vector<std::string> total_names;
         std::vector<std::pair<std::string, std::string>> el_pair_names;
