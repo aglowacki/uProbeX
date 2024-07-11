@@ -130,6 +130,7 @@ double proc_corr_coef(MapsH5Model* model, std::string analysis_type, double rest
 {
     data_struct::ArrayXXr<float> x_map;
     data_struct::ArrayXXr<float> y_map;
+    assert(model != nullptr);
 
     data_struct::Fit_Count_Dict<float> fit_counts;
     model->getAnalyzedCounts(analysis_type, fit_counts);
@@ -282,9 +283,21 @@ void ScanCorrCoefDialog::onRun()
             }
         //}
         delete view;
+
+        QDir dir = _model->getDir();
+        dir.cdUp();
+        dir.cdUp();
+        dir.cd("output");
+        dir.mkdir(STR_SCATTER_PLOT);
+        dir.cd(STR_SCATTER_PLOT);
+        if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath())))
+        {
+            logE << "Failed to open dir " << dir.absolutePath().toStdString() << "\n";
+        }
     }
     _running = false;
     _btn_run->setEnabled(true);
+    close();
 
 }
 

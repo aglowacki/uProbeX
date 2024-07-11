@@ -158,6 +158,8 @@ void ScatterPlotView::exportPngCsv()
         dir.cdUp();
         dir.cdUp();
         dir.cd("output");
+        dir.mkdir(STR_SCATTER_PLOT);
+        dir.cd(STR_SCATTER_PLOT);
 
         QString roi_name = _cb_roi->currentText();
         QString apath;
@@ -173,13 +175,6 @@ void ScatterPlotView::exportPngCsv()
         if (false == pixmap.save(png_path, "PNG"))
         {
             logE << "Could not save PNG for " << png_path.toStdString() << "\n";
-        }
-        else
-        {
-            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath())))
-            {
-                logE << "Failed to open dir " << dir.absolutePath().toStdString() << "\n";
-            }
         }
 
         QString csv_path = QDir::cleanPath(apath + ".csv");
@@ -236,7 +231,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                     {
                         for (int x = 0; x < x_map.cols(); x++)
                         {
-                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << x_motor[x] << ","<< y_motor[y]<< "\n";
+                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "," << x_motor[x] << ","<< y_motor[y]<< "\n";
                         }
                     }
                 }

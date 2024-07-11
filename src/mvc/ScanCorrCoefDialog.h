@@ -29,7 +29,7 @@
 #include "mvc/MapsH5Model.h"
 
 //---------------------------------------------------------------------------
-
+const QString STR_SCATTER_PLOT = "ScatterPlot";
 
 class ScanCorrCoefDialog : public QWidget
 {
