@@ -20,16 +20,21 @@
 #include <preferences/ProfileTable.h>
 #include <preferences/Profile.h>
 #include <preferences/SolverParameterWidget.h>
-#include <solver/PythonSolver.h>
+//#include <solver/PythonSolver.h>
 #include <mvc/SolverWidget.h>
 #include <solver/SV_CoordTransformer.h>
 #include <gstar/LinearTransformer.h>
+#include <solver/LinearCoordTransformer.h>
 
 
 const QString QSTR_2IDE_COORD_TRANS = "2IDE Coordinate Transform";
 const QString QSTR_2IDE_COORD_TRANS_DESC = "Coordiante transform for translating from Visible light microscope to X-Ray microprobe.";
 const QString QSTR_LINEAR_COORD_TRANS = "Linear Coordinate Transform";
 const QString QSTR_LINEAR_COORD_TRANS_DESC = "General Linear Coordinate Transform";
+const QString QSTR_LINEAR_COORD_TRANS_2 = "Linear Coordinate Transform 2";
+const QString QSTR_LINEAR_COORD_TRANS_DESC_2 = "General Linear Coordinate Transform with extra slope";
+
+
 
 //---------------------------------------------------------------------------
 
@@ -208,59 +213,23 @@ private:
     */
    ProfileTable* m_profileTable;
 
-   /**
-    * @brief m_openPythonAction
-    */
-   QPushButton* m_openPythonButton;
+   //QPushButton* m_openPythonButton;
+   //QLabel* m_lblOpenPthon;
+   //QLabel* m_lblP;
 
-   /**
-    * @brief m_lblOpenPthon
-    */
-   QLabel* m_lblOpenPthon;
-
-   /**
-    * @brief m_lblP
-    */
-   QLabel* m_lblP;
-
-   /**
-    * @brief m_lblPofileTable
-    */
    QLabel* m_lblPofileTable;
 
-   /**
-    * @brief m_lblTitle
-    */
    QLabel* m_lblTitle;
+   
+   //QLineEdit* m_pythonFuncName;
+   //QLineEdit* m_lePythonPath;
 
-   /**
-    * @brief m_pythonFuncName
-    */
-   QLineEdit* m_pythonFuncName;
-
-   /**
-    * @brief m_lePythonPath
-    */
-   QLineEdit* m_lePythonPath;
-
-   /**
-    * @brief m_profiles
-    */
    std::vector<Profile> m_profiles;
 
-   /**
-    * @brief m_fileName
-    */
    QString m_fileName;
 
-   /**
-    * @brief m_filePath
-    */
    QString m_filePath;
 
-   /**
-    * @brief m_fileInfo
-    */
    QFileInfo m_fileInfo;
 
    QPushButton *m_btnRunSolver;
@@ -269,12 +238,9 @@ private:
 
    QPushButton *m_btnCancel;
 
-   /**
-    * @brief m_pythonSolverTable
-    */
-   SolverParameterWidget* m_pythonSolverWidget;
+   SolverParameterWidget* _solverParamWidget;
 
-   PythonSolver *m_solver;
+   //PythonSolver *m_solver;
 
    QList< QMap<QString, double> > *m_coordPoints;
 
