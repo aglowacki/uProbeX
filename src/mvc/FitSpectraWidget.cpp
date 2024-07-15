@@ -121,7 +121,6 @@ void FitSpectraWidget::createLayout()
     _spectra_widget = new SpectraWidget();
 
     _spectra_dock = new QDockWidget("Spectra", this);
-	//_spectra_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     _spectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_spectra_dock->setWidget(_spectra_widget);
 
@@ -207,9 +206,17 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_btn_add_element, 3, 0);
     add_element_grid_layout->addWidget(_btn_del_element, 3, 1);
 
-    QHBoxLayout* elements_layout = new QHBoxLayout();
+    QLayout* elements_layout;
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    {
+        elements_layout = new QVBoxLayout();
+    }
+    else
+    {
+        elements_layout = new QHBoxLayout();
+    }
     elements_layout->addWidget(_fit_elements_table);
-    elements_layout->addLayout(add_element_grid_layout);
+    elements_layout->addItem(add_element_grid_layout);
 
     QWidget* element_widget = new QWidget();
     element_widget->setLayout(elements_layout);
@@ -233,10 +240,12 @@ void FitSpectraWidget::createLayout()
 
     QGridLayout *grid_layout = new QGridLayout();
 
-	QSplitter* splitter = new QSplitter();
+    QLayout * orient_layout;
+	//QSplitter* splitter = new QSplitter();
     if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
     {
-        splitter->setOrientation(Qt::Horizontal);
+        orient_layout = new QHBoxLayout();
+        //splitter->setOrientation(Qt::Horizontal);
         grid_layout->addWidget(_btnSsettings, 0, 0);
         grid_layout->addWidget(_cb_opttimizer, 0, 1);
 
@@ -251,8 +260,8 @@ void FitSpectraWidget::createLayout()
     }
     else
     {
-	    splitter->setOrientation(Qt::Vertical);
-
+        orient_layout = new QVBoxLayout();
+	    //splitter->setOrientation(Qt::Vertical);
         grid_layout->addWidget(_btnSsettings, 0, 0);
         grid_layout->addWidget(_cb_opttimizer, 0, 1);
         grid_layout->addWidget(_chk_auto_model, 0, 2);
@@ -274,14 +283,17 @@ void FitSpectraWidget::createLayout()
 	QWidget* tab_and_buttons_widget = new QWidget();
 	tab_and_buttons_widget->setLayout(vlayout_tab);
 
-	splitter->addWidget(_spectra_dock);
-	splitter->setStretchFactor(0, 1);
-	splitter->addWidget(tab_and_buttons_widget);
+    orient_layout->addWidget(_spectra_dock);
+    orient_layout->addWidget(tab_and_buttons_widget);
+//	splitter->addWidget(_spectra_dock);
+//	splitter->setStretchFactor(0, 1);
+//	splitter->addWidget(tab_and_buttons_widget);
 
     optimizer_changed(STR_HYBRID_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
-	layout->addWidget(splitter);
+//	layout->addWidget(splitter);
+	layout->addItem(orient_layout);
     layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
