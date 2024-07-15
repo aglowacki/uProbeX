@@ -56,7 +56,7 @@ void ExportMapsDialog::createLayout()
     _export_png = new QCheckBox("Save PNG");
     _export_png->setChecked(true);
 
-    _export_ascii = new QCheckBox("Save ASCII");
+    _export_ascii = new QCheckBox("Save CSV");
     _export_ascii->setChecked(false);
 
     _export_all = new QCheckBox("Exports all elements: Unchecked exports only elements in view");

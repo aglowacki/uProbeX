@@ -2184,8 +2184,8 @@ void MapsElementsWidget::on_export_images()
     }
     if (_export_maps_dialog->get_save_ascii())
     {
-        ascii_dir.mkdir("ASCII");
-        ascii_dir.cd("ASCII");
+        ascii_dir.mkdir("CSV");
+        ascii_dir.cd("CSV");
 
         std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
 
@@ -2318,11 +2318,59 @@ void MapsElementsWidget::on_export_images()
                         }
                         out_stream << "\n";
                     }
+
+                    out_stream << "\n";
+                    // check if there are any ROI's and export them
+                    const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+                    for (auto itr_roi : rois)
+                    {
+                        out_stream << "ROI: "<<itr_roi.first<<"\n";
+                        for (auto& p_itr : itr_roi.second.pixel_list)
+                        {
+                            int yidx = p_itr.second;
+                            int xidx = p_itr.first;
+                            out_stream << yidx << " , " << xidx << " , " << y_axis.at(yidx) << " , " << x_axis.at(xidx) << " , ";
+
+                            for (auto& e_itr : element_counts)
+                            {
+                                float calib_val = 1.0;
+                                double val = 1.0;
+                                float e_val = (e_itr.second)(yidx, xidx);
+                                if (a_itr == STR_FIT_ROI || n_itr == "Counts")
+                                {
+                                    val = e_val;
+                                }
+                                else
+                                {
+                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    {
+                                        if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                        {
+                                            calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+                                            float n_val = (*normalizer)(yidx, xidx);
+                                            val = e_val / n_val / calib_val;
+                                        }
+                                        else
+                                        {
+                                            val = e_val;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val = e_val;
+                                    }
+                                }
+                                out_stream << val << " , ";
+                            }
+                            out_stream << "\n";
+                        }    
+                        out_stream << "\n";                
+                    }
                     out_stream.close();
                 }
                 else
                 {
-                    logE << "Could not save PNG for " << save_file_name << "\n";
+                    logE << "Could not save file for " << save_file_name << "\n";
                 }
 
                 ascii_dir.cdUp();
