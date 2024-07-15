@@ -738,6 +738,10 @@ void FitSpectraWidget::del_element()
         break;
     }
     update_spectra_top_axis();
+    if(_chk_auto_model->isChecked())
+    {
+        Model_Spectra_Click();
+    }
 }
 
 //---------------------------------------------------------------------------
