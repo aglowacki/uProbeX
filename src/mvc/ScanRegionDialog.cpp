@@ -32,46 +32,72 @@ ScanRegionDialog::~ScanRegionDialog()
 
 void ScanRegionDialog::_createLayout()
 {
-	rowLabel = new QLabel("Rows");
-	colLabel = new QLabel("Cols");
-	sbRow = new QSpinBox();
-	sbCol = new QSpinBox();
 
-	sbRow->setMinimum(1);
-	sbRow->setMaximum(6);
-	sbRow->setSingleStep(1);
-	sbRow->setValue(1);
+	_scan_name = new QLineEdit(" ");
+	
+	_scan_type = new QComboBox();
 
-	sbCol->setMinimum(1);
-	sbCol->setMaximum(6);
-	sbCol->setSingleStep(1);
-	sbCol->setValue(1);
+	_scan_options = new QListWidget();
 
-	updateBtn = new QPushButton("Update");
-	cancelBtn = new QPushButton("Cancel");
-	connect(updateBtn, SIGNAL(pressed()), this, SLOT(onUpdate()));
-	connect(cancelBtn, SIGNAL(pressed()), this, SLOT(close()));
+	_btn_update = new QPushButton("Update");
+	_btn_update_and_queue = new QPushButton("Update and Queue");
+	_btn_cancel = new QPushButton("Cancel");
+	connect(_btn_update, SIGNAL(pressed()), this, SLOT(onUpdate()));
+	connect(_btn_update_and_queue, SIGNAL(pressed()), this, SLOT(onUpdateAndQueue()));
+	connect(_btn_cancel, SIGNAL(pressed()), this, SLOT(close()));
 
-	QGridLayout *mainLayout = new QGridLayout;
-	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-	mainLayout->addWidget(rowLabel, 0, 0);
-	mainLayout->addWidget(colLabel, 0, 1);
-	mainLayout->addWidget(sbRow, 1, 0);
-	mainLayout->addWidget(sbCol, 1, 1);
-	mainLayout->addWidget(updateBtn, 2, 0);
-	mainLayout->addWidget(cancelBtn, 2, 1);
-	mainLayout->setRowStretch(3, 1);
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	
+	QHBoxLayout* name_layout = new QHBoxLayout();
+	name_layout->addWidget(new QLabel("Scan Name: "));
+	name_layout->addWidget(_scan_name);
 
-	setLayout(mainLayout);
+	QHBoxLayout* type_layout = new QHBoxLayout();
+	type_layout->addWidget(new QLabel("Scan Type: "));
+	type_layout->addWidget(_scan_type);
+
+	QHBoxLayout* button_layout = new QHBoxLayout();
+	button_layout->addWidget(_btn_update);
+	button_layout->addWidget(_btn_update_and_queue);
+	button_layout->addWidget(_btn_cancel);
+
+
+	main_layout->addItem(name_layout);
+	main_layout->addItem(type_layout);
+	main_layout->addWidget(_scan_options);
+	main_layout->addItem(button_layout);
+
+	setLayout(main_layout);
 
 	setWindowTitle("Scan Region");
 }
 
 //---------------------------------------------------------------------------
 
+void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
+{
+	for(auto &itr : anno_list)
+	{
+		if(itr->getName() == DEF_STR_DISPLAY_NAME)
+		{
+			_scan_name->setText(itr->getValue().toString());
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+
 void ScanRegionDialog::onUpdate()
 {
-	emit NewScan();
+	emit ScanUpdated();
+	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionDialog::onUpdateAndQueue()
+{
+	emit ScanUpdated();
 	close();
 }
 

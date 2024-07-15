@@ -75,7 +75,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         val = 1;
     }
     _scatter_series->setMarkerSize(val);
-    //_scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
+    _scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
     _chart->addSeries(_scatter_series);
     _display_log10 = display_log10;
     if (_display_log10)
@@ -158,6 +158,8 @@ void ScatterPlotView::exportPngCsv()
         dir.cdUp();
         dir.cdUp();
         dir.cd("output");
+        dir.mkdir(STR_SCATTER_PLOT);
+        dir.cd(STR_SCATTER_PLOT);
 
         QString roi_name = _cb_roi->currentText();
         QString apath;
@@ -173,13 +175,6 @@ void ScatterPlotView::exportPngCsv()
         if (false == pixmap.save(png_path, "PNG"))
         {
             logE << "Could not save PNG for " << png_path.toStdString() << "\n";
-        }
-        else
-        {
-            if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath())))
-            {
-                logE << "Failed to open dir " << dir.absolutePath().toStdString() << "\n";
-            }
         }
 
         QString csv_path = QDir::cleanPath(apath + ".csv");
@@ -236,7 +231,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                     {
                         for (int x = 0; x < x_map.cols(); x++)
                         {
-                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << x_motor[x] << ","<< y_motor[y]<< "\n";
+                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "," << x_motor[x] << ","<< y_motor[y]<< "\n";
                         }
                     }
                 }
@@ -501,7 +496,6 @@ void ScatterPlotView::_updatePlot()
         if (_getXY_Maps(x_map, y_map))
         {
             _chart->removeSeries(_scatter_series);
-            _scatter_series->clear();
 
             if (_display_log10)
             {
@@ -541,18 +535,28 @@ void ScatterPlotView::_updatePlot()
             x_arr.resize(x_map.cols() * x_map.rows());
             y_arr.resize(x_map.cols() * x_map.rows());
             int n = 0;
-
+            QList<QPointF> plist;
             for (int y = 0; y < x_map.rows(); y++)
             {
                 for (int x = 0; x < x_map.cols(); x++)
                 {
                     x_arr(n) = (double)x_map(y, x);
                     y_arr(n) = (double)y_map(y, x);
-                    _scatter_series->append(x_map(y,x), y_map(y,x));
+                    plist.append(QPointF(x_map(y,x),y_map(y,x))); 
                     n++;
                 }
             }
-
+            int namt = x_map.size() * y_map.size();
+            int oamt = _scatter_series->points().size();
+            if(namt != oamt)
+            {
+                _scatter_series->clear();
+                _scatter_series->append(plist);
+            }
+            else
+            {
+                _scatter_series->replace(plist);
+            }
             double corr_coef = find_coefficient(x_arr, y_arr);
             _lb_corr_coef->setText(QString::number(corr_coef));
             _scatter_series->setBorderColor(Qt::transparent);

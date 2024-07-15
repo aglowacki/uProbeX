@@ -121,7 +121,6 @@ void FitSpectraWidget::createLayout()
     _spectra_widget = new SpectraWidget();
 
     _spectra_dock = new QDockWidget("Spectra", this);
-	//_spectra_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     _spectra_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_spectra_dock->setWidget(_spectra_widget);
 
@@ -207,9 +206,17 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_btn_add_element, 3, 0);
     add_element_grid_layout->addWidget(_btn_del_element, 3, 1);
 
-    QHBoxLayout* elements_layout = new QHBoxLayout();
+    QLayout* elements_layout;
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    {
+        elements_layout = new QVBoxLayout();
+    }
+    else
+    {
+        elements_layout = new QHBoxLayout();
+    }
     elements_layout->addWidget(_fit_elements_table);
-    elements_layout->addLayout(add_element_grid_layout);
+    elements_layout->addItem(add_element_grid_layout);
 
     QWidget* element_widget = new QWidget();
     element_widget->setLayout(elements_layout);
@@ -232,18 +239,42 @@ void FitSpectraWidget::createLayout()
             SLOT(check_auto_model(int)));
 
     QGridLayout *grid_layout = new QGridLayout();
-    grid_layout->addWidget(_cb_opttimizer, 0, 0);
-    grid_layout->addWidget(_btn_fit_spectra, 0, 1);
-    grid_layout->addWidget(_chk_auto_model, 0, 2);
-    grid_layout->addWidget(_btn_export_parameters, 0, 3);
-    grid_layout->addWidget(_btnSsettings, 1, 0);
-    grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
-    grid_layout->addWidget(_btn_model_spectra, 1, 2);
-    grid_layout->addWidget(_btn_export_csv, 1, 3);
-    grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
-    //grid_layout->setSpacing(0);
-	//grid_layout->setContentsMargins(0, 0, 0, 0);
 
+    QLayout * orient_layout;
+	//QSplitter* splitter = new QSplitter();
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    {
+        orient_layout = new QHBoxLayout();
+        //splitter->setOrientation(Qt::Horizontal);
+        grid_layout->addWidget(_btnSsettings, 0, 0);
+        grid_layout->addWidget(_cb_opttimizer, 0, 1);
+
+        grid_layout->addWidget(_btn_fit_spectra, 1, 0);
+        grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
+
+        grid_layout->addWidget(_chk_auto_model, 2, 0);
+        grid_layout->addWidget(_btn_model_spectra, 2, 1);
+
+        grid_layout->addWidget(_btn_export_csv, 3, 0);
+        grid_layout->addWidget(_btn_export_parameters, 3, 1);
+    }
+    else
+    {
+        orient_layout = new QVBoxLayout();
+	    //splitter->setOrientation(Qt::Vertical);
+        grid_layout->addWidget(_btnSsettings, 0, 0);
+        grid_layout->addWidget(_cb_opttimizer, 0, 1);
+        grid_layout->addWidget(_chk_auto_model, 0, 2);
+        grid_layout->addWidget(_btn_export_csv, 0, 3);
+
+        grid_layout->addWidget(_btn_fit_spectra, 1, 0);
+        grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
+        grid_layout->addWidget(_btn_model_spectra, 1, 2);
+        grid_layout->addWidget(_btn_export_parameters, 1, 3);
+
+        grid_layout->addItem(new QSpacerItem(9999, 10, QSizePolicy::Maximum), 0, 77);
+    
+    }
 	QVBoxLayout* vlayout_tab = new QVBoxLayout();
 	vlayout_tab->addWidget(_fit_params_tab_widget);
 	vlayout_tab->addItem(grid_layout);
@@ -252,23 +283,17 @@ void FitSpectraWidget::createLayout()
 	QWidget* tab_and_buttons_widget = new QWidget();
 	tab_and_buttons_widget->setLayout(vlayout_tab);
 
-	QSplitter* splitter = new QSplitter();
-    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
-    {
-        splitter->setOrientation(Qt::Horizontal);
-    }
-    else
-    {
-	    splitter->setOrientation(Qt::Vertical);
-    }
-	splitter->addWidget(_spectra_dock);
-	splitter->setStretchFactor(0, 1);
-	splitter->addWidget(tab_and_buttons_widget);
+    orient_layout->addWidget(_spectra_dock);
+    orient_layout->addWidget(tab_and_buttons_widget);
+//	splitter->addWidget(_spectra_dock);
+//	splitter->setStretchFactor(0, 1);
+//	splitter->addWidget(tab_and_buttons_widget);
 
     optimizer_changed(STR_HYBRID_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
-	layout->addWidget(splitter);
+//	layout->addWidget(splitter);
+	layout->addItem(orient_layout);
     layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
@@ -455,16 +480,21 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, _int_spec, (data_struct::Spectra<double>*) & _ev);
         if (snipback)
         {
+            Range range = get_energy_range(_int_spec->size(), &fit_params);
             // TODO: Look into why memory access violation happens when streaming
             _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
                 fit_params[STR_ENERGY_OFFSET].value,
                 fit_params[STR_ENERGY_SLOPE].value,
                 fit_params[STR_ENERGY_QUADRATIC].value,
                 fit_params[STR_SNIP_WIDTH].value,
-                0, //spectra energy start range
-                _int_spec->size() - 1);
+                range.min,
+                range.max);
 
             _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+            //TESTING
+            //_spectra_background = snip_background2<double>((Spectra<double>*)_int_spec, fit_params[STR_SNIP_WIDTH].value);
+            //_spectra_widget->append_spectra("SNIP", &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
 
         }
         _spectra_widget->setXLabel("Energy (keV)");
@@ -720,6 +750,10 @@ void FitSpectraWidget::del_element()
         break;
     }
     update_spectra_top_axis();
+    if(_chk_auto_model->isChecked())
+    {
+        Model_Spectra_Click();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -879,15 +913,20 @@ void FitSpectraWidget::Fit_Spectra_Click()
             {
                 if (fit_params->at(STR_SNIP_WIDTH).bound_type != E_Bound_Type::FIXED)
                 {
+                    Range range = get_energy_range(_fit_spec.size(), fit_params);
                     _spectra_background = snip_background<double>((Spectra<double>*) & _fit_spec,
                         fit_params->at(STR_ENERGY_OFFSET).value,
                         fit_params->at(STR_ENERGY_SLOPE).value,
                         fit_params->at(STR_ENERGY_QUADRATIC).value,
                         fit_params->at(STR_SNIP_WIDTH).value,
-                        0, //spectra energy start range
-                        _fit_spec.size() - 1);
+                        range.min,
+                        range.max);
 
                     _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
+
+                    //TESTING
+                    //_spectra_background = snip_background2<double>((Spectra<double>*)_int_spec, fit_params->at(STR_SNIP_WIDTH).value);
+                    //_spectra_widget->append_spectra("SNIP", &_spectra_background, (data_struct::Spectra<double>*) & _ev);
                 }
             }
             emit signal_finished_fit();		
@@ -1107,6 +1146,7 @@ void FitSpectraWidget::check_auto_model(int state)
     if(state == Qt::Checked)
     {
         _btn_model_spectra->setEnabled(false);
+        Model_Spectra_Click();
         connect(_fit_params_table_model,
                 SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
                 this,

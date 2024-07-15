@@ -30,5 +30,7 @@
 		<file>images/grid.png</file>
         <file>images/question.png</file>
         <file>images/gear.png</file>
+        <file>images/compose.png</file>
+        <file>images/editing.png</file>
     </qresource>
 </RCC>

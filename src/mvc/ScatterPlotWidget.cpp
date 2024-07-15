@@ -276,6 +276,20 @@ void ScatterPlotWidget::onSavePng()
     {
         itr->exportPngCsv();
     }
+    MapsH5Model* model = _plot_view_list.front()->getModel();
+    if(model != nullptr)
+    {
+        QDir dir = model->getDir();
+        dir.cdUp();
+        dir.cdUp();
+        dir.cd("output");
+        dir.mkdir(STR_SCATTER_PLOT);
+        dir.cd(STR_SCATTER_PLOT);
+        if (false == QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath())))
+        {
+            logE << "Failed to open dir " << dir.absolutePath().toStdString() << "\n";
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

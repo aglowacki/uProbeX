@@ -18,6 +18,10 @@ using namespace gstar;
 ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
+
+   connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
+
+   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
 /*
    m_mouseOverPixelCoordModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
@@ -60,6 +64,7 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    initialScale();
    updateStringSize();
 */
+
 }
 
 //---------------------------------------------------------------------------
@@ -108,6 +113,15 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(QMap<QString, QString>& marker,
 
 //---------------------------------------------------------------------------
 
+const QString ScanRegionGraphicsItem::displayName() const
+{
+
+   return QString("Scan");
+
+}
+
+//---------------------------------------------------------------------------
+
 ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 {
    ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem();
@@ -116,6 +130,23 @@ ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
    newRegion->m_rect = m_rect;
 
    return newRegion;
+}
+
+//---------------------------------------------------------------------------
+
+QDialog* ScanRegionGraphicsItem::get_custom_dialog() 
+{
+   _scan_dialog.updateProps(m_data);
+   return &_scan_dialog; 
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionGraphicsItem::onScanUpdated()
+{
+
+   setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
+
 }
 /*
 //---------------------------------------------------------------------------

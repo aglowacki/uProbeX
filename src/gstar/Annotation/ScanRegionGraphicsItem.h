@@ -33,6 +33,8 @@ namespace gstar
 class ScanRegionGraphicsItem : public UProbeRegionGraphicsItem
 {
 
+Q_OBJECT
+
 public:
 
    /**
@@ -61,7 +63,9 @@ public:
     */
    virtual ScanRegionGraphicsItem* cloneRegion();
 
-   virtual QDialog* get_custom_dialog() { return &_scan_dialog; }
+   virtual QDialog* get_custom_dialog();
+
+   const QString displayName() const;
 /*
    QRectF boundingRect() const;
 
@@ -143,6 +147,11 @@ protected:
 
    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 */
+
+public slots:
+
+   void onScanUpdated(); 
+
 private:
    ScanRegionDialog _scan_dialog;
 

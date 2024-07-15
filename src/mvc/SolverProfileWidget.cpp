@@ -13,7 +13,7 @@
 #include <QRadioButton>
 #include <QMessageBox>
 
-#include <core/PythonLoader.h>
+//#include <core/PythonLoader.h>
 
 //---------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ SolverProfileWidget::SolverProfileWidget(QWidget* parent) : QDialog(parent)
     m_currentProfileIndex = 0;
     m_coordPoints = nullptr;
     m_solverWidget = nullptr;
-    m_solver = nullptr;
+   //m_solver = nullptr;
     createCompontent();
     createLayOut();
     addDefaultTransformers();
@@ -49,8 +49,8 @@ void SolverProfileWidget::addProfileItem(QString name, QString desc)
 
    m_profiles.push_back(profile);
 
-   m_pythonSolverWidget -> removeCoefficientItems();
-   m_pythonSolverWidget -> removeOptionItems();
+   _solverParamWidget -> removeCoefficientItems();
+   _solverParamWidget -> removeOptionItems();
 
 }
 
@@ -95,8 +95,8 @@ void SolverProfileWidget::addProfile(QString name, QString desc, QMap<QString, d
             SLOT(addProfileItem(QString, QString)));
     }
 
-    m_pythonSolverWidget->removeCoefficientItems();
-    m_pythonSolverWidget->removeOptionItems();
+    _solverParamWidget->removeCoefficientItems();
+    _solverParamWidget->removeOptionItems();
 
 }
 
@@ -107,7 +107,7 @@ void SolverProfileWidget::coefficientItemChanged()
 {
     if(m_profiles.size() > 0)
     {
-        m_profiles[m_currentProfileIndex].setCoefficientAttrs(m_pythonSolverWidget -> getCoefficientAttrsList());
+        m_profiles[m_currentProfileIndex].setCoefficientAttrs(_solverParamWidget -> getCoefficientAttrsList());
     }
 }
 
@@ -135,12 +135,12 @@ void SolverProfileWidget::createCompontent()
         this,
         SLOT(switchProfileItem(const QItemSelection&, const QItemSelection&)));
 
-    m_pythonSolverWidget = new SolverParameterWidget();
-    connect(m_pythonSolverWidget,
+    _solverParamWidget = new SolverParameterWidget();
+    connect(_solverParamWidget,
         SIGNAL(coefficientItemChanged()),
         this,
         SLOT(coefficientItemChanged()));
-    connect(m_pythonSolverWidget,
+    connect(_solverParamWidget,
         SIGNAL(optionItemChanged()),
         this,
         SLOT(optionItemChanged()));
@@ -151,7 +151,7 @@ void SolverProfileWidget::createCompontent()
 
     m_lblPofileTable = new QLabel("Profile:");
     m_lblPofileTable->setFont(font);
-
+/*
     m_lblOpenPthon = new QLabel("Python Script Path:");
     m_lblOpenPthon->setFont(font);
 
@@ -168,6 +168,7 @@ void SolverProfileWidget::createCompontent()
     m_lblTitle->setFont(font);
 
     m_pythonFuncName = new QLineEdit("");
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -176,9 +177,10 @@ void SolverProfileWidget::addDefaultTransformers()
 {
     SV_CoordTransformer ctrans;
     gstar::LinearTransformer ltrans;
+    LinearCoordTransformer ltrans2;
     addProfile(QSTR_2IDE_COORD_TRANS, QSTR_2IDE_COORD_TRANS_DESC, ctrans.getAllCoef());
     addProfile(QSTR_LINEAR_COORD_TRANS, QSTR_LINEAR_COORD_TRANS_DESC, ltrans.getAllCoef() );
-
+    addProfile(QSTR_LINEAR_COORD_TRANS_2, QSTR_LINEAR_COORD_TRANS_DESC_2, ltrans2.getAllCoef() );
 }
 
 //---------------------------------------------------------------------------
@@ -190,6 +192,7 @@ void SolverProfileWidget::createLayOut()
    mainLayout->addRow(m_lblPofileTable);
    mainLayout->addRow(m_profileTable);
 
+/*
    mainLayout->addRow(m_lblOpenPthon);
    QHBoxLayout* hLayout = new QHBoxLayout();
    hLayout->addWidget(m_openPythonButton);
@@ -200,8 +203,8 @@ void SolverProfileWidget::createLayOut()
    // mainLayout->addRow(m_pythonFuncName);
    mainLayout->addRow(
          new QLabel("The python solver must have solver and transform functions !"));
-   mainLayout->addRow(m_pythonSolverWidget);
-
+         */
+   mainLayout->addRow(_solverParamWidget);
    m_btnRunSolver = new QPushButton("Run Solver");
    connect(m_btnRunSolver,
            SIGNAL(pressed()),
@@ -329,14 +332,14 @@ QStringList SolverProfileWidget::getProfileOptionAttrs()
 SolverParameterWidget* SolverProfileWidget::getPythonSolverProfileWiget()
 {
 
-   return m_pythonSolverWidget;
+   return _solverParamWidget;
 }
 
 //---------------------------------------------------------------------------
 
 void SolverProfileWidget::openPythonFile()
 {
-
+/*
    m_fileName = QFileDialog::getOpenFileName(this,
       "Open python script", ".",
          tr("py (*.py *.PY)"));
@@ -348,7 +351,7 @@ void SolverProfileWidget::openPythonFile()
 
    m_filePath = m_fileInfo.canonicalFilePath();
 
-   m_lePythonPath->setText(m_filePath);
+   //m_lePythonPath->setText(m_filePath);
 
    if(m_profiles.size() < 1)
    {
@@ -384,8 +387,8 @@ void SolverProfileWidget::openPythonFile()
             }
             m_profiles[m_currentProfileIndex].setCoefficientAttrs(coefList);
             m_profileTable->setRow(m_currentProfileIndex);
-            m_pythonSolverWidget->removeCoefficientItems();
-            m_pythonSolverWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
+            _solverParamWidget->removeCoefficientItems();
+            _solverParamWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
         }
 
 
@@ -408,8 +411,8 @@ void SolverProfileWidget::openPythonFile()
                 optionsList.append(attr);
             }
             m_profiles[m_currentProfileIndex].setOptionAttrs(optionsList);
-            m_pythonSolverWidget->removeOptionItems();
-            m_pythonSolverWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
+            _solverParamWidget->removeOptionItems();
+            _solverParamWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
         }
 
         m_profileTable->setRow(m_currentProfileIndex);
@@ -420,6 +423,7 @@ void SolverProfileWidget::openPythonFile()
         logE<<ex.what();
         QMessageBox::warning(nullptr, "Error loading variables", "Error loading variables. You will have to manually enter them.");
     }
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -428,8 +432,7 @@ void SolverProfileWidget::optionItemChanged()
 {
     if(m_profiles.size() > 0)
     {
-       m_profiles[m_currentProfileIndex].setOptionAttrs(
-                m_pythonSolverWidget -> getOptionAttrsList());
+       m_profiles[m_currentProfileIndex].setOptionAttrs(_solverParamWidget -> getOptionAttrsList());
     }
 }
 
@@ -438,8 +441,8 @@ void SolverProfileWidget::optionItemChanged()
 void SolverProfileWidget::removeProfileItem(int selectRow)
 {
 
-   m_pythonSolverWidget -> removeCoefficientItems();
-   m_pythonSolverWidget -> removeOptionItems();
+   _solverParamWidget -> removeCoefficientItems();
+   _solverParamWidget -> removeOptionItems();
    
    m_profiles.erase(m_profiles.begin() + selectRow);
 
@@ -460,9 +463,9 @@ void SolverProfileWidget::removeProfileItem(int selectRow)
 
    setPythonSolverName(m_profiles[m_currentProfileIndex].getFilePath());
 
-   m_pythonSolverWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
+   _solverParamWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
 
-   m_pythonSolverWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
+   _solverParamWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
 
 
 }
@@ -559,7 +562,7 @@ void SolverProfileWidget::setPythonSolverName(QString fileName)
 
    m_filePath = m_fileInfo.canonicalFilePath();
 
-   m_lePythonPath->setText(m_filePath);
+   //m_lePythonPath->setText(m_filePath);
 
 }
 
@@ -579,8 +582,8 @@ void SolverProfileWidget::switchProfileItem(const QItemSelection& selected,
 
    Q_UNUSED(deselected);
 
-   m_pythonSolverWidget -> removeCoefficientItems();
-   m_pythonSolverWidget -> removeOptionItems();
+   _solverParamWidget -> removeCoefficientItems();
+   _solverParamWidget -> removeOptionItems();
 
 
    QModelIndex index = list.at(0);
@@ -589,9 +592,9 @@ void SolverProfileWidget::switchProfileItem(const QItemSelection& selected,
 
    setPythonSolverName(m_profiles[m_currentProfileIndex].getFilePath());
 
-   m_pythonSolverWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
+   _solverParamWidget->addCoefficientItems(m_profiles[m_currentProfileIndex].getCoefficientAttrs());
 
-   m_pythonSolverWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
+   _solverParamWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
 
 }
 
@@ -606,6 +609,7 @@ void SolverProfileWidget::runSolver()
 
    emit solverStart();
 
+   /*
     if(m_solver == nullptr)
     {
         m_solver = new PythonSolver();
@@ -617,18 +621,18 @@ void SolverProfileWidget::runSolver()
     }
 
    m_solver->setCoordPoints(*m_coordPoints);
-
+*/
    QMap<QString, double> newMinCoefs;
-   QMap<QString, double> minCoefs = m_pythonSolverWidget->getSelectedCoefficientAttrsMap();
-
-   m_solver->setAllCoef(m_pythonSolverWidget->getCoefficientAttrsMap());
-   m_solver->setOptions(m_pythonSolverWidget->getOptionAttrsMap());
+   QMap<QString, double> minCoefs = _solverParamWidget->getSelectedCoefficientAttrsMap();
+/*
+   m_solver->setAllCoef(_solverParamWidget->getCoefficientAttrsMap());
+   m_solver->setOptions(_solverParamWidget->getOptionAttrsMap());
    m_solver->setMinCoef(minCoefs);
-
+*/
 
 
    QApplication::setOverrideCursor(Qt::WaitCursor);
-   bool retVal = m_solver->run();
+  // bool retVal = m_solver->run();
    QApplication::restoreOverrideCursor();
 
    if(m_solverWidget != nullptr)
@@ -646,10 +650,10 @@ void SolverProfileWidget::runSolver()
      this,
      SLOT(cancelUpdatedSolverVariables()));
 
-   newMinCoefs = m_solver->getMinCoef();
+//   newMinCoefs = m_solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
-   m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
-
+  // m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
+/*
    if(retVal)
    {
       m_solverWidget->setUseBtnEnabled(true);
@@ -658,7 +662,7 @@ void SolverProfileWidget::runSolver()
    {
       m_solverWidget->setUseBtnEnabled(false);
    }
-
+*/
    m_solverWidget->show();
 
 }

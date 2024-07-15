@@ -375,7 +375,8 @@ void VLM_Widget::_createSolver()
 
    if (id == ID_LINEAR)
    {
-
+      LinearSolver* ls = new LinearSolver();
+      m_solver->setImpl(ls);
    }
    else if (id == ID_NELDER_MEAD)
    {
@@ -1283,6 +1284,12 @@ void VLM_Widget::createMicroProbeTab()
            this,
            SLOT(treeDoubleClicked(const QModelIndex &)));
 
+   connect(m_mpAnnoTreeView,
+           &QTreeView::clicked,
+           this,
+           &VLM_Widget::treeDoubleClicked);
+
+
    m_btnAddMicroProbe = new QPushButton("Add Micro Probe Region");
    connect(m_btnAddMicroProbe,
            SIGNAL(clicked()),
@@ -1985,8 +1992,6 @@ void VLM_Widget::restoreMarkerLoaded()
                                 QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
                                 marker[UPROBE_REAL_POS_Y].toDouble()));
 
-      annotation->setPos(QPointF(marker[UPROBE_REAL_POS_X].toDouble(),
-                         marker[UPROBE_REAL_POS_Y].toDouble()));
       annotation->setPropertyValue(UPROBE_NAME,QVariant(marker[UPROBE_NAME]));
       annotation->setPropertyValue(UPROBE_PRED_POS_X,marker[UPROBE_PRED_POS_X]);
       annotation->setPropertyValue(UPROBE_PRED_POS_Y,marker[UPROBE_PRED_POS_Y]);

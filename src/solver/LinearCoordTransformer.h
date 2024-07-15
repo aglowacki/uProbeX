@@ -14,8 +14,18 @@
 #include "preferences/Attribute.h"
 #include <unordered_map>
 
-//---------------------------------------------------------------------------
+const QString QSTR_SlopeX = "SlopeX";
+const QString QSTR_SlopeY = "SlopeY";
+const QString QSTR_InterceptX = "InterceptX";
+const QString QSTR_InterceptY = "InterceptY";
+const QString QSTR_SlopeXY = "SlopeXY";
+const QString QSTR_InterceptXY = "InterceptXY";
+const QString QSTR_SlopeYX = "SlopeYX";
+const QString QSTR_InterceptYX = "InterceptYX";
 
+
+
+//---------------------------------------------------------------------------
 /**
  * @brief
  *
@@ -81,15 +91,7 @@ public:
 
 protected:
 
-   /**
-    * @brief m_2xfm_x
-    */
-   double m_2xfm_x;
-
-   /**
-    * @brief m_2xfm_y
-    */
-   double m_2xfm_y;
+   QMap<QString, double> _coefs;
 
 };
 

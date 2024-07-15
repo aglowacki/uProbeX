@@ -232,6 +232,7 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
     if (spectra != nullptr)
     {
         _int_spec = *spectra;
+        data_struct::Range energy_range = data_struct::get_energy_range(_int_spec.rows(), &(_out_fit_params));
         _energy_range.min = 0;
         _energy_range.max = _int_spec.size() - 1;
 
@@ -240,10 +241,10 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
                 _out_fit_params[STR_ENERGY_SLOPE].value,
                 _out_fit_params[STR_ENERGY_QUADRATIC].value,
                 _out_fit_params[STR_SNIP_WIDTH].value,
-                0, //spectra energy start range
-                _int_spec.size() - 1);
+                energy_range.min,
+                energy_range.max);
         
-        data_struct::Range energy_range = data_struct::get_energy_range(_int_spec.rows(), &(_out_fit_params));
+        
         for (int i = 0; i < energy_range.min; i++)
         {
             _int_spec[i] = 0.0;

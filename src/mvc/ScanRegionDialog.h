@@ -15,16 +15,11 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include <QSpinBox>
-#include <QDialogButtonBox>
+#include <QList>
+#include "gstar/AnnotationProperty.h"
 
 //---------------------------------------------------------------------------
 
-/**
- * @brief When open the acquisition window, the widget is showing for capturing
- * the image from the area detector writer, the window will also be updated to
- * show the image.
- */
 class ScanRegionDialog : public QDialog
 {
 
@@ -42,28 +37,36 @@ public:
     */
    ~ScanRegionDialog();
 
+   void updateProps(QList<gstar::AnnotationProperty*> &anno_list);
+
+   QString getScanName() { return _scan_name->text(); }
+
 signals:
-	void NewScan();
+	
+   void ScanUpdated();
 
 public slots:
+
 	void onUpdate();
+
+   void onUpdateAndQueue();
 
 protected:
 
    void _createLayout();
 
 private:
-	QLabel *rowLabel;
-	QLabel *colLabel;
-
-   //QDialogButtonBox *buttonBox;
-
-   QPushButton *updateBtn;
-   QPushButton *cancelBtn;
-
-   QSpinBox *sbRow;
-   QSpinBox *sbCol;
+	QLineEdit *_scan_name;
    
+   QComboBox *_scan_type;
+   
+   QPushButton *_btn_update;
+
+   QPushButton *_btn_update_and_queue;
+
+   QPushButton *_btn_cancel;
+
+   QListWidget* _scan_options;
 };
 
 

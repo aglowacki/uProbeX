@@ -39,6 +39,8 @@ public:
 
     void setModel(MapsH5Model* model);
 
+    MapsH5Model* getModel() { return _model;}
+
     void setAnalysisType(QString curAnalysis);
 
     void setQuantType(QString curAnalysis);
@@ -54,8 +56,6 @@ public:
     void setGridLinesVisible(int val);
 
     void exportPngCsv();
-
-    MapsH5Model* getModel() { return _model; }
 
     QString getAnalysisType() { return _curAnalysis; }
 

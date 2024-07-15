@@ -16,12 +16,13 @@
 #include <QPushButton>
 #include <mutex>
 #include <QDockWidget>
+#include <QCheckBox>
+#include <algorithm>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/FitElementsTableModel.h"
 #include "mvc/FittingDialog.h"
-#include <QCheckBox>
 #include "data_struct/spectra.h"
 #include "data_struct/fit_element_map.h"
 #include "data_struct/params_override.h"
