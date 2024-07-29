@@ -15,8 +15,9 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
-#include <QList>
+#include <QTableView>
 #include "gstar/AnnotationProperty.h"
+#include "mvc/BlueskyPlan.h"
 
 //---------------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ public:
 
    QString getScanName() { return _scan_name->text(); }
 
+   void setAvailScans(std::unordered_map<QString, BlueskyPlan> * avail_scans);
 signals:
 	
    void ScanUpdated();
@@ -50,6 +52,8 @@ public slots:
 	void onUpdate();
 
    void onUpdateAndQueue();
+
+   void scanChanged(const QString &);
 
 protected:
 
@@ -66,7 +70,9 @@ private:
 
    QPushButton *_btn_cancel;
 
-   QListWidget* _scan_options;
+   QTableView* _scan_options;
+
+   std::unordered_map<QString, BlueskyPlan> *_avail_scans;
 };
 
 

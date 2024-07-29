@@ -10,6 +10,7 @@
 
 #include <QWidget>
 #include <QTextEdit>
+#include <QTableView>
 
 //---------------------------------------------------------------------------
 
@@ -44,11 +45,8 @@ protected:
 
    QTextEdit *_te_qs_console;
 
-//   QLineEdit *_qline_ip_addr;
+   QTableView* _scan_table_view;
 
-//   QLineEdit *_qline_port;
-
-//   QPushButton *_btn_update;
 };
 
 

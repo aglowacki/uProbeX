@@ -16,7 +16,7 @@
 
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
-
+	_avail_scans = nullptr;
     _createLayout();
 
 }
@@ -36,15 +36,16 @@ void ScanRegionDialog::_createLayout()
 	_scan_name = new QLineEdit(" ");
 	
 	_scan_type = new QComboBox();
+	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionDialog::scanChanged);
 
-	_scan_options = new QListWidget();
+	_scan_options = new QTableView();
 
 	_btn_update = new QPushButton("Update");
 	_btn_update_and_queue = new QPushButton("Update and Queue");
 	_btn_cancel = new QPushButton("Cancel");
-	connect(_btn_update, SIGNAL(pressed()), this, SLOT(onUpdate()));
-	connect(_btn_update_and_queue, SIGNAL(pressed()), this, SLOT(onUpdateAndQueue()));
-	connect(_btn_cancel, SIGNAL(pressed()), this, SLOT(close()));
+	connect(_btn_update, &QPushButton::pressed, this, &ScanRegionDialog::onUpdate);
+	connect(_btn_update_and_queue, &QPushButton::pressed, this, &ScanRegionDialog::onUpdateAndQueue);
+	connect(_btn_cancel, &QPushButton::pressed, this, &ScanRegionDialog::close);
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	
@@ -74,6 +75,20 @@ void ScanRegionDialog::_createLayout()
 
 //---------------------------------------------------------------------------
 
+void ScanRegionDialog::setAvailScans(std::unordered_map<QString, BlueskyPlan> * avail_scans) 
+{
+	 _avail_scans = avail_scans;
+	 int i=0;
+	 _scan_type->clear();
+	 for(auto itr : *avail_scans)
+	 {
+		_scan_type->insertItem(i, itr.first);
+		i++;
+	 }
+}
+
+//---------------------------------------------------------------------------
+
 void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 {
 	for(auto &itr : anno_list)
@@ -99,6 +114,16 @@ void ScanRegionDialog::onUpdateAndQueue()
 {
 	emit ScanUpdated();
 	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionDialog::scanChanged(const QString &scan_name)
+{
+	if(_avail_scans != nullptr)
+	{
+
+	}
 }
 
 //---------------------------------------------------------------------------

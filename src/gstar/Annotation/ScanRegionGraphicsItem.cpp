@@ -15,10 +15,11 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
+ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::unordered_map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
-
+   _avail_scans = avail_scans;
+   _scan_dialog.setAvailScans(avail_scans);
    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
    prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
@@ -124,7 +125,7 @@ const QString ScanRegionGraphicsItem::displayName() const
 
 ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 {
-   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem();
+   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem(_avail_scans);
 
    //newRegion->m_outlineColor = m_outlineColor;
    newRegion->m_rect = m_rect;

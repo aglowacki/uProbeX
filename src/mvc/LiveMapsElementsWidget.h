@@ -19,6 +19,7 @@
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/VLM_Widget.h"
 #include "mvc/ScanQueueWidget.h"
+#include "mvc/BlueskyComm.h"
 
 //---------------------------------------------------------------------------
 
@@ -44,6 +45,7 @@ public:
 
    QString getPort(){return _qline_port->text();}
 
+   void updateScansAvailable();
 public slots:
 
    void newDataArrived(data_struct::Stream_Block<float>* new_packet);
@@ -73,6 +75,10 @@ protected:
 
    NetStreamWorker* _streamWorker;
 
+   BlueskyComm* _qserverComm;
+
+   QLineEdit *_qserver_ip_addr;
+
    QLineEdit *_qline_ip_addr;
 
    QLineEdit *_qline_port;
@@ -82,6 +88,8 @@ protected:
    std::vector<MapsH5Model*> _maps_h5_models;
 
    MapsH5Model *_currentModel;
+
+   std::unordered_map<QString, BlueskyPlan> _avail_scans;
 
    data_struct::Stream_Block<float>* _last_packet;
 
