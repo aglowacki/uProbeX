@@ -38,7 +38,9 @@ void ScanRegionDialog::_createLayout()
 	_scan_type = new QComboBox();
 	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionDialog::scanChanged);
 
+	_scan_table_model = new ScanTableModel();
 	_scan_options = new QTableView();
+	_scan_options->setModel(_scan_table_model);
 
 	_btn_update = new QPushButton("Update");
 	_btn_update_and_queue = new QPushButton("Update and Queue");
@@ -122,7 +124,10 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 {
 	if(_avail_scans != nullptr)
 	{
-
+		if(_avail_scans->count(scan_name) > 0)
+		{
+			_scan_table_model->setAllData(_avail_scans->at(scan_name));
+		}
 	}
 }
 

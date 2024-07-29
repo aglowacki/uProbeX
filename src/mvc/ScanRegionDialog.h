@@ -18,6 +18,7 @@
 #include <QTableView>
 #include "gstar/AnnotationProperty.h"
 #include "mvc/BlueskyPlan.h"
+#include "mvc/ScanTableModel.h"
 
 //---------------------------------------------------------------------------
 
@@ -72,6 +73,8 @@ private:
 
    QTableView* _scan_options;
 
+   ScanTableModel *_scan_table_model;
+   
    std::unordered_map<QString, BlueskyPlan> *_avail_scans;
 };
 
