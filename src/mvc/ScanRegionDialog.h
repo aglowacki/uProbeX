@@ -43,7 +43,7 @@ public:
 
    QString getScanName() { return _scan_name->text(); }
 
-   void setAvailScans(std::unordered_map<QString, BlueskyPlan> * avail_scans);
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 signals:
 	
    void ScanUpdated();
@@ -75,7 +75,7 @@ private:
 
    ScanTableModel *_scan_table_model;
    
-   std::unordered_map<QString, BlueskyPlan> *_avail_scans;
+   std::map<QString, BlueskyPlan> *_avail_scans;
 };
 
 

@@ -11,9 +11,9 @@
 #include <unordered_map>
 
 //---------------------------------------------------------------------------
-struct BlueSkyParam
+struct BlueskyParam
 {
-    BlueSkyParam()
+    BlueskyParam()
     {
         default_val = "0.0";
     }
@@ -22,13 +22,22 @@ struct BlueSkyParam
     QString default_val;
 };
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
 struct BlueskyPlan
 {
-    BlueskyPlan(){}
+    BlueskyPlan()
+    {
+        uuid="";
+        user="";
+    }
     QString name;
     QString description;
     QString module;
-    std::unordered_map<QString, BlueSkyParam> parameters;
+    std::unordered_map<QString, BlueskyParam> parameters;
+    QString uuid;
+    QString user;
 };
 
 

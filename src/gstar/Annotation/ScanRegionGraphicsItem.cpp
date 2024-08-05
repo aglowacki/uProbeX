@@ -15,7 +15,7 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::unordered_map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
+ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
    _avail_scans = avail_scans;

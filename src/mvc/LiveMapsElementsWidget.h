@@ -45,7 +45,6 @@ public:
 
    QString getPort(){return _qline_port->text();}
 
-   void updateScansAvailable();
 public slots:
 
    void newDataArrived(data_struct::Stream_Block<float>* new_packet);
@@ -54,6 +53,9 @@ public slots:
 
    void image_changed(int start, int end);
 
+   void updateScansAvailable();
+
+   void getQueuedScans();
 protected:
 
    /**
@@ -89,7 +91,11 @@ protected:
 
    MapsH5Model *_currentModel;
 
-   std::unordered_map<QString, BlueskyPlan> _avail_scans;
+   std::map<QString, BlueskyPlan> _avail_scans;
+
+   std::vector<BlueskyPlan> _queued_scans;
+
+   BlueskyPlan _running_scan;
 
    data_struct::Stream_Block<float>* _last_packet;
 

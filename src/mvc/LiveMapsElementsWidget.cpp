@@ -129,6 +129,7 @@ void LiveMapsElementsWidget::createLayout()
     _vlm_widget->setAvailScans(&_avail_scans);
 
     _scan_queue_widget = new ScanQueueWidget();
+    connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -177,6 +178,7 @@ void LiveMapsElementsWidget::updateIp()
     _last_packet = nullptr;
 
     updateScansAvailable();
+    getQueuedScans();
 }
 
 //---------------------------------------------------------------------------
@@ -279,13 +281,27 @@ void LiveMapsElementsWidget::image_changed(int start, int end)
 
 void LiveMapsElementsWidget::updateScansAvailable()
 {
-    QString reply;
     QString msg;
     if (false == _qserverComm->get_avail_scans(_avail_scans, msg))
     {
         _scan_queue_widget->newDataArrived( msg );
     }
     
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::getQueuedScans()
+{
+    QString msg;
+    if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
+    {
+        _scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        _scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
 }
 
 //---------------------------------------------------------------------------

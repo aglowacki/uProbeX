@@ -3,24 +3,25 @@
  // See LICENSE file.
  //---------------------------------------------------------------------------
 
-#ifndef ScanTableModel_H
-#define ScanTableModel_H
+#ifndef ScanQueueTableModel_H
+#define ScanQueueTableModel_H
 
 //---------------------------------------------------------------------------
 
 #include <QAbstractTableModel>
+#include "mvc/BlueskyPlan.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-class ScanTableModel : public QAbstractTableModel 
+class ScanQueueTableModel : public QAbstractTableModel 
 {
 public:
-    ScanTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
+    ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
-        _headers[0] = "Name";
-        _headers[1] = "Value";
-        _headers[2] = "Desc";
+        _headers[0] = "name";
+        _headers[1] = "user";
+        _headers[2] = "uuid";
     }
     //---------------------------------------------------------------------------
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
@@ -33,7 +34,7 @@ public:
         return 3; 
     }
     //---------------------------------------------------------------------------
-    void appendRow(const BlueskyParam& row)
+    void appendRow(const BlueskyPlan& row)
     {
         int rown = _data.size();
         QModelIndex gIndex = index(rown, 0, QModelIndex());
@@ -51,7 +52,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    const BlueskyParam& item(int row)
+    const BlueskyPlan& item(int row)
     {
         return _data.at(row);
     }
@@ -76,7 +77,7 @@ public:
             return QVariant();
         }
 
-        const BlueskyParam& rowData = _data[index.row()];
+        const BlueskyPlan& rowData = _data[index.row()];
 
         if (role == Qt::DisplayRole) 
         {
@@ -85,9 +86,9 @@ public:
             case 0:
                 return rowData.name;
             case 1:
-                return rowData.default_val;
+                return rowData.user;
             case 2:
-                return rowData.description;
+                return rowData.uuid;
             };
         }
         return QVariant();
@@ -124,25 +125,18 @@ public:
             return Qt::NoItemFlags;
         }
 
-        // Get desired index
-        int c = index.column();
-        if(c == 1)
-        {
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-        }
-
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
     
     //---------------------------------------------------------------------------
 
-    void setAllData(BlueskyPlan& scan)
+    void setAllData(std::vector<BlueskyPlan>& scans)
     {
         beginResetModel();
         _data.clear();
-        for(auto itr : scan.parameters)
+        for(auto itr : scans)
         {
-            _data.append(itr.second);
+            _data.append(itr);
         }
         endResetModel();
     }
@@ -155,7 +149,7 @@ public:
         {
             if( index.row() < _data.size() && index.column() == 1)
             {
-                _data[index.row()].default_val = value.toString();
+                _data[index.row()].user = value.toString();
                 return true;
             }
             return false;
@@ -166,7 +160,7 @@ public:
     //---------------------------------------------------------------------------
 
 private:
-    QList<BlueskyParam> _data;
+    QList<BlueskyPlan> _data;
 
     QString _headers[3];
 };
@@ -174,6 +168,6 @@ private:
 
 //---------------------------------------------------------------------------
 
-#endif /* ScanTableModel.h */
+#endif /* ScanQueueTableModel.h */
 
 //---------------------------------------------------------------------------

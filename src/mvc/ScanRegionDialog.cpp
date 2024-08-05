@@ -77,7 +77,7 @@ void ScanRegionDialog::_createLayout()
 
 //---------------------------------------------------------------------------
 
-void ScanRegionDialog::setAvailScans(std::unordered_map<QString, BlueskyPlan> * avail_scans) 
+void ScanRegionDialog::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) 
 {
 	 _avail_scans = avail_scans;
 	 int i=0;

@@ -47,7 +47,7 @@ public:
     * @param h - height
     * @param parent - parent Qt widget
     */
-   ScanRegionGraphicsItem(std::unordered_map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent = 0);
+   ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent = 0);
 
    /**
    * @brief MarkerGraphicsItem
@@ -156,7 +156,7 @@ public slots:
 private:
    ScanRegionDialog _scan_dialog;
 
-   std::unordered_map<QString, BlueskyPlan> *_avail_scans;
+   std::map<QString, BlueskyPlan> *_avail_scans;
 /*
    void initialScale();
 

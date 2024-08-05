@@ -160,7 +160,7 @@ public:
    void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
 
    // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
-   void setAvailScans(std::unordered_map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
 public slots:
 
    /**
@@ -662,7 +662,7 @@ private:
     */
    QMap<QAction*, RegionCaller*> m_actionMap;
 
-   std::unordered_map<QString, BlueskyPlan> *_avail_scans;
+   std::map<QString, BlueskyPlan> *_avail_scans;
 
 };
 
