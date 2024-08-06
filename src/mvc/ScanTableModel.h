@@ -69,6 +69,16 @@ public:
 
     //---------------------------------------------------------------------------
 
+	void getCurrentParams(BlueskyPlan& plan)
+    {
+        for(auto itr : _data)
+        {
+            plan.parameters[itr.name] = itr;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
         if (!index.isValid() || index.row() >= _data.size() || index.column() >= 4)

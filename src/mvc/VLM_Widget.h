@@ -161,6 +161,9 @@ public:
 
    // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
+
+
+
 public slots:
 
    /**
@@ -397,6 +400,8 @@ signals:
    void cancelSolverVariableUpdate();
 
    void onLinkRegionToDataset(QString, QString, QImage);
+
+   void onScanUpdated(const BlueskyPlan &plan); 
 
 private:
 

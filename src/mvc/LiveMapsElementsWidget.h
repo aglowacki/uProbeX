@@ -56,6 +56,17 @@ public slots:
    void updateScansAvailable();
 
    void getQueuedScans();
+
+   void callOpenEnv();
+
+   void callCloseEnv();
+
+   void callStartQueue();
+
+   void callStopQueue();
+
+   void queueScan(const BlueskyPlan& plan);
+   
 protected:
 
    /**

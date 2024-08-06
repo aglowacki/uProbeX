@@ -240,6 +240,8 @@ void VLM_Widget::addMicroProbeRegion()
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
 
+   connect(annotation, &ScanRegionGraphicsItem::scanUpdated, this, &VLM_Widget::onScanUpdated);
+
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,
                              m_mpSelectionModel,

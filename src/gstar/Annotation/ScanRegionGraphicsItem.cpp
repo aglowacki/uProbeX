@@ -143,10 +143,11 @@ QDialog* ScanRegionGraphicsItem::get_custom_dialog()
 
 //---------------------------------------------------------------------------
 
-void ScanRegionGraphicsItem::onScanUpdated()
+void ScanRegionGraphicsItem::onScanUpdated(const BlueskyPlan& plan)
 {
 
    setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
+   emit scanUpdated(plan);
 
 }
 /*

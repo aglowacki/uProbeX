@@ -149,9 +149,13 @@ protected:
    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 */
 
+signals:
+
+   void scanUpdated(const BlueskyPlan &plan);
+
 public slots:
 
-   void onScanUpdated(); 
+   void onScanUpdated(const BlueskyPlan &plan); 
 
 private:
    ScanRegionDialog _scan_dialog;

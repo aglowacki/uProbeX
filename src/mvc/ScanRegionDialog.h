@@ -46,7 +46,7 @@ public:
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 signals:
 	
-   void ScanUpdated();
+   void ScanUpdated(const BlueskyPlan& plan);
 
 public slots:
 

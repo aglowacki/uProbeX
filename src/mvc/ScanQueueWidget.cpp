@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QDockWidget>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -42,19 +43,59 @@ void ScanQueueWidget::_createLayout()
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
 
+    QSize btn_size(33,33);
 
-    layout->addWidget(new QLabel("Running Scan"));
-    layout->addWidget(_scan_running_table_view);
+    _btn_play = new QPushButton();
+    _btn_play->setFixedSize(btn_size);
+    _btn_play->setIcon(QIcon(":images/start.png"));
+    _btn_play->setToolTip("Start Queue");
+    connect(_btn_play, &QPushButton::pressed, this, &ScanQueueWidget::onStartQueue);
 
-    layout->addWidget(new QLabel("Scan Queue"));
-    layout->addWidget(_scan_queue_table_view);
-    
+    _btn_stop = new QPushButton();
+    _btn_stop->setIcon(QIcon(":images/stop.png"));
+    _btn_stop->setFixedSize(btn_size);
+    _btn_stop->setToolTip("Stop Queue");
+    connect(_btn_stop, &QPushButton::pressed, this, &ScanQueueWidget::onStopQueue);
+
+    _btn_refresh = new QPushButton();
+    _btn_refresh->setIcon(QIcon(":images/refresh.png"));
+    _btn_refresh->setFixedSize(btn_size);
+    _btn_refresh->setToolTip("Manual Refresh Queue");
+    connect(_btn_refresh, &QPushButton::pressed, this, &ScanQueueWidget::queueNeedsToBeUpdated);
+
+    _btn_open_env = new QPushButton("Open Env");
+    _btn_open_env->setToolTip("Open Environment");
+    connect(_btn_open_env, &QPushButton::pressed, this, &ScanQueueWidget::onOpenEnv);
+
+    _btn_close_env = new QPushButton("Close Env");
+    _btn_close_env->setToolTip("Close Environment");
+    connect(_btn_close_env, &QPushButton::pressed, this, &ScanQueueWidget::onCloseEnv);
+
+    QGridLayout *grid = new QGridLayout();
+    grid->addWidget(_btn_play, 0,0);
+    grid->addWidget(_btn_stop,0,1);
+    grid->addWidget(_btn_refresh,0,2);
+    grid->addWidget(_btn_open_env,0,3);
+    grid->addWidget(_btn_close_env,0,4);
+    grid->addItem(new QSpacerItem(999,10), 0,6);
+
+    layout->addItem(grid);
 
     _te_qs_console = new QTextEdit(this);
     _te_qs_console->scrollBarWidgets(Qt::AlignRight);
- 
-    layout->addWidget(new QLabel("QServer Log"));
-    layout->addWidget(_te_qs_console);
+    
+    QDockWidget *dock_running = new QDockWidget("Running Scan", this);
+    dock_running->setWidget(_scan_running_table_view);
+    layout->addWidget(dock_running);
+
+    QDockWidget *dock_queue = new QDockWidget("Scan Queue", this);
+    dock_queue->setWidget(_scan_queue_table_view);
+    layout->addWidget(dock_queue);
+
+    QDockWidget *dock_log = new QDockWidget("QServer Log", this);
+    dock_log->setWidget(_te_qs_console);
+    layout->addWidget(dock_log);
+
     setLayout(layout);
 
 }

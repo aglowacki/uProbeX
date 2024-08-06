@@ -92,6 +92,47 @@ public:
 
     //---------------------------------------------------------------------------
 
+    QByteArray gen_send_mesg2(QString method, QJsonObject &params)
+    {
+        QJsonDocument doc;
+        QJsonObject obj;
+        obj["method"] = method;
+        obj["params"] = params;
+        doc.setObject(obj);
+        return doc.toJson();
+    }
+
+    //---------------------------------------------------------------------------
+
+    QJsonObject plan_to_json_item(const BlueskyPlan& plan)
+    {
+        /*
+            {'name': 'count',
+            'args': [['det1', 'det2']],
+            'kwargs': {'num': 10, 'delay': 1},
+            'item_type': 'plan',
+            'user': 'qserver-cli',
+            'user_group': 'primary',
+            'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
+        */
+
+        QJsonObject item;
+        
+        item["name"] = plan.name;
+        item["item_type"] = "plan";
+        
+        QJsonObject kwargs;
+        for(auto itr: plan.parameters)
+        {
+            kwargs[itr.first] = itr.second.default_val;
+        }
+        item["kwargs"] = kwargs;
+
+       return item;
+    }
+
+    //---------------------------------------------------------------------------
+
     bool open_env(QString &msg)
     {
         // 
@@ -124,6 +165,88 @@ public:
         bool ret = false;
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_close", nullptr);
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            if(reply["success"].toString() == "true")
+            {
+                ret = true;
+            }
+        }
+        if(reply.contains("msg"))
+        {
+            msg = reply["msg"].toString();
+        }
+        return ret;
+    }
+    
+    //---------------------------------------------------------------------------
+
+    bool start_queue(QString &msg)
+    {
+        // 
+        bool ret = false;
+        zmq::message_t message;
+        QByteArray msg_arr = gen_send_mesg("queue_start", nullptr);
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            if(reply["success"].toString() == "true")
+            {
+                ret = true;
+            }
+        }
+        if(reply.contains("msg"))
+        {
+            msg = reply["msg"].toString();
+        }
+        return ret;
+    }
+
+    //---------------------------------------------------------------------------
+
+    bool stop_queue(QString &msg)
+    {
+        // 
+        bool ret = false;
+        zmq::message_t message;
+        QByteArray msg_arr = gen_send_mesg("queue_stop", nullptr);
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            if(reply["success"].toString() == "true")
+            {
+                ret = true;
+            }
+        }
+        if(reply.contains("msg"))
+        {
+            msg = reply["msg"].toString();
+        }
+        return ret;
+    }
+
+    //---------------------------------------------------------------------------
+
+    bool queue_plan(QString &msg, const BlueskyPlan& plan)
+    {
+        bool ret = false;
+        zmq::message_t message;
+        
+        QJsonObject params;
+        params["item"] = plan_to_json_item(plan);
+        params["user"] = "uProbeX";
+        params["user_group"] = "primary";
+        QByteArray msg_arr = gen_send_mesg2("queue_item_add", params);
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
 
         _zmq_comm_socket->recv(&message);

@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QTableView>
+#include <QPushButton>
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanQueueTableModel.h"
 
@@ -39,8 +40,15 @@ public:
 signals:
    void queueNeedsToBeUpdated();
 
-public slots:
+   void onOpenEnv();
 
+   void onCloseEnv();
+
+   void onStartQueue();
+
+   void onStopQueue();
+
+public slots:
    void newDataArrived(const QString &);
 
 protected:
@@ -60,7 +68,16 @@ protected:
 
    ScanQueueTableModel* _scan_running_table_model;
 
+   QPushButton* _btn_play;
+   
+   QPushButton* _btn_stop;
 
+   QPushButton* _btn_refresh;
+
+   QPushButton* _btn_open_env;
+
+   QPushButton* _btn_close_env;
+   
 };
 
 

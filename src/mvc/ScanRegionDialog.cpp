@@ -106,7 +106,7 @@ void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 
 void ScanRegionDialog::onUpdate()
 {
-	emit ScanUpdated();
+	//emit ScanUpdated();
 	close();
 }
 
@@ -114,7 +114,10 @@ void ScanRegionDialog::onUpdate()
 
 void ScanRegionDialog::onUpdateAndQueue()
 {
-	emit ScanUpdated();
+	BlueskyPlan plan;
+	plan.name = _scan_type->currentText();
+	_scan_table_model->getCurrentParams(plan);
+	emit ScanUpdated(plan);
 	close();
 }
 

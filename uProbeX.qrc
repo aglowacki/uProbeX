@@ -32,5 +32,8 @@
         <file>images/gear.png</file>
         <file>images/compose.png</file>
         <file>images/editing.png</file>
+        <file>images/refresh.png</file>
+        <file>images/chip_on.png</file>
+        <file>images/chip_off.png</file>
     </qresource>
 </RCC>
