@@ -144,6 +144,7 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(4, npDelegate);
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    //_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table,
             SIGNAL(customContextMenuRequested(QPoint)),
