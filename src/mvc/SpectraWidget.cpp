@@ -565,39 +565,41 @@ void SpectraWidget::ShowContextMenu(const QPoint &pos)
 void SpectraWidget::set_log10(bool val)
 {
 
-    QList<QAbstractSeries*> series = _chart->series();
-
-    for(QAbstractSeries* ser : _element_lines)
+    if(_display_log10 != val)
     {
-        series.removeOne(ser);
+        QList<QAbstractSeries*> series = _chart->series();
+
+        for(QAbstractSeries* ser : _element_lines)
+        {
+            series.removeOne(ser);
+        }
+
+        for(QAbstractSeries* ser : series)
+        {
+            ser->detachAxis(_currentYAxis);
+        }
+        _chart->removeAxis(_currentYAxis);
+
+        _display_log10 = val;
+
+        if(_display_log10) //if current one is log10, set to normal
+        {
+            _currentYAxis = _axisYLog10;
+        }
+        else
+        {
+            _currentYAxis = _axisY;
+        }
+
+        _chart->addAxis(_currentYAxis, Qt::AlignLeft);
+
+        for(QAbstractSeries* ser : series)
+        {
+            ser->attachAxis(_currentYAxis);
+        }
+
+        emit(y_axis_changed(_display_log10));
     }
-
-    for(QAbstractSeries* ser : series)
-    {
-        ser->detachAxis(_currentYAxis);
-    }
-    _chart->removeAxis(_currentYAxis);
-
-    _display_log10 = val;
-
-    if(_display_log10) //if current one is log10, set to normal
-    {
-        _currentYAxis = _axisYLog10;
-    }
-    else
-    {
-        _currentYAxis = _axisY;
-    }
-
-    _chart->addAxis(_currentYAxis, Qt::AlignLeft);
-
-    for(QAbstractSeries* ser : series)
-    {
-        ser->attachAxis(_currentYAxis);
-    }
-
-    emit(y_axis_changed(_display_log10));
-
 }
 
 //---------------------------------------------------------------------------
