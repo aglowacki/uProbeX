@@ -118,7 +118,7 @@ public:
 
         QJsonObject item;
         
-        item["name"] = plan.name;
+        item["name"] = plan.type;
         item["item_type"] = "plan";
         
         QJsonObject kwargs;
@@ -137,6 +137,11 @@ public:
     {
         // 
         bool ret = false;
+
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_open", nullptr);
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
@@ -163,6 +168,10 @@ public:
     {
         // 
         bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_close", nullptr);
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
@@ -189,6 +198,10 @@ public:
     {
         // 
         bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_start", nullptr);
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
@@ -215,6 +228,10 @@ public:
     {
         // 
         bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_stop", nullptr);
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
@@ -240,6 +257,10 @@ public:
     bool queue_plan(QString &msg, const BlueskyPlan& plan)
     {
         bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         zmq::message_t message;
         
         QJsonObject params;
@@ -274,7 +295,10 @@ public:
         
         //params["user_group"] = "primary";
         //obj["params"] = params;
-        
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         std::map<QString, QString> params;
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg("plans_allowed", &params); 
@@ -350,6 +374,10 @@ public:
     bool get_queued_scans(QString &msg, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
     {
         bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
         running_plan.name = "";
         running_plan.uuid = "";
         zmq::message_t message;
@@ -393,7 +421,7 @@ public:
                 QJsonObject param = itr2.toObject();
                 if(param.contains("name"))
                 {
-                    plan.name = param["name"].toString();
+                    plan.type = param["name"].toString();
                 }
                 if(param.contains("args"))
                 {
@@ -409,6 +437,10 @@ public:
                         bsp.name = pitr;
                         bsp.default_val = kwargs[pitr].toString();
                         plan.parameters[pitr] = bsp;
+                        if(pitr == "md") // use meta data to link to scan name
+                        {
+                            plan.name = bsp.default_val; 
+                        }
                     }
                 }
                 if(param.contains("user"))

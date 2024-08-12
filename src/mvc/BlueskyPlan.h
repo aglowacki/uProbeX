@@ -33,6 +33,7 @@ struct BlueskyPlan
         user="";
     }
     QString name;
+    QString type;
     QString description;
     QString module;
     std::unordered_map<QString, BlueskyParam> parameters;

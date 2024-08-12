@@ -115,7 +115,7 @@ void ScanRegionDialog::onUpdate()
 void ScanRegionDialog::onUpdateAndQueue()
 {
 	BlueskyPlan plan;
-	plan.name = _scan_type->currentText();
+	plan.type = _scan_type->currentText();
 	_scan_table_model->getCurrentParams(plan);
 	emit ScanUpdated(plan);
 	close();

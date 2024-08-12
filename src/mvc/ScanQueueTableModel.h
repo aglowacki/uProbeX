@@ -20,8 +20,9 @@ public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
         _headers[0] = "name";
-        _headers[1] = "user";
-        _headers[2] = "uuid";
+        _headers[1] = "type";
+        _headers[2] = "user";
+        _headers[3] = "uuid";
     }
     //---------------------------------------------------------------------------
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
@@ -31,7 +32,7 @@ public:
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
-        return 3; 
+        return 4; 
     }
     //---------------------------------------------------------------------------
     void appendRow(const BlueskyPlan& row)
@@ -86,8 +87,10 @@ public:
             case 0:
                 return rowData.name;
             case 1:
-                return rowData.user;
+                return rowData.type;
             case 2:
+                return rowData.user;
+            case 3:
                 return rowData.uuid;
             };
         }
@@ -102,7 +105,7 @@ public:
         // Horizontal headers
         if (orientation == Qt::Horizontal)
         {
-            if(section > 3)
+            if(section > 4)
             {
                 return QVariant();
             }
@@ -147,7 +150,7 @@ public:
     {
         if (role == Qt::EditRole && index.isValid())
         {
-            if( index.row() < _data.size() && index.column() == 1)
+            if( index.row() < _data.size() && index.column() == 2)
             {
                 _data[index.row()].user = value.toString();
                 return true;
@@ -162,7 +165,7 @@ public:
 private:
     QList<BlueskyPlan> _data;
 
-    QString _headers[3];
+    QString _headers[4];
 };
 
 

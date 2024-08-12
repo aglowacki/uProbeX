@@ -288,6 +288,10 @@ void LiveMapsElementsWidget::image_changed(int start, int end)
 void LiveMapsElementsWidget::updateScansAvailable()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->get_avail_scans(_avail_scans, msg))
     {
         _scan_queue_widget->newDataArrived( msg );
@@ -300,6 +304,10 @@ void LiveMapsElementsWidget::updateScansAvailable()
 void LiveMapsElementsWidget::getQueuedScans()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
     {
         _scan_queue_widget->newDataArrived( msg );
@@ -315,6 +323,10 @@ void LiveMapsElementsWidget::getQueuedScans()
 void LiveMapsElementsWidget::callOpenEnv()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->open_env(msg))
     {
         //_scan_queue_widget->newDataArrived( msg );
@@ -332,6 +344,10 @@ void LiveMapsElementsWidget::callOpenEnv()
 void LiveMapsElementsWidget::callCloseEnv()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->close_env(msg))
     {
         //_scan_queue_widget->newDataArrived( msg );
@@ -349,6 +365,10 @@ void LiveMapsElementsWidget::callCloseEnv()
 void LiveMapsElementsWidget::callStartQueue()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->start_queue(msg))
     {
         //_scan_queue_widget->newDataArrived( msg );
@@ -366,6 +386,10 @@ void LiveMapsElementsWidget::callStartQueue()
 void LiveMapsElementsWidget::callStopQueue()
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->stop_queue(msg))
     {
         //_scan_queue_widget->newDataArrived( msg );
@@ -383,6 +407,10 @@ void LiveMapsElementsWidget::callStopQueue()
 void LiveMapsElementsWidget::queueScan(const BlueskyPlan& plan)
 {
     QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
     if (false == _qserverComm->queue_plan(msg, plan))
     {
         

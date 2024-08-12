@@ -147,7 +147,14 @@ void ScanRegionGraphicsItem::onScanUpdated(const BlueskyPlan& plan)
 {
 
    setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
-   emit scanUpdated(plan);
+   BlueskyPlan nplan = plan;
+   nplan.name = _scan_dialog.getScanName();
+   BlueskyParam meta_data;
+   meta_data.name = "md";
+   meta_data.default_val = nplan.name;
+   meta_data.description = "Link to scan name";
+   nplan.parameters["md"] = meta_data;
+   emit scanUpdated(nplan);
 
 }
 /*

@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QHeaderView>
 #include <QDockWidget>
 #include "core/defines.h"
 
@@ -38,10 +39,15 @@ void ScanQueueWidget::_createLayout()
     _scan_running_table_view = new QTableView();
     _scan_running_table_view->setFixedHeight(100);
     _scan_running_table_view->setModel(_scan_running_table_model);
+    _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+   // _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
     _scan_queue_table_model = new ScanQueueTableModel();
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
+    _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+   // _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
+
 
     QSize btn_size(33,33);
 
@@ -105,12 +111,14 @@ void ScanQueueWidget::_createLayout()
 void ScanQueueWidget::updateQueuedItems( std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
 {
     _scan_queue_table_model->setAllData(queued_plans);
+    _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     std::vector<BlueskyPlan> runlist;
     if(running_plan.uuid.length() > 0)
     {
         runlist.push_back(running_plan);
     }
     _scan_running_table_model->setAllData(runlist);
+    _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 //---------------------------------------------------------------------------
