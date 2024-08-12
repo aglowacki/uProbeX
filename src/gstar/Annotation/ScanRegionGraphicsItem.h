@@ -24,6 +24,7 @@
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
 #include "mvc/ScanRegionDialog.h"
+#include "mvc/BlueSkyPlan.h"
 
 //---------------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ public:
     * @param h - height
     * @param parent - parent Qt widget
     */
-   ScanRegionGraphicsItem(AbstractGraphicsItem* parent = 0);
+   ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent = 0);
 
    /**
    * @brief MarkerGraphicsItem
@@ -148,13 +149,18 @@ protected:
    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 */
 
+signals:
+
+   void scanUpdated(const BlueskyPlan &plan);
+
 public slots:
 
-   void onScanUpdated(); 
+   void onScanUpdated(const BlueskyPlan &plan); 
 
 private:
    ScanRegionDialog _scan_dialog;
 
+   std::map<QString, BlueskyPlan> *_avail_scans;
 /*
    void initialScale();
 

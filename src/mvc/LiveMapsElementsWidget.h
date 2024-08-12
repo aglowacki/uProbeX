@@ -19,6 +19,7 @@
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/VLM_Widget.h"
 #include "mvc/ScanQueueWidget.h"
+#include "mvc/BlueskyComm.h"
 
 //---------------------------------------------------------------------------
 
@@ -52,6 +53,20 @@ public slots:
 
    void image_changed(int start, int end);
 
+   void updateScansAvailable();
+
+   void getQueuedScans();
+
+   void callOpenEnv();
+
+   void callCloseEnv();
+
+   void callStartQueue();
+
+   void callStopQueue();
+
+   void queueScan(const BlueskyPlan& plan);
+   
 protected:
 
    /**
@@ -73,6 +88,10 @@ protected:
 
    NetStreamWorker* _streamWorker;
 
+   BlueskyComm* _qserverComm;
+
+   QLineEdit *_qserver_ip_addr;
+
    QLineEdit *_qline_ip_addr;
 
    QLineEdit *_qline_port;
@@ -82,6 +101,12 @@ protected:
    std::vector<MapsH5Model*> _maps_h5_models;
 
    MapsH5Model *_currentModel;
+
+   std::map<QString, BlueskyPlan> _avail_scans;
+
+   std::vector<BlueskyPlan> _queued_scans;
+
+   BlueskyPlan _running_scan;
 
    data_struct::Stream_Block<float>* _last_packet;
 

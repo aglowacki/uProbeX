@@ -115,6 +115,7 @@ VLM_Widget::~VLM_Widget()
 
 void VLM_Widget::_init()
 {
+   _avail_scans = nullptr;
    m_microProbePvSet = false;
 //   m_pvXHandler = nullptr;
 //   m_pvYHandler = nullptr;
@@ -234,10 +235,12 @@ void VLM_Widget::addTopWindowPoints()
 
 void VLM_Widget::addMicroProbeRegion()
 {
-   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(_avail_scans);
    ////UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+
+   connect(annotation, &ScanRegionGraphicsItem::scanUpdated, this, &VLM_Widget::onScanUpdated);
 
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,

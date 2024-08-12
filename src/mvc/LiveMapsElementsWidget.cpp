@@ -16,12 +16,14 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
 {
 
     _streamWorker = nullptr;
+    _qserverComm = nullptr;
     _mapsElementsWidget = nullptr;
     _last_packet = nullptr;
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
     _num_images = 0;
     _prev_dataset_name = " ";
+    _qserver_ip_addr = new QLineEdit("127.0.0.1");
     _qline_ip_addr = new QLineEdit();
     if(ip.length() > 0)
     {
@@ -83,15 +85,19 @@ void LiveMapsElementsWidget::createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* hlayout = new QHBoxLayout();
+    QHBoxLayout* hlayout2 = new QHBoxLayout();
     _btn_update = new QPushButton("Update");
     connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
 
-    hlayout->addWidget(new QLabel("Computer:"));
-    hlayout->addWidget(_qline_ip_addr);
-    hlayout->addWidget(new QLabel("Port:"));
-    hlayout->addWidget(_qline_port);
-    hlayout->addWidget(_btn_update);
+    hlayout->addWidget(new QLabel("QServer Computer:"));
+    hlayout->addWidget(_qserver_ip_addr);
+    hlayout2->addWidget(new QLabel("XRF-Maps Computer:"));
+    hlayout2->addWidget(_qline_ip_addr);
+    hlayout2->addWidget(new QLabel("Port:"));
+    hlayout2->addWidget(_qline_port);
+    hlayout2->addWidget(_btn_update);
     layout->addLayout(hlayout);
+    layout->addLayout(hlayout2);
 
  //   _textEdit = new QTextEdit(this);
  //   _textEdit->resize(1024, 800);
@@ -120,8 +126,15 @@ void LiveMapsElementsWidget::createLayout()
 
 
     _vlm_widget = new VLM_Widget();
+    _vlm_widget->setAvailScans(&_avail_scans);
+    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::queueScan);
 
     _scan_queue_widget = new ScanQueueWidget();
+    connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
+    connect(_scan_queue_widget, &ScanQueueWidget::onOpenEnv, this, &LiveMapsElementsWidget::callOpenEnv);
+    connect(_scan_queue_widget, &ScanQueueWidget::onCloseEnv, this, &LiveMapsElementsWidget::callCloseEnv);
+    connect(_scan_queue_widget, &ScanQueueWidget::onStartQueue, this, &LiveMapsElementsWidget::callStartQueue);
+    connect(_scan_queue_widget, &ScanQueueWidget::onStopQueue, this, &LiveMapsElementsWidget::callStopQueue);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -141,6 +154,18 @@ void LiveMapsElementsWidget::createLayout()
 
 void LiveMapsElementsWidget::updateIp()
 {
+    
+    if(_qserverComm != nullptr)
+    {
+        disconnect(_qserverComm, &BlueskyComm::newData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
+        _qserverComm->stop();
+        _qserverComm->quit();
+        _qserverComm->wait();
+        delete _qserverComm;
+    }
+    _qserverComm = new BlueskyComm(_qserver_ip_addr->text(), this);
+    connect(_qserverComm, &BlueskyComm::newData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
+    _qserverComm->start();
 
     if(_streamWorker != nullptr)
     {
@@ -156,6 +181,10 @@ void LiveMapsElementsWidget::updateIp()
     if(_last_packet != nullptr)
         delete _last_packet;
     _last_packet = nullptr;
+
+    updateScansAvailable();
+    getQueuedScans();
+    callOpenEnv();
 }
 
 //---------------------------------------------------------------------------
@@ -253,3 +282,146 @@ void LiveMapsElementsWidget::image_changed(int start, int end)
 {
     _mapsElementsWidget->setModel(_maps_h5_models[start-1]);
 }
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::updateScansAvailable()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->get_avail_scans(_avail_scans, msg))
+    {
+        _scan_queue_widget->newDataArrived( msg );
+    }
+    
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::getQueuedScans()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
+    {
+        _scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        _scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callOpenEnv()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->open_env(msg))
+    {
+        //_scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callCloseEnv()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->close_env(msg))
+    {
+        //_scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callStartQueue()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->start_queue(msg))
+    {
+        //_scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callStopQueue()
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->stop_queue(msg))
+    {
+        //_scan_queue_widget->newDataArrived( msg );
+    }
+    else
+    {
+        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::queueScan(const BlueskyPlan& plan)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->queue_plan(msg, plan))
+    {
+        
+    }
+    else
+    {
+
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------

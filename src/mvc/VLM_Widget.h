@@ -31,6 +31,7 @@
 #include <solver/LinearCoordTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
+#include "mvc/BlueSkyPlan.h"
 
 
 class Solver;
@@ -157,6 +158,11 @@ public:
     * @brief addMicroProbeRegion
     */
    void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
+
+   // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
+
+
 
 public slots:
 
@@ -394,6 +400,8 @@ signals:
    void cancelSolverVariableUpdate();
 
    void onLinkRegionToDataset(QString, QString, QImage);
+
+   void onScanUpdated(const BlueskyPlan &plan); 
 
 private:
 
@@ -658,6 +666,8 @@ private:
     * @brief m_actionMap
     */
    QMap<QAction*, RegionCaller*> m_actionMap;
+
+   std::map<QString, BlueskyPlan> *_avail_scans;
 
 };
 

@@ -16,7 +16,7 @@
 
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
-
+	_avail_scans = nullptr;
     _createLayout();
 
 }
@@ -36,15 +36,18 @@ void ScanRegionDialog::_createLayout()
 	_scan_name = new QLineEdit(" ");
 	
 	_scan_type = new QComboBox();
+	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionDialog::scanChanged);
 
-	_scan_options = new QListWidget();
+	_scan_table_model = new ScanTableModel();
+	_scan_options = new QTableView();
+	_scan_options->setModel(_scan_table_model);
 
 	_btn_update = new QPushButton("Update");
 	_btn_update_and_queue = new QPushButton("Update and Queue");
 	_btn_cancel = new QPushButton("Cancel");
-	connect(_btn_update, SIGNAL(pressed()), this, SLOT(onUpdate()));
-	connect(_btn_update_and_queue, SIGNAL(pressed()), this, SLOT(onUpdateAndQueue()));
-	connect(_btn_cancel, SIGNAL(pressed()), this, SLOT(close()));
+	connect(_btn_update, &QPushButton::pressed, this, &ScanRegionDialog::onUpdate);
+	connect(_btn_update_and_queue, &QPushButton::pressed, this, &ScanRegionDialog::onUpdateAndQueue);
+	connect(_btn_cancel, &QPushButton::pressed, this, &ScanRegionDialog::close);
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	
@@ -74,6 +77,20 @@ void ScanRegionDialog::_createLayout()
 
 //---------------------------------------------------------------------------
 
+void ScanRegionDialog::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) 
+{
+	 _avail_scans = avail_scans;
+	 int i=0;
+	 _scan_type->clear();
+	 for(auto itr : *avail_scans)
+	 {
+		_scan_type->insertItem(i, itr.first);
+		i++;
+	 }
+}
+
+//---------------------------------------------------------------------------
+
 void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 {
 	for(auto &itr : anno_list)
@@ -89,7 +106,7 @@ void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 
 void ScanRegionDialog::onUpdate()
 {
-	emit ScanUpdated();
+	//emit ScanUpdated();
 	close();
 }
 
@@ -97,8 +114,24 @@ void ScanRegionDialog::onUpdate()
 
 void ScanRegionDialog::onUpdateAndQueue()
 {
-	emit ScanUpdated();
+	BlueskyPlan plan;
+	plan.type = _scan_type->currentText();
+	_scan_table_model->getCurrentParams(plan);
+	emit ScanUpdated(plan);
 	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionDialog::scanChanged(const QString &scan_name)
+{
+	if(_avail_scans != nullptr)
+	{
+		if(_avail_scans->count(scan_name) > 0)
+		{
+			_scan_table_model->setAllData(_avail_scans->at(scan_name));
+		}
+	}
 }
 
 //---------------------------------------------------------------------------

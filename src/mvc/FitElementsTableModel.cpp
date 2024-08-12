@@ -5,6 +5,7 @@
 
 #include "FitElementsTableModel.h"
 #include <QMessageBox>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
 
 FitElementsTableModel::~FitElementsTableModel()
 {
-    _is_log10 = true;
+    _is_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
     for(auto& itr : _nodes)
     {
         delete itr.second;
@@ -66,28 +67,34 @@ void FitElementsTableModel::setDisplayHeaderMinMax(bool val)
 
 void FitElementsTableModel::update_counts_log10(bool is_log10)
 {
-
-    for (auto& itr : _nodes)
+    if(_is_log10 != is_log10)
     {
-        TreeItem* node = itr.second;
         _is_log10 = is_log10;
-        if (is_log10)
+        for (auto& itr : _nodes)
         {
-            double val = node->itemData[COUNTS].toDouble();
-            node->itemData[COUNTS] = std::log10(val);
-            m_headers[HEADERS::COUNTS] = tr("Counts (10^Cnts)");
+            TreeItem* node = itr.second;
+            
+            if (is_log10)
+            {
+                double val = node->itemData[COUNTS].toDouble();
+                if (val != 0)
+                {
+                    node->itemData[COUNTS] = std::log10(val);
+                }
+                m_headers[HEADERS::COUNTS] = tr("Counts (10^Cnts)");
+            }
+            else
+            {
+                double val = node->itemData[COUNTS].toDouble();
+                node->itemData[COUNTS] = std::pow(10, val);
+                m_headers[HEADERS::COUNTS] = tr("Counts");
+            }
         }
-        else
-        {
-            double val = node->itemData[COUNTS].toDouble();
-            node->itemData[COUNTS] = std::pow(10, val);
-            m_headers[HEADERS::COUNTS] = tr("Counts");
-        }
+        QModelIndex topLeft = index(0, 0);
+        QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+        emit dataChanged(topLeft, bottomRight);
+        emit layoutChanged();
     }
-    QModelIndex topLeft = index(0, 0);
-    QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
-    emit dataChanged(topLeft, bottomRight);
-    emit layoutChanged();
 }
 
 //---------------------------------------------------------------------------

@@ -15,10 +15,11 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
+ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
-
+   _avail_scans = avail_scans;
+   _scan_dialog.setAvailScans(avail_scans);
    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
    prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
@@ -124,7 +125,7 @@ const QString ScanRegionGraphicsItem::displayName() const
 
 ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 {
-   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem();
+   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem(_avail_scans);
 
    //newRegion->m_outlineColor = m_outlineColor;
    newRegion->m_rect = m_rect;
@@ -142,10 +143,18 @@ QDialog* ScanRegionGraphicsItem::get_custom_dialog()
 
 //---------------------------------------------------------------------------
 
-void ScanRegionGraphicsItem::onScanUpdated()
+void ScanRegionGraphicsItem::onScanUpdated(const BlueskyPlan& plan)
 {
 
    setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
+   BlueskyPlan nplan = plan;
+   nplan.name = _scan_dialog.getScanName();
+   BlueskyParam meta_data;
+   meta_data.name = "md";
+   meta_data.default_val = nplan.name;
+   meta_data.description = "Link to scan name";
+   nplan.parameters["md"] = meta_data;
+   emit scanUpdated(nplan);
 
 }
 /*

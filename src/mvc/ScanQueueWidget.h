@@ -10,6 +10,10 @@
 
 #include <QWidget>
 #include <QTextEdit>
+#include <QTableView>
+#include <QPushButton>
+#include "mvc/BlueskyPlan.h"
+#include "mvc/ScanQueueTableModel.h"
 
 //---------------------------------------------------------------------------
 
@@ -31,8 +35,20 @@ public:
     */
    ~ScanQueueWidget();
 
-public slots:
+   void updateQueuedItems( std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
 
+signals:
+   void queueNeedsToBeUpdated();
+
+   void onOpenEnv();
+
+   void onCloseEnv();
+
+   void onStartQueue();
+
+   void onStopQueue();
+
+public slots:
    void newDataArrived(const QString &);
 
 protected:
@@ -44,11 +60,24 @@ protected:
 
    QTextEdit *_te_qs_console;
 
-//   QLineEdit *_qline_ip_addr;
+   QTableView* _scan_queue_table_view;
 
-//   QLineEdit *_qline_port;
+   ScanQueueTableModel* _scan_queue_table_model;
 
-//   QPushButton *_btn_update;
+   QTableView* _scan_running_table_view;
+
+   ScanQueueTableModel* _scan_running_table_model;
+
+   QPushButton* _btn_play;
+   
+   QPushButton* _btn_stop;
+
+   QPushButton* _btn_refresh;
+
+   QPushButton* _btn_open_env;
+
+   QPushButton* _btn_close_env;
+   
 };
 
 
