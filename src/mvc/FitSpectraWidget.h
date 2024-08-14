@@ -109,6 +109,8 @@ public slots:
 
    void optimizer_changed(QString val);
 
+   void optimizer_preset_changed(int idx);
+
 //   void element_clicked(QModelIndex index);
 
    void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
@@ -186,6 +188,8 @@ private:
 
     QComboBox *_cb_opttimizer;
 
+    QComboBox *_cb_fitting_preset;
+
     QTabWidget *_fit_params_tab_widget;
 
     QPushButton* _btn_fit_spectra;
@@ -235,8 +239,6 @@ private:
     QCheckBox* _chk_is_pileup;
 
     QComboBox* _cb_detector_element;
-
-    QPushButton* _btnSsettings;
 
     bool _showDetailedFitSpec;
 

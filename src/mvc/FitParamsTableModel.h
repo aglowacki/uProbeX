@@ -12,6 +12,7 @@
 #include <QModelIndex>
 #include <QVariant>
 #include "data_struct/fit_parameters.h"
+#include "fitting/models/gaussian_model.h"
 
 
 //---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ public:
       BOUND_TYPE,
       MIN_VAL,
       MAX_VAL,
-      STEP_SIZE,
+      //STEP_SIZE,
       NUM_PROPS
    };
 
@@ -49,9 +50,11 @@ public:
 
    void setOptimizerSupportsMinMax(bool val);
 
+   void setOptimizerPreset(fitting::models::Fit_Params_Preset preset);
+
    void setFitParams(data_struct::Fit_Parameters<double> fit_params);
 
-   void updateFitParams(data_struct::Fit_Parameters<double>* fit_params);
+   void updateFitParams(const data_struct::Fit_Parameters<double>* fit_params);
 
    void only_keep_these_keys(data_struct::Fit_Parameters<double> fit_params);
 

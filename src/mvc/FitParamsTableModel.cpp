@@ -4,7 +4,6 @@
  *---------------------------------------------------------------------------*/
 
 #include "FitParamsTableModel.h"
-#include "fitting/models/gaussian_model.h"
 #include <QColor>
 
 //---------------------------------------------------------------------------
@@ -18,7 +17,7 @@ FitParamsTableModel::FitParamsTableModel(QObject* parent) : QAbstractTableModel(
     m_headers[BOUND_TYPE] = tr("Is Fixed");
     m_headers[MIN_VAL] = tr("Min Value");
     m_headers[MAX_VAL] = tr("Max Value");
-    m_headers[STEP_SIZE] = tr("Step Size");
+    //m_headers[STEP_SIZE] = tr("Step Size");
     _editable = true;
     _optimizer_supports_min_max = false;
 
@@ -54,6 +53,16 @@ int FitParamsTableModel::columnCount(const QModelIndex &parent) const
 
 //---------------------------------------------------------------------------
 
+void FitParamsTableModel::setOptimizerPreset(fitting::models::Fit_Params_Preset preset)
+{
+    fitting::models::Gaussian_Model<double> gmodel;
+    gmodel.update_fit_params_values(&_fit_parameters);
+    gmodel.set_fit_params_preset(preset);
+    updateFitParams(&gmodel.fit_parameters());
+}
+
+//---------------------------------------------------------------------------
+
 void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
 {
     _optimizer_supports_min_max = val;
@@ -65,7 +74,7 @@ void FitParamsTableModel::setOptimizerSupportsMinMax(bool val)
 
 //---------------------------------------------------------------------------
 
-void FitParamsTableModel::updateFitParams(data_struct::Fit_Parameters<double>* fit_params)
+void FitParamsTableModel::updateFitParams(const data_struct::Fit_Parameters<double>* fit_params)
 {
     if(fit_params != nullptr)
     {
@@ -157,7 +166,7 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
         else if (index.column() == VALUE) return fitp.value;
         else if (index.column() == MIN_VAL) return fitp.min_val;
         else if (index.column() == MAX_VAL) return fitp.max_val;
-        else if (index.column() == STEP_SIZE) return fitp.step_size;
+       // else if (index.column() == STEP_SIZE) return fitp.step_size;
         else if (index.column() == BOUND_TYPE)
         {
             if (_optimizer_supports_min_max)
@@ -403,6 +412,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
         else
             return false;
     }
+    /*
     else if (column == STEP_SIZE)
     {
         if(ok)
@@ -410,6 +420,7 @@ bool FitParamsTableModel::setData(const QModelIndex &index,
         else
             return false;
     }
+    */
     else if (column == BOUND_TYPE)
     {
         _fit_parameters[fitp_name].bound_type = (data_struct::E_Bound_Type)value.toInt();

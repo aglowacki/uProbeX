@@ -66,7 +66,6 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 
     connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
     setAttribute(Qt::WA_DeleteOnClose, true);
-    connect(this, SIGNAL(destroyed()), this, SLOT(closeEvent()));
     _createLayout(create_image_nav, restore_floating);
 }
 
