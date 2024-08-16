@@ -16,6 +16,7 @@
 #include <QSpacerItem>
 #include <QInputDialog>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <math.h>
 
 #include "data_struct/element_info.h"
@@ -98,6 +99,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
  //FIXED=1, LIMITED_LO_HI=2, LIMITED_LO=3, LIMITED_HI=4, FIT=5};
     _fit_param_contextMenu = new QMenu(("Context menu"), this);
     _fit_param_contextMenu->addMenu(_set_fit_params_bounds_menu);
+    action_bounds = _fit_param_contextMenu->addAction("Load from CSV");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(show_load_fit_params_dialog(bool)));
 
 }
 
@@ -431,6 +434,72 @@ void FitSpectraWidget::onSettingsDialog()
             }
         }
     }
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::show_load_fit_params_dialog(bool val)
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        "Open Fit Parameters", _dataset_dir.absolutePath(),
+        "Fit Parameters (*.csv);;All Files (*.*)");
+
+    // Dialog returns a nullptr string if user press cancel.
+    if (fileName.isNull() || fileName.isEmpty()) return;
+
+    QString filePath = QFileInfo(fileName).canonicalFilePath();
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) 
+    {
+        logE<< file.errorString().toStdString();
+        return;
+    }
+    bool conv_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
+    data_struct::Fit_Parameters<double> fit_params = _fit_params_table_model->getFitParams();
+    data_struct::Fit_Parameters<double> fit_elements = _fit_elements_table_model->getAsFitParams();
+    QStringList wordList;
+    while (!file.atEnd()) 
+    {
+        QByteArray line = file.readLine();
+        QString sline = QString(line).trimmed();
+        wordList = sline.split(',');
+        if( wordList.size() == 2 )
+        {
+            std::string sfirst = wordList[0].toStdString();
+            if( fit_params.contains(sfirst) )
+            {
+                bool ok = false;
+                double val = wordList[1].toDouble(&ok);
+                if(ok)
+                {
+                    if( sfirst == STR_COMPTON_AMPLITUDE || sfirst == STR_COHERENT_SCT_AMPLITUDE)
+                    {
+                        if(conv_log10)
+                        {
+                            val = log10(val);
+                        }
+                    }
+                    fit_params[sfirst].value = val;
+                }
+            }
+            else if( fit_elements.contains(sfirst) ) 
+            {
+                bool ok = false;
+                double val = wordList[1].toDouble(&ok);
+                if(ok)
+                {
+                    if(conv_log10)
+                    {
+                        val = log10(val);
+                    }
+                    fit_elements[sfirst].value = val;
+                }
+            }
+        }
+    }
+    _fit_params_table_model->setFitParams(fit_params);
+    _fit_elements_table_model->updateElementValues(&fit_elements);
 }
 
 //---------------------------------------------------------------------------

@@ -77,13 +77,15 @@ void FittingDialog::_createLayout()
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        
+    _fit_params_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+            
     _new_fit_params_table = new QTableView();
     _new_fit_params_table->setModel(_new_fit_params_table_model);
     _new_fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _new_fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    
+    _new_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
     connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
 
     _btn_run = new QPushButton("Run");
