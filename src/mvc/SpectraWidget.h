@@ -112,6 +112,7 @@ public:
     void setBackgroundBlack(bool val);
 
 signals:
+    void onSettingsDialog();
 
     void trigger_connect_markers();
 
@@ -169,6 +170,8 @@ private slots:
     //void _update_series();
 
 private:
+
+    QPushButton* _btnSsettings;
 
     QLineEdit *_display_eneergy_max;
 

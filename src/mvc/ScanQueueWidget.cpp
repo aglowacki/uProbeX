@@ -89,6 +89,7 @@ void ScanQueueWidget::_createLayout()
 
     _te_qs_console = new QTextEdit(this);
     _te_qs_console->scrollBarWidgets(Qt::AlignRight);
+    _te_qs_console->setReadOnly(true);
     
     QDockWidget *dock_running = new QDockWidget("Running Scan", this);
     dock_running->setWidget(_scan_running_table_view);
@@ -125,6 +126,7 @@ void ScanQueueWidget::updateQueuedItems( std::vector<BlueskyPlan> &queued_plans,
 
 void ScanQueueWidget::newDataArrived(const QString& data)
 {
+    //_te_qs_console->insertPlainText(data);
     _te_qs_console->append(data);
     if (data.count("Item added: success=True item_type='plan'") > 0
     || data.count("Plan failed:") > 0

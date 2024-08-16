@@ -16,6 +16,7 @@
 #include <QSpacerItem>
 #include <QInputDialog>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <math.h>
 
 #include "data_struct/element_info.h"
@@ -98,6 +99,8 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
  //FIXED=1, LIMITED_LO_HI=2, LIMITED_LO=3, LIMITED_HI=4, FIT=5};
     _fit_param_contextMenu = new QMenu(("Context menu"), this);
     _fit_param_contextMenu->addMenu(_set_fit_params_bounds_menu);
+    action_bounds = _fit_param_contextMenu->addAction("Load from CSV");
+    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(show_load_fit_params_dialog(bool)));
 
 }
 
@@ -144,7 +147,6 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(4, npDelegate);
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    //_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table,
             SIGNAL(customContextMenuRequested(QPoint)),
@@ -160,7 +162,7 @@ void FitSpectraWidget::createLayout()
     _fit_elements_table->setModel(_fit_elements_table_model);
     _fit_elements_table->setItemDelegateForColumn(1, npDelegate);
     _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
-    //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     QItemSelectionModel* mod = _fit_elements_table->selectionModel();
     connect(mod,
@@ -168,9 +170,7 @@ void FitSpectraWidget::createLayout()
             this,
             SLOT(element_selection_changed(QModelIndex,QModelIndex)));
 
-    _btnSsettings = new QPushButton(QIcon(":/images/gear.png"), "", this);
-    _btnSsettings->setMaximumWidth(64);
-    connect(_btnSsettings, &QPushButton::released, this, &FitSpectraWidget::onSettingsDialog);
+    connect(_spectra_widget, &SpectraWidget::onSettingsDialog, this, &FitSpectraWidget::onSettingsDialog);
 
     _btn_fit_spectra = new QPushButton("Fit Spectra");
     connect(_btn_fit_spectra, &QPushButton::released, this, &FitSpectraWidget::Fit_Spectra_Click);
@@ -226,6 +226,16 @@ void FitSpectraWidget::createLayout()
     _fit_params_tab_widget->addTab(_fit_params_table, "Fit Parameters");
     _fit_params_tab_widget->addTab(element_widget, "Fit Elements");
 
+    _cb_fitting_preset = new QComboBox();
+    _cb_fitting_preset->addItem("User Defined");
+    _cb_fitting_preset->addItem("Fit Amplitutes Only");
+    _cb_fitting_preset->addItem("Fit No Tails");
+    _cb_fitting_preset->addItem("Fit With Tails");
+    _cb_fitting_preset->addItem("Fit With Free Energy");
+    _cb_fitting_preset->addItem("Fit No Tails Energy Quadratic");
+    connect(_cb_fitting_preset, &QComboBox::currentIndexChanged, this, &FitSpectraWidget::optimizer_preset_changed);
+
+
     _cb_opttimizer = new QComboBox();
     _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
@@ -247,7 +257,7 @@ void FitSpectraWidget::createLayout()
     {
         orient_layout = new QHBoxLayout();
         //splitter->setOrientation(Qt::Horizontal);
-        grid_layout->addWidget(_btnSsettings, 0, 0);
+        grid_layout->addWidget(_cb_fitting_preset, 0, 0);
         grid_layout->addWidget(_cb_opttimizer, 0, 1);
 
         grid_layout->addWidget(_btn_fit_spectra, 1, 0);
@@ -263,7 +273,7 @@ void FitSpectraWidget::createLayout()
     {
         orient_layout = new QVBoxLayout();
 	    //splitter->setOrientation(Qt::Vertical);
-        grid_layout->addWidget(_btnSsettings, 0, 0);
+        grid_layout->addWidget(_cb_fitting_preset, 0, 0);
         grid_layout->addWidget(_cb_opttimizer, 0, 1);
         grid_layout->addWidget(_chk_auto_model, 0, 2);
         grid_layout->addWidget(_btn_export_csv, 0, 3);
@@ -290,6 +300,8 @@ void FitSpectraWidget::createLayout()
 //	splitter->setStretchFactor(0, 1);
 //	splitter->addWidget(tab_and_buttons_widget);
 
+    _cb_fitting_preset->setCurrentIndex(2);
+    //optimizer_preset_changed(2); // batch with no tails
     optimizer_changed(STR_HYBRID_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
@@ -387,6 +399,8 @@ void FitSpectraWidget::onSettingsDialog()
 		{
             QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
             _spectra_widget->remove_spectra(name);
+            name = "Fitted_Int_" + QString(STR_FIT_INT_BACKGROUND.c_str());
+            _spectra_widget->remove_spectra(name);
 		}
 
         _showFitIntNNLS = Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool();
@@ -420,6 +434,72 @@ void FitSpectraWidget::onSettingsDialog()
             }
         }
     }
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::show_load_fit_params_dialog(bool val)
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        "Open Fit Parameters", _dataset_dir.absolutePath(),
+        "Fit Parameters (*.csv);;All Files (*.*)");
+
+    // Dialog returns a nullptr string if user press cancel.
+    if (fileName.isNull() || fileName.isEmpty()) return;
+
+    QString filePath = QFileInfo(fileName).canonicalFilePath();
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) 
+    {
+        logE<< file.errorString().toStdString();
+        return;
+    }
+    bool conv_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
+    data_struct::Fit_Parameters<double> fit_params = _fit_params_table_model->getFitParams();
+    data_struct::Fit_Parameters<double> fit_elements = _fit_elements_table_model->getAsFitParams();
+    QStringList wordList;
+    while (!file.atEnd()) 
+    {
+        QByteArray line = file.readLine();
+        QString sline = QString(line).trimmed();
+        wordList = sline.split(',');
+        if( wordList.size() == 2 )
+        {
+            std::string sfirst = wordList[0].toStdString();
+            if( fit_params.contains(sfirst) )
+            {
+                bool ok = false;
+                double val = wordList[1].toDouble(&ok);
+                if(ok)
+                {
+                    if( sfirst == STR_COMPTON_AMPLITUDE || sfirst == STR_COHERENT_SCT_AMPLITUDE)
+                    {
+                        if(conv_log10)
+                        {
+                            val = log10(val);
+                        }
+                    }
+                    fit_params[sfirst].value = val;
+                }
+            }
+            else if( fit_elements.contains(sfirst) ) 
+            {
+                bool ok = false;
+                double val = wordList[1].toDouble(&ok);
+                if(ok)
+                {
+                    if(conv_log10)
+                    {
+                        val = log10(val);
+                    }
+                    fit_elements[sfirst].value = val;
+                }
+            }
+        }
+    }
+    _fit_params_table_model->setFitParams(fit_params);
+    _fit_elements_table_model->updateElementValues(&fit_elements);
 }
 
 //---------------------------------------------------------------------------
@@ -1236,6 +1316,36 @@ void FitSpectraWidget::element_selection_changed(int index)
 }
 
 //---------------------------------------------------------------------------
+
+void FitSpectraWidget::optimizer_preset_changed(int val)
+{
+    switch (val)
+    {
+        case 0:
+            //_fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::NOT_SET);
+            break;
+        case 1:
+            _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::MATRIX_BATCH_FIT);
+            break;
+        case 2:
+            _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS);
+            break;
+        case 3:
+            _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
+            break;
+        case 4:
+            _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_FREE_ENERGY);
+            break;
+        case 5:
+            _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS_E_QUAD);
+            break;
+        default:
+    }
+    _fit_params_table->resizeColumnToContents(0);
+}
+
+//---------------------------------------------------------------------------
+
 
 void FitSpectraWidget::optimizer_changed(QString val)
 {

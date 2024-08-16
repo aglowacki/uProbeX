@@ -137,6 +137,10 @@ void SpectraWidget::createLayout()
     _btn_reset_chart_view = new QPushButton("Reset");
     connect(_btn_reset_chart_view, &QPushButton::released, this, &SpectraWidget::onResetChartView);
 
+    _btnSsettings = new QPushButton(QIcon(":/images/gear.png"), "", this);
+    _btnSsettings->setMaximumWidth(64);
+    connect(_btnSsettings, &QPushButton::released, this, &SpectraWidget::onSettingsDialog);
+
     QHBoxLayout* spectra_layout = new QHBoxLayout();
     spectra_layout->addWidget(_chartView);
 
@@ -159,7 +163,7 @@ void SpectraWidget::createLayout()
     options_layout->addWidget(new QLabel("Counts | "));
     */
     options_layout->addWidget(_btn_reset_chart_view);
-
+    options_layout->addWidget(_btnSsettings);
     options_layout->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
     QVBoxLayout* vlayout = new QVBoxLayout();

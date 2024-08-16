@@ -10,16 +10,20 @@
 
 #include <unordered_map>
 
+enum class BlueskyParamType { Numeral = 1, String = 3 };
+
+
 //---------------------------------------------------------------------------
 struct BlueskyParam
 {
     BlueskyParam()
     {
-        default_val = "0.0";
+        default_val = "";
     }
     QString name;
     QString description;
     QString default_val;
+    BlueskyParamType kind;
 };
 
 //---------------------------------------------------------------------------

@@ -109,6 +109,8 @@ public slots:
 
    void optimizer_changed(QString val);
 
+   void optimizer_preset_changed(int idx);
+
 //   void element_clicked(QModelIndex index);
 
    void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
@@ -172,6 +174,8 @@ private slots:
 
    void set_fit_params_bounds_limited_hi(bool v) { set_fit_params_bounds(data_struct::E_Bound_Type::LIMITED_HI); }
 
+   void show_load_fit_params_dialog(bool);
+
    void set_fit_params_bounds(data_struct::E_Bound_Type e_type);
 
    void pileup_chk_changed(int state);
@@ -185,6 +189,8 @@ private:
     QCheckBox *_chk_auto_model;
 
     QComboBox *_cb_opttimizer;
+
+    QComboBox *_cb_fitting_preset;
 
     QTabWidget *_fit_params_tab_widget;
 
@@ -235,8 +241,6 @@ private:
     QCheckBox* _chk_is_pileup;
 
     QComboBox* _cb_detector_element;
-
-    QPushButton* _btnSsettings;
 
     bool _showDetailedFitSpec;
 

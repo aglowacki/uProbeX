@@ -120,14 +120,34 @@ public:
         
         item["name"] = plan.type;
         item["item_type"] = "plan";
-        
+        QJsonObject meta;
+        meta["name"] = plan.name;
+        item["meta"] = meta;
+        QJsonArray args;
         QJsonObject kwargs;
         for(auto itr: plan.parameters)
         {
-            kwargs[itr.first] = itr.second.default_val;
+            if(itr.second.name == "detectors") 
+            {
+                QJsonArray inner_args; // need this for bluesky or it doesn't work
+                QStringList sarr = itr.second.default_val.split(",");
+                for(auto sitr : sarr)
+                {
+                    inner_args.append(QJsonValue::fromVariant(sitr));
+                }
+                args.append(inner_args);
+            }
+            else if(itr.second.kind == BlueskyParamType::String && itr.second.default_val.length() > 0)
+            {
+                kwargs[itr.first] = itr.second.default_val;
+            }
+            else if(itr.second.kind == BlueskyParamType::Numeral && itr.second.default_val.length() > 0)
+            {
+                kwargs[itr.first] = QJsonValue::fromVariant(itr.second.default_val.toDouble());
+            }
         }
         item["kwargs"] = kwargs;
-
+        item["args"] = args;
        return item;
     }
 
@@ -349,11 +369,33 @@ public:
                                 plans[pobj["name"].toString()].parameters[param["name"].toString()].name = param["name"].toString();
                                 if(param.contains("default"))
                                 {
-                                    plans[pobj["name"].toString()].parameters[param["name"].toString()].default_val = param["default"].toString();
+                                    if(param["default"].toString() != "None")
+                                    {
+                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].default_val = param["default"].toString();
+                                    }
                                 }
                                 if(param.contains("description"))
                                 {
                                     plans[pobj["name"].toString()].parameters[param["name"].toString()].description = param["description"].toString();
+                                }
+                            }
+                            if(param.contains("kind"))
+                            {
+                                QJsonObject kind = param["kind"].toObject();
+                                if(kind.contains("value"))
+                                {
+                                    int tval = kind["value"].toInt();
+                                    switch (tval)
+                                    {
+                                        case 1:
+                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::Numeral;
+                                        break;
+                                        case 3:
+                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::String;
+                                        break;
+                                        default:
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -437,15 +479,19 @@ public:
                         bsp.name = pitr;
                         bsp.default_val = kwargs[pitr].toString();
                         plan.parameters[pitr] = bsp;
-                        if(pitr == "md") // use meta data to link to scan name
-                        {
-                            plan.name = bsp.default_val; 
-                        }
                     }
                 }
                 if(param.contains("user"))
                 {
                     plan.user = param["user"].toString();
+                }
+                if(param.contains("meta"))
+                {
+                    QJsonObject meta = param["meta"].toObject();
+                    if(meta.contains("name"))
+                    {
+                        plan.name = meta["name"].toString();
+                    }
                 }
                 if(param.contains("item_uid"))
                 {
@@ -533,7 +579,9 @@ public slots:
                     QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
                     if(rootJson.contains("msg"))
                     {
-                        emit newData(rootJson["msg"].toString());
+                        QString msg = rootJson["msg"].toString();
+                        msg.chop(1);
+                        emit newData(msg);
                     }
                     else
                     {
