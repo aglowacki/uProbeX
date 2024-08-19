@@ -1340,6 +1340,7 @@ void FitSpectraWidget::optimizer_preset_changed(int val)
             _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS_E_QUAD);
             break;
         default:
+            break;
     }
     _fit_params_table->resizeColumnToContents(0);
 }
