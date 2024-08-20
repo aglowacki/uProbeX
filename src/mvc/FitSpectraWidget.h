@@ -27,6 +27,7 @@
 #include "data_struct/fit_element_map.h"
 #include "data_struct/params_override.h"
 #include "mvc/SpectraWidgetSettingsDialog.h"
+#include "mvc/PeriodicTableWidget.h"
 
 //---------------------------------------------------------------------------
 
@@ -182,6 +183,10 @@ private slots:
 
    void on_export_fit_paramters();
 
+   void display_periodic_table();
+
+   void update_selected_element_to_add(QString);
+
 private:
 
 	//std::mutex _mutex;
@@ -255,6 +260,10 @@ private:
     std::unordered_map<std::string, ArrayDr> _labeled_spectras;
 
     QDir _dataset_dir;
+
+   QPushButton* _btn_periodic_table;
+
+    PeriodicTableWidget* _periodic_table_widget;
 };
 
 

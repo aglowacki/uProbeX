@@ -113,7 +113,7 @@ private:
 
    QComboBox* _cb_file_size;
 
-   QCheckBox* _ck_int_spec_horiz;
+   QComboBox* _ck_int_spec_horiz;
 };
 
 //---------------------------------------------------------------------------
