@@ -124,7 +124,7 @@ private:
          {"Pb", Element_Class::Post_Transition_Metals},
          {"Bi", Element_Class::Post_Transition_Metals},
          {"Po", Element_Class::Post_Transition_Metals},
-         {"At", Element_Class::Post_Transition_Metals},
+         {"At", Element_Class::Metalloids},
          {"Rn", Element_Class::Noble_gases},
          {"Fr", Element_Class::Alkaline_Metal},
          {"Ra", Element_Class::Alkaline_Earth_Metal},
