@@ -552,6 +552,7 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
         {
             bool ok = false;
             double dval = value.toDouble(&ok);
+            QVariant new_value = value;
             if (false == ok)
             {
                 QMessageBox::warning(nullptr, "Could not convert to double", "Could not convert your value to a double.");
@@ -566,8 +567,7 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
                 }
                 else if (dval < -10)
                 {
-                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range -10 : 20 .");
-                    return false;
+                    new_value = QVariant(-11);
                 }
             }
             else
@@ -579,11 +579,10 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
                 }
                 else if (dval < 1.0e-10)
                 {
-                    QMessageBox::warning(nullptr, "Value too small", "Value is too small and will create NaN/Inf. Use range 1.0e-10 : 1.0e20 .");
-                    return false;
+                    new_value = QVariant(0);
                 }
             }
-            node->itemData[1] = value;
+            node->itemData[1] = new_value;
         }
     }
     else

@@ -108,6 +108,11 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
+    if(_periodic_table_widget != nullptr)
+    {
+        delete _periodic_table_widget;
+    }
+
     if (_fitting_dialog != nullptr)
     {
         delete _fitting_dialog;
@@ -137,6 +142,8 @@ void FitSpectraWidget::createLayout()
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
+    _periodic_table_widget = new PeriodicTableWidget();
+    connect(_periodic_table_widget, &PeriodicTableWidget::onSelect, this, &FitSpectraWidget::update_selected_element_to_add);
 
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
@@ -194,10 +201,16 @@ void FitSpectraWidget::createLayout()
     _btn_del_element = new QPushButton("Delete Element");
     connect(_btn_del_element, &QPushButton::released, this, &FitSpectraWidget::del_element);
 
+    _btn_periodic_table = new QPushButton();
+    _btn_periodic_table->setIcon(QIcon(":/images/grid.png"));
+    _btn_periodic_table->setFixedSize(32,32);
+    connect(_btn_periodic_table, &QPushButton::released, this, &FitSpectraWidget::display_periodic_table);
+
     QGridLayout* add_element_grid_layout = new QGridLayout();
     add_element_grid_layout->setAlignment(Qt::AlignTop);
     add_element_grid_layout->addWidget(new QLabel("Element"), 0, 0);
     add_element_grid_layout->addWidget(_cb_add_elements, 0, 1);
+    add_element_grid_layout->addWidget(_btn_periodic_table, 0, 2);
     add_element_grid_layout->addWidget(new QLabel("Shell"), 1, 0);
     add_element_grid_layout->addWidget(_cb_add_shell, 1, 1);
     //add_element_grid_layout->addWidget(new QLabel("Detector Element"), 2, 0);
@@ -208,7 +221,7 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_btn_del_element, 3, 1);
 
     QLayout* elements_layout;
-    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toInt() == 1)
     {
         elements_layout = new QVBoxLayout();
     }
@@ -253,7 +266,7 @@ void FitSpectraWidget::createLayout()
 
     QLayout * orient_layout;
 	//QSplitter* splitter = new QSplitter();
-    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toBool())
+    if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toInt() == 1)
     {
         orient_layout = new QHBoxLayout();
         //splitter->setOrientation(Qt::Horizontal);
@@ -327,6 +340,13 @@ void FitSpectraWidget::displayROIs(bool val)
     }
 
     replot_integrated_spectra(false);
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::update_selected_element_to_add(QString val)
+{
+    _cb_add_elements->setCurrentText(val);
 }
 
 //---------------------------------------------------------------------------
@@ -737,9 +757,15 @@ void FitSpectraWidget::clearROISpectra()
 
 //---------------------------------------------------------------------------
 
+void FitSpectraWidget::display_periodic_table()
+{
+    _periodic_table_widget->show();
+}
+
+//---------------------------------------------------------------------------
+
 void FitSpectraWidget::add_element()
 {
-
     if(_elements_to_fit == nullptr)
     {
         _elements_to_fit = new data_struct::Fit_Element_Map_Dict<double>();
@@ -1340,6 +1366,7 @@ void FitSpectraWidget::optimizer_preset_changed(int val)
             _fit_params_table_model->setOptimizerPreset(fitting::models::Fit_Params_Preset::BATCH_FIT_NO_TAILS_E_QUAD);
             break;
         default:
+            break;
     }
     _fit_params_table->resizeColumnToContents(0);
 }
