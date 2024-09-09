@@ -250,8 +250,8 @@ void FitSpectraWidget::createLayout()
 
 
     _cb_opttimizer = new QComboBox();
-    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     _cb_opttimizer->addItem(STR_MP_FIT);
+    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
     _cb_opttimizer->addItem(STR_LM_FIT);
     connect(_cb_opttimizer, &QComboBox::currentTextChanged, this, &FitSpectraWidget::optimizer_changed);
 
