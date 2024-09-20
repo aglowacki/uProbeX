@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanQueueTableModel.h"
+//#include "mvc/DragDropTableView.h"
 
 //---------------------------------------------------------------------------
 
@@ -47,6 +48,8 @@ signals:
    void onStartQueue();
 
    void onStopQueue();
+
+   void onMoveScanRow(int, int);
 
 public slots:
    void newDataArrived(const QString &);
@@ -83,6 +86,6 @@ protected:
 
 //---------------------------------------------------------------------------
 
-#endif /* LiveLiveMapsElementsWidget_H_ */
+#endif /* SCAN_QUEUE_WIDGET_H */
 
 //---------------------------------------------------------------------------

@@ -65,6 +65,8 @@ public slots:
 
    void callStopQueue();
 
+   void callMoveScanRow(int, int);
+   
    void queueScan(const BlueskyPlan& plan);
    
 protected:

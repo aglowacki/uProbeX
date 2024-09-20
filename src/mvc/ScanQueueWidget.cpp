@@ -43,8 +43,17 @@ void ScanQueueWidget::_createLayout()
    // _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
     _scan_queue_table_model = new ScanQueueTableModel();
+    connect(_scan_queue_table_model, &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
+    _scan_queue_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    _scan_queue_table_view->setSelectionMode(QAbstractItemView::SingleSelection);
+    _scan_queue_table_view->setDragEnabled(true);
+    _scan_queue_table_view->setAcceptDrops(true);
+    _scan_queue_table_view->setDragDropMode(QAbstractItemView::InternalMove);
+    _scan_queue_table_view->setDefaultDropAction(Qt::MoveAction);
+    _scan_queue_table_view->setDragDropOverwriteMode(false);
+    _scan_queue_table_view->setDropIndicatorShown(true);
     _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
    // _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
