@@ -10,6 +10,8 @@
 #include <QLabel>
 #include <QHeaderView>
 #include <QDockWidget>
+#include <QMessageBox>
+#include <QMenu>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -55,6 +57,12 @@ void ScanQueueWidget::_createLayout()
     _scan_queue_table_view->setDragDropOverwriteMode(false);
     _scan_queue_table_view->setDropIndicatorShown(true);
     _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    _scan_queue_table_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_scan_queue_table_view,
+          &QTableView::customContextMenuRequested,
+          this,
+          &ScanQueueWidget::scanContextMenu);
+    //_scan_queue_table_view->selectionModel()
    // _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
 
@@ -86,6 +94,27 @@ void ScanQueueWidget::_createLayout()
     _btn_close_env->setToolTip("Close Environment");
     connect(_btn_close_env, &QPushButton::pressed, this, &ScanQueueWidget::onCloseEnv);
 
+
+    _move_scan_up = new QAction("Move Scan Up", this);
+    connect(_move_scan_up,
+            &QAction::triggered,
+            this,
+            &ScanQueueWidget::on_move_scan_up);
+
+    _move_scan_down = new QAction("Move Scan Down", this);
+    connect(_move_scan_down,
+            &QAction::triggered,
+            this,
+            &ScanQueueWidget::on_move_scan_down);
+
+    _remove_scan = new QAction("Remove Scan", this);
+    connect(_remove_scan,
+            &QAction::triggered,
+            this,
+            &ScanQueueWidget::on_remove_scan);
+   
+    
+
     QGridLayout *grid = new QGridLayout();
     grid->addWidget(_btn_play, 0,0);
     grid->addWidget(_btn_stop,0,1);
@@ -114,6 +143,82 @@ void ScanQueueWidget::_createLayout()
 
     setLayout(layout);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::scanContextMenu(const QPoint& pos)
+{
+    QMenu menu(_scan_queue_table_view);
+    if (_scan_queue_table_view->selectionModel()->hasSelection())
+    {   
+        menu.addAction(_move_scan_up);
+        menu.addAction(_move_scan_down);
+        menu.addAction(_remove_scan);
+    
+        QAction* result = menu.exec(_scan_queue_table_view->viewport()->mapToGlobal(pos));
+        if (result == nullptr)
+        {
+            //m_selectionModel->clearSelection();
+        }
+        
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::on_move_scan_up()
+{
+    if (_scan_queue_table_view->selectionModel()->hasSelection())
+    {  
+        QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
+        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        {
+            QModelIndex index = selectedIndexes[i];
+            emit onMoveScanUp(index.row());
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::on_move_scan_down()
+{
+    if (_scan_queue_table_view->selectionModel()->hasSelection())
+    {  
+        QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
+        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        {
+            QModelIndex index = selectedIndexes[i];
+            emit onMoveScanDown(index.row());
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::on_remove_scan()
+{
+    if (_scan_queue_table_view->selectionModel()->hasSelection())
+    {  
+        QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
+
+        //display message box
+        QMessageBox msgBox;
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setText("Are you sure you want to delete the selected items?");
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Yes)
+        {
+            for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+            {
+                QModelIndex index = selectedIndexes[i];
+                emit onRemoveScan(index.row());
+            }
+        }
+        
+    }
 }
 
 //---------------------------------------------------------------------------

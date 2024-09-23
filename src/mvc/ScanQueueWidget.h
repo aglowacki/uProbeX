@@ -51,8 +51,22 @@ signals:
 
    void onMoveScanRow(int, int);
 
+   void onMoveScanUp(int);
+
+   void onMoveScanDown(int);
+
+   void onRemoveScan(int);
+
 public slots:
    void newDataArrived(const QString &);
+
+   void scanContextMenu(const QPoint &);
+
+   void on_move_scan_up();
+
+   void on_move_scan_down();
+
+   void on_remove_scan();
 
 protected:
 
@@ -81,6 +95,11 @@ protected:
 
    QPushButton* _btn_close_env;
    
+   QAction* _move_scan_up;
+   
+   QAction* _move_scan_down;
+
+   QAction* _remove_scan;
 };
 
 

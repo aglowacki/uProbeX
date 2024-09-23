@@ -339,6 +339,38 @@ public:
         return ret;
     }
 
+   //---------------------------------------------------------------------------
+    
+    bool removePlan(QString &msg, int row)
+    {
+        bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
+        zmq::message_t message;
+        
+        QJsonObject params;
+        params["pos"] = row;
+        QByteArray msg_arr = gen_send_mesg2("queue_item_remove", params);
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            if(reply["success"].toString() == "true")
+            {
+                ret = true;
+            }
+        }
+        if(reply.contains("msg"))
+        {
+            msg = reply["msg"].toString();
+        }
+        return ret;
+    }
+
     //---------------------------------------------------------------------------
 
     bool get_avail_scans(std::map<QString, BlueskyPlan> &plans, QString &msg)

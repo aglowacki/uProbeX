@@ -136,6 +136,9 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onStartQueue, this, &LiveMapsElementsWidget::callStartQueue);
     connect(_scan_queue_widget, &ScanQueueWidget::onStopQueue, this, &LiveMapsElementsWidget::callStopQueue);
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanRow, this, &LiveMapsElementsWidget::callMoveScanRow);
+    connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanUp, this, &LiveMapsElementsWidget::callMoveScanUp);
+    connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanDown, this, &LiveMapsElementsWidget::callMoveScanDown);
+    connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -436,6 +439,47 @@ void LiveMapsElementsWidget::callMoveScanRow(int srcRow, int destRow)
         updateIp();
     }
     if (false == _qserverComm->movePlan(msg, srcRow, destRow))
+    {
+        
+    }
+    else
+    {
+
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callMoveScanUp(int row)
+{
+    if(row > 0)
+    {
+        callMoveScanRow(row, row-1);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callMoveScanDown(int row)
+{
+    
+    callMoveScanRow(row, row+1);
+
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callRemoveScan(int row)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->removePlan(msg, row))
     {
         
     }
