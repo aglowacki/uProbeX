@@ -67,6 +67,9 @@ void FittingDialog::_createLayout()
     _new_fit_params_table_model = new FitParamsTableModel();
     _new_fit_params_table_model->setEditable(false);
 
+    _diff_fit_params_table_model = new FitParamsTableModel();
+    _diff_fit_params_table_model->setEditable(false);
+
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
@@ -77,7 +80,7 @@ void FittingDialog::_createLayout()
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    _fit_params_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    _fit_params_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
             
     _new_fit_params_table = new QTableView();
     _new_fit_params_table->setModel(_new_fit_params_table_model);
@@ -86,7 +89,16 @@ void FittingDialog::_createLayout()
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
+    _diff_fit_params_table = new QTableView();
+    _diff_fit_params_table->setModel(_diff_fit_params_table_model);
+    _diff_fit_params_table->sortByColumn(0, Qt::AscendingOrder);
+    _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+
     connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
+    connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _diff_fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
+
 
     _btn_run = new QPushButton("Run");
     connect(_btn_run, &QPushButton::released, this, &FittingDialog::runProcessing);
@@ -116,7 +128,7 @@ void FittingDialog::_createLayout()
     QHBoxLayout* hbox_tables = new QHBoxLayout();
     hbox_tables->addWidget(_fit_params_table);
     hbox_tables->addWidget(_new_fit_params_table);
-
+    hbox_tables->addWidget(_diff_fit_params_table);
 
     hbox_btn_update->addStretch();
     hbox_btn_update->addWidget(_btn_update_fitp);
@@ -455,6 +467,16 @@ void FittingDialog::runProcessing()
 
         if (false == _canceled)
         {
+
+            data_struct::Fit_Parameters<double> diff_out_fit_params;
+            for(auto &itr :_out_fit_params)
+            {
+                double dif_val = _new_out_fit_params.at(itr.first).value - itr.second.value;
+                diff_out_fit_params.add_parameter(data_struct::Fit_Param(itr.first, dif_val));
+            }
+
+            _diff_fit_params_table_model->setFitParams(diff_out_fit_params);
+            _diff_fit_params_table_model->only_keep_these_keys(_out_fit_params);
 
             _new_fit_params_table_model->setFitParams(_new_out_fit_params);
 

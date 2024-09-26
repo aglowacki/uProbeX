@@ -111,9 +111,13 @@ protected:
 
    QTableView* _new_fit_params_table;
 
+   QTableView* _diff_fit_params_table;
+
    FitParamsTableModel* _fit_params_table_model;
 
    FitParamsTableModel* _new_fit_params_table_model;
+
+   FitParamsTableModel* _diff_fit_params_table_model;
 
    SpectraWidget* _spectra_widget;
 
