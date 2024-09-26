@@ -639,7 +639,7 @@ void SolverProfileWidget::runSolver()
       delete m_solverWidget;
    m_solverWidget = nullptr;
 
-   m_solverWidget = new SolverWidget();
+   m_solverWidget = new SolverWidget(this);
    connect(m_solverWidget,
      SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
      this,

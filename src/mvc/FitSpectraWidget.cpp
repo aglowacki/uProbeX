@@ -313,9 +313,9 @@ void FitSpectraWidget::createLayout()
 //	splitter->setStretchFactor(0, 1);
 //	splitter->addWidget(tab_and_buttons_widget);
 
-    _cb_fitting_preset->setCurrentIndex(2);
-    //optimizer_preset_changed(2); // batch with no tails
-    optimizer_changed(STR_HYBRID_MP_FIT);
+    _cb_fitting_preset->setCurrentIndex(3);
+    //optimizer_preset_changed(3); // batch with tails
+    optimizer_changed(STR_MP_FIT);
 
     QLayout* layout = new QVBoxLayout();
 //	layout->addWidget(splitter);
@@ -1125,13 +1125,6 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             {
                 _fit_spec += _spectra_background;
             }
-            for (int i = 0; i < _fit_spec.size(); i++)
-            {
-                if (_fit_spec[i] <= 0.0)
-                {
-                    _fit_spec[i] = 0.1;
-                }
-            }
 
             fitting::optimizers::OPTIMIZER_OUTCOME outcome = _fitting_dialog->getOutcome();
             std::string result = fitting::optimizers::optimizer_outcome_to_str(outcome);
@@ -1204,11 +1197,7 @@ void FitSpectraWidget::Model_Spectra_Click()
         {
             fit_spec += _spectra_background;
         }
-        for(int i=0; i<fit_spec.size(); i++)
-        {
-            if(fit_spec[i] <= 0.0)
-                fit_spec[i] = 0.1;
-        }
+
         _spectra_widget->append_spectra(DEF_STR_MODEL_SPECTRA, &fit_spec, (data_struct::Spectra<double>*)&_ev);
     }
     emit signal_finished_fit();
