@@ -70,7 +70,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 				uProbeX::log_textedit->insertHtml(h_msg);
 				break;
 			case QtFatalMsg:
-				abort();
+				//abort();
 				break;
 			}
 		}

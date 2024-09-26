@@ -314,7 +314,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 
 				float val = (*spectra)[i];
 				bool isFine = std::isfinite(val);
-				if (false == isFine || val <= 0.0f)
+				if (false == isFine || val == 0.0f)
 				{
 					val = 1.0;
 				}
@@ -380,7 +380,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 			{
 				float val = (*spectra)[i];
 				bool isFine = std::isfinite(val);
-				if (false == isFine || val <= 0.0f)
+				if (false == isFine || val == 0.0f)
 				{
 					val = 1.0;
 				}

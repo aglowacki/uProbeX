@@ -10,12 +10,17 @@
 
 #include <QAbstractTableModel>
 #include "mvc/BlueskyPlan.h"
+#include <QMimeData>
+#include <QIODevice>
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 class ScanQueueTableModel : public QAbstractTableModel 
 {
+
+    Q_OBJECT
+
 public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
@@ -71,6 +76,54 @@ public:
 
     //---------------------------------------------------------------------------
 
+    Qt::DropActions supportedDropActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
+    //---------------------------------------------------------------------------
+
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override 
+    {
+        if (action == Qt::IgnoreAction)
+        {
+            return true;
+        }
+        if(data != nullptr)
+        {
+            if( data->hasFormat("application/x-qabstractitemmodeldatalist") )
+            {
+                QByteArray bytes=data->data("application/x-qabstractitemmodeldatalist");
+                QDataStream stream(&bytes,QIODevice::QIODevice::ReadOnly);
+                int srow, scol;
+                QMap<int,  QVariant> roleDataMap;
+                stream >> srow >> scol >> roleDataMap;
+                emit moveScanRow(srow, parent.row());
+            }
+            
+        }
+        return QAbstractTableModel::dropMimeData(data, action, row, 0, parent);
+    }
+
+    //---------------------------------------------------------------------------
+
+    bool moveRows(const QModelIndex &srcParent, int srcRow, int count, const QModelIndex &dstParent, int dstChild) override
+    {
+        /*beginMoveRows(QModelIndex(), srcRow, srcRow + count - 1, QModelIndex(), dstChild);
+        for(int i = 0; i<count; ++i) 
+        {
+            m_data.insert(dstChild + i, m_data[srcRow]);
+            int removeIndex = dstChild > srcRow ? srcRow : srcRow+1;
+            m_data.removeAt(removeIndex);
+        }
+        endMoveRows();
+        */
+        emit moveScanRow(srcParent.row(), dstParent.row());
+        return true;
+    }
+
+    //---------------------------------------------------------------------------
+
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
         if (!index.isValid() || index.row() >= _data.size() || index.column() >= 4)
@@ -97,7 +150,7 @@ public:
         return QVariant();
     }
     //---------------------------------------------------------------------------
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
         // Check this is DisplayRole
         if (role != Qt::DisplayRole) return QVariant();
@@ -121,14 +174,14 @@ public:
     
     //---------------------------------------------------------------------------
 
-    Qt::ItemFlags flags(const QModelIndex &index) const
+    Qt::ItemFlags flags(const QModelIndex &index) const override
     {
         if (!index.isValid())
         {
             return Qt::NoItemFlags;
         }
 
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
     }
     
     //---------------------------------------------------------------------------
@@ -146,7 +199,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool setData(const QModelIndex& index, const QVariant& value, int role)
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override
     {
         if (role == Qt::EditRole && index.isValid())
         {
@@ -161,6 +214,10 @@ public:
 
     }
     //---------------------------------------------------------------------------
+
+signals:
+    void moveScanRow(int, int);
+
 
 private:
     QList<BlueskyPlan> _data;

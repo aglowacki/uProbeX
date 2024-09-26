@@ -282,21 +282,7 @@ void FittingDialog::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* 
     if (_elements_to_fit != nullptr)
     {
        
-        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);
-        /*
-        if (fit_spec.size() == _spectra_background.size())
-        {
-            fit_spec += _spectra_background;
-        }
-        */
-        for (int i = 0; i < fit_spec.size(); i++)
-        {
-            if (fit_spec[i] <= 0.0)
-            {
-                fit_spec[i] = 0.1;
-            }
-        }
-        
+        data_struct::Spectra<double> fit_spec = _model.model_spectrum(&_out_fit_params, _elements_to_fit, &_labeled_spectras, _energy_range);        
         _spectra_widget->append_spectra(DEF_STR_FIT_INT_SPECTRA, &fit_spec, &_ev);
     }
 }
@@ -486,6 +472,12 @@ void FittingDialog::runProcessing()
             if (_new_fit_spec.size() == _spectra_background.size())
             {
                 _new_fit_spec += _spectra_background;
+                /*
+                for(auto &itr : _labeled_spectras)
+                {
+                    itr.second += _spectra_background;
+                }
+                */
             }
             
             data_struct::Range energy_range = data_struct::get_energy_range(_new_fit_spec.rows(), &(_out_fit_params));
@@ -500,13 +492,6 @@ void FittingDialog::runProcessing()
                 _spectra_background[i] = 0.0;
             }
 
-            for (int i = 0; i < _new_fit_spec.size(); i++)
-            {
-                if (_new_fit_spec[i] <= 0.0)
-                {
-                    _new_fit_spec[i] = 0.01;
-                }
-            }
 
             _spectra_widget->append_spectra(DEF_STR_NEW_FIT_INT_SPECTRA, &_new_fit_spec, &_ev);
         }

@@ -12,6 +12,7 @@
 #include <QWidget>
 #include <QPropertyAnimation>
 #include <QPushButton>
+#include <QCoreApplication>
 
 //---------------------------------------------------------------------------
 
@@ -19,6 +20,8 @@ class AnnimateSlideWidget : public QWidget
 {
 
    Q_OBJECT
+
+   enum class SlideState {SlideIn, SlideOut};
 
 public:
 
@@ -34,18 +37,16 @@ protected:
 
    virtual void enterEvent(QEnterEvent *event) override 
    {
-      if(_anim_enabled && false == _running)
+      if(_anim_enabled)
       {
-         _running = true;
          animateSlideOut();
-      }
+      }  
    }
 
    virtual void leaveEvent(QEvent *event) override 
    {
-      if(_anim_enabled && false == _running)
+      if(_anim_enabled)
       {
-         _running = true;
          animateSlideIn();  
       }
    }
@@ -54,28 +55,35 @@ private slots:
    void animateSlideIn() 
    {
       // Animate the widget to slide in
-      if(_first)
+      if ( _anim_hide->state() == QAbstractAnimation::State::Stopped 
+         && _anim_show->state() == QAbstractAnimation::State::Stopped
+         && _cur_state == SlideState::SlideOut)
       {
-         _saved_width = _anim_widget->width();
-         _first = false;
+         if(_first)
+         {
+            _saved_width = _anim_widget->width();
+            _first = false;
+            _anim_hide->setStartValue(_saved_width);
+            _anim_hide->setEndValue(20);
+
+            _anim_show->setStartValue(20);
+            _anim_show->setEndValue(_saved_width);
+         }
+
+         _cur_state = SlideState::SlideIn;
+         _anim_hide->start();
       }
-      _anim_hide->setStartValue(_saved_width);
-      _anim_hide->setEndValue(20);
-
-      _anim_show->setStartValue(20);
-      _anim_show->setEndValue(_saved_width);
-
-      _anim_hide->start();
    }
 
    void animateSlideOut() 
    {
-      _anim_show->start();
-   }
-
-   void onFinished()
-   {
-      _running = false;
+      if ( _anim_hide->state() == QAbstractAnimation::State::Stopped 
+         && _anim_show->state() == QAbstractAnimation::State::Stopped
+         && _cur_state == SlideState::SlideIn)
+      {
+          _cur_state = SlideState::SlideOut;
+         _anim_show->start();
+      }
    }
 
 private:
@@ -83,9 +91,9 @@ private:
    QPropertyAnimation *_anim_hide;
    QPropertyAnimation *_anim_show;
    bool _anim_enabled;
-   bool _first;
-   bool _running;
+   SlideState _cur_state;
    int _saved_width;
+   bool _first;
 };
 
 //---------------------------------------------------------------------------

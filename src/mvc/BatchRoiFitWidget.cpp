@@ -53,8 +53,8 @@ void BatchRoiFitWidget::createLayout()
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
     
     _cb_opt_method = new QComboBox();
-    _cb_opt_method->addItem(STR_HYBRID_MP_FIT);
     _cb_opt_method->addItem(STR_MP_FIT);
+    _cb_opt_method->addItem(STR_HYBRID_MP_FIT);
     _cb_opt_method->addItem(STR_LM_FIT);
     connect(_cb_opt_method, &QComboBox::currentTextChanged, this, &BatchRoiFitWidget::optimizer_changed);
 
