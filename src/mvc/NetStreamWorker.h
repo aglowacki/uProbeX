@@ -9,7 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QThread>
-#include "support/zmq/zmq.hpp"
+#include <zmq.hpp>
 #include "io/net/basic_serializer.h"
 #include <string>
 //---------------------------------------------------------------------------

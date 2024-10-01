@@ -12,7 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include "support/zmq/zmq.hpp"
+#include <zmq.hpp>
 #include "mvc/BlueskyPlan.h"
 #include <string>
 //---------------------------------------------------------------------------

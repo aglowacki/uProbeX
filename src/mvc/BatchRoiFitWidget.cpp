@@ -53,9 +53,9 @@ void BatchRoiFitWidget::createLayout()
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
     
     _cb_opt_method = new QComboBox();
-    _cb_opt_method->addItem(STR_MP_FIT);
+    _cb_opt_method->addItem(STR_NL_FIT);
     _cb_opt_method->addItem(STR_HYBRID_MP_FIT);
-    _cb_opt_method->addItem(STR_LM_FIT);
+    _cb_opt_method->addItem(STR_MP_FIT);
     connect(_cb_opt_method, &QComboBox::currentTextChanged, this, &BatchRoiFitWidget::optimizer_changed);
 
     _file_list_model = new QStandardItemModel();
@@ -80,8 +80,8 @@ void BatchRoiFitWidget::createLayout()
     detector_hbox->addWidget(_le_detectors);
 
     _optimizer_widget = new OptimizerOptionsWidget();
-    fitting::optimizers::LMFit_Optimizer<double> lmfit_optimizer;
-    _optimizer_widget->setOptimizer(STR_LM_FIT, lmfit_optimizer);
+    fitting::optimizers::NLOPT_Optimizer<double> optimizer;
+    _optimizer_widget->setOptimizer(STR_NL_FIT, optimizer);
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(detector_hbox);
@@ -99,10 +99,10 @@ void BatchRoiFitWidget::createLayout()
 
 void BatchRoiFitWidget::optimizer_changed(QString val)
 {
-    if (val == STR_LM_FIT)
+    if (val == STR_NL_FIT)
     {
-        fitting::optimizers::LMFit_Optimizer<double> lmfit_optimizer;
-        _optimizer_widget->setOptimizer(val, lmfit_optimizer);
+        fitting::optimizers::NLOPT_Optimizer<double> optimizer;
+        _optimizer_widget->setOptimizer(val, optimizer);
     }
     else if (val == STR_MP_FIT || val == STR_HYBRID_MP_FIT)
     {
@@ -197,7 +197,7 @@ void BatchRoiFitWidget::runProcessing()
     analysis_job.dataset_directory = _directory;
     if (_cb_opt_method->currentText() == STR_HYBRID_MP_FIT)
     {
-        analysis_job.set_optimizer("mpfit");
+        analysis_job.set_optimizer("nlopt");
         analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
     }
     else
@@ -208,7 +208,7 @@ void BatchRoiFitWidget::runProcessing()
         }
         else
         {
-            analysis_job.set_optimizer("lmfit");
+            analysis_job.set_optimizer("nlopt");
         }
     }
 

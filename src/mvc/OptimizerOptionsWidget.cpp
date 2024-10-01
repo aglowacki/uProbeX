@@ -160,7 +160,11 @@ void OptimizerOptionsWidget::_createLayout()
 
 void OptimizerOptionsWidget::setOptimizer(QString opt, fitting::optimizers::Optimizer<double>& optimizer)
 {
-    if (opt == STR_LM_FIT)
+
+        _mp_fit_ctrl_grp->setVisible(false);
+        _lm_fit_ctrl_grp->setVisible(false);
+    /*
+    if (opt == STR_NL_FIT)
     {
         _mp_fit_ctrl_grp->setVisible(false);
         _lm_fit_ctrl_grp->setVisible(true);
@@ -175,6 +179,7 @@ void OptimizerOptionsWidget::setOptimizer(QString opt, fitting::optimizers::Opti
         _lm_fit_ctrl_grp->setVisible(false);
         _mp_fit_ctrl_grp->setVisible(true);
     }
+    */
     updateGUIOptimizerOptions(optimizer);
 }
 

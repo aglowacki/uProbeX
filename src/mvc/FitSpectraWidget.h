@@ -108,7 +108,7 @@ public slots:
 
    void check_auto_model(int state);
 
-   void optimizer_changed(QString val);
+   //void optimizer_changed(QString val);
 
    void optimizer_preset_changed(int idx);
 

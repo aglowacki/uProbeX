@@ -63,6 +63,7 @@ void FittingDialog::_createLayout()
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
     _fit_params_table_model = new FitParamsTableModel();
+    _fit_params_table_model->setOptimizerSupportsMinMax(true);
 
     _new_fit_params_table_model = new FitParamsTableModel();
     _new_fit_params_table_model->setEditable(false);
@@ -214,26 +215,22 @@ void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_
 
 void FittingDialog::setOptimizer(QString opt)
 {
-    if (opt == STR_LM_FIT)
+    if (opt == STR_NL_FIT)
     {
-        _optimizer = &_lmfit_optimizer;
+        _optimizer = &_nlfit_optimizer;
         _param_fit_routine.set_optimizer(_optimizer);
-        _is_hybrid_fit = false;
-        _fit_params_table_model->setOptimizerSupportsMinMax(false);
     }
     else if (opt == STR_MP_FIT)
     {
         _optimizer = &_mpfit_optimizer;
         _param_fit_routine.set_optimizer(_optimizer);
         _is_hybrid_fit = false;
-        _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
     else if (opt == STR_HYBRID_MP_FIT)
     {
-        _optimizer = &_mpfit_optimizer;
+        _optimizer = &_nlfit_optimizer;
         _is_hybrid_fit = true;
         _hybrid_fit_routine.set_optimizer(_optimizer);
-        _fit_params_table_model->setOptimizerSupportsMinMax(true);
     }
     _optimizer_widget->setOptimizer(opt, *_optimizer);
 }

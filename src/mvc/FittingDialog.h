@@ -32,7 +32,7 @@
 #include "mvc/ComboBoxDelegate.h"
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/SpectraWidget.h"
-#include "fitting//optimizers/lmfit_optimizer.h"
+#include "fitting//optimizers/nlopt_optimizer.h"
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
@@ -151,7 +151,7 @@ protected:
 
    OptimizerOptionsWidget* _optimizer_widget;
 
-   fitting::optimizers::LMFit_Optimizer<double> _lmfit_optimizer;
+   fitting::optimizers::NLOPT_Optimizer<double> _nlfit_optimizer;
 
    fitting::optimizers::MPFit_Optimizer<double> _mpfit_optimizer;
 

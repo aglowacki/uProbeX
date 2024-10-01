@@ -18,16 +18,16 @@
 #include <QDoubleSpinBox>
 #include <QGroupBox>
 #include "mvc/ComboBoxDelegate.h"
-#include "fitting//optimizers/lmfit_optimizer.h"
+#include "fitting//optimizers/nlopt_optimizer.h"
 #include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
 
 //---------------------------------------------------------------------------
 
-const static QString STR_LM_FIT = "Levenberg-Marquardt Fit";
+const static QString STR_NL_FIT = "NL Opt";
 const static QString STR_MP_FIT = "MP Fit";
-const static QString STR_HYBRID_MP_FIT = "Hybrid MP Fit";
+const static QString STR_HYBRID_MP_FIT = "Hybrid NL Opt";
 
 //---------------------------------------------------------------------------
 

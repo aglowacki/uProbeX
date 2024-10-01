@@ -82,10 +82,11 @@ find_package(Threads)
 find_package(hdf5 CONFIG REQUIRED)
 find_package(netCDF CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(ZeroMQ CONFIG REQUIRED)
+find_package(cppzmq CONFIG REQUIRED)
 find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(OpenCV CONFIG REQUIRED)
+find_package(NLopt CONFIG REQUIRED)
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -210,7 +211,7 @@ endforeach()
 #qt_use_modules(uProbeX Core Widgets Gui)
 IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
-  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O3 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O2 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
     target_link_libraries (uProbeX PRIVATE 
                         yaml-cpp::yaml-cpp
@@ -228,6 +229,8 @@ IF (MSVC)
                         opencv_flann
                         netCDF::netcdf
                         hdf5::hdf5-shared
+                        cppzmq cppzmq-static
+                        NLopt::nlopt
                         libxrf_fit
 						            libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT}
@@ -236,7 +239,7 @@ ELSEIF (UNIX)
   #IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   #  set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
   #ENDIF()
-  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O3")
+  set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O2")
 
     target_link_libraries (uProbeX PRIVATE
                         libzmq
@@ -250,6 +253,8 @@ ELSEIF (UNIX)
                         opencv_dnn
                         opencv_flann
                         netCDF::netcdf
+                        cppzmq cppzmq-static
+                        NLopt::nlopt
                         libxrf_fit
                         libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT} )
