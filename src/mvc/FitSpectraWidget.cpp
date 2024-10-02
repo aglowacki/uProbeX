@@ -137,6 +137,7 @@ void FitSpectraWidget::createLayout()
 
     _fit_params_table_model = new FitParamsTableModel();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
+    _fit_params_table_model->setOptimizerSupportsMinMax(true);
     connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra_with_background);
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
@@ -160,6 +161,7 @@ void FitSpectraWidget::createLayout()
             SLOT(fit_params_customMenuRequested(QPoint)));
 
     _fit_elements_table_model = new FitElementsTableModel(_detector_element);
+    //_fit_elements_table_model->setDisplayHeaderMinMax(true);
 
     connect(_spectra_widget, SIGNAL(y_axis_changed(bool)), _fit_elements_table_model, SLOT(update_counts_log10(bool)));
     connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
