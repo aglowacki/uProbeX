@@ -19,7 +19,6 @@
 #include "core/defines.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
-#include "fitting/optimizers/mpfit_optimizer.h"
 #include "fitting/models/gaussian_model.h"
 #include "data_struct/stream_block.h"
 

@@ -16,18 +16,17 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QComboBox>
 #include <QGroupBox>
 #include "mvc/ComboBoxDelegate.h"
-#include "fitting//optimizers/nlopt_optimizer.h"
-#include "fitting//optimizers/mpfit_optimizer.h"
+#include "fitting//optimizers/optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
 
 //---------------------------------------------------------------------------
 
-const static QString STR_NL_FIT = "NL Opt";
-const static QString STR_MP_FIT = "MP Fit";
-const static QString STR_HYBRID_MP_FIT = "Hybrid NL Opt";
+const static QString STR_GENERAL_FIT = "General";
+const static QString STR_HYBRID_FIT = "Hybrid";
 
 //---------------------------------------------------------------------------
 
@@ -48,13 +47,15 @@ public:
      */
     ~OptimizerOptionsWidget();
 
-    void setOptimizer(QString opt, fitting::optimizers::Optimizer<double>& optimizer);
+    void setOptimizer(fitting::optimizers::Optimizer<double>& optimizer);
 
     void updateOptimizerOptions(fitting::optimizers::Optimizer<double>& optimizer); // get gui settings and send to optimizer
 
     void updateGUIOptimizerOptions(fitting::optimizers::Optimizer<double>& optimizer); // get optimizer settings and update GUI
 
     bool useWeights() {  return _ck_use_weights->isChecked();  }
+
+   bool isHybrid();
 
 protected:
 
@@ -65,29 +66,29 @@ protected:
 
    QTextEdit *_textEdit;
 
-   QGroupBox* _lm_fit_ctrl_grp;
+   QComboBox *_cb_optimization_type;
 
-   QGroupBox* _mp_fit_ctrl_grp;
+   QComboBox *_cb_algorithm;
 
    QCheckBox* _ck_use_weights;
 
-   QLineEdit* _opt_ftol;
+   //QLineEdit* _opt_ftol;
 
    QLineEdit* _opt_xtol;
 
-   QLineEdit* _opt_gtol;
+   //QLineEdit* _opt_gtol;
 
-   QLineEdit* _opt_epsilon;
+   //QLineEdit* _opt_epsilon;
 
-   QDoubleSpinBox* _opt_stepbound;
+   //QDoubleSpinBox* _opt_stepbound;
 
    QSpinBox* _opt_maxiter;
 
-   QSpinBox* _opt_lm_scale_diag;
+   //QSpinBox* _opt_lm_scale_diag;
 
-   QSpinBox* _opt_lm_verbose;
+   //QSpinBox* _opt_lm_verbose;
 
-   QLineEdit* _opt_mp_covtol;
+   //QLineEdit* _opt_mp_covtol;
 
 };
 

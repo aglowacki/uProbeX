@@ -108,8 +108,6 @@ public slots:
 
    void check_auto_model(int state);
 
-   //void optimizer_changed(QString val);
-
    void optimizer_preset_changed(int idx);
 
 //   void element_clicked(QModelIndex index);
@@ -192,8 +190,6 @@ private:
 	//std::mutex _mutex;
 
     QCheckBox *_chk_auto_model;
-
-    QComboBox *_cb_opttimizer;
 
     QComboBox *_cb_fitting_preset;
 

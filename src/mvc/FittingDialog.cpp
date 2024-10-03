@@ -25,10 +25,25 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _accepted = false;
     _canceled = false;
     _running = false;
-    _is_hybrid_fit = false;
     _elements_to_fit = nullptr;
     _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _param_fit_routine.set_optimizer(&_nlopt_optimizer);
     _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _hybrid_fit_routine.set_optimizer(&_nlopt_optimizer);
+
+/*
+void FittingDialog::setOptimizer(QString opt)
+{
+        _param_fit_routine.set_optimizer(_optimizer);
+   
+        _is_hybrid_fit = true;
+        _hybrid_fit_routine.set_optimizer(_optimizer);
+    }
+    _optimizer_widget->setOptimizer(opt, _nlopt_optimizer);
+}
+
+*/
+
     ////_model.set_num_threads(std::thread::hardware_concurrency());
     _createLayout();
 }
@@ -143,6 +158,7 @@ void FittingDialog::_createLayout()
     hbox_progresss_blocks->addWidget(_progressBarBlocks);
 
     _optimizer_widget = new OptimizerOptionsWidget();
+    _optimizer_widget->setOptimizer(_nlopt_optimizer);
     
     QVBoxLayout* layout = new QVBoxLayout();
 
@@ -210,31 +226,6 @@ void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_
 	_accepted = false;
 	_btn_accept->setEnabled(false);
 }
-
-//---------------------------------------------------------------------------
-
-void FittingDialog::setOptimizer(QString opt)
-{
-    if (opt == STR_NL_FIT)
-    {
-        _optimizer = &_nlfit_optimizer;
-        _param_fit_routine.set_optimizer(_optimizer);
-    }
-    else if (opt == STR_MP_FIT)
-    {
-        _optimizer = &_mpfit_optimizer;
-        _param_fit_routine.set_optimizer(_optimizer);
-        _is_hybrid_fit = false;
-    }
-    else if (opt == STR_HYBRID_MP_FIT)
-    {
-        _optimizer = &_nlfit_optimizer;
-        _is_hybrid_fit = true;
-        _hybrid_fit_routine.set_optimizer(_optimizer);
-    }
-    _optimizer_widget->setOptimizer(opt, *_optimizer);
-}
-
 
 //---------------------------------------------------------------------------
 
@@ -366,8 +357,7 @@ void FittingDialog::runProcessing()
 
         bool use_weights = _optimizer_widget->useWeights();
 
-        _optimizer_widget->updateOptimizerOptions(*_optimizer);
-
+        _optimizer_widget->updateOptimizerOptions(_nlopt_optimizer);
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
         //Fitting routines
@@ -384,7 +374,7 @@ void FittingDialog::runProcessing()
         //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        if (_is_hybrid_fit)
+        if (_optimizer_widget->isHybrid())
         {
             _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
         }
@@ -400,7 +390,7 @@ void FittingDialog::runProcessing()
         Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         try
         {
-            if (_is_hybrid_fit)
+            if (_optimizer_widget->isHybrid())
             {
                 _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, &_int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
@@ -412,7 +402,7 @@ void FittingDialog::runProcessing()
             std::string out_str = optimizer_outcome_to_str(_outcome);
             _le_outcome->setText(QString(out_str.c_str()));
 
-            std::string det_out = _optimizer->get_last_detailed_outcome();
+            std::string det_out = _nlopt_optimizer.get_last_detailed_outcome();
             _le_detailed_outcome->setText(QString(det_out.c_str()));
 
             if (_new_out_fit_params.contains(STR_RESIDUAL))

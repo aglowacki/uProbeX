@@ -46,7 +46,7 @@ public:
 
    ~FitElementsTableModel();
 
-   void setDisplayHeaderMinMax(bool val);
+   //void setDisplayHeaderMinMax(bool val);
    
    data_struct::Fit_Element_Map_Dict<double> getElementsToFit();
 

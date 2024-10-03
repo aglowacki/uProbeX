@@ -51,12 +51,6 @@ void BatchRoiFitWidget::createLayout()
     connect(_btn_cancel, &QPushButton::released, this, &BatchRoiFitWidget::onClose);
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
-    
-    _cb_opt_method = new QComboBox();
-    _cb_opt_method->addItem(STR_NL_FIT);
-    _cb_opt_method->addItem(STR_HYBRID_MP_FIT);
-    _cb_opt_method->addItem(STR_MP_FIT);
-    connect(_cb_opt_method, &QComboBox::currentTextChanged, this, &BatchRoiFitWidget::optimizer_changed);
 
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
@@ -81,11 +75,10 @@ void BatchRoiFitWidget::createLayout()
 
     _optimizer_widget = new OptimizerOptionsWidget();
     fitting::optimizers::NLOPT_Optimizer<double> optimizer;
-    _optimizer_widget->setOptimizer(STR_NL_FIT, optimizer);
+    _optimizer_widget->setOptimizer(optimizer);
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addItem(detector_hbox);
-    layout->addWidget(_cb_opt_method);
     layout->addWidget(_optimizer_widget);
     layout->addWidget(_file_list_view);
     layout->addItem(buttonlayout);
@@ -96,20 +89,6 @@ void BatchRoiFitWidget::createLayout()
 }
 
 //---------------------------------------------------------------------------
-
-void BatchRoiFitWidget::optimizer_changed(QString val)
-{
-    if (val == STR_NL_FIT)
-    {
-        fitting::optimizers::NLOPT_Optimizer<double> optimizer;
-        _optimizer_widget->setOptimizer(val, optimizer);
-    }
-    else if (val == STR_MP_FIT || val == STR_HYBRID_MP_FIT)
-    {
-        fitting::optimizers::MPFit_Optimizer<double> mpfit_optimizer;
-        _optimizer_widget->setOptimizer(val, mpfit_optimizer);
-    }
-}
 
 void BatchRoiFitWidget::onClose()
 {
@@ -189,27 +168,17 @@ void BatchRoiFitWidget::runProcessing()
     QCoreApplication::processEvents();
     data_struct::Analysis_Job<double> analysis_job;
 
-    QString val = _cb_opt_method->currentText();
-    analysis_job.set_optimizer(val.toStdString());
-    
+    //analysis_job.set_optimizer_algorithm();
 
     //run in thread
     analysis_job.dataset_directory = _directory;
-    if (_cb_opt_method->currentText() == STR_HYBRID_MP_FIT)
+    if (_optimizer_widget->isHybrid())
     {
-        analysis_job.set_optimizer("nlopt");
         analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;
     }
     else
     {
-        if (_cb_opt_method->currentText() == STR_MP_FIT)
-        {
-            analysis_job.set_optimizer("mpfit");
-        }
-        else
-        {
-            analysis_job.set_optimizer("nlopt");
-        }
+        analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::ALL_PARAMS;
     }
 
     _optimizer_widget->updateOptimizerOptions(*(analysis_job.optimizer()));

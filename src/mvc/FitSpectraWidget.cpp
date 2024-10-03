@@ -249,13 +249,6 @@ void FitSpectraWidget::createLayout()
     _cb_fitting_preset->addItem("Fit No Tails Energy Quadratic");
     connect(_cb_fitting_preset, &QComboBox::currentIndexChanged, this, &FitSpectraWidget::optimizer_preset_changed);
 
-
-    _cb_opttimizer = new QComboBox();
-    _cb_opttimizer->addItem(STR_NL_FIT);
-    _cb_opttimizer->addItem(STR_HYBRID_MP_FIT);
-    _cb_opttimizer->addItem(STR_MP_FIT);
-//    connect(_cb_opttimizer, &QComboBox::currentTextChanged, this, &FitSpectraWidget::optimizer_changed);
-
     _chk_auto_model = new QCheckBox("Auto Update Model");
     _chk_auto_model->setChecked(false);
     connect(_chk_auto_model,
@@ -272,7 +265,6 @@ void FitSpectraWidget::createLayout()
         orient_layout = new QHBoxLayout();
         //splitter->setOrientation(Qt::Horizontal);
         grid_layout->addWidget(_cb_fitting_preset, 0, 0);
-        grid_layout->addWidget(_cb_opttimizer, 0, 1);
 
         grid_layout->addWidget(_btn_fit_spectra, 1, 0);
         grid_layout->addWidget(_btn_fit_roi_spectra, 1, 1);
@@ -288,7 +280,6 @@ void FitSpectraWidget::createLayout()
         orient_layout = new QVBoxLayout();
 	    //splitter->setOrientation(Qt::Vertical);
         grid_layout->addWidget(_cb_fitting_preset, 0, 0);
-        grid_layout->addWidget(_cb_opttimizer, 0, 1);
         grid_layout->addWidget(_chk_auto_model, 0, 2);
         grid_layout->addWidget(_btn_export_csv, 0, 3);
 
@@ -316,8 +307,6 @@ void FitSpectraWidget::createLayout()
 
     _cb_fitting_preset->setCurrentIndex(3);
     //optimizer_preset_changed(3); // batch with tails
-
-    _cb_opttimizer->setCurrentText(STR_NL_FIT);
 
     QLayout* layout = new QVBoxLayout();
 //	layout->addWidget(splitter);
@@ -903,7 +892,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
             _fitting_dialog = new FittingDialog();
         }
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
-        _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
+       // _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
         _fitting_dialog->setSpectra((Spectra<double>*)_int_spec, _ev);
         _fitting_dialog->setElementsToFit(_elements_to_fit);
         if (_fit_spec.size() > 0)
@@ -1054,7 +1043,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             _fitting_dialog = new FittingDialog();
         }
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
-        _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
+        //_fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
         _fitting_dialog->setSpectra((Spectra<double>*)roi_spec, _ev);
         _fitting_dialog->setElementsToFit(_elements_to_fit);
         if (_fit_spec.size() > 0)

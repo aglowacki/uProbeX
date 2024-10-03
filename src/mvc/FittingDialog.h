@@ -33,7 +33,6 @@
 #include "mvc/FitParamsTableModel.h"
 #include "mvc/SpectraWidget.h"
 #include "fitting//optimizers/nlopt_optimizer.h"
-#include "fitting//optimizers/mpfit_optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
 #include "fitting/models/gaussian_model.h"
@@ -64,8 +63,6 @@ public:
     void updateFitParams(data_struct::Fit_Parameters<double> out_fit_params, data_struct::Fit_Parameters<double> element_fit_params);
 
     void status_callback(size_t cur_block, size_t total_blocks);
-
-    void setOptimizer(QString opt);
 
     bool accepted_fit() { return _accepted; }
 
@@ -151,11 +148,7 @@ protected:
 
    OptimizerOptionsWidget* _optimizer_widget;
 
-   fitting::optimizers::NLOPT_Optimizer<double> _nlfit_optimizer;
-
-   fitting::optimizers::MPFit_Optimizer<double> _mpfit_optimizer;
-
-   fitting::optimizers::Optimizer<double>*_optimizer;
+   fitting::optimizers::NLOPT_Optimizer<double> _nlopt_optimizer;
 
    std::unordered_map<std::string, ArrayDr> _labeled_spectras;
 
@@ -184,8 +177,6 @@ protected:
    data_struct::Spectra<double> _new_fit_spec;
 
    ArrayDr _spectra_background;
-
-   bool _is_hybrid_fit;
 
    // energy vector
    ArrayDr _ev;
