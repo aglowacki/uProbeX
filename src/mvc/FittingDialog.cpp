@@ -25,10 +25,25 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _accepted = false;
     _canceled = false;
     _running = false;
-    _is_hybrid_fit = false;
     _elements_to_fit = nullptr;
     _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _param_fit_routine.set_optimizer(&_nlopt_optimizer);
     _hybrid_fit_routine.set_update_coherent_amplitude_on_fit(false);
+    _hybrid_fit_routine.set_optimizer(&_nlopt_optimizer);
+
+/*
+void FittingDialog::setOptimizer(QString opt)
+{
+        _param_fit_routine.set_optimizer(_optimizer);
+   
+        _is_hybrid_fit = true;
+        _hybrid_fit_routine.set_optimizer(_optimizer);
+    }
+    _optimizer_widget->setOptimizer(opt, _nlopt_optimizer);
+}
+
+*/
+
     ////_model.set_num_threads(std::thread::hardware_concurrency());
     _createLayout();
 }
@@ -63,9 +78,13 @@ void FittingDialog::_createLayout()
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
     _fit_params_table_model = new FitParamsTableModel();
+    _fit_params_table_model->setOptimizerSupportsMinMax(true);
 
     _new_fit_params_table_model = new FitParamsTableModel();
     _new_fit_params_table_model->setEditable(false);
+
+    _diff_fit_params_table_model = new FitParamsTableModel();
+    _diff_fit_params_table_model->setEditable(false);
 
     _fit_params_table = new QTableView();
     _fit_params_table->setModel(_fit_params_table_model);
@@ -77,7 +96,7 @@ void FittingDialog::_createLayout()
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    _fit_params_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    _fit_params_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
             
     _new_fit_params_table = new QTableView();
     _new_fit_params_table->setModel(_new_fit_params_table_model);
@@ -86,7 +105,16 @@ void FittingDialog::_createLayout()
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
+    _diff_fit_params_table = new QTableView();
+    _diff_fit_params_table->setModel(_diff_fit_params_table_model);
+    _diff_fit_params_table->sortByColumn(0, Qt::AscendingOrder);
+    _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+
     connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
+    connect(_new_fit_params_table->verticalScrollBar(), &QAbstractSlider::valueChanged, _diff_fit_params_table->verticalScrollBar(), &QAbstractSlider::setValue);
+
 
     _btn_run = new QPushButton("Run");
     connect(_btn_run, &QPushButton::released, this, &FittingDialog::runProcessing);
@@ -116,7 +144,7 @@ void FittingDialog::_createLayout()
     QHBoxLayout* hbox_tables = new QHBoxLayout();
     hbox_tables->addWidget(_fit_params_table);
     hbox_tables->addWidget(_new_fit_params_table);
-
+    hbox_tables->addWidget(_diff_fit_params_table);
 
     hbox_btn_update->addStretch();
     hbox_btn_update->addWidget(_btn_update_fitp);
@@ -130,6 +158,7 @@ void FittingDialog::_createLayout()
     hbox_progresss_blocks->addWidget(_progressBarBlocks);
 
     _optimizer_widget = new OptimizerOptionsWidget();
+    _optimizer_widget->setOptimizer(_nlopt_optimizer);
     
     QVBoxLayout* layout = new QVBoxLayout();
 
@@ -197,35 +226,6 @@ void FittingDialog::updateFitParams(data_struct::Fit_Parameters<double> out_fit_
 	_accepted = false;
 	_btn_accept->setEnabled(false);
 }
-
-//---------------------------------------------------------------------------
-
-void FittingDialog::setOptimizer(QString opt)
-{
-    if (opt == STR_LM_FIT)
-    {
-        _optimizer = &_lmfit_optimizer;
-        _param_fit_routine.set_optimizer(_optimizer);
-        _is_hybrid_fit = false;
-        _fit_params_table_model->setOptimizerSupportsMinMax(false);
-    }
-    else if (opt == STR_MP_FIT)
-    {
-        _optimizer = &_mpfit_optimizer;
-        _param_fit_routine.set_optimizer(_optimizer);
-        _is_hybrid_fit = false;
-        _fit_params_table_model->setOptimizerSupportsMinMax(true);
-    }
-    else if (opt == STR_HYBRID_MP_FIT)
-    {
-        _optimizer = &_mpfit_optimizer;
-        _is_hybrid_fit = true;
-        _hybrid_fit_routine.set_optimizer(_optimizer);
-        _fit_params_table_model->setOptimizerSupportsMinMax(true);
-    }
-    _optimizer_widget->setOptimizer(opt, *_optimizer);
-}
-
 
 //---------------------------------------------------------------------------
 
@@ -357,8 +357,7 @@ void FittingDialog::runProcessing()
 
         bool use_weights = _optimizer_widget->useWeights();
 
-        _optimizer_widget->updateOptimizerOptions(*_optimizer);
-
+        _optimizer_widget->updateOptimizerOptions(_nlopt_optimizer);
         //data_struct::Spectra s1 = _integrated_spectra.sub_spectra(energy_range);
 
         //Fitting routines
@@ -375,7 +374,7 @@ void FittingDialog::runProcessing()
         //_model.set_fit_params_preset(fitting::models::Fit_Params_Preset::BATCH_FIT_WITH_TAILS);
 
         //Initialize the fit routine
-        if (_is_hybrid_fit)
+        if (_optimizer_widget->isHybrid())
         {
             _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
         }
@@ -391,7 +390,7 @@ void FittingDialog::runProcessing()
         Callback_Func_Status_Def cb_func = std::bind(&FittingDialog::status_callback, this, std::placeholders::_1, std::placeholders::_2);
         try
         {
-            if (_is_hybrid_fit)
+            if (_optimizer_widget->isHybrid())
             {
                 _outcome = _hybrid_fit_routine.fit_spectra_parameters(&_model, &_int_spec, _elements_to_fit, use_weights, _new_out_fit_params, &cb_func);
             }
@@ -403,7 +402,7 @@ void FittingDialog::runProcessing()
             std::string out_str = optimizer_outcome_to_str(_outcome);
             _le_outcome->setText(QString(out_str.c_str()));
 
-            std::string det_out = _optimizer->get_last_detailed_outcome();
+            std::string det_out = _nlopt_optimizer.get_last_detailed_outcome();
             _le_detailed_outcome->setText(QString(det_out.c_str()));
 
             if (_new_out_fit_params.contains(STR_RESIDUAL))
@@ -455,6 +454,16 @@ void FittingDialog::runProcessing()
 
         if (false == _canceled)
         {
+
+            data_struct::Fit_Parameters<double> diff_out_fit_params;
+            for(auto &itr :_out_fit_params)
+            {
+                double dif_val = _new_out_fit_params.at(itr.first).value - itr.second.value;
+                diff_out_fit_params.add_parameter(data_struct::Fit_Param(itr.first, dif_val));
+            }
+
+            _diff_fit_params_table_model->setFitParams(diff_out_fit_params);
+            _diff_fit_params_table_model->only_keep_these_keys(_out_fit_params);
 
             _new_fit_params_table_model->setFitParams(_new_out_fit_params);
 

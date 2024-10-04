@@ -56,8 +56,6 @@ public:
 
 public slots:
     void runProcessing();
-   
-    void optimizer_changed(QString val);
 
     void onClose();
 
@@ -85,8 +83,6 @@ protected:
    std::string _directory;
 
    QLineEdit* _le_detectors;
-
-   QComboBox* _cb_opt_method;
 
    std::unordered_map<QString, QFileInfo> _roi_map;
 
