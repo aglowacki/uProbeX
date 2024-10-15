@@ -73,6 +73,8 @@ public slots:
 
    void callRemoveScan(int);
    
+   void callUpdatePlan(const BlueskyPlan& plan);
+
    void queueScan(const BlueskyPlan& plan);
    
 protected:

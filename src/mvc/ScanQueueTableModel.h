@@ -206,7 +206,11 @@ public:
             return Qt::NoItemFlags;
         }
 
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+        if(index.column() == 0)
+        {
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+        }
+        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
     
     //---------------------------------------------------------------------------
@@ -228,12 +232,21 @@ public:
     {
         if (role == Qt::EditRole && index.isValid())
         {
-            if( index.row() < _data.size() && index.column() == 2)
+            if( index.row() < _data.size() && index.column() != 0)
             {
-                _data[index.row()].user = value.toString();
-                return true;
+                int idx = 1;
+                for (auto &itr : _data[index.row()].parameters)
+                {
+                    if(idx == index.column())
+                    {
+                        // this will be refreshed from qserver
+                        itr.second.default_val = value.toString();
+                        emit planChanged(_data.at(index.row()));
+                        return true;
+                    }
+                    idx ++;
+                }   
             }
-            return false;
         }
         return false;
 
@@ -242,7 +255,7 @@ public:
 
 signals:
     void moveScanRow(int, int);
-
+    void planChanged(const BlueskyPlan&);  
 
 private:
     QList<BlueskyPlan> _data;

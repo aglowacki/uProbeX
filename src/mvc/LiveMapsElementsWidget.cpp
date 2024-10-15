@@ -139,6 +139,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanUp, this, &LiveMapsElementsWidget::callMoveScanUp);
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanDown, this, &LiveMapsElementsWidget::callMoveScanDown);
     connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -480,6 +481,28 @@ void LiveMapsElementsWidget::callRemoveScan(int row)
         updateIp();
     }
     if (false == _qserverComm->removePlan(msg, row))
+    {
+        
+    }
+    else
+    {
+
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callUpdatePlan(const BlueskyPlan& plan)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->update_plan(msg, plan))
     {
         
     }

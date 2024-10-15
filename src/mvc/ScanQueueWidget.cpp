@@ -46,6 +46,7 @@ void ScanQueueWidget::_createLayout()
 
     _scan_queue_table_model = new ScanQueueTableModel();
     connect(_scan_queue_table_model, &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
+    connect(_scan_queue_table_model, &ScanQueueTableModel::planChanged, this, &ScanQueueWidget::onPlanChanged);
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
     _scan_queue_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);

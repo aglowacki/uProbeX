@@ -57,6 +57,8 @@ signals:
 
    void onRemoveScan(int);
 
+   void onPlanChanged(const BlueskyPlan&);
+
 public slots:
    void newDataArrived(const QString &);
 

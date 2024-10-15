@@ -15,6 +15,8 @@
 #include <zmq.hpp>
 #include "mvc/BlueskyPlan.h"
 #include <string>
+
+#include "core/defines.h"
 //---------------------------------------------------------------------------
 
 
@@ -118,6 +120,10 @@ public:
 
         QJsonObject item;
         
+        if(plan.uuid.length() > 0)
+        {
+            item["item_uid"] = plan.uuid;
+        }
         item["name"] = plan.type;
         item["item_type"] = "plan";
         QJsonObject meta;
@@ -127,6 +133,7 @@ public:
         QJsonObject kwargs;
         for(auto itr: plan.parameters)
         {
+            logI<<itr.first.toStdString()<<" : "<<itr.second.default_val.toStdString()<<" :: "<<(int)(itr.second.kind)<<  "\n";
             if(itr.second.name == "detectors") 
             {
                 QJsonArray inner_args; // need this for bluesky or it doesn't work
@@ -306,6 +313,41 @@ public:
         return ret;
     }
     
+    //---------------------------------------------------------------------------
+
+    bool update_plan(QString &msg, const BlueskyPlan& plan)
+    {
+        bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
+        zmq::message_t message;
+        
+        QJsonObject params;
+        params["item"] = plan_to_json_item(plan);
+        params["user"] = "uProbeX";
+        params["user_group"] = "primary";
+        QByteArray msg_arr = gen_send_mesg2("queue_item_update", params);
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            if(reply["success"].toString() == "true")
+            {
+                ret = true;
+            }
+        }
+        if(reply.contains("msg"))
+        {
+            msg = reply["msg"].toString();
+        }
+        return ret;
+    }
+    
+
     //---------------------------------------------------------------------------
     
     bool movePlan(QString &msg, int srcRow, int destRow)
@@ -561,10 +603,12 @@ public:
                         {
                             double p = kwargs.value(pitr).toDouble();
                             bsp.default_val = QString::number(p);
+                            bsp.kind = BlueskyParamType::Numeral;
                         }
                         else if( kwargs.value(pitr).isString() )
                         {
                             bsp.default_val = kwargs.value(pitr).toString();
+                            bsp.kind = BlueskyParamType::String;
                         }
                         plan.parameters[pitr] = bsp;
                     }
