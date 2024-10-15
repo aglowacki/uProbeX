@@ -24,10 +24,7 @@ class ScanQueueTableModel : public QAbstractTableModel
 public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
-        _headers[0] = "name";
-        _headers[1] = "type";
-        _headers[2] = "user";
-        _headers[3] = "uuid";
+        _headers[0] = "Type";
     }
     //---------------------------------------------------------------------------
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
@@ -37,7 +34,12 @@ public:
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
-        return 4; 
+        
+        if(_data.size() > 0)
+        {
+            return _data.at(0).parameters.size() + 1;
+        }
+        return 10; 
     }
     //---------------------------------------------------------------------------
     void appendRow(const BlueskyPlan& row)
@@ -126,26 +128,35 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
-        if (!index.isValid() || index.row() >= _data.size() || index.column() >= 4)
+        if (!index.isValid() || index.row() >= _data.size())
         {
             return QVariant();
         }
 
         const BlueskyPlan& rowData = _data[index.row()];
 
+        if(index.column() > rowData.parameters.size() + 1)
+        {
+            return QVariant();
+        }
+
         if (role == Qt::DisplayRole) 
         {
-            switch(index.column())
+            if(index.column() == 0)
             {
-            case 0:
-                return rowData.name;
-            case 1:
                 return rowData.type;
-            case 2:
-                return rowData.user;
-            case 3:
-                return rowData.uuid;
-            };
+            }
+            
+            int idx = 0;
+            for( auto itr: rowData.parameters)
+            {
+                if(idx == index.column() -1 )
+                {
+                    return itr.second.default_val;
+                }
+                idx++;
+            }
+            
         }
         return QVariant();
     }
@@ -158,13 +169,27 @@ public:
         // Horizontal headers
         if (orientation == Qt::Horizontal)
         {
-            if(section > 4)
+            if(section == 0)
             {
-                return QVariant();
+                return _headers[section];
             }
             else
             {
-                return _headers[section];
+                if(_data.size() > 0)
+                {
+                    const BlueskyPlan& rowData = _data[0];
+                    
+                    int idx = 0;
+                    for( auto itr: rowData.parameters)
+                    {
+                        if(idx == section -1 )
+                        {
+                            return itr.second.name;
+                        }
+                        idx++;
+                    }
+                }
+                return QVariant(" ");
             }
         }
 

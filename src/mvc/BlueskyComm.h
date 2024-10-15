@@ -492,7 +492,7 @@ public:
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
 
         _zmq_comm_socket->recv(&message);
-    
+
         QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
         if(reply.contains("success"))
         {
@@ -532,17 +532,40 @@ public:
                 }
                 if(param.contains("args"))
                 {
-                    //plan.args = param["args"].toString();
-                }
-                if(param.contains("kwargs"))
-                {
-                    QJsonObject kwargs = param["kwargs"].toObject();
-                    //plan.parameters
+                    QJsonObject kwargs = param["args"].toObject();
                     for(auto pitr : kwargs.keys())
                     {
                         BlueskyParam bsp;
                         bsp.name = pitr;
-                        bsp.default_val = kwargs[pitr].toString();
+                        if(kwargs.value(pitr).isDouble())
+                        {
+                            double p = kwargs.value(pitr).toDouble();
+                            bsp.default_val = QString::number(p);
+                        }
+                        else if( kwargs.value(pitr).isString() )
+                        {
+                            bsp.default_val = kwargs.value(pitr).toString();
+                        }
+                        plan.parameters[pitr] = bsp;
+                    }
+                }
+                if(param.contains("kwargs"))
+                {
+                    QJsonObject kwargs = param["kwargs"].toObject();
+                    for(auto pitr : kwargs.keys())
+                    {
+                        BlueskyParam bsp;
+                        bsp.name = pitr;
+
+                        if(kwargs.value(pitr).isDouble())
+                        {
+                            double p = kwargs.value(pitr).toDouble();
+                            bsp.default_val = QString::number(p);
+                        }
+                        else if( kwargs.value(pitr).isString() )
+                        {
+                            bsp.default_val = kwargs.value(pitr).toString();
+                        }
                         plan.parameters[pitr] = bsp;
                     }
                 }
