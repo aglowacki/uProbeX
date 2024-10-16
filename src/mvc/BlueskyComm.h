@@ -527,7 +527,7 @@ public:
         {
             return ret;
         }
-        running_plan.name = "";
+        running_plan.type = "";
         running_plan.uuid = "";
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_get", nullptr); 
@@ -658,11 +658,29 @@ public:
             QJsonObject running_item = reply["running_item"].toObject();
             if(running_item.contains("name"))
             {
-                running_plan.name =  running_item["name"].toString();
+                running_plan.type =  running_item["name"].toString();
             }
             if(running_item.contains("args"))
             {
-                //running_plan.name =  running_item["args"].toString();
+                QJsonObject kwargs = running_item["args"].toObject();
+                for(auto pitr : kwargs.keys())
+                {
+                    BlueskyParam bsp;
+                    bsp.name = pitr;
+
+                    if(kwargs.value(pitr).isDouble())
+                    {
+                        double p = kwargs.value(pitr).toDouble();
+                        bsp.default_val = QString::number(p);
+                        bsp.kind = BlueskyParamType::Numeral;
+                    }
+                    else if( kwargs.value(pitr).isString() )
+                    {
+                        bsp.default_val = kwargs.value(pitr).toString();
+                        bsp.kind = BlueskyParamType::String;
+                    }
+                    running_plan.parameters[pitr] = bsp;
+                }
             }
             if(running_item.contains("kwargs"))
             {
@@ -671,7 +689,18 @@ public:
                 {
                     BlueskyParam bsp;
                     bsp.name = pitr;
-                    bsp.default_val = kwargs[pitr].toString();
+
+                    if(kwargs.value(pitr).isDouble())
+                    {
+                        double p = kwargs.value(pitr).toDouble();
+                        bsp.default_val = QString::number(p);
+                        bsp.kind = BlueskyParamType::Numeral;
+                    }
+                    else if( kwargs.value(pitr).isString() )
+                    {
+                        bsp.default_val = kwargs.value(pitr).toString();
+                        bsp.kind = BlueskyParamType::String;
+                    }
                     running_plan.parameters[pitr] = bsp;
                 }
             }
@@ -683,6 +712,14 @@ public:
             {
                 running_plan.uuid =  running_item["item_uid"].toString();
             }
+            if(running_item.contains("properties"))
+            {
+                QJsonObject props = running_item["properties"].toObject();
+                if(props.contains("time_start"))
+                {
+                    running_plan.result.time_start =  props["time_start"].toDouble();
+                }
+            }
         }
         /*
         if(reply.contains("plan_queue_uid"))
@@ -690,6 +727,162 @@ public:
 
         }
         */
+        return ret;
+    }
+
+    //---------------------------------------------------------------------------
+
+    bool get_scan_history(QString &msg, std::vector<BlueskyPlan> &finished_plans)
+    {
+        bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
+        zmq::message_t message;
+        QByteArray msg_arr = gen_send_mesg("history_get", nullptr); 
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+
+        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            QString strReply = reply["success"].toString();
+            if(strReply.length() > 0)
+            {
+                if(strReply == "true")
+                {
+                    ret = true;
+                }
+            }
+            else
+            {
+                ret = reply["success"].toBool();
+            }
+        }
+        if(reply.contains("items"))
+        {
+            /*
+            {'name': 'count',
+            'args': [['det1', 'det2']],
+            'kwargs': {'num': 10, 'delay': 1},
+            'item_type': 'plan',
+            'user': 'qserver-cli',
+            'user_group': 'primary',
+            'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
+            */
+           finished_plans.clear();
+            QJsonArray items = reply["items"].toArray();
+            for( auto itr2 : items)
+            {
+                BlueskyPlan plan;
+                QJsonObject param = itr2.toObject();
+                if(param.contains("name"))
+                {
+                    plan.type = param["name"].toString();
+                }
+                if(param.contains("args"))
+                {
+                    QJsonObject kwargs = param["args"].toObject();
+                    for(auto pitr : kwargs.keys())
+                    {
+                        BlueskyParam bsp;
+                        bsp.name = pitr;
+                        if(kwargs.value(pitr).isDouble())
+                        {
+                            double p = kwargs.value(pitr).toDouble();
+                            bsp.default_val = QString::number(p);
+                        }
+                        else if( kwargs.value(pitr).isString() )
+                        {
+                            bsp.default_val = kwargs.value(pitr).toString();
+                        }
+                        plan.parameters[pitr] = bsp;
+                    }
+                }
+                if(param.contains("kwargs"))
+                {
+                    QJsonObject kwargs = param["kwargs"].toObject();
+                    for(auto pitr : kwargs.keys())
+                    {
+                        BlueskyParam bsp;
+                        bsp.name = pitr;
+
+                        if(kwargs.value(pitr).isDouble())
+                        {
+                            double p = kwargs.value(pitr).toDouble();
+                            bsp.default_val = QString::number(p);
+                            bsp.kind = BlueskyParamType::Numeral;
+                        }
+                        else if( kwargs.value(pitr).isString() )
+                        {
+                            bsp.default_val = kwargs.value(pitr).toString();
+                            bsp.kind = BlueskyParamType::String;
+                        }
+                        plan.parameters[pitr] = bsp;
+                    }
+                }
+                if(param.contains("result"))
+                {
+                        /*
+                        {'exit_status': 'completed',
+                       'run_uids': ['ab6e2ebc-effb-4385-8988-fff128e592c1'],
+                       'scan_ids': [5],
+                       'time_start': 1729088124.896845,
+                       'time_stop': 1729088129.916682,
+                       'msg': '',
+                       'traceback': ''}}],
+                       */
+                    QJsonObject result = param["result"].toObject();
+                    if(result.contains("exit_status"))
+                    {
+                        plan.result.exit_status = result["exit_status"].toString();
+                    }
+                    if(result.contains("msg"))
+                    {
+                        plan.result.msg = result["msg"].toString();
+                    }
+                    if(result.contains("traceback"))
+                    {
+                        plan.result.traceback = result["traceback"].toString();
+                    }
+                    if(result.contains("time_start"))
+                    {
+                        plan.result.time_start = result["time_start"].toDouble();
+                    }
+                    if(result.contains("time_stop"))
+                    {
+                        plan.result.time_stop = result["time_stop"].toDouble();
+                    }
+                    if(result.contains("run_uids"))
+                    {
+                        QJsonArray runs = result["run_uids"].toArray();
+                        if(runs.size() > 0)
+                        {
+                            plan.result.run_uids = runs.at(0).toString();
+                        }
+                    }
+                }
+                if(param.contains("user"))
+                {
+                    plan.user = param["user"].toString();
+                }
+                if(param.contains("meta"))
+                {
+                    QJsonObject meta = param["meta"].toObject();
+                    if(meta.contains("name"))
+                    {
+                        plan.name = meta["name"].toString();
+                    }
+                }
+                if(param.contains("item_uid"))
+                {
+                    plan.uuid = param["item_uid"].toString();
+                }
+                finished_plans.push_back(plan);
+            }
+        }
         return ret;
     }
 

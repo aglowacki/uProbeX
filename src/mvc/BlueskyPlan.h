@@ -12,6 +12,24 @@
 
 enum class BlueskyParamType { Numeral = 1, String = 3 };
 
+//---------------------------------------------------------------------------
+
+struct BlueskyResult
+{
+    BlueskyResult()
+    {
+        time_start = 0.0;
+        time_stop = 0.0;
+        msg = "";
+    }
+    QString exit_status;
+    QString run_uids;
+    // 'scan_ids': [2],
+    double time_start;
+    double time_stop;
+    QString msg;
+    QString traceback;
+};
 
 //---------------------------------------------------------------------------
 struct BlueskyParam
@@ -41,6 +59,7 @@ struct BlueskyPlan
     QString description;
     QString module;
     std::unordered_map<QString, BlueskyParam> parameters;
+    BlueskyResult result;
     QString uuid;
     QString user;
 };

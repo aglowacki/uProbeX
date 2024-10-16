@@ -75,7 +75,7 @@ public slots:
    
    void callUpdatePlan(const BlueskyPlan& plan);
 
-   void queueScan(const BlueskyPlan& plan);
+   void callQueueScan(const BlueskyPlan& plan);
    
 protected:
 
@@ -115,6 +115,8 @@ protected:
    std::map<QString, BlueskyPlan> _avail_scans;
 
    std::vector<BlueskyPlan> _queued_scans;
+
+   std::vector<BlueskyPlan> _finished_scans;
 
    BlueskyPlan _running_scan;
 

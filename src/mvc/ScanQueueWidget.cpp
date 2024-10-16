@@ -12,6 +12,7 @@
 #include <QDockWidget>
 #include <QMessageBox>
 #include <QMenu>
+#include <QTableWidget>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -19,6 +20,7 @@
 ScanQueueWidget::ScanQueueWidget(QWidget *parent) : QWidget(parent)
 {
 
+    _avail_scans = nullptr;
     _createLayout();
 
 }
@@ -36,13 +38,6 @@ void ScanQueueWidget::_createLayout()
 {
 
     QVBoxLayout* layout = new QVBoxLayout();
-    
-    _scan_running_table_model = new ScanQueueTableModel();
-    _scan_running_table_view = new QTableView();
-    _scan_running_table_view->setFixedHeight(100);
-    _scan_running_table_view->setModel(_scan_running_table_model);
-    _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
-   // _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
     _scan_queue_table_model = new ScanQueueTableModel();
     connect(_scan_queue_table_model, &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
@@ -95,6 +90,11 @@ void ScanQueueWidget::_createLayout()
     _btn_close_env->setToolTip("Close Environment");
     connect(_btn_close_env, &QPushButton::pressed, this, &ScanQueueWidget::onCloseEnv);
 
+    _btn_add_scan = new QPushButton("Add Scan");
+    connect(_btn_add_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
+
+    _scan_dialog.setRegionNameVisible(false);
+    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
 
     _move_scan_up = new QAction("Move Scan Up", this);
     connect(_move_scan_up,
@@ -122,25 +122,27 @@ void ScanQueueWidget::_createLayout()
     grid->addWidget(_btn_refresh,0,2);
     grid->addWidget(_btn_open_env,0,3);
     grid->addWidget(_btn_close_env,0,4);
-    grid->addItem(new QSpacerItem(999,10), 0,6);
+    grid->addWidget(_btn_add_scan,0,6);
+    //grid->addWidget(_btn_export_history,0,8);
+    grid->addItem(new QSpacerItem(999,10), 0,9);
 
     layout->addItem(grid);
 
     _te_qs_console = new QTextEdit(this);
     _te_qs_console->scrollBarWidgets(Qt::AlignRight);
     _te_qs_console->setReadOnly(true);
-    
-    QDockWidget *dock_running = new QDockWidget("Running Scan", this);
-    dock_running->setWidget(_scan_running_table_view);
-    layout->addWidget(dock_running);
+
+    QTabWidget* tabWidget = new QTabWidget();
 
     QDockWidget *dock_queue = new QDockWidget("Scan Queue", this);
     dock_queue->setWidget(_scan_queue_table_view);
-    layout->addWidget(dock_queue);
+    tabWidget->addTab(dock_queue, "Scan Queue");
 
     QDockWidget *dock_log = new QDockWidget("QServer Log", this);
     dock_log->setWidget(_te_qs_console);
-    layout->addWidget(dock_log);
+    tabWidget->addTab(dock_log, "Scan Log");
+
+    layout->addWidget(tabWidget);
 
     setLayout(layout);
 
@@ -176,7 +178,7 @@ void ScanQueueWidget::on_move_scan_up()
         for (int i = selectedIndexes.count() - 1; i >= 0; i--)
         {
             QModelIndex index = selectedIndexes[i];
-            emit onMoveScanUp(index.row());
+            emit onMoveScanUp(index.row() - _scan_queue_table_model->get_finished_idx());
         }
     }
 }
@@ -191,7 +193,7 @@ void ScanQueueWidget::on_move_scan_down()
         for (int i = selectedIndexes.count() - 1; i >= 0; i--)
         {
             QModelIndex index = selectedIndexes[i];
-            emit onMoveScanDown(index.row());
+            emit onMoveScanDown(index.row() - _scan_queue_table_model->get_finished_idx());
         }
     }
 }
@@ -215,7 +217,7 @@ void ScanQueueWidget::on_remove_scan()
             for (int i = selectedIndexes.count() - 1; i >= 0; i--)
             {
                 QModelIndex index = selectedIndexes[i];
-                emit onRemoveScan(index.row());
+                emit onRemoveScan(index.row() - _scan_queue_table_model->get_finished_idx());
             }
         }
         
@@ -224,17 +226,10 @@ void ScanQueueWidget::on_remove_scan()
 
 //---------------------------------------------------------------------------
 
-void ScanQueueWidget::updateQueuedItems( std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
+void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
 {
-    _scan_queue_table_model->setAllData(queued_plans);
+    _scan_queue_table_model->setAllData(finished_plans, queued_plans, running_plan);   
     _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
-    std::vector<BlueskyPlan> runlist;
-    if(running_plan.uuid.length() > 0)
-    {
-        runlist.push_back(running_plan);
-    }
-    _scan_running_table_model->setAllData(runlist);
-    _scan_running_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 //---------------------------------------------------------------------------

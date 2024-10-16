@@ -127,9 +127,10 @@ void LiveMapsElementsWidget::createLayout()
 
     _vlm_widget = new VLM_Widget();
     _vlm_widget->setAvailScans(&_avail_scans);
-    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::queueScan);
+    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScan);
 
     _scan_queue_widget = new ScanQueueWidget();
+    _scan_queue_widget->setAvailScans(&_avail_scans);
     connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
     connect(_scan_queue_widget, &ScanQueueWidget::onOpenEnv, this, &LiveMapsElementsWidget::callOpenEnv);
     connect(_scan_queue_widget, &ScanQueueWidget::onCloseEnv, this, &LiveMapsElementsWidget::callCloseEnv);
@@ -140,6 +141,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanDown, this, &LiveMapsElementsWidget::callMoveScanDown);
     connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
     connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -301,7 +303,11 @@ void LiveMapsElementsWidget::updateScansAvailable()
     {
         _scan_queue_widget->newDataArrived( msg );
     }
-    
+    else
+    {
+        _scan_queue_widget->setAvailScans(&_avail_scans);
+        _vlm_widget->setAvailScans(&_avail_scans);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -313,14 +319,16 @@ void LiveMapsElementsWidget::getQueuedScans()
     {
         updateIp();
     }
+    if (false == _qserverComm->get_scan_history(msg, _finished_scans))
+    {
+        _scan_queue_widget->newDataArrived( msg );
+    }
+
     if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
     {
         _scan_queue_widget->newDataArrived( msg );
     }
-    else
-    {
-        _scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
-    }
+    _scan_queue_widget->updateQueuedItems(_finished_scans, _queued_scans, _running_scan);
 }
 
 //---------------------------------------------------------------------------
@@ -409,7 +417,7 @@ void LiveMapsElementsWidget::callStopQueue()
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::queueScan(const BlueskyPlan& plan)
+void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
 {
     QString msg;
     if(_qserverComm == nullptr)
