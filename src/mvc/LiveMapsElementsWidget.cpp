@@ -347,35 +347,38 @@ void LiveMapsElementsWidget::exportHistory()
                                                     "Scan History", apath,
                                                     tr("JSON (*.json)"));
 
-    if (!fileName.endsWith(".json")) 
+    if(fileName.length() > 0)
     {
-        fileName += ".json";
+        if (!fileName.endsWith(".json")) 
+        {
+            fileName += ".json";
+        }
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::WriteOnly))
+        {
+            QMessageBox::warning(nullptr, "Export History", "The file is in read only mode");
+        }
+        QString msg;
+        if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
+        {
+            QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+            _scan_queue_widget->newDataArrived( msg );
+        }
+
+        file.write(msg.toUtf8());
+        file.close();
+
+        QMessageBox::information(this, "Export History", "Saved!");
+
+        if (false == _qserverComm->clear_history(msg))
+        {
+            QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
+            _scan_queue_widget->newDataArrived( msg );
+        }
+
+        getQueuedScans();
     }
-    QFile file(fileName);
-
-    if (!file.open(QIODevice::WriteOnly))
-    {
-        QMessageBox::warning(nullptr, "Export History", "The file is in read only mode");
-    }
-    QString msg;
-    if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
-    {
-        QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
-        _scan_queue_widget->newDataArrived( msg );
-    }
-
-    file.write(msg.toUtf8());
-    file.close();
-
-    QMessageBox::information(this, "Export History", "Saved!");
-
-    if (false == _qserverComm->clear_history(msg))
-    {
-        QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
-        _scan_queue_widget->newDataArrived( msg );
-    }
-
-    getQueuedScans();
 }
 
 //---------------------------------------------------------------------------
@@ -403,21 +406,32 @@ void LiveMapsElementsWidget::callOpenEnv()
 
 void LiveMapsElementsWidget::callCloseEnv()
 {
-    QString msg;
-    if(_qserverComm == nullptr)
-    {
-        updateIp();
-    }
-    if (false == _qserverComm->close_env(msg))
-    {
-        //_scan_queue_widget->newDataArrived( msg );
-    }
-    else
-    {
-        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
-    }
+    QMessageBox msgBox;
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText("Are you sure you want to close the environment? This will kill the QServer run process. Only do this if you need to restart.");
 
-    _scan_queue_widget->newDataArrived( msg );
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes)
+    {
+        QString msg;
+        if(_qserverComm == nullptr)
+        {
+            updateIp();
+        }
+        if (false == _qserverComm->close_env(msg))
+        {
+            //_scan_queue_widget->newDataArrived( msg );
+        }
+        else
+        {
+            //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+        }
+
+        _scan_queue_widget->newDataArrived( msg );
+    }
 }
 
 //---------------------------------------------------------------------------

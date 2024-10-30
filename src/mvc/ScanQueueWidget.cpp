@@ -238,6 +238,14 @@ void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans
 {
     _scan_queue_table_model->setAllData(finished_plans, queued_plans, running_plan);   
     _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    if( running_plan.uuid.length() > 0)
+    {
+        _btn_close_env->setEnabled(false);
+    }
+    else
+    {
+        _btn_close_env->setEnabled(true);
+    }
 }
 
 //---------------------------------------------------------------------------
