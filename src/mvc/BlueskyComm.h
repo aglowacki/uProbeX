@@ -729,10 +729,34 @@ public:
         */
         return ret;
     }
+    
+    //---------------------------------------------------------------------------
+    
+    bool clear_history(QString &msg)
+    {
+        bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
+        zmq::message_t message;
+        QByteArray msg_arr = gen_send_mesg("history_clear", nullptr); 
+        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+
+        _zmq_comm_socket->recv(&message);
+
+        msg = QString::fromUtf8((char*)message.data(), message.size());
+        QJsonObject reply = QJsonDocument::fromJson(msg.toUtf8()).object();
+        if(reply.contains("success"))
+        {
+            return true;
+        }
+        return false;
+    }
 
     //---------------------------------------------------------------------------
 
-    bool get_scan_history(QString &msg, std::vector<BlueskyPlan> &finished_plans)
+    bool get_scan_history(QString &msg, std::vector<BlueskyPlan> &finished_plans, bool raw_mesg=false)
     {
         bool ret = false;
         if(_zmq_comm_socket == nullptr)
@@ -744,6 +768,12 @@ public:
         _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
 
         _zmq_comm_socket->recv(&message);
+
+        if(raw_mesg)
+        {
+            msg = QString::fromUtf8((char*)message.data(), message.size());
+            return true;
+        }
 
         QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
         if(reply.contains("success"))

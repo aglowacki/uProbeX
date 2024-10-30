@@ -57,6 +57,8 @@ public slots:
 
    void getQueuedScans();
 
+   void exportHistory();
+
    void callOpenEnv();
 
    void callCloseEnv();

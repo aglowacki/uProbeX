@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QFileDialog>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -142,6 +143,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
     connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
     connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onExportHistory, this, &LiveMapsElementsWidget::exportHistory);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -329,6 +331,51 @@ void LiveMapsElementsWidget::getQueuedScans()
         _scan_queue_widget->newDataArrived( msg );
     }
     _scan_queue_widget->updateQueuedItems(_finished_scans, _queued_scans, _running_scan);
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::exportHistory()
+{
+
+    QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+    QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+    QString apath = "Scan_History_" + formattedTime + ".json";
+       
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    "Scan History", apath,
+                                                    tr("JSON (*.json)"));
+
+    if (!fileName.endsWith(".json")) 
+    {
+        fileName += ".json";
+    }
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::warning(nullptr, "Export History", "The file is in read only mode");
+    }
+    QString msg;
+    if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
+    {
+        QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+        _scan_queue_widget->newDataArrived( msg );
+    }
+
+    file.write(msg.toUtf8());
+    file.close();
+
+    QMessageBox::information(this, "Export History", "Saved!");
+
+    if (false == _qserverComm->clear_history(msg))
+    {
+        QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
+        _scan_queue_widget->newDataArrived( msg );
+    }
+
+    getQueuedScans();
 }
 
 //---------------------------------------------------------------------------

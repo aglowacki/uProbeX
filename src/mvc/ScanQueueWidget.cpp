@@ -93,6 +93,13 @@ void ScanQueueWidget::_createLayout()
     _btn_add_scan = new QPushButton("Add Scan");
     connect(_btn_add_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
 
+    _btn_add_batch_scan = new QPushButton("Add Batch Scan");
+    _btn_add_batch_scan->setEnabled(false);
+    connect(_btn_add_batch_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
+
+    _btn_export_history = new QPushButton("Export History");
+    connect(_btn_export_history, &QPushButton::pressed, this, &ScanQueueWidget::onExportHistory);
+
     _scan_dialog.setRegionNameVisible(false);
     connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
 
@@ -123,7 +130,8 @@ void ScanQueueWidget::_createLayout()
     grid->addWidget(_btn_open_env,0,3);
     grid->addWidget(_btn_close_env,0,4);
     grid->addWidget(_btn_add_scan,0,6);
-    //grid->addWidget(_btn_export_history,0,8);
+    grid->addWidget(_btn_add_batch_scan,0,7);
+    grid->addWidget(_btn_export_history,0,8);
     grid->addItem(new QSpacerItem(999,10), 0,9);
 
     layout->addItem(grid);
