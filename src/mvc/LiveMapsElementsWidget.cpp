@@ -345,28 +345,58 @@ void LiveMapsElementsWidget::exportHistory()
        
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Scan History", apath,
-                                                    tr("JSON (*.json)"));
+                                                    tr("JSON (*.json);;CSV (*.csv)"));
 
     if(fileName.length() > 0)
     {
-        if (!fileName.endsWith(".json")) 
-        {
-            fileName += ".json";
-        }
         QFile file(fileName);
 
-        if (!file.open(QIODevice::WriteOnly))
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            QMessageBox::warning(nullptr, "Export History", "The file is in read only mode");
+            QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
         }
         QString msg;
-        if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
-        {
-            QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
-            _scan_queue_widget->newDataArrived( msg );
-        }
 
-        file.write(msg.toUtf8());
+        if (fileName.endsWith(".json")) 
+        {
+             if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
+            {
+                QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                _scan_queue_widget->newDataArrived( msg );
+            }
+            file.write(msg.toUtf8());
+        }
+        else if (fileName.endsWith(".csv")) 
+        {
+            if (false == _qserverComm->get_scan_history(msg, _finished_scans, false))
+            {
+                QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                _scan_queue_widget->newDataArrived( msg );
+            }
+            if(_finished_scans.size() > 0)
+            {
+                QTextStream out(&file);
+
+                // Write header row
+                out << "Name,Type,";
+                for(auto & itr: _finished_scans.at(0).parameters)
+                {
+                    out<<itr.second.name<<",";
+                }
+                out << "exit_status,time_start,time_stop,msg\r\n";
+                for(auto &itr: _finished_scans)
+                {
+                    out<<itr.name<<","<<itr.type<<",";
+                    for(auto & itr2: itr.parameters)
+                    {
+                        out<<itr2.second.default_val<<",";
+                    }
+                    QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
+                    QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);
+                    out<<itr.result.exit_status<<","<<dateTime1.toString("yyyy-MM-dd hh:mm:ss")<<","<<dateTime2.toString("yyyy-MM-dd hh:mm:ss")<<","<<itr.result.msg<<"\r\n";
+                }
+            }
+        }
         file.close();
 
         QMessageBox::information(this, "Export History", "Saved!");
