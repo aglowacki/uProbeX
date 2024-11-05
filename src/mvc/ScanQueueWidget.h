@@ -63,7 +63,9 @@ signals:
 
    void onAddScan(const BlueskyPlan&);
 
-   void onExportHistory();
+   void onSetHistory();
+
+   void onClearHistory();
 
 public slots:
    void newDataArrived(const QString &);
@@ -105,7 +107,9 @@ protected:
 
    QPushButton* _btn_add_batch_scan;
 
-   QPushButton* _btn_export_history;
+   QPushButton* _btn_set_history;
+
+   QPushButton* _btn_clear_history;
 
    QAction* _move_scan_up;
    

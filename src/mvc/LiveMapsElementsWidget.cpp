@@ -143,7 +143,8 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
     connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
     connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
-    connect(_scan_queue_widget, &ScanQueueWidget::onExportHistory, this, &LiveMapsElementsWidget::exportHistory);
+    connect(_scan_queue_widget, &ScanQueueWidget::onSetHistory, this, &LiveMapsElementsWidget::setHistoryLocation);
+    connect(_scan_queue_widget, &ScanQueueWidget::onClearHistory, this, &LiveMapsElementsWidget::clearHistory);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -325,7 +326,10 @@ void LiveMapsElementsWidget::getQueuedScans()
     {
         _scan_queue_widget->newDataArrived( msg );
     }
-
+    else
+    {
+        saveHistory();
+    }
     if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
     {
         _scan_queue_widget->newDataArrived( msg );
@@ -335,25 +339,39 @@ void LiveMapsElementsWidget::getQueuedScans()
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::exportHistory()
+void LiveMapsElementsWidget::setHistoryLocation()
 {
 
     QDateTime date = QDateTime::currentDateTime();
-    QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+    QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
     QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
     QString apath = "Scan_History_" + formattedTime + ".json";
-       
+
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Scan History", apath,
                                                     tr("JSON (*.json);;CSV (*.csv)"));
 
     if(fileName.length() > 0)
     {
+        Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, fileName);
+        saveHistory();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::saveHistory()
+{
+    QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+    
+    if(fileName.length() > 0)
+    {
         QFile file(fileName);
 
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
+            //QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
+            logW<<"Could not open QServer history filepath "<<fileName.toStdString()<<"\n";
         }
         QString msg;
 
@@ -361,7 +379,7 @@ void LiveMapsElementsWidget::exportHistory()
         {
              if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
             {
-                QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                //QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
                 _scan_queue_widget->newDataArrived( msg );
             }
             file.write(msg.toUtf8());
@@ -370,7 +388,7 @@ void LiveMapsElementsWidget::exportHistory()
         {
             if (false == _qserverComm->get_scan_history(msg, _finished_scans, false))
             {
-                QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                //QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
                 _scan_queue_widget->newDataArrived( msg );
             }
             if(_finished_scans.size() > 0)
@@ -398,17 +416,38 @@ void LiveMapsElementsWidget::exportHistory()
             }
         }
         file.close();
-
-        QMessageBox::information(this, "Export History", "Saved!");
-
-        if (false == _qserverComm->clear_history(msg))
-        {
-            QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
-            _scan_queue_widget->newDataArrived( msg );
-        }
-
-        getQueuedScans();
     }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::clearHistory()
+{
+
+    QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+    
+    // Set history name to new date so we don't lose old history
+    if(fileName.length() > 0)
+    {
+        QFileInfo finfo = QFileInfo(fileName);
+        QDir dir = finfo.absoluteDir();
+        
+        QDateTime date = QDateTime::currentDateTime();
+        QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
+        QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+        QString apath = dir.absolutePath() + QDir::separator() + finfo.baseName() + "_" + formattedTime + finfo.suffix();
+        
+        Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, apath);
+    }
+
+    QString msg;
+    if (false == _qserverComm->clear_history(msg))
+    {
+        QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
+        _scan_queue_widget->newDataArrived( msg );
+    }
+
+    getQueuedScans();
 }
 
 //---------------------------------------------------------------------------

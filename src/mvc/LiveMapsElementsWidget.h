@@ -57,7 +57,11 @@ public slots:
 
    void getQueuedScans();
 
-   void exportHistory();
+   void setHistoryLocation();
+
+   void clearHistory();
+
+   void saveHistory();
 
    void callOpenEnv();
 

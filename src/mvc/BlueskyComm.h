@@ -133,7 +133,7 @@ public:
         QJsonObject kwargs;
         for(auto itr: plan.parameters)
         {
-            logI<<itr.first.toStdString()<<" : "<<itr.second.default_val.toStdString()<<" :: "<<(int)(itr.second.kind)<<  "\n";
+            //logI<<itr.first.toStdString()<<" : "<<itr.second.default_val.toStdString()<<" :: "<<(int)(itr.second.kind)<<  "\n";
             if(itr.second.name == "detectors") 
             {
                 QJsonArray inner_args; // need this for bluesky or it doesn't work

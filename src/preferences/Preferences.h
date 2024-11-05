@@ -87,6 +87,7 @@
 #define STR_PRF_SHOW_DATASET_ON_LOAD "ShowOnLoad"
 #define STR_PREF_RADIO_LOAD_SELECTED_OPTION "Load_Selected_Opt"
 #define STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION "Spectra_Controls_Horizontal"
+#define STR_SAVE_QSERVER_HISTORY_LOCATION "Save_Qserver_History_Location"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

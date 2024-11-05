@@ -97,8 +97,11 @@ void ScanQueueWidget::_createLayout()
     _btn_add_batch_scan->setEnabled(false);
     connect(_btn_add_batch_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
 
-    _btn_export_history = new QPushButton("Export History");
-    connect(_btn_export_history, &QPushButton::pressed, this, &ScanQueueWidget::onExportHistory);
+    _btn_set_history = new QPushButton("Set History Location");
+    connect(_btn_set_history, &QPushButton::pressed, this, &ScanQueueWidget::onSetHistory);
+
+    _btn_clear_history = new QPushButton("Clear History");
+    connect(_btn_clear_history, &QPushButton::pressed, this, &ScanQueueWidget::onClearHistory);
 
     _scan_dialog.setRegionNameVisible(false);
     connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
@@ -131,8 +134,9 @@ void ScanQueueWidget::_createLayout()
     grid->addWidget(_btn_close_env,0,4);
     grid->addWidget(_btn_add_scan,0,6);
     grid->addWidget(_btn_add_batch_scan,0,7);
-    grid->addWidget(_btn_export_history,0,8);
-    grid->addItem(new QSpacerItem(999,10), 0,9);
+    grid->addWidget(_btn_set_history,0,8);
+    grid->addWidget(_btn_clear_history,0,9);
+    grid->addItem(new QSpacerItem(999,10), 0,10);
 
     layout->addItem(grid);
 
@@ -259,7 +263,11 @@ void ScanQueueWidget::newDataArrived(const QString& data)
     || data.count("The plan was exited") > 0
     || data.count("Removing item from the queue") > 0
     || data.count("Starting the plan") > 0
-    || data.count("Queue is empty") > 0)
+    || data.count("Queue is ") > 0
+    //|| data.count("Queue is empty") > 0
+    //|| data.count("Queue is stopped") > 0
+    )
+    
     {
         emit queueNeedsToBeUpdated();
     }

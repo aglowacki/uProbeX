@@ -240,7 +240,7 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 	}
 	
 	QDateTime date = QDateTime::currentDateTime();
-    QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+    QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
 	filename += formattedTime + ".csv";
 
 	_str_export_filename = _export_dir.absolutePath() + QDir::separator() + filename;
