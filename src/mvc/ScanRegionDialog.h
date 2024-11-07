@@ -44,6 +44,9 @@ public:
    QString getScanName() { return _scan_name->text(); }
 
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
+
+   void setRegionNameVisible(bool val) { _lbl_region_name->setVisible(val); _scan_name->setVisible(false);}
+   
 signals:
 	
    void ScanUpdated(const BlueskyPlan& plan);
@@ -75,7 +78,10 @@ private:
 
    ScanTableModel *_scan_table_model;
    
+   QLabel* _lbl_region_name;
+   
    std::map<QString, BlueskyPlan> *_avail_scans;
+
 };
 
 

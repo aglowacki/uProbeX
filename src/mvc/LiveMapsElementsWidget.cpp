@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QFileDialog>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -127,9 +128,10 @@ void LiveMapsElementsWidget::createLayout()
 
     _vlm_widget = new VLM_Widget();
     _vlm_widget->setAvailScans(&_avail_scans);
-    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::queueScan);
+    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScan);
 
     _scan_queue_widget = new ScanQueueWidget();
+    _scan_queue_widget->setAvailScans(&_avail_scans);
     connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
     connect(_scan_queue_widget, &ScanQueueWidget::onOpenEnv, this, &LiveMapsElementsWidget::callOpenEnv);
     connect(_scan_queue_widget, &ScanQueueWidget::onCloseEnv, this, &LiveMapsElementsWidget::callCloseEnv);
@@ -139,6 +141,10 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanUp, this, &LiveMapsElementsWidget::callMoveScanUp);
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanDown, this, &LiveMapsElementsWidget::callMoveScanDown);
     connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onSetHistory, this, &LiveMapsElementsWidget::setHistoryLocation);
+    connect(_scan_queue_widget, &ScanQueueWidget::onClearHistory, this, &LiveMapsElementsWidget::clearHistory);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -300,7 +306,11 @@ void LiveMapsElementsWidget::updateScansAvailable()
     {
         _scan_queue_widget->newDataArrived( msg );
     }
-    
+    else
+    {
+        _scan_queue_widget->setAvailScans(&_avail_scans);
+        _vlm_widget->setAvailScans(&_avail_scans);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -312,14 +322,132 @@ void LiveMapsElementsWidget::getQueuedScans()
     {
         updateIp();
     }
-    if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
+    if (false == _qserverComm->get_scan_history(msg, _finished_scans))
     {
         _scan_queue_widget->newDataArrived( msg );
     }
     else
     {
-        _scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+        saveHistory();
     }
+    if (false == _qserverComm->get_queued_scans(msg, _queued_scans, _running_scan))
+    {
+        _scan_queue_widget->newDataArrived( msg );
+    }
+    _scan_queue_widget->updateQueuedItems(_finished_scans, _queued_scans, _running_scan);
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::setHistoryLocation()
+{
+
+    QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
+    QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+    QString apath = "Scan_History_" + formattedTime + ".json";
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    "Scan History", apath,
+                                                    tr("JSON (*.json);;CSV (*.csv)"));
+
+    if(fileName.length() > 0)
+    {
+        Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, fileName);
+        saveHistory();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::saveHistory()
+{
+    QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+    
+    if(fileName.length() > 0)
+    {
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            //QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
+            logW<<"Could not open QServer history filepath "<<fileName.toStdString()<<"\n";
+        }
+        QString msg;
+
+        if (fileName.endsWith(".json")) 
+        {
+             if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
+            {
+                //QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                _scan_queue_widget->newDataArrived( msg );
+            }
+            file.write(msg.toUtf8());
+        }
+        else if (fileName.endsWith(".csv")) 
+        {
+            if (false == _qserverComm->get_scan_history(msg, _finished_scans, false))
+            {
+                //QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
+                _scan_queue_widget->newDataArrived( msg );
+            }
+            if(_finished_scans.size() > 0)
+            {
+                QTextStream out(&file);
+
+                // Write header row
+                out << "Name,Type,";
+                for(auto & itr: _finished_scans.at(0).parameters)
+                {
+                    out<<itr.second.name<<",";
+                }
+                out << "exit_status,time_start,time_stop,msg\r\n";
+                for(auto &itr: _finished_scans)
+                {
+                    out<<itr.name<<","<<itr.type<<",";
+                    for(auto & itr2: itr.parameters)
+                    {
+                        out<<itr2.second.default_val<<",";
+                    }
+                    QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
+                    QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);
+                    out<<itr.result.exit_status<<","<<dateTime1.toString("yyyy-MM-dd hh:mm:ss")<<","<<dateTime2.toString("yyyy-MM-dd hh:mm:ss")<<","<<itr.result.msg<<"\r\n";
+                }
+            }
+        }
+        file.close();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::clearHistory()
+{
+
+    QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+    
+    // Set history name to new date so we don't lose old history
+    if(fileName.length() > 0)
+    {
+        QFileInfo finfo = QFileInfo(fileName);
+        QDir dir = finfo.absoluteDir();
+        
+        QDateTime date = QDateTime::currentDateTime();
+        QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
+        QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+        QString apath = dir.absolutePath() + QDir::separator() + finfo.baseName() + "_" + formattedTime + finfo.suffix();
+        
+        Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, apath);
+    }
+
+    QString msg;
+    if (false == _qserverComm->clear_history(msg))
+    {
+        QMessageBox::warning(nullptr, "Export History", "Failed to clear scan history from QServer");
+        _scan_queue_widget->newDataArrived( msg );
+    }
+
+    getQueuedScans();
 }
 
 //---------------------------------------------------------------------------
@@ -347,21 +475,32 @@ void LiveMapsElementsWidget::callOpenEnv()
 
 void LiveMapsElementsWidget::callCloseEnv()
 {
-    QString msg;
-    if(_qserverComm == nullptr)
-    {
-        updateIp();
-    }
-    if (false == _qserverComm->close_env(msg))
-    {
-        //_scan_queue_widget->newDataArrived( msg );
-    }
-    else
-    {
-        //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
-    }
+    QMessageBox msgBox;
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText("Are you sure you want to close the environment? This will kill the QServer run process. Only do this if you need to restart.");
 
-    _scan_queue_widget->newDataArrived( msg );
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes)
+    {
+        QString msg;
+        if(_qserverComm == nullptr)
+        {
+            updateIp();
+        }
+        if (false == _qserverComm->close_env(msg))
+        {
+            //_scan_queue_widget->newDataArrived( msg );
+        }
+        else
+        {
+            //_scan_queue_widget->updateQueuedItems(_queued_scans, _running_scan);
+        }
+
+        _scan_queue_widget->newDataArrived( msg );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -408,7 +547,7 @@ void LiveMapsElementsWidget::callStopQueue()
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::queueScan(const BlueskyPlan& plan)
+void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
 {
     QString msg;
     if(_qserverComm == nullptr)
@@ -480,6 +619,28 @@ void LiveMapsElementsWidget::callRemoveScan(int row)
         updateIp();
     }
     if (false == _qserverComm->removePlan(msg, row))
+    {
+        
+    }
+    else
+    {
+
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callUpdatePlan(const BlueskyPlan& plan)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->update_plan(msg, plan))
     {
         
     }

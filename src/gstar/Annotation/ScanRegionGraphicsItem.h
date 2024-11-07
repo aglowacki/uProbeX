@@ -24,7 +24,7 @@
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
 #include "mvc/ScanRegionDialog.h"
-#include "mvc/BlueSkyPlan.h"
+#include "mvc/BlueskyPlan.h"
 
 //---------------------------------------------------------------------------
 

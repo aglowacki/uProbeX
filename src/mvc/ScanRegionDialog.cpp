@@ -34,7 +34,7 @@ void ScanRegionDialog::_createLayout()
 {
 
 	_scan_name = new QLineEdit(" ");
-	
+	_lbl_region_name = new QLabel("Region Name: ");
 	_scan_type = new QComboBox();
 	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionDialog::scanChanged);
 
@@ -43,7 +43,7 @@ void ScanRegionDialog::_createLayout()
 	_scan_options->setModel(_scan_table_model);
 
 	_btn_update = new QPushButton("Update");
-	_btn_update_and_queue = new QPushButton("Update and Queue");
+	_btn_update_and_queue = new QPushButton("Add To Queue");
 	_btn_cancel = new QPushButton("Cancel");
 	connect(_btn_update, &QPushButton::pressed, this, &ScanRegionDialog::onUpdate);
 	connect(_btn_update_and_queue, &QPushButton::pressed, this, &ScanRegionDialog::onUpdateAndQueue);
@@ -51,8 +51,8 @@ void ScanRegionDialog::_createLayout()
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	
-	QHBoxLayout* name_layout = new QHBoxLayout();
-	name_layout->addWidget(new QLabel("Scan Name: "));
+	QHBoxLayout *name_layout = new QHBoxLayout();
+	name_layout->addWidget(_lbl_region_name);
 	name_layout->addWidget(_scan_name);
 
 	QHBoxLayout* type_layout = new QHBoxLayout();

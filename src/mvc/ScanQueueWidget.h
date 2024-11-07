@@ -14,7 +14,7 @@
 #include <QPushButton>
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanQueueTableModel.h"
-//#include "mvc/DragDropTableView.h"
+#include "mvc/ScanRegionDialog.h"
 
 //---------------------------------------------------------------------------
 
@@ -36,7 +36,9 @@ public:
     */
    ~ScanQueueWidget();
 
-   void updateQueuedItems( std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
+   void updateQueuedItems( std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
+
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans; _scan_dialog.setAvailScans(avail_scans);}
 
 signals:
    void queueNeedsToBeUpdated();
@@ -56,6 +58,14 @@ signals:
    void onMoveScanDown(int);
 
    void onRemoveScan(int);
+
+   void onPlanChanged(const BlueskyPlan&);
+
+   void onAddScan(const BlueskyPlan&);
+
+   void onSetHistory();
+
+   void onClearHistory();
 
 public slots:
    void newDataArrived(const QString &);
@@ -81,10 +91,6 @@ protected:
 
    ScanQueueTableModel* _scan_queue_table_model;
 
-   QTableView* _scan_running_table_view;
-
-   ScanQueueTableModel* _scan_running_table_model;
-
    QPushButton* _btn_play;
    
    QPushButton* _btn_stop;
@@ -94,12 +100,26 @@ protected:
    QPushButton* _btn_open_env;
 
    QPushButton* _btn_close_env;
+
+   QPushButton* _btn_export_and_clear_history;
    
+   QPushButton* _btn_add_scan;
+
+   QPushButton* _btn_add_batch_scan;
+
+   QPushButton* _btn_set_history;
+
+   QPushButton* _btn_clear_history;
+
    QAction* _move_scan_up;
    
    QAction* _move_scan_down;
 
    QAction* _remove_scan;
+
+   ScanRegionDialog _scan_dialog;
+
+   std::map<QString, BlueskyPlan> *_avail_scans;
 };
 
 

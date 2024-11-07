@@ -508,6 +508,63 @@ void FitSpectraWidget::show_load_fit_params_dialog(bool val)
                 }
             }
         }
+        else if( wordList.size() > 2 )
+        {
+            QByteArray line2 = file.readLine();
+            QString sline2 = QString(line2).trimmed();
+            QStringList wordList2 = sline2.split(',');
+            /*
+            if(wordList.size() != wordList2.size())
+            {
+                QString msg = "CSV key size does not match values size. Key size = " + QString::number(wordList.size()) + " , Value size  ="+ QString::number(wordList2.size());
+                QMessageBox::warning(this, "Failed to load", msg);
+                return;
+            }
+            */
+            int i = 0;
+            for( auto &itr : wordList)
+            {
+                if (i >= wordList2.size())
+                {
+                    break;
+                }
+                std::string sfirst = itr.toStdString();
+                if( io::file::aps::BASE_FILE_TAGS_TRANSLATION.count(sfirst) > 0)
+                {
+                    sfirst = io::file::aps::BASE_FILE_TAGS_TRANSLATION.at(sfirst);
+                }
+                if( fit_params.contains(sfirst) )
+                {
+                    bool ok = false;
+                    double val = wordList2[i].toDouble(&ok);
+                    if(ok)
+                    {
+                        if( sfirst == STR_COMPTON_AMPLITUDE || sfirst == STR_COHERENT_SCT_AMPLITUDE)
+                        {
+                            if(conv_log10)
+                            {
+                                val = log10(val);
+                            }
+                        }
+                        fit_params[sfirst].value = val;
+                    }
+                }
+                else if( fit_elements.contains(sfirst) ) 
+                {
+                    bool ok = false;
+                    double val = wordList2[i].toDouble(&ok);
+                    if(ok)
+                    {
+                        if(conv_log10)
+                        {
+                            val = log10(val);
+                        }
+                        fit_elements[sfirst].value = val;
+                    }
+                }
+                i++;
+            }
+        }
     }
     _fit_params_table_model->setFitParams(fit_params);
     _fit_elements_table_model->updateElementValues(&fit_elements);

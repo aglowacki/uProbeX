@@ -375,7 +375,7 @@ void CoLocalizationWidget::onExportPng()
         export_model_dir.cd("output");
 
         QDateTime date = QDateTime::currentDateTime();
-        QString formattedTime = date.toString("yyyy.MM.dd_hh.mm.ss");
+        QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
         QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
 
         QPixmap pixmap(rect().size());

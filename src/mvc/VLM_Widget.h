@@ -31,7 +31,7 @@
 #include <solver/LinearCoordTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
-#include "mvc/BlueSkyPlan.h"
+#include "mvc/BlueskyPlan.h"
 
 
 class Solver;

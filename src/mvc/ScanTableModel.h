@@ -58,17 +58,6 @@ public:
 
     //---------------------------------------------------------------------------
 
-    const QString& getNameAtRow(int row)
-    {
-        if(_data.size() > row)
-        {
-            return _data.at(row).name;
-        }
-        return "";
-    }
-
-    //---------------------------------------------------------------------------
-
 	void getCurrentParams(BlueskyPlan& plan)
     {
         for(auto itr : _data)

@@ -12,6 +12,8 @@
 #include "mvc/BlueskyPlan.h"
 #include <QMimeData>
 #include <QIODevice>
+#include <QColor>
+#include <QDateTime>
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -24,10 +26,8 @@ class ScanQueueTableModel : public QAbstractTableModel
 public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
-        _headers[0] = "name";
-        _headers[1] = "type";
-        _headers[2] = "user";
-        _headers[3] = "uuid";
+        _headers[0] = "Type";
+        _last_finished_idx = 0;
     }
     //---------------------------------------------------------------------------
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
@@ -37,18 +37,13 @@ public:
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
-        return 4; 
+        if(_data.size() > 0)
+        {
+            return _data.at(0).parameters.size() + 5; // +1 for scan type, + 4 for results
+        }
+        return 10; 
     }
-    //---------------------------------------------------------------------------
-    void appendRow(const BlueskyPlan& row)
-    {
-        int rown = _data.size();
-        QModelIndex gIndex = index(rown, 0, QModelIndex());
-        beginInsertRows(gIndex, rown, rown);
-        _data.append(row);
-        endInsertRows();
-    }
-    
+  
     //---------------------------------------------------------------------------
 
     void clear()
@@ -61,17 +56,6 @@ public:
     const BlueskyPlan& item(int row)
     {
         return _data.at(row);
-    }
-
-    //---------------------------------------------------------------------------
-
-    const QString& getNameAtRow(int row)
-    {
-        if(_data.size() > row)
-        {
-            return _data.at(row).name;
-        }
-        return "";
     }
 
     //---------------------------------------------------------------------------
@@ -98,7 +82,7 @@ public:
                 int srow, scol;
                 QMap<int,  QVariant> roleDataMap;
                 stream >> srow >> scol >> roleDataMap;
-                emit moveScanRow(srow, parent.row());
+                emit moveScanRow(srow - _last_finished_idx, parent.row() - _last_finished_idx);
             }
             
         }
@@ -118,7 +102,7 @@ public:
         }
         endMoveRows();
         */
-        emit moveScanRow(srcParent.row(), dstParent.row());
+        emit moveScanRow(srcParent.row() - _last_finished_idx, dstParent.row() - _last_finished_idx);
         return true;
     }
 
@@ -126,26 +110,74 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
-        if (!index.isValid() || index.row() >= _data.size() || index.column() >= 4)
+        if (!index.isValid() || index.row() >= _data.size())
         {
             return QVariant();
         }
 
         const BlueskyPlan& rowData = _data[index.row()];
 
+        int section = index.column();
+        int parms_size = rowData.parameters.size();
+        if(section > parms_size + 5)
+        {
+            return QVariant();
+        }
+
         if (role == Qt::DisplayRole) 
         {
-            switch(index.column())
+            if(section == 0)
             {
-            case 0:
-                return rowData.name;
-            case 1:
                 return rowData.type;
-            case 2:
-                return rowData.user;
-            case 3:
-                return rowData.uuid;
-            };
+            }
+            else if(section == (parms_size + 1))
+            {
+                return rowData.result.exit_status;
+            }
+            else if(section == (parms_size + 2))
+            {
+                if(rowData.result.time_start == 0.0)
+                {
+                    return " ";
+                }
+                QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_start, Qt::UTC);
+                return dateTime.toString("yyyy-MM-dd hh:mm:ss");
+            }
+            else if(section == (parms_size + 3))
+            {
+                if(rowData.result.time_stop == 0.0)
+                {
+                    return " ";
+                }
+                QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_stop, Qt::UTC);
+                return dateTime.toString("yyyy-MM-dd hh:mm:ss");
+            }
+            else if(section == (parms_size + 4))
+            {
+                return rowData.result.msg;
+            }
+
+            int idx = 0;
+            for( auto itr: rowData.parameters)
+            {
+                if(idx == section -1 )
+                {
+                    return itr.second.default_val;
+                }
+                idx++;
+            }
+            
+        }
+        else if (role == Qt::BackgroundRole)
+        {
+            if(_data.at(index.row()).result.exit_status.length() > 0)
+            {
+                return QColor(Qt::darkGray);
+            }
+            else if(_data.at(index.row()).result.time_start > 0.0)
+            {
+                return QColor(Qt::darkGreen);
+            }
         }
         return QVariant();
     }
@@ -158,13 +190,44 @@ public:
         // Horizontal headers
         if (orientation == Qt::Horizontal)
         {
-            if(section > 4)
+            if(section == 0)
             {
-                return QVariant();
+                return _headers[section];
             }
             else
             {
-                return _headers[section];
+                if(_data.size() > 0)
+                {
+                    const BlueskyPlan& rowData = _data[0];
+                    int parms_size = rowData.parameters.size();
+
+                    if(section == (parms_size + 1))
+                    {
+                        return "exit_status";
+                    }
+                    else if(section == (parms_size + 2))
+                    {
+                        return "time_start";
+                    }
+                    else if(section == (parms_size + 3))
+                    {
+                        return "time_stop";
+                    }
+                    else if(section == (parms_size + 4))
+                    {
+                        return "msg";
+                    }
+                    int idx = 0;
+                    for( auto itr: rowData.parameters)
+                    {
+                        if(idx == section -1 )
+                        {
+                            return itr.second.name;
+                        }
+                        idx++;
+                    }
+                }
+                return QVariant(" ");
             }
         }
 
@@ -180,17 +243,38 @@ public:
         {
             return Qt::NoItemFlags;
         }
+        
+        if(index.row() < _data.size())
+        {
+            if(_data.at(index.row()).result.exit_status.length() > 0)
+            {
+                return  Qt::ItemIsSelectable;
+            }
+        }
 
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+        if(index.column() == 0)
+        {
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+        }
+        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
     
     //---------------------------------------------------------------------------
 
-    void setAllData(std::vector<BlueskyPlan>& scans)
+    void setAllData(std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
     {
+        _last_finished_idx = finished_plans.size();
         beginResetModel();
         _data.clear();
-        for(auto itr : scans)
+        for(auto itr : finished_plans)
+        {
+            _data.append(itr);
+        }
+        if(running_plan.type.length() > 0)
+        {
+            _data.append(running_plan);
+        }
+        for(auto itr : queued_plans)
         {
             _data.append(itr);
         }
@@ -203,23 +287,37 @@ public:
     {
         if (role == Qt::EditRole && index.isValid())
         {
-            if( index.row() < _data.size() && index.column() == 2)
+            if( index.row() < _data.size() && index.column() != 0)
             {
-                _data[index.row()].user = value.toString();
-                return true;
+                int idx = 1;
+                for (auto &itr : _data[index.row()].parameters)
+                {
+                    if(idx == index.column() && value.toString().length() >0)
+                    {
+                        // this will be refreshed from qserver
+                        itr.second.default_val = value.toString();
+                        emit planChanged(_data.at(index.row()));
+                        return false; // return false to make sure we get this value from qserver 
+                    }
+                    idx ++;
+                }   
             }
-            return false;
         }
         return false;
 
     }
+
     //---------------------------------------------------------------------------
 
+    const int get_finished_idx() {return _last_finished_idx;}
+
+    //---------------------------------------------------------------------------
 signals:
     void moveScanRow(int, int);
-
+    void planChanged(const BlueskyPlan&);  
 
 private:
+    int _last_finished_idx;
     QList<BlueskyPlan> _data;
 
     QString _headers[4];

@@ -57,6 +57,12 @@ public slots:
 
    void getQueuedScans();
 
+   void setHistoryLocation();
+
+   void clearHistory();
+
+   void saveHistory();
+
    void callOpenEnv();
 
    void callCloseEnv();
@@ -73,7 +79,9 @@ public slots:
 
    void callRemoveScan(int);
    
-   void queueScan(const BlueskyPlan& plan);
+   void callUpdatePlan(const BlueskyPlan& plan);
+
+   void callQueueScan(const BlueskyPlan& plan);
    
 protected:
 
@@ -113,6 +121,8 @@ protected:
    std::map<QString, BlueskyPlan> _avail_scans;
 
    std::vector<BlueskyPlan> _queued_scans;
+
+   std::vector<BlueskyPlan> _finished_scans;
 
    BlueskyPlan _running_scan;
 

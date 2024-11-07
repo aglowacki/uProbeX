@@ -92,7 +92,8 @@ Preferences::Preferences()
         {STR_PRF_FILE_SIZE, QVariant()},
         {STR_PRF_SHOW_DATASET_ON_LOAD, QVariant()},
         {STR_PREF_RADIO_LOAD_SELECTED_OPTION, QVariant()},
-        {STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, QVariant()}
+        {STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, QVariant()},
+        {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
    load();
 }

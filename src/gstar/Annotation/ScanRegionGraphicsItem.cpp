@@ -117,7 +117,7 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(QMap<QString, QString>& marker,
 const QString ScanRegionGraphicsItem::displayName() const
 {
 
-   return QString("Scan");
+   return QString("ScanRegion");
 
 }
 
