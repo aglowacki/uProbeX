@@ -144,6 +144,7 @@ public slots:
 
     void set_log10(bool val);
 
+    void showIntSpecTooltip(const QPointF &point, bool state);
 protected:
 
     /**
