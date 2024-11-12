@@ -14,6 +14,7 @@
 #include <QIntValidator>
 #include "preferences/Preferences.h"
 #include <math.h>
+#include <QToolTip>
 
 
 //---------------------------------------------------------------------------
@@ -297,6 +298,8 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
     {
         _int_spec_max_x = energy->maxCoeff();
         _int_spec_max_y = spectra->maxCoeff();
+        disconnect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
+        connect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
     }
 
     if(series == nullptr)
@@ -738,6 +741,21 @@ void SpectraWidget::set_top_axis(std::map < float, std::string> elements)
     {
         _top_axis_elements->append(QString::fromStdString(itr.second), itr.first);
     } 
+}
+
+//---------------------------------------------------------------------------
+
+void SpectraWidget::showIntSpecTooltip(const QPointF &point, bool state) 
+{
+    if (state) 
+    {
+        const QRect r = {};
+        QToolTip::showText(QCursor::pos(), QString::number(point.x(), 'f', 2), nullptr, r, 100000);
+    }
+    else
+    {
+        QToolTip::hideText();
+    }
 }
 
 //---------------------------------------------------------------------------
