@@ -29,7 +29,7 @@ public:
    /**
     * Destructor.
     */
-   ~RegionCaller();
+   virtual ~RegionCaller();
 
    virtual bool init(QString path, QString module, QString functionnName) = 0;
 

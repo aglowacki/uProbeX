@@ -76,21 +76,18 @@ public:
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   QVariant data(const QModelIndex &index,
-                 int role = Qt::DisplayRole) const;
+   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   Qt::ItemFlags flags(const QModelIndex &index) const;
+   Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   QVariant headerData(int section,
-                       Qt::Orientation orientation,
-                       int role) const;
+   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
@@ -98,37 +95,29 @@ public:
    /*bool insertRows(int row, int count,
                    const QModelIndex& parent = QModelIndex());*/
 
-   QModelIndex index(int row, int column,
-                         const QModelIndex &parent = QModelIndex()) const override;
+   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
    QModelIndex parent(const QModelIndex &index) const override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   bool removeRows(int row,
-                   int count,
-                   const QModelIndex& parent = QModelIndex());
+   bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   int rowCount(const QModelIndex &parent) const;
+   int rowCount(const QModelIndex &parent) const override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   bool setData(const QModelIndex &index,
-                const QVariant &value,
-                int role = Qt::EditRole);
+   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
    /**
     * @brief Reimplemented from QAbstractItemModel. See Qt documentation.
     */
-   bool setHeaderData(int section,
-                      Qt::Orientation orientation,
-                      const QVariant &value,
-                      int role = Qt::EditRole);
+   bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::EditRole) override;
 
    void appendElement(data_struct::Fit_Element_Map<double>* element);
 

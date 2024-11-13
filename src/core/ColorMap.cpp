@@ -102,7 +102,7 @@ void ColorMap::reload_color_maps()
     if (!directory.exists())
     {
             QString warn_msg = "Cannot find the "+ colormapDir +" directory";
-            qWarning(warn_msg.toStdString().c_str());
+            qWarning("%s", warn_msg.toStdString().c_str());
             //logW<< "Cannot find the " << directory.path()<<"\n";
             return;
     }
@@ -135,7 +135,7 @@ void ColorMap::reload_color_maps()
             else
             {
                 QString warn_msg = "Cannot open colormap " + fileInfo.absoluteFilePath();
-                qWarning(warn_msg.toStdString().c_str());
+                qWarning("%s", warn_msg.toStdString().c_str());
             }
            
             

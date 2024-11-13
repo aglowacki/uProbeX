@@ -65,10 +65,10 @@ char* RectItem::getMask()
 
          // Test if pixel is within ROI
          if (contains(mapFromScene(QPointF((float) c, (float) r)))) {
-            mask[r * w + c] = 255;
+            mask[r * w + c] = (char)255;
          }
          else {
-            mask[r * w + c] = 0;
+            mask[r * w + c] = (char)0;
          }
 
       }

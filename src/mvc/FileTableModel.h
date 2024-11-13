@@ -130,13 +130,14 @@ public:
         return _data.at(row);
     }
     //---------------------------------------------------------------------------
-    const QString& getNameAtRow(int row)
+    const bool getNameAtRow(int row, QString& out)
     {
         if(_data.size() > row)
         {
-            return _data.at(row).text;
+            out = _data.at(row).text;
+            return true;
         }
-        return "";
+        return false;
     }
     //---------------------------------------------------------------------------
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
@@ -167,7 +168,7 @@ public:
         return QVariant();
     }
     //---------------------------------------------------------------------------
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
         // Check this is DisplayRole
         if (role != Qt::DisplayRole) return QVariant();
@@ -191,7 +192,7 @@ public:
     
     //---------------------------------------------------------------------------
 
-    Qt::ItemFlags flags(const QModelIndex &index) const
+    Qt::ItemFlags flags(const QModelIndex &index) const override
     {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
@@ -301,6 +302,8 @@ public:
                         case Qt::DescendingOrder:
                             return rowA.number2 > rowB.number2;
                     };
+                default:
+                    return false;
             };
         });
         endResetModel();

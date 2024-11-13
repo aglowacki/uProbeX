@@ -180,18 +180,18 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
     }
     else if (role == Qt::DecorationRole)
     {
-        if (var.type() == QVariant::Color)
+        if (var.typeId() == QMetaType::QColor)
         {
             return QColor(var.toString());
         }
-        else if (var.type() == QVariant::Icon)
+        else if (var.typeId() == QMetaType::QIcon)
         {
             return var.value<QIcon>();
         } 
     }
     else if ( role == Qt::CheckStateRole  )
     {
-        if (var.type() == QVariant::Bool)
+        if (var.typeId() == QMetaType::Bool)
         {
             Qt::CheckState eChkState = ( item->data(index.row(), index.column() ).toBool() ) ? Qt::Checked : Qt::Unchecked;
             return eChkState;
@@ -202,7 +202,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
         //this stops the color variants from displaying the color as
         // a hex value in the tree
         QVariant var = item->data(index.row(), index.column());
-        if (var.type() == QVariant::Color || var.type() == QVariant::Bool || var.type() == QVariant::Icon )
+        if (var.typeId() == QMetaType::QColor || var.typeId() == QMetaType::Bool || var.typeId() == QMetaType::QIcon )
         {
             return QVariant();
         }
@@ -219,7 +219,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
  bool AnnotationTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
  {
     bool changed  = false;
-   if (value.type() == QVariant::String)
+   if (value.typeId() == QMetaType::QString)
    {
       QString sValue = value.toString();
       if (sValue.length() < 1)
@@ -242,7 +242,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
       return false;
    }
 
-    if ( role == Qt::CheckStateRole && var.type() == QVariant::Bool)
+    if ( role == Qt::CheckStateRole && var.typeId() == QMetaType::Bool)
     {
         Qt::CheckState eChecked = static_cast< Qt::CheckState >( value.toInt() );
         bool bNewValue = eChecked == Qt::Checked;

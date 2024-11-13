@@ -123,7 +123,7 @@ UProbeRegionGraphicsItem* UProbeRegionGraphicsItem::cloneRegion()
 QString UProbeRegionGraphicsItem::getUProbeName()
 {
    QVariant value = this->propertyValue(UPROBE_NAME);
-   if (value.type()  == QVariant::String) {
+   if (value.typeId()  == QMetaType::QString) {
       return value.toString();
    }
    return nullptr;

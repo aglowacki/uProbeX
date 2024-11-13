@@ -31,7 +31,7 @@ public:
    /**
     * Destructor.
     */
-   ~ShellRegionCaller();
+   virtual ~ShellRegionCaller();
 
    /**
     * @brief init

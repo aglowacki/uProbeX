@@ -16,7 +16,7 @@ class NumericPrecDelegate : public QStyledItemDelegate
 	Q_OBJECT
 public:
 	explicit NumericPrecDelegate(QObject* parent = 0);
-	virtual QString displayText(const QVariant& value, const QLocale& locale) const;
+	virtual QString displayText(const QVariant& value, const QLocale& locale) const override;
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option,
         const QModelIndex& index) const Q_DECL_OVERRIDE
