@@ -26,7 +26,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 		if (uProbeX::log_textedit == nullptr)
 		{
 			QByteArray localMsg = msg.toLocal8Bit();
-			switch (type) {
+			switch (type) 
+			{
+			case QtInfoMsg:
+				fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
 			case QtDebugMsg:
 				fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
 				break;
@@ -47,6 +50,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 			int cnt = 0;
 			switch (type)
 			{
+			case QtInfoMsg:
 			case QtDebugMsg:
 				cnt += h_msg.count("Info: ");
 				cnt += h_msg.count("Warning: ");

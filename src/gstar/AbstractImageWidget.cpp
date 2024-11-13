@@ -725,7 +725,7 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
       if (item != nullptr)
       {
          QVariant data = item->data(0, index.column());
-         if (data.type() == QVariant::Color)
+         if (data.typeId() == QMetaType::QColor)
          {
             QColor color = QColorDialog::getColor(data.toString(), this);
             if (color.isValid())
@@ -733,7 +733,7 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
                item->setData(index, color);
             }
          }
-         else if (data.type() == QVariant::Icon)
+         else if (data.typeId() == QMetaType::QIcon)
          {
             QDialog* custom_dialog = item->get_custom_dialog();
             if(custom_dialog != nullptr)

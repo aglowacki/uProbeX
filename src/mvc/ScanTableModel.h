@@ -92,7 +92,7 @@ public:
         return QVariant();
     }
     //---------------------------------------------------------------------------
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
         // Check this is DisplayRole
         if (role != Qt::DisplayRole) return QVariant();
@@ -116,7 +116,7 @@ public:
     
     //---------------------------------------------------------------------------
 
-    Qt::ItemFlags flags(const QModelIndex &index) const
+    Qt::ItemFlags flags(const QModelIndex &index) const override
     {
         if (!index.isValid())
         {
@@ -148,7 +148,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool setData(const QModelIndex& index, const QVariant& value, int role)
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override
     {
         if (role == Qt::EditRole && index.isValid())
         {

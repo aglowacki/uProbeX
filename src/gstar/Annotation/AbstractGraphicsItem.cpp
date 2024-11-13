@@ -293,25 +293,28 @@ QVariant AbstractGraphicsItem::data(int row, int column) const
 
    AnnotationProperty* data = m_data.value(column);
 
-   QVariant::Type valueType = data->getValue().type();
-
    QPoint point;
    QPointF pointf;
 
-   switch (valueType)
+   auto t = data->getValue().typeId();
+   if(t == QMetaType::QPoint)
    {
-   case QVariant::Point:
       point = data->getValue().toPoint();
       return QString("%1, %2").arg(point.x()).arg(point.y());
-   case QVariant::PointF:
+   }
+   else if(t == QMetaType::QPointF)
+   {
       pointf = data->getValue().toPointF();
       return QString("%1, %2").arg(pointf.x()).arg(pointf.y());
-   case QVariant::StringList:
-       return data->getValue().toStringList()[0];
-   default:
+   }
+   else if(t == QMetaType::QStringList)
+   {
+      return data->getValue().toStringList()[0];
+   }
+   else
+   {
       return data->getValue();
    }
-
 }
 
 //---------------------------------------------------------------------------
@@ -386,19 +389,18 @@ Qt::ItemFlags AbstractGraphicsItem::displayFlags(int row, int column) const
       return flags;
    }
 
-   QVariant::Type t = prop->getValue().type();
-   switch(t)
+   auto t = prop->getValue().typeId();
+   if(t == QMetaType::QColor || t == QMetaType::QIcon)
    {
-   case QVariant::Color:
-   case QVariant::Icon:
       flags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
-       break;
-   case QVariant::Bool:
+   }
+   else if(t == QMetaType::Bool)
+   {
       flags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-       break;
-   default:
+   }
+   else
+   {
       flags = Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
-       break;
    }
 
    return flags;
@@ -737,12 +739,11 @@ bool AbstractGraphicsItem::setData(const QModelIndex& index,
 
    AnnotationProperty* data = m_data.value(c);
 
-   QVariant::Type valueType = data->getValue().type();
+   auto t = data->getValue().typeId();
 
-   switch (valueType)
+   if(t == QMetaType::Double)
    {
-   case QVariant::Double:
-      if (value.type() == QVariant::String)
+      if (value.typeId() == QMetaType::QString)
       {
          QString sVal = value.toString();
          bool ok = false;
@@ -753,15 +754,15 @@ bool AbstractGraphicsItem::setData(const QModelIndex& index,
          }
          return ok;
       }
-      else if (value.type() == QVariant::Double ||
-               value.type() == QVariant::Int)
+      else if (value.typeId() == QMetaType::Double ||
+               value.typeId() == QMetaType::Int)
       {
          data->setValue(value.toDouble());
       }
-      break;
-   case QVariant::PointF:
-   case QVariant::Point:
-      if (value.type() == QVariant::String)
+   }
+   else if(t == QMetaType::QPoint || t == QMetaType::QPointF)
+   {
+      if (value.typeId() == QMetaType::QString)
       {
          QString sVal = value.toString();
          if(sVal.contains(","))
@@ -779,14 +780,15 @@ bool AbstractGraphicsItem::setData(const QModelIndex& index,
          else
             return false;
       }
-      else if (value.type() == QVariant::Point ||
-               value.type() == QVariant::PointF )
+      else if (value.typeId() == QMetaType::QPoint ||
+               value.typeId() == QMetaType::QPointF )
       {
          data->setValue(value);
       }
-      break;
-   case QVariant::Color:
-      if (value.type() == QVariant::String)
+   }
+   else if(t == QMetaType::QColor)
+   {
+      if (value.typeId() == QMetaType::QString)
       {
          data->setValue(QColor(value.toString()));
       }
@@ -794,10 +796,10 @@ bool AbstractGraphicsItem::setData(const QModelIndex& index,
       {
          data->setValue(value);
       }
-      break;
-   default:
+   }
+   else
+   {
       data->setValue(value);
-      break;
    }
 
    return true;

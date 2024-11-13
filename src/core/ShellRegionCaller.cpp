@@ -10,7 +10,7 @@
 //---------------------------------------------------------------------------
 
 
-ShellRegionCaller::ShellRegionCaller()
+ShellRegionCaller::ShellRegionCaller() : RegionCaller()
 {
 
    m_exists = false;

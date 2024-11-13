@@ -151,7 +151,11 @@ void FileTabWidget::load_all_visible()
         for(int i =0; i<list.length(); i++)
         {
             QModelIndex idx = list.at(i);
-            sl.append(_file_list_model->getNameAtRow(idx.row()));
+            QString val;
+            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            {
+                sl.append(val);
+            }
         }
     }
     emit loadList(sl);
@@ -172,7 +176,11 @@ void FileTabWidget::unload_all_visible()
         for(int i =0; i<list.length(); i++)
         {
             QModelIndex idx = list.at(i);
-            sl.append(_file_list_model->getNameAtRow(idx.row()));
+            QString val;
+            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            {
+                sl.append(val);
+            }
         }
     }
     emit unloadList(sl);
@@ -291,7 +299,11 @@ void FileTabWidget::onDoubleClickElement(const QModelIndex idx)
     if (_load_all_btn->isEnabled())
     {
         QStringList sl;
-        sl.append(_file_list_model->getNameAtRow(idx.row()));
+        QString val;
+        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        {
+            sl.append(val);
+        }
         emit loadList(sl);
     }
 }
@@ -325,7 +337,11 @@ void FileTabWidget::onLoadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(_file_list_model->getNameAtRow(idx.row()));
+        QString val;
+        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        {
+            sl.append(val);
+        }
     }
     emit loadList(sl);
 }
@@ -339,7 +355,11 @@ void FileTabWidget::onUnloadFile()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(_file_list_model->getNameAtRow(idx.row()));
+        QString val;
+        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        {
+            sl.append(val);
+        }
     }
     emit unloadList(sl);
 
@@ -423,7 +443,11 @@ void FileTabWidget::onCustomContext()
     for(int i =0; i<list.length(); i++)
     {
         QModelIndex idx = list.at(i);
-        sl.append(_file_list_model->getNameAtRow(idx.row()));
+        QString val;
+        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        {
+            sl.append(val);
+        }
     }
     QAction *act = qobject_cast<QAction *>(sender());
     emit customContext(act->text(), sl);
@@ -470,7 +494,11 @@ void FileTabWidget::onCustomButton()
         for(int i =0; i<list.length(); i++)
         {
             QModelIndex idx = list.at(i);
-            sl.append(_file_list_model->getNameAtRow(idx.row()));
+            QString val;
+            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            {
+                sl.append(val);
+            }
         }
     }
     QPushButton *btn = qobject_cast<QPushButton *>(sender());

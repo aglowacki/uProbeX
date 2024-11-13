@@ -32,10 +32,10 @@ public:
        _context = new zmq::context_t(1);
        _zmq_socket = new zmq::socket_t(*_context, ZMQ_SUB);
        _zmq_socket->connect(conn_str);
-       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts", 10);
-       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Spectra", 11);
-       _zmq_socket->setsockopt(ZMQ_SUBSCRIBE, "XRF-Counts-and-Spectra", 22);
-       _zmq_socket->setsockopt(ZMQ_RCVTIMEO, 1000); //set timeout to 1000ms
+       _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Counts");
+       _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Spectra");
+       _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Counts-and-Spectra");
+       _zmq_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
 
    }
 
@@ -66,30 +66,36 @@ public slots:
         zmq::message_t token, message;
         while(_running)
         {
-            _zmq_socket->recv(&token);
-            std::string s1 ((char*)token.data(), token.size());
-            if(s1 == "XRF-Counts-and-Spectra")
+            zmq::recv_result_t res = _zmq_socket->recv(token, zmq::recv_flags::none);
+            if(res.has_value())
             {
-                if(_zmq_socket->recv(&message))
+                std::string s1 ((char*)token.data(), token.size());
+                if(s1 == "XRF-Counts-and-Spectra")
                 {
-                    new_packet = _serializer.decode_counts_and_spectra((char*)message.data(), message.size());
-                    emit newData(new_packet);
+                    zmq::recv_result_t res2 = _zmq_socket->recv(message, zmq::recv_flags::none);
+                    if(res2.has_value())
+                    {
+                        new_packet = _serializer.decode_counts_and_spectra((char*)message.data(), message.size());
+                        emit newData(new_packet);
+                    }
                 }
-            }
-            else if(s1 == "XRF-Counts")
-            {
-                if(_zmq_socket->recv(&message))
+                else if(s1 == "XRF-Counts")
                 {
-                    new_packet = _serializer.decode_counts((char*)message.data(), message.size());
-                    emit newData(new_packet);
+                    zmq::recv_result_t res2 = _zmq_socket->recv(message, zmq::recv_flags::none);
+                    if(res2.has_value())
+                    {
+                        new_packet = _serializer.decode_counts((char*)message.data(), message.size());
+                        emit newData(new_packet);
+                    }
                 }
-            }
-            else if(s1 == "XRF-Spectra")
-            {
-                if(_zmq_socket->recv(&message))
+                else if(s1 == "XRF-Spectra")
                 {
-                    new_packet = _serializer.decode_spectra((char*)message.data(), message.size());
-                    emit newData(new_packet);
+                    zmq::recv_result_t res2 = _zmq_socket->recv(message, zmq::recv_flags::none);
+                    if(res2.has_value())
+                    {
+                        new_packet = _serializer.decode_spectra((char*)message.data(), message.size());
+                        emit newData(new_packet);
+                    }
                 }
             }
         }

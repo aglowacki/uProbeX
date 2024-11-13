@@ -40,8 +40,8 @@ public:
        _zmq_comm_socket->connect(conn_str);
        _zmq_lsn_socket = new zmq::socket_t(*_context, ZMQ_SUB);
        _zmq_lsn_socket->connect(lsn_str);
-       _zmq_lsn_socket->setsockopt(ZMQ_SUBSCRIBE, "QS_Console", 10);
-       _zmq_lsn_socket->setsockopt(ZMQ_RCVTIMEO, 1000); //set timeout to 1000ms
+       _zmq_lsn_socket->set(zmq::sockopt::subscribe, "QS_Console");
+       _zmq_lsn_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
 
    }
 
@@ -171,20 +171,24 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_open", nullptr);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -201,20 +205,24 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_close", nullptr);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -231,20 +239,24 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_start", nullptr);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -261,20 +273,24 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_stop", nullptr);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -295,20 +311,24 @@ public:
         params["user"] = "uProbeX";
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg2("queue_item_add", params);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -329,20 +349,24 @@ public:
         params["user"] = "uProbeX";
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg2("queue_item_update", params);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -363,20 +387,24 @@ public:
         params["pos"] = srcRow;
         params["pos_dest"] = destRow;
         QByteArray msg_arr = gen_send_mesg2("queue_item_move", params);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -395,20 +423,24 @@ public:
         QJsonObject params;
         params["pos"] = row;
         QByteArray msg_arr = gen_send_mesg2("queue_item_remove", params);
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            if(reply["success"].toString() == "true")
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                ret = true;
+                if(reply["success"].toString() == "true")
+                {
+                    ret = true;
+                }
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -429,91 +461,95 @@ public:
         std::map<QString, QString> params;
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg("plans_allowed", &params); 
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);;
 
-        _zmq_comm_socket->recv(&message);
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            QString strReply = reply["success"].toString();
-            if(strReply.length() > 0)
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                if(strReply == "true")
+                QString strReply = reply["success"].toString();
+                if(strReply.length() > 0)
                 {
-                    ret = true;
+                    if(strReply == "true")
+                    {
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    ret = reply["success"].toBool();
                 }
             }
-            else
+            if(reply.contains("plans_allowed"))
             {
-                ret = reply["success"].toBool();
-            }
-        }
-        if(reply.contains("plans_allowed"))
-        {
-            QJsonObject iojb = reply["plans_allowed"].toObject();
-            for( auto itr : iojb)
-            {
-                QJsonObject pobj = itr.toObject();
-                if(pobj.contains("name"))
+                QJsonObject iojb = reply["plans_allowed"].toObject();
+                for( auto itr : iojb)
                 {
-                    plans[pobj["name"].toString()].name = pobj["name"].toString();
-                    if(pobj.contains("description"))
+                    QJsonObject pobj = itr.toObject();
+                    if(pobj.contains("name"))
                     {
-                        plans[pobj["name"].toString()].description = pobj["description"].toString();
-                    }
-                    if(pobj.contains("module"))
-                    {
-                        plans[pobj["name"].toString()].module = pobj["module"].toString();
-                    }
-                    if(pobj.contains("parameters"))
-                    {
-                        QJsonArray params_obj = pobj["parameters"].toArray();
-                        for( auto itr2 : params_obj)
+                        plans[pobj["name"].toString()].name = pobj["name"].toString();
+                        if(pobj.contains("description"))
                         {
-                            QJsonObject param = itr2.toObject();
-                            if(param.contains("name"))
+                            plans[pobj["name"].toString()].description = pobj["description"].toString();
+                        }
+                        if(pobj.contains("module"))
+                        {
+                            plans[pobj["name"].toString()].module = pobj["module"].toString();
+                        }
+                        if(pobj.contains("parameters"))
+                        {
+                            QJsonArray params_obj = pobj["parameters"].toArray();
+                            for( auto itr2 : params_obj)
                             {
-                                plans[pobj["name"].toString()].parameters[param["name"].toString()].name = param["name"].toString();
-                                if(param.contains("default"))
+                                QJsonObject param = itr2.toObject();
+                                if(param.contains("name"))
                                 {
-                                    if(param["default"].toString() != "None")
+                                    plans[pobj["name"].toString()].parameters[param["name"].toString()].name = param["name"].toString();
+                                    if(param.contains("default"))
                                     {
-                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].default_val = param["default"].toString();
+                                        if(param["default"].toString() != "None")
+                                        {
+                                            plans[pobj["name"].toString()].parameters[param["name"].toString()].default_val = param["default"].toString();
+                                        }
+                                    }
+                                    if(param.contains("description"))
+                                    {
+                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].description = param["description"].toString();
                                     }
                                 }
-                                if(param.contains("description"))
+                                if(param.contains("kind"))
                                 {
-                                    plans[pobj["name"].toString()].parameters[param["name"].toString()].description = param["description"].toString();
-                                }
-                            }
-                            if(param.contains("kind"))
-                            {
-                                QJsonObject kind = param["kind"].toObject();
-                                if(kind.contains("value"))
-                                {
-                                    int tval = kind["value"].toInt();
-                                    switch (tval)
+                                    QJsonObject kind = param["kind"].toObject();
+                                    if(kind.contains("value"))
                                     {
-                                        case 1:
-                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::Numeral;
-                                        break;
-                                        case 3:
-                                        plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::String;
-                                        break;
-                                        default:
-                                        break;
+                                        int tval = kind["value"].toInt();
+                                        switch (tval)
+                                        {
+                                            case 1:
+                                            plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::Numeral;
+                                            break;
+                                            case 3:
+                                            plans[pobj["name"].toString()].parameters[param["name"].toString()].kind = BlueskyParamType::String;
+                                            break;
+                                            default:
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                    
                 }
-                
             }
-        }
-        if(reply.contains("msg"))
-        {
-            msg = reply["msg"].toString();
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
         return ret;
     }
@@ -531,69 +567,140 @@ public:
         running_plan.uuid = "";
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_get", nullptr); 
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            QString strReply = reply["success"].toString();
-            if(strReply.length() > 0)
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
             {
-                if(strReply == "true")
+                QString strReply = reply["success"].toString();
+                if(strReply.length() > 0)
                 {
-                    ret = true;
-                }
-            }
-            else
-            {
-                ret = reply["success"].toBool();
-            }
-        }
-        if(reply.contains("items"))
-        {
-            /*
-            {'name': 'count',
-            'args': [['det1', 'det2']],
-            'kwargs': {'num': 10, 'delay': 1},
-            'item_type': 'plan',
-            'user': 'qserver-cli',
-            'user_group': 'primary',
-            'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
-            */
-           queued_plans.clear();
-            QJsonArray items = reply["items"].toArray();
-            for( auto itr2 : items)
-            {
-                BlueskyPlan plan;
-                QJsonObject param = itr2.toObject();
-                if(param.contains("name"))
-                {
-                    plan.type = param["name"].toString();
-                }
-                if(param.contains("args"))
-                {
-                    QJsonObject kwargs = param["args"].toObject();
-                    for(auto pitr : kwargs.keys())
+                    if(strReply == "true")
                     {
-                        BlueskyParam bsp;
-                        bsp.name = pitr;
-                        if(kwargs.value(pitr).isDouble())
-                        {
-                            double p = kwargs.value(pitr).toDouble();
-                            bsp.default_val = QString::number(p);
-                        }
-                        else if( kwargs.value(pitr).isString() )
-                        {
-                            bsp.default_val = kwargs.value(pitr).toString();
-                        }
-                        plan.parameters[pitr] = bsp;
+                        ret = true;
                     }
                 }
-                if(param.contains("kwargs"))
+                else
                 {
-                    QJsonObject kwargs = param["kwargs"].toObject();
+                    ret = reply["success"].toBool();
+                }
+            }
+            if(reply.contains("items"))
+            {
+                /*
+                {'name': 'count',
+                'args': [['det1', 'det2']],
+                'kwargs': {'num': 10, 'delay': 1},
+                'item_type': 'plan',
+                'user': 'qserver-cli',
+                'user_group': 'primary',
+                'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
+                */
+            queued_plans.clear();
+                QJsonArray items = reply["items"].toArray();
+                for( auto itr2 : items)
+                {
+                    BlueskyPlan plan;
+                    QJsonObject param = itr2.toObject();
+                    if(param.contains("name"))
+                    {
+                        plan.type = param["name"].toString();
+                    }
+                    if(param.contains("args"))
+                    {
+                        QJsonObject kwargs = param["args"].toObject();
+                        for(auto pitr : kwargs.keys())
+                        {
+                            BlueskyParam bsp;
+                            bsp.name = pitr;
+                            if(kwargs.value(pitr).isDouble())
+                            {
+                                double p = kwargs.value(pitr).toDouble();
+                                bsp.default_val = QString::number(p);
+                            }
+                            else if( kwargs.value(pitr).isString() )
+                            {
+                                bsp.default_val = kwargs.value(pitr).toString();
+                            }
+                            plan.parameters[pitr] = bsp;
+                        }
+                    }
+                    if(param.contains("kwargs"))
+                    {
+                        QJsonObject kwargs = param["kwargs"].toObject();
+                        for(auto pitr : kwargs.keys())
+                        {
+                            BlueskyParam bsp;
+                            bsp.name = pitr;
+
+                            if(kwargs.value(pitr).isDouble())
+                            {
+                                double p = kwargs.value(pitr).toDouble();
+                                bsp.default_val = QString::number(p);
+                                bsp.kind = BlueskyParamType::Numeral;
+                            }
+                            else if( kwargs.value(pitr).isString() )
+                            {
+                                bsp.default_val = kwargs.value(pitr).toString();
+                                bsp.kind = BlueskyParamType::String;
+                            }
+                            plan.parameters[pitr] = bsp;
+                        }
+                    }
+                    if(param.contains("user"))
+                    {
+                        plan.user = param["user"].toString();
+                    }
+                    if(param.contains("meta"))
+                    {
+                        QJsonObject meta = param["meta"].toObject();
+                        if(meta.contains("name"))
+                        {
+                            plan.name = meta["name"].toString();
+                        }
+                    }
+                    if(param.contains("item_uid"))
+                    {
+                        plan.uuid = param["item_uid"].toString();
+                    }
+                    queued_plans.push_back(plan);
+                }
+            }
+            if(reply.contains("running_item"))
+            {
+                /*
+                "name": "count",
+                "args": [
+                    [
+                        "det4",
+                        "det3"
+                    ]
+                ],
+                "kwargs": {
+                    "num": 10,
+                    "delay": 1
+                },
+                "item_type": "plan",
+                "user": "qserver-cli",
+                "user_group": "primary",
+                "item_uid": "dacdd8fc-2903-490d-8027-7510d43fb1e2",
+                "properties": {
+                    "time_start": 1722889109.0853188
+                }
+                */
+
+                QJsonObject running_item = reply["running_item"].toObject();
+                if(running_item.contains("name"))
+                {
+                    running_plan.type =  running_item["name"].toString();
+                }
+                if(running_item.contains("args"))
+                {
+                    QJsonObject kwargs = running_item["args"].toObject();
                     for(auto pitr : kwargs.keys())
                     {
                         BlueskyParam bsp;
@@ -610,123 +717,55 @@ public:
                             bsp.default_val = kwargs.value(pitr).toString();
                             bsp.kind = BlueskyParamType::String;
                         }
-                        plan.parameters[pitr] = bsp;
+                        running_plan.parameters[pitr] = bsp;
                     }
                 }
-                if(param.contains("user"))
+                if(running_item.contains("kwargs"))
                 {
-                    plan.user = param["user"].toString();
-                }
-                if(param.contains("meta"))
-                {
-                    QJsonObject meta = param["meta"].toObject();
-                    if(meta.contains("name"))
+                    QJsonObject kwargs = running_item["kwargs"].toObject();
+                    for(auto pitr : kwargs.keys())
                     {
-                        plan.name = meta["name"].toString();
+                        BlueskyParam bsp;
+                        bsp.name = pitr;
+
+                        if(kwargs.value(pitr).isDouble())
+                        {
+                            double p = kwargs.value(pitr).toDouble();
+                            bsp.default_val = QString::number(p);
+                            bsp.kind = BlueskyParamType::Numeral;
+                        }
+                        else if( kwargs.value(pitr).isString() )
+                        {
+                            bsp.default_val = kwargs.value(pitr).toString();
+                            bsp.kind = BlueskyParamType::String;
+                        }
+                        running_plan.parameters[pitr] = bsp;
                     }
                 }
-                if(param.contains("item_uid"))
+                if(running_item.contains("user"))
                 {
-                    plan.uuid = param["item_uid"].toString();
+                    running_plan.user =  running_item["user"].toString();
                 }
-                queued_plans.push_back(plan);
+                if(running_item.contains("item_uid"))
+                {
+                    running_plan.uuid =  running_item["item_uid"].toString();
+                }
+                if(running_item.contains("properties"))
+                {
+                    QJsonObject props = running_item["properties"].toObject();
+                    if(props.contains("time_start"))
+                    {
+                        running_plan.result.time_start =  props["time_start"].toDouble();
+                    }
+                }
             }
-        }
-        if(reply.contains("running_item"))
-        {
             /*
-            "name": "count",
-            "args": [
-                [
-                    "det4",
-                    "det3"
-                ]
-            ],
-            "kwargs": {
-                "num": 10,
-                "delay": 1
-            },
-            "item_type": "plan",
-            "user": "qserver-cli",
-            "user_group": "primary",
-            "item_uid": "dacdd8fc-2903-490d-8027-7510d43fb1e2",
-            "properties": {
-                "time_start": 1722889109.0853188
+            if(reply.contains("plan_queue_uid"))
+            {
+
             }
             */
-
-            QJsonObject running_item = reply["running_item"].toObject();
-            if(running_item.contains("name"))
-            {
-                running_plan.type =  running_item["name"].toString();
-            }
-            if(running_item.contains("args"))
-            {
-                QJsonObject kwargs = running_item["args"].toObject();
-                for(auto pitr : kwargs.keys())
-                {
-                    BlueskyParam bsp;
-                    bsp.name = pitr;
-
-                    if(kwargs.value(pitr).isDouble())
-                    {
-                        double p = kwargs.value(pitr).toDouble();
-                        bsp.default_val = QString::number(p);
-                        bsp.kind = BlueskyParamType::Numeral;
-                    }
-                    else if( kwargs.value(pitr).isString() )
-                    {
-                        bsp.default_val = kwargs.value(pitr).toString();
-                        bsp.kind = BlueskyParamType::String;
-                    }
-                    running_plan.parameters[pitr] = bsp;
-                }
-            }
-            if(running_item.contains("kwargs"))
-            {
-                QJsonObject kwargs = running_item["kwargs"].toObject();
-                for(auto pitr : kwargs.keys())
-                {
-                    BlueskyParam bsp;
-                    bsp.name = pitr;
-
-                    if(kwargs.value(pitr).isDouble())
-                    {
-                        double p = kwargs.value(pitr).toDouble();
-                        bsp.default_val = QString::number(p);
-                        bsp.kind = BlueskyParamType::Numeral;
-                    }
-                    else if( kwargs.value(pitr).isString() )
-                    {
-                        bsp.default_val = kwargs.value(pitr).toString();
-                        bsp.kind = BlueskyParamType::String;
-                    }
-                    running_plan.parameters[pitr] = bsp;
-                }
-            }
-            if(running_item.contains("user"))
-            {
-                running_plan.user =  running_item["user"].toString();
-            }
-            if(running_item.contains("item_uid"))
-            {
-                running_plan.uuid =  running_item["item_uid"].toString();
-            }
-            if(running_item.contains("properties"))
-            {
-                QJsonObject props = running_item["properties"].toObject();
-                if(props.contains("time_start"))
-                {
-                    running_plan.result.time_start =  props["time_start"].toDouble();
-                }
-            }
         }
-        /*
-        if(reply.contains("plan_queue_uid"))
-        {
-
-        }
-        */
         return ret;
     }
     
@@ -741,15 +780,18 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("history_clear", nullptr); 
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-
-        msg = QString::fromUtf8((char*)message.data(), message.size());
-        QJsonObject reply = QJsonDocument::fromJson(msg.toUtf8()).object();
-        if(reply.contains("success"))
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            return true;
+            msg = QString::fromUtf8((char*)message.data(), message.size());
+            QJsonObject reply = QJsonDocument::fromJson(msg.toUtf8()).object();
+            if(reply.contains("success"))
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -765,152 +807,155 @@ public:
         }
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("history_get", nullptr); 
-        _zmq_comm_socket->send(msg_arr.data(), msg_arr.length());
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
 
-        _zmq_comm_socket->recv(&message);
-
-        if(raw_mesg)
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        if(r_res.has_value())
         {
-            msg = QString::fromUtf8((char*)message.data(), message.size());
-            return true;
-        }
-
-        QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-        if(reply.contains("success"))
-        {
-            QString strReply = reply["success"].toString();
-            if(strReply.length() > 0)
+            if(raw_mesg)
             {
-                if(strReply == "true")
+                msg = QString::fromUtf8((char*)message.data(), message.size());
+                return true;
+            }
+
+            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            if(reply.contains("success"))
+            {
+                QString strReply = reply["success"].toString();
+                if(strReply.length() > 0)
                 {
-                    ret = true;
+                    if(strReply == "true")
+                    {
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    ret = reply["success"].toBool();
                 }
             }
-            else
+            if(reply.contains("items"))
             {
-                ret = reply["success"].toBool();
-            }
-        }
-        if(reply.contains("items"))
-        {
-            /*
-            {'name': 'count',
-            'args': [['det1', 'det2']],
-            'kwargs': {'num': 10, 'delay': 1},
-            'item_type': 'plan',
-            'user': 'qserver-cli',
-            'user_group': 'primary',
-            'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
-            */
-           finished_plans.clear();
-            QJsonArray items = reply["items"].toArray();
-            for( auto itr2 : items)
-            {
-                BlueskyPlan plan;
-                QJsonObject param = itr2.toObject();
-                if(param.contains("name"))
+                /*
+                {'name': 'count',
+                'args': [['det1', 'det2']],
+                'kwargs': {'num': 10, 'delay': 1},
+                'item_type': 'plan',
+                'user': 'qserver-cli',
+                'user_group': 'primary',
+                'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
+                */
+            finished_plans.clear();
+                QJsonArray items = reply["items"].toArray();
+                for( auto itr2 : items)
                 {
-                    plan.type = param["name"].toString();
-                }
-                if(param.contains("args"))
-                {
-                    QJsonObject kwargs = param["args"].toObject();
-                    for(auto pitr : kwargs.keys())
+                    BlueskyPlan plan;
+                    QJsonObject param = itr2.toObject();
+                    if(param.contains("name"))
                     {
-                        BlueskyParam bsp;
-                        bsp.name = pitr;
-                        if(kwargs.value(pitr).isDouble())
-                        {
-                            double p = kwargs.value(pitr).toDouble();
-                            bsp.default_val = QString::number(p);
-                        }
-                        else if( kwargs.value(pitr).isString() )
-                        {
-                            bsp.default_val = kwargs.value(pitr).toString();
-                        }
-                        plan.parameters[pitr] = bsp;
+                        plan.type = param["name"].toString();
                     }
-                }
-                if(param.contains("kwargs"))
-                {
-                    QJsonObject kwargs = param["kwargs"].toObject();
-                    for(auto pitr : kwargs.keys())
+                    if(param.contains("args"))
                     {
-                        BlueskyParam bsp;
-                        bsp.name = pitr;
+                        QJsonObject kwargs = param["args"].toObject();
+                        for(auto pitr : kwargs.keys())
+                        {
+                            BlueskyParam bsp;
+                            bsp.name = pitr;
+                            if(kwargs.value(pitr).isDouble())
+                            {
+                                double p = kwargs.value(pitr).toDouble();
+                                bsp.default_val = QString::number(p);
+                            }
+                            else if( kwargs.value(pitr).isString() )
+                            {
+                                bsp.default_val = kwargs.value(pitr).toString();
+                            }
+                            plan.parameters[pitr] = bsp;
+                        }
+                    }
+                    if(param.contains("kwargs"))
+                    {
+                        QJsonObject kwargs = param["kwargs"].toObject();
+                        for(auto pitr : kwargs.keys())
+                        {
+                            BlueskyParam bsp;
+                            bsp.name = pitr;
 
-                        if(kwargs.value(pitr).isDouble())
-                        {
-                            double p = kwargs.value(pitr).toDouble();
-                            bsp.default_val = QString::number(p);
-                            bsp.kind = BlueskyParamType::Numeral;
-                        }
-                        else if( kwargs.value(pitr).isString() )
-                        {
-                            bsp.default_val = kwargs.value(pitr).toString();
-                            bsp.kind = BlueskyParamType::String;
-                        }
-                        plan.parameters[pitr] = bsp;
-                    }
-                }
-                if(param.contains("result"))
-                {
-                        /*
-                        {'exit_status': 'completed',
-                       'run_uids': ['ab6e2ebc-effb-4385-8988-fff128e592c1'],
-                       'scan_ids': [5],
-                       'time_start': 1729088124.896845,
-                       'time_stop': 1729088129.916682,
-                       'msg': '',
-                       'traceback': ''}}],
-                       */
-                    QJsonObject result = param["result"].toObject();
-                    if(result.contains("exit_status"))
-                    {
-                        plan.result.exit_status = result["exit_status"].toString();
-                    }
-                    if(result.contains("msg"))
-                    {
-                        plan.result.msg = result["msg"].toString();
-                    }
-                    if(result.contains("traceback"))
-                    {
-                        plan.result.traceback = result["traceback"].toString();
-                    }
-                    if(result.contains("time_start"))
-                    {
-                        plan.result.time_start = result["time_start"].toDouble();
-                    }
-                    if(result.contains("time_stop"))
-                    {
-                        plan.result.time_stop = result["time_stop"].toDouble();
-                    }
-                    if(result.contains("run_uids"))
-                    {
-                        QJsonArray runs = result["run_uids"].toArray();
-                        if(runs.size() > 0)
-                        {
-                            plan.result.run_uids = runs.at(0).toString();
+                            if(kwargs.value(pitr).isDouble())
+                            {
+                                double p = kwargs.value(pitr).toDouble();
+                                bsp.default_val = QString::number(p);
+                                bsp.kind = BlueskyParamType::Numeral;
+                            }
+                            else if( kwargs.value(pitr).isString() )
+                            {
+                                bsp.default_val = kwargs.value(pitr).toString();
+                                bsp.kind = BlueskyParamType::String;
+                            }
+                            plan.parameters[pitr] = bsp;
                         }
                     }
-                }
-                if(param.contains("user"))
-                {
-                    plan.user = param["user"].toString();
-                }
-                if(param.contains("meta"))
-                {
-                    QJsonObject meta = param["meta"].toObject();
-                    if(meta.contains("name"))
+                    if(param.contains("result"))
                     {
-                        plan.name = meta["name"].toString();
+                            /*
+                            {'exit_status': 'completed',
+                        'run_uids': ['ab6e2ebc-effb-4385-8988-fff128e592c1'],
+                        'scan_ids': [5],
+                        'time_start': 1729088124.896845,
+                        'time_stop': 1729088129.916682,
+                        'msg': '',
+                        'traceback': ''}}],
+                        */
+                        QJsonObject result = param["result"].toObject();
+                        if(result.contains("exit_status"))
+                        {
+                            plan.result.exit_status = result["exit_status"].toString();
+                        }
+                        if(result.contains("msg"))
+                        {
+                            plan.result.msg = result["msg"].toString();
+                        }
+                        if(result.contains("traceback"))
+                        {
+                            plan.result.traceback = result["traceback"].toString();
+                        }
+                        if(result.contains("time_start"))
+                        {
+                            plan.result.time_start = result["time_start"].toDouble();
+                        }
+                        if(result.contains("time_stop"))
+                        {
+                            plan.result.time_stop = result["time_stop"].toDouble();
+                        }
+                        if(result.contains("run_uids"))
+                        {
+                            QJsonArray runs = result["run_uids"].toArray();
+                            if(runs.size() > 0)
+                            {
+                                plan.result.run_uids = runs.at(0).toString();
+                            }
+                        }
                     }
+                    if(param.contains("user"))
+                    {
+                        plan.user = param["user"].toString();
+                    }
+                    if(param.contains("meta"))
+                    {
+                        QJsonObject meta = param["meta"].toObject();
+                        if(meta.contains("name"))
+                        {
+                            plan.name = meta["name"].toString();
+                        }
+                    }
+                    if(param.contains("item_uid"))
+                    {
+                        plan.uuid = param["item_uid"].toString();
+                    }
+                    finished_plans.push_back(plan);
                 }
-                if(param.contains("item_uid"))
-                {
-                    plan.uuid = param["item_uid"].toString();
-                }
-                finished_plans.push_back(plan);
             }
         }
         return ret;
@@ -925,22 +970,26 @@ public slots:
         zmq::message_t token, message;
         while(_running)
         {
-            _zmq_lsn_socket->recv(&token);
-            std::string s1 ((char*)token.data(), token.size());
-            if(s1 == "QS_Console")
+            zmq::recv_result_t r_res = _zmq_lsn_socket->recv(token, zmq::recv_flags::none);
+            if(r_res.has_value())
             {
-                if(_zmq_lsn_socket->recv(&message))
+                std::string s1 ((char*)token.data(), token.size());
+                if(s1 == "QS_Console")
                 {
-                    QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-                    if(rootJson.contains("msg"))
+                    zmq::recv_result_t r_res2 = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+                    if(r_res2.has_value())
                     {
-                        QString msg = rootJson["msg"].toString();
-                        msg.chop(1);
-                        emit newData(msg);
-                    }
-                    else
-                    {
-                    //    logI<<data.toStdString()<<"\n"; // may cause issues coming from a thread
+                        QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+                        if(rootJson.contains("msg"))
+                        {
+                            QString msg = rootJson["msg"].toString();
+                            msg.chop(1);
+                            emit newData(msg);
+                        }
+                        else
+                        {
+                        //    logI<<data.toStdString()<<"\n"; // may cause issues coming from a thread
+                        }
                     }
                 }
             }

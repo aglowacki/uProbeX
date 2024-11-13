@@ -128,7 +128,7 @@ void PreferencesDisplay::reload_themes()
     if (!directory.exists())
     {
         QString warn_msg = "Cannot find the " + colormapDir + " directory";
-        qWarning(warn_msg.toStdString().c_str());
+        qWarning("%s", warn_msg.toStdString().c_str());
         //logW<< "Cannot find the " << directory.path()<<"\n";
         return;
     }
