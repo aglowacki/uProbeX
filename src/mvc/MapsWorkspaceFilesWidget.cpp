@@ -267,6 +267,11 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     {
                         param_override = _model->getParamOverride(-1);
                     }
+                     if (param_override == nullptr)
+                    {
+                        // generate param file
+                        param_override = new data_struct::Params_Override<double>();
+                    }
                     h5Model->set_fit_parameters_override(param_override);
                     emit loaded_model(name, mt);
                     load_status = LOADED;
