@@ -130,6 +130,8 @@ protected:
 
    std::string _prev_dataset_name;
 
+   zmq::context_t *_context;
+
    int _num_images;
 };
 
