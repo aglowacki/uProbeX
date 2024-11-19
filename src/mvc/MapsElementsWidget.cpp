@@ -1138,7 +1138,15 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
                 }
             }
         }
+        else
+        {
+            QMessageBox::critical(nullptr, "Export Fit Parameters", "Param override variable is nullptr, can't save data.");
+        }
     }
+    else
+        {
+            QMessageBox::critical(nullptr, "Export Fit Parameters", "Model is nullptr, can't save data.");
+        }
 }
 
 //---------------------------------------------------------------------------

@@ -20,29 +20,20 @@
 //---------------------------------------------------------------------------
 
 
-class BlueskyComm : public QThread
+class BlueskyComm 
 {
-
-   Q_OBJECT
 
 public:
 
    /**
     * Constructor.
     */
-   BlueskyComm(QString str_ip, QObject* parent = nullptr) : QThread(parent)
+   BlueskyComm(zmq::context_t *context, QString str_ip) 
    {
 
        std::string conn_str = "tcp://"+str_ip.toStdString()+":60615";
-       std::string lsn_str = "tcp://"+str_ip.toStdString()+":60625";
-       _context = new zmq::context_t(1);
-       _zmq_comm_socket = new zmq::socket_t(*_context, ZMQ_REQ);
+       _zmq_comm_socket = new zmq::socket_t(*context, ZMQ_REQ);
        _zmq_comm_socket->connect(conn_str);
-       _zmq_lsn_socket = new zmq::socket_t(*_context, ZMQ_SUB);
-       _zmq_lsn_socket->connect(lsn_str);
-       _zmq_lsn_socket->set(zmq::sockopt::subscribe, "QS_Console");
-       _zmq_lsn_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
-
    }
 
     //---------------------------------------------------------------------------
@@ -57,19 +48,7 @@ public:
            _zmq_comm_socket->close();
            delete _zmq_comm_socket;
        }
-       if(_zmq_lsn_socket != nullptr)
-       {
-           _zmq_lsn_socket->close();
-           delete _zmq_lsn_socket;
-       }
-       if (_context != nullptr)
-       {
-           _context->close();
-           delete _context;
-       }
        _zmq_comm_socket = nullptr;
-       _zmq_lsn_socket = nullptr;
-       _context = nullptr;
    }
 
     //---------------------------------------------------------------------------
@@ -172,9 +151,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_open", nullptr);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -206,9 +185,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("environment_close", nullptr);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -240,9 +219,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_start", nullptr);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -274,9 +253,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_stop", nullptr);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -312,9 +291,9 @@ public:
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg2("queue_item_add", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -350,9 +329,9 @@ public:
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg2("queue_item_update", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -388,9 +367,9 @@ public:
         params["pos_dest"] = destRow;
         QByteArray msg_arr = gen_send_mesg2("queue_item_move", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -424,9 +403,9 @@ public:
         params["pos"] = row;
         QByteArray msg_arr = gen_send_mesg2("queue_item_remove", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -462,9 +441,9 @@ public:
         params["user_group"] = "primary";
         QByteArray msg_arr = gen_send_mesg("plans_allowed", &params); 
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);;
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);;
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -568,9 +547,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_get", nullptr); 
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
@@ -781,9 +760,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("history_clear", nullptr); 
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             msg = QString::fromUtf8((char*)message.data(), message.size());
@@ -808,9 +787,9 @@ public:
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("history_get", nullptr); 
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
-        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg, zmq::send_flags::none);
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
 
-        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
             if(raw_mesg)
@@ -963,53 +942,9 @@ public:
 
     //---------------------------------------------------------------------------
 
-public slots:
-    void run() override
-    {
-        _running = true;
-        zmq::message_t token, message;
-        while(_running)
-        {
-            zmq::recv_result_t r_res = _zmq_lsn_socket->recv(token, zmq::recv_flags::none);
-            if(r_res.has_value())
-            {
-                std::string s1 ((char*)token.data(), token.size());
-                if(s1 == "QS_Console")
-                {
-                    zmq::recv_result_t r_res2 = _zmq_comm_socket->recv(message, zmq::recv_flags::none);
-                    if(r_res2.has_value())
-                    {
-                        QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-                        if(rootJson.contains("msg"))
-                        {
-                            QString msg = rootJson["msg"].toString();
-                            msg.chop(1);
-                            emit newData(msg);
-                        }
-                        else
-                        {
-                        //    logI<<data.toStdString()<<"\n"; // may cause issues coming from a thread
-                        }
-                    }
-                }
-            }
-        }
-        _zmq_lsn_socket->close();
-    }
-    void stop() {_running = false;}
-
-signals:
-    void newData(const QString&);
-
 protected:
 
-    bool _running;
-
-    zmq::context_t *_context;
-
     zmq::socket_t *_zmq_comm_socket;
-
-    zmq::socket_t *_zmq_lsn_socket;
 
 };
 

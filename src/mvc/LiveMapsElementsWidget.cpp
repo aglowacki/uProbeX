@@ -20,10 +20,12 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
     _qserverComm = nullptr;
     _mapsElementsWidget = nullptr;
     _last_packet = nullptr;
+    _qserverComm = nullptr;
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
     _num_images = 0;
     _prev_dataset_name = " ";
+    _context = new zmq::context_t(1);
     _qserver_ip_addr = new QLineEdit("127.0.0.1");
     _qline_ip_addr = new QLineEdit();
     if(ip.length() > 0)
@@ -62,6 +64,11 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
     }
     _currentModel = nullptr;
 
+    if(_qserverComm != nullptr)
+    {
+        delete _qserverComm;
+    }
+
     if(_streamWorker != nullptr)
     {
         _streamWorker->stop();
@@ -76,6 +83,13 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
         delete _mapsElementsWidget;
         _mapsElementsWidget = nullptr;
     }
+
+    if (_context != nullptr)
+    {
+        _context->close();
+        delete _context;
+    }
+    _context = nullptr;
 
 }
 
@@ -167,15 +181,9 @@ void LiveMapsElementsWidget::updateIp()
     
     if(_qserverComm != nullptr)
     {
-        disconnect(_qserverComm, &BlueskyComm::newData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
-        _qserverComm->stop();
-        _qserverComm->quit();
-        _qserverComm->wait();
         delete _qserverComm;
     }
-    _qserverComm = new BlueskyComm(_qserver_ip_addr->text(), this);
-    connect(_qserverComm, &BlueskyComm::newData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
-    _qserverComm->start();
+    _qserverComm = new BlueskyComm(_context, _qserver_ip_addr->text());
 
     if(_streamWorker != nullptr)
     {
@@ -185,8 +193,9 @@ void LiveMapsElementsWidget::updateIp()
         _streamWorker->wait();
         delete _streamWorker;
     }
-    _streamWorker = new NetStreamWorker(_qline_ip_addr->text(), _qline_port->text(), this);
+    _streamWorker = new NetStreamWorker(_context, _qline_ip_addr->text(), _qline_port->text(), _qserver_ip_addr->text(), this);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
+    connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
     _streamWorker->start();
     if(_last_packet != nullptr)
         delete _last_packet;

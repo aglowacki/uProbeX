@@ -38,6 +38,11 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     _file_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
     _file_list_view->setSortingEnabled(true);
 
+    //_file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
+    _file_list_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    
+
     // if preferences saves on select changes loaded dataset
     connect(_file_list_view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &FileTabWidget::onFileRowChange);
 
@@ -220,9 +225,6 @@ void FileTabWidget::set_file_list(const std::map<QString, QFileInfo>& fileinfo_l
     {
         _file_list_model->appendRow( RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));       
     }
-
-    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
-    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
 //---------------------------------------------------------------------------
@@ -280,9 +282,6 @@ void FileTabWidget::update_file_list(const std::map<QString, QFileInfo>& fileinf
             _file_list_model->appendRow(RowData(QIcon(":/images/circle_gray.png"), itr.first, (double)itr.second.size()/divisor));
         }
     }
-
-    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
-    _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 }
 
 //---------------------------------------------------------------------------

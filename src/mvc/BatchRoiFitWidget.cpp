@@ -172,6 +172,7 @@ void BatchRoiFitWidget::runProcessing()
 
     //run in thread
     analysis_job.dataset_directory = _directory;
+    analysis_job.output_dir = _directory;
     if (_optimizer_widget->isHybrid())
     {
         analysis_job.optimize_fit_routine = OPTIMIZE_FIT_ROUTINE::HYBRID;

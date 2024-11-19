@@ -187,21 +187,29 @@ QVariant FitParamsTableModel::data(const QModelIndex &index, int role) const
             data_struct::Fit_Param<double> fitp = _fit_parameters.at(_row_indicies[row]);
             if (index.column() == VALUE || index.column() == MIN_VAL)
             {
-                if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
+                if (fitp.value < fitp.min_val)
                 {
-                    if (fitp.value < fitp.min_val)
+                    if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
                     {
                         return QColor(Qt::red);
+                    }
+                    else
+                    {
+                        return QColor(Qt::darkYellow);
                     }
                 }
             }
             if (index.column() == VALUE || index.column() == MAX_VAL)
             {
-                if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_HI || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
+                if (fitp.value > fitp.max_val)
                 {
-                    if (fitp.value > fitp.max_val)
+                    if (fitp.bound_type == data_struct::E_Bound_Type::LIMITED_HI || fitp.bound_type == data_struct::E_Bound_Type::LIMITED_LO_HI)
                     {
                         return QColor(Qt::red);
+                    }
+                    else
+                    {
+                        return QColor(Qt::darkYellow);
                     }
                 }
             }

@@ -57,6 +57,7 @@ void PerPixelFitWidget::runProcessing()
     // TODO: fix so we can do float
     data_struct::Analysis_Job<double> analysis_job;
     analysis_job.dataset_directory = _directory;
+    analysis_job.output_dir = analysis_job.dataset_directory;
  
     _optionsWidget->setRunning();
     _optionsWidget->updateAnalysisJob<double>(analysis_job);

@@ -117,6 +117,7 @@ uProbeX::~uProbeX()
         }
     }
     m_subWindows.clear();
+    exitApplication();
 }
 
 //---------------------------------------------------------------------------
@@ -855,6 +856,12 @@ void uProbeX::openMapsWorkspace(QString dirName)
     QDir dir(dirName);
     dir.mkdir("img.dat");
     dir.mkdir("output");
+    QString ss1 = QString("output") + QDir::separator() + QString::fromStdString(STR_FIT_SPEC_DIR);
+    dir.mkdir(ss1);
+    ss1 = QString("output") + QDir::separator() + QString::fromStdString(STR_INT_SPEC_DIR);
+    dir.mkdir(ss1);
+    ss1 = QString("output") + QDir::separator() + QString::fromStdString(STR_FIT_PARAM_DIR);
+    dir.mkdir(ss1);
 
     QStringList recentPaths = Preferences::inst()->getValue(STR_RECENT_MAPS_WORKSPACES).toStringList();
     recentPaths.removeAll(dirName);
