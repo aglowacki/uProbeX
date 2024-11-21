@@ -6,7 +6,7 @@
 #ifndef SOLVER_WIDGET_H
 #define SOLVER_WIDGET_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QVector>
 #include <QMap>
 #include <QPushButton>
@@ -21,7 +21,7 @@
  *
  */ 
 
-class SolverWidget : public QWidget
+class SolverWidget : public QDialog
 {
     Q_OBJECT
 

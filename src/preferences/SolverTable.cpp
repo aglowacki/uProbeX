@@ -71,7 +71,7 @@ void SolverTable::addItem()
 
 //---------------------------------------------------------------------------
 
-void SolverTable::addItem(Attribute attr)
+void SolverTable::addItemA(Attribute attr)
 {
 
    // Check valid model
@@ -139,17 +139,14 @@ void SolverTable::createComponents()
    m_solverTable->setAlternatingRowColors(true);
    m_solverTable->resizeColumnsToContents();
 
-   connect(m_solverModel,
-           SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-           this,
-           SLOT(tableDataChanged(const QModelIndex&, const QModelIndex&)));
+   connect(m_solverModel, &AttributeTableModel::dataChanged, this, &SolverTable::tableDataChanged);
 
    // Add button
    m_btnAdd = new QPushButton;
    m_btnAdd -> setIcon(QIcon(":images/list-add.png"));
    m_btnAdd -> setFlat(true);
    m_btnAdd -> setFixedSize(32, 32);
-   connect(m_btnAdd, SIGNAL(clicked()), this, SLOT(addItem()));
+   connect(m_btnAdd, &QPushButton::pressed, this, &SolverTable::addItem);
 
    // Remove button
    m_btnRemove = new QPushButton;
@@ -159,7 +156,7 @@ void SolverTable::createComponents()
    m_btnRemove->setEnabled(true);
 
    m_btnRemove -> setFixedSize(32, 32);
-   connect(m_btnRemove, SIGNAL(clicked()), this, SLOT(removeItem()));
+   connect(m_btnRemove, &QPushButton::pressed, this, &SolverTable::removeItem);
 
    // Layout for buttons
    QHBoxLayout* buttonLayout = new QHBoxLayout;

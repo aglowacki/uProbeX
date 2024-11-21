@@ -2120,15 +2120,9 @@ void VLM_Widget::runSolver()
    m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget();
-   connect(m_solverWidget,
-     SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
-     this,
-     SLOT(useUpdatedSolverVariables(const QMap<QString, double> )));
+   //connect(m_solverWidget, &SolverWidget::useUpdatedVariables, this, SLOT(useUpdatedSolverVariables) );
 
-   connect(m_solverWidget,
-     SIGNAL(cancelUpdatedVariables()),
-     this,
-     SLOT(cancelUpdatedSolverVariables()));
+   //connect(m_solverWidget, &SolverWidget::cancelUpdatedVariables), this, SLOT(cancelUpdatedSolverVariables) );
 
    newMinCoefs = m_solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);

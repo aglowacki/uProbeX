@@ -20,7 +20,7 @@
 #include <preferences/ProfileTable.h>
 #include <preferences/Profile.h>
 #include <preferences/SolverParameterWidget.h>
-//#include <solver/PythonSolver.h>
+#include <solver/AbstractSolver.h>
 #include <mvc/SolverWidget.h>
 #include <solver/SV_CoordTransformer.h>
 #include <gstar/LinearTransformer.h>
@@ -240,13 +240,21 @@ private:
 
    SolverParameterWidget* _solverParamWidget;
 
-   //PythonSolver *m_solver;
+   AbstractSolver* _solver;
+
+   gstar::ITransformer* _transformer;
 
    QList< QMap<QString, double> > *m_coordPoints;
 
    SolverWidget *m_solverWidget;
 
    int m_currentProfileIndex;
+
+   SV_CoordTransformer ctrans;
+   
+   gstar::LinearTransformer ltrans;
+   
+   LinearCoordTransformer ltrans2;
 
 };
 

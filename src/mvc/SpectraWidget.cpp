@@ -519,7 +519,8 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
                 float line_height = 1.0;
                 if (_display_log10)
                 {
-                    line_height = pow(10.0, (log10(line_max) * line_ratio) );
+                    //line_height = pow(10.0, (log10(line_max) * line_ratio) );
+                    line_height = line_max * line_ratio;
                 }
                 else
                 {

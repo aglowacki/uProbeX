@@ -12,8 +12,7 @@
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QMessageBox>
-
-//#include <core/PythonLoader.h>
+#include "solver/NelderMeadSolver.h"
 
 //---------------------------------------------------------------------------
 
@@ -23,7 +22,8 @@ SolverProfileWidget::SolverProfileWidget(QWidget* parent) : QDialog(parent)
     m_currentProfileIndex = 0;
     m_coordPoints = nullptr;
     m_solverWidget = nullptr;
-   //m_solver = nullptr;
+    _solver = nullptr;
+    _transformer = nullptr;
     createCompontent();
     createLayOut();
     addDefaultTransformers();
@@ -175,9 +175,6 @@ void SolverProfileWidget::createCompontent()
 
 void SolverProfileWidget::addDefaultTransformers()
 {
-    SV_CoordTransformer ctrans;
-    gstar::LinearTransformer ltrans;
-    LinearCoordTransformer ltrans2;
     addProfile(QSTR_2IDE_COORD_TRANS, QSTR_2IDE_COORD_TRANS_DESC, ctrans.getAllCoef());
     addProfile(QSTR_LINEAR_COORD_TRANS, QSTR_LINEAR_COORD_TRANS_DESC, ltrans.getAllCoef() );
     addProfile(QSTR_LINEAR_COORD_TRANS_2, QSTR_LINEAR_COORD_TRANS_DESC_2, ltrans2.getAllCoef() );
@@ -596,6 +593,22 @@ void SolverProfileWidget::switchProfileItem(const QItemSelection& selected,
 
    _solverParamWidget->addOptionItems(m_profiles[m_currentProfileIndex].getOptionAttrs());
 
+   switch(m_currentProfileIndex)
+   {
+      case 0:
+         _transformer = &ctrans;
+         break;
+       case 1:
+         _transformer = &ltrans;
+         break;
+      case 2:
+         _transformer = &ltrans2;
+         break;
+      default:
+         _transformer = &ltrans2;
+         break;
+   }
+
 }
 
 //---------------------------------------------------------------------------
@@ -609,32 +622,32 @@ void SolverProfileWidget::runSolver()
 
    emit solverStart();
 
-   /*
-    if(m_solver == nullptr)
+   
+    if(_solver == nullptr)
     {
-        m_solver = new PythonSolver();
-        if(false == m_solver->initialPythonSolver(m_filePath, m_fileInfo.baseName(), "my_solver"))
-        {
-         QMessageBox::warning(nullptr, "Error loading python solver", "Could not load function my_solver() in python script");
-         return;
-        }
+         
+        _solver = new NelderMeadSolver();
     }
 
-   m_solver->setCoordPoints(*m_coordPoints);
-*/
+   _solver->setTransformer(_transformer);
+
+   _solver->setCoordPoints(*m_coordPoints);
+
    QMap<QString, double> newMinCoefs;
    QMap<QString, double> minCoefs = _solverParamWidget->getSelectedCoefficientAttrsMap();
-/*
-   m_solver->setAllCoef(_solverParamWidget->getCoefficientAttrsMap());
-   m_solver->setOptions(_solverParamWidget->getOptionAttrsMap());
-   m_solver->setMinCoef(minCoefs);
-*/
 
+   _solver->setAllCoef(_solverParamWidget->getCoefficientAttrsMap());
+   _solver->setOptions(_solverParamWidget->getOptionAttrsMap());
+   _solver->setMinCoef(minCoefs);
 
    QApplication::setOverrideCursor(Qt::WaitCursor);
-  // bool retVal = m_solver->run();
+   bool retVal = _solver->run();
    QApplication::restoreOverrideCursor();
 
+   if (retVal == false)
+   {
+      qDebug()<<"Solver failed\n";
+   }
    if(m_solverWidget != nullptr)
       delete m_solverWidget;
    m_solverWidget = nullptr;
@@ -650,10 +663,10 @@ void SolverProfileWidget::runSolver()
      this,
      SLOT(cancelUpdatedSolverVariables()));
 
-//   newMinCoefs = m_solver->getMinCoef();
+   newMinCoefs = _solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
-  // m_solverWidget->setStatusString(m_solver->getLastErrorMessage());
-/*
+   m_solverWidget->setStatusString(_solver->getLastErrorMessage());
+
    if(retVal)
    {
       m_solverWidget->setUseBtnEnabled(true);
@@ -662,7 +675,7 @@ void SolverProfileWidget::runSolver()
    {
       m_solverWidget->setUseBtnEnabled(false);
    }
-*/
+
    m_solverWidget->show();
 
 }

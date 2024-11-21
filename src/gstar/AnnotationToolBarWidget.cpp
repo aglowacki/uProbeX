@@ -76,10 +76,7 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
    QLabel* enableLable = new QLabel("Visible:");
    m_chkSetVisible = new QCheckBox();
    m_chkSetVisible->setChecked(true);
-   connect(m_chkSetVisible,
-           SIGNAL(stateChanged(int)),
-           this,
-           SLOT(setActionsEnabled(int)));
+   connect(m_chkSetVisible, &QCheckBox::stateChanged, this, &AnnotationToolBarWidget::setActionsEnabled);
 
    m_toolbar->addWidget(enableLable);
    m_toolbar->addWidget(m_chkSetVisible);

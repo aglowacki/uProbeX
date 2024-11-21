@@ -19,7 +19,7 @@
 
 //---------------------------------------------------------------------------
 
-SolverWidget::SolverWidget(QWidget *parent) : QWidget(parent)
+SolverWidget::SolverWidget(QWidget *parent) : QDialog(parent)
 {
 
    setWindowModality(Qt::WindowModal);
