@@ -42,10 +42,21 @@ void ScanRegionDialog::_createLayout()
 	_scan_options = new QTableView();
 	_scan_options->setModel(_scan_table_model);
 
-	_btn_update = new QPushButton("Update");
+	_chk_batch_scan = new QCheckBox("Set Batch Scan");
+	connect(_chk_batch_scan, &QCheckBox::checkStateChanged, this, &ScanRegionDialog::onBatchScanChanged);
+	
+	_cb_batch_prop = new QComboBox();
+	_batch_start = new QLineEdit("Start Value");
+	_batch_end = new QLineEdit("End Value");
+	_batch_num = new QLineEdit("Number Iter");
+	
+	_cb_batch_prop->setEnabled(false);
+	_batch_start->setEnabled(false);
+	_batch_end->setEnabled(false);
+	_batch_num->setEnabled(false);
+
 	_btn_update_and_queue = new QPushButton("Add To Queue");
 	_btn_cancel = new QPushButton("Cancel");
-	connect(_btn_update, &QPushButton::pressed, this, &ScanRegionDialog::onUpdate);
 	connect(_btn_update_and_queue, &QPushButton::pressed, this, &ScanRegionDialog::onUpdateAndQueue);
 	connect(_btn_cancel, &QPushButton::pressed, this, &ScanRegionDialog::close);
 
@@ -59,15 +70,22 @@ void ScanRegionDialog::_createLayout()
 	type_layout->addWidget(new QLabel("Scan Type: "));
 	type_layout->addWidget(_scan_type);
 
+	QHBoxLayout* batch_layout = new QHBoxLayout();
+	batch_layout->addWidget(_chk_batch_scan);
+	batch_layout->addWidget(_cb_batch_prop);
+	batch_layout->addWidget(_batch_start);
+	batch_layout->addWidget(_batch_end);
+	batch_layout->addWidget(_batch_num);
+
+
 	QHBoxLayout* button_layout = new QHBoxLayout();
-	button_layout->addWidget(_btn_update);
 	button_layout->addWidget(_btn_update_and_queue);
 	button_layout->addWidget(_btn_cancel);
-
 
 	main_layout->addItem(name_layout);
 	main_layout->addItem(type_layout);
 	main_layout->addWidget(_scan_options);
+	main_layout->addItem(batch_layout);
 	main_layout->addItem(button_layout);
 
 	setLayout(main_layout);
@@ -104,20 +122,31 @@ void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 
 //---------------------------------------------------------------------------
 
-void ScanRegionDialog::onUpdate()
-{
-	//emit ScanUpdated();
-	close();
-}
-
-//---------------------------------------------------------------------------
-
 void ScanRegionDialog::onUpdateAndQueue()
 {
-	BlueskyPlan plan;
-	plan.type = _scan_type->currentText();
-	_scan_table_model->getCurrentParams(plan);
-	emit ScanUpdated(plan);
+	if(_chk_batch_scan->checkState() == Qt::Checked)
+	{
+		float start = _batch_start->text().toFloat();
+		float end = _batch_end->text().toFloat();
+		int num = _batch_num->text().toInt();
+		float inc = ( (end - start) + 1 )/ (float)num; 
+		for(int i=0; i<num; i++)
+		{
+			BlueskyPlan plan;
+			plan.type = _scan_type->currentText();
+			_scan_table_model->getCurrentParams(plan);
+			plan.parameters[_cb_batch_prop->currentText()].default_val = QString::number(start);
+			emit ScanUpdated(plan);	
+			start += inc;
+		}
+	}
+	else
+	{
+		BlueskyPlan plan;
+		plan.type = _scan_type->currentText();
+		_scan_table_model->getCurrentParams(plan);
+		emit ScanUpdated(plan);
+	}
 	close();
 }
 
@@ -130,7 +159,35 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 		if(_avail_scans->count(scan_name) > 0)
 		{
 			_scan_table_model->setAllData(_avail_scans->at(scan_name));
+			_cb_batch_prop->clear();
+			BlueskyPlan plan = _avail_scans->at(scan_name);
+			for(auto itr : plan.parameters)
+			{
+				_cb_batch_prop->addItem(itr.first);
+			}
 		}
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionDialog::onBatchScanChanged(Qt::CheckState state)
+{
+
+	if(state == Qt::Checked)
+	{
+		_cb_batch_prop->setEnabled(true);
+		_batch_start->setEnabled(true);
+		_batch_end->setEnabled(true);
+		_batch_num->setEnabled(true);
+
+	}
+	else
+	{
+		_cb_batch_prop->setEnabled(false);
+		_batch_start->setEnabled(false);
+		_batch_end->setEnabled(false);
+		_batch_num->setEnabled(false);
 	}
 }
 

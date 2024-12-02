@@ -78,6 +78,8 @@ public slots:
 
    void on_remove_scan();
 
+   void onQueueKeyPress(QKeyEvent*);
+
 protected:
 
    /**
@@ -104,8 +106,6 @@ protected:
    QPushButton* _btn_export_and_clear_history;
    
    QPushButton* _btn_add_scan;
-
-   QPushButton* _btn_add_batch_scan;
 
    QPushButton* _btn_set_history;
 

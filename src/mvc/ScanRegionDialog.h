@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include <QTableView>
@@ -53,11 +54,11 @@ signals:
 
 public slots:
 
-	void onUpdate();
-
    void onUpdateAndQueue();
 
    void scanChanged(const QString &);
+
+   void onBatchScanChanged(Qt::CheckState);
 
 protected:
 
@@ -67,14 +68,22 @@ private:
 	QLineEdit *_scan_name;
    
    QComboBox *_scan_type;
-   
-   QPushButton *_btn_update;
+
+   QComboBox *_cb_batch_prop;
 
    QPushButton *_btn_update_and_queue;
 
    QPushButton *_btn_cancel;
 
    QTableView* _scan_options;
+
+   QLineEdit *_batch_start;
+
+   QLineEdit *_batch_end;
+
+   QLineEdit *_batch_num;
+
+   QCheckBox* _chk_batch_scan;
 
    ScanTableModel *_scan_table_model;
    
