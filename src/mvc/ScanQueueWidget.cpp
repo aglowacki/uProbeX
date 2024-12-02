@@ -250,13 +250,6 @@ void ScanQueueWidget::on_remove_scan()
 
 //---------------------------------------------------------------------------
 
-void ScanQueueWidget::onQueueKeyPress(QKeyEvent* event)
-{
-    
-}
-
-//---------------------------------------------------------------------------
-
 void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
 {
     _scan_queue_table_model->setAllData(finished_plans, queued_plans, running_plan);   

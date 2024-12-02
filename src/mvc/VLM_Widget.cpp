@@ -375,13 +375,15 @@ void VLM_Widget::_createSolver()
 
     _createLightToMicroCoords(id);
 
-
-   if (id == ID_LINEAR)
+/*
+if (id == ID_LINEAR)
    {
       LinearSolver* ls = new LinearSolver();
       m_solver->setImpl(ls);
    }
-   else if (id == ID_NELDER_MEAD)
+   else
+*/
+    if (id == ID_LINEAR || id == ID_NELDER_MEAD)
    {
       NelderMeadSolver* nm = new NelderMeadSolver();
 
@@ -1036,7 +1038,7 @@ void VLM_Widget::linkRegionToDataset()
 void VLM_Widget::cancelUpdatedSolverVariables()
 {
 
-   emit cancelSolverVariableUpdate();
+   //emit cancelSolverVariableUpdate();
 
 }
 
@@ -1047,10 +1049,7 @@ void VLM_Widget::createCalibrationTab()
 
    m_calTreeModel = new gstar::AnnotationTreeModel();
 
-   connect(m_calTreeModel,
-           SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-           this,
-           SLOT(calModelDataChanged(const QModelIndex &, const QModelIndex &)));
+   connect(m_calTreeModel, &gstar::AnnotationTreeModel::dataChanged, this, &VLM_Widget::calModelDataChanged);
 
    m_calSelectionModel = new QItemSelectionModel(m_calTreeModel);
 
@@ -1065,70 +1064,27 @@ void VLM_Widget::createCalibrationTab()
 
 //   m_calAnnoTreeView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
 
-   connect(m_calAnnoTreeView,
-          SIGNAL(customContextMenuRequested(const QPoint &)),
-          this,
-          SLOT(treeContextMenu(const QPoint &)));
+   connect(m_calAnnoTreeView, &QTreeView::customContextMenuRequested, this, &VLM_Widget::treeContextMenu);
 
-   connect(m_calAnnoTreeView,
-           SIGNAL(doubleClicked(const QModelIndex &)),
-           this,
-           SLOT(treeDoubleClicked(const QModelIndex &)));
+   connect(m_calAnnoTreeView, &QTreeView::doubleClicked, this, &VLM_Widget::treeDoubleClicked);
 
    m_btnAddCalibration = new QPushButton("Add Calibration Point");
-   connect(m_btnAddCalibration,
-           SIGNAL(clicked()),
-           this,
-           SLOT(addCalibration()));
+   connect(m_btnAddCalibration, &QPushButton::clicked, this, &VLM_Widget::addCalibration);
 
    m_btnAddTopWindowPoints = new QPushButton("Add Top Window Points");
-   connect(m_btnAddTopWindowPoints,
-           SIGNAL(clicked()),
-           this,
-           SLOT(addTopWindowPoints()));
+   connect(m_btnAddTopWindowPoints, &QPushButton::clicked, this, &VLM_Widget::addTopWindowPoints);
 
    m_btnAddBottomWindowPoints = new QPushButton("Add Bottom Window Points");
-   connect(m_btnAddBottomWindowPoints,
-           SIGNAL(clicked()),
-           this,
-           SLOT(addTopWindowPoints()));
+   connect(m_btnAddBottomWindowPoints, &QPushButton::clicked, this, &VLM_Widget::addTopWindowPoints);
 
    m_btnRunSolver = new QPushButton("Update Transform");
-   connect(m_btnRunSolver,
-           SIGNAL(clicked()),
-           this,
-           SLOT(openSolver()));
-/*
-   QLabel* lblXOffset = new QLabel("2xfm:X ");
-   m_xOffset = new QLineEdit();
-   connect(m_xOffset,
-           SIGNAL(editingFinished()),
-           this,
-           SLOT(offsetReturnPressed()));
-   connect(m_xOffset,
-           SIGNAL(returnPressed()),
-           this,
-           SLOT(offsetReturnPressed()));
+   connect(m_btnRunSolver, &QPushButton::clicked, this, &VLM_Widget::openSolver);
 
-   QLabel* lblYOffset = new QLabel("2xfm:Y ");
-   m_yOffset = new QLineEdit();
-   connect(m_yOffset,
-           SIGNAL(editingFinished()),
-           this,
-           SLOT(offsetReturnPressed()));
-   connect(m_xOffset,
-           SIGNAL(returnPressed()),
-           this,
-           SLOT(offsetReturnPressed()));
-*/
    QVBoxLayout* infoLayout = new QVBoxLayout();
    QHBoxLayout* buttonLayout = new QHBoxLayout();
    QHBoxLayout* buttonLayout2 = new QHBoxLayout();
    QHBoxLayout* offsetLayout = new QHBoxLayout();
-//   offsetLayout->addWidget(lblXOffset);
-//   offsetLayout->addWidget(m_xOffset);
-//   offsetLayout->addWidget(lblYOffset);
-//   offsetLayout->addWidget(m_yOffset);
+
    buttonLayout->addWidget(m_btnAddCalibration);
    buttonLayout->addWidget(m_btnRunSolver);
    buttonLayout2->addWidget(m_btnAddTopWindowPoints);
@@ -1847,67 +1803,6 @@ void VLM_Widget::microModelDataChanged(const QModelIndex& topLeft,
 
 //---------------------------------------------------------------------------
 
-void VLM_Widget::offsetReturnPressed()
-{
-    /*
-   bool ok;
-   double valX, valY;
-
-   QString sxOff = m_xOffset->text();
-   QString syOff = m_yOffset->text();
-
-   QMessageBox msgBox;
-   msgBox.setStandardButtons(QMessageBox::Ok);
-
-   ok = false;
-   valX = sxOff.toDouble(&ok);
-   if(ok && m_lightToMicroCoordModel != nullptr)
-   {
-      
-      if(false == m_lightToMicroCoordModel->setTransformerVariable(
-               CoordinateTransformGlobals::keyToString(
-                  CoordinateTransformGlobals::m2xfm_x), valX))
-      {
-         msgBox.setText("Error setting value!");
-         msgBox.exec();
-      }
-      
-   }
-   else
-   {
-       m_xOffset->setText("0");
-   }
-
-   ok = false;
-   valY = syOff.toDouble(&ok);
-   if(ok && m_lightToMicroCoordModel != nullptr)
-   {
-       
-      if(false == m_lightToMicroCoordModel->setTransformerVariable(
-               CoordinateTransformGlobals::keyToString(
-                  CoordinateTransformGlobals::m2xfm_y), valY))
-      {
-         QMessageBox msgBox;
-         msgBox.setStandardButtons(QMessageBox::Ok);
-         msgBox.setText("Error setting value!");
-         msgBox.exec();
-      }
-      
-   }
-   else
-   {
-       m_yOffset->setText("0");
-   }
-
-
-   emit solverVariableUpdate(valX, valY);
-
-   updateTreeView();
-*/
-}
-
-//---------------------------------------------------------------------------
-
 void VLM_Widget::setModel(VLM_Model* model)
 {
     if (_model != model)
@@ -1931,10 +1826,8 @@ void VLM_Widget::preferenceChanged()
 {
 
    // Set the precision
-   m_coordinateModel->setTransformerPrecision(
-         Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
-   m_lightToMicroCoordModel->setTransformerPrecision(
-         Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
+   m_coordinateModel->setTransformerPrecision( Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
+   m_lightToMicroCoordModel->setTransformerPrecision( Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
    /*
    // Set the value in the calibration text linedit box
    if(m_lightToMicroCoordModel != nullptr)
@@ -2037,12 +1930,15 @@ void VLM_Widget::restoreMarkerLoaded()
 }
 
 //---------------------------------------------------------------------------
-
+/*
 void VLM_Widget::openSolver()
 {
     
     QList< QMap<QString, double> > coordPoints;
     SolverProfileWidget solverWidget;
+    connect(&solverWidget, &SolverWidget::useUpdatedVariables, this, &VLM_Widget::useUpdatedSolverVariables );
+    connect(&solverWidget, &SolverWidget::cancelUpdatedVariables, this, &VLM_Widget::cancelUpdatedSolverVariables );
+
     if (getMarkerCoordinatePoints(coordPoints))
     {
         solverWidget.setCoordinatePoints(&coordPoints);
@@ -2053,10 +1949,11 @@ void VLM_Widget::openSolver()
 
     }
 }
+*/
 
 //---------------------------------------------------------------------------
 
-void VLM_Widget::runSolver()
+void VLM_Widget::openSolver()
 {
    emit solverStart();
 
@@ -2069,46 +1966,18 @@ void VLM_Widget::runSolver()
    }
 
    m_solver->setCoordPoints(coordPoints);
-   QMap<QString, double> minCoefs;
+   
    QMap<QString, double> newMinCoefs;
 
-   if(m_lightToMicroCoordModel != nullptr)
-   {
-      double val;
-      /*
-      QString fmx = CoordinateTransformGlobals::keyToString(
-               CoordinateTransformGlobals::m2xfm_x);
-      QString fmy = CoordinateTransformGlobals::keyToString(
-               CoordinateTransformGlobals::m2xfm_y);
-               
-      if(m_lightToMicroCoordModel->getTransformerVariable(fmx, &val))
-      {
-         minCoefs.insert(fmx, val);
-      }
-      else
-      {
-         QMessageBox::critical(0, "uProbeX", "Error: Could not find m2xfm_x variable in transfomer!");
-         return;
-      }
-      if(m_lightToMicroCoordModel->getTransformerVariable(fmy, &val))
-      {
-         minCoefs.insert(fmy, val);
-      }
-      else
-      {
-         QMessageBox::critical(0, "uProbeX", "Error: Could not find m2xfm_y variable in transfomer!");
-         return;
-      }
-      */
-   }
-   else
+   if(m_lightToMicroCoordModel == nullptr)
    {
       QMessageBox::critical(0, "uProbeX", "Error: Light to Micro Transformation Model not set!");
       return;
    }
    ITransformer *trans = m_lightToMicroCoordModel->getTransformer();
+   QMap<QString, double> minCoefs = trans->getAllCoef();
    m_solver->setTransformer(trans);
-   m_solver->setAllCoef(trans->getAllCoef());
+   m_solver->setAllCoef(minCoefs);
    m_solver->setMinCoef(minCoefs);
 
    QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -2120,9 +1989,8 @@ void VLM_Widget::runSolver()
    m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget();
-   //connect(m_solverWidget, &SolverWidget::useUpdatedVariables, this, SLOT(useUpdatedSolverVariables) );
-
-   //connect(m_solverWidget, &SolverWidget::cancelUpdatedVariables), this, SLOT(cancelUpdatedSolverVariables) );
+   connect(m_solverWidget, &SolverWidget::useUpdatedVariables, this, &VLM_Widget::useUpdatedSolverVariables );
+   connect(m_solverWidget, &SolverWidget::cancelUpdatedVariables, this, &VLM_Widget::cancelUpdatedSolverVariables );
 
    newMinCoefs = m_solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
@@ -2284,10 +2152,7 @@ void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
 
 	if (m_coordinateModel != nullptr)
 	{
-		disconnect(m_coordinateModel,
-			SIGNAL(transformOutput(double, double, double)),
-			this,
-			SLOT(updatedPixelToLight(double, double, double)));
+		disconnect(m_coordinateModel, &gstar::CoordinateModel::transformOutput, this,	&VLM_Widget::updatedPixelToLight);
 	}
 
 	m_coordinateModel = model;
@@ -2300,10 +2165,7 @@ void VLM_Widget::setCoordinateModel(gstar::CoordinateModel *model)
    {
       m_imageViewWidget->setCoordinateModel(model);
 
-      connect(m_coordinateModel,
-              SIGNAL(transformOutput(double, double, double)),
-              this,
-              SLOT(updatedPixelToLight(double,double,double)));
+      connect(m_coordinateModel, &gstar::CoordinateModel::transformOutput, this,	&VLM_Widget::updatedPixelToLight);
    }
 
 }
@@ -2565,22 +2427,9 @@ void VLM_Widget::updatedPixelToLight(double x, double y, double z)
 
 void VLM_Widget::useUpdatedSolverVariables(const QMap<QString, double> vars)
 {
-    /*
-   if(vars.contains(CoordinateTransformGlobals::keyToString(
-                       CoordinateTransformGlobals::m2xfm_x))
-      && vars.contains(CoordinateTransformGlobals::keyToString(
-                          CoordinateTransformGlobals::m2xfm_y)) )
-   {
-      double newX = vars[CoordinateTransformGlobals::keyToString(
-               CoordinateTransformGlobals::m2xfm_x)];
-      double newY = vars[CoordinateTransformGlobals::keyToString(
-               CoordinateTransformGlobals::m2xfm_y)];
+   
+   m_lightToMicroCoordModel->getTransformer()->Init(vars);
 
-      m_xOffset->setText(QString::number(newX));
-      m_yOffset->setText(QString::number(newY));
-      offsetReturnPressed();
-   }
-   */
 }
 
 /*--------------------------------------------------------------------------*/
@@ -2648,7 +2497,10 @@ void VLM_Widget::widgetChanged(bool enable)
 
 }
 /*
-void solverVariableUpdate(double valX, double valY);
+void VLM_Widget::solverVariableUpdate()
+{
+
+}
 
 void uProbeX::solverVariableUpdate(double valX, double valY)
 {

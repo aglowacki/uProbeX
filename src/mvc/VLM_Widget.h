@@ -251,11 +251,6 @@ protected slots:
    void microModelDataChanged(const QModelIndex &, const QModelIndex &);
 
    /**
-    * @brief offsetReturnPressed
-    */
-   void offsetReturnPressed();
-
-   /**
     * @brief cancelUpdatedSolverVariables
     */
    void cancelUpdatedSolverVariables();
@@ -263,7 +258,7 @@ protected slots:
    /**
     * @brief runSolver
     */
-   void runSolver();
+  // void runSolver();
 
    /**
     * @brief openSolver
@@ -392,7 +387,7 @@ signals:
     * @param valX
     * @param valY
     */
-   void solverVariableUpdate(double valX, double valY);
+   void solverVariableUpdate();
 
    /**
     * @brief CancelSolverVariableUpdate
@@ -641,16 +636,6 @@ private:
     * @brief m_solverWidget
     */
    SolverWidget* m_solverWidget;
-
-   /**
-    * @brief m_xOffset
-    */
-   //QLineEdit* m_xOffset;
-
-   /**
-    * @brief m_xyffset
-    */
-   //QLineEdit* m_yOffset;
 
    /**
     * @brief m_pathFile

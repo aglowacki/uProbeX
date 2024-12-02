@@ -47,21 +47,18 @@ void ProfileTable::addNewItem(QString name, QString desc)
     // Check valid model
     if (m_solverModel == nullptr) return;
 
-    // Get row number for new item
-    int row = m_solverModel->rowCount(QModelIndex()) + 1;
-
     // Add item
     m_solverModel->addSolverAttr(name, "0.0", desc, true);
 
     // Enable remove button
     if (m_solverModel->rowCount(QModelIndex()) > 0) m_btnRemove->setEnabled(true);
 
-    emit addItem(name, desc);
+    emit addItem2(name, desc);
 }
 
 //---------------------------------------------------------------------------
 
-void ProfileTable::addItem()
+void ProfileTable::onAddItem()
 {
 
     addNewItem("Name", "Desc");
@@ -131,23 +128,15 @@ void ProfileTable::createComponents()
 
    m_solverTable->setSelectionModel(m_selectionModel);
    m_solverTable->setFixedHeight(100);
-   connect(m_solverModel,
-           SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-           this,
-           SLOT(editItem(const QModelIndex&, const QModelIndex&)));
+   connect(m_solverModel, &AttributeTableModel::dataChanged, this, &ProfileTable::onEditItem);
 
-   connect(m_selectionModel,
-           SIGNAL(selectionChanged(const QItemSelection &,
-                                   const QItemSelection &)),
-           this,
-           SIGNAL(switchItem(const QItemSelection &,
-                           const QItemSelection &)));
+   connect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ProfileTable::switchItem);
    // Add button
    m_btnAdd = new QPushButton;
    m_btnAdd -> setIcon(QIcon(":images/list-add.png"));
    m_btnAdd -> setFlat(true);
    m_btnAdd -> setFixedSize(32, 32);
-   connect(m_btnAdd, SIGNAL(clicked()), this, SLOT(addItem()));
+   connect(m_btnAdd, &QPushButton::clicked, this, &ProfileTable::onAddItem);
 
    // Remove button
    m_btnRemove = new QPushButton;
@@ -157,7 +146,7 @@ void ProfileTable::createComponents()
    m_btnRemove->setEnabled(true);
 
    m_btnRemove -> setFixedSize(32, 32);
-   connect(m_btnRemove, SIGNAL(clicked()), this, SLOT(removeItem()));
+   connect(m_btnRemove, &QPushButton::clicked, this, &ProfileTable::onRemoveItem);
 
    // Layout for buttons
    QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -177,7 +166,7 @@ void ProfileTable::createComponents()
 
 //---------------------------------------------------------------------------
 
-void ProfileTable::editItem(const QModelIndex& topLeft, const QModelIndex& bottomRight)
+void ProfileTable::onEditItem(const QModelIndex& topLeft, const QModelIndex& bottomRight)
 {
 
       if(!topLeft.isValid())
@@ -232,7 +221,7 @@ QList<Attribute> ProfileTable::getSolverAttrs()
 
 //---------------------------------------------------------------------------
 
-void ProfileTable::removeItem()
+void ProfileTable::onRemoveItem()
 {
 
    // Check valid model

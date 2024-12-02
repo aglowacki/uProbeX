@@ -40,7 +40,13 @@ QMap<QString, double> LinearCoordTransformer::getAllCoef()
 
 bool LinearCoordTransformer::Init(QMap<QString, double> globalVars)
 {
-    
+    for(auto &itr : _coefs.keys())
+    {
+      if(globalVars.count(itr) > 0)
+      {
+         _coefs[itr] = globalVars.value(itr);
+      } 
+    }
     return true;
 
 }

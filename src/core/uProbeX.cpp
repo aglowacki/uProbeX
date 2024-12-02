@@ -442,11 +442,7 @@ void uProbeX::make_VLM_Window(VLM_Model* model)
     VLM_Widget* widget = new VLM_Widget();
     widget->resize(1027, 768);
     widget->setModel(model);
-   /* TODO: connect properly
-    connect(widget, &VLM_Widget::solverStart, this, &uProbeX::solverStart);
-    connect(widget, &VLM_Widget::solverVariableUpdate, this, &uProbeX::solverVariableUpdate);
-    connect(widget, &VLM_Widget::cancelSolverVariableUpdate, this, &uProbeX::cancelSolverVariableUpdate);
-*/
+  
     SubWindow* w = new SubWindow(m_mdiArea);
     connect(w, &SubWindow::windowClosing, this, &uProbeX::subWindowClosed);
 
@@ -520,11 +516,6 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
             return;
         }
 
-        /*TODO: connect properly
-        connect(widget, &VLM_Widget::solverStart, this, &uProbeX::solverStart);
-        connect(widget, &VLM_Widget::solverVariableUpdate, this, &uProbeX::solverVariableUpdate);
-        connect(widget, &VLM_Widget::cancelSolverVariableUpdate, this, &uProbeX::cancelSolverVariableUpdate);
-        */
         SubWindow* w = nullptr;
         if (newWindow == true)
         {

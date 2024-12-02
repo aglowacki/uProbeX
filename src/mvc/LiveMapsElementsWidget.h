@@ -132,6 +132,8 @@ protected:
 
    zmq::context_t *_context;
 
+   LinearCoordTransformer _linear_trans;
+
    int _num_images;
 };
 

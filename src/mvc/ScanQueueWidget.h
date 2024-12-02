@@ -78,8 +78,6 @@ public slots:
 
    void on_remove_scan();
 
-   void onQueueKeyPress(QKeyEvent*);
-
 protected:
 
    /**

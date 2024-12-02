@@ -141,17 +141,9 @@ signals:
     */
    void solverStart();
 
-   /**
-    * @brief SolverVariableUpdate
-    * @param valX
-    * @param valY
-    */
-   void solverVariableUpdate(double valX, double valY);
-
-   /**
-    * @brief CancelSolverVariableUpdate
-    */
-   void cancelSolverVariableUpdate();
+   void useUpdatedSolverVariables(const QMap<QString,double>);
+   
+   void cancelUpdatedSolverVariables();
 
 private:
 

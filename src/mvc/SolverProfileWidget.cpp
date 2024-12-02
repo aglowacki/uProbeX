@@ -64,12 +64,10 @@ void SolverProfileWidget::addProfile(QString name, QString desc, QMap<QString, d
     QList<Attribute> attr;
 
     QMapIterator<QString, double> i(coef);
-    while (i.hasNext()) {
+    while (i.hasNext())
+    {
         i.next();
-        attr.push_back(Attribute(i.key(),
-            QString::number(i.value()),
-            "",
-            true));
+        attr.push_back(Attribute(i.key(), QString::number(i.value()), "", true));
     }
 
     Profile profile;
@@ -82,17 +80,11 @@ void SolverProfileWidget::addProfile(QString name, QString desc, QMap<QString, d
 
     if (m_profileTable != nullptr)
     {
-        disconnect(m_profileTable,
-            SIGNAL(addItem(QString, QString)),
-            this,
-            SLOT(addProfileItem(QString, QString)));
+        disconnect(m_profileTable, &ProfileTable::addItem2, this, &SolverProfileWidget::addProfileItem);
 
         m_profileTable->addNewItem(name, desc);
 
-        connect(m_profileTable,
-            SIGNAL(addItem(QString, QString)),
-            this,
-            SLOT(addProfileItem(QString, QString)));
+        connect(m_profileTable, &ProfileTable::addItem2, this, &SolverProfileWidget::addProfileItem);
     }
 
     _solverParamWidget->removeCoefficientItems();
@@ -118,22 +110,10 @@ void SolverProfileWidget::createCompontent()
 
     m_profileTable = new ProfileTable();
 
-    connect(m_profileTable,
-        SIGNAL(addItem(QString, QString)),
-        this,
-        SLOT(addProfileItem(QString, QString)));
-    connect(m_profileTable,
-        SIGNAL(removeItem(int)),
-        this,
-        SLOT(removeProfileItem(int)));
-    connect(m_profileTable,
-        SIGNAL(editItem(int, QString)),
-        this,
-        SLOT(editProfileItem(int, QString)));
-    connect(m_profileTable,
-        SIGNAL(switchItem(const QItemSelection&, const QItemSelection&)),
-        this,
-        SLOT(switchProfileItem(const QItemSelection&, const QItemSelection&)));
+    connect(m_profileTable, &ProfileTable::addItem2, this, &SolverProfileWidget::addProfileItem);
+    connect(m_profileTable, &ProfileTable::removeItem, this, &SolverProfileWidget::removeProfileItem);
+    connect(m_profileTable, &ProfileTable::editItem, this, &SolverProfileWidget::editProfileItem);
+    connect(m_profileTable, &ProfileTable::switchItem, this, &SolverProfileWidget::switchProfileItem);
 
     _solverParamWidget = new SolverParameterWidget();
     connect(_solverParamWidget,
@@ -203,23 +183,15 @@ void SolverProfileWidget::createLayOut()
          */
    mainLayout->addRow(_solverParamWidget);
    m_btnRunSolver = new QPushButton("Run Solver");
-   connect(m_btnRunSolver,
-           SIGNAL(pressed()),
-           this,
-           SLOT(runSolver()));
+   connect(m_btnRunSolver, &QPushButton::pressed, this, &SolverProfileWidget::runSolver);
    mainLayout->addRow(m_btnRunSolver);
 
    QHBoxLayout* hLayout2 = new QHBoxLayout();
    m_btnSave = new QPushButton("Save");
-   connect(m_btnSave,
-           SIGNAL(pressed()),
-           this,
-           SLOT(accept()));
+  /// connect(m_btnSave, &QPushButton::pressed, this, &SolverProfileWidget::saveSolverVariableUpdate);
+
    m_btnCancel = new QPushButton("Cancel");
-   connect(m_btnCancel,
-           SIGNAL(pressed()),
-           this,
-           SLOT(reject()));
+ ///  connect(m_btnCancel, &QPushButton::pressed, this, &SolverProfileWidget::cancelSolverVariableUpdate);
    hLayout2->addWidget(m_btnSave);
    hLayout2->addWidget(m_btnCancel);
 
@@ -653,15 +625,8 @@ void SolverProfileWidget::runSolver()
    m_solverWidget = nullptr;
 
    m_solverWidget = new SolverWidget(this);
-   connect(m_solverWidget,
-     SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
-     this,
-     SLOT(useUpdatedSolverVariables(const QMap<QString, double> )));
-
-   connect(m_solverWidget,
-     SIGNAL(cancelUpdatedVariables()),
-     this,
-     SLOT(cancelUpdatedSolverVariables()));
+   connect(m_solverWidget, &SolverWidget::useUpdatedVariables, this, &SolverProfileWidget::useUpdatedSolverVariables);
+   connect(m_solverWidget, &SolverWidget::cancelUpdatedVariables, this, &SolverProfileWidget::cancelUpdatedSolverVariables);
 
    newMinCoefs = _solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
