@@ -274,86 +274,6 @@ double UProbeRegionGraphicsItem::getY()
 
 //---------------------------------------------------------------------------
 
-void UProbeRegionGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
-{
-
-   // Mark unused
-   Q_UNUSED(event);
-
-   // Return if item is not selected
-   if (!isSelected()) {
-      return;
-   }
-
-   // Set cursor
-   setCursor(Qt::SizeAllCursor);
-
-}
-
-//---------------------------------------------------------------------------
-
-void UProbeRegionGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
-{
-
-   // Mark unused
-   Q_UNUSED(event);
-
-   // Reset cursor
-   unsetCursor();
-
-}
-
-//---------------------------------------------------------------------------
-
-void UProbeRegionGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
-{
-
-   // Return if item is not selected
-   if (!isSelected()) {
-      return;
-   }
-
-   // Mouse click position (in item coordinates)
-   QPointF pt = event -> pos();
-
-   // Check for bottom right grip
-   if (pt.x() <= m_rect.right() &&
-       pt.y() <= m_rect.bottom() &&
-       pt.x() >= m_rect.right() - m_gripSize &&
-       pt.y() >= m_rect.bottom() - m_gripSize)
-   {
-      setCursor(Qt::SizeFDiagCursor);
-   }// bottom left
-   else if (pt.x() >= m_rect.left() &&
-       pt.y() >= m_rect.bottom() - m_gripSize &&
-       pt.x() <= m_rect.left() + m_gripSize &&
-       pt.y() <= m_rect.bottom())
-   {
-      setCursor(Qt::SizeBDiagCursor);
-   }//top left
-   else if (pt.x() <= m_rect.left() + m_gripSize &&
-       pt.y() <= m_rect.top() + m_gripSize &&
-       pt.x() >= m_rect.left() &&
-       pt.y() >= m_rect.top())
-   {
-      setCursor(Qt::SizeFDiagCursor);
-   }//top right
-   else if (pt.x() >= m_rect.right() - m_gripSize &&
-       pt.y() >= m_rect.top()&&
-       pt.x() <= m_rect.right() &&
-       pt.y() <= m_rect.top() + m_gripSize )
-   {
-      setCursor(Qt::SizeBDiagCursor);
-   }
-   // Reset cursor
-   else {
-      setCursor(Qt::OpenHandCursor);
-   }
-
-}
-
-//---------------------------------------------------------------------------
-
 void UProbeRegionGraphicsItem::initialScale()
 {
 
@@ -596,7 +516,8 @@ void UProbeRegionGraphicsItem::paint(QPainter* painter,
    painter->setPen(pen);
    painter->drawRect(m_rect);
 
-   if(QApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
+   //if(QApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier))
+   if(isSelected())
    {
 
       if(m_rect.width()<10&&m_rect.height()<10)
