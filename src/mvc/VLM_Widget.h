@@ -162,7 +162,7 @@ public:
    // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
 
-
+   void load_live_coord_settings();
 
 public slots:
 

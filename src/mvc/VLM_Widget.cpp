@@ -2423,12 +2423,40 @@ void VLM_Widget::updatedPixelToLight(double x, double y, double z)
 
 }
 
-/*--------------------------------------------------------------------------*/
+//--------------------------------------------------------------------------
+
+void VLM_Widget::load_live_coord_settings()
+{
+   QMap<QString, double> vars;
+   QStringList names = Preferences::inst()->getValue(STR_PRF_LiveCoefficientNames).toStringList();
+   QStringList values = Preferences::inst()->getValue(STR_PRF_LiveCoefficientVals).toStringList();
+   if(names.size() == values.size())
+   {
+      for (int i = 0; i < names.size(); i++)
+      {
+         vars.insert(names.at(i), values.at(i).toDouble());
+      }
+   }
+   m_lightToMicroCoordModel->getTransformer()->Init(vars);
+   
+}
+
+//--------------------------------------------------------------------------
 
 void VLM_Widget::useUpdatedSolverVariables(const QMap<QString, double> vars)
 {
    
    m_lightToMicroCoordModel->getTransformer()->Init(vars);
+
+   QStringList names;
+   QStringList values;
+   for (auto name : vars.keys())
+   {
+      names.append(name);
+      values.append(QString::number(vars.value(name)));
+   }
+   Preferences::inst()->setValue(STR_PRF_LiveCoefficientNames, names);
+   Preferences::inst()->setValue(STR_PRF_LiveCoefficientVals, values);
 
 }
 
