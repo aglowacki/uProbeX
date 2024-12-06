@@ -45,10 +45,14 @@ void ScanRegionDialog::_createLayout()
 	_chk_batch_scan = new QCheckBox("Set Batch Scan");
 	connect(_chk_batch_scan, &QCheckBox::checkStateChanged, this, &ScanRegionDialog::onBatchScanChanged);
 	
+	QLabel* startLabel = new QLabel("Start Value");
+	QLabel* endLabel = new QLabel("End Value");
+	QLabel* numItrLabel = new QLabel("Number Iter");
+
 	_cb_batch_prop = new QComboBox();
-	_batch_start = new QLineEdit("Start Value");
-	_batch_end = new QLineEdit("End Value");
-	_batch_num = new QLineEdit("Number Iter");
+	_batch_start = new QLineEdit("1");
+	_batch_end = new QLineEdit("10");
+	_batch_num = new QLineEdit("10");
 	
 	_cb_batch_prop->setEnabled(false);
 	_batch_start->setEnabled(false);
@@ -70,12 +74,16 @@ void ScanRegionDialog::_createLayout()
 	type_layout->addWidget(new QLabel("Scan Type: "));
 	type_layout->addWidget(_scan_type);
 
-	QHBoxLayout* batch_layout = new QHBoxLayout();
-	batch_layout->addWidget(_chk_batch_scan);
-	batch_layout->addWidget(_cb_batch_prop);
-	batch_layout->addWidget(_batch_start);
-	batch_layout->addWidget(_batch_end);
-	batch_layout->addWidget(_batch_num);
+	QGridLayout* batch_layout = new QGridLayout();
+	batch_layout->addWidget(_chk_batch_scan, 0, 0);
+	batch_layout->addWidget(startLabel, 0, 1);
+	batch_layout->addWidget(endLabel, 0 , 2);
+	batch_layout->addWidget(numItrLabel, 0, 3);
+
+	batch_layout->addWidget(_cb_batch_prop, 1, 0);
+	batch_layout->addWidget(_batch_start, 1, 1);
+	batch_layout->addWidget(_batch_end, 1, 2);
+	batch_layout->addWidget(_batch_num, 1, 3);
 
 
 	QHBoxLayout* button_layout = new QHBoxLayout();
@@ -129,7 +137,7 @@ void ScanRegionDialog::onUpdateAndQueue()
 		float start = _batch_start->text().toFloat();
 		float end = _batch_end->text().toFloat();
 		int num = _batch_num->text().toInt();
-		float inc = ( (end - start) + 1 )/ (float)num; 
+		float inc = ( end - start )/ (float)(num - 1); 
 		for(int i=0; i<num; i++)
 		{
 			BlueskyPlan plan;
