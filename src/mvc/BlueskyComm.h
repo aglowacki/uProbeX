@@ -123,17 +123,20 @@ public:
                 }
                 args.append(inner_args);
             }
-            else if(itr.second.kind == BlueskyParamType::String && itr.second.default_val.length() > 0)
+            //else if(itr.second.kind == BlueskyParamType::String && itr.second.default_val.length() > 0)
             {
                 kwargs[itr.first] = itr.second.default_val;
             }
+            /*
             else if(itr.second.kind == BlueskyParamType::Numeral && itr.second.default_val.length() > 0)
             {
                 kwargs[itr.first] = QJsonValue::fromVariant(itr.second.default_val.toDouble());
             }
+            */
         }
         item["kwargs"] = kwargs;
         item["args"] = args;
+        //qDebug()<<item;
        return item;
     }
 
