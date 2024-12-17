@@ -38,7 +38,7 @@ public:
 
    void updateQueuedItems( std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
 
-   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans; _scan_dialog.setAvailScans(avail_scans);}
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 
 signals:
    void queueNeedsToBeUpdated();

@@ -38,7 +38,7 @@ public:
         int rown = _data.size();
         QModelIndex gIndex = index(rown, 0, QModelIndex());
         beginInsertRows(gIndex, rown, rown);
-        _data.append(row);
+        _data.push_back(row);
         endInsertRows();
     }
     
@@ -60,10 +60,8 @@ public:
 
 	void getCurrentParams(BlueskyPlan& plan)
     {
-        for(auto itr : _data)
-        {
-            plan.parameters[itr.name] = itr;
-        }
+        plan.parameters.clear();
+        plan.parameters = _data;
     }
 
     //---------------------------------------------------------------------------
@@ -89,9 +87,15 @@ public:
                 return rowData.description;
             };
         }
+        else if(role == Qt::EditRole && index.column() == 1)
+        {
+            return rowData.default_val;
+        }
         return QVariant();
     }
+
     //---------------------------------------------------------------------------
+
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
         // Check this is DisplayRole
@@ -139,10 +143,7 @@ public:
     {
         beginResetModel();
         _data.clear();
-        for(auto itr : scan.parameters)
-        {
-            _data.append(itr.second);
-        }
+        _data = scan.parameters;
         endResetModel();
     }
 
@@ -154,7 +155,23 @@ public:
         {
             if( index.row() < _data.size() && index.column() == 1)
             {
-                _data[index.row()].default_val = value.toString();
+                QString pre_val = _data[index.row()].default_val;
+                if(pre_val == "True" || pre_val == "False")
+                {
+                    int cb_idx = value.toInt();
+                    if (cb_idx == 1) // index 0 = false, 1 = true
+                    {
+                        _data[index.row()].default_val = "True";
+                    }
+                    else
+                    {
+                        _data[index.row()].default_val = "False";
+                    }
+                }
+                else
+                {
+                    _data[index.row()].default_val = value.toString();
+                }
                 return true;
             }
             return false;
@@ -165,7 +182,7 @@ public:
     //---------------------------------------------------------------------------
 
 private:
-    QList<BlueskyParam> _data;
+    std::vector<BlueskyParam> _data;
 
     QString _headers[3];
 };

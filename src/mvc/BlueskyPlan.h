@@ -58,7 +58,7 @@ struct BlueskyPlan
     QString type;
     QString description;
     QString module;
-    std::unordered_map<QString, BlueskyParam> parameters;
+    std::vector<BlueskyParam> parameters;
     BlueskyResult result;
     QString uuid;
     QString user;

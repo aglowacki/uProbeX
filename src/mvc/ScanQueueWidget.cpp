@@ -266,6 +266,15 @@ void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans
 
 //---------------------------------------------------------------------------
 
+void ScanQueueWidget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
+{
+     _avail_scans = avail_scans; 
+     _scan_dialog.setAvailScans(avail_scans);
+     _scan_queue_table_model->setAvailScans(avail_scans);
+}
+
+//---------------------------------------------------------------------------
+
 void ScanQueueWidget::newDataArrived(const QString& data)
 {
     //_te_qs_console->insertPlainText(data);

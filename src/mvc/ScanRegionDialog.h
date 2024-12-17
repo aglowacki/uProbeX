@@ -20,6 +20,7 @@
 #include "gstar/AnnotationProperty.h"
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanTableModel.h"
+#include "mvc/ComboBoxBoolDelegate.h"
 
 //---------------------------------------------------------------------------
 
@@ -90,6 +91,8 @@ private:
    QLabel* _lbl_region_name;
    
    std::map<QString, BlueskyPlan> *_avail_scans;
+
+   ComboBoxBoolDelegate *_cbDelegate;
 
 };
 

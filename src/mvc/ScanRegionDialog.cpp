@@ -16,6 +16,8 @@
 
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
+ 	_cbDelegate = new ComboBoxBoolDelegate();
+	_cbDelegate->setCustomCol(1);
 	_avail_scans = nullptr;
     _createLayout();
 
@@ -143,7 +145,13 @@ void ScanRegionDialog::onUpdateAndQueue()
 			BlueskyPlan plan;
 			plan.type = _scan_type->currentText();
 			_scan_table_model->getCurrentParams(plan);
-			plan.parameters[_cb_batch_prop->currentText()].default_val = QString::number(start);
+			for(auto &itr : plan.parameters)
+			{
+				if(itr.name == _cb_batch_prop->currentText())
+				{
+					itr.default_val = QString::number(start);
+				}
+			}
 			emit ScanUpdated(plan);	
 			start += inc;
 		}
@@ -166,12 +174,26 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 	{
 		if(_avail_scans->count(scan_name) > 0)
 		{
-			_scan_table_model->setAllData(_avail_scans->at(scan_name));
 			_cb_batch_prop->clear();
-			BlueskyPlan plan = _avail_scans->at(scan_name);
-			for(auto itr : plan.parameters)
+			const BlueskyPlan plan = _avail_scans->at(scan_name);
+			_scan_table_model->setAllData(_avail_scans->at(scan_name));
+			int idx = 0;
+			for(auto itr: plan.parameters)
 			{
-				_cb_batch_prop->addItem(itr.first);
+				if(itr.default_val == "True" || itr.default_val == "False")
+				{
+					_scan_options->setItemDelegateForRow(idx, _cbDelegate);
+				}
+				else
+				{
+					// only add non strings
+					if(itr.default_val.count('"') == 0 && itr.default_val.count('\'') == 0)
+					{
+						_cb_batch_prop->addItem(itr.name);
+					}
+					_scan_options->setItemDelegateForRow(idx, nullptr);
+				}
+				idx++;
 			}
 		}
 	}
