@@ -71,9 +71,9 @@ void SpectraWidget::createLayout()
     _axisX->setLabelFormat("%.1f");
     _axisX->setTruncateLabels(false);
     _axisX->setTickAnchor(0.0);
-    _axisX->setTickInterval(0.5);
+    _axisX->setTickInterval(1.0);
     _axisX->setTickType(QValueAxis::TicksDynamic);
-    _axisX->setTickCount(20);
+    //_axisX->setTickCount(10);
 
     _top_axis_elements = new QCategoryAxis();
     //_top_axis_elements->setTickAnchor(0.0);
