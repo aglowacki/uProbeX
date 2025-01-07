@@ -10,8 +10,11 @@
 #include <vector>
 
 #include <gstar/LinearTransformer.h>
+
+#ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
+#endif
 
 using gstar::LinearTransformer;
 
@@ -56,6 +59,7 @@ bool TIFF_Model::load(QString filepath)
         }
         else
         {
+            #ifdef _BUILD_WITH_OPENCV
             cv::Mat mat = cv::imread(filepath.toStdString(), cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
             if (mat.rows > 0 && mat.cols > 0)
             {
@@ -113,7 +117,7 @@ bool TIFF_Model::load(QString filepath)
                     }
                 }
             }
-            
+            #endif
         }
     }
     catch (std::string& s)
@@ -211,6 +215,7 @@ int TIFF_Model::getRank()
 
 bool TIFF_Model::save_img(QString filename)
 {
+    #ifdef _BUILD_WITH_OPENCV
     QImageWriter writer(filename);
     if (false == writer.write(_img))
     {
@@ -239,6 +244,9 @@ bool TIFF_Model::save_img(QString filename)
         }
     }
     return true;
+    #else
+    return false;
+    #endif
 }
 
 //---------------------------------------------------------------------------

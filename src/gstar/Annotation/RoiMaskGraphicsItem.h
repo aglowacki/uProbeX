@@ -10,8 +10,9 @@
 
 #include "gstar/Annotation/AbstractGraphicsItem.h"
 #include "gstar/RectItem.h"
+#ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
-
+#endif
 //---------------------------------------------------------------------------
 
 namespace gstar
@@ -34,8 +35,9 @@ public:
     * @param parent
     */
     // blank constructor for classid
+#ifdef _BUILD_WITH_OPENCV
    RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
-
+#endif
    RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent = 0);
 
    RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);

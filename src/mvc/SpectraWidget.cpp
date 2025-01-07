@@ -76,18 +76,12 @@ void SpectraWidget::createLayout()
     //_axisX->setTickCount(10);
 
     _top_axis_elements = new QCategoryAxis();
-    //_top_axis_elements->setTickAnchor(0.0);
-    //_top_axis_elements->setTickInterval(0.5);
-    //_top_axis_elements->setTickType(QValueAxis::TicksDynamic);
-    //_top_axis_elements->setTickCount(20);
     _top_axis_elements->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
     _top_axis_elements->setGridLineVisible(false);
 
     _axisY = new QValueAxis();
     _axisY->setTitleText("Counts");
     _axisY->setLabelFormat("%i");
-    //_axisY->setTickCount(series->count());
-
 
     _chart = new QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);

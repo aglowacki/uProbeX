@@ -73,6 +73,7 @@ option(AVX2 "Compule with arch AVX2 on MSVC" OFF)
 option(AVX "Compule with arch AVX on MSVC" OFF)
 option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
 option(MSVC_DEBUG_INFO_REL "Compule with debug info in Release build for MSVC" OFF)
+option(BUILD_WITH_OPENCV_SUPPORT "Compule with opencv support for image segmentation" ON)
 
 IF (UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
@@ -85,8 +86,12 @@ find_package(yaml-cpp CONFIG REQUIRED)
 find_package(cppzmq CONFIG REQUIRED)
 find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
-find_package(OpenCV CONFIG REQUIRED)
 find_package(NLopt CONFIG REQUIRED)
+
+IF (BUILD_WITH_OPENCV_SUPPORT)
+  add_definitions(-D_BUILD_WITH_OPENCV)
+  find_package(OpenCV CONFIG REQUIRED)
+ENDIF()
 
 if (libxrf_fit_FOUND)
   message("Found libxrf_fit")
@@ -213,6 +218,7 @@ IF (MSVC)
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "/D_WINSOCKAPI_")
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS_RELEASE "/O2 /Qvec-report:2 /GL /MP /bigobj /Qansi-alias")
   set_target_properties(uProbeX PROPERTIES LINK_FLAGS "/LTCG")
+  IF (BUILD_WITH_OPENCV_SUPPORT)
     target_link_libraries (uProbeX PRIVATE 
                         yaml-cpp::yaml-cpp
                         libzmq-static
@@ -235,12 +241,32 @@ IF (MSVC)
 						            libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT}
                         ws2_32.lib )
+  ELSE()
+    target_link_libraries (uProbeX PRIVATE 
+                          yaml-cpp::yaml-cpp
+                          libzmq-static
+                          ws2_32.lib
+                          rpcrt4.lib
+                          iphlpapi.lib
+                          ${TIFF_LIBRARIES}
+                          ${Qt6Core_LIBRARIES}
+                          ${Qt6Charts_LIBRARIES}
+                          netCDF::netcdf
+                          hdf5::hdf5-shared
+                          cppzmq cppzmq-static
+                          NLopt::nlopt
+                          libxrf_fit
+                          libxrf_io
+                          ${CMAKE_THREAD_LIBS_INIT}
+                          ws2_32.lib )
+  ENDIF() 
+
 ELSEIF (UNIX)
   #IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   #  set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
   #ENDIF()
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O2")
-
+  IF (BUILD_WITH_OPENCV_SUPPORT)
     target_link_libraries (uProbeX PRIVATE
                         libzmq
                         yaml-cpp::yaml-cpp
@@ -258,4 +284,18 @@ ELSEIF (UNIX)
                         libxrf_fit
                         libxrf_io
                         ${CMAKE_THREAD_LIBS_INIT} )
+  ELSE()
+    target_link_libraries (uProbeX PRIVATE
+                        libzmq
+                        yaml-cpp::yaml-cpp
+                        ${TIFF_LIBRARIES}
+                        ${Qt6Core_LIBRARIES}
+                        ${Qt6Charts_LIBRARIES}
+                        netCDF::netcdf
+                        cppzmq cppzmq-static
+                        NLopt::nlopt
+                        libxrf_fit
+                        libxrf_io
+                        ${CMAKE_THREAD_LIBS_INIT} )
+  ENDIF()
 ENDIF()
