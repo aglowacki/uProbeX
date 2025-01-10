@@ -142,6 +142,9 @@ void LiveMapsElementsWidget::createLayout()
 
     _vlm_widget = new VLM_Widget();
     _vlm_widget->setAvailScans(&_avail_scans);
+    gstar::CoordinateModel *coord_model = new gstar::CoordinateModel(&_linear_trans);
+    _vlm_widget->setCoordinateModel(coord_model);
+    _vlm_widget->load_live_coord_settings();
     connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScan);
 
     _scan_queue_widget = new ScanQueueWidget();
@@ -408,7 +411,7 @@ void LiveMapsElementsWidget::saveHistory()
                 out << "Name,Type,";
                 for(auto & itr: _finished_scans.at(0).parameters)
                 {
-                    out<<itr.second.name<<",";
+                    out<<itr.name<<",";
                 }
                 out << "exit_status,time_start,time_stop,msg\r\n";
                 for(auto &itr: _finished_scans)
@@ -416,7 +419,7 @@ void LiveMapsElementsWidget::saveHistory()
                     out<<itr.name<<","<<itr.type<<",";
                     for(auto & itr2: itr.parameters)
                     {
-                        out<<itr2.second.default_val<<",";
+                        out<<itr2.default_val<<",";
                     }
                     QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
                     QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);

@@ -56,7 +56,7 @@ public:
     * @brief Internal slot to add an item. Called by the add item button.
     * @param
     */
-   void addItem(Attribute attr);
+   void addItemA(Attribute attr);
 
    /**
     * @brief clearAll

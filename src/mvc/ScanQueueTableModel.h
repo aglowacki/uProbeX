@@ -29,11 +29,15 @@ public:
         _headers[0] = "Type";
         _last_finished_idx = 0;
     }
+
     //---------------------------------------------------------------------------
+    
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
     {
         return _data.size();
     }
+
+    //---------------------------------------------------------------------------
 
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
@@ -156,17 +160,10 @@ public:
             {
                 return rowData.result.msg;
             }
-
-            int idx = 0;
-            for( auto itr: rowData.parameters)
+            else
             {
-                if(idx == section -1 )
-                {
-                    return itr.second.default_val;
-                }
-                idx++;
+                return rowData.parameters.at(section-1).default_val;
             }
-            
         }
         else if (role == Qt::BackgroundRole)
         {
@@ -179,9 +176,18 @@ public:
                 return QColor(Qt::darkGreen);
             }
         }
+        else if (role == Qt::EditRole)
+        {
+            if(section > 0 && section <= parms_size)
+            {
+                return rowData.parameters.at(section-1).default_val;
+            }
+        }
         return QVariant();
     }
+    
     //---------------------------------------------------------------------------
+
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
         // Check this is DisplayRole
@@ -194,7 +200,7 @@ public:
             {
                 return _headers[section];
             }
-            else
+            else if (section > 0)
             {
                 if(_data.size() > 0)
                 {
@@ -217,14 +223,9 @@ public:
                     {
                         return "msg";
                     }
-                    int idx = 0;
-                    for( auto itr: rowData.parameters)
+                    else if (parms_size > (section -1) ) 
                     {
-                        if(idx == section -1 )
-                        {
-                            return itr.second.name;
-                        }
-                        idx++;
+                        return rowData.parameters.at(section-1).name;
                     }
                 }
                 return QVariant(" ");
@@ -261,6 +262,13 @@ public:
     
     //---------------------------------------------------------------------------
 
+    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
+    {
+        _avail_scans = avail_scans;
+    }
+
+    //---------------------------------------------------------------------------
+
     void setAllData(std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
     {
         _last_finished_idx = finished_plans.size();
@@ -268,15 +276,15 @@ public:
         _data.clear();
         for(auto itr : finished_plans)
         {
-            _data.append(itr);
+            _data.push_back(itr);
         }
         if(running_plan.type.length() > 0)
         {
-            _data.append(running_plan);
+            _data.push_back(running_plan);
         }
         for(auto itr : queued_plans)
         {
-            _data.append(itr);
+            _data.push_back(itr);
         }
         endResetModel();
     }
@@ -295,7 +303,7 @@ public:
                     if(idx == index.column() && value.toString().length() >0)
                     {
                         // this will be refreshed from qserver
-                        itr.second.default_val = value.toString();
+                        itr.default_val = value.toString();
                         emit planChanged(_data.at(index.row()));
                         return false; // return false to make sure we get this value from qserver 
                     }
@@ -318,7 +326,9 @@ signals:
 
 private:
     int _last_finished_idx;
-    QList<BlueskyPlan> _data;
+    std::vector<BlueskyPlan> _data;
+
+    std::map<QString, BlueskyPlan> *_avail_scans;
 
     QString _headers[4];
 };

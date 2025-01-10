@@ -54,7 +54,7 @@ SolverParameterWidget::~SolverParameterWidget()
 void SolverParameterWidget::addCoefficientItem(Attribute attr)
 {
 
-   m_coefficientTable -> addItem(attr);
+   m_coefficientTable -> addItemA(attr);
 
 }
 
@@ -75,7 +75,7 @@ void SolverParameterWidget::addCoefficientItems(QList<Attribute> solverAttrs)
 void SolverParameterWidget::addOptionItem(Attribute attr)
 {
 
-   m_optionTable -> addItem(attr);
+   m_optionTable -> addItemA(attr);
 
 }
 

@@ -442,28 +442,9 @@ void uProbeX::make_VLM_Window(VLM_Model* model)
     VLM_Widget* widget = new VLM_Widget();
     widget->resize(1027, 768);
     widget->setModel(model);
-   
-    connect(widget,
-            SIGNAL(solverStart()),
-            this,
-            SLOT(solverStart()));
-
-    connect(widget,
-            SIGNAL(solverVariableUpdate(double, double)),
-            this,
-            SLOT(solverVariableUpdate(double, double)));
-
-    connect(widget,
-            SIGNAL(cancelSolverVariableUpdate()),
-            this,
-            SLOT(cancelSolverVariableUpdate()));
-
-
+  
     SubWindow* w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
+    connect(w, &SubWindow::windowClosing, this, &uProbeX::subWindowClosed);
 
 
     m_mdiArea->addSubWindow(w);
@@ -474,10 +455,7 @@ void uProbeX::make_VLM_Window(VLM_Model* model)
 
     m_subWindows[w->getUuid()] = w;
 
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+    connect(w, &SubWindow::windowStateChanged, widget, &VLM_Widget::windowChanged);
 }
 
 //---------------------------------------------------------------------------
@@ -538,31 +516,11 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
             return;
         }
 
-        connect(widget,
-            SIGNAL(solverStart()),
-            this,
-            SLOT(solverStart()));
-
-        connect(widget,
-            SIGNAL(solverVariableUpdate(double, double)),
-            this,
-            SLOT(solverVariableUpdate(double, double)));
-
-        connect(widget,
-            SIGNAL(cancelSolverVariableUpdate()),
-            this,
-            SLOT(cancelSolverVariableUpdate()));
-
-
         SubWindow* w = nullptr;
         if (newWindow == true)
         {
             w = new SubWindow(m_mdiArea);
-            connect(w,
-                SIGNAL(windowClosing(SubWindow*)),
-                this,
-                SLOT(subWindowClosed(SubWindow*)));
-
+            connect(w, &SubWindow::windowClosing, this, &uProbeX::subWindowClosed);
         }
 
         m_mdiArea->addSubWindow(w);
@@ -573,10 +531,7 @@ void uProbeX::make_VLM_Window(QString path, bool newWindow)
 
         m_subWindows[w->getUuid()] = w;
 
-        connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates)),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+        connect(w, &SubWindow::windowStateChanged, widget, &VLM_Widget::windowChanged);
     }
     else
     {
@@ -712,10 +667,7 @@ void uProbeX::make_HDF_Window(MapsH5Model* model)
 
     SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
+    connect(w, &SubWindow::windowClosing, this, &uProbeX::subWindowClosed);
 
 
     m_mdiArea->addSubWindow(w);
@@ -727,10 +679,7 @@ void uProbeX::make_HDF_Window(MapsH5Model* model)
 
     m_subWindows[w->getUuid()] = w;
 
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+    connect(w, &SubWindow::windowStateChanged, widget, &MapsElementsWidget::windowChanged);
 
 
 }
@@ -744,10 +693,7 @@ void uProbeX::make_MDA_Window(RAW_Model* model)
 
     SubWindow* w = nullptr;
     w = new SubWindow(m_mdiArea);
-    connect(w,
-            SIGNAL(windowClosing(SubWindow*)),
-            this,
-            SLOT(subWindowClosed(SubWindow*)));
+    connect(w, &SubWindow::windowClosing, this, &uProbeX::subWindowClosed);
 
 
     m_mdiArea->addSubWindow(w);
@@ -759,10 +705,7 @@ void uProbeX::make_MDA_Window(RAW_Model* model)
 
     m_subWindows[w->getUuid()] = w;
 
-    connect(w,
-            SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates )),
-            widget,
-            SLOT(windowChanged(Qt::WindowStates, Qt::WindowStates)));
+    //connect(w, &SubWindow::windowStateChanged, widget, &MDA_Widget::windowChanged);
 }
 
 //---------------------------------------------------------------------------
@@ -876,7 +819,7 @@ void uProbeX::openMapsWorkspace(QString dirName)
     updateRecentMapsWorkspaces();
 
     MapsWorkspaceController* mapsWorkspaceController = new MapsWorkspaceController(this);
-    connect(mapsWorkspaceController, SIGNAL(controllerClosed(MapsWorkspaceController*)), this, SLOT(mapsControllerClosed(MapsWorkspaceController*)));
+    connect(mapsWorkspaceController, &MapsWorkspaceController::controllerClosed, this, &uProbeX::mapsControllerClosed);
     _mapsWorkspaceControllers.append(mapsWorkspaceController);
 
     mapsWorkspaceController->setWorkingDir(dirName);

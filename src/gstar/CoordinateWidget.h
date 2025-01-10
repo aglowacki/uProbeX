@@ -101,6 +101,8 @@ public:
     */
    void setnullptr();
 
+   CoordinateModel* model() { return m_model; }
+
 private:
 
    /**

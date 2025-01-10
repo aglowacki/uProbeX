@@ -19,7 +19,7 @@
 
 //---------------------------------------------------------------------------
 
-SolverWidget::SolverWidget(QWidget *parent) : QWidget(parent)
+SolverWidget::SolverWidget(QWidget *parent) : QDialog(parent)
 {
 
    setWindowModality(Qt::WindowModal);
@@ -39,22 +39,12 @@ SolverWidget::SolverWidget(QWidget *parent) : QWidget(parent)
    QLabel* lblStatus = new QLabel("Status: ");
    m_lblStatus = new QLabel("");
 
-
    //Create Prepend plus minus buttons
    m_btnCancel = new QPushButton("Cancel");
    m_btnUse = new QPushButton("Use New Values");
 
-   connect(m_btnCancel,
-           SIGNAL(clicked()),
-           this,
-           SLOT(cancel()));
-   
-
-   connect(m_btnUse,
-           SIGNAL(clicked()),
-           this,
-           SLOT(useNewValues()));
-
+   connect(m_btnCancel, &QPushButton::clicked, this, &SolverWidget::cancel);
+   connect(m_btnUse, &QPushButton::clicked, this, &SolverWidget::useNewValues);
 
    QHBoxLayout* buttonLayout = new QHBoxLayout();
    buttonLayout->setSpacing(5);

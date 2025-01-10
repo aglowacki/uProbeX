@@ -69,10 +69,7 @@ QModelIndex AnnotationTreeModel::appendNode(AbstractGraphicsItem* item)
 
    beginInsertRows(gIndex, row, row);
 
-   connect(item,
-       SIGNAL(viewUpdated(AbstractGraphicsItem*)),
-       this,
-       SLOT(refreshModel(AbstractGraphicsItem*)));
+   connect(item, &AbstractGraphicsItem::viewUpdated, this, &AnnotationTreeModel::refreshModel);
 
    groupRoot->appendChild(item);
 

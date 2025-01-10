@@ -13,12 +13,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include <QTableView>
 #include "gstar/AnnotationProperty.h"
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanTableModel.h"
+#include "mvc/ComboBoxBoolDelegate.h"
 
 //---------------------------------------------------------------------------
 
@@ -53,11 +55,11 @@ signals:
 
 public slots:
 
-	void onUpdate();
-
    void onUpdateAndQueue();
 
    void scanChanged(const QString &);
+
+   void onBatchScanChanged(Qt::CheckState);
 
 protected:
 
@@ -67,8 +69,8 @@ private:
 	QLineEdit *_scan_name;
    
    QComboBox *_scan_type;
-   
-   QPushButton *_btn_update;
+
+   QComboBox *_cb_batch_prop;
 
    QPushButton *_btn_update_and_queue;
 
@@ -76,11 +78,21 @@ private:
 
    QTableView* _scan_options;
 
+   QLineEdit *_batch_start;
+
+   QLineEdit *_batch_end;
+
+   QLineEdit *_batch_num;
+
+   QCheckBox* _chk_batch_scan;
+
    ScanTableModel *_scan_table_model;
    
    QLabel* _lbl_region_name;
    
    std::map<QString, BlueskyPlan> *_avail_scans;
+
+   ComboBoxBoolDelegate *_cbDelegate;
 
 };
 

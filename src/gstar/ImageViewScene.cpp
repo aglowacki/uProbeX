@@ -43,8 +43,7 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
    setSceneRect(m_pixItem -> boundingRect());
 
    // Connect selectionChanged signal to annotation slot
-   connect(this, SIGNAL(selectionChanged()),
-           this, SLOT(sceneSelectionChanged()));
+   connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
 }
 

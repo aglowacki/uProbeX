@@ -91,7 +91,7 @@ signals:
     * @param name
     * @param desc
     */
-   void addItem(QString name, QString desc);
+   void addItem2(QString name, QString desc);
 
    /**
     * @brief deleteItem
@@ -131,20 +131,20 @@ private slots:
    /**
     * @brief Internal slot to add an item. Called by the add item button.
     */
-   void addItem();
+   void onAddItem();
 
    /**
     * @brief Internal slot to remove the selected item. Called by the remove
     * item button.
     */
-   void removeItem();
+   void onRemoveItem();
 
    /**
     * @brief editItem
     * @param
     * @param
     */
-   void editItem(const QModelIndex&, const QModelIndex&);
+   void onEditItem(const QModelIndex&, const QModelIndex&);
 
 private:
 

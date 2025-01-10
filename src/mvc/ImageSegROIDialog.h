@@ -23,9 +23,12 @@
 #include <QItemSelectionModel>
 #include "data_struct/fit_parameters.h"
 #include <mvc/ImageSegWidget.h>
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
+#ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
-#include "gstar/Annotation/RoiMaskGraphicsItem.h"
+#endif
+
 
 //---------------------------------------------------------------------------
 

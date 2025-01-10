@@ -255,21 +255,6 @@ protected:
    /**
     * Reimplemented from QGraphicsItem. See Qt documentation.
     */
-   void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
-   void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-
-   /**
-    * Reimplemented from QGraphicsItem. See Qt documentation.
-    */
    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
    /**

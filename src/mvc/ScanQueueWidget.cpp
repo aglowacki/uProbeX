@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QTableWidget>
+#include <QShortcut>
 #include "core/defines.h"
 
 //---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ void ScanQueueWidget::_createLayout()
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
     _scan_queue_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _scan_queue_table_view->setSelectionMode(QAbstractItemView::SingleSelection);
+    _scan_queue_table_view->setSelectionMode(QAbstractItemView::ContiguousSelection);
     _scan_queue_table_view->setDragEnabled(true);
     _scan_queue_table_view->setAcceptDrops(true);
     _scan_queue_table_view->setDragDropMode(QAbstractItemView::InternalMove);
@@ -58,6 +59,12 @@ void ScanQueueWidget::_createLayout()
           &QTableView::customContextMenuRequested,
           this,
           &ScanQueueWidget::scanContextMenu);
+    
+    QShortcut* del_shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _scan_queue_table_view);
+    connect(del_shortcut, &QShortcut::activated, this, &ScanQueueWidget::on_remove_scan);
+
+    QShortcut* backsp_shortcut = new QShortcut(QKeySequence(QKeySequence::Backspace), _scan_queue_table_view);
+    connect(backsp_shortcut, &QShortcut::activated, this, &ScanQueueWidget::on_remove_scan);
     //_scan_queue_table_view->selectionModel()
    // _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
 
@@ -92,10 +99,6 @@ void ScanQueueWidget::_createLayout()
 
     _btn_add_scan = new QPushButton("Add Scan");
     connect(_btn_add_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
-
-    _btn_add_batch_scan = new QPushButton("Add Batch Scan");
-    _btn_add_batch_scan->setEnabled(false);
-    connect(_btn_add_batch_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
 
     _btn_set_history = new QPushButton("Set History Location");
     connect(_btn_set_history, &QPushButton::pressed, this, &ScanQueueWidget::onSetHistory);
@@ -133,7 +136,6 @@ void ScanQueueWidget::_createLayout()
     grid->addWidget(_btn_open_env,0,3);
     grid->addWidget(_btn_close_env,0,4);
     grid->addWidget(_btn_add_scan,0,6);
-    grid->addWidget(_btn_add_batch_scan,0,7);
     grid->addWidget(_btn_set_history,0,8);
     grid->addWidget(_btn_clear_history,0,9);
     grid->addItem(new QSpacerItem(999,10), 0,10);
@@ -167,8 +169,12 @@ void ScanQueueWidget::scanContextMenu(const QPoint& pos)
     QMenu menu(_scan_queue_table_view);
     if (_scan_queue_table_view->selectionModel()->hasSelection())
     {   
-        menu.addAction(_move_scan_up);
-        menu.addAction(_move_scan_down);
+        auto selected = _scan_queue_table_view->selectionModel()->selectedIndexes();
+        if(selected.count() == 1)
+        {
+            menu.addAction(_move_scan_up);
+            menu.addAction(_move_scan_down);
+        }
         menu.addAction(_remove_scan);
     
         QAction* result = menu.exec(_scan_queue_table_view->viewport()->mapToGlobal(pos));
@@ -187,10 +193,13 @@ void ScanQueueWidget::on_move_scan_up()
     if (_scan_queue_table_view->selectionModel()->hasSelection())
     {  
         QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
-        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        if(selectedIndexes.count() == 1)
         {
-            QModelIndex index = selectedIndexes[i];
-            emit onMoveScanUp(index.row() - _scan_queue_table_model->get_finished_idx());
+            for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+            {
+                QModelIndex index = selectedIndexes[i];
+                emit onMoveScanUp(index.row() - _scan_queue_table_model->get_finished_idx());
+            }
         }
     }
 }
@@ -202,10 +211,13 @@ void ScanQueueWidget::on_move_scan_down()
     if (_scan_queue_table_view->selectionModel()->hasSelection())
     {  
         QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
-        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        if(selectedIndexes.count() == 1)
         {
-            QModelIndex index = selectedIndexes[i];
-            emit onMoveScanDown(index.row() - _scan_queue_table_model->get_finished_idx());
+            for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+            {
+                QModelIndex index = selectedIndexes[i];
+                emit onMoveScanDown(index.row() - _scan_queue_table_model->get_finished_idx());
+            }
         }
     }
 }
@@ -250,6 +262,15 @@ void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans
     {
         _btn_close_env->setEnabled(true);
     }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
+{
+     _avail_scans = avail_scans; 
+     _scan_dialog.setAvailScans(avail_scans);
+     _scan_queue_table_model->setAvailScans(avail_scans);
 }
 
 //---------------------------------------------------------------------------

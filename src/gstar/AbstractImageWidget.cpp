@@ -46,14 +46,10 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
 
    createActions();
 
-
    //Setup a QTreeView and AnnotationTreeModel for Annotations
 
    m_treeModel = new AnnotationTreeModel();
-   connect(m_treeModel,
-           SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-           this,
-           SLOT(modelDataChanged(const QModelIndex &, const QModelIndex &)));
+   connect(m_treeModel, &AnnotationTreeModel::dataChanged, this, &AbstractImageWidget::modelDataChanged);
 
    m_selectionModel = new QItemSelectionModel(m_treeModel);
 
@@ -66,23 +62,14 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    m_annoTreeView->setHeaderHidden(true);
    m_annoTreeView->setSelectionModel(m_selectionModel);
    m_annoTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-   connect(m_annoTreeView,
-          SIGNAL(customContextMenuRequested(const QPoint &)),
-          this,
-          SLOT(treeContextMenu(const QPoint &)));
-   connect(m_annoTreeView,
-           SIGNAL(doubleClicked(const QModelIndex &)),
-           this,
-           SLOT(treeDoubleClicked(const QModelIndex &)));
+   connect(m_annoTreeView, &QTreeView::customContextMenuRequested, this, &AbstractImageWidget::treeContextMenu);
+   connect(m_annoTreeView, &QTreeView::doubleClicked, this, &AbstractImageWidget::treeDoubleClicked);
 
    m_imageViewWidget = new ImageViewWidget(rows, cols);
    m_imageViewWidget->setSceneModel(m_treeModel);
    m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-   connect(m_imageViewWidget,
-          SIGNAL(customContextMenuRequested(const QPoint &)),
-          this,
-          SLOT(viewContextMenu(const QPoint &)));
+   connect(m_imageViewWidget, &ImageViewWidget::customContextMenuRequested, this, &AbstractImageWidget::viewContextMenu);
 
    createAnnotationToolBar();
 
@@ -177,27 +164,12 @@ void AbstractImageWidget::createActions()
    m_deleteAction = new QAction("Delete", this);
    m_showRulerDialogAction = new QAction("Ruler Units", this);
 
-   connect(m_addRulerAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addRuler()));
-   connect(m_addMarkerAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addMarker()));
+   connect(m_addRulerAction, &QAction::triggered, this, &AbstractImageWidget::addRuler);
+   connect(m_addMarkerAction, &QAction::triggered, this, &AbstractImageWidget::addMarker);
 
-   connect(m_duplicateAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(duplicateItem()));
-   connect(m_deleteAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(deleteItem()));
-   connect(m_showRulerDialogAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(showRulerUnitsDialog()));
+   connect(m_duplicateAction, &QAction::triggered, this, &AbstractImageWidget::duplicateItem);
+   connect(m_deleteAction, &QAction::triggered, this, &AbstractImageWidget::deleteItem);
+   connect(m_showRulerDialogAction, &QAction::triggered, this, &AbstractImageWidget::showRulerUnitsDialog);
 
 }
 
@@ -235,19 +207,10 @@ void AbstractImageWidget::createAnnotationToolBar()
 
    m_annotationToolbar = new AnnotationToolBarWidget();
 
-   connect(m_annotationToolbar,
-           SIGNAL(clickRuler()),
-           this,
-           SLOT(addRuler()));
-   connect(m_annotationToolbar,
-           SIGNAL(clickMarker()),
-           this,
-           SLOT(addMarker()));
+   connect(m_annotationToolbar, &AnnotationToolBarWidget::clickRuler, this, &AbstractImageWidget::addRuler);
+   connect(m_annotationToolbar, &AnnotationToolBarWidget::clickMarker, this, &AbstractImageWidget::addMarker);
 
-   connect(m_annotationToolbar,
-           SIGNAL(enabledStateChanged(bool)),
-           this,
-           SLOT(setAnnotationsEnabled(bool)));
+   connect(m_annotationToolbar, &AnnotationToolBarWidget::enabledStateChanged, this, &AbstractImageWidget::setAnnotationsEnabled);
 
 }
 
@@ -574,9 +537,11 @@ void AbstractImageWidget::setHeightDims(int h)
     {
         if (h > (m_imageHeightDim->count() - 1)) return;
 
-        disconnect(m_imageHeightDim,SIGNAL(activated(int)),this,SLOT(imageHeightDimChanged(int)));
+        disconnect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
+
         m_imageHeightDim->setCurrentIndex(h);
-        connect(m_imageHeightDim,SIGNAL(activated(int)),this,SIGNAL(imageHeightDimChanged(int)));
+
+        connect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
     }
 }
 

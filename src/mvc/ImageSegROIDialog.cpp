@@ -10,9 +10,9 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QGridLayout>
+#ifdef _BUILD_WITH_OPENCV
 #include <opencv2/core/eigen.hpp>
-//#include <opencv2/ximgproc/scansegment.hpp> // out in version 4.10
-
+#endif
 //---------------------------------------------------------------------------
 static const QString STR_KMEANS = QString("KMeans");
 static const QString STR_DBSCAN = QString("DBSCAN");
@@ -501,6 +501,7 @@ void ImageSegRoiDialog::onRun()
 	ArrayXXr<float> int_img;
 	_get_img(int_img, _chk_normalize_sum->isChecked());
 
+	#ifdef _BUILD_WITH_OPENCV
 	if(_techTabs->currentIndex() == 0) // KMEANS
 	{
 		cv::KmeansFlags flags;
@@ -568,6 +569,7 @@ void ImageSegRoiDialog::onRun()
 		cv::Ptr< cv::ximgproc::ScanSegment > scanSeg = cv::ximgproc::createScanSegment(int_img.cols(), int_img.rows(), 1, slices=8, merge_small);
 		*/
 	}
+	#endif
 	_acceptBtn->setEnabled(true);
 }
 
