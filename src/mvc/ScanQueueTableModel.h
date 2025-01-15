@@ -26,7 +26,7 @@ class ScanQueueTableModel : public QAbstractTableModel
 public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
-        _headers[0] = "Type";
+        _headers = "Type";
         _last_finished_idx = 0;
     }
 
@@ -45,7 +45,7 @@ public:
         {
             return _data.at(0).parameters.size() + 5; // +1 for scan type, + 4 for results
         }
-        return 10; 
+        return 1; 
     }
   
     //---------------------------------------------------------------------------
@@ -198,7 +198,7 @@ public:
         {
             if(section == 0)
             {
-                return _headers[section];
+                return _headers;
             }
             else if (section > 0)
             {
@@ -330,7 +330,7 @@ private:
 
     std::map<QString, BlueskyPlan> *_avail_scans;
 
-    QString _headers[4];
+    QString _headers;
 };
 
 

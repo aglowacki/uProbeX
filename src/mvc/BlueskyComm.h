@@ -442,6 +442,34 @@ public:
 
     //---------------------------------------------------------------------------
 
+    void parse_args(const QJsonObject& kwargs, BlueskyPlan &plan)
+    {
+        for(auto pitr : kwargs.keys())
+        {
+            BlueskyParam bsp;
+            bsp.name = pitr;
+            if(kwargs.value(pitr).isDouble())
+            {
+                double p = kwargs.value(pitr).toDouble();
+                bsp.setValue( QString::number(p) );
+            }
+            else
+            {
+                bsp.setValue(kwargs.value(pitr).toString());
+            }
+            /*
+            else if( kwargs.value(pitr).isString() )
+            {
+                bsp.setValue(kwargs.value(pitr).toString());
+            }
+            */
+            
+            plan.parameters.push_back(bsp);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+
     bool get_avail_scans(std::map<QString, BlueskyPlan> &plans, QString &msg)
     {
         bool ret = false;
@@ -568,6 +596,7 @@ public:
         }
         running_plan.type = "";
         running_plan.uuid = "";
+        running_plan.parameters.clear();
         zmq::message_t message;
         QByteArray msg_arr = gen_send_mesg("queue_get", nullptr); 
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
@@ -603,7 +632,7 @@ public:
                 'user_group': 'primary',
                 'item_uid': 'f66d959f-12e2-43a5-a67d-01b3d40b4f43'}
                 */
-            queued_plans.clear();
+                queued_plans.clear();
                 QJsonArray items = reply["items"].toArray();
                 for( auto itr2 : items)
                 {
@@ -615,41 +644,11 @@ public:
                     }
                     if(param.contains("args"))
                     {
-                        QJsonObject kwargs = param["args"].toObject();
-                        for(auto pitr : kwargs.keys())
-                        {
-                            BlueskyParam bsp;
-                            bsp.name = pitr;
-                            if(kwargs.value(pitr).isDouble())
-                            {
-                                double p = kwargs.value(pitr).toDouble();
-                                bsp.setValue( QString::number(p) );
-                            }
-                            else if( kwargs.value(pitr).isString() )
-                            {
-                                bsp.setValue(kwargs.value(pitr).toString());
-                            }
-                            plan.parameters.push_back(bsp);
-                        }
+                        parse_args(param["args"].toObject(), plan);
                     }
                     if(param.contains("kwargs"))
                     {
-                        QJsonObject kwargs = param["kwargs"].toObject();
-                        for(auto pitr : kwargs.keys())
-                        {
-                            BlueskyParam bsp;
-                            bsp.name = pitr;
-                            if(kwargs.value(pitr).isDouble())
-                            {
-                                double p = kwargs.value(pitr).toDouble();
-                                bsp.setValue( QString::number(p) );
-                            }
-                            else if( kwargs.value(pitr).isString() )
-                            {
-                                bsp.setValue(kwargs.value(pitr).toString());
-                            }
-                            plan.parameters.push_back(bsp);
-                        }
+                        parse_args(param["kwargs"].toObject(), plan);
                     }
                     if(param.contains("user"))
                     {
@@ -700,41 +699,11 @@ public:
                 }
                 if(running_item.contains("args"))
                 {
-                    QJsonObject kwargs = running_item["args"].toObject();
-                    for(auto pitr : kwargs.keys())
-                    {
-                        BlueskyParam bsp;
-                        bsp.name = pitr;
-                        if(kwargs.value(pitr).isDouble())
-                        {
-                            double p = kwargs.value(pitr).toDouble();
-                            bsp.setValue( QString::number(p) );
-                        }
-                        else if( kwargs.value(pitr).isString() )
-                        {
-                            bsp.setValue(kwargs.value(pitr).toString());
-                        }
-                        running_plan.parameters.push_back(bsp);
-                    }
+                    parse_args(running_item["args"].toObject(), running_plan);
                 }
                 if(running_item.contains("kwargs"))
                 {
-                    QJsonObject kwargs = running_item["kwargs"].toObject();
-                    for(auto pitr : kwargs.keys())
-                    {
-                        BlueskyParam bsp;
-                        bsp.name = pitr;
-                        if(kwargs.value(pitr).isDouble())
-                        {
-                            double p = kwargs.value(pitr).toDouble();
-                            bsp.setValue( QString::number(p) );
-                        }
-                        else if( kwargs.value(pitr).isString() )
-                        {
-                            bsp.setValue(kwargs.value(pitr).toString());
-                        }
-                        running_plan.parameters.push_back(bsp);
-                    }
+                    parse_args(running_item["kwargs"].toObject(), running_plan);
                 }
                 if(running_item.contains("user"))
                 {
@@ -852,41 +821,11 @@ public:
                     }
                     if(param.contains("args"))
                     {
-                        QJsonObject kwargs = param["args"].toObject();
-                        for(auto pitr : kwargs.keys())
-                        {
-                            BlueskyParam bsp;
-                            bsp.name = pitr;
-                            if(kwargs.value(pitr).isDouble())
-                            {
-                                double p = kwargs.value(pitr).toDouble();
-                                bsp.setValue( QString::number(p) );
-                            }
-                            else if( kwargs.value(pitr).isString() )
-                            {
-                                bsp.setValue(kwargs.value(pitr).toString());
-                            }
-                            plan.parameters.push_back(bsp);
-                        }
+                        parse_args(param["args"].toObject(), plan);
                     }
                     if(param.contains("kwargs"))
                     {
-                        QJsonObject kwargs = param["kwargs"].toObject();
-                        for(auto pitr : kwargs.keys())
-                        {
-                            BlueskyParam bsp;
-                            bsp.name = pitr;
-                            if(kwargs.value(pitr).isDouble())
-                            {
-                                double p = kwargs.value(pitr).toDouble();
-                                bsp.setValue( QString::number(p) );
-                            }
-                            else if( kwargs.value(pitr).isString() )
-                            {
-                                bsp.setValue(kwargs.value(pitr).toString());
-                            }
-                            plan.parameters.push_back(bsp);
-                        }
+                        parse_args(param["kwargs"].toObject(), plan);
                     }
                     if(param.contains("result"))
                     {
