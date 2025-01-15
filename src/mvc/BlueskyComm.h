@@ -620,18 +620,15 @@ public:
                         {
                             BlueskyParam bsp;
                             bsp.name = pitr;
-                            bsp.setValue(kwargs.value(pitr).toString());
-                            /*
                             if(kwargs.value(pitr).isDouble())
                             {
                                 double p = kwargs.value(pitr).toDouble();
-                                bsp.default_val = QString::number(p);
+                                bsp.setValue( QString::number(p) );
                             }
                             else if( kwargs.value(pitr).isString() )
                             {
-                                bsp.default_val = kwargs.value(pitr).toString();
+                                bsp.setValue(kwargs.value(pitr).toString());
                             }
-                            */
                             plan.parameters.push_back(bsp);
                         }
                     }
@@ -642,20 +639,15 @@ public:
                         {
                             BlueskyParam bsp;
                             bsp.name = pitr;
-                            bsp.setValue(kwargs.value(pitr).toString());
-                            /*
                             if(kwargs.value(pitr).isDouble())
                             {
                                 double p = kwargs.value(pitr).toDouble();
-                                bsp.default_val = QString::number(p);
-                                bsp.kind = BlueskyParamType::Double;
+                                bsp.setValue( QString::number(p) );
                             }
                             else if( kwargs.value(pitr).isString() )
                             {
-                                bsp.default_val = kwargs.value(pitr).toString();
-                                bsp.kind = BlueskyParamType::String;
+                                bsp.setValue(kwargs.value(pitr).toString());
                             }
-                            */
                             plan.parameters.push_back(bsp);
                         }
                     }
@@ -713,20 +705,15 @@ public:
                     {
                         BlueskyParam bsp;
                         bsp.name = pitr;
-                        bsp.setValue(kwargs.value(pitr).toString());
-                        /*
                         if(kwargs.value(pitr).isDouble())
                         {
                             double p = kwargs.value(pitr).toDouble();
-                            bsp.default_val = QString::number(p);
-                            bsp.kind = BlueskyParamType::Double;
+                            bsp.setValue( QString::number(p) );
                         }
                         else if( kwargs.value(pitr).isString() )
                         {
-                            bsp.default_val = kwargs.value(pitr).toString();
-                            bsp.kind = BlueskyParamType::String;
+                            bsp.setValue(kwargs.value(pitr).toString());
                         }
-                        */
                         running_plan.parameters.push_back(bsp);
                     }
                 }
@@ -737,20 +724,15 @@ public:
                     {
                         BlueskyParam bsp;
                         bsp.name = pitr;
-                        bsp.setValue(kwargs.value(pitr).toString());
-                        /*
                         if(kwargs.value(pitr).isDouble())
                         {
                             double p = kwargs.value(pitr).toDouble();
-                            bsp.default_val = QString::number(p);
-                            bsp.kind = BlueskyParamType::Double;
+                            bsp.setValue( QString::number(p) );
                         }
                         else if( kwargs.value(pitr).isString() )
                         {
-                            bsp.default_val = kwargs.value(pitr).toString();
-                            bsp.kind = BlueskyParamType::String;
+                            bsp.setValue(kwargs.value(pitr).toString());
                         }
-                        */
                         running_plan.parameters.push_back(bsp);
                     }
                 }
@@ -875,18 +857,15 @@ public:
                         {
                             BlueskyParam bsp;
                             bsp.name = pitr;
-                            bsp.setValue(kwargs.value(pitr).toString());
-                            /*
                             if(kwargs.value(pitr).isDouble())
                             {
                                 double p = kwargs.value(pitr).toDouble();
-                                bsp.default_val = QString::number(p);
+                                bsp.setValue( QString::number(p) );
                             }
                             else if( kwargs.value(pitr).isString() )
                             {
-                                bsp.default_val = kwargs.value(pitr).toString();
+                                bsp.setValue(kwargs.value(pitr).toString());
                             }
-                            */
                             plan.parameters.push_back(bsp);
                         }
                     }
@@ -897,20 +876,15 @@ public:
                         {
                             BlueskyParam bsp;
                             bsp.name = pitr;
-                            bsp.setValue(kwargs.value(pitr).toString());
-                            /*
                             if(kwargs.value(pitr).isDouble())
                             {
                                 double p = kwargs.value(pitr).toDouble();
-                                bsp.default_val = QString::number(p);
-                                bsp.kind = BlueskyParamType::Double;
+                                bsp.setValue( QString::number(p) );
                             }
                             else if( kwargs.value(pitr).isString() )
                             {
-                                bsp.default_val = kwargs.value(pitr).toString();
-                                bsp.kind = BlueskyParamType::String;
+                                bsp.setValue(kwargs.value(pitr).toString());
                             }
-                            */
                             plan.parameters.push_back(bsp);
                         }
                     }
