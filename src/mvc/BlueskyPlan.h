@@ -10,7 +10,7 @@
 
 #include <unordered_map>
 
-enum class BlueskyParamType { Numeral = 1, String = 3 };
+enum class BlueskyParamType { Int = 1, Double = 2, String = 3 };
 
 //---------------------------------------------------------------------------
 
