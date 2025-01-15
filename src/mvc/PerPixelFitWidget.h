@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
-#include <QThread>
 #include <QTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -24,7 +23,6 @@
 #include <QEventLoop>
 #include <QLineEdit>
 #include <QGroupBox>
-#include <thread>
 #include "mvc/PerPixelOptionsWidget.h"
 
 //---------------------------------------------------------------------------

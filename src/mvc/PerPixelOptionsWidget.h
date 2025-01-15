@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
-#include <QThread>
 #include <QTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -25,7 +24,6 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QMessageBox>
-#include <thread>
 #include <data_struct/analysis_job.h>
 
 //---------------------------------------------------------------------------

@@ -8,7 +8,6 @@
 
 //---------------------------------------------------------------------------
 
-#include <QThread>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>

@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
-#include <QThread>
 #include <QTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
