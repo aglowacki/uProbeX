@@ -126,15 +126,20 @@ public:
             {
                 if(itr.kind == BlueskyParamType::String)
                 {
-                    if(itr.default_val == "False" || itr.default_val == "True")
+                    kwargs[itr.name] = itr.default_val;
+                }
+                else if(itr.kind == BlueskyParamType::Bool)
+                {
+                    if(itr.default_val == "1")
                     {
-                        QVariant v =  itr.default_val;
-                        kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
+                        itr.default_val = "True";
                     }
                     else
                     {
-                        kwargs[itr.name] = itr.default_val;
+                        itr.default_val = "False";
                     }
+                    QVariant v =  itr.default_val;
+                    kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
                 }
                 else if(itr.kind == BlueskyParamType::Int)
                 {
@@ -463,11 +468,20 @@ public:
                 {
                     bsp.default_val = "False";
                 }
-                bsp.kind == BlueskyParamType::Bool;
+                bsp.kind = BlueskyParamType::Bool;
             }
             else
             {
-                bsp.setValue(kwargs.value(pitr).toString());
+                QString strval = kwargs.value(pitr).toString();
+                if(strval == "True" || strval == "False")
+                {
+                    bsp.default_val = strval;
+                    bsp.kind = BlueskyParamType::Bool;
+                }
+                else
+                {
+                    bsp.setValue(strval);
+                }
             }
             /*
             else if( kwargs.value(pitr).isString() )
