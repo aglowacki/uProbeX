@@ -10,7 +10,7 @@
 
 #include <unordered_map>
 
-enum class BlueskyParamType { Numeral = 1, String = 3 };
+enum class BlueskyParamType { Bool = 0, Int = 1, Double = 2, String = 3 };
 
 //---------------------------------------------------------------------------
 
@@ -42,6 +42,36 @@ struct BlueskyParam
     QString description;
     QString default_val;
     BlueskyParamType kind;
+    void setValue(QString val)
+    {
+        bool found_letter = false;
+        bool found_point = false;
+        for (int i = 0; i < val.length(); ++i) 
+        {
+            if (val[i].isLetter()) 
+            {
+                found_letter = true;
+                break;
+            }
+            if(val[i] == '.')
+            {
+                found_point = true;
+            }
+        }
+        if(found_letter)
+        {
+            kind = BlueskyParamType::String;
+        }
+        else if (found_point)
+        {
+            kind = BlueskyParamType::Double;
+        }
+        else
+        {
+            kind = BlueskyParamType::Int; 
+        }
+        default_val = val;
+    }
 };
 
 //---------------------------------------------------------------------------

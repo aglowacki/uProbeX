@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
-#include <QThread>
 #include <QTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -37,7 +36,7 @@
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
 #include "fitting/models/gaussian_model.h"
 #include <mvc/MapsH5Model.h>
-#include "core/GlobalThreadPool.h"
+//#include "core/GlobalThreadPool.h"
 #include "mvc/OptimizerOptionsWidget.h"
 
 //---------------------------------------------------------------------------

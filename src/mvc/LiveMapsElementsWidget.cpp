@@ -188,6 +188,10 @@ void LiveMapsElementsWidget::updateIp()
     }
     _qserverComm = new BlueskyComm(_context, _qserver_ip_addr->text());
 
+    updateScansAvailable();
+    getQueuedScans();
+    callOpenEnv();
+
     if(_streamWorker != nullptr)
     {
         disconnect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
@@ -197,16 +201,12 @@ void LiveMapsElementsWidget::updateIp()
         delete _streamWorker;
     }
     _streamWorker = new NetStreamWorker(_context, _qline_ip_addr->text(), _qline_port->text(), _qserver_ip_addr->text(), this);
-    connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
-    connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
+    connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived, Qt::QueuedConnection);
+    connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived, Qt::QueuedConnection);
     _streamWorker->start();
     if(_last_packet != nullptr)
         delete _last_packet;
     _last_packet = nullptr;
-
-    updateScansAvailable();
-    getQueuedScans();
-    callOpenEnv();
 }
 
 //---------------------------------------------------------------------------
