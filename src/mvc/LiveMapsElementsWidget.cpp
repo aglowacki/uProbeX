@@ -201,8 +201,8 @@ void LiveMapsElementsWidget::updateIp()
         delete _streamWorker;
     }
     _streamWorker = new NetStreamWorker(_context, _qline_ip_addr->text(), _qline_port->text(), _qserver_ip_addr->text(), this);
-    connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived);
-// debug disable bluesky listener    connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived);
+    connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived, Qt::QueuedConnection);
+    connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived, Qt::QueuedConnection);
     _streamWorker->start();
     if(_last_packet != nullptr)
         delete _last_packet;

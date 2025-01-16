@@ -452,6 +452,19 @@ public:
                 double p = kwargs.value(pitr).toDouble();
                 bsp.setValue( QString::number(p) );
             }
+            else if (kwargs.value(pitr).isBool())
+            {
+                bool p = kwargs.value(pitr).toBool();
+                if(p)
+                {
+                    bsp.default_val = "True";
+                }
+                else
+                {
+                    bsp.default_val = "False";
+                }
+                bsp.kind == BlueskyParamType::Bool;
+            }
             else
             {
                 bsp.setValue(kwargs.value(pitr).toString());

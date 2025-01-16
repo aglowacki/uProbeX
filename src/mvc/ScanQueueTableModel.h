@@ -45,7 +45,7 @@ public:
         {
             return _data.at(0).parameters.size() + 5; // +1 for scan type, + 4 for results
         }
-        return 1; 
+        return 4; 
     }
   
     //---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override 
     {
-        if (!index.isValid() || index.row() >= _data.size())
+        if (!index.isValid() || index.row() < 0 || index.row() >= _data.size())
         {
             return QVariant();
         }
@@ -122,8 +122,10 @@ public:
         const BlueskyPlan& rowData = _data[index.row()];
 
         int section = index.column();
+        int header_size = _data[0].parameters.size();
         int parms_size = rowData.parameters.size();
-        if(section > parms_size + 5)
+        
+        if(section < 0 || section > header_size + 5)
         {
             return QVariant();
         }
@@ -134,11 +136,11 @@ public:
             {
                 return rowData.type;
             }
-            else if(section == (parms_size + 1))
+            else if(section == (header_size + 1))
             {
                 return rowData.result.exit_status;
             }
-            else if(section == (parms_size + 2))
+            else if(section == (header_size + 2))
             {
                 if(rowData.result.time_start == 0.0)
                 {
@@ -147,7 +149,7 @@ public:
                 QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_start, Qt::UTC);
                 return dateTime.toString("yyyy-MM-dd hh:mm:ss");
             }
-            else if(section == (parms_size + 3))
+            else if(section == (header_size + 3))
             {
                 if(rowData.result.time_stop == 0.0)
                 {
@@ -156,13 +158,17 @@ public:
                 QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_stop, Qt::UTC);
                 return dateTime.toString("yyyy-MM-dd hh:mm:ss");
             }
-            else if(section == (parms_size + 4))
+            else if(section == (header_size + 4))
             {
                 return rowData.result.msg;
             }
             else
             {
-                return rowData.parameters.at(section-1).default_val;
+                section = section - 1; // reset to 0 based
+                if(section > -1 && section < parms_size)
+                {
+                    return rowData.parameters.at(section).default_val;
+                }
             }
         }
         else if (role == Qt::BackgroundRole)
@@ -178,9 +184,10 @@ public:
         }
         else if (role == Qt::EditRole)
         {
-            if(section > 0 && section <= parms_size)
+            section = section - 1;
+            if(section > 0 && section < parms_size)
             {
-                return rowData.parameters.at(section-1).default_val;
+                return rowData.parameters.at(section).default_val;
             }
         }
         return QVariant();
@@ -223,7 +230,7 @@ public:
                     {
                         return "msg";
                     }
-                    else if (parms_size > (section -1) ) 
+                    else if ((section -1) < parms_size ) 
                     {
                         return rowData.parameters.at(section-1).name;
                     }
