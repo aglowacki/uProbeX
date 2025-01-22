@@ -33,7 +33,7 @@ ScanRegionLinkDialog::~ScanRegionLinkDialog()
 void ScanRegionLinkDialog::_createLayout()
 {
 
-	_scan_region_dialog = new ScanRegionDialog();
+	_scan_region_dialog = new ScanRegionDialog(true);
 
 	_btn_save = new QPushButton("Save");
 	_btn_cancel = new QPushButton("Cancel");
@@ -51,7 +51,7 @@ void ScanRegionLinkDialog::_createLayout()
 
 	setLayout(main_layout);
 
-	setWindowTitle("Scan Region");
+	setWindowTitle("Scan Region Link");
 }
 
 //---------------------------------------------------------------------------

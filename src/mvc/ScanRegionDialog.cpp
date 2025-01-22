@@ -13,27 +13,35 @@
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
-
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
- 	_cbDelegate = new ComboBoxBoolDelegate();
-	_cbDelegate->setCustomCol(1);
-	_avail_scans = nullptr;
-    _createLayout();
+	_createLayout(false);
+}
 
+
+
+ScanRegionDialog::ScanRegionDialog(bool minimal=false) : QDialog()
+{
+    _createLayout(minimal);
 }
 
 //---------------------------------------------------------------------------
 
 ScanRegionDialog::~ScanRegionDialog()
 {
-
+	if (_cbDelegate != nullptr)
+	{
+		delete _cbDelegate;
+	}
 }
 
 //---------------------------------------------------------------------------
 
-void ScanRegionDialog::_createLayout()
+void ScanRegionDialog::_createLayout(bool minimal)
 {
+	_cbDelegate = new ComboBoxBoolDelegate();
+	_cbDelegate->setCustomCol(1);
+	_avail_scans = nullptr;
 
 	_scan_name = new QLineEdit(" ");
 	_lbl_region_name = new QLabel("Region Name: ");
@@ -68,7 +76,7 @@ void ScanRegionDialog::_createLayout()
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	
-	QHBoxLayout *name_layout = new QHBoxLayout();
+	QHBoxLayout* name_layout = new QHBoxLayout();
 	name_layout->addWidget(_lbl_region_name);
 	name_layout->addWidget(_scan_name);
 
@@ -92,12 +100,17 @@ void ScanRegionDialog::_createLayout()
 	button_layout->addWidget(_btn_update_and_queue);
 	button_layout->addWidget(_btn_cancel);
 
-	main_layout->addItem(name_layout);
+	if (minimal)
+	{
+		main_layout->addItem(name_layout);
+	}
 	main_layout->addItem(type_layout);
 	main_layout->addWidget(_scan_options);
-	main_layout->addItem(batch_layout);
-	main_layout->addItem(button_layout);
-
+	if (minimal)
+	{
+		main_layout->addItem(batch_layout);
+		main_layout->addItem(button_layout);
+	}
 	setLayout(main_layout);
 
 	setWindowTitle("Scan Region");
