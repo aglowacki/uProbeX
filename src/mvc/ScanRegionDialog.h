@@ -59,7 +59,7 @@ public slots:
 
    void scanChanged(const QString &);
 
-   void onBatchScanChanged(Qt::CheckState);
+   void onBatchScanChanged(int);
 
 protected:
 

@@ -45,7 +45,7 @@ void ScanRegionDialog::_createLayout()
 	_scan_options->setModel(_scan_table_model);
 
 	_chk_batch_scan = new QCheckBox("Set Batch Scan");
-	connect(_chk_batch_scan, &QCheckBox::checkStateChanged, this, &ScanRegionDialog::onBatchScanChanged);
+	connect(_chk_batch_scan, &QCheckBox::stateChanged, this, &ScanRegionDialog::onBatchScanChanged);
 	
 	QLabel* startLabel = new QLabel("Start Value");
 	QLabel* endLabel = new QLabel("End Value");
@@ -201,8 +201,9 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 
 //---------------------------------------------------------------------------
 
-void ScanRegionDialog::onBatchScanChanged(Qt::CheckState state)
+void ScanRegionDialog::onBatchScanChanged(int val)
 {
+	auto state = _chk_batch_scan->checkState();
 
 	if(state == Qt::Checked)
 	{
