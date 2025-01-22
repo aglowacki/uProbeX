@@ -32,6 +32,7 @@
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"
+#include <mvc/ScanRegionLinkDialog.h>
 
 
 class Solver;
@@ -164,6 +165,8 @@ public:
 
    void load_live_coord_settings();
 
+   void setEnableChangeBackground(bool val);
+
 public slots:
 
    /**
@@ -188,13 +191,16 @@ protected slots:
    /**
     * @brief addMicroProbeRegion
     */
-   void addMicroProbeRegion();
+   void onAddMicroProbeRegion();
+
+   void onConfigRegionLink();
 
    /**
     * @brief zoomMicroProbeRegion
     */
    void zoomMicroProbeRegion();
 
+   void onExportSelectedRegionInformation();
    /**
     * @brief exportSelectedRegionInformation
     * @param summaryInformation - When pointer is provided, only simulated output is generated. (must be specified with summaryWarnings)
@@ -292,6 +298,10 @@ protected slots:
    void useUpdatedSolverVariables(const QMap<QString, double> vars);
 
    void linkRegionToDataset();
+
+   void onUpdateBackgroundImage();
+
+   void onCaptureBackgroundImage();
 
 protected:
 
@@ -515,18 +525,7 @@ private:
     * @brief m_microProbePvSet
     */
    bool m_microProbePvSet;
-   /*
-   CAEventHandler* m_pvXHandler;
 
-
-   CAEventHandler* m_pvYHandler;
-
-
-   boost::shared_ptr<PV> m_pvX;
-
-
-   boost::shared_ptr<PV> m_pvY;
-    */
    /**
     * @brief m_pxValue
     */
@@ -557,10 +556,16 @@ private:
     */
    QPushButton* m_btnAddMicroProbe;
 
+   QPushButton* m_btnConfigRegionLink;
+
    /**
     * @brief m_btnRunSolver
     */
    QPushButton* m_btnRunSolver;
+
+   QPushButton* _btnSetBackground;
+
+   QPushButton* _btnCaptureBackground;
 
    /**
     * @brief m_calibrationTabWidget
@@ -653,6 +658,8 @@ private:
    QMap<QAction*, RegionCaller*> m_actionMap;
 
    std::map<QString, BlueskyPlan> *_avail_scans;
+
+   ScanRegionDialog* _scan_region_dialog;
 
 };
 

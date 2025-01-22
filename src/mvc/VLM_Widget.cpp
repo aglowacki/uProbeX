@@ -42,6 +42,7 @@
 
 #include <mvc/SolverWidget.h>
 #include <mvc/SolverProfileWidget.h>
+#include <mvc/TIFF_Model.h>
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -84,6 +85,11 @@ VLM_Widget::VLM_Widget(QString dataset_name, QWidget* parent) : AbstractImageWid
 VLM_Widget::~VLM_Widget()
 {
 
+    if (_scan_region_dialog != nullptr)
+    {
+        delete _scan_region_dialog;
+    }
+
    if(m_solverParameterParse != nullptr)
    {
       delete m_solverParameterParse;
@@ -124,6 +130,8 @@ void VLM_Widget::_init()
    m_lightToMicroCoordModel = nullptr;
    m_coordinateModel = nullptr;
    m_solver = nullptr;
+   _btnSetBackground = nullptr;
+   _scan_region_dialog = new ScanRegionDialog();
    m_solverParameterParse = new SolverParameterParse();
 
    checkMicroProbePVs();
@@ -233,7 +241,14 @@ void VLM_Widget::addTopWindowPoints()
 
 //---------------------------------------------------------------------------
 
-void VLM_Widget::addMicroProbeRegion()
+void VLM_Widget::onConfigRegionLink()
+{
+    _scan_region_dialog->show();
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::onAddMicroProbeRegion()
 {
    ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(_avail_scans);
    ////UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
@@ -461,6 +476,13 @@ void VLM_Widget::zoomMicroProbeRegion()
    if (item != nullptr) {
       item->zoomToRegion();
    }
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::onExportSelectedRegionInformation()
+{
+    exportSelectedRegionInformation(nullptr, nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -945,41 +967,22 @@ void VLM_Widget::createActions()
 {
 
    m_addCalibrationAction = new QAction("Add Point", this);
-
-   connect(m_addCalibrationAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addCalibration()));
+   connect(m_addCalibrationAction, &QAction::triggered, this, &VLM_Widget::addCalibration);
 
    m_addMicroPrboeRegionAction = new QAction("Add Region", this);   
-
-   connect(m_addMicroPrboeRegionAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addMicroProbeRegion()));
+   connect(m_addMicroPrboeRegionAction,&QAction::triggered,this,&VLM_Widget::onAddMicroProbeRegion);
 
    m_zoomMicroProbeRegionAction = new QAction("Zoom to Region", this);
-
-   connect(m_zoomMicroProbeRegionAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(zoomMicroProbeRegion()));
+   connect(m_zoomMicroProbeRegionAction,&QAction::triggered,this,&VLM_Widget::zoomMicroProbeRegion);
 
    m_exportMicroProbeRegionInfoAction = new QAction("Export Region Information", this);
-
-   connect(m_exportMicroProbeRegionInfoAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(exportSelectedRegionInformation()));
+   connect(m_exportMicroProbeRegionInfoAction,&QAction::triggered,this,&VLM_Widget::onExportSelectedRegionInformation);
 
    _linkRegionToDatasetAction = new QAction("Link to Dataset", this);
    connect(_linkRegionToDatasetAction, &QAction::triggered, this, &VLM_Widget::linkRegionToDataset);
 
    m_grabMicroProbePVAction = new QAction("Grab MicroProbe PV", this);
-   connect(m_grabMicroProbePVAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(grabMicroProbePV()));
+   connect(m_grabMicroProbePVAction,&QAction::triggered,this,&VLM_Widget::grabMicroProbePV);
 }
 
 //---------------------------------------------------------------------------
@@ -1077,21 +1080,35 @@ void VLM_Widget::createCalibrationTab()
    m_btnAddBottomWindowPoints = new QPushButton("Add Bottom Window Points");
    connect(m_btnAddBottomWindowPoints, &QPushButton::clicked, this, &VLM_Widget::addTopWindowPoints);
 
+   _btnSetBackground = new QPushButton("Set Background Image");
+   connect(_btnSetBackground, &QPushButton::clicked, this, &VLM_Widget::onUpdateBackgroundImage);
+
+   _btnSetBackground->setVisible(false);
+
+   _btnCaptureBackground = new QPushButton("Capture Background Image");
+   connect(_btnCaptureBackground, &QPushButton::clicked, this, &VLM_Widget::onCaptureBackgroundImage);
+
+   _btnCaptureBackground->setVisible(false);
+
    m_btnRunSolver = new QPushButton("Update Transform");
    connect(m_btnRunSolver, &QPushButton::clicked, this, &VLM_Widget::openSolver);
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
    QHBoxLayout* buttonLayout = new QHBoxLayout();
    QHBoxLayout* buttonLayout2 = new QHBoxLayout();
+   QHBoxLayout* buttonLayout3 = new QHBoxLayout();
    QHBoxLayout* offsetLayout = new QHBoxLayout();
 
    buttonLayout->addWidget(m_btnAddCalibration);
    buttonLayout->addWidget(m_btnRunSolver);
    buttonLayout2->addWidget(m_btnAddTopWindowPoints);
    buttonLayout2->addWidget(m_btnAddBottomWindowPoints);
+   buttonLayout3->addWidget(_btnSetBackground);
+   //buttonLayout3->addWidget(_btnCaptureBackground);
    infoLayout->addLayout(offsetLayout);
    infoLayout->addLayout(buttonLayout);
    infoLayout->addLayout(buttonLayout2);
+   infoLayout->addLayout(buttonLayout3);
    infoLayout->addWidget(m_calAnnoTreeView);
 
    m_calibrationTabWidget = new QWidget(this);
@@ -1193,10 +1210,7 @@ void VLM_Widget::createMicroProbeMenu()
 
                if(prc != nullptr)
                {
-                  connect(action,
-                          SIGNAL(triggered()),
-                          this,
-                          SLOT(CallPythonFunc()));
+                  connect(action,&QAction::triggered,this,&VLM_Widget::CallPythonFunc);
 
                }
                else
@@ -1217,11 +1231,7 @@ void VLM_Widget::createMicroProbeTab()
 
    m_mpTreeModel = new gstar::AnnotationTreeModel();
 
-   connect(m_mpTreeModel,
-           SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-           this,
-           SLOT(microModelDataChanged(const QModelIndex &,
-                                      const QModelIndex &)));
+   connect(m_mpTreeModel, &gstar::AnnotationTreeModel::dataChanged, this, &VLM_Widget::microModelDataChanged);
 
    m_mpSelectionModel = new QItemSelectionModel(m_mpTreeModel);
 
@@ -1233,30 +1243,23 @@ void VLM_Widget::createMicroProbeTab()
    m_mpAnnoTreeView->setHeaderHidden(true);
    m_mpAnnoTreeView->setSelectionModel(m_mpSelectionModel);
    m_mpAnnoTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-   connect(m_mpAnnoTreeView,
-          SIGNAL(customContextMenuRequested(const QPoint &)),
-          this,
-          SLOT(treeContextMenu(const QPoint &)));
-
-   connect(m_mpAnnoTreeView,
-           SIGNAL(doubleClicked(const QModelIndex &)),
-           this,
-           SLOT(treeDoubleClicked(const QModelIndex &)));
-
-   connect(m_mpAnnoTreeView,
-           &QTreeView::clicked,
-           this,
-           &VLM_Widget::treeDoubleClicked);
+   connect(m_mpAnnoTreeView, &QTreeView::customContextMenuRequested, this, &VLM_Widget::treeContextMenu);
+   connect(m_mpAnnoTreeView, &QTreeView::doubleClicked, this, &VLM_Widget::treeDoubleClicked);
+   connect(m_mpAnnoTreeView, &QTreeView::clicked, this, &VLM_Widget::treeDoubleClicked);
 
 
    m_btnAddMicroProbe = new QPushButton("Add Micro Probe Region");
-   connect(m_btnAddMicroProbe,
-           SIGNAL(clicked()),
-           this,
-           SLOT(addMicroProbeRegion()));
+   connect(m_btnAddMicroProbe, &QPushButton::clicked, this, &VLM_Widget::onAddMicroProbeRegion);
+
+   m_btnConfigRegionLink = new QPushButton("Config Region Link");
+   connect(m_btnConfigRegionLink, &QPushButton::clicked, this, &VLM_Widget::onConfigRegionLink);
+   
+   QHBoxLayout* btnLayout = new QHBoxLayout();
+   btnLayout->addWidget(m_btnAddMicroProbe);
+   btnLayout->addWidget(m_btnConfigRegionLink);
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
-   infoLayout->addWidget(m_btnAddMicroProbe);
+   infoLayout->addItem(btnLayout);
    infoLayout->addWidget(m_mpAnnoTreeView);
 
    m_microProbeTabWidget = new QWidget(this);
@@ -1270,10 +1273,7 @@ void VLM_Widget::createMicroProbeTab()
 void VLM_Widget::createLayout()
 {
 
-   connect(m_tabWidget,
-           SIGNAL(currentChanged(int )),
-           this,
-           SLOT(tabIndexChanged(int )));
+   connect(m_tabWidget, &QTabWidget::currentChanged, this, &VLM_Widget::tabIndexChanged);
 
    createCalibrationTab();
    createMicroProbeTab();
@@ -2513,6 +2513,59 @@ void VLM_Widget::windowChanged(Qt::WindowStates oldState,
    {
       m_imageViewWidget->resizeEvent(nullptr);
    }
+
+}
+
+//--------------------------------------------------------------------------
+
+void VLM_Widget::setEnableChangeBackground(bool val)
+{
+    if (_btnSetBackground != nullptr)
+    {   
+        _btnSetBackground->setVisible(val);
+    }
+}
+
+//--------------------------------------------------------------------------
+
+void VLM_Widget::onUpdateBackgroundImage()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif)");
+    if (fileName.length() > 0)
+    {
+        
+        QImageReader img_reader(fileName);
+        QImage image = img_reader.read();
+        if (image.width() > 0 && image.height() > 0)
+        {
+            updateFrame(&image);
+        }
+        else
+        {
+            if (fileName.endsWith(".tiff") || fileName.endsWith(".tif"))
+            {
+                TIFF_Model tmodel;
+           
+                if (tmodel.load(fileName))
+                {
+                    updateFrame(tmodel.getImage());
+                }
+                else
+                {
+                    logE << "Failed to load image : " << fileName.toStdString() << "\n";
+                }
+            }
+            else
+            {
+                logE << "Failed to load image : " << fileName.toStdString() << "\n";
+            }
+        }
+    }
+}
+//--------------------------------------------------------------------------
+
+void VLM_Widget::onCaptureBackgroundImage()
+{
 
 }
 

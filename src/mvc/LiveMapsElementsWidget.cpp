@@ -145,6 +145,7 @@ void LiveMapsElementsWidget::createLayout()
     gstar::CoordinateModel *coord_model = new gstar::CoordinateModel(&_linear_trans);
     _vlm_widget->setCoordinateModel(coord_model);
     _vlm_widget->load_live_coord_settings();
+    _vlm_widget->setEnableChangeBackground(true);
     connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScan);
 
     _scan_queue_widget = new ScanQueueWidget();
