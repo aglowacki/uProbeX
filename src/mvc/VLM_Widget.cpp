@@ -85,9 +85,9 @@ VLM_Widget::VLM_Widget(QString dataset_name, QWidget* parent) : AbstractImageWid
 VLM_Widget::~VLM_Widget()
 {
 
-    if (_scan_region_dialog != nullptr)
+    if (_scan_region_link_dialog != nullptr)
     {
-        delete _scan_region_dialog;
+        delete _scan_region_link_dialog;
     }
 
    if(m_solverParameterParse != nullptr)
@@ -131,7 +131,7 @@ void VLM_Widget::_init()
    m_coordinateModel = nullptr;
    m_solver = nullptr;
    _btnSetBackground = nullptr;
-   _scan_region_dialog = new ScanRegionDialog();
+   _scan_region_link_dialog = new ScanRegionLinkDialog();
    m_solverParameterParse = new SolverParameterParse();
 
    checkMicroProbePVs();
@@ -243,7 +243,7 @@ void VLM_Widget::addTopWindowPoints()
 
 void VLM_Widget::onConfigRegionLink()
 {
-    _scan_region_dialog->show();
+    _scan_region_link_dialog->show();
 }
 
 //---------------------------------------------------------------------------
@@ -2566,10 +2566,18 @@ void VLM_Widget::onUpdateBackgroundImage()
 
 void VLM_Widget::onCaptureBackgroundImage()
 {
-
+   
 }
 
-/*--------------------------------------------------------------------------*/
+//--------------------------------------------------------------------------
+
+void VLM_Widget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
+{
+    _avail_scans = avail_scans;
+    _scan_region_link_dialog->setAvailScans(avail_scans);
+}
+
+//--------------------------------------------------------------------------
 
 void VLM_Widget::widgetChanged(bool enable)
 {

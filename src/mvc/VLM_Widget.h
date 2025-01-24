@@ -160,8 +160,7 @@ public:
     */
    void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
 
-   // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
-   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 
    void load_live_coord_settings();
 
@@ -659,7 +658,7 @@ private:
 
    std::map<QString, BlueskyPlan> *_avail_scans;
 
-   ScanRegionDialog* _scan_region_dialog;
+   ScanRegionLinkDialog* _scan_region_link_dialog;
 
 };
 

@@ -36,8 +36,6 @@ public:
     */
    ScanRegionDialog();
 
-   ScanRegionDialog(bool minimal);
-
    /**
     * Destructor.
     */
@@ -65,7 +63,7 @@ public slots:
 
 protected:
 
-   void _createLayout(bool minimal);
+   void _createLayout();
 
 private:
 	QLineEdit *_scan_name;

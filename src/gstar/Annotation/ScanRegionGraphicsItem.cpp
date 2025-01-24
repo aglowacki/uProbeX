@@ -22,7 +22,7 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * 
    _scan_dialog.setAvailScans(avail_scans);
    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
-   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
+   //prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
 
 }
 

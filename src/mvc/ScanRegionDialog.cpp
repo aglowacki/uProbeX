@@ -15,14 +15,7 @@
 //---------------------------------------------------------------------------
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
-	_createLayout(false);
-}
-
-
-
-ScanRegionDialog::ScanRegionDialog(bool minimal=false) : QDialog()
-{
-    _createLayout(minimal);
+	_createLayout();
 }
 
 //---------------------------------------------------------------------------
@@ -37,7 +30,7 @@ ScanRegionDialog::~ScanRegionDialog()
 
 //---------------------------------------------------------------------------
 
-void ScanRegionDialog::_createLayout(bool minimal)
+void ScanRegionDialog::_createLayout()
 {
 	_cbDelegate = new ComboBoxBoolDelegate();
 	_cbDelegate->setCustomCol(1);
@@ -100,17 +93,11 @@ void ScanRegionDialog::_createLayout(bool minimal)
 	button_layout->addWidget(_btn_update_and_queue);
 	button_layout->addWidget(_btn_cancel);
 
-	if (minimal)
-	{
-		main_layout->addItem(name_layout);
-	}
+	main_layout->addItem(name_layout);
 	main_layout->addItem(type_layout);
 	main_layout->addWidget(_scan_options);
-	if (minimal)
-	{
-		main_layout->addItem(batch_layout);
-		main_layout->addItem(button_layout);
-	}
+	main_layout->addItem(batch_layout);
+	main_layout->addItem(button_layout);
 	setLayout(main_layout);
 
 	setWindowTitle("Scan Region");

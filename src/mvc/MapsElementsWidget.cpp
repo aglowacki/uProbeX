@@ -223,7 +223,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     _extra_pvs_table_widget = new QTableWidget(1, 4);
     _extra_pvs_table_widget->setHorizontalHeaderLabels(extra_pv_header);
-
+    _extra_pvs_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    
     QWidget* w_normalize = new QWidget();
     QHBoxLayout* hbox_normalize = new QHBoxLayout();
     hbox_normalize->addWidget(_cb_analysis);

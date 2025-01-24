@@ -8,7 +8,10 @@
 
 //---------------------------------------------------------------------------
 
-#include <mvc/ScanRegionDialog.h>
+#include <QDialog>
+#include <QPushButton>
+#include <QComboBox>
+#include "mvc/BlueskyPlan.h"
 
 //---------------------------------------------------------------------------
 
@@ -22,16 +25,18 @@ public:
    /**
     * Constructor.
     */
-   ScanRegionLinkDialog();
+    ScanRegionLinkDialog();
 
    /**
     * Destructor.
     */
-   ~ScanRegionLinkDialog();
+    ~ScanRegionLinkDialog();
 
-signals:
-	
+    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
+
 public slots:
+
+   void onScanChanged(const QString &);
 
    void onSave();
 
@@ -41,11 +46,30 @@ protected:
 
 private:
    
+    QComboBox *_scan_type;
+
+    QComboBox *_cb_link_top_y;
+    
+    QComboBox *_cb_link_left_x;
+    
+    QComboBox *_cb_link_right_x;
+    
+    QComboBox *_cb_link_bottom_y;
+
+    QComboBox *_cb_link_center_x;
+
+    QComboBox *_cb_link_center_y;
+
+    QComboBox *_cb_link_width;
+
+    QComboBox *_cb_link_height;
+
+    std::map<QString, BlueskyPlan> *_avail_scans;
+
     QPushButton *_btn_save;
 
     QPushButton *_btn_cancel;
 
-    ScanRegionDialog* _scan_region_dialog;
 };
 
 
