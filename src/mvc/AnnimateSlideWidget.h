@@ -33,25 +33,23 @@ public:
 
    void setAnimEnabled(bool val);
 
-protected:
-
-   virtual void enterEvent(QEnterEvent *event) override 
+   
+private slots:
+   void onToggle() 
    {
       if(_anim_enabled)
       {
-         animateSlideOut();
+         if(_isShown)
+         {
+            animateSlideIn();
+         }
+         else
+         {
+            animateSlideOut();
+         }
       }  
    }
 
-   virtual void leaveEvent(QEvent *event) override 
-   {
-      if(_anim_enabled)
-      {
-         animateSlideIn();  
-      }
-   }
-
-private slots:
    void animateSlideIn() 
    {
       // Animate the widget to slide in
@@ -64,14 +62,15 @@ private slots:
             _saved_width = _anim_widget->width();
             _first = false;
             _anim_hide->setStartValue(_saved_width);
-            _anim_hide->setEndValue(20);
+            _anim_hide->setEndValue(10);
 
-            _anim_show->setStartValue(20);
+            _anim_show->setStartValue(10);
             _anim_show->setEndValue(_saved_width);
          }
 
          _cur_state = SlideState::SlideIn;
          _anim_hide->start();
+         _isShown = false;
       }
    }
 
@@ -83,16 +82,19 @@ private slots:
       {
           _cur_state = SlideState::SlideOut;
          _anim_show->start();
+         _isShown = true;
       }
    }
 
 private:
+   QPushButton *_btn_toggle;
    QWidget* _anim_widget;
    QPropertyAnimation *_anim_hide;
    QPropertyAnimation *_anim_show;
    bool _anim_enabled;
    SlideState _cur_state;
    int _saved_width;
+   bool _isShown;
    bool _first;
 };
 
