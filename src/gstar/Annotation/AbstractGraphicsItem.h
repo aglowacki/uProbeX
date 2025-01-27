@@ -45,7 +45,7 @@ public:
    /**
     * @brief Destructor.
     */
-   ~AbstractGraphicsItem();
+   virtual ~AbstractGraphicsItem();
 
    virtual QDialog* get_custom_dialog() { return nullptr; }
 
