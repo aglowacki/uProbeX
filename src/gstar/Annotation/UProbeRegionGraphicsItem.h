@@ -52,6 +52,8 @@ public:
    UProbeRegionGraphicsItem(QMap<QString, QString>& marker,
                             AbstractGraphicsItem* parent = 0);
 
+   virtual ~UProbeRegionGraphicsItem();
+
    /**
     * @brief coneRegion
     * @param uProbeRegion

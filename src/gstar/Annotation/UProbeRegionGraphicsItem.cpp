@@ -108,6 +108,13 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
 
 //---------------------------------------------------------------------------
 
+UProbeRegionGraphicsItem::~UProbeRegionGraphicsItem()
+{
+
+}
+
+//---------------------------------------------------------------------------
+
 UProbeRegionGraphicsItem* UProbeRegionGraphicsItem::cloneRegion()
 {
    UProbeRegionGraphicsItem* newRegion = new UProbeRegionGraphicsItem();
@@ -358,16 +365,14 @@ void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
          m_rect.setY(last_y);
          m_rect.setHeight(5);
       }
+      viewChanged();
    }
-   // No grip selected (this is a move)
-   else {
-      // Queue an update
+   else 
+   {
       update();
-
       // Pass mouse position
       QGraphicsItem::mouseMoveEvent(event);
       setPos(pos().x(), pos().y());
-
       // Check bounds
       /*      setPos(qBound(boundRect.left(), pos().x(),
                     boundRect.right() - m_rect.width()),
@@ -375,9 +380,7 @@ void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
                     boundRect.bottom() - m_rect.height()));*/
       // Emit change
       //emit itemChanged(this);
-
    }
-
    setGripSize();
 }
 
@@ -885,10 +888,11 @@ void UProbeRegionGraphicsItem::updateView()
 {
    //double x = m_positionXProp->getValue().toDouble();
    //double y = m_positionYProp->getValue().toDouble();
-
+   
    setSize(m_sizeProp->getValue().toDouble());
    //setX(x);
    //setY(y);
+   update(this->m_rect);
 
    m_outlineColor = QColor(m_outlineColorProp->getValue().toString());
 
