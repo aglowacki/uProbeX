@@ -272,20 +272,14 @@ void UProbeMarkerGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
    if(m_mouseOverPixelCoordModel != nullptr)
    {
-      disconnect(m_mouseOverPixelCoordModel,
-                 SIGNAL(modelUpdated()),
-                 this,
-                 SLOT(updateModel()));
+      disconnect(m_mouseOverPixelCoordModel,&CoordinateModel::modelUpdated,this,&UProbeMarkerGraphicsItem::updateModel);
    }
 
    m_mouseOverPixelCoordModel = model;
 
    if(m_mouseOverPixelCoordModel != nullptr)
    {
-      connect(m_mouseOverPixelCoordModel,
-              SIGNAL(modelUpdated()),
-              this,
-              SLOT(updateModel()));
+      connect(m_mouseOverPixelCoordModel,&CoordinateModel::modelUpdated,this,&UProbeMarkerGraphicsItem::updateModel);
    }
 
 }
@@ -297,20 +291,14 @@ void UProbeMarkerGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
    if(m_lightToMicroCoordModel != nullptr)
    {
-      disconnect(m_lightToMicroCoordModel,
-                 SIGNAL(modelUpdated()),
-                 this,
-                 SLOT(updateModel()));
+      disconnect(m_lightToMicroCoordModel,&CoordinateModel::modelUpdated,this,&UProbeMarkerGraphicsItem::updateModel);
    }
 
    m_lightToMicroCoordModel = model;
 
    if(m_lightToMicroCoordModel != nullptr)
    {
-      connect(m_lightToMicroCoordModel,
-              SIGNAL(modelUpdated()),
-              this,
-              SLOT(updateModel()));
+      connect(m_lightToMicroCoordModel,&CoordinateModel::modelUpdated,this,&UProbeMarkerGraphicsItem::updateModel);
    }
 
 }

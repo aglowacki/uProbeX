@@ -250,12 +250,12 @@ void VLM_Widget::onConfigRegionLink()
 
 void VLM_Widget::onAddMicroProbeRegion()
 {
-   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(_avail_scans);
-   ////UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
+   ////ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(_avail_scans);
+   UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
 
-   connect(annotation, &ScanRegionGraphicsItem::scanUpdated, this, &VLM_Widget::onScanUpdated);
+   ////connect(annotation, &ScanRegionGraphicsItem::scanUpdated, this, &VLM_Widget::onScanUpdated);
 
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,
@@ -2091,9 +2091,9 @@ void PreferencesSolverOption::runSolver()
 
     m_solverWidget = new SolverWidget();
     connect(m_solverWidget,
-        SIGNAL(useUpdatedVariables(const QMap<QString, double>)),
+        &useUpdatedVariables,
         this,
-        SLOT(useUpdatedSolverVariables(const QMap<QString, double>)));
+        &useUpdatedSolverVariables);
 
     newMinCoefs = m_solver->getMinCoef();
     m_solverWidget->setCoefs(minCoefs, newMinCoefs);

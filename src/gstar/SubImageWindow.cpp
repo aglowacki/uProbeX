@@ -78,7 +78,6 @@ SubImageWindow::SubImageWindow(const SubImageWindow& win)
 
 SubImageWindow::~SubImageWindow()
 {
-    delete scene;
     delete view;
     delete cb_image_label;
     delete counts_coord_model;

@@ -52,8 +52,8 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
    _alpha_value->setName("Alpha %");
    _alpha_value->setValue(70);
 
-   connect(_draw_mask, SIGNAL(valueChanged()), this ,SLOT(drawmask_changed()));
-   connect(_erase_mask, SIGNAL(valueChanged()), this ,SLOT(erasemask_changed()));
+   connect(_draw_mask, &AnnotationProperty::valueChanged, this ,&HotSpotMaskGraphicsItem::drawmask_changed);
+   connect(_erase_mask, &AnnotationProperty::valueChanged, this ,&HotSpotMaskGraphicsItem::erasemask_changed);
 
    m_data.push_back(_enable_mask);
    m_data.push_back(_display_mask);

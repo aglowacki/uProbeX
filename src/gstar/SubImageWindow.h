@@ -36,7 +36,7 @@ namespace gstar
 
         SubImageWindow(const SubImageWindow&);
 
-        ~SubImageWindow();
+        virtual ~SubImageWindow();
 
 		bool contrast_updated() { return _contrast_updated; }
 

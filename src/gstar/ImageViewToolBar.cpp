@@ -17,7 +17,7 @@ using namespace gstar;
 
 ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
 {
-   connect(widget, SIGNAL(resetZoomToolBar()), this, SLOT(resetZoomToolBar()));
+   connect(widget, &ImageViewWidget::resetZoomToolBar, this, &ImageViewToolBar::resetZoomToolBar);
 
    m_toolbar = new QToolBar();
    m_cursorAction = new QAction(QIcon(":images/cursor.png"),
@@ -25,30 +25,29 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
                                 nullptr);
    m_cursorAction->setCheckable(true);
    m_cursorAction->setChecked(true);
-   connect(m_cursorAction, SIGNAL(triggered()), this, SLOT(clickCursor()));
+   connect(m_cursorAction, &QAction::triggered, this, &ImageViewToolBar::clickCursor);
 
    m_zoomInAction = new QAction(QIcon(":/images/zoomin.png"),
                                 tr("Zoom In"), this);
    m_zoomInAction -> setCheckable(true);
-   connect(m_zoomInAction, SIGNAL(triggered()), this, SLOT(clickZoomIn()));
+   connect(m_zoomInAction, &QAction::triggered, this, &ImageViewToolBar::clickZoomIn);
 
    // Toolbar zoom out action
    m_zoomOutAction = new QAction(QIcon(":/images/zoomout.png"),
                                  tr("Zoom Out"), this);
    m_zoomOutAction -> setCheckable(true);
-   connect(m_zoomOutAction, SIGNAL(triggered()), this, SLOT(clickZoomOut()));
+   connect(m_zoomOutAction, &QAction::triggered, this, &ImageViewToolBar::clickZoomOut);
 
    // Toolbar zoom to original image.
    m_zoomOriginalAction = new QAction(QIcon(":/images/zoomoriginal.png"),
                                        tr("Actual Size"), this);
-   connect(m_zoomOriginalAction, SIGNAL(triggered()), this,
-          SLOT(clickZoomOriginal()));
+   connect(m_zoomOriginalAction, &QAction::triggered, this, &ImageViewToolBar::clickZoomOriginal);
 
    // Toolbar fill action
    m_fillAction = new QAction(QIcon(":/images/fill.png"),
                               tr("Fill"), this);
    m_fillAction -> setCheckable(true);
-   connect(m_fillAction, SIGNAL(triggered()), this, SLOT(clickFill()));
+   connect(m_fillAction, &QAction::triggered, this, &ImageViewToolBar::clickFill);
 
    QLabel* m_lbl = new QLabel("Zoom (%) :");
    m_zoomPercent = new QComboBox();

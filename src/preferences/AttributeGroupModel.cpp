@@ -46,20 +46,11 @@ void AttributeGroupModel::appendGroup(AttributeGroup *mGroup)
    m_groups.append(mGroup);
    endInsertRows();
 
-   connect(mGroup,
-           SIGNAL(Inserted(AttributeGroup*, int)),
-           this,
-           SLOT(Inserted(AttributeGroup*, int)));
+   connect(mGroup,&AttributeGroup::Inserted,this,&AttributeGroupModel::Inserted);
 
-   connect(mGroup,
-           SIGNAL(ReOrdered(AttributeGroup*, int, int)),
-           this,
-           SLOT(ReOrdered(AttributeGroup*, int, int)));
+   connect(mGroup,&AttributeGroup::ReOrdered,this,&AttributeGroupModel::ReOrdered);
 
-   connect(mGroup,
-           SIGNAL(Removed(AttributeGroup*, int)),
-           this,
-           SLOT(Removed(AttributeGroup*, int)));
+   connect(mGroup,&AttributeGroup::Removed,this,&AttributeGroupModel::Removed);
 
 }
 
@@ -418,15 +409,9 @@ QModelIndex AttributeGroupModel::parent(const QModelIndex& index)const
 void AttributeGroupModel::removeGroup(AttributeGroup *grp)
 {
 
-   disconnect(grp,
-           SIGNAL(Inserted(AttributeGroup*, int)),
-           this,
-           SLOT(Inserted(AttributeGroup*, int)));
+   disconnect(grp,&AttributeGroup::Inserted,this,&AttributeGroupModel::Inserted);
 
-   disconnect(grp,
-           SIGNAL(Removed(AttributeGroup*, int)),
-           this,
-           SLOT(Removed(AttributeGroup*, int)));
+   disconnect(grp,&AttributeGroup::Removed,this,&AttributeGroupModel::Removed);
 
    int idx = m_groups.indexOf(grp);
    if(idx > -1)

@@ -66,40 +66,40 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _cb_add_shell->addItem("L");
     _cb_add_shell->addItem("M");
 
-    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(pileup_chk_changed(int)) );
-    connect(_chk_is_pileup, SIGNAL(stateChanged(int)), this, SLOT(element_selection_changed(int)));
+    connect(_chk_is_pileup, &QCheckBox::stateChanged, this, &FitSpectraWidget::pileup_chk_changed);
+    connect(_chk_is_pileup, &QCheckBox::stateChanged, this, &FitSpectraWidget::element_selection_changed);
 
-    connect(_cb_add_shell, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
-    connect(_cb_add_elements, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
-    connect(_cb_pileup_elements, SIGNAL(currentIndexChanged(int)), this, SLOT(element_selection_changed(int)));
+    connect(_cb_add_shell, &QComboBox::currentIndexChanged, this, &FitSpectraWidget::element_selection_changed);
+    connect(_cb_add_elements, &QComboBox::currentIndexChanged, this, &FitSpectraWidget::element_selection_changed);
+    connect(_cb_pileup_elements, &QComboBox::currentIndexChanged, this, &FitSpectraWidget::element_selection_changed);
 
     createLayout();
 
     _spectra_background.resize(10);
     _spectra_background.Zero(10);
-    connect(this, SIGNAL(signal_finished_fit()), this, SLOT(finished_fitting()));
+    connect(this, &FitSpectraWidget::signal_finished_fit, this, &FitSpectraWidget::finished_fitting);
 
 
     _set_fit_params_bounds_menu = new QMenu("Set Bounds");
     QAction* action_bounds = _set_fit_params_bounds_menu->addAction("FIXED");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_fixed(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::set_fit_params_bounds_fixed);
 
     action_bounds = _set_fit_params_bounds_menu->addAction("FIT");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_fit(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::set_fit_params_bounds_fit);
 
     action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_LO_HI");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_lo_hi(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::set_fit_params_bounds_limited_lo_hi);
 
     action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_LO");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_lo(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::set_fit_params_bounds_limited_lo);
 
     action_bounds = _set_fit_params_bounds_menu->addAction("LIMITED_HI");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(set_fit_params_bounds_limited_hi(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::set_fit_params_bounds_limited_hi);
  //FIXED=1, LIMITED_LO_HI=2, LIMITED_LO=3, LIMITED_HI=4, FIT=5};
     _fit_param_contextMenu = new QMenu(("Context menu"), this);
     _fit_param_contextMenu->addMenu(_set_fit_params_bounds_menu);
     action_bounds = _fit_param_contextMenu->addAction("Load from CSV");
-    connect(action_bounds, SIGNAL(triggered(bool)), this, SLOT(show_load_fit_params_dialog(bool)));
+    connect(action_bounds, &QAction::triggered, this, &FitSpectraWidget::show_load_fit_params_dialog);
 
 }
 
@@ -155,15 +155,12 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setItemDelegateForColumn(5, npDelegate);
     _fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_fit_params_table,
-            SIGNAL(customContextMenuRequested(QPoint)),
-            this,
-            SLOT(fit_params_customMenuRequested(QPoint)));
+    connect(_fit_params_table, &QTableView::customContextMenuRequested,this,&FitSpectraWidget::fit_params_customMenuRequested);
 
     _fit_elements_table_model = new FitElementsTableModel(_detector_element);
     //_fit_elements_table_model->setDisplayHeaderMinMax(true);
 
-    connect(_spectra_widget, SIGNAL(y_axis_changed(bool)), _fit_elements_table_model, SLOT(update_counts_log10(bool)));
+    connect(_spectra_widget, &SpectraWidget::y_axis_changed, _fit_elements_table_model, &FitElementsTableModel::update_counts_log10);
     connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
 
     _fit_elements_table = new QTreeView();
@@ -173,10 +170,7 @@ void FitSpectraWidget::createLayout()
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     QItemSelectionModel* mod = _fit_elements_table->selectionModel();
-    connect(mod,
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
-            SLOT(element_selection_changed(QModelIndex,QModelIndex)));
+    connect(mod,&QItemSelectionModel::currentChanged,this,&FitSpectraWidget::element_selection_changed_from);
 
     connect(_spectra_widget, &SpectraWidget::onSettingsDialog, this, &FitSpectraWidget::onSettingsDialog);
 
@@ -251,10 +245,7 @@ void FitSpectraWidget::createLayout()
 
     _chk_auto_model = new QCheckBox("Auto Update Model");
     _chk_auto_model->setChecked(false);
-    connect(_chk_auto_model,
-            SIGNAL(stateChanged(int)),
-            this,
-            SLOT(check_auto_model(int)));
+    connect(_chk_auto_model,&QCheckBox::stateChanged,this,&FitSpectraWidget::check_auto_model);
 
     QGridLayout *grid_layout = new QGridLayout();
 
@@ -965,15 +956,9 @@ void FitSpectraWidget::Fit_Spectra_Click()
         if (_fitting_dialog->accepted_fit())
         {
 
-            disconnect(_fit_params_table_model,
-                SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
-                this,
-                SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
+            disconnect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
-            disconnect(_fit_elements_table_model,
-                SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
-                this,
-                SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
+            disconnect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
             //_fit_params_table_model->updateFitParams(&out_fit_params);
 
@@ -986,14 +971,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
             if (_chk_auto_model->checkState() == Qt::Checked)
             {
-                connect(_fit_params_table_model,
-                    SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
-                connect(_fit_elements_table_model,
-                    SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)),
-                    this,
-                    SLOT(Model_Spectra_Val_Change(QModelIndex, QModelIndex, QVector<int>)));
+                connect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+                connect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
                 Model_Spectra_Click();
             }
@@ -1239,28 +1218,14 @@ void FitSpectraWidget::check_auto_model(int state)
     {
         _btn_model_spectra->setEnabled(false);
         Model_Spectra_Click();
-        connect(_fit_params_table_model,
-                SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                this,
-                SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-        connect(_fit_elements_table_model,
-                SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                this,
-                SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+        connect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        connect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
     }
     else
     {
         _btn_model_spectra->setEnabled(true);
-        disconnect(_fit_params_table_model,
-                   SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                   this,
-                   SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
-
-        disconnect(_fit_elements_table_model,
-                   SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-                   this,
-                   SLOT(Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>)));
+        disconnect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        disconnect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
     }
 }
 
@@ -1286,7 +1251,7 @@ void FitSpectraWidget::check_auto_model(int state)
 
 //---------------------------------------------------------------------------
 
-void FitSpectraWidget::element_selection_changed(QModelIndex current, QModelIndex previous)
+void FitSpectraWidget::element_selection_changed_from(QModelIndex current, QModelIndex previous)
 {
     _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
 }

@@ -110,7 +110,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     QVBoxLayout* counts_layout = new QVBoxLayout();
     QVBoxLayout* layout = new QVBoxLayout();
 
-	connect(&iDiag, SIGNAL(onNewGridLayout(int, int)), this, SLOT(onNewGridLayout(int, int)));
+	connect(&iDiag, &ImageGridDialog::onNewGridLayout, this, &MapsElementsWidget::onNewGridLayout);
 
     _dataset_directory = new QLabel();
     _dataset_name = new QLabel();
@@ -366,7 +366,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     //don't erase counts when mouse is off scene
     m_imageViewWidget->set_null_mouse_pos = false;
-    connect(m_imageViewWidget, SIGNAL(cbLabelChanged(QString, int)), this, SLOT(onElementSelect(QString, int)));
+    connect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &MapsElementsWidget::onElementSelect);
 
 	connect(m_imageViewWidget, &ImageViewWidget::parent_redraw, this, &MapsElementsWidget::redrawCounts);
 
@@ -459,10 +459,7 @@ void MapsElementsWidget::savePref()
 void MapsElementsWidget::_appendRoiTab()
 {   
     m_roiTreeModel = new gstar::AnnotationTreeModel();
-    connect(m_roiTreeModel,
-        SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-        this,
-        SLOT(roiModelDataChanged(const QModelIndex&, const QModelIndex&)));
+    connect(m_roiTreeModel,&gstar::AnnotationTreeModel::dataChanged,this,&MapsElementsWidget::roiModelDataChanged);
 
     m_roiSelectionModel = new QItemSelectionModel(m_roiTreeModel);
 
@@ -475,15 +472,12 @@ void MapsElementsWidget::_appendRoiTab()
     m_roiTreeView->setHeaderHidden(true);
     m_roiTreeView->setSelectionModel(m_roiSelectionModel);
     m_roiTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_roiTreeView,
-        SIGNAL(customContextMenuRequested(const QPoint&)),
-        this,
-        SLOT(roiTreeContextMenu(const QPoint&)));
+    connect(m_roiTreeView,&QTreeView::customContextMenuRequested,this,&MapsElementsWidget::roiTreeContextMenu);
     /*
     connect(m_roiTreeView,
-        SIGNAL(doubleClicked(const QModelIndex&)),
+        doubleClicked,
         this,
-        SLOT(roiTreeDoubleClicked(const QModelIndex&)));
+        roiTreeDoubleClicked);
         */
     //infoLayout->addWidget(m_annotationToolbar->getToolBar());
 
@@ -757,16 +751,13 @@ void MapsElementsWidget::createActions()
     _addRoiMaskAction = new QAction("Add ROI Mask", this);
 
     connect(_addRoiMaskAction,
-            SIGNAL(triggered()),
+            triggered,
             this,
-            SLOT(addRoiMask()));
+            addRoiMask);
             */
     _addKMeansRoiAction = new QAction("ROI Image Seg Dialog", this);
 
-    connect(_addKMeansRoiAction,
-        SIGNAL(triggered()),
-        this,
-        SLOT(openImageSegDialog()));
+    connect(_addKMeansRoiAction,&QAction::triggered,this,&MapsElementsWidget::openImageSegDialog);
             
 }
 

@@ -53,7 +53,7 @@ public:
    /**
     * Destructor
     */
-   ~ImageViewScene();
+   virtual ~ImageViewScene();
 
    /**
     * Get bounding rectangle of current pixItem
@@ -191,7 +191,7 @@ signals:
     *
     * @param zoomRect - rubber band selection rectangle.
     */
-   void zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event);
+   void zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event);
 
    /**
     * Singal that is used to perform a zoom to a particular item on the view scene.

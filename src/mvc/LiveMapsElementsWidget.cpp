@@ -52,10 +52,7 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 
     if(_currentModel != nullptr)
 	{
- 	   disconnect(_currentModel,
-	            SIGNAL(model_data_updated()),
-	            _mapsElementsWidget,
-	            SLOT(model_updated()));
+         disconnect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
 	}
 
     if(_currentModel != nullptr)
@@ -102,7 +99,7 @@ void LiveMapsElementsWidget::createLayout()
     QHBoxLayout* hlayout = new QHBoxLayout();
     QHBoxLayout* hlayout2 = new QHBoxLayout();
     _btn_update = new QPushButton("Update");
-    connect(_btn_update, SIGNAL(released()), this, SLOT(updateIp()));
+    connect(_btn_update, &QPushButton::released, this, &LiveMapsElementsWidget::updateIp);
 
     hlayout->addWidget(new QLabel("QServer Computer:"));
     hlayout->addWidget(_qserver_ip_addr);
@@ -126,17 +123,11 @@ void LiveMapsElementsWidget::createLayout()
     //_mapsElementsWidget->setModel(_currentModel, nullptr, nullptr);
  //   _mapsElementsWidget->appendTab(_textEdit, "Log");
 
-    connect(_mapsElementsWidget,
-            SIGNAL(rangeChanged(int, int)),
-            this,
-            SLOT(image_changed(int, int)));
+    connect(_mapsElementsWidget,&MapsElementsWidget::rangeChanged,this,&LiveMapsElementsWidget::image_changed);
 
 	if(_currentModel != nullptr)
 	{
-	    connect(_currentModel,
-	            SIGNAL(model_data_updated()),
-	            _mapsElementsWidget,
-	            SLOT(model_updated()));
+	    connect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
 	}
 
 
@@ -254,10 +245,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         _prev_dataset_name = *new_packet->dataset_name;
         if (_currentModel != nullptr)
         {
-            disconnect(_currentModel,
-                SIGNAL(model_data_updated()),
-                _mapsElementsWidget,
-                SLOT(model_updated()));
+            disconnect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
         }
         _currentModel = new MapsH5Model();
         _currentModel->initialize_from_stream_block(new_packet);
@@ -271,10 +259,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         if (cur == _num_images - 1)
         {
             _mapsElementsWidget->setModel(_currentModel);
-            connect(_currentModel,
-                SIGNAL(model_data_updated()),
-                _mapsElementsWidget,
-                SLOT(model_updated()));
+            connect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
             _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
         }
     }

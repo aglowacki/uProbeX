@@ -51,8 +51,8 @@ void ImageGridDialog::createLayout()
 
 	updateBtn = new QPushButton("Update");
 	cancelBtn = new QPushButton("Cancel");
-	connect(updateBtn, SIGNAL(pressed()), this, SLOT(onUpdate()));
-	connect(cancelBtn, SIGNAL(pressed()), this, SLOT(close()));
+	connect(updateBtn, &QPushButton::pressed, this, &ImageGridDialog::onUpdate);
+	connect(cancelBtn, &QPushButton::pressed, this, &ImageGridDialog::close);
 
 	QGridLayout *mainLayout = new QGridLayout;
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);

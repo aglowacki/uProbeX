@@ -16,13 +16,13 @@ RangeWidget::RangeWidget(QWidget* parent)
    m_btnFirst -> setIcon(QIcon(":/images/first.png"));
    m_btnFirst -> setFlat(true);
    m_btnFirst -> setFixedSize(32, 32);
-   connect(m_btnFirst, SIGNAL(clicked()), this, SLOT(clickFirst()));
+   connect(m_btnFirst, &QPushButton::clicked, this, &RangeWidget::clickFirst);
 
    m_btnPrevious = new QPushButton();
    m_btnPrevious -> setIcon(QIcon(":/images/previous.png"));
    m_btnPrevious -> setFlat(true);
    m_btnPrevious -> setFixedSize(32, 32);
-   connect(m_btnPrevious, SIGNAL(clicked()), this, SLOT(clickPrevious()));
+   connect(m_btnPrevious, &QPushButton::clicked, this, &RangeWidget::clickPrevious);
 
    m_spinValue = new QSpinBox();
    m_spinValue -> setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -31,20 +31,19 @@ RangeWidget::RangeWidget(QWidget* parent)
    m_spinValue -> setMaximum(1000);
    m_spinValue -> setValue(0);
    m_spinValue -> setSuffix(tr(" / 1000"));
-   connect(m_spinValue, SIGNAL(valueChanged(int)),
-           this, SLOT(spinChanged(int)));
+   connect(m_spinValue, &QSpinBox::valueChanged,this, &RangeWidget::spinChanged);
 
    m_btnNext = new QPushButton();
    m_btnNext -> setIcon(QIcon(":/images/next.png"));
    m_btnNext -> setFlat(true);
    m_btnNext -> setFixedSize(32, 32);
-   connect(m_btnNext, SIGNAL(clicked()), this, SLOT(clickNext()));
+   connect(m_btnNext, &QPushButton::clicked, this, &RangeWidget::clickNext);
 
    m_btnLast = new QPushButton();
    m_btnLast -> setIcon(QIcon(":/images/last.png"));
    m_btnLast -> setFlat(true);
    m_btnLast -> setFixedSize(32, 32);
-   connect(m_btnLast, SIGNAL(clicked()), this, SLOT(clickLast()));
+   connect(m_btnLast, &QPushButton::clicked, this, &RangeWidget::clickLast);
 
    QHBoxLayout* layout = new QHBoxLayout();
    layout -> setContentsMargins(0, 0, 0, 0);

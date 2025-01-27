@@ -48,30 +48,15 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
                                   nullptr);
 
 
-   connect(m_rulerAction,
-           SIGNAL(triggered()),
-           this,
-           SIGNAL(clickRuler()));
+   connect(m_rulerAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickRuler);
 
-   connect(m_intensityLineAction,
-           SIGNAL(triggered()),
-           this,
-           SIGNAL(clickIntensityLine()));
+   connect(m_intensityLineAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityLine);
 
-   connect(m_intensityPieAction,
-           SIGNAL(triggered()),
-           this,
-           SIGNAL(clickIntensityPie()));
+   connect(m_intensityPieAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityPie);
 
-   connect(m_markerAction,
-           SIGNAL(triggered()),
-           this,
-           SIGNAL(clickMarker()));
+   connect(m_markerAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickMarker);
 
-   connect(m_crossHairAction,
-           SIGNAL(triggered()),
-           this,
-           SIGNAL(clickCrossHair()));
+   connect(m_crossHairAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickCrossHair);
 
    QLabel* enableLable = new QLabel("Visible:");
    m_chkSetVisible = new QCheckBox();

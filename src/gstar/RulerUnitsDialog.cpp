@@ -49,8 +49,8 @@ RulerUnitsDialog::RulerUnitsDialog(QWidget* parent, Qt::WindowFlags f)
    btnLayout -> addWidget(m_btnCancel);
 
    // Connect button signals/slots
-   connect(m_btnOK, SIGNAL(clicked()), this, SLOT(accept()));
-   connect(m_btnCancel, SIGNAL(clicked()), this, SLOT(reject()));
+   connect(m_btnOK, &QPushButton::clicked, this, &RulerUnitsDialog::accept);
+   connect(m_btnCancel, &QPushButton::clicked, this, &RulerUnitsDialog::reject);
 
    // Main layout
    QVBoxLayout* mainLayout = new QVBoxLayout();

@@ -18,12 +18,15 @@ using namespace gstar;
 ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
+/*
    _avail_scans = avail_scans;
+
    _scan_dialog.setAvailScans(avail_scans);
+   
    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
-   //prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
-
+   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
+*/
 }
 
 //---------------------------------------------------------------------------

@@ -263,10 +263,7 @@ void PreferencesPythonFunc::createComponents()
    //m_tree->setColumnWidth(2, 45);
 
    m_tree->setContextMenuPolicy(Qt::CustomContextMenu);
-   connect(m_tree,
-          SIGNAL(customContextMenuRequested(const QPoint &)),
-          this,
-          SLOT(contextMenuRequest(const QPoint &)));
+   connect(m_tree,&DeselectableTreeView::customContextMenuRequested,this, &PreferencesPythonFunc::contextMenuRequest);
 
    QLabel *foundPyLabel = new QLabel();
    if(PythonLoader::inst()->isLoaded())
@@ -304,10 +301,7 @@ void PreferencesPythonFunc::createComponents()
    m_tree->setItemDelegateForColumn(2, m_delegate);
 
    m_tree->resizeColumnToContents(2);
-   connect(m_tree,
-           SIGNAL(expanded(QModelIndex)),
-           this,
-           SLOT(treeExpanded(QModelIndex)));
+   connect(m_tree,&DeselectableTreeView::expanded,this,&PreferencesPythonFunc::treeExpanded);
 
 
    // Add ROI button
@@ -316,8 +310,7 @@ void PreferencesPythonFunc::createComponents()
    m_btnAdd -> setFlat(true);
    m_btnAdd -> setFixedSize(32, 32);
 //   m_btnAdd->setEnabled(m_foundPython);
-   connect(m_btnAdd, SIGNAL(clicked()),
-           this, SLOT(addItem()));
+   connect(m_btnAdd, &QPushButton::clicked,this, &PreferencesPythonFunc::addItem);
 
    // Remove ROI button
    m_btnRemove = new QPushButton;
@@ -325,22 +318,19 @@ void PreferencesPythonFunc::createComponents()
    m_btnRemove -> setFlat(true);
    m_btnRemove -> setEnabled(false);
    m_btnRemove -> setFixedSize(32, 32);
-   connect(m_btnRemove, SIGNAL(clicked()),
-           this, SLOT(removeItem()));
+   connect(m_btnRemove, &QPushButton::clicked,this, &PreferencesPythonFunc::removeItem);
 
    QPushButton* btnUp = new QPushButton;
    btnUp -> setIcon(QIcon(":images/up.png"));
    btnUp -> setFlat(true);
    btnUp -> setFixedSize(32, 32);
-   connect(btnUp, SIGNAL(clicked()),
-           this, SLOT(moveUp()));
+   connect(btnUp, &QPushButton::clicked,this, &PreferencesPythonFunc::moveUp);
 
    QPushButton* btnDown = new QPushButton;
    btnDown -> setIcon(QIcon(":images/down2.png"));
    btnDown -> setFlat(true);
    btnDown -> setFixedSize(32, 32);
-   connect(btnDown, SIGNAL(clicked()),
-           this, SLOT(moveDown()));
+   connect(btnDown, &QPushButton::clicked, this, &PreferencesPythonFunc::moveDown);
 
    // Layout for buttons
    QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -359,26 +349,11 @@ void PreferencesPythonFunc::createComponents()
    m_moveUpAction = new QAction("Move Up", this);
    m_removeAction = new QAction("Delete", this);
 
-   connect(m_addGroupAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addGroupItem()));
-   connect(m_addItemAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(addItem()));
-   connect(m_moveDownAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(moveDown()));
-   connect(m_moveUpAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(moveUp()));
-   connect(m_removeAction,
-           SIGNAL(triggered()),
-           this,
-           SLOT(removeItem()));
+   connect(m_addGroupAction,&QAction::triggered, this, &PreferencesPythonFunc::addGroupItem);
+   connect(m_addItemAction, &QAction::triggered, this, &PreferencesPythonFunc::addItem);
+   connect(m_moveDownAction, &QAction::triggered, this, &PreferencesPythonFunc::moveDown);
+   connect(m_moveUpAction, &QAction::triggered, this, &PreferencesPythonFunc::moveUp);
+   connect(m_removeAction, &QAction::triggered, this, &PreferencesPythonFunc::removeItem);
 
    QVBoxLayout* mainLayout = new QVBoxLayout;
    mainLayout->setContentsMargins(0, 0, 0, 0);
