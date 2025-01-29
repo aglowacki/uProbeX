@@ -548,11 +548,12 @@ void LiveMapsElementsWidget::callStopQueue()
 void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
 {
     QString msg;
+    QString uuid;
     if(_qserverComm == nullptr)
     {
         updateIp();
     }
-    if (false == _qserverComm->queue_plan(msg, plan))
+    if (false == _qserverComm->queue_plan(msg, plan, uuid))
     {
         
     }
@@ -570,31 +571,18 @@ void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
 void LiveMapsElementsWidget::callQueueScanRegion(const BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item)
 {
     QString msg;
+    QString uuid;
     if(_qserverComm == nullptr)
     {
         updateIp();
     }
-    if (false == _qserverComm->queue_plan(msg, plan))
+    if (false == _qserverComm->queue_plan(msg, plan, uuid))
     {
-        /*
-        if( item!=nullptr )
-        {
-            item->setFailedToQueue();    
-        }
-        */
+        
     }
     else
     {
-        //  Item added: success=True item_type='plan' name='scanrecord_2idd' item_uid='8ea2dad5-685e-4d40-82da-6f5c48e835ae' qsize=1.
-        QStringList part1 = msg.split("item_uid=\'");
-        if(part1.size() > 1 && item!=nullptr)
-        {
-            QStringList part2 = part1[1].split('\'');
-            if(part2.size() > 1)
-            {
-                item->setQueueId(part2[0]);
-            }
-        }
+        item->setQueueId(uuid);
     }
 
     _scan_queue_widget->newDataArrived( msg );

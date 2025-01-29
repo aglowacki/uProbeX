@@ -2607,7 +2607,7 @@ void VLM_Widget::onQueueMicroProbeRegion()
                }
                else
                {
-                  QMessageBox::warning(this, "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).", "Error Queuing Scan");
+                  QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).");
                   return;
                }
                for(const auto& itr: propList)

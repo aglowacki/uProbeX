@@ -176,7 +176,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -210,7 +210,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -244,7 +244,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -278,7 +278,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -296,7 +296,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool queue_plan(QString &msg, const BlueskyPlan& plan)
+    bool queue_plan(QString &msg, const BlueskyPlan& plan, QString &uuid)
     {
         bool ret = false;
         if(_zmq_comm_socket == nullptr)
@@ -316,19 +316,33 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
+            
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString();
+                if(strV == u"true")
                 {
                     ret = true;
                 }
             }
             if(reply.contains("msg"))
             {
-                msg = reply["msg"].toString();
+                //msg = QString::fromUtf8(reply.value("msg").toString().toUtf8());
+                msg = reply.value("msg").toString();
+            }
+            if(reply.contains("item"))
+            {
+                QJsonObject obj_item = reply.value("item").toObject();
+                if(obj_item.contains("item_uid"))
+                {
+                    uuid = obj_item.value("item_uid").toString();
+                }
             }
         }
+ 
         return ret;
     }
     
@@ -354,7 +368,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -392,7 +406,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -428,7 +442,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 if(reply["success"].toString() == "true")
@@ -516,7 +530,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 QString strReply = reply["success"].toString();
@@ -631,7 +645,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 QString strReply = reply["success"].toString();
@@ -808,7 +822,7 @@ public:
                 return true;
             }
 
-            QJsonObject reply = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
                 QString strReply = reply["success"].toString();
