@@ -116,6 +116,8 @@ public:
     */
    double getY();
 
+   QString getValueAsString(QString prop);
+
    /**
     * @brief initialStringSize
     */

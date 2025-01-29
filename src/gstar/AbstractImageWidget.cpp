@@ -699,13 +699,12 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
             }
          }
          else if (data.typeId() == QMetaType::QIcon)
-         {
+         {            
             QDialog* custom_dialog = item->get_custom_dialog();
             if(custom_dialog != nullptr)
             {
                custom_dialog->show();
             }
-
          }
       }
    }

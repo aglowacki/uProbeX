@@ -33,6 +33,7 @@
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"
 #include <mvc/ScanRegionLinkDialog.h>
+#include "gstar/Annotation/ScanRegionGraphicsItem.h"
 
 
 class Solver;
@@ -298,6 +299,8 @@ protected slots:
 
    void linkRegionToDataset();
 
+   void onQueueMicroProbeRegion();
+
    void onUpdateBackgroundImage();
 
    void onCaptureBackgroundImage();
@@ -405,7 +408,7 @@ signals:
 
    void onLinkRegionToDataset(QString, QString, QImage);
 
-   void onScanUpdated(const BlueskyPlan &plan); 
+   void onScanUpdated(const BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
 
 private:
 
@@ -484,6 +487,8 @@ private:
    QAction* m_exportMicroProbeRegionInfoAction;
 
    QAction* _linkRegionToDatasetAction;
+
+   QAction* _queueMicroPrboeRegionAction;
 
    /**
     * @brief m_colorValue

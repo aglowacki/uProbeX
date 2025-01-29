@@ -137,7 +137,7 @@ void LiveMapsElementsWidget::createLayout()
     _vlm_widget->setCoordinateModel(coord_model);
     _vlm_widget->load_live_coord_settings();
     _vlm_widget->setEnableChangeBackground(true);
-    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScan);
+    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScanRegion);
 
     _scan_queue_widget = new ScanQueueWidget();
     _scan_queue_widget->setAvailScans(&_avail_scans);
@@ -559,6 +559,42 @@ void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
     else
     {
 
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callQueueScanRegion(const BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->queue_plan(msg, plan))
+    {
+        /*
+        if( item!=nullptr )
+        {
+            item->setFailedToQueue();    
+        }
+        */
+    }
+    else
+    {
+        //  Item added: success=True item_type='plan' name='scanrecord_2idd' item_uid='8ea2dad5-685e-4d40-82da-6f5c48e835ae' qsize=1.
+        QStringList part1 = msg.split("item_uid=\'");
+        if(part1.size() > 1 && item!=nullptr)
+        {
+            QStringList part2 = part1[1].split('\'');
+            if(part2.size() > 1)
+            {
+                item->setQueueId(part2[0]);
+            }
+        }
     }
 
     _scan_queue_widget->newDataArrived( msg );

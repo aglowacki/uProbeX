@@ -90,6 +90,8 @@
 #define STR_SAVE_QSERVER_HISTORY_LOCATION "Save_Qserver_History_Location"
 #define STR_PRF_LiveCoefficientNames "LiveCoefficientName"
 #define STR_PRF_LiveCoefficientVals "LiveCoefficientVals"
+#define STR_PREF_LAST_SCAN_LINK_SELECTED "Last_Scan_Link_Selected"
+#define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

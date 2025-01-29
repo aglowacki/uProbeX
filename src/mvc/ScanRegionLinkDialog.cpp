@@ -11,6 +11,8 @@
 #include <QIcon>
 #include <QLabel>
 #include <QGridLayout>
+#include <QJsonObject>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -49,33 +51,33 @@ void ScanRegionLinkDialog::_createLayout()
 
 
 	QGridLayout *gridlayout = new QGridLayout();
-	gridlayout->addWidget(new QLabel("Scan Type"), 0, 0);
+	gridlayout->addWidget(new QLabel(STR_SCAN_TYPE), 0, 0);
 	gridlayout->addWidget(_scan_type, 0, 1);
 
 	gridlayout->addWidget(new QLabel(" "), 1, 0);
 
-	gridlayout->addWidget(new QLabel("Region Box Top Y"), 2, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Top_Y), 2, 0);
 	gridlayout->addWidget(_cb_link_top_y, 2, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Left X"), 3, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Left_X), 3, 0);
 	gridlayout->addWidget(_cb_link_left_x, 3, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Right X"), 4, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Right_X), 4, 0);
 	gridlayout->addWidget(_cb_link_right_x, 4, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Bottom Y"), 5, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Bottom_Y), 5, 0);
 	gridlayout->addWidget(_cb_link_bottom_y, 5, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Center X"), 6, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Center_X), 6, 0);
 	gridlayout->addWidget(_cb_link_center_x, 6, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Center Y"), 7, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Center_Y), 7, 0);
 	gridlayout->addWidget(_cb_link_center_y, 7, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Width"), 8, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Width), 8, 0);
 	gridlayout->addWidget(_cb_link_width, 8, 1);
 
-	gridlayout->addWidget(new QLabel("Region Box Height"), 9, 0);
+	gridlayout->addWidget(new QLabel(STR_Region_Box_Height), 9, 0);
 	gridlayout->addWidget(_cb_link_height, 9, 1);
 
 	_btn_save = new QPushButton("Save");
@@ -109,6 +111,19 @@ void ScanRegionLinkDialog::setAvailScans(std::map<QString, BlueskyPlan> * avail_
 		_scan_type->insertItem(i, itr.first);
 		i++;
 	 }
+	 _loadLinkProfile();
+}
+//---------------------------------------------------------------------------
+
+void ScanRegionLinkDialog::_loadLinkProfile() 
+{
+	QString scan_name = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
+	_scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
+
+	if(scan_name.length() > 0)
+	{
+		_scan_type->setCurrentText(scan_name);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -152,6 +167,92 @@ void ScanRegionLinkDialog::onScanChanged(const QString &scan_name)
 					_cb_link_height->addItem(itr.name);
 				}
 			}
+
+			for (const auto &scan_link_ref : _scan_link_profiles)
+			{
+				QJsonObject scan_link  = scan_link_ref.toObject();
+				if (scan_link.contains(STR_SCAN_TYPE))
+				{
+					QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
+					if(scan_name == l_scan_name)
+					{
+						if(scan_link.contains(STR_Region_Box_Top_Y))
+						{
+							QString value = scan_link.value(STR_Region_Box_Top_Y).toString();
+							int idx = _cb_link_top_y->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_top_y->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Left_X))
+						{
+							QString value = scan_link.value(STR_Region_Box_Left_X).toString();
+							int idx = _cb_link_left_x->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_left_x->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Right_X))
+						{
+							QString value = scan_link.value(STR_Region_Box_Right_X).toString();
+							int idx = _cb_link_right_x->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_right_x->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Bottom_Y))
+						{
+							QString value = scan_link.value(STR_Region_Box_Bottom_Y).toString();
+							int idx = _cb_link_bottom_y->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_bottom_y->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Center_X))
+						{
+							QString value = scan_link.value(STR_Region_Box_Center_X).toString();
+							int idx = _cb_link_center_x->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_center_x->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Center_Y))
+						{
+							QString value = scan_link.value(STR_Region_Box_Center_Y).toString();
+							int idx = _cb_link_center_y->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_center_y->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Width))
+						{
+							QString value = scan_link.value(STR_Region_Box_Width).toString();
+							int idx = _cb_link_width->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_width->setCurrentIndex(idx);
+							}
+						}
+						if(scan_link.contains(STR_Region_Box_Height))
+						{
+							QString value = scan_link.value(STR_Region_Box_Height).toString();
+							int idx = _cb_link_height->findText(value);
+							if(idx > -1)
+							{
+								_cb_link_height->setCurrentIndex(idx);
+							}
+						}
+						
+						break;
+					}
+				}
+			}
 		}
 	}
 }
@@ -160,37 +261,57 @@ void ScanRegionLinkDialog::onScanChanged(const QString &scan_name)
 
 void ScanRegionLinkDialog::onSave()
 {
-	/*
-	if(_chk_batch_scan->checkState() == Qt::Checked)
+	
+	QJsonArray new_scan_link_profiles;
+	bool found = false;
+	for (const auto &scan_link_ref : _scan_link_profiles)
 	{
-		float start = _batch_start->text().toFloat();
-		float end = _batch_end->text().toFloat();
-		int num = _batch_num->text().toInt();
-		float inc = ( end - start )/ (float)(num - 1); 
-		for(int i=0; i<num; i++)
-		{
-			BlueskyPlan plan;
-			plan.type = _scan_type->currentText();
-			_scan_table_model->getCurrentParams(plan);
-			for(auto &itr : plan.parameters)
+		QJsonObject scan_link  = scan_link_ref.toObject();
+		if (scan_link.contains(STR_SCAN_TYPE))
+        {
+            QString scan_name = scan_link[STR_SCAN_TYPE].toString();
+			if(_scan_type->currentText() == scan_name)
 			{
-				if(itr.name == _cb_batch_prop->currentText())
-				{
-					itr.default_val = QString::number(start);
-				}
+				QJsonObject scan_profile;
+				scan_profile[STR_SCAN_TYPE] = _scan_type->currentText();
+				scan_profile[STR_Region_Box_Top_Y] = _cb_link_top_y->currentText();
+				scan_profile[STR_Region_Box_Left_X] = _cb_link_left_x->currentText();
+				scan_profile[STR_Region_Box_Right_X] = _cb_link_right_x->currentText();
+				scan_profile[STR_Region_Box_Bottom_Y] = _cb_link_bottom_y->currentText();
+				scan_profile[STR_Region_Box_Center_X] = _cb_link_center_x->currentText();
+				scan_profile[STR_Region_Box_Center_Y] = _cb_link_center_y->currentText();
+				scan_profile[STR_Region_Box_Width] = _cb_link_width->currentText();
+				scan_profile[STR_Region_Box_Height] = _cb_link_height->currentText();
+				new_scan_link_profiles.append(scan_profile);
+				found = true;
 			}
-			emit ScanUpdated(plan);	
-			start += inc;
+			else
+			{
+				new_scan_link_profiles.append(scan_link);
+			}
 		}
 	}
-	else
+	
+	if(found == false)
 	{
-		BlueskyPlan plan;
-		plan.type = _scan_type->currentText();
-		_scan_table_model->getCurrentParams(plan);
-		emit ScanUpdated(plan);
+		QJsonObject scan_profile;
+		scan_profile[STR_SCAN_TYPE] = _scan_type->currentText();
+		scan_profile[STR_Region_Box_Top_Y] = _cb_link_top_y->currentText();
+		scan_profile[STR_Region_Box_Left_X] = _cb_link_left_x->currentText();
+		scan_profile[STR_Region_Box_Right_X] = _cb_link_right_x->currentText();
+		scan_profile[STR_Region_Box_Bottom_Y] = _cb_link_bottom_y->currentText();
+		scan_profile[STR_Region_Box_Center_X] = _cb_link_center_x->currentText();
+		scan_profile[STR_Region_Box_Center_Y] = _cb_link_center_y->currentText();
+		scan_profile[STR_Region_Box_Width] = _cb_link_width->currentText();
+		scan_profile[STR_Region_Box_Height] = _cb_link_height->currentText();
+		new_scan_link_profiles.append(scan_profile);
 	}
-	*/
+
+	_scan_link_profiles = new_scan_link_profiles;
+	Preferences::inst()->setValue(STR_PREF_LAST_SCAN_LINK_SELECTED, QVariant(_scan_type->currentText()));
+	Preferences::inst()->setValue(STR_PREF_SCAN_LINK_PROFILES, QVariant(_scan_link_profiles));
+
+	emit linkUpdated();
 	close();
 }
 

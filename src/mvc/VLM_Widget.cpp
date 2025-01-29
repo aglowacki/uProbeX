@@ -250,12 +250,10 @@ void VLM_Widget::onConfigRegionLink()
 
 void VLM_Widget::onAddMicroProbeRegion()
 {
-   ////ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(_avail_scans);
-   UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
+   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+   //UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-
-   ////connect(annotation, &ScanRegionGraphicsItem::scanUpdated, this, &VLM_Widget::onScanUpdated);
 
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,
@@ -983,6 +981,9 @@ void VLM_Widget::createActions()
 
    m_grabMicroProbePVAction = new QAction("Grab MicroProbe PV", this);
    connect(m_grabMicroProbePVAction,&QAction::triggered,this,&VLM_Widget::grabMicroProbePV);
+
+   _queueMicroPrboeRegionAction = new QAction("Queue Scan Region", this);   
+   connect(_queueMicroPrboeRegionAction,&QAction::triggered,this,&VLM_Widget::onQueueMicroProbeRegion);
 }
 
 //---------------------------------------------------------------------------
@@ -1356,6 +1357,7 @@ void VLM_Widget::displayContextMenu(QWidget* parent,
             // Selected item is of proper type for zoom action.
             if (item != nullptr) {
                menu.addSeparator();
+               menu.addAction(_queueMicroPrboeRegionAction);
                menu.addAction(m_zoomMicroProbeRegionAction);
                menu.addAction(m_exportMicroProbeRegionInfoAction);
                menu.addAction(_linkRegionToDatasetAction);
@@ -2562,6 +2564,7 @@ void VLM_Widget::onUpdateBackgroundImage()
         }
     }
 }
+
 //--------------------------------------------------------------------------
 
 void VLM_Widget::onCaptureBackgroundImage()
@@ -2578,6 +2581,64 @@ void VLM_Widget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
 }
 
 //--------------------------------------------------------------------------
+
+void VLM_Widget::onQueueMicroProbeRegion()
+{
+   ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(getSelectedRegion());
+   if (item != nullptr)
+   {
+      const std::vector<QString> propList = _scan_region_link_dialog->property_list();
+      BlueskyPlan plan;
+      QString scan_name = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
+	   QJsonArray scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
+      for (const auto &scan_link_ref : scan_link_profiles)
+      {
+         QJsonObject scan_link  = scan_link_ref.toObject();
+         if (scan_link.contains(STR_SCAN_TYPE))
+         {
+            QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
+            if(scan_name == l_scan_name)
+            {
+               if(_avail_scans->count(l_scan_name) > 0)
+               {
+                  plan = _avail_scans->at(l_scan_name);
+                  plan.type = l_scan_name;
+                  plan.name = item->displayName();
+               }
+               else
+               {
+                  QMessageBox::warning(this, "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).", "Error Queuing Scan");
+                  return;
+               }
+               for(const auto& itr: propList)
+               {
+                  if(scan_link.contains(itr))
+                  {
+                     QString scan_link_value = scan_link.value(itr).toString();
+
+                     for(auto &param : plan.parameters)
+                     {
+                        if(param.name == scan_link_value)
+                        {
+                           QString val = item->getValueAsString(itr);
+                           if(val.length() > 0)
+                           {
+                              param.default_val = val;
+                           }
+                           break;
+                        }
+                     }
+                  }
+               }
+               break;
+            }
+         }
+      }
+      emit onScanUpdated(plan, item); 
+   }
+}
+
+//---------------------------------------------------------------------------
 
 void VLM_Widget::widgetChanged(bool enable)
 {

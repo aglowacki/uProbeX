@@ -8,6 +8,7 @@
 #include <gstar/ImageViewScene.h>
 #include <QSize>
 #include <iostream>
+#include "mvc/ScanRegionLinkDialog.h"
 
 #include <QApplication>
 
@@ -888,3 +889,55 @@ void UProbeRegionGraphicsItem::updateView()
 
 //---------------------------------------------------------------------------
 
+QString UProbeRegionGraphicsItem::getValueAsString(QString prop)
+{
+   if(prop == STR_Region_Box_Top_Y)
+   {
+      double y = m_predictYProp->getValue().toDouble();
+      double h = m_heightProp->getValue().toDouble();
+      double v = y - (h / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Left_X)
+   {
+      double x = m_predictXProp->getValue().toDouble();
+      double w = m_widthProp->getValue().toDouble();
+      double v = x - (w / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Right_X)
+   {
+      double x = m_predictXProp->getValue().toDouble();
+      double w = m_widthProp->getValue().toDouble();
+      double v = x + (w / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Bottom_Y)
+   {
+      double y = m_predictYProp->getValue().toDouble();
+      double h = m_heightProp->getValue().toDouble();
+      double v = y + (h / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Center_X)
+   {
+      return m_predictXProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Center_Y)
+   {
+      return m_predictYProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Width)
+   {
+      return m_widthProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Height)
+   {
+      return m_heightProp->getValue().toString();
+   }
+   return "";
+}
+
+//---------------------------------------------------------------------------
+
+               

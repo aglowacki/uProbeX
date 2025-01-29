@@ -15,9 +15,10 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
+ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
+   _scan_id = "";
 /*
    _avail_scans = avail_scans;
 
@@ -86,7 +87,7 @@ const QString ScanRegionGraphicsItem::displayName() const
 
 ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 {
-   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem(_avail_scans);
+   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem();
 
    //newRegion->m_outlineColor = m_outlineColor;
    newRegion->m_rect = m_rect;
@@ -96,21 +97,10 @@ ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 
 //---------------------------------------------------------------------------
 
-QDialog* ScanRegionGraphicsItem::get_custom_dialog() 
-{
-   _scan_dialog.updateProps(m_data);
-   return &_scan_dialog; 
-}
-
-//---------------------------------------------------------------------------
-
-void ScanRegionGraphicsItem::onScanUpdated(const BlueskyPlan& plan)
+void ScanRegionGraphicsItem::setQueueId(QString id)
 {
 
-   setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
-   BlueskyPlan nplan = plan;
-   nplan.name = _scan_dialog.getScanName();
-   emit scanUpdated(nplan);
+   _scan_id = id;
 
 }
 
