@@ -18,16 +18,11 @@ using namespace gstar;
 ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
-   _scan_id = "";
-/*
-   _avail_scans = avail_scans;
 
-   _scan_dialog.setAvailScans(avail_scans);
-   
-   connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
+   _bs_plan.uuid = "";
+   _queue_status = new AnnotationProperty(SCAN_REGION_QUEUE_STATUS, QVariant(STR_NOT_QUEUED));
+   prependProperty(_queue_status);
 
-   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
-*/
 }
 
 //---------------------------------------------------------------------------
@@ -76,6 +71,16 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(QMap<QString, QString>& marker,
 
 //---------------------------------------------------------------------------
 
+ScanRegionGraphicsItem::~ScanRegionGraphicsItem()
+{
+   if(_bs_plan.uuid.length() > 0)
+   {
+      emit planRemoved(_bs_plan);
+   }
+}
+
+//---------------------------------------------------------------------------
+
 const QString ScanRegionGraphicsItem::displayName() const
 {
 
@@ -91,18 +96,43 @@ ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 
    //newRegion->m_outlineColor = m_outlineColor;
    newRegion->m_rect = m_rect;
-
+   newRegion->_bs_plan = _bs_plan;
    return newRegion;
 }
 
 //---------------------------------------------------------------------------
 
-void ScanRegionGraphicsItem::setQueueId(QString id)
+void ScanRegionGraphicsItem::setPlan(const BlueskyPlan& plan)
 {
 
-   _scan_id = id;
+   _bs_plan = plan;
+
+   if(_bs_plan.uuid.length() > 0)
+   {
+      _queue_status->setValue(STR_QUEUED);
+      updateView();
+   }
+   else
+   {
+      _queue_status->setValue(STR_NOT_QUEUED);
+   }
 
 }
 
 //---------------------------------------------------------------------------
 
+bool ScanRegionGraphicsItem::isQueued()
+{
+   if(_bs_plan.uuid.length() > 0)
+   {
+      _queue_status->setValue(STR_QUEUED);
+      updateView();
+      return true;
+   }
+   
+   _queue_status->setValue(STR_NOT_QUEUED);
+   
+   return false;
+}
+
+//---------------------------------------------------------------------------

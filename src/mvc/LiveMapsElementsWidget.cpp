@@ -137,7 +137,9 @@ void LiveMapsElementsWidget::createLayout()
     _vlm_widget->setCoordinateModel(coord_model);
     _vlm_widget->load_live_coord_settings();
     _vlm_widget->setEnableChangeBackground(true);
-    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callQueueScanRegion);
+    connect(_vlm_widget, &VLM_Widget::onQueueScan, this, &LiveMapsElementsWidget::callQueueScanRegion);
+    connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callUpdateScanRegion);
+    connect(_vlm_widget, &VLM_Widget::onScanRemoved, this, &LiveMapsElementsWidget::callRemoveScan);
 
     _scan_queue_widget = new ScanQueueWidget();
     _scan_queue_widget->setAvailScans(&_avail_scans);
@@ -149,7 +151,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanRow, this, &LiveMapsElementsWidget::callMoveScanRow);
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanUp, this, &LiveMapsElementsWidget::callMoveScanUp);
     connect(_scan_queue_widget, &ScanQueueWidget::onMoveScanDown, this, &LiveMapsElementsWidget::callMoveScanDown);
-    connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveScan);
+    connect(_scan_queue_widget, &ScanQueueWidget::onRemoveScan, this, &LiveMapsElementsWidget::callRemoveRow);
     connect(_scan_queue_widget, &ScanQueueWidget::onPlanChanged, this, &LiveMapsElementsWidget::callUpdatePlan);
     connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
     connect(_scan_queue_widget, &ScanQueueWidget::onSetHistory, this, &LiveMapsElementsWidget::setHistoryLocation);
@@ -545,15 +547,14 @@ void LiveMapsElementsWidget::callStopQueue()
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
+void LiveMapsElementsWidget::callQueueScan(BlueskyPlan& plan)
 {
     QString msg;
-    QString uuid;
     if(_qserverComm == nullptr)
     {
         updateIp();
     }
-    if (false == _qserverComm->queue_plan(msg, plan, uuid))
+    if (false == _qserverComm->queue_plan(msg, plan))
     {
         
     }
@@ -568,21 +569,42 @@ void LiveMapsElementsWidget::callQueueScan(const BlueskyPlan& plan)
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::callQueueScanRegion(const BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item)
+void LiveMapsElementsWidget::callQueueScanRegion(BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item)
 {
     QString msg;
-    QString uuid;
     if(_qserverComm == nullptr)
     {
         updateIp();
     }
-    if (false == _qserverComm->queue_plan(msg, plan, uuid))
+    if (false == _qserverComm->queue_plan(msg, plan))
     {
         
     }
     else
     {
-        item->setQueueId(uuid);
+        item->setPlan(plan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callUpdateScanRegion(BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->update_plan(msg, plan))
+    {
+        
+    }
+    else
+    {
+        item->setPlan(plan);
     }
 
     _scan_queue_widget->newDataArrived( msg );
@@ -633,20 +655,21 @@ void LiveMapsElementsWidget::callMoveScanDown(int row)
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::callRemoveScan(int row)
+void LiveMapsElementsWidget::callRemoveRow(int row)
 {
     QString msg;
+    BlueskyPlan out_plan;
     if(_qserverComm == nullptr)
     {
         updateIp();
     }
-    if (false == _qserverComm->removePlan(msg, row))
+    if (false == _qserverComm->removePlan(msg, row, out_plan))
     {
         
     }
     else
     {
-
+       _vlm_widget->removePlan(out_plan);
     }
 
     _scan_queue_widget->newDataArrived( msg );
@@ -655,7 +678,7 @@ void LiveMapsElementsWidget::callRemoveScan(int row)
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::callUpdatePlan(const BlueskyPlan& plan)
+void LiveMapsElementsWidget::callUpdatePlan(BlueskyPlan& plan)
 {
     QString msg;
     if(_qserverComm == nullptr)
@@ -663,6 +686,28 @@ void LiveMapsElementsWidget::callUpdatePlan(const BlueskyPlan& plan)
         updateIp();
     }
     if (false == _qserverComm->update_plan(msg, plan))
+    {
+        
+    }
+    else
+    {
+        _vlm_widget->updatePlan(plan);
+    }
+
+    _scan_queue_widget->newDataArrived( msg );
+    getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::callRemoveScan(BlueskyPlan plan)
+{
+    QString msg;
+    if(_qserverComm == nullptr)
+    {
+        updateIp();
+    }
+    if (false == _qserverComm->removePlan(msg, plan.uuid))
     {
         
     }

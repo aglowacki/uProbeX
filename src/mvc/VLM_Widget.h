@@ -167,6 +167,10 @@ public:
 
    void setEnableChangeBackground(bool val);
 
+   void updatePlan(const BlueskyPlan &plan);
+
+   void removePlan(const BlueskyPlan &plan);
+
 public slots:
 
    /**
@@ -408,7 +412,11 @@ signals:
 
    void onLinkRegionToDataset(QString, QString, QImage);
 
-   void onScanUpdated(const BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
+   void onQueueScan(BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
+
+   void onScanUpdated(BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
+
+   void onScanRemoved(BlueskyPlan plan);
 
 private:
 

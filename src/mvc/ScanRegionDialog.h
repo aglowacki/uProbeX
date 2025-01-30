@@ -51,7 +51,7 @@ public:
 
 signals:
 	
-   void ScanUpdated(const BlueskyPlan& plan);
+   void ScanUpdated(BlueskyPlan& plan);
 
 public slots:
 

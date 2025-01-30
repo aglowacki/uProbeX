@@ -23,11 +23,16 @@
 #include "gstar/AnnotationProperty.h"
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
+#include "mvc/BlueskyComm.h"
 
 //---------------------------------------------------------------------------
 
 namespace gstar
 {
+
+#define STR_QUEUED "Queued"
+#define STR_NOT_QUEUED "Not Queued"
+#define STR_NEED_UPDATE "Need Update"
 
 class ScanRegionGraphicsItem : public UProbeRegionGraphicsItem
 {
@@ -55,6 +60,9 @@ public:
    ScanRegionGraphicsItem(QMap<QString, QString>& marker,
                             AbstractGraphicsItem* parent = 0);
 
+   
+   ~ScanRegionGraphicsItem();
+
    /**
     * @brief coneRegion
     * @param uProbeRegion
@@ -64,11 +72,20 @@ public:
 
    const QString displayName() const;
 
-   void setQueueId(QString id);
+   void setPlan(const BlueskyPlan& plan);
 
-private:
+   bool isQueued();
 
-   QString _scan_id;
+   BlueskyPlan getPlan() { return _bs_plan; }
+
+signals:
+   void planRemoved(BlueskyPlan);
+
+protected:
+
+   AnnotationProperty* _queue_status;
+
+   BlueskyPlan _bs_plan;
 
 };
 

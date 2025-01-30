@@ -179,7 +179,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -213,7 +215,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -247,7 +251,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -281,7 +287,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -296,7 +304,7 @@ public:
 
     //---------------------------------------------------------------------------
 
-    bool queue_plan(QString &msg, const BlueskyPlan& plan, QString &uuid)
+    bool queue_plan(QString &msg, BlueskyPlan& plan)
     {
         bool ret = false;
         if(_zmq_comm_socket == nullptr)
@@ -338,7 +346,7 @@ public:
                 QJsonObject obj_item = reply.value("item").toObject();
                 if(obj_item.contains("item_uid"))
                 {
-                    uuid = obj_item.value("item_uid").toString();
+                    plan.uuid = obj_item.value("item_uid").toString();
                 }
             }
         }
@@ -348,7 +356,7 @@ public:
     
     //---------------------------------------------------------------------------
 
-    bool update_plan(QString &msg, const BlueskyPlan& plan)
+    bool update_plan(QString &msg, BlueskyPlan& plan)
     {
         bool ret = false;
         if(_zmq_comm_socket == nullptr)
@@ -371,7 +379,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -380,7 +390,16 @@ public:
             {
                 msg = reply["msg"].toString();
             }
+            if(reply.contains("item"))
+            {
+                QJsonObject obj_item = reply["item"].toObject();
+                if(obj_item.contains("item_uid"))
+                {
+                    plan.uuid = obj_item.value("item_uid").toString();
+                }
+            }
         }
+
         return ret;
     }
     
@@ -409,7 +428,9 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -424,7 +445,7 @@ public:
 
    //---------------------------------------------------------------------------
     
-    bool removePlan(QString &msg, int row)
+    bool removePlan(QString &msg, int row, BlueskyPlan& out_plan)
     {
         bool ret = false;
         if(_zmq_comm_socket == nullptr)
@@ -445,7 +466,55 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                if(reply["success"].toString() == "true")
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
+                {
+                    ret = true;
+                }
+            }
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
+            if(reply.contains("item"))
+            {
+                QJsonObject obj_item = reply["item"].toObject();
+                if(obj_item.contains("item_uid"))
+                {
+                    out_plan.uuid = obj_item.value("item_uid").toString();
+                }
+            }
+        }
+        return ret;
+    }
+
+   //---------------------------------------------------------------------------
+    
+    bool removePlan(QString &msg, QString uuid)
+    {
+        bool ret = false;
+        if(_zmq_comm_socket == nullptr)
+        {
+            return ret;
+        }
+        zmq::message_t message;
+        
+        QJsonObject params;
+        params["uid"] = uuid;
+        QByteArray msg_arr = gen_send_mesg2("queue_item_remove", params);
+        zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
+        zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
+
+        zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
+        if(r_res.has_value())
+        {
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
+            if(reply.contains("success"))
+            {
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
                     ret = true;
                 }
@@ -487,7 +556,7 @@ public:
             else
             {
                 QString strval = kwargs.value(pitr).toString();
-                if(strval == "True" || strval == "False")
+                if(strval == "True" || strval == "False" || strval == u"True" || strval == u"False")
                 {
                     bsp.default_val = strval;
                     bsp.kind = BlueskyParamType::Bool;
@@ -533,17 +602,11 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                QString strReply = reply["success"].toString();
-                if(strReply.length() > 0)
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
-                    if(strReply == "true")
-                    {
-                        ret = true;
-                    }
-                }
-                else
-                {
-                    ret = reply["success"].toBool();
+                    ret = true;
                 }
             }
             if(reply.contains("plans_allowed"))
@@ -648,17 +711,11 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                QString strReply = reply["success"].toString();
-                if(strReply.length() > 0)
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
-                    if(strReply == "true")
-                    {
-                        ret = true;
-                    }
-                }
-                else
-                {
-                    ret = reply["success"].toBool();
+                    ret = true;
                 }
             }
             if(reply.contains("items"))
@@ -793,7 +850,12 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(msg.toUtf8()).object();
             if(reply.contains("success"))
             {
-                return true;
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
+                {
+                    ret = true;
+                }
             }
         }
         return false;
@@ -825,17 +887,11 @@ public:
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
-                QString strReply = reply["success"].toString();
-                if(strReply.length() > 0)
+                QVariant v = reply.value("success").toVariant();
+                QString strV = v.toString().toLower();
+                if(strV == u"true" || strV == "true")
                 {
-                    if(strReply == "true")
-                    {
-                        ret = true;
-                    }
-                }
-                else
-                {
-                    ret = reply["success"].toBool();
+                    ret = true;
                 }
             }
             if(reply.contains("items"))

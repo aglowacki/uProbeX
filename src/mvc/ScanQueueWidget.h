@@ -59,9 +59,9 @@ signals:
 
    void onRemoveScan(int);
 
-   void onPlanChanged(const BlueskyPlan&);
+   void onPlanChanged(BlueskyPlan&);
 
-   void onAddScan(const BlueskyPlan&);
+   void onAddScan(BlueskyPlan&);
 
    void onSetHistory();
 

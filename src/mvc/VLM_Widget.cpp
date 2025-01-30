@@ -251,6 +251,8 @@ void VLM_Widget::onConfigRegionLink()
 void VLM_Widget::onAddMicroProbeRegion()
 {
    ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+
+   connect(annotation, &ScanRegionGraphicsItem::planRemoved, this, &VLM_Widget::onScanRemoved);
    //UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
    annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
@@ -2589,52 +2591,144 @@ void VLM_Widget::onQueueMicroProbeRegion()
    {
       const std::vector<QString> propList = _scan_region_link_dialog->property_list();
       BlueskyPlan plan;
+      QJsonObject scan_link;
+      if(item->isQueued())
+      {
+         plan = item->getPlan();
+      }
+
       QString scan_name = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
 	   QJsonArray scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
       for (const auto &scan_link_ref : scan_link_profiles)
       {
-         QJsonObject scan_link  = scan_link_ref.toObject();
+         scan_link  = scan_link_ref.toObject();
          if (scan_link.contains(STR_SCAN_TYPE))
          {
-            QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
-            if(scan_name == l_scan_name)
+            if(item->isQueued())
             {
-               if(_avail_scans->count(l_scan_name) > 0)
+               break;
+            }
+            else
+            {
+               QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
+               if(scan_name == l_scan_name)
                {
-                  plan = _avail_scans->at(l_scan_name);
-                  plan.type = l_scan_name;
-                  plan.name = item->displayName();
-               }
-               else
-               {
-                  QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).");
-                  return;
-               }
-               for(const auto& itr: propList)
-               {
-                  if(scan_link.contains(itr))
+                  if(_avail_scans->count(l_scan_name) > 0)
                   {
-                     QString scan_link_value = scan_link.value(itr).toString();
-
-                     for(auto &param : plan.parameters)
-                     {
-                        if(param.name == scan_link_value)
-                        {
-                           QString val = item->getValueAsString(itr);
-                           if(val.length() > 0)
-                           {
-                              param.default_val = val;
-                           }
-                           break;
-                        }
-                     }
+                     plan = _avail_scans->at(l_scan_name);
+                     plan.type = l_scan_name;
+                     plan.name = item->displayName();
+                     break;
+                  }
+                  else
+                  {
+                     QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).");
+                     return;
                   }
                }
+            }
+         }
+      }
+
+      for(const auto& itr: propList)
+      {
+         if(scan_link.contains(itr))
+         {
+            QString scan_link_value = scan_link.value(itr).toString();
+
+            for(auto &param : plan.parameters)
+            {
+               if(param.name == scan_link_value)
+               {
+                  QString val = item->getValueAsString(itr);
+                  if(val.length() > 0)
+                  {
+                     param.default_val = val;
+                  }
+                  break;
+               }
+            }
+         }
+      }
+      
+      if(item->isQueued())
+      {
+         emit onScanUpdated(plan, item); 
+      }
+      else
+      {
+         emit onQueueScan(plan, item); 
+      }
+   }
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::updatePlan(const BlueskyPlan &plan)
+{
+
+   QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
+   gstar::AbstractGraphicsItem* groupPtr = static_cast<gstar::AbstractGraphicsItem*>(first.internalPointer());
+   if(groupPtr == nullptr)
+   {
+      return;
+   }
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+
+   for (gstar::AbstractGraphicsItem* child : clist)
+   {
+      if (child != nullptr)
+      {
+         ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(child);
+         if(item != nullptr)
+         {
+            if(item->getPlan().uuid == (plan.uuid))
+            {
+               item->setPlan(plan);
                break;
             }
          }
       }
-      emit onScanUpdated(plan, item); 
+   }
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::removePlan(const BlueskyPlan &plan)
+{
+   if(plan.uuid.length() == 0)
+   {
+      return;
+   }
+   QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
+   gstar::AbstractGraphicsItem* groupPtr = static_cast<gstar::AbstractGraphicsItem*>(first.internalPointer());
+   if(groupPtr == nullptr)
+   {
+      return;
+   }
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+
+   int idx = 0;
+   for (gstar::AbstractGraphicsItem* child : clist)
+   {
+      if (child != nullptr)
+      {
+         ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(child);
+         if(item != nullptr)
+         {
+            BlueskyPlan item_plan = item->getPlan();
+            if(item_plan.uuid == plan.uuid)
+            {
+               // we do this so when we call delete it doesn't send event to double delete
+               item_plan.uuid = "";
+               item->setPlan(item_plan);
+               QModelIndex child_index = m_mpTreeModel->index(idx, 0,first);
+               m_mpTreeModel->removeRow(idx, child_index);
+               break;
+            }
+         }
+      }
+      idx ++;
    }
 }
 
