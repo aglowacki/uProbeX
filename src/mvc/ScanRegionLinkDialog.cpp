@@ -40,6 +40,9 @@ void ScanRegionLinkDialog::_createLayout()
 
 	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionLinkDialog::onScanChanged);
 
+	_ck_show_all_props = new QCheckBox("Show All Properties");
+	connect(_ck_show_all_props, &QCheckBox::stateChanged, this, &ScanRegionLinkDialog::onShowAllProps);
+
 	_cb_link_top_y = new QComboBox();
     _cb_link_left_x = new QComboBox();
     _cb_link_right_x = new QComboBox();
@@ -54,7 +57,8 @@ void ScanRegionLinkDialog::_createLayout()
 	gridlayout->addWidget(new QLabel(STR_SCAN_TYPE), 0, 0);
 	gridlayout->addWidget(_scan_type, 0, 1);
 
-	gridlayout->addWidget(new QLabel(" "), 1, 0);
+	gridlayout->addWidget(_ck_show_all_props, 1, 0);
+	gridlayout->addWidget(new QLabel("   not just ones that are type Double"), 1, 1);
 
 	gridlayout->addWidget(new QLabel(STR_Region_Box_Top_Y), 2, 0);
 	gridlayout->addWidget(_cb_link_top_y, 2, 1);
@@ -128,6 +132,41 @@ void ScanRegionLinkDialog::_loadLinkProfile()
 
 //---------------------------------------------------------------------------
 
+void ScanRegionLinkDialog::onShowAllProps(int)
+{
+	onScanChanged(_scan_type->currentText());
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionLinkDialog::_clear_args()
+{
+	_cb_link_top_y->clear();
+	_cb_link_left_x->clear();
+	_cb_link_right_x->clear();
+	_cb_link_bottom_y->clear();
+	_cb_link_center_x->clear();
+	_cb_link_center_y->clear();
+	_cb_link_width->clear();
+	_cb_link_height->clear();
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionLinkDialog::_add_arg(const QString &name)
+{
+	_cb_link_top_y->addItem(name);
+	_cb_link_left_x->addItem(name);
+	_cb_link_right_x->addItem(name);
+	_cb_link_bottom_y->addItem(name);
+	_cb_link_center_x->addItem(name);
+	_cb_link_center_y->addItem(name);
+	_cb_link_width->addItem(name);
+	_cb_link_height->addItem(name);
+}
+
+//---------------------------------------------------------------------------
+
 void ScanRegionLinkDialog::onScanChanged(const QString &scan_name)
 {
 	if(_avail_scans != nullptr)
@@ -135,36 +174,22 @@ void ScanRegionLinkDialog::onScanChanged(const QString &scan_name)
 		if(_avail_scans->count(scan_name) > 0)
 		{
 			const BlueskyPlan plan = _avail_scans->at(scan_name);
-			_cb_link_top_y->clear();
-			_cb_link_left_x->clear();
-			_cb_link_right_x->clear();
-			_cb_link_bottom_y->clear();
-			_cb_link_center_x->clear();
-			_cb_link_center_y->clear();
-			_cb_link_width->clear();
-			_cb_link_height->clear();
+			_clear_args();
 
-			_cb_link_top_y->addItem(" ");
-			_cb_link_left_x->addItem(" ");
-			_cb_link_right_x->addItem(" ");
-			_cb_link_bottom_y->addItem(" ");
-			_cb_link_center_x->addItem(" ");
-			_cb_link_center_y->addItem(" ");
-			_cb_link_width->addItem(" ");
-			_cb_link_height->addItem(" ");
-
+			_add_arg(" ");
+			
 			for(auto itr: plan.parameters)
 			{
-				if(itr.kind == BlueskyParamType::Double)
+				if(_ck_show_all_props->isChecked())
 				{
-					_cb_link_top_y->addItem(itr.name);
-					_cb_link_left_x->addItem(itr.name);
-					_cb_link_right_x->addItem(itr.name);
-					_cb_link_bottom_y->addItem(itr.name);
-					_cb_link_center_x->addItem(itr.name);
-					_cb_link_center_y->addItem(itr.name);
-					_cb_link_width->addItem(itr.name);
-					_cb_link_height->addItem(itr.name);
+					_add_arg(itr.name);
+				}
+				else
+				{
+					if( itr.kind == BlueskyParamType::Double)
+					{
+						_add_arg(itr.name);
+					}
 				}
 			}
 

@@ -1091,10 +1091,15 @@ void VLM_Widget::createCalibrationTab()
    _btnCaptureBackground = new QPushButton("Capture Background Image");
    connect(_btnCaptureBackground, &QPushButton::clicked, this, &VLM_Widget::onCaptureBackgroundImage);
 
+   m_btnConfigRegionLink = new QPushButton("Config Region Link");
+   connect(m_btnConfigRegionLink, &QPushButton::clicked, this, &VLM_Widget::onConfigRegionLink);
+   
+
    _btnCaptureBackground->setVisible(false);
 
    m_btnRunSolver = new QPushButton("Update Transform");
    connect(m_btnRunSolver, &QPushButton::clicked, this, &VLM_Widget::openSolver);
+
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
    QHBoxLayout* buttonLayout = new QHBoxLayout();
@@ -1107,6 +1112,7 @@ void VLM_Widget::createCalibrationTab()
    buttonLayout2->addWidget(m_btnAddTopWindowPoints);
    buttonLayout2->addWidget(m_btnAddBottomWindowPoints);
    buttonLayout3->addWidget(_btnSetBackground);
+   buttonLayout3->addWidget(m_btnConfigRegionLink);
    //buttonLayout3->addWidget(_btnCaptureBackground);
    infoLayout->addLayout(offsetLayout);
    infoLayout->addLayout(buttonLayout);
@@ -1254,12 +1260,8 @@ void VLM_Widget::createMicroProbeTab()
    m_btnAddMicroProbe = new QPushButton("Add Micro Probe Region");
    connect(m_btnAddMicroProbe, &QPushButton::clicked, this, &VLM_Widget::onAddMicroProbeRegion);
 
-   m_btnConfigRegionLink = new QPushButton("Config Region Link");
-   connect(m_btnConfigRegionLink, &QPushButton::clicked, this, &VLM_Widget::onConfigRegionLink);
-   
    QHBoxLayout* btnLayout = new QHBoxLayout();
    btnLayout->addWidget(m_btnAddMicroProbe);
-   btnLayout->addWidget(m_btnConfigRegionLink);
 
    QVBoxLayout* infoLayout = new QVBoxLayout();
    infoLayout->addItem(btnLayout);

@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QJsonArray>
 #include "mvc/BlueskyPlan.h"
 
@@ -57,13 +58,21 @@ public slots:
 
    void onSave();
 
+   void onShowAllProps(int);
+
 protected:
 
    void _createLayout();
 
+   void _clear_args();
+
+   void _add_arg(const QString &scan_name);
+
 private:
 
-   void _loadLinkProfile();
+    void _loadLinkProfile();
+
+    QCheckBox *_ck_show_all_props;
 
     QComboBox *_scan_type;
 
