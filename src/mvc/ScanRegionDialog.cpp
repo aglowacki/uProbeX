@@ -100,7 +100,7 @@ void ScanRegionDialog::_createLayout()
 	main_layout->addItem(button_layout);
 	setLayout(main_layout);
 
-	setWindowTitle("Scan Region");
+	setWindowTitle("Scan");
 }
 
 //---------------------------------------------------------------------------

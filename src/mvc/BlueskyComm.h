@@ -846,8 +846,8 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
+            QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             msg = QString::fromUtf8((char*)message.data(), message.size());
-            QJsonObject reply = QJsonDocument::fromJson(msg.toUtf8()).object();
             if(reply.contains("success"))
             {
                 QVariant v = reply.value("success").toVariant();
@@ -857,8 +857,12 @@ public:
                     ret = true;
                 }
             }
+            if(reply.contains("msg"))
+            {
+                msg = reply["msg"].toString();
+            }
         }
-        return false;
+        return ret;
     }
 
     //---------------------------------------------------------------------------
