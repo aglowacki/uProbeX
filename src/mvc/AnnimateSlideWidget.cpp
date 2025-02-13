@@ -11,6 +11,7 @@ AnnimateSlideWidget::AnnimateSlideWidget(QWidget *parent) : QWidget(parent)
 {
     _anim_widget = nullptr;
     _anim_enabled = true;
+    _isShown = true;
     _first = true;
     _cur_state = SlideState::SlideOut;
 }
@@ -19,6 +20,9 @@ AnnimateSlideWidget::AnnimateSlideWidget(QWidget *parent) : QWidget(parent)
 
 void AnnimateSlideWidget::setAnimWidget(QWidget* w, QWidget* container_widget) 
 {
+    _btn_toggle = new QPushButton("|");
+    _btn_toggle->setMaximumWidth(10);
+    connect(_btn_toggle, &QPushButton::pressed, this, &AnnimateSlideWidget::onToggle);
     if(w != nullptr)
     {
         _anim_widget = w; 
@@ -34,9 +38,11 @@ void AnnimateSlideWidget::setAnimWidget(QWidget* w, QWidget* container_widget)
     if(container_widget != nullptr)
     {
         layout->addWidget(container_widget);
+        layout->addWidget(_btn_toggle);
     }
     else
     {
+        layout->addWidget(_btn_toggle);
         layout->addWidget(_anim_widget);
     }
 	layout->setSpacing(0);

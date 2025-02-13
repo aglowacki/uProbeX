@@ -222,16 +222,16 @@ void AbstractImageWidget::createRangeWidget()
    m_range = new RangeWidget();
    m_range->setMaximum(0);
    m_range->setMinimum(0);
-   connect(m_range, SIGNAL(valueChanged(int, int)), this, SIGNAL(rangeChanged(int, int)));
+   connect(m_range, &RangeWidget::valueChanged, this, &AbstractImageWidget::rangeChanged);
 
    m_imageHeightDim = new QComboBox();
    m_imageHeightDim->setEditable(true);
 
-   connect(m_imageHeightDim, SIGNAL(activated(int)), this, SIGNAL(imageHeightDimChanged(int)));
+   connect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
 
    m_imageWidthDim = new QComboBox();
    m_imageWidthDim->setEditable(true);
-   connect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
+   connect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
 
 }
 
@@ -633,9 +633,9 @@ void AbstractImageWidget::setWidthDims(int w)
     {
         if (w > (m_imageWidthDim->count() - 1)) return;
 
-        disconnect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
+        disconnect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
         m_imageWidthDim->setCurrentIndex(w);
-        connect(m_imageWidthDim, SIGNAL(activated(int)), this, SIGNAL(imageWidthDimChanged(int)));
+        connect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
     }
 }
 
@@ -699,13 +699,12 @@ void AbstractImageWidget::treeDoubleClicked(const QModelIndex& index)
             }
          }
          else if (data.typeId() == QMetaType::QIcon)
-         {
+         {            
             QDialog* custom_dialog = item->get_custom_dialog();
             if(custom_dialog != nullptr)
             {
                custom_dialog->show();
             }
-
          }
       }
    }

@@ -328,11 +328,14 @@ public:
 
     //---------------------------------------------------------------------------
 signals:
+
     void moveScanRow(int, int);
-    void planChanged(const BlueskyPlan&);  
+
+    void planChanged(BlueskyPlan&);  
 
 private:
     int _last_finished_idx;
+    
     std::vector<BlueskyPlan> _data;
 
     std::map<QString, BlueskyPlan> *_avail_scans;

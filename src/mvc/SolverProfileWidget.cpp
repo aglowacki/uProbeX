@@ -116,14 +116,8 @@ void SolverProfileWidget::createCompontent()
     connect(m_profileTable, &ProfileTable::switchItem, this, &SolverProfileWidget::switchProfileItem);
 
     _solverParamWidget = new SolverParameterWidget();
-    connect(_solverParamWidget,
-        SIGNAL(coefficientItemChanged()),
-        this,
-        SLOT(coefficientItemChanged()));
-    connect(_solverParamWidget,
-        SIGNAL(optionItemChanged()),
-        this,
-        SLOT(optionItemChanged()));
+    connect(_solverParamWidget,&SolverParameterWidget::coefficientItemChanged,this,&SolverProfileWidget::coefficientItemChanged);
+    connect(_solverParamWidget,&SolverParameterWidget::optionItemChanged,this,&SolverProfileWidget::optionItemChanged);
 
     QFont font;
     font.setBold(true);
@@ -137,9 +131,9 @@ void SolverProfileWidget::createCompontent()
 
     m_openPythonButton = new QPushButton(tr("Open Python File..."), this);
     connect(m_openPythonButton,
-        SIGNAL(clicked()),
+        clicked,
         this,
-        SLOT(openPythonFile()));
+        openPythonFile);
 
     m_lblP = new QLabel("");
     m_lePythonPath = new QLineEdit("");

@@ -289,17 +289,9 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
       return;
    }
 
-   disconnect(m_selectionModel,
-              SIGNAL(selectionChanged(const QItemSelection &,
-                                      const QItemSelection &)),
-              this,
-              SLOT(modelSelectionChanged(const QItemSelection &,
-                                         const QItemSelection &)));
+   disconnect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
 
-   disconnect(this,
-              SIGNAL(selectionChanged()),
-              this,
-              SLOT(sceneSelectionChanged()));
+   disconnect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
    clearFocus();
 
@@ -317,17 +309,9 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
       item->setSelected(true);
    }
 
-   connect(m_selectionModel,
-           SIGNAL(selectionChanged(const QItemSelection &,
-                                   const QItemSelection &)),
-           this,
-           SLOT(modelSelectionChanged(const QItemSelection &,
-                                      const QItemSelection &)));
+   connect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
 
-   connect(this,
-           SIGNAL(selectionChanged()),
-           this,
-           SLOT(sceneSelectionChanged()));
+   connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
 }
 
@@ -435,7 +419,7 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
    {
       delete m_zoomSelection;
       m_zoomSelection = nullptr;
-      emit zoomIn(m_zoomRect, event);
+      emit zoomInRect(m_zoomRect, event);
    }
    else
    {
@@ -527,17 +511,9 @@ void ImageViewScene::sceneSelectionChanged()
     if (m_model != nullptr && m_selectionModel != nullptr)
     {
 
-        disconnect(m_selectionModel,
-            SIGNAL(selectionChanged(const QItemSelection&,
-                const QItemSelection&)),
-            this,
-            SLOT(modelSelectionChanged(const QItemSelection&,
-                const QItemSelection&)));
+        disconnect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
 
-        disconnect(this,
-            SIGNAL(selectionChanged()),
-            this,
-            SLOT(sceneSelectionChanged()));
+        disconnect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
         m_selectionModel->clear();
 
@@ -572,17 +548,9 @@ void ImageViewScene::sceneSelectionChanged()
 
     if (m_selectionModel != nullptr)
     {
-        connect(m_selectionModel,
-            SIGNAL(selectionChanged(const QItemSelection&,
-                const QItemSelection&)),
-            this,
-            SLOT(modelSelectionChanged(const QItemSelection&,
-                const QItemSelection&)));
+        connect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
     }
-    connect(this,
-        SIGNAL(selectionChanged()),
-        this,
-        SLOT(sceneSelectionChanged()));
+    connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
 }
 
@@ -638,15 +606,9 @@ void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
    // Remove old connections
    if (m_model != nullptr)
    {
-      disconnect(m_model,
-                 SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                 this,
-                 SLOT(modelRowsInserted(const QModelIndex&, int, int)));
+      disconnect(m_model, &QAbstractItemModel::rowsInserted, this, &ImageViewScene::modelRowsInserted);
 
-      disconnect(m_model,
-          SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
-          this,
-          SLOT(modelRowsRemoved(const QModelIndex&, int, int)));
+      disconnect(m_model, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ImageViewScene::modelRowsRemoved);
    }
 
    removeAllAnnotationItems();
@@ -659,15 +621,9 @@ void ImageViewScene::setModel(QAbstractItemModel* model, bool is_multi_scene)
    {
        addAnnotationsFromModel();
        // Connect signals/slots to inserting and removing ROIs
-       connect(m_model,
-           SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-           this,
-           SLOT(modelRowsInserted(const QModelIndex&, int, int)));
+       connect(m_model, &QAbstractItemModel::rowsInserted, this, &ImageViewScene::modelRowsInserted);
 
-       connect(m_model,
-           SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
-           this,
-           SLOT(modelRowsRemoved(const QModelIndex&, int, int)));
+       connect(m_model, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ImageViewScene::modelRowsRemoved);
    }
 }
 
@@ -679,12 +635,7 @@ void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
    // Remove old connections
    if (m_selectionModel != nullptr)
    {
-      disconnect(m_selectionModel,
-                 SIGNAL(selectionChanged(const QItemSelection&,
-                                         const QItemSelection&)),
-                 this,
-                 SLOT(modelSelectionChanged(const QItemSelection&,
-                                            const QItemSelection&)));
+      disconnect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
    }
 
    // Set ROI selection model
@@ -693,12 +644,7 @@ void ImageViewScene::setSelectionModel(QItemSelectionModel* selectionModel)
    if (m_selectionModel != nullptr)
    {
        // Set new connections
-       connect(m_selectionModel,
-           SIGNAL(selectionChanged(const QItemSelection&,
-               const QItemSelection&)),
-           this,
-           SLOT(modelSelectionChanged(const QItemSelection&,
-               const QItemSelection&)));
+       connect(m_selectionModel, &QItemSelectionModel::selectionChanged, this, &ImageViewScene::modelSelectionChanged);
    }
 }
 

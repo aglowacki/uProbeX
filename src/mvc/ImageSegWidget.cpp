@@ -18,10 +18,7 @@ ImageSegWidget::ImageSegWidget(QWidget* parent)
     createLayout();
     createActions();
 
-    disconnect(m_imageViewWidget,
-        SIGNAL(customContextMenuRequested(const QPoint&)),
-        this,
-        SLOT(viewContextMenu(const QPoint&)));
+    //disconnect(m_imageViewWidget,&ImageViewWidget::customContextMenuRequested,this,&ImageSegWidget::viewContextMenu);
 }
 
 //---------------------------------------------------------------------------

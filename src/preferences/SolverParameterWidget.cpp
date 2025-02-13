@@ -23,15 +23,9 @@ SolverParameterWidget::SolverParameterWidget(QWidget* parent) : QWidget(parent)
    m_coefficientTable = new SolverTable();
    m_optionTable = new SolverTable();
 
-   connect(m_coefficientTable,
-           SIGNAL(itemChanged()),
-           this,
-           SIGNAL(coefficientItemChanged()));
+   connect(m_coefficientTable, &SolverTable::itemChanged, this, &SolverParameterWidget::coefficientItemChanged);
 
-   connect(m_optionTable,
-           SIGNAL(itemChanged()),
-           this,
-           SIGNAL(optionItemChanged()));
+   connect(m_optionTable, &SolverTable::itemChanged, this, &SolverParameterWidget::optionItemChanged);
 
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->setContentsMargins(0, 0, 0, 0);

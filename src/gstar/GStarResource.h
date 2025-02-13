@@ -110,6 +110,8 @@ namespace gstar {
     */
    const QString UPROBE_SIZE = "Size";
 
+
+   const QString SCAN_REGION_QUEUE_STATUS = "Queue Status";
 };
 
 //---------------------------------------------------------------------------

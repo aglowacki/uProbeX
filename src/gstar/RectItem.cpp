@@ -129,13 +129,13 @@ void RectItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 void RectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-
+/*
    // Mark unused
    Q_UNUSED(event);
 
    // Reset cursor
    unsetCursor();
-
+*/
 }
 
 //---------------------------------------------------------------------------
@@ -147,7 +147,7 @@ void RectItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
    if (!isSelected()) {
       return;
    }
-
+/*
    // Get scale factor from QGraphicsView
    double scale = getSceneScale();
 
@@ -166,7 +166,7 @@ void RectItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
    else {
       setCursor(Qt::SizeAllCursor);
    }
-
+*/
 }
 
 //---------------------------------------------------------------------------

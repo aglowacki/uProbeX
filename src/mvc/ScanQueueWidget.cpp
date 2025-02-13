@@ -288,7 +288,6 @@ void ScanQueueWidget::newDataArrived(const QString& data)
     //|| data.count("Queue is empty") > 0
     //|| data.count("Queue is stopped") > 0
     )
-    
     {
         emit queueNeedsToBeUpdated();
     }

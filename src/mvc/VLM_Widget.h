@@ -32,6 +32,8 @@
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"
+#include <mvc/ScanRegionLinkDialog.h>
+#include "gstar/Annotation/ScanRegionGraphicsItem.h"
 
 
 class Solver;
@@ -159,10 +161,15 @@ public:
     */
    void addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation);
 
-   // TODO: make sure to update all ScansRegionGraphicsItems with new pointer
-   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans) { _avail_scans = avail_scans;}
+   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 
    void load_live_coord_settings();
+
+   void setEnableChangeBackground(bool val);
+
+   void updatePlan(const BlueskyPlan &plan);
+
+   void removePlan(const BlueskyPlan &plan);
 
 public slots:
 
@@ -188,13 +195,16 @@ protected slots:
    /**
     * @brief addMicroProbeRegion
     */
-   void addMicroProbeRegion();
+   void onAddMicroProbeRegion();
+
+   void onConfigRegionLink();
 
    /**
     * @brief zoomMicroProbeRegion
     */
    void zoomMicroProbeRegion();
 
+   void onExportSelectedRegionInformation();
    /**
     * @brief exportSelectedRegionInformation
     * @param summaryInformation - When pointer is provided, only simulated output is generated. (must be specified with summaryWarnings)
@@ -292,6 +302,12 @@ protected slots:
    void useUpdatedSolverVariables(const QMap<QString, double> vars);
 
    void linkRegionToDataset();
+
+   void onQueueMicroProbeRegion();
+
+   void onUpdateBackgroundImage();
+
+   void onCaptureBackgroundImage();
 
 protected:
 
@@ -396,7 +412,11 @@ signals:
 
    void onLinkRegionToDataset(QString, QString, QImage);
 
-   void onScanUpdated(const BlueskyPlan &plan); 
+   void onQueueScan(BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
+
+   void onScanUpdated(BlueskyPlan &plan, gstar::ScanRegionGraphicsItem* item); 
+
+   void onScanRemoved(BlueskyPlan plan);
 
 private:
 
@@ -476,6 +496,8 @@ private:
 
    QAction* _linkRegionToDatasetAction;
 
+   QAction* _queueMicroPrboeRegionAction;
+
    /**
     * @brief m_colorValue
     */
@@ -515,18 +537,7 @@ private:
     * @brief m_microProbePvSet
     */
    bool m_microProbePvSet;
-   /*
-   CAEventHandler* m_pvXHandler;
 
-
-   CAEventHandler* m_pvYHandler;
-
-
-   boost::shared_ptr<PV> m_pvX;
-
-
-   boost::shared_ptr<PV> m_pvY;
-    */
    /**
     * @brief m_pxValue
     */
@@ -557,10 +568,16 @@ private:
     */
    QPushButton* m_btnAddMicroProbe;
 
+   QPushButton* m_btnConfigRegionLink;
+
    /**
     * @brief m_btnRunSolver
     */
    QPushButton* m_btnRunSolver;
+
+   QPushButton* _btnSetBackground;
+
+   QPushButton* _btnCaptureBackground;
 
    /**
     * @brief m_calibrationTabWidget
@@ -653,6 +670,8 @@ private:
    QMap<QAction*, RegionCaller*> m_actionMap;
 
    std::map<QString, BlueskyPlan> *_avail_scans;
+
+   ScanRegionLinkDialog* _scan_region_link_dialog;
 
 };
 

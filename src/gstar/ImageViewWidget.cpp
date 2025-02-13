@@ -231,10 +231,10 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
 
 	for (auto &itr : _sub_windows)
 	{
-		connect(itr.scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
-		connect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
-		connect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-		connect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
+		connect(itr.scene, &ImageViewScene::zoomIn, this, &ImageViewWidget::zoomIn);
+		connect(itr.scene, &ImageViewScene::zoomInRect, this, &ImageViewWidget::zoomInRect);
+		connect(itr.scene, &ImageViewScene::zoomOut, this, &ImageViewWidget::zoomOut);
+		connect(itr.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidget::sceneRectUpdated);
         connect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
        
         connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
@@ -310,10 +310,10 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 
 	for (auto &itr : _sub_windows)
 	{
-		disconnect(itr.scene, SIGNAL(zoomIn(QRectF, QGraphicsSceneMouseEvent*)), this, SLOT(zoomIn(QRectF, QGraphicsSceneMouseEvent*)));
-		disconnect(itr.scene, SIGNAL(zoomIn(QGraphicsItem*)), this, SLOT(zoomIn(QGraphicsItem*)));
-		disconnect(itr.scene, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-		disconnect(itr.scene, SIGNAL(sceneRectChanged(const QRectF&)), this, SLOT(sceneRectUpdated(const QRectF&)));
+		disconnect(itr.scene, &ImageViewScene::zoomIn, this, &ImageViewWidget::zoomIn);
+		disconnect(itr.scene, &ImageViewScene::zoomInRect, this, &ImageViewWidget::zoomInRect);
+		disconnect(itr.scene, &ImageViewScene::zoomOut, this, &ImageViewWidget::zoomOut);
+		disconnect(itr.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidget::sceneRectUpdated);
 		disconnect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
 		disconnect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
@@ -602,7 +602,7 @@ void ImageViewWidget::setZoomPercentWidget(QComboBox* zoomPercent)
 {
 
     m_zoomPercent  = zoomPercent;
-    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
+    connect(m_zoomPercent, &QComboBox::currentIndexChanged, this, &ImageViewWidget::zoomValueChanged);
     updateZoomPercentage();
 
 }
@@ -616,11 +616,11 @@ void ImageViewWidget::updateZoomPercentage()
 
     qreal wp = getCurrentZoomPercent();
 
-    disconnect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
+    disconnect(m_zoomPercent, &QComboBox::currentIndexChanged, this, &ImageViewWidget::zoomValueChanged);
 
     m_zoomPercent->setEditText(QString("%1").arg(wp, 0, 'f',  0));
 
-    connect(m_zoomPercent, SIGNAL(currentIndexChanged(int)), this, SLOT(zoomValueChanged(int)));
+    connect(m_zoomPercent, &QComboBox::currentIndexChanged, this, &ImageViewWidget::zoomValueChanged);
 
 }
 
@@ -659,7 +659,7 @@ void ImageViewWidget::zoomIn(QGraphicsItem* zoomObject)
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidget::zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
+void ImageViewWidget::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
 {
 
     qreal wp = getCurrentZoomPercent();

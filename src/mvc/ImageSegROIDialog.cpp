@@ -286,7 +286,7 @@ QWidget* ImageSegRoiDialog::_createKMeansLayout()
 	layout->addItem(hlayout);
 	
 	_runBtn = new QPushButton("Run");
-	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
+	connect(_runBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onRun);
 	layout->addWidget(_runBtn);
 
 	QWidget* widget = new QWidget();
@@ -364,7 +364,7 @@ QWidget* ImageSegRoiDialog::_createDBScanLayout()
 	layout->addItem(hlayout);
 	
 	_runBtn = new QPushButton("Run");
-	connect(_runBtn, SIGNAL(pressed()), this, SLOT(onRun()));
+	connect(_runBtn, pressed, this, onRun);
 	layout->addWidget(_runBtn);
 */
 	QWidget* widget = new QWidget();
@@ -438,8 +438,8 @@ void ImageSegRoiDialog::createLayout()
 	_acceptBtn = new QPushButton("Accept");
 	//_acceptBtn->setEnabled(false);
 	_cancelBtn = new QPushButton("Cancel");
-	connect(_acceptBtn, SIGNAL(pressed()), this, SLOT(onAccept()));
-	connect(_cancelBtn, SIGNAL(pressed()), this, SLOT(onClose()));
+	connect(_acceptBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onAccept);
+	connect(_cancelBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onClose);
 
 	_img_list_model = new QStandardItemModel();
 	_img_names_view = new QListView();

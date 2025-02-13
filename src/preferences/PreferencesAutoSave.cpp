@@ -35,7 +35,7 @@ PreferencesAutoSave::PreferencesAutoSave(QWidget* parent) : QWidget(parent)
 
    setLayout(mainLayout);
 
-   connect(m_enableRecoveryAutoSaveFunctionality, SIGNAL(stateChanged(int)), this, SLOT(enableRecoveryAutoSafeChanged(int)));
+   connect(m_enableRecoveryAutoSaveFunctionality, &QCheckBox::stateChanged, this, &PreferencesAutoSave::enableRecoveryAutoSafeChanged);
 }
 
 //---------------------------------------------------------------------------

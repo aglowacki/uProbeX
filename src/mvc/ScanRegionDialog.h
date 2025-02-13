@@ -48,10 +48,10 @@ public:
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 
    void setRegionNameVisible(bool val) { _lbl_region_name->setVisible(val); _scan_name->setVisible(false);}
-   
+
 signals:
 	
-   void ScanUpdated(const BlueskyPlan& plan);
+   void ScanUpdated(BlueskyPlan& plan);
 
 public slots:
 
@@ -59,7 +59,7 @@ public slots:
 
    void scanChanged(const QString &);
 
-   void onBatchScanChanged(Qt::CheckState);
+   void onBatchScanChanged(int);
 
 protected:
 

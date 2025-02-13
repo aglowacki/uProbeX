@@ -8,6 +8,7 @@
 #include <gstar/ImageViewScene.h>
 #include <QSize>
 #include <iostream>
+#include "mvc/ScanRegionLinkDialog.h"
 
 #include <QApplication>
 
@@ -103,6 +104,13 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
 
    initialScale();
    updateStringSize();
+
+}
+
+//---------------------------------------------------------------------------
+
+UProbeRegionGraphicsItem::~UProbeRegionGraphicsItem()
+{
 
 }
 
@@ -358,16 +366,14 @@ void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
          m_rect.setY(last_y);
          m_rect.setHeight(5);
       }
+      viewChanged();
    }
-   // No grip selected (this is a move)
-   else {
-      // Queue an update
+   else 
+   {
       update();
-
       // Pass mouse position
       QGraphicsItem::mouseMoveEvent(event);
       setPos(pos().x(), pos().y());
-
       // Check bounds
       /*      setPos(qBound(boundRect.left(), pos().x(),
                     boundRect.right() - m_rect.width()),
@@ -375,9 +381,7 @@ void UProbeRegionGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
                     boundRect.bottom() - m_rect.height()));*/
       // Emit change
       //emit itemChanged(this);
-
    }
-
    setGripSize();
 }
 
@@ -612,20 +616,14 @@ void UProbeRegionGraphicsItem::setMouseOverPixelCoordModel(CoordinateModel* mode
 
    if(m_mouseOverPixelCoordModel != nullptr)
    {
-      disconnect(m_mouseOverPixelCoordModel,
-                 SIGNAL(modelUpdated()),
-                 this,
-                 SLOT(updateModel()));
+      disconnect(m_mouseOverPixelCoordModel,&CoordinateModel::modelUpdated,this,&UProbeRegionGraphicsItem::updateModel);
    }
 
    m_mouseOverPixelCoordModel = model;
 
    if(m_mouseOverPixelCoordModel != nullptr)
    {
-      connect(m_mouseOverPixelCoordModel,
-              SIGNAL(modelUpdated()),
-              this,
-              SLOT(updateModel()));
+      connect(m_mouseOverPixelCoordModel,&CoordinateModel::modelUpdated,this,&UProbeRegionGraphicsItem::updateModel);
    }
 
 }
@@ -637,20 +635,14 @@ void UProbeRegionGraphicsItem::setLightToMicroCoordModel(CoordinateModel* model)
 
    if(m_lightToMicroCoordModel != nullptr)
    {
-      disconnect(m_lightToMicroCoordModel,
-                 SIGNAL(modelUpdated()),
-                 this,
-                 SLOT(updateModel()));
+      disconnect(m_lightToMicroCoordModel,&CoordinateModel::modelUpdated,this,&UProbeRegionGraphicsItem::updateModel);
    }
 
    m_lightToMicroCoordModel = model;
 
    if(m_lightToMicroCoordModel != nullptr)
    {
-      connect(m_lightToMicroCoordModel,
-              SIGNAL(modelUpdated()),
-              this,
-              SLOT(updateModel()));
+      connect(m_lightToMicroCoordModel,&CoordinateModel::modelUpdated,this,&UProbeRegionGraphicsItem::updateModel);
    }
 
 }
@@ -885,10 +877,11 @@ void UProbeRegionGraphicsItem::updateView()
 {
    //double x = m_positionXProp->getValue().toDouble();
    //double y = m_positionYProp->getValue().toDouble();
-
+   
    setSize(m_sizeProp->getValue().toDouble());
    //setX(x);
    //setY(y);
+   update(this->m_rect);
 
    m_outlineColor = QColor(m_outlineColorProp->getValue().toString());
 
@@ -896,3 +889,55 @@ void UProbeRegionGraphicsItem::updateView()
 
 //---------------------------------------------------------------------------
 
+QString UProbeRegionGraphicsItem::getValueAsString(QString prop)
+{
+   if(prop == STR_Region_Box_Top_Y)
+   {
+      double y = m_predictYProp->getValue().toDouble();
+      double h = m_heightProp->getValue().toDouble();
+      double v = y - (h / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Left_X)
+   {
+      double x = m_predictXProp->getValue().toDouble();
+      double w = m_widthProp->getValue().toDouble();
+      double v = x - (w / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Right_X)
+   {
+      double x = m_predictXProp->getValue().toDouble();
+      double w = m_widthProp->getValue().toDouble();
+      double v = x + (w / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Bottom_Y)
+   {
+      double y = m_predictYProp->getValue().toDouble();
+      double h = m_heightProp->getValue().toDouble();
+      double v = y + (h / 2.0);
+      return QString::number(v);
+   }
+   else if(prop == STR_Region_Box_Center_X)
+   {
+      return m_predictXProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Center_Y)
+   {
+      return m_predictYProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Width)
+   {
+      return m_widthProp->getValue().toString();
+   }
+   else if(prop == STR_Region_Box_Height)
+   {
+      return m_heightProp->getValue().toString();
+   }
+   return "";
+}
+
+//---------------------------------------------------------------------------
+
+               

@@ -111,8 +111,8 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    setPreferences(false);
 
    // Connect button signals/slots
-   connect(m_btnOK, SIGNAL(clicked()), this, SLOT(accept()));
-   connect(m_btnCancel, SIGNAL(clicked()), this, SLOT(reject()));
+   connect(m_btnOK, &QPushButton::clicked, this, &PreferencesDialog::accept);
+   connect(m_btnCancel, &QPushButton::clicked, this, &PreferencesDialog::reject);
 
    // Main layout
    m_layout = new QVBoxLayout;
@@ -125,10 +125,7 @@ PreferencesDialog::PreferencesDialog(QList<gstar::AbstractImageWidget*> windowLi
    setWindowTitle(tr("Preferences"));
 
    // Change page signal/slot
-   connect(m_contentsWidget,
-           SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-           this,
-           SLOT(changePage(QListWidgetItem*, QListWidgetItem*)));
+   connect(m_contentsWidget, &QListWidget::currentItemChanged,this,&PreferencesDialog::changePage);
 
 }
 

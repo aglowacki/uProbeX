@@ -403,9 +403,9 @@ void uProbeX::adjustAutoSaveSettings()
             m_autosaveTimer = new QTimer(this);
 
             connect(m_autosaveTimer,
-                    SIGNAL(timeout()),
+                    &timeout,
                     this,
-                    SLOT(performAutoSave()));
+                    &performAutoSave);
         }
 
         int time = Preferences::inst()->getValue(STR_PRF_AutoSaveRecoveryEveryMiliseconds).toInt();
@@ -425,9 +425,9 @@ void uProbeX::adjustAutoSaveSettings()
         if (m_autosaveTimer != nullptr)
         {
             disconnect(m_autosaveTimer,
-                       SIGNAL(timeout()),
+                       &timeout,
                        this,
-                       SLOT(performAutoSave()));
+                       &performAutoSave);
 
             delete m_autosaveTimer;
             m_autosaveTimer = nullptr;

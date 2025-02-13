@@ -23,13 +23,16 @@
 #include "gstar/AnnotationProperty.h"
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeRegionGraphicsItem.h"
-#include "mvc/ScanRegionDialog.h"
-#include "mvc/BlueskyPlan.h"
+#include "mvc/BlueskyComm.h"
 
 //---------------------------------------------------------------------------
 
 namespace gstar
 {
+
+#define STR_QUEUED "Queued"
+#define STR_NOT_QUEUED "Not Queued"
+#define STR_NEED_UPDATE "Need Update"
 
 class ScanRegionGraphicsItem : public UProbeRegionGraphicsItem
 {
@@ -47,7 +50,7 @@ public:
     * @param h - height
     * @param parent - parent Qt widget
     */
-   ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent = 0);
+   ScanRegionGraphicsItem(AbstractGraphicsItem* parent = 0);
 
    /**
    * @brief MarkerGraphicsItem
@@ -57,6 +60,9 @@ public:
    ScanRegionGraphicsItem(QMap<QString, QString>& marker,
                             AbstractGraphicsItem* parent = 0);
 
+   
+   ~ScanRegionGraphicsItem();
+
    /**
     * @brief coneRegion
     * @param uProbeRegion
@@ -64,156 +70,23 @@ public:
     */
    virtual ScanRegionGraphicsItem* cloneRegion();
 
-   virtual QDialog* get_custom_dialog();
-
-   const QString displayName() const;
-/*
-   QRectF boundingRect() const;
-
-   QRectF boundingRectMarker() const;
-
-   QString getUProbeName();
-
-   double getFactorX();
-
-   double getFactorY();
-
-   double getHeight();
-
-   double getWidth();
-
-   double getX();
-
-   double getY();
-
-   void updateStringSize();
-
-   void paint(QPainter*painter,
-              const QStyleOptionGraphicsItem* option,
-              QWidget* widget);
-
-   void setMouseOverPixelCoordModel(CoordinateModel* model);
-
-   void setLightToMicroCoordModel(CoordinateModel* model);
-
-   void setGripSize();
-
-   void setSize(double size);
-
-   void setColor(const QColor& color);
-
-   void setHeight(double height);
-
-   void setSameRect(QRectF& rect);
-
-   void setWidth(double width);
-
-   void setX(double x);
-
-   void setY(double y);
-
    const QString displayName() const;
 
-   AbstractGraphicsItem* duplicate();
+   void setPlan(const BlueskyPlan& plan);
 
-   void calculate();
+   bool isQueued();
 
-   void updateModel();
-
-   void updateView();
-
-   void zoomToRegion();
+   BlueskyPlan getPlan() { return _bs_plan; }
 
 signals:
+   void planRemoved(BlueskyPlan);
 
 protected:
 
-   enum Grip {
-      None,          // No grip selected.
-      BottomRight,   // Bottom right grip selected.
-      BottomLeft,     // Bottom left grip selected.
-      TopLeft,
-      TopRight
-   };
+   AnnotationProperty* _queue_status;
 
-   void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+   BlueskyPlan _bs_plan;
 
-   void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-
-   void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-
-   void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-
-   void mousePressEvent(QGraphicsSceneMouseEvent* event);
-
-   void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-*/
-
-signals:
-
-   void scanUpdated(const BlueskyPlan &plan);
-
-public slots:
-
-   void onScanUpdated(const BlueskyPlan &plan); 
-
-private:
-   ScanRegionDialog _scan_dialog;
-
-   std::map<QString, BlueskyPlan> *_avail_scans;
-/*
-   void initialScale();
-
-   int predictFontPixelSizeByScale(qreal scale);
-
-private:
-
-   QGraphicsItem* m_bound;
-
-   QColor m_color;
-
-   Grip m_grip;
-
-   QRectF m_rect;
-
-   CoordinateModel* m_mouseOverPixelCoordModel;
-
-   CoordinateModel* m_lightToMicroCoordModel;
-
-   QColor m_outlineColor;
-
-   QFont m_font;
-
-   AnnotationProperty* m_outlineColorProp;
-
-   QPolygon m_polygon;
-
-   AnnotationProperty* m_positionXProp;
-
-   AnnotationProperty* m_positionYProp;
-
-   AnnotationProperty* m_positionZProp;
-
-   AnnotationProperty* m_predictXProp;
-
-   AnnotationProperty* m_predictYProp;
-
-   AnnotationProperty* m_widthProp;
-
-   AnnotationProperty* m_heightProp;
-
-   AnnotationProperty* m_measuredXProp;
-
-   AnnotationProperty* m_measuredYProp;
-
-   double m_size;
-
-   double m_gripSize;
-
-   AnnotationProperty* m_sizeProp;
-
-   int m_lastStringWidth;
-*/
 };
 
 }

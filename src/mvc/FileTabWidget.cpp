@@ -23,11 +23,11 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 
     _contextMenu = new QMenu(("Context menu"), this);
     _action_load = _contextMenu->addAction("Load");
-    connect(_action_load, SIGNAL(triggered()), this, SLOT(onLoadFile()));
+    connect(_action_load, &QAction::triggered, this, &FileTabWidget::onLoadFile);
     _action_unload = _contextMenu->addAction("UnLoad");
-    connect(_action_unload, SIGNAL(triggered()), this, SLOT(onUnloadFile()));
+    connect(_action_unload, &QAction::triggered, this, &FileTabWidget::onUnloadFile);
     _action_refresh = _contextMenu->addAction("Refresh");
-    connect(_action_refresh, SIGNAL(triggered()), this, SIGNAL(onRefresh()));
+    connect(_action_refresh, &QAction::triggered, this, &FileTabWidget::onRefresh);
 
     _file_list_model = new FileTableModel();
     _file_list_view = new QTableView();
@@ -46,23 +46,18 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     // if preferences saves on select changes loaded dataset
     connect(_file_list_view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &FileTabWidget::onFileRowChange);
 
-    connect(_file_list_view, SIGNAL(doubleClicked(const QModelIndex)),
-                this, SLOT(onDoubleClickElement(const QModelIndex)));
-    connect(_file_list_view, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
+    connect(_file_list_view, &QTableView::doubleClicked,this, &FileTabWidget::onDoubleClickElement);
+    connect(_file_list_view, &QTableView::customContextMenuRequested,this, &FileTabWidget::ShowContextMenu);
 
     _filter_line = new QLineEdit();
-    //connect(_filter_line, SIGNAL(textChanged(const QString &)), this, SLOT(filterTextChanged(const QString &)));
+    //connect(_filter_line, &textChanged, this, &FileTabWidget::filterTextChanged);
 
     connect(_filter_line, &QLineEdit::returnPressed, this, &FileTabWidget::onUpdateFilter);
 
 	_filter_suggest_btn = new QPushButton();
 	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));
 	_filter_suggest_btn->setIconSize(QSize(15, 15));
-    connect(_filter_suggest_btn, SIGNAL(released()),
-		this, SLOT(filterBtnClicked()));
-
-
+    connect(_filter_suggest_btn, &QPushButton::released, this, &FileTabWidget::filterBtnClicked);
 
     QHBoxLayout* hlayout1 = new QHBoxLayout();
     hlayout1->addWidget(new QLabel("Filter"));
@@ -84,9 +79,9 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     hbox_radios->addWidget(_selected_all_files);
 
     _load_all_btn = new QPushButton("Load");
-    connect(_load_all_btn, SIGNAL(released()), this, SLOT(load_all_visible()));
+    connect(_load_all_btn, &QPushButton::released, this, &FileTabWidget::load_all_visible);
     _unload_all_btn = new QPushButton("Unload");
-    connect(_unload_all_btn, SIGNAL(released()), this, SLOT(unload_all_visible()));
+    connect(_unload_all_btn, &QPushButton::released, this, &FileTabWidget::unload_all_visible);
 
     QHBoxLayout* hlayout2 = new QHBoxLayout();
     hlayout2->addWidget(_load_all_btn);
@@ -431,7 +426,7 @@ void FileTabWidget::addCustomContext(QString label)
 {
     QAction* action = _contextMenu->addAction(label);
     _custom_action_list.append(action);
-    connect(action, SIGNAL(triggered()), this, SLOT(onCustomContext()));
+    connect(action, &QAction::triggered, this, &FileTabWidget::onCustomContext);
 }
 //---------------------------------------------------------------------------
 

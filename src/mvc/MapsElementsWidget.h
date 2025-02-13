@@ -92,7 +92,7 @@ public slots:
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
 
    void onGridDialog();
-
+   
    void onNewGridLayout(int rows, int cols);
 
    void on_export_fit_params(data_struct::Fit_Parameters<double> fit_params, data_struct::Fit_Element_Map_Dict<double> elements_to_fit);

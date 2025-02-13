@@ -15,14 +15,13 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-ScanRegionGraphicsItem::ScanRegionGraphicsItem(std::map<QString, BlueskyPlan> * avail_scans, AbstractGraphicsItem* parent)
+ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
-   _avail_scans = avail_scans;
-   _scan_dialog.setAvailScans(avail_scans);
-   connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanRegionGraphicsItem::onScanUpdated);
 
-   prependProperty(new AnnotationProperty("Edit", QIcon(":/images/editing.png")));
+   _bs_plan.uuid = "";
+   _queue_status = new AnnotationProperty(SCAN_REGION_QUEUE_STATUS, QVariant(STR_NOT_QUEUED));
+   prependProperty(_queue_status);
 
 }
 
@@ -72,6 +71,16 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(QMap<QString, QString>& marker,
 
 //---------------------------------------------------------------------------
 
+ScanRegionGraphicsItem::~ScanRegionGraphicsItem()
+{
+   if(_bs_plan.uuid.length() > 0)
+   {
+      emit planRemoved(_bs_plan);
+   }
+}
+
+//---------------------------------------------------------------------------
+
 const QString ScanRegionGraphicsItem::displayName() const
 {
 
@@ -83,33 +92,47 @@ const QString ScanRegionGraphicsItem::displayName() const
 
 ScanRegionGraphicsItem* ScanRegionGraphicsItem::cloneRegion()
 {
-   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem(_avail_scans);
+   ScanRegionGraphicsItem* newRegion = new ScanRegionGraphicsItem();
 
    //newRegion->m_outlineColor = m_outlineColor;
    newRegion->m_rect = m_rect;
-
+   newRegion->_bs_plan = _bs_plan;
    return newRegion;
 }
 
 //---------------------------------------------------------------------------
 
-QDialog* ScanRegionGraphicsItem::get_custom_dialog() 
+void ScanRegionGraphicsItem::setPlan(const BlueskyPlan& plan)
 {
-   _scan_dialog.updateProps(m_data);
-   return &_scan_dialog; 
+
+   _bs_plan = plan;
+
+   if(_bs_plan.uuid.length() > 0)
+   {
+      _queue_status->setValue(STR_QUEUED);
+      updateView();
+   }
+   else
+   {
+      _queue_status->setValue(STR_NOT_QUEUED);
+   }
+
 }
 
 //---------------------------------------------------------------------------
 
-void ScanRegionGraphicsItem::onScanUpdated(const BlueskyPlan& plan)
+bool ScanRegionGraphicsItem::isQueued()
 {
-
-   setPropertyValue(DEF_STR_DISPLAY_NAME, _scan_dialog.getScanName());
-   BlueskyPlan nplan = plan;
-   nplan.name = _scan_dialog.getScanName();
-   emit scanUpdated(nplan);
-
+   if(_bs_plan.uuid.length() > 0)
+   {
+      _queue_status->setValue(STR_QUEUED);
+      updateView();
+      return true;
+   }
+   
+   _queue_status->setValue(STR_NOT_QUEUED);
+   
+   return false;
 }
 
 //---------------------------------------------------------------------------
-

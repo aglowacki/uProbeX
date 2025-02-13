@@ -38,6 +38,7 @@ AbstractGraphicsItem::~AbstractGraphicsItem()
     clearChildren();
     clearProperties();
     m_parent = nullptr;
+    
 }
 
 //---------------------------------------------------------------------------
@@ -237,37 +238,19 @@ void AbstractGraphicsItem::unlinkAllAnnotations()
 void AbstractGraphicsItem::connectAllViewItems()
 {
 
-   connect(this,
-           SIGNAL(xChanged()),
-           this,
-           SLOT(viewChanged()));
+   connect(this, &AbstractGraphicsItem::xChanged, this, & AbstractGraphicsItem::viewChanged);
 
-   connect(this,
-           SIGNAL(yChanged()),
-           this,
-           SLOT(viewChanged()));
+   connect(this, &AbstractGraphicsItem::yChanged, this, &AbstractGraphicsItem::viewChanged);
 
-   connect(this,
-           SIGNAL(zChanged()),
-           this,
-           SLOT(viewChanged()));
+   connect(this, &AbstractGraphicsItem::zChanged, this, &AbstractGraphicsItem::viewChanged);
 
    foreach (AbstractGraphicsItem* item, m_children)
    {
-      connect(item,
-              SIGNAL(xChanged()),
-              this,
-              SLOT(viewChanged()));
+      connect(item, &AbstractGraphicsItem::xChanged, this, &AbstractGraphicsItem::viewChanged);
 
-      connect(item,
-              SIGNAL(yChanged()),
-              this,
-              SLOT(viewChanged()));
+      connect(item, &AbstractGraphicsItem::yChanged, this, &AbstractGraphicsItem::viewChanged);
 
-      connect(item,
-              SIGNAL(zChanged()),
-              this,
-              SLOT(viewChanged()));
+      connect(item, &AbstractGraphicsItem::zChanged, this, &AbstractGraphicsItem::viewChanged);
    }
 
 }
@@ -334,37 +317,19 @@ void AbstractGraphicsItem::disconnectAllProperties()
 void AbstractGraphicsItem::disconnectAllViewItems()
 {
 
-   disconnect(this,
-              SIGNAL(xChanged()),
-              this,
-              SLOT(viewChanged()));
+   disconnect(this, &AbstractGraphicsItem::xChanged, this, & AbstractGraphicsItem::viewChanged);
 
-   disconnect(this,
-              SIGNAL(yChanged()),
-              this,
-              SLOT(viewChanged()));
+   disconnect(this, &AbstractGraphicsItem::yChanged, this, &AbstractGraphicsItem::viewChanged);
 
-   disconnect(this,
-              SIGNAL(zChanged()),
-              this,
-              SLOT(viewChanged()));
+   disconnect(this, &AbstractGraphicsItem::zChanged, this, &AbstractGraphicsItem::viewChanged);
 
    foreach (AbstractGraphicsItem* item, m_children)
    {
-      disconnect(item,
-                 SIGNAL(xChanged()),
-                 this,
-                 SLOT(viewChanged()));
+      disconnect(item, &AbstractGraphicsItem::xChanged, this, &AbstractGraphicsItem::viewChanged);
 
-      disconnect(item,
-                 SIGNAL(yChanged()),
-                 this,
-                 SLOT(viewChanged()));
+      disconnect(item, &AbstractGraphicsItem::yChanged, this, &AbstractGraphicsItem::viewChanged);
 
-      disconnect(item,
-                 SIGNAL(zChanged()),
-                 this,
-                 SLOT(viewChanged()));
+      disconnect(item, &AbstractGraphicsItem::zChanged, this, &AbstractGraphicsItem::viewChanged);
    }
 
 }
@@ -831,11 +796,12 @@ void AbstractGraphicsItem::viewChanged()
 
    disconnectAllViewItems();
    disconnectAllProperties();
+
    updateModel();
+   emit viewUpdated(this);
+
    connectAllViewItems();
    connectAllProperties();
-
-   emit viewUpdated(this);
 
 }
 

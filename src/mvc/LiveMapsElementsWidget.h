@@ -19,6 +19,7 @@
 #include "mvc/VLM_Widget.h"
 #include "mvc/ScanQueueWidget.h"
 #include "mvc/BlueskyComm.h"
+#include "gstar/Annotation/ScanRegionGraphicsItem.h"
 
 //---------------------------------------------------------------------------
 
@@ -76,11 +77,17 @@ public slots:
 
    void callMoveScanDown(int);
 
-   void callRemoveScan(int);
+   void callRemoveRow(int);
    
-   void callUpdatePlan(const BlueskyPlan& plan);
+   void callUpdatePlan(BlueskyPlan& plan);
 
-   void callQueueScan(const BlueskyPlan& plan);
+   void callQueueScan(BlueskyPlan& plan);
+   
+   void callRemoveScan(BlueskyPlan plan);
+
+   void callQueueScanRegion(BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item);
+
+   void callUpdateScanRegion(BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item);
    
 protected:
 

@@ -114,7 +114,7 @@ public slots:
 
    void Model_Spectra_Val_Change(QModelIndex,QModelIndex,QVector<int>);
 
-   void element_selection_changed(QModelIndex,QModelIndex);
+   void element_selection_changed_from(QModelIndex,QModelIndex);
 
    void element_selection_changed(int index);
 

@@ -73,8 +73,7 @@ Splash::Splash(QWidget* parent, Qt::WindowFlags f,
 
       // Create button
       m_btnOK = new QPushButton(tr("OK"));
-      connect(m_btnOK, SIGNAL(clicked()),
-              this, SLOT(hide()));
+      connect(m_btnOK, &QPushButton::clicked,this, &Splash::hide);
 
       // Add to layout
       layout -> addWidget(m_btnOK);

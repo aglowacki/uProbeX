@@ -14,8 +14,7 @@ MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(pare
 	_imgStackControllWidget->setModel(_mapsWorkspaceModel);
 
 	_imgStackControllWidget->setAttribute(Qt::WA_DeleteOnClose);
-	connect(_imgStackControllWidget, SIGNAL(widgetClosed()), this, SLOT(imgWidgetClosed()));
-
+	connect(_imgStackControllWidget, &ImageStackControlWidget::widgetClosed, this, &MapsWorkspaceController::imgWidgetClosed);
 
 	QPoint pos = QGuiApplication::screens().at(0)->geometry().center();
 	_imgStackControllWidget->show();

@@ -95,6 +95,8 @@ Preferences::Preferences()
         {STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, QVariant()},
         {STR_PRF_LiveCoefficientNames, QVariant()},
         {STR_PRF_LiveCoefficientVals, QVariant()},
+        {STR_PREF_LAST_SCAN_LINK_SELECTED, QVariant()},
+        {STR_PREF_SCAN_LINK_PROFILES, QVariant()},
         {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
    load();

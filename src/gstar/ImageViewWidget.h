@@ -317,7 +317,7 @@ private slots:
     *
     * @param zoomRect - zoom selection rectangle.
     */
-   void zoomIn(QRectF zoomRect, QGraphicsSceneMouseEvent* event);
+   void zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event);
 
    /**
     * Zoom out

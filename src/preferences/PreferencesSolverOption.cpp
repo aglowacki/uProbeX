@@ -138,20 +138,12 @@ void PreferencesSolverOption::createSolverGroup()
    m_buttonGroup->setExclusive(true);
    m_radioGeneral->setChecked(true);
 
-   connect(m_buttonGroup,
-           SIGNAL(buttonClicked(int)),
-           this,
-           SLOT(solverOptionSelected(int)));
-
    createNelMinSolver();
    createPythonSolver();
 
     m_btnRunSolver = new QPushButton("Run Solver");
 
-     connect(m_btnRunSolver,
-             SIGNAL(clicked()),
-             this,
-             SLOT(runSolver()));
+     ///connect(m_btnRunSolver, &QPushButton::clicked, this, PreferencesSolverOption::runSolver);
 
 
      if(m_windowList.count() > 0)
@@ -256,8 +248,6 @@ void PreferencesSolverOption::setCheckedID(int id)
     {
         m_radioPython->setChecked(true);
     }
-
-    //solverOptionSelected(id);
 
 }
 

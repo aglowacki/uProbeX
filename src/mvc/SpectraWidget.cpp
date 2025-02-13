@@ -29,22 +29,8 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _int_spec_max_x = 1;
     _int_spec_max_y = 1;
     createLayout();
-    /*
-    _action_check_log10 = new QAction("Toggle Log10", this);
-    _action_check_log10->setCheckable(true);
-    _action_check_log10->setChecked(_display_log10);
-    connect(_action_check_log10, SIGNAL(triggered()), this, SLOT(_check_log10()));
-
-    _contextMenu = new QMenu(("Context menu"), this);
-    _contextMenu->addAction(_action_check_log10);
-
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
     
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(ShowContextMenu(const QPoint &)));
-            */
-    connect(this, SIGNAL(trigger_connect_markers()),
-            this, SLOT(connectMarkers()));
+    connect(this, &SpectraWidget::trigger_connect_markers, this, &SpectraWidget::connectMarkers);
 
 }
 
@@ -113,21 +99,20 @@ void SpectraWidget::createLayout()
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min(), 'f', 2));
     _display_eneergy_min->setMinimumWidth(50);
-    connect(_display_eneergy_min, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
+    connect(_display_eneergy_min, &QLineEdit::textEdited, this, &SpectraWidget::onSpectraDisplayChanged);
 
 
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max(), 'f', 2));
     _display_eneergy_max->setMinimumWidth(50);
-    connect(_display_eneergy_max, SIGNAL(textEdited(const QString &)), this, SLOT(onSpectraDisplayChanged(const QString &)));
-
+    connect(_display_eneergy_max, &QLineEdit::textEdited, this, &SpectraWidget::onSpectraDisplayChanged);
 
     //_display_height_min = new QLineEdit(QString::number(ymin));
     //_display_height_min->setMinimumWidth(100);
-    //connect(_display_height_min, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+    //connect(_display_height_min, textEdited, this, onSpectraDisplayHeightChanged);
 
     //_display_height_max = new QLineEdit(QString::number(ymax, 'g', 0));
     //_display_height_max->setMinimumWidth(100);
-    //connect(_display_height_max, SIGNAL(textEdited(const QString&)), this, SLOT(onSpectraDisplayHeightChanged(const QString&)));
+    //connect(_display_height_max, textEdited, this, onSpectraDisplayHeightChanged);
 
     _btn_reset_chart_view = new QPushButton("Reset");
     connect(_btn_reset_chart_view, &QPushButton::released, this, &SpectraWidget::onResetChartView);
@@ -513,8 +498,7 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
                 float line_height = 1.0;
                 if (_display_log10)
                 {
-                    //line_height = pow(10.0, (log10(line_max) * line_ratio) );
-                    line_height = line_max * line_ratio;
+                    line_height = pow(10.0, (log10(line_max) * line_ratio) );                    
                 }
                 else
                 {
