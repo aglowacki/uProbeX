@@ -31,6 +31,7 @@ public:
     */
    NetStreamWorker(zmq::context_t *context, QString str_ip, QString port, QString qserv_addr, QObject* parent = nullptr) : QThread(parent)
    {
+        _zmq_qserv_socket = nullptr;
 
        std::string conn_str = "tcp://"+str_ip.toStdString()+":"+port.toStdString();
        _zmq_socket = new zmq::socket_t(*context, ZMQ_SUB);
@@ -39,12 +40,18 @@ public:
        _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Spectra");
        _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Counts-and-Spectra");
        _zmq_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
-
-        std::string conn_str2 = "tcp://"+qserv_addr.toStdString()+":60625";
-       _zmq_qserv_socket = new zmq::socket_t(*context, ZMQ_SUB);
-       _zmq_qserv_socket->connect(conn_str2);
-       _zmq_qserv_socket->set(zmq::sockopt::subscribe, "QS_Console");
-       _zmq_qserv_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
+        if(qserv_addr.length() > 0)
+        {
+            std::string conn_str2 = "tcp://"+qserv_addr.toStdString()+":60625";
+            _zmq_qserv_socket = new zmq::socket_t(*context, ZMQ_SUB);
+            _zmq_qserv_socket->connect(conn_str2);
+            _zmq_qserv_socket->set(zmq::sockopt::subscribe, "QS_Console");
+            _zmq_qserv_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
+        }
+        else
+        {
+            logW<<"QServer address is not set. Can not connect to QServer\n";
+        }
 
    }
 
@@ -109,32 +116,38 @@ public slots:
                 }
             }
             
-            res = _zmq_qserv_socket->recv(token, zmq::recv_flags::dontwait);
-            if(res.has_value())
+            if(_zmq_qserv_socket != nullptr)
             {
-                std::string s1 ((char*)token.data(), token.size());
-                if(s1 == "QS_Console")
+                res = _zmq_qserv_socket->recv(token, zmq::recv_flags::dontwait);
+                if(res.has_value())
                 {
-                    zmq::recv_result_t r_res2 = _zmq_qserv_socket->recv(message);
-                    if(r_res2.has_value())
+                    std::string s1 ((char*)token.data(), token.size());
+                    if(s1 == "QS_Console")
                     {
-                        QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
-                        if(rootJson.contains("msg"))
+                        zmq::recv_result_t r_res2 = _zmq_qserv_socket->recv(message);
+                        if(r_res2.has_value())
                         {
-                            QString msg = rootJson["msg"].toString();
-                            msg.chop(1);
-                            emit newStringData(msg);
-                        }
-                        else
-                        {
-                        //    logI<<data.toStdString()<<"\n"; // may cause issues coming from a thread
+                            QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
+                            if(rootJson.contains("msg"))
+                            {
+                                QString msg = rootJson["msg"].toString();
+                                msg.chop(1);
+                                emit newStringData(msg);
+                            }
+                            else
+                            {
+                            //    logI<<data.toStdString()<<"\n"; // may cause issues coming from a thread
+                            }
                         }
                     }
                 }
             }
         }
         _zmq_socket->close();
-        _zmq_qserv_socket->close();
+        if(_zmq_qserv_socket != nullptr)
+        {
+             _zmq_qserv_socket->close();
+        }
     }
     void stop() {_running = false;}
 

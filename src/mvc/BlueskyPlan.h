@@ -83,9 +83,11 @@ struct BlueskyPlan
     {
         uuid="";
         user="";
+        filename = "";
     }
     QString name;
     QString type;
+    QString filename;
     QString description;
     QString module;
     std::vector<BlueskyParam> parameters;
