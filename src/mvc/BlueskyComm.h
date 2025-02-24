@@ -29,10 +29,16 @@ public:
     */
    BlueskyComm(zmq::context_t *context, QString str_ip) 
    {
-
-       std::string conn_str = "tcp://"+str_ip.toStdString()+":60615";
-       _zmq_comm_socket = new zmq::socket_t(*context, ZMQ_REQ);
-       _zmq_comm_socket->connect(conn_str);
+        if(str_ip.length() > 0)
+        {
+            std::string conn_str = "tcp://"+str_ip.toStdString()+":60615";
+            _zmq_comm_socket = new zmq::socket_t(*context, ZMQ_REQ);
+            _zmq_comm_socket->connect(conn_str);
+        }
+        else
+        {
+            logW<<"QServer ip address is blank, Can not connect!\n";
+        }
    }
 
     //---------------------------------------------------------------------------

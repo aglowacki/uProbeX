@@ -156,6 +156,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onAddScan, this, &LiveMapsElementsWidget::callQueueScan);
     connect(_scan_queue_widget, &ScanQueueWidget::onSetHistory, this, &LiveMapsElementsWidget::setHistoryLocation);
     connect(_scan_queue_widget, &ScanQueueWidget::onClearHistory, this, &LiveMapsElementsWidget::clearHistory);
+    connect(_scan_queue_widget, &ScanQueueWidget::onScanProgress, this, &LiveMapsElementsWidget::updatePrograssBar);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -166,6 +167,7 @@ void LiveMapsElementsWidget::createLayout()
     layout->addWidget(_tab_widget);
 
     _progressBar = new QProgressBar(this);
+    _progressBar->setRange(0,100);
     layout->addWidget(_progressBar);
     setLayout(layout);
 

@@ -43,7 +43,7 @@ public:
     {
         if(_data.size() > 0)
         {
-            return _data.at(0).parameters.size() + 5; // +1 for scan type, + 4 for results
+            return _data.at(0).parameters.size() + 6; // +1 for scan type, + 5 for results
         }
         return 4; 
     }
@@ -138,9 +138,13 @@ public:
             }
             else if(section == (header_size + 1))
             {
-                return rowData.result.exit_status;
+                return rowData.filename;
             }
             else if(section == (header_size + 2))
+            {
+                return rowData.result.exit_status;
+            }
+            else if(section == (header_size + 3))
             {
                 if(rowData.result.time_start == 0.0)
                 {
@@ -149,7 +153,7 @@ public:
                 QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_start, Qt::UTC);
                 return dateTime.toString("yyyy-MM-dd hh:mm:ss");
             }
-            else if(section == (header_size + 3))
+            else if(section == (header_size + 4))
             {
                 if(rowData.result.time_stop == 0.0)
                 {
@@ -158,7 +162,7 @@ public:
                 QDateTime dateTime = QDateTime::fromSecsSinceEpoch(rowData.result.time_stop, Qt::UTC);
                 return dateTime.toString("yyyy-MM-dd hh:mm:ss");
             }
-            else if(section == (header_size + 4))
+            else if(section == (header_size + 5))
             {
                 return rowData.result.msg;
             }
@@ -216,17 +220,21 @@ public:
 
                     if(section == (parms_size + 1))
                     {
-                        return "exit_status";
+                        return "filename";
                     }
                     else if(section == (parms_size + 2))
                     {
-                        return "time_start";
+                        return "exit_status";
                     }
                     else if(section == (parms_size + 3))
                     {
-                        return "time_stop";
+                        return "time_start";
                     }
                     else if(section == (parms_size + 4))
+                    {
+                        return "time_stop";
+                    }
+                    else if(section == (parms_size + 5))
                     {
                         return "msg";
                     }
@@ -293,6 +301,14 @@ public:
         {
             _data.push_back(itr);
         }
+        // update filenames prop
+        for(auto &itr : _data)
+        {
+            if(_uuid_to_filename_map.count(itr.uuid) > 0)
+            {
+                itr.filename = _uuid_to_filename_map.at(itr.uuid);
+            }
+        }
         endResetModel();
     }
 
@@ -321,7 +337,22 @@ public:
         return false;
 
     }
+    
+    //---------------------------------------------------------------------------
 
+    void setRunningPlanMetaData(const QString& filename)
+    {
+        for(auto &itr : _data)
+        {
+            // find running scan
+            if(itr.result.exit_status.length() == 0 && itr.result.time_start > 0.0)
+            {
+                itr.filename = filename;
+                _uuid_to_filename_map[itr.uuid] = filename;
+                break;
+            }
+        }
+    }
     //---------------------------------------------------------------------------
 
     const int get_finished_idx() {return _last_finished_idx;}
@@ -339,6 +370,8 @@ private:
     std::vector<BlueskyPlan> _data;
 
     std::map<QString, BlueskyPlan> *_avail_scans;
+
+    std::map<QString, QString> _uuid_to_filename_map;
 
     QString _headers;
 };

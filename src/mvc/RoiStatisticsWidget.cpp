@@ -17,59 +17,7 @@ RoiStatisticsWidget::RoiStatisticsWidget() : QWidget()
 {
 	_base_header = { "ROI Name", "Map Name", "Sum Cnt/s",  "Mean Cts/s", "Median Cts/s", "Std Dev Cts/s", "Sum ug/cm2", "Mean ug/cm2", "Median ug/cm2", "Std Dev ug/cm2", "Area", "Min Cnts/s", "Mix Pixel(x|y)", "Max Cnts/s", "Max Pixel (x|y)", "Min ug/cm2", "Max ug/cm2", "Num Spectra", "Total Concentration Cts/s (mean x # of pixels)", "Total Concentration ug/cm2", "Total Content ug/cm2 (mean x scan area with unit of femtogram 10^-15)" }; 
 
-	//create save ordered vector by element Z number with K , L, M lines
-	for (std::string el_name : data_struct::Element_Symbols)
-	{
-		_element_lines_list.push_back(el_name);
-	}
-	for (std::string el_name : data_struct::Element_Symbols)
-	{
-		_element_lines_list.push_back(el_name + "_L");
-	}
-	for (std::string el_name : data_struct::Element_Symbols)
-	{
-		_element_lines_list.push_back(el_name + "_M");
-	}
-
-	_final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
-	_final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
-	_final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
-	_final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
-	_final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
-	_final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
-
-	_scalers_to_add_first_list.push_back(STR_SR_CURRENT);
-	_scalers_to_add_first_list.push_back(STR_US_IC);
-	_scalers_to_add_first_list.push_back(STR_DS_IC);
-	_scalers_to_add_first_list.push_back(STR_ELT);
-	_scalers_to_add_first_list.push_back(STR_ELAPSED_LIVE_TIME);
-	_scalers_to_add_first_list.push_back(STR_ERT);
-	_scalers_to_add_first_list.push_back(STR_ELAPSED_REAL_TIME);
-	_scalers_to_add_first_list.push_back(STR_INPUT_COUNTS);
-	_scalers_to_add_first_list.push_back(STR_ICR);
-	_scalers_to_add_first_list.push_back("INCNT");
-	_scalers_to_add_first_list.push_back(STR_OUTPUT_COUNTS);
-	_scalers_to_add_first_list.push_back(STR_OCR);
-	_scalers_to_add_first_list.push_back("OUTCNT");
-	_scalers_to_add_first_list.push_back(STR_DEAD_TIME);
-	_scalers_to_add_first_list.push_back("abs_cfg");
-	_scalers_to_add_first_list.push_back("abs_ic");
-	_scalers_to_add_first_list.push_back("H_dpc_cfg");
-	_scalers_to_add_first_list.push_back("V_dpc_cfg");
-	_scalers_to_add_first_list.push_back("DPC1_IC");
-	_scalers_to_add_first_list.push_back("DPC2_IC");
-	_scalers_to_add_first_list.push_back("dia1_dpc_cfg");
-	_scalers_to_add_first_list.push_back("dia2_dpc_cfg");
-	_scalers_to_add_first_list.push_back("CFG_1");
-	_scalers_to_add_first_list.push_back(STR_CFG_2);
-	_scalers_to_add_first_list.push_back(STR_CFG_3);
-	_scalers_to_add_first_list.push_back(STR_CFG_4);
-	_scalers_to_add_first_list.push_back(STR_CFG_5);
-	_scalers_to_add_first_list.push_back("CFG_6");
-	_scalers_to_add_first_list.push_back("CFG_7");
-	_scalers_to_add_first_list.push_back("CFG_8");
-	_scalers_to_add_first_list.push_back("CFG_9");
-
+	gen_insert_order_lists(_element_lines_list, _scalers_to_add_first_list, _final_counts_to_add_before_scalers);
 
     _createLayout();
 
