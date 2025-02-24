@@ -104,7 +104,7 @@ void ScanQueueWidget::_createLayout()
     connect(_btn_set_history, &QPushButton::pressed, this, &ScanQueueWidget::onSetHistory);
 
     _btn_clear_history = new QPushButton("Clear History");
-    connect(_btn_clear_history, &QPushButton::pressed, this, &ScanQueueWidget::onClearHistory);
+    connect(_btn_clear_history, &QPushButton::pressed, this, &ScanQueueWidget::on_clear_history);
 
     _scan_dialog.setRegionNameVisible(false);
     connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
@@ -291,7 +291,54 @@ void ScanQueueWidget::newDataArrived(const QString& data)
     {
         emit queueNeedsToBeUpdated();
     }
+    else if (data.count("{Filename") > 0 )
+    {
+        _updateRunningPlanMetaInfo(data);
+    }
     // if ERROR:bluesky:Run aborted
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::_updateRunningPlanMetaInfo(const QString& msg)
+{
+    const QString fname_tag = "Filename:";
+    const QString scan_prog_tag = "Scan_progress:";
+    qsizetype idx = msg.indexOf("{");
+    if(idx > 0)
+    {
+        QString subMsg = msg.mid(idx);
+        QStringList slist = subMsg.split(",");
+        QString Filename = "";
+        for(QString s : slist)
+        {
+            QString trim_s = s.trimmed();
+            qsizetype filenameIdx = trim_s.indexOf(fname_tag);
+            qsizetype scanProgIdx = trim_s.indexOf(scan_prog_tag);
+            if(filenameIdx != -1)
+            {
+                QString filename = trim_s.mid(filenameIdx+fname_tag.size());
+                _scan_queue_table_model->setRunningPlanMetaData(filename);   
+            }
+            else if(scanProgIdx != -1)
+            {
+                qsizetype percIdx = trim_s.indexOf("%");
+                QString strPerc = trim_s.mid(scanProgIdx+scan_prog_tag.size(), percIdx);
+                int perc = strPerc.toInt();
+                emit onScanProgress(perc);
+            }
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::on_clear_history()
+{
+
+    _te_qs_console->clear();
+    emit onClearHistory();
+
 }
 
 //---------------------------------------------------------------------------

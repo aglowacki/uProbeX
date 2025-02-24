@@ -24,6 +24,7 @@
 #include "data_struct/fit_parameters.h"
 #include <mvc/ImageSegWidget.h>
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
+#include <mvc/MapsH5Model.h>
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>

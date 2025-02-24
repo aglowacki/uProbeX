@@ -67,6 +67,8 @@ signals:
 
    void onClearHistory();
 
+   void onScanProgress(int);
+
 public slots:
    void newDataArrived(const QString &);
 
@@ -78,8 +80,11 @@ public slots:
 
    void on_remove_scan();
 
+   void on_clear_history();
+
 protected:
 
+   void _updateRunningPlanMetaInfo(const QString& msg);
    /**
     * @brief Create layout
     */

@@ -1174,6 +1174,10 @@ void MapsElementsWidget::model_updated()
     {
         _cb_normalize->addItem(QString(STR_US_IC.c_str()));
     }
+    if (scalers->count(STR_US_FM) > 0)
+    {
+        _cb_normalize->addItem(QString(STR_US_FM.c_str()));
+    }
     if (scalers->count(STR_SR_CURRENT) > 0)
     {
         _cb_normalize->addItem(QString(STR_SR_CURRENT.c_str()));
@@ -1211,29 +1215,11 @@ void MapsElementsWidget::model_updated()
         }
     }
 
-    //create save ordered vector by element Z number with K , L, M lines
     std::vector<std::string> element_lines;
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name);
-    }
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name+"_L");
-    }
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name+"_M");
-    }
+	std::vector<std::string> scalers_to_add_first;
+	std::vector<std::string> final_counts_to_add_before_scalers;
+	gen_insert_order_lists(element_lines, scalers_to_add_first, final_counts_to_add_before_scalers);
 
-    std::vector<std::string> final_counts_to_add_before_scalers;
-
-    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
-    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
-    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
-    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
-    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
-    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
 
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
@@ -1282,45 +1268,6 @@ void MapsElementsWidget::model_updated()
         m_imageViewWidget->addLabel(val);
     }
     
-
-    std::vector<std::string> scalers_to_add_first;
-    scalers_to_add_first.push_back(STR_SR_CURRENT);
-    scalers_to_add_first.push_back(STR_US_IC);
-    scalers_to_add_first.push_back(STR_DS_IC);
-    scalers_to_add_first.push_back(STR_ELT);
-    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
-    scalers_to_add_first.push_back(STR_ERT);
-    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
-    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
-    scalers_to_add_first.push_back(STR_ICR);
-    scalers_to_add_first.push_back("INCNT");
-    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
-    scalers_to_add_first.push_back(STR_OCR);
-    scalers_to_add_first.push_back("OUTCNT");
-    scalers_to_add_first.push_back(STR_DEAD_TIME);
-
-    scalers_to_add_first.push_back("abs_cfg");
-    scalers_to_add_first.push_back("abs_ic");
-
-    scalers_to_add_first.push_back("H_dpc_cfg");
-    scalers_to_add_first.push_back("V_dpc_cfg");
-    
-    scalers_to_add_first.push_back("DPC1_IC");
-    scalers_to_add_first.push_back("DPC2_IC");
-
-    scalers_to_add_first.push_back("dia1_dpc_cfg");
-    scalers_to_add_first.push_back("dia2_dpc_cfg");
-
-    scalers_to_add_first.push_back("CFG_1");
-    scalers_to_add_first.push_back(STR_CFG_2);
-    scalers_to_add_first.push_back(STR_CFG_3);
-    scalers_to_add_first.push_back(STR_CFG_4);
-    scalers_to_add_first.push_back(STR_CFG_5);
-    scalers_to_add_first.push_back("CFG_6");
-    scalers_to_add_first.push_back("CFG_7");
-    scalers_to_add_first.push_back("CFG_8");
-    scalers_to_add_first.push_back("CFG_9");
-
 
     std::map<std::string, data_struct::ArrayXXr<float>> left_over_scalers = *scalers;
     // add scalers in certain order
@@ -1951,7 +1898,7 @@ void MapsElementsWidget::on_export_images()
     {
         if (_export_maps_dialog->get_export_all())
         {
-            std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
+            std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
 
             std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
             for (auto& a_itr : analysis_types)
@@ -2186,7 +2133,7 @@ void MapsElementsWidget::on_export_images()
         ascii_dir.mkdir("CSV");
         ascii_dir.cd("CSV");
 
-        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_SR_CURRENT, "Counts" };
+        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
 
         const std::vector<float> x_axis = _model->get_x_axis();
         const std::vector<float> y_axis = _model->get_y_axis();

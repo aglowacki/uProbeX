@@ -90,6 +90,8 @@ struct Map_ROI
 };
 
 
+void gen_insert_order_lists(std::vector<std::string> &element_lines, std::vector<std::string> &scalers_to_add_first, std::vector<std::string>& final_counts_to_add_before_scalers);
+
 /**
  * @brief Model for Maps analyzed hdf5 files
  */

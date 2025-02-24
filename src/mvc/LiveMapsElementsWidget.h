@@ -89,6 +89,10 @@ public slots:
 
    void callUpdateScanRegion(BlueskyPlan& plan, gstar::ScanRegionGraphicsItem* item);
    
+   void setPrograssBarRange(int range){_progressBar->setRange(0,100);}
+
+   void updatePrograssBar(int perc){_progressBar->setValue(perc);}
+
 protected:
 
    /**

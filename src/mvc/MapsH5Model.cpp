@@ -858,6 +858,7 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
 
     Calibration_curve<double> sr_current_curve(STR_SR_CURRENT);
     Calibration_curve<double> us_ic_curve(STR_US_IC);
+    Calibration_curve<double> us_fm_curve(STR_US_FM);
     Calibration_curve<double> ds_ic_curve(STR_DS_IC);
 
     for (hsize_t el_idx = 0; el_idx < dims_out[2]; el_idx++)
@@ -2534,61 +2535,10 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
         }
     }
 
-    //create save ordered vector by element Z number with K , L, M lines
-    std::vector<std::string> element_lines;
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name);
-    }
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name + "_L");
-    }
-    for (std::string el_name : data_struct::Element_Symbols)
-    {
-        element_lines.push_back(el_name + "_M");
-    }
-
-    std::vector<std::string> final_counts_to_add_before_scalers;
-    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
-    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
-    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
-    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
-    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
-    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
-
-    std::vector<std::string> scalers_to_add_first;
-    scalers_to_add_first.push_back(STR_SR_CURRENT);
-    scalers_to_add_first.push_back(STR_US_IC);
-    scalers_to_add_first.push_back(STR_DS_IC);
-    scalers_to_add_first.push_back(STR_ELT);
-    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
-    scalers_to_add_first.push_back(STR_ERT);
-    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
-    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
-    scalers_to_add_first.push_back(STR_ICR);
-    scalers_to_add_first.push_back("INCNT");
-    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
-    scalers_to_add_first.push_back(STR_OCR);
-    scalers_to_add_first.push_back("OUTCNT");
-    scalers_to_add_first.push_back(STR_DEAD_TIME);
-    scalers_to_add_first.push_back("abs_cfg");
-    scalers_to_add_first.push_back("abs_ic");
-    scalers_to_add_first.push_back("H_dpc_cfg");
-    scalers_to_add_first.push_back("V_dpc_cfg");
-    scalers_to_add_first.push_back("DPC1_IC");
-    scalers_to_add_first.push_back("DPC2_IC");
-    scalers_to_add_first.push_back("dia1_dpc_cfg");
-    scalers_to_add_first.push_back("dia2_dpc_cfg");
-    scalers_to_add_first.push_back("CFG_1");
-    scalers_to_add_first.push_back(STR_CFG_2);
-    scalers_to_add_first.push_back(STR_CFG_3);
-    scalers_to_add_first.push_back(STR_CFG_4);
-    scalers_to_add_first.push_back(STR_CFG_5);
-    scalers_to_add_first.push_back("CFG_6");
-    scalers_to_add_first.push_back("CFG_7");
-    scalers_to_add_first.push_back("CFG_8");
-    scalers_to_add_first.push_back("CFG_9");
+	std::vector<std::string> element_lines;
+	std::vector<std::string> scalers_to_add_first;
+	std::vector<std::string> final_counts_to_add_before_scalers;
+	gen_insert_order_lists(element_lines, scalers_to_add_first, final_counts_to_add_before_scalers);
 
     // insert in z order
     for (std::string el_name : element_lines)
@@ -2629,3 +2579,66 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 }
 
 //---------------------------------------------------------------------------
+
+void gen_insert_order_lists(std::vector<std::string> &element_lines, std::vector<std::string> &scalers_to_add_first, std::vector<std::string>& final_counts_to_add_before_scalers)
+{
+    element_lines.clear();
+    scalers_to_add_first.clear();
+    final_counts_to_add_before_scalers.clear();
+
+    //create save ordered vector by element Z number with K , L, M lines
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name);
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name + "_L");
+    }
+    for (std::string el_name : data_struct::Element_Symbols)
+    {
+        element_lines.push_back(el_name + "_M");
+    }
+
+   
+    final_counts_to_add_before_scalers.push_back(STR_COHERENT_SCT_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_COMPTON_AMPLITUDE);
+    final_counts_to_add_before_scalers.push_back(STR_SUM_ELASTIC_INELASTIC_AMP);
+    final_counts_to_add_before_scalers.push_back(STR_TOTAL_FLUORESCENCE_YIELD);
+    final_counts_to_add_before_scalers.push_back(STR_NUM_ITR);
+    final_counts_to_add_before_scalers.push_back(STR_RESIDUAL);
+
+    scalers_to_add_first.push_back(STR_SR_CURRENT);
+    scalers_to_add_first.push_back(STR_US_IC);
+    scalers_to_add_first.push_back(STR_US_FM);
+    scalers_to_add_first.push_back(STR_DS_IC);
+    scalers_to_add_first.push_back(STR_ELT);
+    scalers_to_add_first.push_back(STR_ELAPSED_LIVE_TIME);
+    scalers_to_add_first.push_back(STR_ERT);
+    scalers_to_add_first.push_back(STR_ELAPSED_REAL_TIME);
+    scalers_to_add_first.push_back(STR_INPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_ICR);
+    scalers_to_add_first.push_back("INCNT");
+    scalers_to_add_first.push_back(STR_OUTPUT_COUNTS);
+    scalers_to_add_first.push_back(STR_OCR);
+    scalers_to_add_first.push_back("OUTCNT");
+    scalers_to_add_first.push_back(STR_DEAD_TIME);
+    scalers_to_add_first.push_back("abs_cfg");
+    scalers_to_add_first.push_back("abs_ic");
+    scalers_to_add_first.push_back("H_dpc_cfg");
+    scalers_to_add_first.push_back("V_dpc_cfg");
+    scalers_to_add_first.push_back("DPC1_IC");
+    scalers_to_add_first.push_back("DPC2_IC");
+    scalers_to_add_first.push_back("dia1_dpc_cfg");
+    scalers_to_add_first.push_back("dia2_dpc_cfg");
+    scalers_to_add_first.push_back("CFG_1");
+    scalers_to_add_first.push_back(STR_CFG_2);
+    scalers_to_add_first.push_back(STR_CFG_3);
+    scalers_to_add_first.push_back(STR_CFG_4);
+    scalers_to_add_first.push_back(STR_CFG_5);
+    scalers_to_add_first.push_back("CFG_6");
+    scalers_to_add_first.push_back("CFG_7");
+    scalers_to_add_first.push_back("CFG_8");
+    scalers_to_add_first.push_back("CFG_9");
+
+}
