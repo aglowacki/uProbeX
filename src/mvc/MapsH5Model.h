@@ -228,6 +228,8 @@ protected:
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
 
+    bool _load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants);
+    
     bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>> &e_quants);
 
     bool _load_quantification_standard_10(hid_t maps_grp_id);

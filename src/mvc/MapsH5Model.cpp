@@ -858,7 +858,6 @@ bool MapsH5Model::_load_quantification_9_single(hid_t maps_grp_id, std::string p
 
     Calibration_curve<double> sr_current_curve(STR_SR_CURRENT);
     Calibration_curve<double> us_ic_curve(STR_US_IC);
-    Calibration_curve<double> us_fm_curve(STR_US_FM);
     Calibration_curve<double> ds_ic_curve(STR_DS_IC);
 
     for (hsize_t el_idx = 0; el_idx < dims_out[2]; el_idx++)
@@ -1362,109 +1361,74 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 //---------------------------------------------------------------------------
 
-
-bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
+bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
 {
-    hid_t channels_dset_id = -1, channels_dspace_id = -1;
-    hid_t sr_dset_id = -1, sr_dspace_id = -1;
-    hid_t us_dset_id = -1, us_dspace_id = -1;
-    hid_t ds_dset_id = -1, ds_dspace_id = -1;
 
-    hid_t sr_qv_id = -1, sr_qv_dspace = -1;
-    hid_t us_qv_id = -1, us_qv_dspace = -1;
-    hid_t ds_qv_id = -1, ds_qv_dspace = -1;
-
-    hid_t grp_id = -1;
-    hid_t memoryspace_id = -1, memoryspace_name_id = -1;
+    std::string calib_curve_str = STR_CALIB_CURVE + str_quantifier;
+    Calibration_curve<double> calibration(str_quantifier);
+    hid_t dspace_id = -1;
     hid_t error = -1;
-    hid_t sr_error = -1;
-    hid_t us_error = -1;
-    hid_t ds_error = -1;
+    hid_t   filetype, memtype, status;
     hsize_t offset[2] = { 0,0 };
     hsize_t count[2] = { 1,1 };
     hsize_t offset_name[2] = { 0, 0 };
     hsize_t count_name[2] = { 1, 1 };
     char tmp_name[255] = { 0 };
-    hid_t   filetype, memtype, status;
-    double sr_values[3] = { 0., 0., 0. };
-    double us_values[3] = { 0., 0., 0. };
-    double ds_values[3] = { 0., 0., 0. };
+    double values[3] = { 0., 0., 0. };
 
-    grp_id = H5Gopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
-    if (grp_id < 0)
+    hid_t dset_id = H5Dopen(grp_id, calib_curve_str.c_str(), H5P_DEFAULT);
+    if (dset_id < 0)
     {
-        logW << "Error opening group /MAPS/" << path << "\n";
+        logW << "Error opening datasaet /MAPS/" << calib_curve_str << "\n";
+        //return false;
+    }
+    else
+    {
+        dspace_id = H5Dget_space(dset_id);
+    }
+
+    if (dspace_id < 0)
+    {
+        logW << "Error opening space /MAPS/" << calib_curve_str << "\n";
+        H5Dclose(dset_id);
         return false;
     }
 
 
-    sr_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_SR_CUR.c_str(), H5P_DEFAULT);
-    if (sr_dset_id < 0)
-    {
-        logW << "Error opening group /MAPS/" << STR_CALIB_CURVE_SR_CUR << "\n";
-        //return false;
-    }
-    else
-    {
-        sr_dspace_id = H5Dget_space(sr_dset_id);
-    }
-
-    us_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_US_IC.c_str(), H5P_DEFAULT);
-    if (us_dset_id < 0)
-    {
-        logW << "Error opening group /MAPS/" << STR_CALIB_CURVE_US_IC << "\n";
-        //return false;
-    }
-    else
-    {
-        us_dspace_id = H5Dget_space(us_dset_id);
-    }
-
-    ds_dset_id = H5Dopen(grp_id, STR_CALIB_CURVE_DS_IC.c_str(), H5P_DEFAULT);
-    if (ds_dset_id < 0)
-    {
-        logW << "Error opening group /MAPS/" << STR_CALIB_CURVE_DS_IC << "\n";
-        //return false;
-    }
-    else
-    {
-        ds_dspace_id = H5Dget_space(ds_dset_id);
-    }
-
-    channels_dset_id = H5Dopen(grp_id, STR_CALIB_LABELS.c_str(), H5P_DEFAULT);
+    hid_t channels_dset_id = H5Dopen(grp_id, STR_CALIB_LABELS.c_str(), H5P_DEFAULT);
     if (channels_dset_id < 0)
     {
-        logW << "Error opening group /MAPS/" << STR_CALIB_LABELS << "\n";
+        H5Sclose(dspace_id);
+        H5Dclose(dset_id);
+        logW << "Error opening dataset /MAPS/" << STR_CALIB_LABELS << "\n";
         return false;
     }
-    channels_dspace_id = H5Dget_space(channels_dset_id);
+    hid_t channels_dspace_id = H5Dget_space(channels_dset_id);
+    
+    if (channels_dspace_id < 0)
+    {
 
-    hid_t found_space_id = -1;
-    if (sr_dspace_id > -1)
-    {
-        found_space_id = sr_dspace_id;
-    }
-    else if (us_dset_id > -1)
-    {
-        found_space_id = us_dset_id;
-    }
-    else if (ds_dset_id > -1)
-    {
-        found_space_id = ds_dset_id;
-    }
-    else
-    {
+        H5Sclose(dspace_id);
+        H5Dclose(dset_id);
+        H5Dclose(channels_dset_id);
+        logW << "Error opening space /MAPS/" << STR_CALIB_LABELS << "\n";
+        H5Dclose(dset_id);
         return false;
     }
 
-    int rank = H5Sget_simple_extent_ndims(found_space_id);
+    int rank = H5Sget_simple_extent_ndims(dspace_id);
     if (rank != 2)
     {
-        logW << path << " rank is not equal to 3, unknown format!\n";
+        logW << str_quantifier << " rank is not equal to 3, unknown format!\n";
+        H5Sclose(channels_dspace_id);
+        H5Sclose(dspace_id);
+        H5Dclose(dset_id);
+        H5Dclose(channels_dset_id);
         return false;
     }
+
     hsize_t* dims_out = new hsize_t[rank];
-    unsigned int status_n = H5Sget_simple_extent_dims(found_space_id, &dims_out[0], nullptr);
+    unsigned int status_n = H5Sget_simple_extent_dims(dspace_id, &dims_out[0], nullptr);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -1479,14 +1443,10 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
 
     count[1] = 1;
 
-    memoryspace_id = H5Screate_simple(rank, count, nullptr);
-    memoryspace_name_id = H5Screate_simple(rank, count_name, nullptr);
+    hid_t memoryspace_id = H5Screate_simple(rank, count, nullptr);
+    hid_t memoryspace_name_id = H5Screate_simple(rank, count_name, nullptr);
     H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
-
-    Calibration_curve<double> sr_current_curve(STR_SR_CURRENT);
-    Calibration_curve<double> us_ic_curve(STR_US_IC);
-    Calibration_curve<double> ds_ic_curve(STR_DS_IC);
 
     for (hsize_t el_idx = 0; el_idx < dims_out[1]; el_idx++)
     {
@@ -1496,249 +1456,125 @@ bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string 
         H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
-        if (sr_dset_id > -1)
+        if (dset_id > -1)
         {
-            H5Sselect_hyperslab(sr_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            sr_error = H5Dread(sr_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, sr_dspace_id, H5P_DEFAULT, (void*)&sr_values[0]);
+            H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dspace_id, H5P_DEFAULT, (void*)&values[0]);
         }
-        if (us_dset_id > -1)
+        
+        if (error > -1)
         {
-            H5Sselect_hyperslab(us_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            us_error = H5Dread(us_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, us_dspace_id, H5P_DEFAULT, (void*)&us_values[0]);
-        }
-        if (ds_dset_id > -1)
-        {
-            H5Sselect_hyperslab(ds_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            ds_error = H5Dread(ds_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, ds_dspace_id, H5P_DEFAULT, (void*)&ds_values[0]);
-        }
-        if (error > -1 && sr_error > -1)
-        {
-            sr_current_curve.calib_curve[el_name] = sr_values[0];
-            sr_current_curve.calib_curve[el_name + "_L"] = sr_values[1];
-            sr_current_curve.calib_curve[el_name + "_M"] = sr_values[2];
-        }
-        if (error > -1 && us_error > -1)
-        {
-            us_ic_curve.calib_curve[el_name] = us_values[0];
-            us_ic_curve.calib_curve[el_name + "_L"] = us_values[1];
-            us_ic_curve.calib_curve[el_name + "_M"] = us_values[2];
-        }
-        if (error > -1 && ds_error > -1)
-        {
-            ds_ic_curve.calib_curve[el_name] = ds_values[0];
-            ds_ic_curve.calib_curve[el_name + "_L"] = ds_values[1];
-            ds_ic_curve.calib_curve[el_name + "_M"] = ds_values[2];
+            calibration.calib_curve[el_name] = values[0];
+            calibration.calib_curve[el_name + "_L"] = values[1];
+            calibration.calib_curve[el_name + "_M"] = values[2];
         }
     }
 
-    quant[STR_SR_CURRENT] = sr_current_curve;
-    quant[STR_US_IC] = us_ic_curve;
-    quant[STR_DS_IC] = ds_ic_curve;
-
+    quant[str_quantifier] = calibration;
+    
     count[0] = 1;
     count[1] = 1;
     hid_t memspace_id = H5Screate_simple(1, count, nullptr);
 
     // try to open quantification values for refitting
-    sr_qv_id = H5Dopen(grp_id, STR_SR_CURRENT_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
-    if (sr_qv_id > -1)
+    std::string str_element_info = STR_ELEMENT_INFO_VALUES + str_quantifier;
+    hid_t qv_id = H5Dopen(grp_id, str_element_info.c_str(), H5P_DEFAULT);
+    if (qv_id > -1)
     {
-        sr_qv_dspace = H5Dget_space(sr_qv_id);
-        unsigned int status_n = H5Sget_simple_extent_dims(sr_qv_dspace, &dims_out[0], nullptr);
+        hid_t qv_dspace = H5Dget_space(qv_id);
+        unsigned int status_n = H5Sget_simple_extent_dims(qv_dspace, &dims_out[0], nullptr);
         for (int i = 0; i < dims_out[0]; i++)
         {
             offset[0] = i;
             offset[1] = 7; // get Z first 
             int Z = -1;
-            H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            ds_error = H5Dread(sr_qv_id, H5T_NATIVE_INT, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&Z);
+            H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+            error = H5Dread(qv_id, H5T_NATIVE_INT, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&Z);
             
             if (Z < 100)
             {
                 data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
                 
                 offset[1] = 0;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
 
                 offset[1] = 1;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
 
                 offset[1] = 2;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
 
                 offset[1] = 3;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
 
                 offset[1] = 4;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
                 
                 offset[1] = 5;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
 
                 offset[1] = 6;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
 
                 offset[1] = 8;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
                 
                 offset[1] = 9;
-                H5Sselect_hyperslab(sr_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(sr_qv_id, H5T_NATIVE_DOUBLE, memspace_id, sr_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
+                H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                error = H5Dread(qv_id, H5T_NATIVE_DOUBLE, memspace_id, qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
                 
-                e_quants[STR_SR_CURRENT][data_struct::Element_Symbols[Z]] = e_quant;
+                e_quants[str_quantifier][data_struct::Element_Symbols[Z]] = e_quant;
             }
         }
-        H5Sclose(sr_qv_dspace);
-        H5Dclose(sr_qv_id);
+        H5Sclose(qv_dspace);
+        H5Dclose(qv_id);
     }
     
 
-    us_qv_id = H5Dopen(grp_id, STR_US_IC_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
-    if (us_qv_id > -1)
-    {
-        us_qv_dspace = H5Dget_space(us_qv_id);
-        unsigned int status_n = H5Sget_simple_extent_dims(us_qv_dspace, &dims_out[0], nullptr);
-        for (int i = 0; i < dims_out[0]; i++)
-        {
-            offset[0] = i;
-            offset[1] = 7; // get Z first 
-            int Z = -1;
-            H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            ds_error = H5Dread(us_qv_id, H5T_NATIVE_INT, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&Z);
-
-            if (Z < 100)
-            {
-                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
-
-                offset[1] = 0;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
-
-                offset[1] = 1;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
-
-                offset[1] = 2;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
-
-                offset[1] = 3;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
-
-                offset[1] = 4;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
-
-                offset[1] = 5;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
-
-                offset[1] = 6;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
-
-                offset[1] = 8;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
-
-                offset[1] = 9;
-                H5Sselect_hyperslab(us_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(us_qv_id, H5T_NATIVE_DOUBLE, memspace_id, us_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
-
-                e_quants[STR_US_IC][data_struct::Element_Symbols[Z]] = e_quant;
-            }
-        }
-        H5Sclose(us_qv_dspace);
-        H5Dclose(us_qv_id);
-    }
-
-
-    ds_qv_id = H5Dopen(grp_id, STR_DS_IC_ELEMENT_INFO_VALUES.c_str(), H5P_DEFAULT);
-    if (ds_qv_id > -1)
-    {
-        ds_qv_dspace = H5Dget_space(ds_qv_id);
-        unsigned int status_n = H5Sget_simple_extent_dims(ds_qv_dspace, &dims_out[0], nullptr);
-        for (int i = 0; i < dims_out[0]; i++)
-        {
-            offset[0] = i;
-            offset[1] = 7; // get Z first 
-            int Z = -1;
-            H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            ds_error = H5Dread(ds_qv_id, H5T_NATIVE_INT, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&Z);
-
-            if (Z < 100)
-            {
-                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
-
-                offset[1] = 0;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->weight));
-
-                offset[1] = 1;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->absorption));
-
-                offset[1] = 2;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Be));
-
-                offset[1] = 3;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_Ge));
-
-                offset[1] = 4;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->yield));
-
-                offset[1] = 5;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_Si_detector));
-
-                offset[1] = 6;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->transmission_through_air));
-
-                offset[1] = 8;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->e_cal_ratio));
-
-                offset[1] = 9;
-                H5Sselect_hyperslab(ds_qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-                ds_error = H5Dread(ds_qv_id, H5T_NATIVE_DOUBLE, memspace_id, ds_qv_dspace, H5P_DEFAULT, (void*)&(e_quant->calib_curve_val));
-
-                e_quants[STR_DS_IC][data_struct::Element_Symbols[Z]] = e_quant;
-            }
-        }
-        H5Sclose(ds_qv_dspace);
-        H5Dclose(ds_qv_id);
-    }
-
-    H5Sclose(memspace_id);
-
-
     delete [] dims_out;
+    if(memspace_id > -1)
+    {
+        H5Sclose(memspace_id);
+    }
 
     H5Sclose(memoryspace_name_id);
     H5Sclose(memoryspace_id);
     H5Sclose(channels_dspace_id);
     H5Dclose(channels_dset_id);
-    H5Sclose(us_dspace_id);
-    H5Dclose(us_dset_id);
-    H5Sclose(ds_dspace_id);
-    H5Dclose(ds_dset_id);
-    H5Sclose(sr_dspace_id);
-    H5Dclose(sr_dset_id);
-    H5Gclose(grp_id);
+    H5Sclose(dspace_id);
+    H5Dclose(dset_id);
 
+    return true;
+}
+
+//---------------------------------------------------------------------------
+
+
+bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
+{
+    hid_t grp_id = -1;
+    
+    grp_id = H5Gopen(maps_grp_id, path.c_str(), H5P_DEFAULT);
+    if (grp_id < 0)
+    {
+        logW << "Error opening group /MAPS/" << path << "\n";
+        return false;
+    }
+
+    _load_quantifier(grp_id, STR_SR_CURRENT, quant, e_quants);
+    _load_quantifier(grp_id, STR_US_IC, quant, e_quants);
+    _load_quantifier(grp_id, STR_US_FM, quant, e_quants);
+    _load_quantifier(grp_id, STR_DS_IC, quant, e_quants);
+
+    H5Gclose(grp_id);
 
     return true;
 }
