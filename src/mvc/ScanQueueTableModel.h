@@ -189,9 +189,17 @@ public:
         else if (role == Qt::EditRole)
         {
             section = section - 1;
-            if(section > 0 && section < parms_size)
+            if(section >= 0 && section < parms_size)
             {
                 return rowData.parameters.at(section).default_val;
+            }
+        }
+        else if (role == Qt::ToolTipRole)
+        {
+            section = section - 1;
+            if(section >= 0 && section < parms_size)
+            {
+                return rowData.parameters.at(section).name;
             }
         }
         return QVariant();
