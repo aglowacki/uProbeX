@@ -142,7 +142,7 @@ public slots:
                     }
                 }
             }
-            QThread::sleep(250);
+            QThread::sleep(.25);
         }
         _zmq_socket->close();
         if(_zmq_qserv_socket != nullptr)
