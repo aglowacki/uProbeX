@@ -618,19 +618,25 @@ public:
             if(reply.contains("plans_allowed"))
             {
                 QJsonObject iojb = reply["plans_allowed"].toObject();
+                QStringList lili = iojb.keys();
+                for(auto aaa : lili)
+                {
+                    logI<<aaa.toStdString()<<"\n";
+                }
                 for( auto itr : iojb)
                 {
                     QJsonObject pobj = itr.toObject();
                     if(pobj.contains("name"))
                     {
-                        plans[pobj["name"].toString()].name = pobj["name"].toString();
+                        logI<<pobj.value("name").toString().toStdString()<<"\n";
+                        plans[pobj.value("name").toString()].name = pobj.value("name").toString();
                         if(pobj.contains("description"))
                         {
-                            plans[pobj["name"].toString()].description = pobj["description"].toString();
+                            plans[pobj.value("name").toString()].description = pobj.value("description").toString();
                         }
                         if(pobj.contains("module"))
                         {
-                            plans[pobj["name"].toString()].module = pobj["module"].toString();
+                            plans[pobj.value("name").toString()].module = pobj.value("module").toString();
                         }
                         if(pobj.contains("parameters"))
                         {
@@ -641,12 +647,12 @@ public:
                                 QJsonObject param = itr2.toObject();
                                 if(param.contains("name"))
                                 {
-                                    bsparam.name = param["name"].toString();
+                                    bsparam.name = param.value("name").toString();
                                     if(param.contains("default"))
                                     {
-                                        if(param["default"].toString() != "None")
+                                        if(param.value("default").toString() != "None")
                                         {
-                                            bsparam.setValue(param["default"].toString());
+                                            bsparam.setValue(param.value("default").toString());
                                         }
                                         else
                                         {
@@ -655,7 +661,7 @@ public:
                                     }
                                     if(param.contains("description"))
                                     {
-                                        bsparam.description = param["description"].toString();
+                                        bsparam.description = param.value("description").toString();
                                     }
                                 }
                                 /* only have seen 1 and 3 and not sure what they mean
@@ -679,7 +685,7 @@ public:
                                     }
                                 }
                                 */
-                                plans[pobj["name"].toString()].parameters.push_back(bsparam);
+                                plans[pobj.value("name").toString()].parameters.push_back(bsparam);
                             }
                         }
                     }
@@ -688,7 +694,7 @@ public:
             }
             if(reply.contains("msg"))
             {
-                msg = reply["msg"].toString();
+                msg = reply.value("msg").toString();
             }
         }
         return ret;
