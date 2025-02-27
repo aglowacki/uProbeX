@@ -546,6 +546,7 @@ public:
                 double p = kwargs.value(pitr).toDouble();
                 bsp.setValue( QString::number(p) );
             }
+            /*
             else if (kwargs.value(pitr).isBool())
             {
                 bool p = kwargs.value(pitr).toBool();
@@ -559,6 +560,7 @@ public:
                 }
                 bsp.kind = BlueskyParamType::Bool;
             }
+            */
             else
             {
                 QString strval = kwargs.value(pitr).toString();
@@ -661,6 +663,7 @@ public:
                                             double p = param.value("default").toDouble();
                                             bsparam.setValue( QString::number(p) );
                                         }
+                                        /*
                                         else if (param.value("default").isBool())
                                         {
                                             bool p = param.value("default").toBool();
@@ -674,6 +677,7 @@ public:
                                             }
                                             bsparam.kind = BlueskyParamType::Bool;
                                         }
+                                            */
                                         else
                                         {
                                             QString strval = param.value("default").toString();
