@@ -107,6 +107,8 @@ private:
 
    QCheckBox* _ck_show_dataset_on_load;
 
+   QCheckBox* _ck_show_scan_queue_header;
+
    QCheckBox* _ck_search_datasets;
 
    QCheckBox* _ck_strict_regex;

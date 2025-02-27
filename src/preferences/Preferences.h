@@ -91,6 +91,7 @@
 #define STR_PRF_LiveCoefficientNames "LiveCoefficientName"
 #define STR_PRF_LiveCoefficientVals "LiveCoefficientVals"
 #define STR_PREF_LAST_SCAN_LINK_SELECTED "Last_Scan_Link_Selected"
+#define STR_PFR_SHOW_SCAN_QUEUE_HEADER "Show_Scan_Queue_Header"
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
 
 /**

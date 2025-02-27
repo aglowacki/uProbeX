@@ -38,10 +38,12 @@ struct BlueskyParam
     {
         default_val = "";
     }
+    
     QString name;
     QString description;
     QString default_val;
     BlueskyParamType kind;
+
     void setValue(QString val)
     {
         bool found_letter = false;

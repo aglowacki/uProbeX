@@ -64,6 +64,11 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_show_dataset_on_load = new QCheckBox();
    _ck_show_dataset_on_load->setChecked(Preferences::inst()->getValue(STR_PRF_SHOW_DATASET_ON_LOAD).toBool());
 
+   QLabel* lblShowScanQueueHeader = new QLabel("Show scan queue header (restart required)");
+   lblShowScanQueueHeader->setFont(font);
+   _ck_show_scan_queue_header = new QCheckBox();
+   _ck_show_scan_queue_header->setChecked(Preferences::inst()->getValue(STR_PFR_SHOW_SCAN_QUEUE_HEADER).toBool());
+
    QLabel* lblIntSpecControlLoc = new QLabel("Integreated Spectra: Fit Params Location");
    lblIntSpecControlLoc->setFont(font);
    _ck_int_spec_horiz = new QComboBox();
@@ -103,6 +108,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblIntSpecControlLoc, _ck_int_spec_horiz);
    mainLayout->addRow(lblSearchDatasets, _ck_search_datasets);
    mainLayout->addRow(lblStrictRegex, _ck_strict_regex);
+   mainLayout->addRow(lblShowScanQueueHeader, _ck_show_scan_queue_header);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
@@ -164,6 +170,7 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_PRF_DecimalPrecision, getDecimalPrecision());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, _ck_show_dataset_on_select->isChecked());
     Preferences::inst()->setValue(STR_PRF_SHOW_DATASET_ON_LOAD, _ck_show_dataset_on_load->isChecked());
+    Preferences::inst()->setValue(STR_PFR_SHOW_SCAN_QUEUE_HEADER, _ck_show_scan_queue_header->isChecked());
     Preferences::inst()->setValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, _ck_int_spec_horiz->currentIndex());
     Preferences::inst()->setValue(STR_SEARCH_SUB_DIR_FOR_DATASETS, _ck_search_datasets->isChecked());
     Preferences::inst()->setValue(STR_PRF_STRICT_REGEX, _ck_strict_regex->isChecked());

@@ -97,6 +97,7 @@ Preferences::Preferences()
         {STR_PRF_LiveCoefficientVals, QVariant()},
         {STR_PREF_LAST_SCAN_LINK_SELECTED, QVariant()},
         {STR_PREF_SCAN_LINK_PROFILES, QVariant()},
+        {STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant()},
         {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
    load();

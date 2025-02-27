@@ -15,6 +15,7 @@
 #include <QTableWidget>
 #include <QShortcut>
 #include "core/defines.h"
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 
@@ -55,6 +56,12 @@ void ScanQueueWidget::_createLayout()
     _scan_queue_table_view->setDropIndicatorShown(true);
     _scan_queue_table_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     _scan_queue_table_view->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    if(false == Preferences::inst()->getValue(STR_PFR_SHOW_SCAN_QUEUE_HEADER).toBool())
+    {
+        _scan_queue_table_view->horizontalHeader()->hide();
+    }
+
     connect(_scan_queue_table_view,
           &QTableView::customContextMenuRequested,
           this,
@@ -304,7 +311,7 @@ void ScanQueueWidget::_updateRunningPlanMetaInfo(const QString& msg)
 {
     const QString fname_tag = "Filename:";
     const QString scan_prog_tag = "Scan_progress:";
-    qsizetype idx = msg.indexOf("{");
+    qsizetype idx = msg.indexOf(fname_tag);
     if(idx > 0)
     {
         QString subMsg = msg.mid(idx);

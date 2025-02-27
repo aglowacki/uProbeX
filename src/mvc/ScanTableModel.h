@@ -16,23 +16,31 @@
 class ScanTableModel : public QAbstractTableModel 
 {
 public:
+
     ScanTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
         _headers[0] = "Name";
         _headers[1] = "Value";
         _headers[2] = "Desc";
+        _headers[3] = "Type";
     }
+    
     //---------------------------------------------------------------------------
+
     int rowCount(const QModelIndex& parent = QModelIndex()) const override 
     {
         return _data.size();
     }
 
+    //---------------------------------------------------------------------------
+
     int columnCount(const QModelIndex& parent = QModelIndex()) const override 
     {
-        return 3; 
+        return 4; 
     }
+
     //---------------------------------------------------------------------------
+    
     void appendRow(const BlueskyParam& row)
     {
         int rown = _data.size();
@@ -85,6 +93,23 @@ public:
                 return rowData.default_val;
             case 2:
                 return rowData.description;
+            case 3:
+                if(rowData.kind == BlueskyParamType::Bool)
+                {
+                    return "Bool";
+                }
+                else if(rowData.kind == BlueskyParamType::Int)
+                {
+                    return "Int";
+                }
+                else if(rowData.kind == BlueskyParamType::Double)
+                {
+                    return "Double";
+                }
+                else if(rowData.kind == BlueskyParamType::String)
+                {
+                    return "String";
+                }
             };
         }
         else if(role == Qt::EditRole && index.column() == 1)
@@ -184,7 +209,7 @@ public:
 private:
     std::vector<BlueskyParam> _data;
 
-    QString _headers[3];
+    QString _headers[4];
 };
 
 

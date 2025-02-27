@@ -562,7 +562,8 @@ public:
             else
             {
                 QString strval = kwargs.value(pitr).toString();
-                if(strval == "True" || strval == "False" || strval == u"True" || strval == u"False")
+                QString lstrval = strval.toLower();
+                if(lstrval == "true" || lstrval == "false" || lstrval == u"true" || lstrval == u"false")
                 {
                     bsp.default_val = strval;
                     bsp.kind = BlueskyParamType::Bool;
@@ -605,6 +606,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
+            logI<<message.to_string()<<"\n";
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
@@ -640,7 +642,9 @@ public:
                         }
                         if(pobj.contains("parameters"))
                         {
+                            
                             QJsonArray params_obj = pobj["parameters"].toArray();
+
                             for( auto itr2 : params_obj)
                             {
                                 BlueskyParam bsparam;
@@ -650,13 +654,39 @@ public:
                                     bsparam.name = param.value("name").toString();
                                     if(param.contains("default"))
                                     {
-                                        if(param.value("default").toString() != "None")
+                                        bsparam.kind = BlueskyParamType::String;
+                                        
+                                        if(param.value("default").isDouble())
                                         {
-                                            bsparam.setValue(param.value("default").toString());
+                                            double p = param.value("default").toDouble();
+                                            bsparam.setValue( QString::number(p) );
+                                        }
+                                        else if (param.value("default").isBool())
+                                        {
+                                            bool p = param.value("default").toBool();
+                                            if(p)
+                                            {
+                                                bsparam.default_val = "True";
+                                            }
+                                            else
+                                            {
+                                                bsparam.default_val = "False";
+                                            }
+                                            bsparam.kind = BlueskyParamType::Bool;
                                         }
                                         else
                                         {
-                                            bsparam.kind = BlueskyParamType::String;
+                                            QString strval = param.value("default").toString();
+                                            QString lstrval = strval.toLower();
+                                            if(lstrval == "true" || lstrval == "false" || lstrval == u"true" || lstrval == u"false")
+                                            {
+                                                bsparam.default_val = strval;
+                                                bsparam.kind = BlueskyParamType::Bool;
+                                            }
+                                            else
+                                            {
+                                                bsparam.setValue(strval);
+                                            }
                                         }
                                     }
                                     if(param.contains("description"))
@@ -749,7 +779,7 @@ public:
                     QJsonObject param = itr2.toObject();
                     if(param.contains("name"))
                     {
-                        plan.type = param["name"].toString();
+                        plan.type = param.value("name").toString();
                     }
                     if(param.contains("args"))
                     {
@@ -761,19 +791,19 @@ public:
                     }
                     if(param.contains("user"))
                     {
-                        plan.user = param["user"].toString();
+                        plan.user = param.value("user").toString();
                     }
                     if(param.contains("meta"))
                     {
                         QJsonObject meta = param["meta"].toObject();
                         if(meta.contains("name"))
                         {
-                            plan.name = meta["name"].toString();
+                            plan.name = meta.value("name").toString();
                         }
                     }
                     if(param.contains("item_uid"))
                     {
-                        plan.uuid = param["item_uid"].toString();
+                        plan.uuid = param.value("item_uid").toString();
                     }
                     queued_plans.push_back(plan);
                 }
@@ -804,7 +834,7 @@ public:
                 QJsonObject running_item = reply["running_item"].toObject();
                 if(running_item.contains("name"))
                 {
-                    running_plan.type =  running_item["name"].toString();
+                    running_plan.type =  running_item.value("name").toString();
                 }
                 if(running_item.contains("args"))
                 {
@@ -816,11 +846,11 @@ public:
                 }
                 if(running_item.contains("user"))
                 {
-                    running_plan.user =  running_item["user"].toString();
+                    running_plan.user =  running_item.value("user").toString();
                 }
                 if(running_item.contains("item_uid"))
                 {
-                    running_plan.uuid =  running_item["item_uid"].toString();
+                    running_plan.uuid =  running_item.value("item_uid").toString();
                 }
                 if(running_item.contains("properties"))
                 {
@@ -871,7 +901,7 @@ public:
             }
             if(reply.contains("msg"))
             {
-                msg = reply["msg"].toString();
+                msg = reply.value("msg").toString();
             }
         }
         return ret;
