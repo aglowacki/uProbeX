@@ -86,6 +86,10 @@ public:
         obj["params"] = params;
         doc.setObject(obj);
         return doc.toJson();
+        //QString str = QString::fromUtf8(doc.toJson());
+        //str.replace(": true", ": True");
+        //str.replace(": false", ": False");
+        //return str.toUtf8();
     }
 
     //---------------------------------------------------------------------------
@@ -131,26 +135,17 @@ public:
             */
             if(itr.default_val.length() > 0)
             {
-                kwargs[itr.name] = itr.default_val;
-            }
-            /*
-                if(itr.kind == BlueskyParamType::String)
+                if(itr.kind == BlueskyParamType::String || itr.kind == BlueskyParamType::Bool)
                 {
                     kwargs[itr.name] = itr.default_val;
                 }
+                /*
                 else if(itr.kind == BlueskyParamType::Bool)
                 {
-                    if(itr.default_val == "1")
-                    {
-                        itr.default_val = "True";
-                    }
-                    else
-                    {
-                        itr.default_val = "False";
-                    }
-                    QVariant v =  itr.default_val;
+                    QVariant v = itr.default_val;
                     kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
                 }
+                */    
                 else if(itr.kind == BlueskyParamType::Int)
                 {
                     kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toInt());
@@ -160,7 +155,6 @@ public:
                     kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toDouble());
                 }
             }
-                */
         }
         item["kwargs"] = kwargs;
         item["args"] = args;
@@ -547,48 +541,6 @@ logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
             BlueskyParam bsp;
             bsp.name = pitr;
             bsp.setValue( kwargs.value(pitr).toString());
-            /*
-            if(kwargs.value(pitr).isDouble())
-            {
-                double p = kwargs.value(pitr).toDouble();
-                bsp.setValue( QString::number(p) );
-            }
-            
-            else if (kwargs.value(pitr).isBool())
-            {
-                bool p = kwargs.value(pitr).toBool();
-                if(p)
-                {
-                    bsp.default_val = "True";
-                }
-                else
-                {
-                    bsp.default_val = "False";
-                }
-                bsp.kind = BlueskyParamType::Bool;
-            }
-            
-            else
-            {
-                QString strval = kwargs.value(pitr).toString();
-                QString lstrval = strval.toLower();
-                if(lstrval == "true" || lstrval == "false" || lstrval == u"true" || lstrval == u"false")
-                {
-                    bsp.default_val = strval;
-                    bsp.kind = BlueskyParamType::Bool;
-                }
-                else
-                {
-                    bsp.setValue(strval);
-                }
-            }
-            
-            else if( kwargs.value(pitr).isString() )
-            {
-                bsp.setValue(kwargs.value(pitr).toString());
-            }
-            */
-            
             plan.parameters.push_back(bsp);
         }
     }
