@@ -117,7 +117,7 @@ public:
         QJsonObject kwargs;
         for(auto itr: plan.parameters)
         {
-            //logI<<itr.first.toStdString()<<" : "<<itr.second.default_val.toStdString()<<" :: "<<(int)(itr.second.kind)<<  "\n";
+            /*
             if(itr.name == "detectors") 
             {
                 QJsonArray inner_args; // need this for bluesky or it doesn't work
@@ -128,8 +128,12 @@ public:
                 }
                 args.append(inner_args);
             }
+            */
             if(itr.default_val.length() > 0)
             {
+                kwargs[itr.name] = itr.default_val;
+            }
+            /*
                 if(itr.kind == BlueskyParamType::String)
                 {
                     kwargs[itr.name] = itr.default_val;
@@ -156,6 +160,7 @@ public:
                     kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toDouble());
                 }
             }
+                */
         }
         item["kwargs"] = kwargs;
         item["args"] = args;
@@ -326,7 +331,7 @@ public:
         QByteArray msg_arr = gen_send_mesg2("queue_item_add", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
         zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
-
+logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
@@ -378,7 +383,7 @@ public:
         QByteArray msg_arr = gen_send_mesg2("queue_item_update", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
         zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
-
+logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
@@ -541,12 +546,14 @@ public:
         {
             BlueskyParam bsp;
             bsp.name = pitr;
+            bsp.setValue( kwargs.value(pitr).toString());
+            /*
             if(kwargs.value(pitr).isDouble())
             {
                 double p = kwargs.value(pitr).toDouble();
                 bsp.setValue( QString::number(p) );
             }
-            /*
+            
             else if (kwargs.value(pitr).isBool())
             {
                 bool p = kwargs.value(pitr).toBool();
@@ -560,7 +567,7 @@ public:
                 }
                 bsp.kind = BlueskyParamType::Bool;
             }
-            */
+            
             else
             {
                 QString strval = kwargs.value(pitr).toString();
@@ -575,7 +582,7 @@ public:
                     bsp.setValue(strval);
                 }
             }
-            /*
+            
             else if( kwargs.value(pitr).isString() )
             {
                 bsp.setValue(kwargs.value(pitr).toString());
@@ -608,7 +615,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
-            logI<<message.to_string()<<"\n";
+logI<<message.to_string()<<"\n";
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
@@ -657,41 +664,7 @@ public:
                                     if(param.contains("default"))
                                     {
                                         bsparam.kind = BlueskyParamType::String;
-                                        
-                                        if(param.value("default").isDouble())
-                                        {
-                                            double p = param.value("default").toDouble();
-                                            bsparam.setValue( QString::number(p) );
-                                        }
-                                        /*
-                                        else if (param.value("default").isBool())
-                                        {
-                                            bool p = param.value("default").toBool();
-                                            if(p)
-                                            {
-                                                bsparam.default_val = "True";
-                                            }
-                                            else
-                                            {
-                                                bsparam.default_val = "False";
-                                            }
-                                            bsparam.kind = BlueskyParamType::Bool;
-                                        }
-                                            */
-                                        else
-                                        {
-                                            QString strval = param.value("default").toString();
-                                            QString lstrval = strval.toLower();
-                                            if(lstrval == "true" || lstrval == "false" || lstrval == u"true" || lstrval == u"false")
-                                            {
-                                                bsparam.default_val = strval;
-                                                bsparam.kind = BlueskyParamType::Bool;
-                                            }
-                                            else
-                                            {
-                                                bsparam.setValue(strval);
-                                            }
-                                        }
+                                        bsparam.setValue(param.value("default").toString());
                                     }
                                     if(param.contains("description"))
                                     {
@@ -754,6 +727,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
+logI<<message.to_string()<<"\n";
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {

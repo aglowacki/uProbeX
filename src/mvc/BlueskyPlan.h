@@ -62,7 +62,15 @@ struct BlueskyParam
         }
         if(found_letter)
         {
-            kind = BlueskyParamType::String;
+            QString lval = val.toLower();
+            if(lval == "true" || lval == "false")
+            {
+                kind = BlueskyParamType::Bool;
+            }
+            else
+            {
+                kind = BlueskyParamType::String;
+            }
         }
         else if (found_point)
         {
