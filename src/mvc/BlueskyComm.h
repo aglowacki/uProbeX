@@ -135,18 +135,15 @@ public:
             */
             if(itr.default_val.length() > 0)
             {
-                if(itr.kind == BlueskyParamType::String || itr.kind == BlueskyParamType::Bool)
-                //if(itr.kind == BlueskyParamType::String)
+                if(itr.kind == BlueskyParamType::String)
                 {
                     kwargs[itr.name] = itr.default_val;
                 }
-                /*
                 else if(itr.kind == BlueskyParamType::Bool)
                 {
                     QVariant v = itr.default_val;
                     kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
                 }
-                */
                 else if(itr.kind == BlueskyParamType::Int)
                 {
                     kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toInt());
@@ -542,7 +539,7 @@ logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
             //logit_s<<pitr.toStdString()<<" : "<<kwargs.value(pitr).toVariant().toString().toStdString()<<" -- ";
             BlueskyParam bsp;
             bsp.name = pitr;
-            bsp.setValue( kwargs.value(pitr).toVariant().toString());
+            bsp.setValue( kwargs.value(pitr).toVariant());
             plan.parameters.push_back(bsp);
         }
         //logit_s<<"\n ";
@@ -619,7 +616,7 @@ logI<<message.to_string()<<"\n";
                                     if(param.contains("default"))
                                     {
                                         bsparam.kind = BlueskyParamType::String;
-                                        bsparam.setValue(param.value("default").toString());
+                                        bsparam.setValue(param.value("default").toVariant());
                                     }
                                     if(param.contains("description"))
                                     {

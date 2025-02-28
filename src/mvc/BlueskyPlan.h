@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <unordered_map>
+#include <QVariant>
 
 enum class BlueskyParamType { Bool = 0, Int = 1, Double = 2, String = 3 };
 
@@ -44,43 +45,57 @@ struct BlueskyParam
     QString default_val;
     BlueskyParamType kind;
 
-    void setValue(QString val)
+    void setValue(QVariant var)
     {
         bool found_letter = false;
         bool found_point = false;
-        for (int i = 0; i < val.length(); ++i) 
+        if(var.typeId() == QMetaType::QString)
         {
-            if (val[i].isLetter()) 
+            QString val = var.toString();
+            for (int i = 0; i < val.length(); ++i) 
             {
-                found_letter = true;
-                break;
+                if (val[i].isLetter()) 
+                {
+                    found_letter = true;
+                    break;
+                }
+                if(val[i] == '.')
+                {
+                    found_point = true;
+                }
             }
-            if(val[i] == '.')
+            if(found_letter)
             {
-                found_point = true;
+                QString lval = val.toLower();
+                if(lval == "true" || lval == "false")
+                {
+                    kind = BlueskyParamType::Bool;
+                }
+                else
+                {
+                    kind = BlueskyParamType::String;
+                }
             }
-        }
-        if(found_letter)
-        {
-            QString lval = val.toLower();
-            if(lval == "true" || lval == "false")
+            else if (found_point)
             {
-                kind = BlueskyParamType::Bool;
+                kind = BlueskyParamType::Double;
             }
             else
             {
-                kind = BlueskyParamType::String;
+                kind = BlueskyParamType::Int; 
             }
+            default_val = val;
         }
-        else if (found_point)
+        else if (var.typeId() == QMetaType::Bool)
+        {
+            kind = BlueskyParamType::Bool;
+            default_val = var.toString();
+        }
+        else if(var.typeId() == QMetaType::Double)
         {
             kind = BlueskyParamType::Double;
+            default_val = var.toString();
         }
-        else
-        {
-            kind = BlueskyParamType::Int; 
-        }
-        default_val = val;
     }
 };
 
