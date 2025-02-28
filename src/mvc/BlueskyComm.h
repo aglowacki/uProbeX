@@ -144,10 +144,6 @@ public:
                     QVariant v = itr.default_val;
                     kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
                 }
-                else if(itr.kind == BlueskyParamType::Int)
-                {
-                    kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toInt());
-                }
                 else if(itr.kind == BlueskyParamType::Double)
                 {
                     kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toDouble());

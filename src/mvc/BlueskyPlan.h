@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <QVariant>
 
-enum class BlueskyParamType { Bool = 0, Int = 1, Double = 2, String = 3 };
+enum class BlueskyParamType { Bool = 0, Double = 1, String = 2 };
 
 //---------------------------------------------------------------------------
 
@@ -76,13 +76,9 @@ struct BlueskyParam
                     kind = BlueskyParamType::String;
                 }
             }
-            else if (found_point)
-            {
-                kind = BlueskyParamType::Double;
-            }
             else
             {
-                kind = BlueskyParamType::Int; 
+                kind = BlueskyParamType::Double;
             }
             default_val = val;
         }
@@ -91,7 +87,7 @@ struct BlueskyParam
             kind = BlueskyParamType::Bool;
             default_val = var.toString();
         }
-        else if(var.typeId() == QMetaType::Double)
+        else if(var.typeId() == QMetaType::Double || var.typeId() == QMetaType::Int)
         {
             kind = BlueskyParamType::Double;
             default_val = var.toString();

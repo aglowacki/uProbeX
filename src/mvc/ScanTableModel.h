@@ -98,10 +98,6 @@ public:
                 {
                     return "Bool";
                 }
-                else if(rowData.kind == BlueskyParamType::Int)
-                {
-                    return "Int";
-                }
                 else if(rowData.kind == BlueskyParamType::Double)
                 {
                     return "Double";
