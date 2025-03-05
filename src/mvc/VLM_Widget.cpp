@@ -1291,7 +1291,7 @@ void VLM_Widget::createLayout()
    //m_labelHeightAction->setVisible(false);
    //m_imageHeightDimAction->setVisible(false);
 
-   m_tabWidget->addTab(m_calibrationTabWidget, QIcon(), "Calibration");
+   m_tabWidget->addTab(m_calibrationTabWidget, QIcon(), "Setup");
    m_tabWidget->addTab(m_microProbeTabWidget, QIcon(), "MicroProbe");
 
    //set calibration as initial model
