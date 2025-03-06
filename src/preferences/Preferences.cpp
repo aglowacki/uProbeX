@@ -52,6 +52,7 @@ Preferences::Preferences()
         {STR_PRF_ExportPrintPxPyOnExportedImage, QVariant()},
         {STR_PRF_ExportPrintWidthHeightOnExportedImage, QVariant()},
         {STR_PRF_ExportSelectedXmlOption, QVariant()},
+        {STR_PRF_LastQServerIP, QVariant{}},
         {STR_PRF_LastIP, QVariant()},
         {STR_PRF_LastPort, QVariant()},
         {STR_PFR_LOG_10, QVariant()},

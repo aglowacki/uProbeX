@@ -13,7 +13,7 @@
 
 //---------------------------------------------------------------------------
 
-LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget* parent) : QWidget(parent)
+LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent)
 {
 
     _streamWorker = nullptr;
@@ -26,16 +26,25 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QString ip, QString port, QWidget
     _num_images = 0;
     _prev_dataset_name = " ";
     _context = new zmq::context_t(1);
-    _qserver_ip_addr = new QLineEdit("127.0.0.1");
-    _qline_ip_addr = new QLineEdit();
-    if(ip.length() > 0)
+
+    QString strQServerIp = Preferences::inst()->getValue(STR_PRF_LastQServerIP).toString();
+    QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
+    QString strPort = Preferences::inst()->getValue(STR_PRF_LastPort).toString();
+
+    _qserver_ip_addr = new QLineEdit("");
+    if(strQServerIp.length() > 0)
     {
-        _qline_ip_addr->setText(ip);
+        _qserver_ip_addr->setText(strQServerIp);
+    }
+    _qline_ip_addr = new QLineEdit();
+    if(strIp.length() > 0)
+    {
+        _qline_ip_addr->setText(strIp);
     }
     _qline_port = new QLineEdit();
-    if(port.length() > 0)
+    if(strPort.length() > 0)
     {
-        _qline_port->setText(port);
+        _qline_port->setText(strPort);
     }
     else
     {

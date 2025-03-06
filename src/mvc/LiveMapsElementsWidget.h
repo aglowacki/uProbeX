@@ -34,12 +34,14 @@ public:
    /**
     * Constructor.
     */
-   LiveMapsElementsWidget(QString ip="127.0.0.1", QString port="43434", QWidget* parent = nullptr);
+   LiveMapsElementsWidget(QWidget* parent = nullptr);
 
    /**
     * Destructor.
     */
    ~LiveMapsElementsWidget();
+
+   QString getQServerIpAddress() {return _qserver_ip_addr->text(); }
 
    QString getIpAddress(){return _qline_ip_addr->text();}
 

@@ -134,9 +134,7 @@ int main(int argc, char** argv)
 		}
 		if(arg1 == "--live")
 		{
-			QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
-			QString strPort = Preferences::inst()->getValue(STR_PRF_LastPort).toString();
-			LiveMapsElementsWidget *liveMapsViewer = new LiveMapsElementsWidget(strIp, strPort);
+			LiveMapsElementsWidget *liveMapsViewer = new LiveMapsElementsWidget();
 			liveMapsViewer->show();
 			return app.exec();
 		}

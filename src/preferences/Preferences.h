@@ -46,6 +46,7 @@
 #define STR_PRF_ExportPrintPxPyOnExportedImage "ExportPrintPxPyOnExportedImage"
 #define STR_PRF_ExportPrintWidthHeightOnExportedImage "ExportPrintWidthHeightOnExportedImage"
 #define STR_PRF_ExportSelectedXmlOption "ExportSelectedXmlOption"
+#define STR_PRF_LastQServerIP "LastQServerIP"
 #define STR_PRF_LastIP "LastIP"
 #define STR_PRF_LastPort "LastPort"
 #define STR_PFR_LOG_10 "Log10YAxis"

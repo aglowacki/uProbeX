@@ -356,12 +356,9 @@ void uProbeX::BatcGenScanVlm()
 
 void uProbeX::openLiveStreamViewer()
 {
-    QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
-    QString strPort = Preferences::inst()->getValue(STR_PRF_LastPort).toString();
-
     if (_liveMapsViewer == nullptr)
     {
-        _liveMapsViewer = new LiveMapsElementsWidget(strIp, strPort);
+        _liveMapsViewer = new LiveMapsElementsWidget();
     }
     _liveMapsViewer->show();
 }
@@ -372,10 +369,9 @@ void uProbeX::exitApplication()
 {
     if(_liveMapsViewer != nullptr)
     {
-        QString strIp = _liveMapsViewer->getIpAddress();
-        QString strPort = _liveMapsViewer->getPort();
-        Preferences::inst()->setValue(STR_PRF_LastIP, strIp);
-        Preferences::inst()->setValue(STR_PRF_LastPort, strPort);
+        Preferences::inst()->setValue(STR_PRF_LastQServerIP, _liveMapsViewer->getQServerIpAddress());
+        Preferences::inst()->setValue(STR_PRF_LastIP, _liveMapsViewer->getIpAddress());
+        Preferences::inst()->setValue(STR_PRF_LastPort, _liveMapsViewer->getPort());
         delete _liveMapsViewer;
         _liveMapsViewer = nullptr;
     }
