@@ -2536,7 +2536,7 @@ void VLM_Widget::setEnableChangeBackground(bool val)
 
 void VLM_Widget::onUpdateBackgroundImage()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *h5 *h50)");
     if (fileName.length() > 0)
     {
         
@@ -2560,6 +2560,10 @@ void VLM_Widget::onUpdateBackgroundImage()
                 {
                     logE << "Failed to load image : " << fileName.toStdString() << "\n";
                 }
+            }
+            else if (fileName.endsWith(".h5") || fileName.endsWith(".h50"))
+            {
+
             }
             else
             {

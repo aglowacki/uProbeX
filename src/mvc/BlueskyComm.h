@@ -537,6 +537,24 @@ logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
             //logit_s<<pitr.toStdString()<<" : "<<kwargs.value(pitr).toVariant().toString().toStdString()<<" -- ";
             BlueskyParam bsp;
             bsp.name = pitr;
+            /*
+            if(kwargs.value(pitr).isBool())
+            {
+                bsp.default_val = 
+            }
+            else if(kwargs.value(pitr).isDouble())
+            {
+
+            }
+            else if(kwargs.value(pitr).isString())
+            {
+
+            }
+            else if(kwargs.value(pitr).isNull())
+            {
+
+            }
+            */
             bsp.setValue( kwargs.value(pitr).toVariant());
             plan.parameters.push_back(bsp);
         }
