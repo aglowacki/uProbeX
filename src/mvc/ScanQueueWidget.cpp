@@ -298,7 +298,7 @@ void ScanQueueWidget::newDataArrived(const QString& data)
     {
         emit queueNeedsToBeUpdated();
     }
-    else if (data.count("{Filename") > 0 )
+    else if (data.count("Filename:") > 0 )
     {
         _updateRunningPlanMetaInfo(data);
     }
