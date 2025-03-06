@@ -11,9 +11,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QStringList>
 #include <zmq.hpp>
 #include "mvc/BlueskyPlan.h"
 #include <string>
+
 
 #include "core/defines.h"
 //---------------------------------------------------------------------------
@@ -617,6 +619,26 @@ logI<<message.to_string()<<"\n";
                                     if(param.contains("description"))
                                     {
                                         bsparam.description = param.value("description").toString();
+                                        if(bsparam.description.length() > 0)
+                                        {
+                                            // parse out type info if they have desc "type: desc"
+                                            QStringList dlist = bsparam.description.split(":");
+                                            if(dlist.count() > 1)
+                                            {
+                                                if(dlist[0].toLower() == "str" || dlist[0].toLower() == "string")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::String;
+                                                }
+                                                else if(dlist[0].toLower() == "float" || dlist[0].toLower() == "double")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::Double;
+                                                }
+                                                else if(dlist[0].toLower() == "bool")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::Bool;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 /* only have seen 1 and 3 and not sure what they mean

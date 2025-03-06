@@ -54,7 +54,7 @@ struct BlueskyParam
             QString val = var.toString();
             for (int i = 0; i < val.length(); ++i) 
             {
-                if (val[i].isLetter()) 
+                if (val[i].isLetter() || val[i] == '\'' || val[i] == '\"') 
                 {
                     found_letter = true;
                     break;
