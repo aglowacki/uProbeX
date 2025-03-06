@@ -11,9 +11,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QStringList>
 #include <zmq.hpp>
 #include "mvc/BlueskyPlan.h"
 #include <string>
+
 
 #include "core/defines.h"
 //---------------------------------------------------------------------------
@@ -86,6 +88,10 @@ public:
         obj["params"] = params;
         doc.setObject(obj);
         return doc.toJson();
+        //QString str = QString::fromUtf8(doc.toJson());
+        //str.replace(": true", ": True");
+        //str.replace(": false", ": False");
+        //return str.toUtf8();
     }
 
     //---------------------------------------------------------------------------
@@ -117,7 +123,7 @@ public:
         QJsonObject kwargs;
         for(auto itr: plan.parameters)
         {
-            //logI<<itr.first.toStdString()<<" : "<<itr.second.default_val.toStdString()<<" :: "<<(int)(itr.second.kind)<<  "\n";
+            /*
             if(itr.name == "detectors") 
             {
                 QJsonArray inner_args; // need this for bluesky or it doesn't work
@@ -128,6 +134,7 @@ public:
                 }
                 args.append(inner_args);
             }
+            */
             if(itr.default_val.length() > 0)
             {
                 if(itr.kind == BlueskyParamType::String)
@@ -136,20 +143,8 @@ public:
                 }
                 else if(itr.kind == BlueskyParamType::Bool)
                 {
-                    if(itr.default_val == "1")
-                    {
-                        itr.default_val = "True";
-                    }
-                    else
-                    {
-                        itr.default_val = "False";
-                    }
-                    QVariant v =  itr.default_val;
+                    QVariant v = itr.default_val;
                     kwargs[itr.name] = QJsonValue::fromVariant(v.toBool());
-                }
-                else if(itr.kind == BlueskyParamType::Int)
-                {
-                    kwargs[itr.name] = QJsonValue::fromVariant(itr.default_val.toInt());
                 }
                 else if(itr.kind == BlueskyParamType::Double)
                 {
@@ -326,7 +321,7 @@ public:
         QByteArray msg_arr = gen_send_mesg2("queue_item_add", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
         zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
-
+logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
@@ -378,7 +373,7 @@ public:
         QByteArray msg_arr = gen_send_mesg2("queue_item_update", params);
         zmq::message_t zmsg(msg_arr.data(), msg_arr.length());
         zmq::send_result_t s_res = _zmq_comm_socket->send(zmsg);
-
+logI<<QString::fromUtf8(msg_arr).toStdString()<<"\n";
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
@@ -539,48 +534,13 @@ public:
     {
         for(auto pitr : kwargs.keys())
         {
+            //logit_s<<pitr.toStdString()<<" : "<<kwargs.value(pitr).toVariant().toString().toStdString()<<" -- ";
             BlueskyParam bsp;
             bsp.name = pitr;
-            if(kwargs.value(pitr).isDouble())
-            {
-                double p = kwargs.value(pitr).toDouble();
-                bsp.setValue( QString::number(p) );
-            }
-            else if (kwargs.value(pitr).isBool())
-            {
-                bool p = kwargs.value(pitr).toBool();
-                if(p)
-                {
-                    bsp.default_val = "True";
-                }
-                else
-                {
-                    bsp.default_val = "False";
-                }
-                bsp.kind = BlueskyParamType::Bool;
-            }
-            else
-            {
-                QString strval = kwargs.value(pitr).toString();
-                if(strval == "True" || strval == "False" || strval == u"True" || strval == u"False")
-                {
-                    bsp.default_val = strval;
-                    bsp.kind = BlueskyParamType::Bool;
-                }
-                else
-                {
-                    bsp.setValue(strval);
-                }
-            }
-            /*
-            else if( kwargs.value(pitr).isString() )
-            {
-                bsp.setValue(kwargs.value(pitr).toString());
-            }
-            */
-            
+            bsp.setValue( kwargs.value(pitr).toVariant());
             plan.parameters.push_back(bsp);
         }
+        //logit_s<<"\n ";
     }
 
     //---------------------------------------------------------------------------
@@ -605,6 +565,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
+logI<<message.to_string()<<"\n";
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
@@ -618,44 +579,66 @@ public:
             if(reply.contains("plans_allowed"))
             {
                 QJsonObject iojb = reply["plans_allowed"].toObject();
+                QStringList lili = iojb.keys();
+                for(auto aaa : lili)
+                {
+                    logI<<aaa.toStdString()<<"\n";
+                }
                 for( auto itr : iojb)
                 {
                     QJsonObject pobj = itr.toObject();
                     if(pobj.contains("name"))
                     {
-                        plans[pobj["name"].toString()].name = pobj["name"].toString();
+                        logI<<pobj.value("name").toString().toStdString()<<"\n";
+                        plans[pobj.value("name").toString()].name = pobj.value("name").toString();
                         if(pobj.contains("description"))
                         {
-                            plans[pobj["name"].toString()].description = pobj["description"].toString();
+                            plans[pobj.value("name").toString()].description = pobj.value("description").toString();
                         }
                         if(pobj.contains("module"))
                         {
-                            plans[pobj["name"].toString()].module = pobj["module"].toString();
+                            plans[pobj.value("name").toString()].module = pobj.value("module").toString();
                         }
                         if(pobj.contains("parameters"))
                         {
+                            
                             QJsonArray params_obj = pobj["parameters"].toArray();
+
                             for( auto itr2 : params_obj)
                             {
                                 BlueskyParam bsparam;
                                 QJsonObject param = itr2.toObject();
                                 if(param.contains("name"))
                                 {
-                                    bsparam.name = param["name"].toString();
+                                    bsparam.name = param.value("name").toString();
                                     if(param.contains("default"))
                                     {
-                                        if(param["default"].toString() != "None")
-                                        {
-                                            bsparam.setValue(param["default"].toString());
-                                        }
-                                        else
-                                        {
-                                            bsparam.kind = BlueskyParamType::String;
-                                        }
+                                        bsparam.kind = BlueskyParamType::String;
+                                        bsparam.setValue(param.value("default").toVariant());
                                     }
                                     if(param.contains("description"))
                                     {
-                                        bsparam.description = param["description"].toString();
+                                        bsparam.description = param.value("description").toString();
+                                        if(bsparam.description.length() > 0)
+                                        {
+                                            // parse out type info if they have desc "type: desc"
+                                            QStringList dlist = bsparam.description.split(":");
+                                            if(dlist.count() > 1)
+                                            {
+                                                if(dlist[0].toLower() == "str" || dlist[0].toLower() == "string")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::String;
+                                                }
+                                                else if(dlist[0].toLower() == "float" || dlist[0].toLower() == "double")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::Double;
+                                                }
+                                                else if(dlist[0].toLower() == "bool")
+                                                {
+                                                    bsparam.kind = BlueskyParamType::Bool;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 /* only have seen 1 and 3 and not sure what they mean
@@ -679,7 +662,7 @@ public:
                                     }
                                 }
                                 */
-                                plans[pobj["name"].toString()].parameters.push_back(bsparam);
+                                plans[pobj.value("name").toString()].parameters.push_back(bsparam);
                             }
                         }
                     }
@@ -688,7 +671,7 @@ public:
             }
             if(reply.contains("msg"))
             {
-                msg = reply["msg"].toString();
+                msg = reply.value("msg").toString();
             }
         }
         return ret;
@@ -714,6 +697,7 @@ public:
         zmq::recv_result_t r_res = _zmq_comm_socket->recv(message);
         if(r_res.has_value())
         {
+logI<<message.to_string()<<"\n";
             QJsonObject reply = QJsonDocument::fromJson(QByteArray::fromRawData((char*)message.data(), message.size())).object();
             if(reply.contains("success"))
             {
@@ -743,7 +727,7 @@ public:
                     QJsonObject param = itr2.toObject();
                     if(param.contains("name"))
                     {
-                        plan.type = param["name"].toString();
+                        plan.type = param.value("name").toString();
                     }
                     if(param.contains("args"))
                     {
@@ -755,19 +739,19 @@ public:
                     }
                     if(param.contains("user"))
                     {
-                        plan.user = param["user"].toString();
+                        plan.user = param.value("user").toString();
                     }
                     if(param.contains("meta"))
                     {
                         QJsonObject meta = param["meta"].toObject();
                         if(meta.contains("name"))
                         {
-                            plan.name = meta["name"].toString();
+                            plan.name = meta.value("name").toString();
                         }
                     }
                     if(param.contains("item_uid"))
                     {
-                        plan.uuid = param["item_uid"].toString();
+                        plan.uuid = param.value("item_uid").toString();
                     }
                     queued_plans.push_back(plan);
                 }
@@ -798,7 +782,7 @@ public:
                 QJsonObject running_item = reply["running_item"].toObject();
                 if(running_item.contains("name"))
                 {
-                    running_plan.type =  running_item["name"].toString();
+                    running_plan.type =  running_item.value("name").toString();
                 }
                 if(running_item.contains("args"))
                 {
@@ -810,11 +794,11 @@ public:
                 }
                 if(running_item.contains("user"))
                 {
-                    running_plan.user =  running_item["user"].toString();
+                    running_plan.user =  running_item.value("user").toString();
                 }
                 if(running_item.contains("item_uid"))
                 {
-                    running_plan.uuid =  running_item["item_uid"].toString();
+                    running_plan.uuid =  running_item.value("item_uid").toString();
                 }
                 if(running_item.contains("properties"))
                 {
@@ -865,7 +849,7 @@ public:
             }
             if(reply.contains("msg"))
             {
-                msg = reply["msg"].toString();
+                msg = reply.value("msg").toString();
             }
         }
         return ret;

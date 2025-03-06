@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QGridLayout>
+#include <QHeaderView>
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -44,6 +45,10 @@ void ScanRegionDialog::_createLayout()
 	_scan_table_model = new ScanTableModel();
 	_scan_options = new QTableView();
 	_scan_options->setModel(_scan_table_model);
+	_scan_options->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	_scan_options->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+	_scan_options->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+	
 
 	_chk_batch_scan = new QCheckBox("Set Batch Scan");
 	connect(_chk_batch_scan, &QCheckBox::stateChanged, this, &ScanRegionDialog::onBatchScanChanged);

@@ -189,9 +189,17 @@ public:
         else if (role == Qt::EditRole)
         {
             section = section - 1;
-            if(section > 0 && section < parms_size)
+            if(section >= 0 && section < parms_size)
             {
                 return rowData.parameters.at(section).default_val;
+            }
+        }
+        else if (role == Qt::ToolTipRole)
+        {
+            section = section - 1;
+            if(section >= 0 && section < parms_size)
+            {
+                return rowData.parameters.at(section).name;
             }
         }
         return QVariant();
@@ -326,7 +334,26 @@ public:
                     if(idx == index.column() && value.toString().length() >0)
                     {
                         // this will be refreshed from qserver
-                        itr.default_val = value.toString();
+                        if(itr.kind == BlueskyParamType::Bool)
+                        {
+                            QString sVal = value.toString().toLower();
+                            if(sVal == "1" || sVal == "true")
+                            {
+                                itr.default_val = "True";
+                            }
+                            else if (sVal == "0" || sVal == "false")
+                            {
+                                itr.default_val = "False";
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            itr.default_val = value.toString();
+                        }
                         emit planChanged(_data.at(index.row()));
                         return false; // return false to make sure we get this value from qserver 
                     }

@@ -1477,7 +1477,7 @@ bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std
     hid_t memspace_id = H5Screate_simple(1, count, nullptr);
 
     // try to open quantification values for refitting
-    std::string str_element_info = STR_ELEMENT_INFO_VALUES + str_quantifier;
+    std::string str_element_info = str_quantifier + STR_ELEMENT_INFO_VALUES;
     hid_t qv_id = H5Dopen(grp_id, str_element_info.c_str(), H5P_DEFAULT);
     if (qv_id > -1)
     {
