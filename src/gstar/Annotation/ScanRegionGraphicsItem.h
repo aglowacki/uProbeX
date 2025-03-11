@@ -32,7 +32,7 @@ namespace gstar
 
 #define STR_QUEUED "Queued"
 #define STR_NOT_QUEUED "Not Queued"
-#define STR_NEED_UPDATE "Need Update"
+#define STR_NEED_UPDATE "Needs Update"
 
 class ScanRegionGraphicsItem : public UProbeRegionGraphicsItem
 {
@@ -81,9 +81,14 @@ public:
 signals:
    void planRemoved(BlueskyPlan);
 
+private slots:
+   void onPlanDirty();
+
 protected:
 
    AnnotationProperty* _queue_status;
+
+   AnnotationProperty* _plan_type;
 
    BlueskyPlan _bs_plan;
 

@@ -14,6 +14,15 @@
 #include <mutex>
 
 //---------------------------------------------------------------------------
+#define STR_SCAN_TYPE "Scan Type"
+#define STR_Region_Box_Top_Y "Region Box Top Y"
+#define STR_Region_Box_Left_X "Region Box Left X"
+#define STR_Region_Box_Right_X "Region Box Right X"
+#define STR_Region_Box_Bottom_Y "Region Box Bottom Y"
+#define STR_Region_Box_Center_X "Region Box Center X"
+#define STR_Region_Box_Center_Y "Region Box Center Y"
+#define STR_Region_Box_Width "Region Box Width"
+#define STR_Region_Box_Height "Region Box Height"
 
 #define STR_PRF_NMCoefficient "NMCoefficient"
 #define STR_PRF_NMOptions "NMOptions"
@@ -94,6 +103,7 @@
 #define STR_PREF_LAST_SCAN_LINK_SELECTED "Last_Scan_Link_Selected"
 #define STR_PFR_SHOW_SCAN_QUEUE_HEADER "Show_Scan_Queue_Header"
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
+
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key
