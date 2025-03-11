@@ -43,6 +43,7 @@
 #include <mvc/SolverWidget.h>
 #include <mvc/SolverProfileWidget.h>
 #include <mvc/TIFF_Model.h>
+#include "core/ColorMap.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -1307,7 +1308,7 @@ void VLM_Widget::createLayout()
    m_lightToMicroCoordWidget->setLabel("Micro X :", "Micro Y :", "Micro Z :");
    m_lightToMicroCoordWidget->setUnitsLabel("mm");
    m_imageViewWidget->layout()->addWidget(m_lightToMicroCoordWidget);
-
+   m_imageViewWidget->setCountsVisible(false);
    setLayout(layout);
 
    m_tabWidget->setCurrentIndex(MICROPROBE_IDX);
@@ -2536,7 +2537,7 @@ void VLM_Widget::setEnableChangeBackground(bool val)
 
 void VLM_Widget::onUpdateBackgroundImage()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *h5 *h50)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *.h5 *.h50)");
     if (fileName.length() > 0)
     {
         
@@ -2558,12 +2559,52 @@ void VLM_Widget::onUpdateBackgroundImage()
                 }
                 else
                 {
-                    logE << "Failed to load image : " << fileName.toStdString() << "\n";
+                    logE << "Failed to load tiff : " << fileName.toStdString() << "\n";
                 }
             }
             else if (fileName.endsWith(".h5") || fileName.endsWith(".h50"))
             {
+               MapsH5Model h5model;
+               if(h5model.load(fileName))
+               {
+                  ArrayXXr<float> normalized;
+                  GenerateImageProp props;
+                  props.analysis_type = h5model.getAnalyzedTypes().front();
+                  props.element = STR_TOTAL_FLUORESCENCE_YIELD;
+                  props.selected_colormap = ColorMap::inst()->get_color_map(Preferences::inst()->getValue(STR_COLORMAP).toString());
+    
+                  m_imageViewWidget->scene(0)->setPixmap(h5model.gen_pixmap(props, normalized));
+                  if(normalized.rows() > 0 && normalized.cols() > 0)
+                  {
+                     if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+                     {
+                           m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
+                           m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
+                     }
+                     m_imageViewWidget->resetCoordsToZero();
+                     m_imageViewWidget->setCountsTrasnformAt(0, normalized);
 
+                     m_imageViewWidget->clearLabels();
+                     std::vector<std::string> element_lines;
+                     gen_insert_order_list(element_lines);
+
+                     data_struct::Fit_Count_Dict<float> element_counts;
+                     h5model.getAnalyzedCounts(props.analysis_type, element_counts);
+                     // insert in z order
+                     for (std::string el_name : element_lines)
+                     {
+                        if(element_counts.count(el_name) > 0)
+                        {
+                              QString val = QString(el_name.c_str());
+                              m_imageViewWidget->addLabel(val);
+                        }
+                     }
+                  }
+               }
+               else
+                {
+                    logE << "Failed to load hdf5 : " << fileName.toStdString() << "\n";
+                }
             }
             else
             {

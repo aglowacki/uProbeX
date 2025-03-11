@@ -792,6 +792,23 @@ QString ImageViewWidget::getLabelAt(int idx)
 
 //---------------------------------------------------------------------------
 
+void ImageViewWidget::setCountsTrasnformAt(int idx, const ArrayXXr<float>& normalized)
+{
+    if(idx < _sub_windows.size())
+    {
+        if(_sub_windows[idx].counts_lookup != nullptr)
+        {
+            _sub_windows[idx].counts_lookup->setCounts(normalized);
+        }
+        if(_sub_windows[idx].counts_stats != nullptr)
+        {
+            _sub_windows[idx].counts_stats->setCounts(normalized);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
 std::vector<QString> ImageViewWidget::getLabelList()
 {
     std::vector<QString> label_list;

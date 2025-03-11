@@ -12,6 +12,7 @@
 #include <QObject>
 #include <QImage>
 #include <QDir>
+#include <QPixmap>
 #include <hdf5.h>
 #include <unordered_map>
 #include <vector>
@@ -89,7 +90,35 @@ struct Map_ROI
     int color_alpha;
 };
 
+struct GenerateImageProp
+{
+    GenerateImageProp()
+    {
+        selected_colormap = nullptr;
+        normalizer = nullptr;
+        calib_curve = nullptr;
+        log_color = false;
+        show_legend = false;
+        invert_y = false;
+        global_contrast = true;
+        contrast_min = 0.;
+        contrast_max = 100.;
+    }
 
+    std::string analysis_type;
+    std::string element;
+    bool log_color;
+    bool show_legend;
+    bool global_contrast;
+    bool invert_y;
+    float contrast_min;
+    float contrast_max;
+    QVector<QRgb> *selected_colormap;
+    data_struct::ArrayXXr<float>*  normalizer;
+    Calibration_curve<double>* calib_curve;
+};
+
+void gen_insert_order_list(std::vector<std::string> &all_lines);
 void gen_insert_order_lists(std::vector<std::string> &element_lines, std::vector<std::string> &scalers_to_add_first, std::vector<std::string>& final_counts_to_add_before_scalers);
 
 /**
@@ -197,6 +226,11 @@ public:
     const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
 
     static bool load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr);
+
+    //bool gen_image(const std::string analysis_type, const std::string element, bool log_color, bool show_legend, QImage& image, gstar::CountsLookupTransformer* counts_lookup, gstar::CountsStatsTransformer* counts_stats);
+    QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
+
+    QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized);
 
 signals:
     void model_data_updated();
