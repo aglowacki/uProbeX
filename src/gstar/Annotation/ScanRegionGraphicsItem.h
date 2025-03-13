@@ -78,6 +78,8 @@ public:
 
    BlueskyPlan getPlan() { return _bs_plan; }
 
+   BlueskyPlan* getPlanPtr() { return &_bs_plan; }
+
 signals:
    void planRemoved(BlueskyPlan);
 

@@ -46,7 +46,7 @@ public:
    QString getIpAddress(){return _qline_ip_addr->text();}
 
    QString getPort(){return _qline_port->text();}
-
+   
 public slots:
 
    void newDataArrived(data_struct::Stream_Block<float>* new_packet);
@@ -95,6 +95,8 @@ public slots:
 
    void updatePrograssBar(int perc){_progressBar->setValue(perc);}
 
+   void onPlanFilenameChanged(QString uuid, QString filename);
+
 protected:
 
    /**
@@ -102,6 +104,8 @@ protected:
     */
    void createLayout();
 
+   void _load_last_auto_save();
+   
    MapsElementsWidget *_mapsElementsWidget;
 
    VLM_Widget *_vlm_widget;

@@ -376,6 +376,7 @@ public:
             {
                 itr.filename = filename;
                 _uuid_to_filename_map[itr.uuid] = filename;
+                emit scanFileNameChanged(itr.uuid, filename);
                 break;
             }
         }
@@ -390,6 +391,8 @@ signals:
     void moveScanRow(int, int);
 
     void planChanged(BlueskyPlan&);  
+
+    void scanFileNameChanged(QString, QString);
 
 private:
     int _last_finished_idx;

@@ -2787,6 +2787,337 @@ void VLM_Widget::widgetChanged(bool enable)
    //m_btnRunSolver -> setEnabled(enable);
 
 }
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::setPlanFilename(QString uuid, QString filename)
+{
+   if(uuid.length() == 0)
+   {
+      return;
+   }
+   QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
+   gstar::AbstractGraphicsItem* groupPtr = static_cast<gstar::AbstractGraphicsItem*>(first.internalPointer());
+   if(groupPtr == nullptr)
+   {
+      return;
+   }
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+   int idx = 0;
+   for (gstar::AbstractGraphicsItem* child : clist)
+   {
+      if (child != nullptr)
+      {
+         ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(child);
+         if(item != nullptr)
+         {
+            BlueskyPlan* item_plan = item->getPlanPtr();
+            if(item_plan->uuid == uuid)
+            {
+               item_plan->filename = filename;
+               break;
+            }
+         }
+      }
+      idx ++;
+   }
+
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::loadScanRegionLinks(QString dir)
+{
+
+   QString loadname = dir + QDir::separator() + STR_AUTO_SAVE_SCAN_REGION_NAME;
+   QFile autoFile(loadname);
+   if (!autoFile.open(QIODevice::ReadOnly))
+   {
+       //logW << "Couldn't open save file: " << roi_file_name.toStdString();
+       return;
+   }
+   QJsonObject rootJson = QJsonDocument::fromJson(autoFile.readAll()).object();
+   autoFile.close();
+
+   if (rootJson.contains(STR_SCAN_REGIONS) && rootJson[STR_SCAN_REGIONS].isArray())
+   {
+      QJsonArray regions = rootJson[STR_SCAN_REGIONS].toArray();
+      for (int i = 0; i < regions.size(); ++i)
+      {
+         double real_pos_x = 0.;
+         double real_pos_y = 0.;
+         BlueskyPlan item_plan;
+         QJsonObject json_region_object = regions[i].toObject();
+         ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+         if(json_region_object.contains(UPROBE_NAME))
+         {
+            annotation->setPropertyValue(UPROBE_NAME, json_region_object.value(UPROBE_NAME).toString());
+         }
+         if(json_region_object.contains(UPROBE_COLOR))
+         {
+            annotation->setPropertyValue(UPROBE_COLOR, json_region_object.value(UPROBE_COLOR).toVariant());
+         }
+         if(json_region_object.contains(UPROBE_REAL_POS_X))
+         {
+            real_pos_x = json_region_object.value(UPROBE_REAL_POS_X).toDouble();
+            annotation->setPropertyValue(UPROBE_REAL_POS_X, real_pos_x);
+         }
+         if(json_region_object.contains(UPROBE_REAL_POS_Y))
+         {
+            real_pos_y =  json_region_object.value(UPROBE_REAL_POS_Y).toDouble();
+            annotation->setPropertyValue(UPROBE_REAL_POS_Y, real_pos_y);
+         }
+         if(json_region_object.contains(UPROBE_PRED_POS_X))
+         {
+            annotation->setPropertyValue(UPROBE_PRED_POS_X, json_region_object.value(UPROBE_PRED_POS_X).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_PRED_POS_Y))
+         {
+            annotation->setPropertyValue(UPROBE_PRED_POS_Y, json_region_object.value(UPROBE_PRED_POS_Y).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_RECT_TLX))
+         {
+            annotation->setPropertyValue(UPROBE_RECT_TLX, json_region_object.value(UPROBE_RECT_TLX).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_RECT_TLY))
+         {
+            annotation->setPropertyValue(UPROBE_RECT_TLY, json_region_object.value(UPROBE_RECT_TLY).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_RECT_W))
+         {
+            annotation->setPropertyValue(UPROBE_RECT_W, json_region_object.value(UPROBE_RECT_W).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_RECT_H))
+         {
+            annotation->setPropertyValue(UPROBE_RECT_H, json_region_object.value(UPROBE_RECT_H).toDouble());
+         }
+         if(json_region_object.contains(STR_REGION_PLAN))
+         {
+            QJsonObject json_region_plan = json_region_object.value(STR_REGION_PLAN).toObject();
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_NAME))
+            {
+               item_plan.name = json_region_plan.value(STR_SCAN_REGION_PLAN_NAME).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_UUID))
+            {
+               item_plan.uuid = json_region_plan.value(STR_SCAN_REGION_PLAN_UUID).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_TYPE))
+            {
+               item_plan.type = json_region_plan.value(STR_SCAN_REGION_PLAN_TYPE).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_DESC))
+            {
+               item_plan.description = json_region_plan.value(STR_SCAN_REGION_PLAN_DESC).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_FILENAME))
+            {
+               item_plan.filename = json_region_plan.value(STR_SCAN_REGION_PLAN_FILENAME).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_MODULE))
+            {
+               item_plan.module = json_region_plan.value(STR_SCAN_REGION_PLAN_MODULE).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_USER))
+            {
+               item_plan.user = json_region_plan.value(STR_SCAN_REGION_PLAN_USER).toString();
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_RESULT))
+            {
+               QJsonObject json_result = json_region_plan.value(STR_SCAN_REGION_PLAN_RESULT).toObject();
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_EXIT_STATUS))
+               {
+                  item_plan.result.exit_status = json_result.value(STR_SCAN_REGION_PLAN_RESULT_EXIT_STATUS).toString();
+               }
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_RUN_UUIDS))
+               {
+                  item_plan.result.run_uids = json_result.value(STR_SCAN_REGION_PLAN_RESULT_RUN_UUIDS).toString();
+               }
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_TIME_START))
+               {
+                  item_plan.result.time_start = json_result.value(STR_SCAN_REGION_PLAN_RESULT_TIME_START).toDouble();
+               }
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_TIME_STOP))
+               {
+                  item_plan.result.time_stop = json_result.value(STR_SCAN_REGION_PLAN_RESULT_TIME_STOP).toDouble();
+               }
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_MSG))
+               {
+                  item_plan.result.msg = json_result.value(STR_SCAN_REGION_PLAN_RESULT_MSG).toString();
+               }
+               if(json_result.contains(STR_SCAN_REGION_PLAN_RESULT_TRACEBACK))
+               {
+                  item_plan.result.traceback = json_result.value(STR_SCAN_REGION_PLAN_RESULT_TRACEBACK).toString();
+               }
+            }
+            if(json_region_plan.contains(STR_SCAN_REGION_PLAN_PARAMS))
+            {
+            
+               QJsonArray json_region_plan_params = json_region_plan.value(STR_SCAN_REGION_PLAN_PARAMS).toArray();
+         
+               for (int i = 0; i < json_region_plan_params.size(); ++i)
+               {
+                  BlueskyParam param; 
+                  QJsonObject json_param = json_region_plan_params[i].toObject();
+                  if(json_param.contains(STR_SCAN_REGION_PLAN_PARAM_NAME))
+                  {
+                     param.name = json_param.value(STR_SCAN_REGION_PLAN_PARAM_NAME).toString();
+                  }
+                  if(json_param.contains(STR_SCAN_REGION_PLAN_PARAM_KIND))
+                  {
+                     QString strkind = json_param.value(STR_SCAN_REGION_PLAN_PARAM_KIND).toString();
+                     if(strkind == "Bool")
+                     {
+                        param.kind = BlueskyParamType::Bool;
+                     }
+                     if(strkind == "Double")
+                     {
+                        param.kind = BlueskyParamType::Double;
+                     }
+                     if(strkind == "String")
+                     {
+                        param.kind = BlueskyParamType::String;
+                     }
+                  }
+                  if(json_param.contains(STR_SCAN_REGION_PLAN_PARAM_VAL))
+                  {
+                     param.default_val = json_param.value(STR_SCAN_REGION_PLAN_PARAM_VAL).toString();
+                  }
+                  if(json_param.contains(STR_SCAN_REGION_PLAN_PARAM_DESC))
+                  {
+                     param.description = json_param.value(STR_SCAN_REGION_PLAN_PARAM_DESC).toString();
+                  }
+                  item_plan.parameters.push_back(param);
+               }
+            }
+            annotation->setPlan(item_plan);
+         }
+
+         annotation->setMouseOverPixelCoordModel(m_coordinateModel);
+         annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   
+         reloadAndSelectAnnotation(m_mpTreeModel,
+                                 m_mpAnnoTreeView,
+                                 m_mpSelectionModel,
+                                 annotation,
+                                 QPointF(real_pos_x, real_pos_y));
+   
+      }
+   }
+   else
+   {
+      logW<<"Could not load auto save scan regions file : "<<loadname.toStdString()<<"\n";
+   } 
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::saveScanRegionLinks(QString dir)
+{
+   QString savename = dir + QDir::separator() + STR_AUTO_SAVE_SCAN_REGION_NAME;
+
+   QJsonObject rootJson;
+
+   QJsonArray json_regions;
+
+   QModelIndex first = m_mpTreeModel->index(0,0,QModelIndex());
+   gstar::AbstractGraphicsItem* groupPtr = static_cast<gstar::AbstractGraphicsItem*>(first.internalPointer());
+   if(groupPtr == nullptr)
+   {
+      return;
+   }
+   std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
+   for (gstar::AbstractGraphicsItem* child : clist)
+   {
+      if (child != nullptr)
+      {
+         ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(child);
+         if(item != nullptr)
+         {
+            QJsonObject json_region_object;
+            
+            json_region_object[UPROBE_COLOR] = child->propertyValue(UPROBE_COLOR).toString();
+            json_region_object[UPROBE_REAL_POS_X] = child->x();
+            json_region_object[UPROBE_REAL_POS_Y] = child->y();
+            json_region_object[UPROBE_PRED_POS_X] = child->propertyValue(UPROBE_PRED_POS_X).toDouble();
+            json_region_object[UPROBE_PRED_POS_Y] = child->propertyValue(UPROBE_PRED_POS_Y).toDouble();
+            json_region_object[UPROBE_RECT_TLX] = child->boundingRectMarker().left();
+            json_region_object[UPROBE_RECT_TLY] = child->boundingRectMarker().top();
+            json_region_object[UPROBE_RECT_W] = child->boundingRectMarker().width();
+            json_region_object[UPROBE_RECT_H] = child->boundingRectMarker().height();
+            json_region_object[UPROBE_NAME] = child->propertyValue(UPROBE_NAME).toString();
+
+            // save region box scan plan
+            BlueskyPlan* item_plan = item->getPlanPtr();
+            if(item_plan != nullptr)
+            {
+               QJsonObject json_region_plan;
+               QJsonArray json_region_plan_params;
+               
+               json_region_plan[STR_SCAN_REGION_PLAN_NAME] = item_plan->name;
+               json_region_plan[STR_SCAN_REGION_PLAN_UUID] = item_plan->uuid;
+               json_region_plan[STR_SCAN_REGION_PLAN_TYPE] = item_plan->type;
+               json_region_plan[STR_SCAN_REGION_PLAN_DESC] = item_plan->description;
+               json_region_plan[STR_SCAN_REGION_PLAN_FILENAME] = item_plan->filename;
+               json_region_plan[STR_SCAN_REGION_PLAN_MODULE] = item_plan->module;
+               json_region_plan[STR_SCAN_REGION_PLAN_USER] = item_plan->user;
+               
+               QJsonObject json_result;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_EXIT_STATUS] = item_plan->result.exit_status;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_RUN_UUIDS] = item_plan->result.run_uids;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_TIME_START] = item_plan->result.time_start;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_TIME_STOP] = item_plan->result.time_stop;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_MSG] = item_plan->result.msg;
+               json_result[STR_SCAN_REGION_PLAN_RESULT_TRACEBACK] = item_plan->result.traceback;
+               json_region_plan[STR_SCAN_REGION_PLAN_RESULT] = json_result;
+
+               for(auto itr : item_plan->parameters)
+               {
+                  QJsonObject json_param;
+                  json_param[STR_SCAN_REGION_PLAN_PARAM_NAME] = itr.name;
+                  if(itr.kind == BlueskyParamType::Bool)
+                  {
+                     json_param[STR_SCAN_REGION_PLAN_PARAM_KIND] = "Bool";
+                  }
+                  else if(itr.kind == BlueskyParamType::Double)
+                  {
+                     json_param[STR_SCAN_REGION_PLAN_PARAM_KIND] = "Double";
+                  }
+                  else if(itr.kind == BlueskyParamType::String)
+                  {
+                     json_param[STR_SCAN_REGION_PLAN_PARAM_KIND] = "String";
+                  }
+                  json_param[STR_SCAN_REGION_PLAN_PARAM_VAL] = itr.default_val;
+                  json_param[STR_SCAN_REGION_PLAN_PARAM_DESC] = itr.description;
+                  json_region_plan_params.append(json_param);
+               }
+
+               json_region_plan[STR_SCAN_REGION_PLAN_PARAMS] = json_region_plan_params;
+               json_region_object[STR_REGION_PLAN] = json_region_plan;
+               json_regions.append(json_region_object);
+            }
+         }
+      }
+   }
+
+   rootJson[STR_SCAN_REGIONS] = json_regions;
+   QByteArray save_data = QJsonDocument(rootJson).toJson();
+
+   
+   QFile saveFile(savename);
+   if (!saveFile.open(QIODevice::WriteOnly))
+   {
+      logW << "Couldn't open save file: " << savename.toStdString();
+   }
+   else
+   {
+      saveFile.write(save_data);
+      saveFile.close();
+   }
+}
+
+//---------------------------------------------------------------------------
+
 /*
 void VLM_Widget::solverVariableUpdate()
 {

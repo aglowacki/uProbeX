@@ -69,6 +69,8 @@ signals:
 
    void onScanProgress(int);
 
+   void planFilenameChanged(QString, QString); 
+
 public slots:
    void newDataArrived(const QString &);
 

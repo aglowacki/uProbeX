@@ -171,6 +171,12 @@ public:
 
    void removePlan(const BlueskyPlan &plan);
 
+   void setPlanFilename(QString uuid, QString filename);
+
+   void loadScanRegionLinks(QString dir);
+   
+   void saveScanRegionLinks(QString dir);
+
 public slots:
 
    /**

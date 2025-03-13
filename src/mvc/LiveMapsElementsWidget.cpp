@@ -51,7 +51,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
         _qline_port->setText("43434");
     }
     createLayout();
-
+    _load_last_auto_save();
 }
 
 //---------------------------------------------------------------------------
@@ -166,6 +166,8 @@ void LiveMapsElementsWidget::createLayout()
     connect(_scan_queue_widget, &ScanQueueWidget::onSetHistory, this, &LiveMapsElementsWidget::setHistoryLocation);
     connect(_scan_queue_widget, &ScanQueueWidget::onClearHistory, this, &LiveMapsElementsWidget::clearHistory);
     connect(_scan_queue_widget, &ScanQueueWidget::onScanProgress, this, &LiveMapsElementsWidget::updatePrograssBar);
+
+    connect(_scan_queue_widget, &ScanQueueWidget::planFilenameChanged, this, &LiveMapsElementsWidget::onPlanFilenameChanged);
 
     _tab_widget = new QTabWidget();
     _tab_widget->addTab(_mapsElementsWidget, "Counts");
@@ -371,6 +373,23 @@ void LiveMapsElementsWidget::setHistoryLocation()
 
 //---------------------------------------------------------------------------
 
+void LiveMapsElementsWidget::_load_last_auto_save()
+{
+    QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+    
+    if(fileName.length() > 0)
+    {
+        QFile file(fileName);
+        QFileInfo finfo(fileName);
+        if(_vlm_widget != nullptr)
+        {
+            _vlm_widget->loadScanRegionLinks(finfo.absoluteDir().absolutePath());
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void LiveMapsElementsWidget::saveHistory()
 {
     QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
@@ -378,6 +397,7 @@ void LiveMapsElementsWidget::saveHistory()
     if(fileName.length() > 0)
     {
         QFile file(fileName);
+        QFileInfo finfo(fileName);
 
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
@@ -427,6 +447,12 @@ void LiveMapsElementsWidget::saveHistory()
             }
         }
         file.close();
+
+        if(_vlm_widget != nullptr)
+        {
+            _vlm_widget->saveScanRegionLinks(finfo.absoluteDir().absolutePath());
+        }
+
     }
 }
 
@@ -446,7 +472,7 @@ void LiveMapsElementsWidget::clearHistory()
         QDateTime date = QDateTime::currentDateTime();
         QString formattedTime = date.toString("yyyy_MM_dd_hh_mm_ss");
         QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
-        QString apath = dir.absolutePath() + QDir::separator() + finfo.baseName() + "_" + formattedTime + finfo.suffix();
+        QString apath = dir.absolutePath() + QDir::separator() +  "Scan_History_" + formattedTime + "." + finfo.suffix();
         
         Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, apath);
     }
@@ -729,6 +755,17 @@ void LiveMapsElementsWidget::callRemoveScan(BlueskyPlan plan)
 
     _scan_queue_widget->newDataArrived( msg );
     getQueuedScans();
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::onPlanFilenameChanged(QString uuid, QString filename)
+{
+    if(_vlm_widget != nullptr)
+    {
+        _vlm_widget->setPlanFilename(uuid, filename);
+    }
+    saveHistory();
 }
 
 //---------------------------------------------------------------------------
