@@ -44,6 +44,7 @@ void ScanQueueWidget::_createLayout()
     _scan_queue_table_model = new ScanQueueTableModel();
     connect(_scan_queue_table_model, &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
     connect(_scan_queue_table_model, &ScanQueueTableModel::planChanged, this, &ScanQueueWidget::onPlanChanged);
+    connect(_scan_queue_table_model, &ScanQueueTableModel::scanFileNameChanged, this, &ScanQueueWidget::planFilenameChanged);
     _scan_queue_table_view = new QTableView();
     _scan_queue_table_view->setModel(_scan_queue_table_model);
     _scan_queue_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -298,7 +299,7 @@ void ScanQueueWidget::newDataArrived(const QString& data)
     {
         emit queueNeedsToBeUpdated();
     }
-    else if (data.count("{Filename") > 0 )
+    else if (data.count("Filename:") > 0 )
     {
         _updateRunningPlanMetaInfo(data);
     }
@@ -325,7 +326,7 @@ void ScanQueueWidget::_updateRunningPlanMetaInfo(const QString& msg)
             if(filenameIdx != -1)
             {
                 QString filename = trim_s.mid(filenameIdx+fname_tag.size());
-                _scan_queue_table_model->setRunningPlanMetaData(filename);   
+                _scan_queue_table_model->setRunningPlanMetaData(filename);
             }
             else if(scanProgIdx != -1)
             {

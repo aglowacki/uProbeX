@@ -112,6 +112,8 @@ namespace gstar {
 
 
    const QString SCAN_REGION_QUEUE_STATUS = "Queue Status";
+
+   const QString SCAN_REGION_PLAN_TYPE = "Plan Type";
 };
 
 //---------------------------------------------------------------------------

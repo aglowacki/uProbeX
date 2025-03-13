@@ -1449,176 +1449,50 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
 
 void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
+    m_imageViewWidget->scene(grid_idx)->setPixmap(generate_pixmap(analysis_type, element, log_color, grid_idx));
+/*
+    
 	if (_model != nullptr)
 	{
-        data_struct::Fit_Count_Dict<float> fit_counts;
-        _model->getAnalyzedCounts(analysis_type, fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        
         ArrayXXr<float> normalized;
-        bool draw = false;
-        int height = 0;
-        int width = 0;
         
-        if (fit_counts.count(element) > 0)
+        GenerateImageProp props;
+        props.analysis_type = analysis_type;
+        props.element = element;
+        props.log_color = log_color;
+        props.selected_colormap = _selected_colormap;
+        props.normalizer = _normalizer;
+        props.calib_curve = _calib_curve;
+        props.show_legend = _chk_disp_color_ledgend->isChecked();
+        props.invert_y = _chk_invert_y->isChecked();
+        props.global_contrast = _global_contrast_chk->isChecked();
+        if (_global_contrast_chk->isChecked())
         {
-            height = static_cast<int>(fit_counts.at(element).rows());
-            width = static_cast<int>(fit_counts.at(element).cols());
-            normalized = fit_counts.at(element);
-            draw = true;
+            props.contrast_max = _max_contrast_perc;
+            props.contrast_min =  _min_contrast_perc;
         }
-        
-        if (false == draw && scalers != nullptr)
+        else
         {
-            if (scalers->count(element) > 0)
-            {
-                height = static_cast<int>(scalers->at(element).rows());
-                width = static_cast<int>(scalers->at(element).cols());
-                normalized = scalers->at(element);
-                draw = true;
-            }
+            m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max);
         }
-
-        if (draw)
+        m_imageViewWidget->scene(grid_idx)->setPixmap(_model->gen_pixmap(props, normalized));
+        if(normalized.rows() > 0 && normalized.cols() > 0)
         {
-            if (log_color)
-            {
-                normalized = normalized.log10();
-                normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
-            }
-
-            m_imageViewWidget->resetCoordsToZero();
             if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
             {
-                m_imageHeightDim->setCurrentText(QString::number(height));
-                m_imageWidthDim->setCurrentText(QString::number(width));
+                m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
+                m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
             }
-            // add to width for color maps ledgend
-            int cm_ledgend = width * .05; // add 5% width for ledgend
-            if (cm_ledgend == 0)
-            {
-                cm_ledgend = 3;
-            }
-            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
-            {
-                cm_ledgend = 0;
-            }
-            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
-            image.setColorTable(*_selected_colormap);
-
-            float counts_max;
-            float counts_min;
-            if (_normalizer != nullptr && _calib_curve != nullptr)
-            {
-                if (_calib_curve->calib_curve.count(element) > 0)
-                {
-                    double calib_val = _calib_curve->calib_curve.at(element);
-                    normalized /= (*_normalizer);
-                    normalized /= calib_val;
-                    float min_coef = normalized.minCoeff();
-                    if (std::isfinite(min_coef) == false)
-                    {
-                        min_coef = 0.0f;
-                    }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
-                }
-            }
-
-            gstar::CountsLookupTransformer* counts_lookup = nullptr;
-            gstar::CountsStatsTransformer* counts_stats = nullptr;
-            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
-            if (counts_lookup != nullptr)
-            {
-                counts_lookup->setCounts(normalized);
-            }
-            if (counts_stats != nullptr)
-            {
-                counts_stats->setCounts(normalized);
-            }
-
-            counts_max = normalized.maxCoeff();
-            counts_min = normalized.minCoeff();
-
-            if (_global_contrast_chk->isChecked())
-            {
-                // normalize contrast
-                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
-                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
-            }
-            else
-            {
-				//get user min max from contrast control
-				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
-            }
-
-            float max_min = counts_max - counts_min;
-            for (int row = 0; row < height; row++)
-            {
-                for (int col = 0; col < width; col++)
-                {
-                    //first clamp the data to max min
-                    float cnts = normalized(row, col);
-                    cnts = std::min(counts_max, cnts);
-                    cnts = std::max(counts_min, cnts);
-                    //convert to pixel
-                    uint data = (uint)(((cnts - counts_min) / max_min) * 255);
-                    image.setPixel(col, row, data);
-                }
-            }
-            
-            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
-            {
-                // add color map ledgend
-                int startH = height * .1;
-                int endH = height - startH;
-                int startW = width + 1;
-                int endW = width + cm_ledgend;
-                if (cm_ledgend == 3)
-                {
-                    endW--;
-                }
-                    
-                float inc = 255.0 / float(endH - startH);
-                float fcol = 255.0;
-
-                for (int row = 0; row < height; row++)
-                {
-                    if (row >= startH && row <= endH)
-                    {
-                        for (int col = width; col < width + cm_ledgend; col++)
-                        {
-                            if (col >= startW && col <= endW)
-                            {
-                                image.setPixel(col, row, uint(fcol));
-                            }
-                            else
-                            {
-                                image.setPixel(col, row, uint(127));
-                            }
-                        }
-                        fcol -= inc;
-                        fcol = std::max(fcol, float(0.0));
-                    }
-                    else
-                    {
-                        for (int col = width; col < width + cm_ledgend; col++)
-                        {
-                            image.setPixel(col, row, uint(127));
-                        }
-                    }
-                }
-            }
-            if (_chk_invert_y->isChecked())
-            {
-                image = image.mirrored(false, true);
-            }
-            m_imageViewWidget->scene(grid_idx)->setPixmap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+            m_imageViewWidget->resetCoordsToZero();
+            m_imageViewWidget->setCountsTrasnformAt(grid_idx, normalized);
         }
 	}
     if (m_imageViewWidget != nullptr)
     {
         m_imageViewWidget->resetCoordsToZero();
     }
-
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -1693,18 +1567,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                 }
             }
 
-            gstar::CountsLookupTransformer* counts_lookup = nullptr;
-            gstar::CountsStatsTransformer* counts_stats = nullptr;
-            m_imageViewWidget->getMouseTrasnformAt(grid_idx, &counts_lookup, &counts_stats);
-            if (counts_lookup != nullptr)
-            {
-                counts_lookup->setCounts(normalized);
-            }
-            if (counts_stats != nullptr)
-            {
-                counts_stats->setCounts(normalized);
-            }
-
+            m_imageViewWidget->setCountsTrasnformAt(grid_idx, normalized);
 
             counts_max = normalized.maxCoeff();
             counts_min = normalized.minCoeff();

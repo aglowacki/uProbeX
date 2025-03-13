@@ -49,7 +49,17 @@ struct BlueskyParam
     {
         bool found_letter = false;
         bool found_point = false;
-        if(var.typeId() == QMetaType::QString)
+        if (var.typeId() == QMetaType::Bool)
+        {
+            kind = BlueskyParamType::Bool;
+            default_val = var.toString();
+        }
+        else if(var.typeId() == QMetaType::Double || var.typeId() == QMetaType::Int)
+        {
+            kind = BlueskyParamType::Double;
+            default_val = var.toString();
+        }
+        else 
         {
             QString val = var.toString();
             for (int i = 0; i < val.length(); ++i) 
@@ -81,16 +91,6 @@ struct BlueskyParam
                 kind = BlueskyParamType::Double;
             }
             default_val = val;
-        }
-        else if (var.typeId() == QMetaType::Bool)
-        {
-            kind = BlueskyParamType::Bool;
-            default_val = var.toString();
-        }
-        else if(var.typeId() == QMetaType::Double || var.typeId() == QMetaType::Int)
-        {
-            kind = BlueskyParamType::Double;
-            default_val = var.toString();
         }
     }
 };

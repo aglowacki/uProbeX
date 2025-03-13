@@ -6,6 +6,7 @@
 #include "gstar/Annotation/ScanRegionGraphicsItem.h"
 #include "gstar/GStarResource.h"
 #include <gstar/ImageViewScene.h>
+#include "preferences/Preferences.h"
 #include <QSize>
 #include <iostream>
 
@@ -21,7 +22,11 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
 
    _bs_plan.uuid = "";
    _queue_status = new AnnotationProperty(SCAN_REGION_QUEUE_STATUS, QVariant(STR_NOT_QUEUED));
+   _plan_type = new AnnotationProperty(SCAN_REGION_PLAN_TYPE, QVariant(""));
+   prependProperty(_plan_type);   
    prependProperty(_queue_status);
+
+   connect(this, &AbstractGraphicsItem::viewUpdated, this, &ScanRegionGraphicsItem::onPlanDirty);
 
 }
 
@@ -110,6 +115,7 @@ void ScanRegionGraphicsItem::setPlan(const BlueskyPlan& plan)
    if(_bs_plan.uuid.length() > 0)
    {
       _queue_status->setValue(STR_QUEUED);
+      _plan_type->setValue(plan.type);
       updateView();
    }
    else
@@ -126,6 +132,7 @@ bool ScanRegionGraphicsItem::isQueued()
    if(_bs_plan.uuid.length() > 0)
    {
       _queue_status->setValue(STR_QUEUED);
+      _plan_type->setValue(_bs_plan.type);
       updateView();
       return true;
    }
@@ -133,6 +140,57 @@ bool ScanRegionGraphicsItem::isQueued()
    _queue_status->setValue(STR_NOT_QUEUED);
    
    return false;
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionGraphicsItem::onPlanDirty()
+{
+   // if plan is queue, check if scan links values are the same.
+   if(_bs_plan.uuid.length() > 0)
+   {
+      bool found_link = false;
+      QJsonObject scan_link;
+      QString scan_name = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
+	   QJsonArray scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
+      for (const auto &scan_link_ref : scan_link_profiles)
+      {
+         scan_link  = scan_link_ref.toObject();
+         if (scan_link.contains(STR_SCAN_TYPE))
+         {
+            QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
+            if(_bs_plan.type == l_scan_name)
+            {
+               found_link = true;
+               break;
+            }
+         }
+      }
+      if(found_link)
+      {
+         for( auto itr: scan_link.keys())
+         {
+            QString scan_link_value = scan_link.value(itr).toString();
+            if(scan_link_value.length() > 0)
+            {
+               for(auto pitr : _bs_plan.parameters)
+               {
+                  if(pitr.name == scan_link_value)
+                  {
+                     QString val = this->getValueAsString(itr);
+                     
+                     if(val != pitr.default_val)
+                     {
+                        _queue_status->setValue(STR_NEED_UPDATE);
+                        m_outlineColor = QColor(Qt::red);
+                        return;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
 }
 
 //---------------------------------------------------------------------------

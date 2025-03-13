@@ -14,6 +14,40 @@
 #include <mutex>
 
 //---------------------------------------------------------------------------
+#define STR_SCAN_TYPE "Scan Type"
+#define STR_Region_Box_Top_Y "Region Box Top Y"
+#define STR_Region_Box_Left_X "Region Box Left X"
+#define STR_Region_Box_Right_X "Region Box Right X"
+#define STR_Region_Box_Bottom_Y "Region Box Bottom Y"
+#define STR_Region_Box_Center_X "Region Box Center X"
+#define STR_Region_Box_Center_Y "Region Box Center Y"
+#define STR_Region_Box_Width "Region Box Width"
+#define STR_Region_Box_Height "Region Box Height"
+
+#define STR_AUTO_SAVE_SCAN_REGION_NAME "scan_regions_auto_save.json"
+#define STR_SCAN_REGIONS " ScanRegions"
+#define STR_REGION_PLAN " ScanRegionPlan"
+#define STR_SCAN_REGION_PLAN_NAME "ScanRegionPlanName"
+#define STR_SCAN_REGION_PLAN_UUID "ScanRegionPlanUUID"
+#define STR_SCAN_REGION_PLAN_TYPE "ScanRegionPlanType"
+#define STR_SCAN_REGION_PLAN_RESULT "ScanRegionPlanResult"
+#define STR_SCAN_REGION_PLAN_DESC "ScanRegionPlanDesc"
+#define STR_SCAN_REGION_PLAN_FILENAME "ScanRegionPlanFilename"
+#define STR_SCAN_REGION_PLAN_MODULE "ScanRegionPlanModule"
+#define STR_SCAN_REGION_PLAN_USER "ScanRegionPlanUser"
+#define STR_SCAN_REGION_PLAN_PARAMS "ScanRegionPlanParameters"
+
+#define STR_SCAN_REGION_PLAN_PARAM_NAME "Name"
+#define STR_SCAN_REGION_PLAN_PARAM_KIND "Kind"
+#define STR_SCAN_REGION_PLAN_PARAM_VAL "Value"
+#define STR_SCAN_REGION_PLAN_PARAM_DESC "Description"
+
+#define STR_SCAN_REGION_PLAN_RESULT_EXIT_STATUS "ExitStatus"
+#define STR_SCAN_REGION_PLAN_RESULT_RUN_UUIDS "RunUUIDs"
+#define STR_SCAN_REGION_PLAN_RESULT_TIME_START "TimeStart"
+#define STR_SCAN_REGION_PLAN_RESULT_TIME_STOP "TimeStop"
+#define STR_SCAN_REGION_PLAN_RESULT_MSG "Msg"
+#define STR_SCAN_REGION_PLAN_RESULT_TRACEBACK "Traceback"
 
 #define STR_PRF_NMCoefficient "NMCoefficient"
 #define STR_PRF_NMOptions "NMOptions"
@@ -46,6 +80,7 @@
 #define STR_PRF_ExportPrintPxPyOnExportedImage "ExportPrintPxPyOnExportedImage"
 #define STR_PRF_ExportPrintWidthHeightOnExportedImage "ExportPrintWidthHeightOnExportedImage"
 #define STR_PRF_ExportSelectedXmlOption "ExportSelectedXmlOption"
+#define STR_PRF_LastQServerIP "LastQServerIP"
 #define STR_PRF_LastIP "LastIP"
 #define STR_PRF_LastPort "LastPort"
 #define STR_PFR_LOG_10 "Log10YAxis"
@@ -93,6 +128,7 @@
 #define STR_PREF_LAST_SCAN_LINK_SELECTED "Last_Scan_Link_Selected"
 #define STR_PFR_SHOW_SCAN_QUEUE_HEADER "Show_Scan_Queue_Header"
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
+
 
 /**
  * @brief Read and save preferences between application restarts, the vaule key

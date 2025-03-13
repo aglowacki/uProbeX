@@ -14,17 +14,7 @@
 #include <QCheckBox>
 #include <QJsonArray>
 #include "mvc/BlueskyPlan.h"
-
-#define STR_SCAN_TYPE "Scan Type"
-#define STR_Region_Box_Top_Y "Region Box Top Y"
-#define STR_Region_Box_Left_X "Region Box Left X"
-#define STR_Region_Box_Right_X "Region Box Right X"
-#define STR_Region_Box_Bottom_Y "Region Box Bottom Y"
-#define STR_Region_Box_Center_X "Region Box Center X"
-#define STR_Region_Box_Center_Y "Region Box Center Y"
-#define STR_Region_Box_Width "Region Box Width"
-#define STR_Region_Box_Height "Region Box Height"
-
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 
