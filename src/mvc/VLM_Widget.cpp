@@ -45,6 +45,8 @@
 #include <mvc/TIFF_Model.h>
 #include "core/ColorMap.h"
 
+#include "mvc/H5ImageModel.h"
+
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
 using gstar::MarkerGraphicsItem;
@@ -2565,6 +2567,7 @@ void VLM_Widget::onUpdateBackgroundImage()
             else if (fileName.endsWith(".h5") || fileName.endsWith(".h50"))
             {
                MapsH5Model h5model;
+               H5ImageModel h5image_model;
                if(h5model.load(fileName))
                {
                   ArrayXXr<float> normalized;
@@ -2600,6 +2603,10 @@ void VLM_Widget::onUpdateBackgroundImage()
                         }
                      }
                   }
+               }
+               else if (h5image_model.load(fileName))
+               {
+                  m_imageViewWidget->scene(0)->setPixmap(h5image_model.gen_pixmap());
                }
                else
                 {
