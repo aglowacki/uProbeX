@@ -88,6 +88,8 @@ VLM_Widget::VLM_Widget(QString dataset_name, QWidget* parent) : AbstractImageWid
 VLM_Widget::~VLM_Widget()
 {
 
+   saveScanRegionLinksDefault();
+
     if (_scan_region_link_dialog != nullptr)
     {
         delete _scan_region_link_dialog;
@@ -264,6 +266,8 @@ void VLM_Widget::onAddMicroProbeRegion()
                              m_mpAnnoTreeView,
                              m_mpSelectionModel,
                              annotation);
+
+   saveScanRegionLinksDefault();
 
 }
 
@@ -989,6 +993,9 @@ void VLM_Widget::createActions()
 
    _queueMicroPrboeRegionAction = new QAction("Queue Scan Region", this);   
    connect(_queueMicroPrboeRegionAction,&QAction::triggered,this,&VLM_Widget::onQueueMicroProbeRegion);
+
+   _queueCustomMicroPrboeRegionAction = new QAction("Queue Custom Scan Region", this);   
+   connect(_queueCustomMicroPrboeRegionAction,&QAction::triggered,this,&VLM_Widget::onQueueCustomMicroProbeRegion);
 }
 
 //---------------------------------------------------------------------------
@@ -1365,6 +1372,7 @@ void VLM_Widget::displayContextMenu(QWidget* parent,
             if (item != nullptr) {
                menu.addSeparator();
                menu.addAction(_queueMicroPrboeRegionAction);
+               menu.addAction(_queueCustomMicroPrboeRegionAction);
                menu.addAction(m_zoomMicroProbeRegionAction);
                menu.addAction(m_exportMicroProbeRegionInfoAction);
                menu.addAction(_linkRegionToDatasetAction);
@@ -2718,6 +2726,17 @@ void VLM_Widget::onQueueMicroProbeRegion()
 
 //---------------------------------------------------------------------------
 
+void VLM_Widget::onQueueCustomMicroProbeRegion()
+{
+   int ret = _scan_region_link_dialog->exec();
+   if ( ret != 0)
+   {
+      onQueueMicroProbeRegion();
+   }
+}
+
+//---------------------------------------------------------------------------
+
 void VLM_Widget::updatePlan(const BlueskyPlan &plan)
 {
 
@@ -2890,6 +2909,14 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          {
             annotation->setPropertyValue(UPROBE_RECT_TLY, json_region_object.value(UPROBE_RECT_TLY).toDouble());
          }
+         if(json_region_object.contains(UPROBE_WIDTH))
+         {
+            annotation->setPropertyValue(UPROBE_WIDTH, json_region_object.value(UPROBE_WIDTH).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_HEIGHT))
+         {
+            annotation->setPropertyValue(UPROBE_HEIGHT, json_region_object.value(UPROBE_HEIGHT).toDouble());
+         }
          if(json_region_object.contains(UPROBE_RECT_W))
          {
             annotation->setPropertyValue(UPROBE_RECT_W, json_region_object.value(UPROBE_RECT_W).toDouble());
@@ -2897,6 +2924,10 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          if(json_region_object.contains(UPROBE_RECT_H))
          {
             annotation->setPropertyValue(UPROBE_RECT_H, json_region_object.value(UPROBE_RECT_H).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_SIZE))
+         {
+            annotation->setPropertyValue(UPROBE_SIZE, json_region_object.value(UPROBE_SIZE).toDouble());
          }
          if(json_region_object.contains(STR_REGION_PLAN))
          {
@@ -3008,13 +3039,28 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
                                  m_mpSelectionModel,
                                  annotation,
                                  QPointF(real_pos_x, real_pos_y));
-   
+         annotation->updateView();
       }
    }
    else
    {
       logW<<"Could not load auto save scan regions file : "<<loadname.toStdString()<<"\n";
    } 
+}
+
+//---------------------------------------------------------------------------
+
+void VLM_Widget::saveScanRegionLinksDefault()
+{
+   // Auto save
+   QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+      
+   if(fileName.length() > 0)
+   {
+      QFile file(fileName);
+      QFileInfo finfo(fileName);
+      saveScanRegionLinks(finfo.absoluteDir().absolutePath());
+   }
 }
 
 //---------------------------------------------------------------------------
@@ -3050,8 +3096,11 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
             json_region_object[UPROBE_PRED_POS_Y] = child->propertyValue(UPROBE_PRED_POS_Y).toDouble();
             json_region_object[UPROBE_RECT_TLX] = child->boundingRectMarker().left();
             json_region_object[UPROBE_RECT_TLY] = child->boundingRectMarker().top();
+            json_region_object[UPROBE_WIDTH] = child->propertyValue(UPROBE_WIDTH).toDouble();
+            json_region_object[UPROBE_HEIGHT] = child->propertyValue(UPROBE_HEIGHT).toDouble();
             json_region_object[UPROBE_RECT_W] = child->boundingRectMarker().width();
             json_region_object[UPROBE_RECT_H] = child->boundingRectMarker().height();
+            json_region_object[UPROBE_SIZE] = child->propertyValue(UPROBE_SIZE).toDouble();
             json_region_object[UPROBE_NAME] = child->propertyValue(UPROBE_NAME).toString();
 
             // save region box scan plan

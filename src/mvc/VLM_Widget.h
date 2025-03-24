@@ -175,6 +175,8 @@ public:
 
    void loadScanRegionLinks(QString dir);
    
+   void saveScanRegionLinksDefault();
+
    void saveScanRegionLinks(QString dir);
 
 public slots:
@@ -310,6 +312,8 @@ protected slots:
    void linkRegionToDataset();
 
    void onQueueMicroProbeRegion();
+
+   void onQueueCustomMicroProbeRegion();
 
    void onUpdateBackgroundImage();
 
@@ -504,6 +508,7 @@ private:
 
    QAction* _queueMicroPrboeRegionAction;
 
+   QAction* _queueCustomMicroPrboeRegionAction;
    /**
     * @brief m_colorValue
     */

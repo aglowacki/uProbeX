@@ -337,7 +337,7 @@ void ScanRegionLinkDialog::onSave()
 	Preferences::inst()->setValue(STR_PREF_SCAN_LINK_PROFILES, QVariant(_scan_link_profiles));
 
 	emit linkUpdated();
-	close();
+	accept();
 }
 
 //---------------------------------------------------------------------------
