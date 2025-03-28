@@ -155,8 +155,8 @@ void VLM_Model::save_xml(QString filename)
 		xmlWriter->writeStartElement("regionmarker");
 		
 		xmlWriter->writeAttribute(gstar::UPROBE_COLOR,itr.value(gstar::UPROBE_COLOR, "#ff007f"));
-		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_X,itr.value(gstar::UPROBE_PRED_POS_X, "0"));
-		xmlWriter->writeAttribute(gstar::UPROBE_PRED_POS_Y,itr.value(gstar::UPROBE_PRED_POS_Y, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_CENTER_POS_X,itr.value(gstar::UPROBE_CENTER_POS_X, "0"));
+		xmlWriter->writeAttribute(gstar::UPROBE_CENTER_POS_Y,itr.value(gstar::UPROBE_CENTER_POS_Y, "0"));
 		xmlWriter->writeAttribute(gstar::UPROBE_WIDTH,itr.value(gstar::UPROBE_WIDTH, "0"));
 		xmlWriter->writeAttribute(gstar::UPROBE_HEIGHT,itr.value(gstar::UPROBE_HEIGHT, "0"));
 		xmlWriter->writeAttribute(gstar::UPROBE_MICRO_POS_X,itr.value(gstar::UPROBE_MICRO_POS_X, "0"));

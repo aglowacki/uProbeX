@@ -60,6 +60,10 @@ namespace gstar {
     */
    const QString UPROBE_PRED_POS_Y = "PY";
 
+   const QString UPROBE_CENTER_POS_X = "CenterX";
+
+   const QString UPROBE_CENTER_POS_Y = "CenterY";
+
    /**
     * @brief UPROBE_REAL_POS_X
     */

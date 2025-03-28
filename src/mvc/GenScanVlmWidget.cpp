@@ -228,8 +228,8 @@ void GenScanVlmWidget::runProcessing()
                 max_y_val = std::max(max_y_val, y_arr.maxCoeff());
 
                 QMap<QString, QString> region_map;
-                region_map[gstar::UPROBE_PRED_POS_X] = QString::number(x_arr[xidx]);
-                region_map[gstar::UPROBE_PRED_POS_Y] = QString::number(y_arr[yidx]);
+                region_map[gstar::UPROBE_CENTER_POS_X] = QString::number(x_arr[xidx]);
+                region_map[gstar::UPROBE_CENTER_POS_Y] = QString::number(y_arr[yidx]);
                 region_map[gstar::UPROBE_WIDTH] = QString::number(x_arr.size());
                 region_map[gstar::UPROBE_RECT_W] = QString::number(x_arr.size());
                 region_map[gstar::UPROBE_HEIGHT] = QString::number(y_arr.size());
@@ -241,8 +241,8 @@ void GenScanVlmWidget::runProcessing()
 
                 /*
                 gstar::UProbeRegionGraphicsItem* region = new gstar::UProbeRegionGraphicsItem();
-                region->setPropertyValue(gstar::UPROBE_PRED_POS_X, QVariant(x_arr[xidx]));
-                region->setPropertyValue(gstar::UPROBE_PRED_POS_Y, QVariant(y_arr[yidx]));
+                region->setPropertyValue(gstar::UPROBE_CENTER_POS_X, QVariant(x_arr[xidx]));
+                region->setPropertyValue(gstar::UPROBE_CENTER_POS_Y, QVariant(y_arr[yidx]));
                 region->setHeight(y_arr.size());
                 region->setWidth(x_arr.size());
                 //region->setPos(QPointF(marker[gstar::UPROBE_REAL_POS_X].toDouble(), marker[gstar::UPROBE_REAL_POS_Y].toDouble()));
