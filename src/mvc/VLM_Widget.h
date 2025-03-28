@@ -29,10 +29,12 @@
 #include <solver/PythonSolver.h>
 #include <solver/SV_CoordTransformer.h>
 #include <solver/LinearCoordTransformer.h>
+#include <solver/MappedCoordTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"
 #include <mvc/ScanRegionLinkDialog.h>
+#include <mvc/ScanRegionDialog.h>
 #include "gstar/Annotation/ScanRegionGraphicsItem.h"
 
 
@@ -72,6 +74,7 @@ public:
     */
    VLM_Widget(QString dataset_name, QWidget* parent = nullptr);
 
+   VLM_Widget(ScanRegionDialog* scan_dialog, QWidget* parent = nullptr);
    /**
     * Destructor.
     */
@@ -683,6 +686,8 @@ private:
    std::map<QString, BlueskyPlan> *_avail_scans;
 
    ScanRegionLinkDialog* _scan_region_link_dialog;
+
+   ScanRegionDialog* _scan_dialog;
 
 };
 

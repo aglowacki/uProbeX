@@ -77,6 +77,16 @@ VLM_Widget::VLM_Widget(QWidget* parent)
 
 //---------------------------------------------------------------------------
 
+VLM_Widget::VLM_Widget(ScanRegionDialog* scan_dialog, QWidget* parent)
+: AbstractImageWidget(1,1,parent)
+{
+   _scan_dialog = scan_dialog;
+   _init();
+
+}
+
+//---------------------------------------------------------------------------
+
 VLM_Widget::VLM_Widget(QString dataset_name, QWidget* parent) : AbstractImageWidget(1,1,parent)
 {
    m_datasetPath = dataset_name;
@@ -711,8 +721,8 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
    QString itemName = item->getUProbeName();
    QString widthText = "Width: " + item->propertyValue(UPROBE_WIDTH).toString();
    QString heightText = "Height: " + item->propertyValue(UPROBE_HEIGHT).toString();
-   QString predPositionXText = "Px: " + item->propertyValue(UPROBE_PRED_POS_X).toString();
-   QString predPositionYText = "Py: " + item->propertyValue(UPROBE_PRED_POS_Y).toString();
+   QString predPositionXText = "CenterX: " + item->propertyValue(UPROBE_CENTER_POS_X).toString();
+   QString predPositionYText = "CenterY: " + item->propertyValue(UPROBE_CENTER_POS_Y).toString();
 
    int textLeftOffset = 5;
    int boundsIncreaseFactor = 5;
@@ -854,11 +864,11 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
 
       xmlStreamWriter->writeAttribute("name", itemName);
 
-      xmlStreamWriter->writeStartElement(UPROBE_PRED_POS_X);
+      xmlStreamWriter->writeStartElement(UPROBE_CENTER_POS_X);
       xmlStreamWriter->writeCharacters(predPositionXText);
       xmlStreamWriter->writeEndElement();
 
-      xmlStreamWriter->writeStartElement(UPROBE_PRED_POS_Y);
+      xmlStreamWriter->writeStartElement(UPROBE_CENTER_POS_Y);
       xmlStreamWriter->writeCharacters(predPositionYText);
       xmlStreamWriter->writeEndElement();
 
@@ -2593,9 +2603,10 @@ void VLM_Widget::onUpdateBackgroundImage()
                            m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
                      }
                      m_imageViewWidget->resetCoordsToZero();
-                     m_imageViewWidget->setCountsTrasnformAt(0, normalized);
+                     //m_imageViewWidget->setCountsTrasnformAt(0, normalized);
 
                      m_imageViewWidget->clearLabels();
+                     /*
                      std::vector<std::string> element_lines;
                      gen_insert_order_list(element_lines);
 
@@ -2610,6 +2621,12 @@ void VLM_Widget::onUpdateBackgroundImage()
                               m_imageViewWidget->addLabel(val);
                         }
                      }
+                        */
+                     m_imageViewWidget->addLabel(STR_TOTAL_FLUORESCENCE_YIELD.c_str());
+
+                     MappedCoordTransformer * mapped = new MappedCoordTransformer();
+                     mapped->Init2(h5model.get_x_axis(), h5model.get_y_axis());
+                     m_lightToMicroCoordModel->setTransformer(mapped);
                   }
                }
                else if (h5image_model.load(fileName))
@@ -2659,7 +2676,7 @@ void VLM_Widget::onQueueMicroProbeRegion()
          plan = item->getPlan();
       }
 
-      QString scan_name = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
+      QString scan_type = Preferences::inst()->getValue(STR_PREF_LAST_SCAN_LINK_SELECTED).toString();
 	   QJsonArray scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
       for (const auto &scan_link_ref : scan_link_profiles)
       {
@@ -2672,13 +2689,13 @@ void VLM_Widget::onQueueMicroProbeRegion()
             }
             else
             {
-               QString l_scan_name = scan_link[STR_SCAN_TYPE].toString();
-               if(scan_name == l_scan_name)
+               QString l_scan_type = scan_link[STR_SCAN_TYPE].toString();
+               if(scan_type == l_scan_type)
                {
-                  if(_avail_scans->count(l_scan_name) > 0)
+                  if(_avail_scans->count(l_scan_type) > 0)
                   {
-                     plan = _avail_scans->at(l_scan_name);
-                     plan.type = l_scan_name;
+                     plan = _avail_scans->at(l_scan_type);
+                     plan.type = l_scan_type;
                      plan.name = item->displayName();
                      break;
                   }
@@ -2728,10 +2745,57 @@ void VLM_Widget::onQueueMicroProbeRegion()
 
 void VLM_Widget::onQueueCustomMicroProbeRegion()
 {
-   int ret = _scan_region_link_dialog->exec();
-   if ( ret != 0)
+   if(_scan_dialog != nullptr)
    {
-      onQueueMicroProbeRegion();
+      const std::vector<QString> propList = _scan_region_link_dialog->property_list();
+      ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(getSelectedRegion());
+      QString lastScanType = _scan_dialog->getCurrentScanType();
+      // get all scan links
+      QJsonArray scan_link_profiles = Preferences::inst()->getValue(STR_PREF_SCAN_LINK_PROFILES).toJsonArray();
+      BlueskyPlan plan;
+      // search for the one we want to queue
+      for (const auto &scan_link_ref : scan_link_profiles)
+      {
+         QJsonObject scan_link  = scan_link_ref.toObject();
+         if (scan_link.contains(STR_SCAN_TYPE))
+         {
+            QString l_scan_type = scan_link[STR_SCAN_TYPE].toString();
+            if(lastScanType == l_scan_type)
+            {
+               if(_avail_scans->count(l_scan_type) > 0)
+               {
+                  plan = _avail_scans->at(l_scan_type);
+                  plan.type = l_scan_type;
+                  plan.name = item->displayName();
+                  for(const auto& itr: propList)
+                  {
+                     if(scan_link.contains(itr))
+                     {
+                        QString scan_link_value = scan_link.value(itr).toString();
+            
+                        for(auto &param : plan.parameters)
+                        {
+                           if(param.name == scan_link_value)
+                           {
+                              QString val = item->getValueAsString(itr);
+                              if(val.length() > 0)
+                              {
+                                 param.default_val = val;
+                              }
+                              break;
+                           }
+                        }
+                     }
+                  }
+                  break;
+               }
+            }
+         }
+      }
+
+      _scan_dialog->updatePlanDefaults(plan);
+      _scan_dialog->exec();
+      
    }
 }
 
@@ -2893,13 +2957,23 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
             real_pos_y =  json_region_object.value(UPROBE_REAL_POS_Y).toDouble();
             annotation->setPropertyValue(UPROBE_REAL_POS_Y, real_pos_y);
          }
+         // LEGACY
          if(json_region_object.contains(UPROBE_PRED_POS_X))
          {
             annotation->setPropertyValue(UPROBE_PRED_POS_X, json_region_object.value(UPROBE_PRED_POS_X).toDouble());
          }
+         // LEGACY
          if(json_region_object.contains(UPROBE_PRED_POS_Y))
          {
             annotation->setPropertyValue(UPROBE_PRED_POS_Y, json_region_object.value(UPROBE_PRED_POS_Y).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_CENTER_POS_X))
+         {
+            annotation->setPropertyValue(UPROBE_CENTER_POS_X, json_region_object.value(UPROBE_CENTER_POS_X).toDouble());
+         }
+         if(json_region_object.contains(UPROBE_CENTER_POS_Y))
+         {
+            annotation->setPropertyValue(UPROBE_CENTER_POS_Y, json_region_object.value(UPROBE_CENTER_POS_Y).toDouble());
          }
          if(json_region_object.contains(UPROBE_RECT_TLX))
          {
@@ -3092,8 +3166,8 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
             json_region_object[UPROBE_COLOR] = child->propertyValue(UPROBE_COLOR).toString();
             json_region_object[UPROBE_REAL_POS_X] = child->x();
             json_region_object[UPROBE_REAL_POS_Y] = child->y();
-            json_region_object[UPROBE_PRED_POS_X] = child->propertyValue(UPROBE_PRED_POS_X).toDouble();
-            json_region_object[UPROBE_PRED_POS_Y] = child->propertyValue(UPROBE_PRED_POS_Y).toDouble();
+            json_region_object[UPROBE_CENTER_POS_X] = child->propertyValue(UPROBE_CENTER_POS_X).toDouble();
+            json_region_object[UPROBE_CENTER_POS_Y] = child->propertyValue(UPROBE_CENTER_POS_Y).toDouble();
             json_region_object[UPROBE_RECT_TLX] = child->boundingRectMarker().left();
             json_region_object[UPROBE_RECT_TLY] = child->boundingRectMarker().top();
             json_region_object[UPROBE_WIDTH] = child->propertyValue(UPROBE_WIDTH).toDouble();

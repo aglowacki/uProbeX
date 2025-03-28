@@ -23,6 +23,7 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
     _qserverComm = nullptr;
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
+    _scan_dialog = new ScanRegionDialog();
     _num_images = 0;
     _prev_dataset_name = " ";
     _context = new zmq::context_t(1);
@@ -140,7 +141,7 @@ void LiveMapsElementsWidget::createLayout()
 	}
 
 
-    _vlm_widget = new VLM_Widget();
+    _vlm_widget = new VLM_Widget(_scan_dialog);
     _vlm_widget->setAvailScans(&_avail_scans);
     gstar::CoordinateModel *coord_model = new gstar::CoordinateModel(&_linear_trans);
     _vlm_widget->setCoordinateModel(coord_model);
@@ -150,8 +151,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callUpdateScanRegion);
     connect(_vlm_widget, &VLM_Widget::onScanRemoved, this, &LiveMapsElementsWidget::callRemoveScan);
 
-    _scan_queue_widget = new ScanQueueWidget();
-    _scan_queue_widget->setAvailScans(&_avail_scans);
+    _scan_queue_widget = new ScanQueueWidget(_scan_dialog);
     connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
     connect(_scan_queue_widget, &ScanQueueWidget::onOpenEnv, this, &LiveMapsElementsWidget::callOpenEnv);
     connect(_scan_queue_widget, &ScanQueueWidget::onCloseEnv, this, &LiveMapsElementsWidget::callCloseEnv);
@@ -321,7 +321,7 @@ void LiveMapsElementsWidget::updateScansAvailable()
     }
     else
     {
-        _scan_queue_widget->setAvailScans(&_avail_scans);
+        _scan_dialog->setAvailScans(&_avail_scans);
         _vlm_widget->setAvailScans(&_avail_scans);
     }
 }
