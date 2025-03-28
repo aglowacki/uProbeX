@@ -2579,8 +2579,6 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
 
     if (fit_counts.count(props.element) > 0)
     {
-        height = static_cast<int>(fit_counts.at(props.element).rows());
-        width = static_cast<int>(fit_counts.at(props.element).cols());
         normalized = fit_counts.at(props.element);
         draw = true;
     }
@@ -2589,8 +2587,6 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
     {
         if (_scalers.count(props.element) > 0)
         {
-            height = static_cast<int>(_scalers.at(props.element).rows());
-            width = static_cast<int>(_scalers.at(props.element).cols());
             normalized = _scalers.at(props.element);
             draw = true;
         }
@@ -2598,11 +2594,15 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
 
     if (draw)
     {
+        height = static_cast<int>(normalized.rows());
+        width = static_cast<int>(normalized.cols());
+        
         if (props.log_color)
         {
             normalized = normalized.log10();
             normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
         }
+
         // add to width for color maps ledgend
         int cm_ledgend = width * .05; // add 5% width for ledgend
         if (cm_ledgend == 0)
@@ -2623,6 +2623,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
 
         float counts_max;
         float counts_min;
+        
         if (props.normalizer != nullptr && props.calib_curve != nullptr)
         {
             if (props.calib_curve->calib_curve.count(props.element) > 0)
@@ -2638,7 +2639,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
             }
         }
-
+        
         counts_max = normalized.maxCoeff();
         counts_min = normalized.minCoeff();
         
@@ -2654,7 +2655,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
             counts_max = props.contrast_max;
             counts_min = props.contrast_min;
         }
-
+        
         float max_min = counts_max - counts_min;
         for (int row = 0; row < height; row++)
         {
@@ -2669,7 +2670,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 image.setPixel(col, row, data);
             }
         }
-
+        
         if (height > 3 || props.show_legend == true)
         {
             // add color map ledgend
@@ -2712,6 +2713,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 }
             }
         }
+        
         if (props.invert_y)
         {
             image = image.mirrored(false, true);
