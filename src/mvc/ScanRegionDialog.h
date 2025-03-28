@@ -43,7 +43,11 @@ public:
 
    void updateProps(QList<gstar::AnnotationProperty*> &anno_list);
 
+   void updatePlanDefaults(BlueskyPlan &plan);
+
    QString getScanName() { return _scan_name->text(); }
+
+   QString getCurrentScanType() { return _scan_type->currentText(); }
 
    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 

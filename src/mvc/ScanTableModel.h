@@ -158,6 +158,24 @@ public:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
     
+   //---------------------------------------------------------------------------
+
+   void updateAllData(BlueskyPlan& scan)
+   {
+       beginResetModel();
+       for(auto itr: scan.parameters)
+       {
+            for(auto &itr2: _data)
+            {
+                if(itr2.name == itr.name)
+                {
+                    itr2.default_val = itr.default_val;
+                }
+            }
+       }
+       endResetModel();
+   }
+
     //---------------------------------------------------------------------------
 
     void setAllData(BlueskyPlan& scan)
