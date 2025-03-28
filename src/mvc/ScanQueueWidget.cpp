@@ -19,10 +19,9 @@
 
 //---------------------------------------------------------------------------
 
-ScanQueueWidget::ScanQueueWidget(QWidget *parent) : QWidget(parent)
+ScanQueueWidget::ScanQueueWidget(ScanRegionDialog* scan_dialog, QWidget *parent) : QWidget(parent)
 {
-
-    _avail_scans = nullptr;
+    _scan_dialog = scan_dialog;
     _createLayout();
 
 }
@@ -106,7 +105,7 @@ void ScanQueueWidget::_createLayout()
     connect(_btn_close_env, &QPushButton::pressed, this, &ScanQueueWidget::onCloseEnv);
 
     _btn_add_scan = new QPushButton("Add Scan");
-    connect(_btn_add_scan, &QPushButton::pressed, &_scan_dialog, &ScanRegionDialog::show);
+    connect(_btn_add_scan, &QPushButton::pressed, _scan_dialog, &ScanRegionDialog::show);
 
     _btn_set_history = new QPushButton("Set History Location");
     connect(_btn_set_history, &QPushButton::pressed, this, &ScanQueueWidget::onSetHistory);
@@ -114,8 +113,8 @@ void ScanQueueWidget::_createLayout()
     _btn_clear_history = new QPushButton("Clear History");
     connect(_btn_clear_history, &QPushButton::pressed, this, &ScanQueueWidget::on_clear_history);
 
-    _scan_dialog.setRegionNameVisible(false);
-    connect(&_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
+    _scan_dialog->setRegionNameVisible(false);
+    connect(_scan_dialog, &ScanRegionDialog::ScanUpdated, this, &ScanQueueWidget::onAddScan);
 
     _move_scan_up = new QAction("Move Scan Up", this);
     connect(_move_scan_up,
@@ -270,15 +269,6 @@ void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans
     {
         _btn_close_env->setEnabled(true);
     }
-}
-
-//---------------------------------------------------------------------------
-
-void ScanQueueWidget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
-{
-     _avail_scans = avail_scans; 
-     _scan_dialog.setAvailScans(avail_scans);
-     _scan_queue_table_model->setAvailScans(avail_scans);
 }
 
 //---------------------------------------------------------------------------

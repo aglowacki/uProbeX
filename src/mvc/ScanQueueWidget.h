@@ -29,7 +29,7 @@ public:
    /**
     * Constructor.
     */
-   ScanQueueWidget(QWidget *parent = nullptr);
+   ScanQueueWidget(ScanRegionDialog* scan_dialog, QWidget *parent = nullptr);
 
    /**
     * Destructor.
@@ -37,8 +37,6 @@ public:
    ~ScanQueueWidget();
 
    void updateQueuedItems( std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
-
-   void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans);
 
 signals:
    void queueNeedsToBeUpdated();
@@ -122,9 +120,7 @@ protected:
 
    QAction* _remove_scan;
 
-   ScanRegionDialog _scan_dialog;
-
-   std::map<QString, BlueskyPlan> *_avail_scans;
+   ScanRegionDialog* _scan_dialog;
 };
 
 

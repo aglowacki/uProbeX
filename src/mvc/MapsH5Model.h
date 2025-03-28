@@ -102,7 +102,7 @@ struct GenerateImageProp
         invert_y = false;
         global_contrast = true;
         contrast_min = 0.;
-        contrast_max = 100.;
+        contrast_max = 1.;
     }
 
     std::string analysis_type;

@@ -30,8 +30,8 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(AbstractGraphicsItem* parent)
    setGripSize();
    m_outlineColorProp = new AnnotationProperty(UPROBE_COLOR, m_outlineColor);
 
-   m_predictXProp = new AnnotationProperty(UPROBE_PRED_POS_X, 0.0);
-   m_predictYProp = new AnnotationProperty(UPROBE_PRED_POS_Y, 0.0);
+   m_predictXProp = new AnnotationProperty(UPROBE_CENTER_POS_X, 0.0);
+   m_predictYProp = new AnnotationProperty(UPROBE_CENTER_POS_Y, 0.0);
 
    m_widthProp = new AnnotationProperty(UPROBE_WIDTH, 0.0);
    m_heightProp = new AnnotationProperty(UPROBE_HEIGHT, 0.0);
@@ -81,8 +81,8 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
                    marker["RectHeight"].toDouble());
    setGripSize();
    m_outlineColorProp = new AnnotationProperty(UPROBE_COLOR, m_outlineColor);
-   m_predictXProp = new AnnotationProperty(UPROBE_PRED_POS_X, marker[UPROBE_PRED_POS_X]);
-   m_predictYProp = new AnnotationProperty(UPROBE_PRED_POS_Y, marker[UPROBE_PRED_POS_Y]);
+   m_predictXProp = new AnnotationProperty(UPROBE_CENTER_POS_X, marker[UPROBE_PRED_POS_X]);
+   m_predictYProp = new AnnotationProperty(UPROBE_CENTER_POS_Y, marker[UPROBE_PRED_POS_Y]);
    m_widthProp = new AnnotationProperty(UPROBE_WIDTH, 0.0);
    m_heightProp = new AnnotationProperty(UPROBE_HEIGHT, 0.0);
    m_sizeProp = new AnnotationProperty(UPROBE_SIZE, 20.0);    

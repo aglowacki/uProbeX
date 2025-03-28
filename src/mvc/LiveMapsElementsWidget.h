@@ -151,6 +151,8 @@ protected:
    LinearCoordTransformer _linear_trans;
 
    int _num_images;
+
+   ScanRegionDialog* _scan_dialog;
 };
 
 

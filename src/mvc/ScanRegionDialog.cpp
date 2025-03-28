@@ -168,7 +168,7 @@ void ScanRegionDialog::onUpdateAndQueue()
 		_scan_table_model->getCurrentParams(plan);
 		emit ScanUpdated(plan);
 	}
-	close();
+	accept();
 }
 
 //---------------------------------------------------------------------------
@@ -202,6 +202,13 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 			}
 		}
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionDialog::updatePlanDefaults(BlueskyPlan &plan)
+{
+	_scan_table_model->updateAllData(plan);
 }
 
 //---------------------------------------------------------------------------

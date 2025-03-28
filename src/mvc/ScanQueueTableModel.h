@@ -285,13 +285,6 @@ public:
     
     //---------------------------------------------------------------------------
 
-    void setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
-    {
-        _avail_scans = avail_scans;
-    }
-
-    //---------------------------------------------------------------------------
-
     void setAllData(std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan)
     {
         _last_finished_idx = finished_plans.size();
@@ -398,8 +391,6 @@ private:
     int _last_finished_idx;
     
     std::vector<BlueskyPlan> _data;
-
-    std::map<QString, BlueskyPlan> *_avail_scans;
 
     std::map<QString, QString> _uuid_to_filename_map;
 
