@@ -351,7 +351,7 @@ void ImageViewScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
          {
             if(y > -1 && y < m_pixItem->pixmap().height())
             {
-               QImage img = m_pixItem->pixmap().toImage();
+               //QImage img = m_pixItem->pixmap().toImage();
                //QRgb val = img.pixel(x, y);
                               // emit the mouse over pixel location
                //emit mouseOverPixel(x, y);
