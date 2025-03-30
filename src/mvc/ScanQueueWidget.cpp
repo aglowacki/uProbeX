@@ -276,7 +276,20 @@ void ScanQueueWidget::updateQueuedItems(std::vector<BlueskyPlan> &finished_plans
 void ScanQueueWidget::newDataArrived(const QString& data)
 {
     //_te_qs_console->insertPlainText(data);
-    _te_qs_console->append(data);
+    if(data.startsWith("W "))
+    {
+        QString wdata = "<span style=\"color : yellow; font-weight: bold; \">Warning: </span>" + data;
+        _te_qs_console->append(wdata);
+    }
+    else if(data.startsWith("E "))
+    {
+        QString edata = "<span style=\"color : red; font-weight: bold; \">Error: </span>" + data;
+        _te_qs_console->append(edata);
+    }
+    else
+    {
+        _te_qs_console->append(data);
+    }
     if (data.count("Item added: success=True item_type='plan'") > 0
     || data.count("Plan failed:") > 0
     || data.count("The plan was exited") > 0
