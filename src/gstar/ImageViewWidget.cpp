@@ -383,6 +383,16 @@ void ImageViewWidget::addLabel(QString lbl)
 
 //---------------------------------------------------------------------------
 
+void ImageViewWidget::setLabel(QString lbl)
+{
+    for(auto &itr : _sub_windows)
+    {
+        itr.cb_image_label->setCurrentText(lbl);
+    }
+}
+
+//---------------------------------------------------------------------------
+
 qreal ImageViewWidget::getCurrentZoomPercent()
 {
     qreal wp = 0;

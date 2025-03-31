@@ -322,6 +322,10 @@ protected slots:
 
    void onCaptureBackgroundImage();
 
+   void loadLiveBackground(QString fileName);
+
+   void onElementSelect(QString value, int viewIdx);
+
 protected:
 
    void _init();
@@ -688,6 +692,8 @@ private:
    ScanRegionLinkDialog* _scan_region_link_dialog;
 
    ScanRegionDialog* _scan_dialog;
+
+   MapsH5Model *_live_h5model;
 
 };
 
