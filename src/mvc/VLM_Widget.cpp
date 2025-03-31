@@ -2977,6 +2977,13 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
    if(rootJson.contains(STR_LIVE_BACKGROUND_PATH))
    {
       loadLiveBackground(rootJson.value(STR_LIVE_BACKGROUND_PATH).toString());
+
+      if(rootJson.contains(STR_LIVE_BACKGROUND_ELEMENT))
+      {
+         QString lastEl = rootJson.value(STR_LIVE_BACKGROUND_ELEMENT).toString();
+         m_imageViewWidget->setLabel(lastEl);
+         onElementSelect(lastEl, 0);
+      }
    }
 
    if (rootJson.contains(STR_SCAN_REGIONS) && rootJson[STR_SCAN_REGIONS].isArray())
@@ -3229,6 +3236,11 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
    if(_live_h5model != nullptr)
    {
       rootJson[STR_LIVE_BACKGROUND_PATH] = _live_h5model->getFilePath();
+      QString element = m_imageViewWidget->getLabelAt(0);
+      if(element.length() > 0)
+      {
+         rootJson[STR_LIVE_BACKGROUND_ELEMENT] = element;
+      }
    }
 
    std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
