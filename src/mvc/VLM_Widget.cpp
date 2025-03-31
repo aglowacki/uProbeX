@@ -136,6 +136,7 @@ VLM_Widget::~VLM_Widget()
 
 void VLM_Widget::_init()
 {
+   _live_h5model = nullptr;
    _avail_scans = nullptr;
    m_microProbePvSet = false;
 //   m_pvXHandler = nullptr;
@@ -155,7 +156,7 @@ void VLM_Widget::_init()
    createMicroProbeMenu();
    _createSolver();
    m_imageViewWidget->clickFill(true);
-
+   
    m_grabbingPvsX = false;
    m_grabbingPvsY = false;
 }
@@ -1549,6 +1550,7 @@ void VLM_Widget::deleteItem()
             //logI<<"index "<<index.row();
             treeModel->removeRow(index.row(), index);
          }
+         saveScanRegionLinksDefault();
       }
    }
 
@@ -2594,17 +2596,22 @@ void VLM_Widget::onUpdateBackgroundImage()
             }
             else if (fileName.endsWith(".h5") || fileName.endsWith(".h50"))
             {
-               MapsH5Model h5model;
+               if(_live_h5model != nullptr)
+               {
+                  disconnect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &VLM_Widget::onElementSelect);
+                  delete _live_h5model;
+               } 
+               _live_h5model = new MapsH5Model();
                H5ImageModel h5image_model;
-               if(h5model.load(fileName))
+               if(_live_h5model->load(fileName))
                {
                   ArrayXXr<float> normalized;
                   GenerateImageProp props;
-                  props.analysis_type = h5model.getAnalyzedTypes().front();
+                  props.analysis_type = _live_h5model->getAnalyzedTypes().front();
                   props.element = STR_TOTAL_FLUORESCENCE_YIELD;
                   props.selected_colormap = ColorMap::inst()->get_color_map(Preferences::inst()->getValue(STR_COLORMAP).toString());
-    
-                  m_imageViewWidget->scene(0)->setPixmap(h5model.gen_pixmap(props, normalized));
+
+                  m_imageViewWidget->scene(0)->setPixmap(_live_h5model->gen_pixmap(props, normalized));
                   if(normalized.rows() > 0 && normalized.cols() > 0)
                   {
                      if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
@@ -2612,41 +2619,47 @@ void VLM_Widget::onUpdateBackgroundImage()
                            m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
                            m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
                      }
-                     m_imageViewWidget->resetCoordsToZero();
-                     //m_imageViewWidget->setCountsTrasnformAt(0, normalized);
-
-                     m_imageViewWidget->clearLabels();
-                     /*
-                     std::vector<std::string> element_lines;
-                     gen_insert_order_list(element_lines);
-
-                     data_struct::Fit_Count_Dict<float> element_counts;
-                     h5model.getAnalyzedCounts(props.analysis_type, element_counts);
-                     // insert in z order
-                     for (std::string el_name : element_lines)
-                     {
-                        if(element_counts.count(el_name) > 0)
-                        {
-                              QString val = QString(el_name.c_str());
-                              m_imageViewWidget->addLabel(val);
-                        }
-                     }
-                        */
-                     m_imageViewWidget->addLabel(STR_TOTAL_FLUORESCENCE_YIELD.c_str());
-
-                     MappedCoordTransformer * mapped = new MappedCoordTransformer();
-                     mapped->Init2(h5model.get_x_axis(), h5model.get_y_axis());
-                     m_lightToMicroCoordModel->setTransformer(mapped);
                   }
-               }
-               else if (h5image_model.load(fileName))
-               {
-                  m_imageViewWidget->scene(0)->setPixmap(h5image_model.gen_pixmap());
+                  m_imageViewWidget->resetCoordsToZero();
+                  m_imageViewWidget->clearLabels();
+                  
+                  std::vector<std::string> element_lines;
+                  gen_insert_order_list(element_lines);
+
+                  data_struct::Fit_Count_Dict<float> element_counts;
+                  _live_h5model->getAnalyzedCounts(props.analysis_type, element_counts);
+                  // insert in z order
+                  for (std::string el_name : element_lines)
+                  {
+                     if(element_counts.count(el_name) > 0)
+                     {
+                           QString val = QString(el_name.c_str());
+                           m_imageViewWidget->addLabel(val);
+                     }
+                  }
+                  
+                  m_imageViewWidget->setLabel(STR_TOTAL_FLUORESCENCE_YIELD.c_str());
+
+                  MappedCoordTransformer * mapped = new MappedCoordTransformer();
+                  mapped->Init2(_live_h5model->get_x_axis(), _live_h5model->get_y_axis());
+                  m_lightToMicroCoordModel->setTransformer(mapped);
+
+                  connect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &VLM_Widget::onElementSelect);
+                  
                }
                else
-                {
-                    logE << "Failed to load hdf5 : " << fileName.toStdString() << "\n";
-                }
+               {
+                  delete _live_h5model;
+                  _live_h5model = nullptr;
+                  if (h5image_model.load(fileName))
+                  {
+                     m_imageViewWidget->scene(0)->setPixmap(h5image_model.gen_pixmap());
+                  }
+                  else
+                  {
+                     logE << "Failed to load hdf5 : " << fileName.toStdString() << "\n";
+                  }
+               }
             }
             else
             {
@@ -2654,6 +2667,19 @@ void VLM_Widget::onUpdateBackgroundImage()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------
+
+void VLM_Widget::onElementSelect(QString value, int viewIdx)
+{
+   ArrayXXr<float> normalized;
+   GenerateImageProp props;
+   props.analysis_type = _live_h5model->getAnalyzedTypes().front();
+   props.element = value.toStdString();
+   props.selected_colormap = ColorMap::inst()->get_color_map(Preferences::inst()->getValue(STR_COLORMAP).toString());
+
+   m_imageViewWidget->scene(0)->setPixmap(_live_h5model->gen_pixmap(props, normalized));
 }
 
 //--------------------------------------------------------------------------
@@ -3161,6 +3187,18 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
    gstar::AbstractGraphicsItem* groupPtr = static_cast<gstar::AbstractGraphicsItem*>(first.internalPointer());
    if(groupPtr == nullptr)
    {
+      // save blank file to clear out old history
+      QFile saveFile(savename);
+      if (!saveFile.open(QIODevice::WriteOnly))
+      {
+         logW << "Couldn't open save file: " << savename.toStdString();
+      }
+      else
+      {
+         QByteArray save_data = QJsonDocument(rootJson).toJson();
+         saveFile.write(save_data);
+         saveFile.close();
+      }
       return;
    }
    std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
@@ -3258,6 +3296,8 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
 
 //---------------------------------------------------------------------------
 
+
+//---------------------------------------------------------------------------
 /*
 void VLM_Widget::solverVariableUpdate()
 {

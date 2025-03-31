@@ -203,6 +203,8 @@ public:
 
    void addLabel(QString lbl);
 
+   void setLabel(QString lbl);
+   
    void setGlobalContrast(bool val);
 
    void getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
