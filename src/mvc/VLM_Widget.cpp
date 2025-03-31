@@ -2569,10 +2569,19 @@ void VLM_Widget::setEnableChangeBackground(bool val)
 
 void VLM_Widget::onUpdateBackgroundImage()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *.h5 *.h50)");
+   QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *.h5 *.h50)");
+   if (fileName.length() > 0)
+   {
+      loadLiveBackground(fileName);
+   }
+}
+
+//--------------------------------------------------------------------------
+
+void VLM_Widget::loadLiveBackground(QString fileName)
+{
     if (fileName.length() > 0)
-    {
-        
+    {   
         QImageReader img_reader(fileName);
         QImage image = img_reader.read();
         if (image.width() > 0 && image.height() > 0)
@@ -2965,6 +2974,11 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
    QJsonObject rootJson = QJsonDocument::fromJson(autoFile.readAll()).object();
    autoFile.close();
 
+   if(rootJson.contains(STR_LIVE_BACKGROUND_PATH))
+   {
+      loadLiveBackground(rootJson.value(STR_LIVE_BACKGROUND_PATH).toString());
+   }
+
    if (rootJson.contains(STR_SCAN_REGIONS) && rootJson[STR_SCAN_REGIONS].isArray())
    {
       QJsonArray regions = rootJson[STR_SCAN_REGIONS].toArray();
@@ -2981,7 +2995,7 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          }
          if(json_region_object.contains(UPROBE_COLOR))
          {
-            annotation->setPropertyValue(UPROBE_COLOR, json_region_object.value(UPROBE_COLOR).toVariant());
+            annotation->setPropertyValue(UPROBE_COLOR, QColor(json_region_object.value(UPROBE_COLOR).toString()));
          }
          if(json_region_object.contains(UPROBE_REAL_POS_X))
          {
@@ -3013,11 +3027,15 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          }
          if(json_region_object.contains(UPROBE_RECT_TLX))
          {
-            annotation->setPropertyValue(UPROBE_RECT_TLX, json_region_object.value(UPROBE_RECT_TLX).toDouble());
+            double val = json_region_object.value(UPROBE_RECT_TLX).toDouble();
+            annotation->setPropertyValue(UPROBE_RECT_TLX, val);
+            annotation->setX(val);
          }
          if(json_region_object.contains(UPROBE_RECT_TLY))
          {
-            annotation->setPropertyValue(UPROBE_RECT_TLY, json_region_object.value(UPROBE_RECT_TLY).toDouble());
+            double val = json_region_object.value(UPROBE_RECT_TLY).toDouble();
+            annotation->setPropertyValue(UPROBE_RECT_TLY, val);
+            annotation->setY(val);
          }
          if(json_region_object.contains(UPROBE_WIDTH))
          {
@@ -3029,11 +3047,15 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          }
          if(json_region_object.contains(UPROBE_RECT_W))
          {
-            annotation->setPropertyValue(UPROBE_RECT_W, json_region_object.value(UPROBE_RECT_W).toDouble());
+            double val = json_region_object.value(UPROBE_RECT_W).toDouble();
+            annotation->setPropertyValue(UPROBE_RECT_W, val);
+            annotation->setWidth(val);
          }
          if(json_region_object.contains(UPROBE_RECT_H))
          {
-            annotation->setPropertyValue(UPROBE_RECT_H, json_region_object.value(UPROBE_RECT_H).toDouble());
+            double val = json_region_object.value(UPROBE_RECT_H).toDouble();
+            annotation->setPropertyValue(UPROBE_RECT_H, val);
+            annotation->setHeight(val);
          }
          if(json_region_object.contains(UPROBE_SIZE))
          {
@@ -3143,13 +3165,15 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
 
          annotation->setMouseOverPixelCoordModel(m_coordinateModel);
          annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
-   
+
          reloadAndSelectAnnotation(m_mpTreeModel,
                                  m_mpAnnoTreeView,
                                  m_mpSelectionModel,
                                  annotation,
                                  QPointF(real_pos_x, real_pos_y));
-         annotation->updateView();
+         
+         annotation->updateModel();
+
       }
    }
    else
@@ -3201,6 +3225,12 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
       }
       return;
    }
+
+   if(_live_h5model != nullptr)
+   {
+      rootJson[STR_LIVE_BACKGROUND_PATH] = _live_h5model->getFilePath();
+   }
+
    std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();
    for (gstar::AbstractGraphicsItem* child : clist)
    {

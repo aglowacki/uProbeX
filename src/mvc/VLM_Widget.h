@@ -322,6 +322,8 @@ protected slots:
 
    void onCaptureBackgroundImage();
 
+   void loadLiveBackground(QString fileName);
+
    void onElementSelect(QString value, int viewIdx);
 
 protected:
