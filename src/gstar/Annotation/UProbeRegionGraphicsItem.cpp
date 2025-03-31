@@ -73,16 +73,37 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
    m_mouseOverPixelCoordModel = nullptr;
    m_lightToMicroCoordModel = nullptr;
 
-
-   m_outlineColor = QColor(marker[UPROBE_COLOR]);
+   if(marker[UPROBE_COLOR].count() > 0)
+   {
+      m_outlineColor = QColor(marker[UPROBE_COLOR]);
+   }
+   else
+   {
+      m_outlineColor = QColor(255, 0, 127);
+   }
    m_rect = QRectF(marker["TopLeftX"].toDouble(),
                    marker["TopLeftY"].toDouble(),
                    marker["RectWidth"].toDouble(),
                    marker["RectHeight"].toDouble());
    setGripSize();
    m_outlineColorProp = new AnnotationProperty(UPROBE_COLOR, m_outlineColor);
-   m_predictXProp = new AnnotationProperty(UPROBE_CENTER_POS_X, marker[UPROBE_PRED_POS_X]);
-   m_predictYProp = new AnnotationProperty(UPROBE_CENTER_POS_Y, marker[UPROBE_PRED_POS_Y]);
+   if(marker[UPROBE_PRED_POS_X].count() > 0)
+   {
+      m_predictXProp = new AnnotationProperty(UPROBE_CENTER_POS_X, marker[UPROBE_PRED_POS_X]);
+   }
+   else 
+   {
+      m_predictXProp = new AnnotationProperty(UPROBE_CENTER_POS_X, 0.0);
+   }
+   if(marker[UPROBE_PRED_POS_X].count() > 0)
+   {
+      m_predictYProp = new AnnotationProperty(UPROBE_CENTER_POS_Y, marker[UPROBE_PRED_POS_Y]);
+   }
+   else
+   {
+      m_predictYProp = new AnnotationProperty(UPROBE_CENTER_POS_Y, 0.0);
+   }
+   
    m_widthProp = new AnnotationProperty(UPROBE_WIDTH, 0.0);
    m_heightProp = new AnnotationProperty(UPROBE_HEIGHT, 0.0);
    m_sizeProp = new AnnotationProperty(UPROBE_SIZE, 20.0);    

@@ -88,6 +88,8 @@ private slots:
 
 protected:
 
+   void _init();
+
    AnnotationProperty* _queue_status;
 
    AnnotationProperty* _plan_type;
