@@ -431,6 +431,7 @@ void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeMod
     
     annotation->setPos(annoPos);
 
+
    QModelIndex pIndex = treeModel->appendNode(annotation);
 
    if (pIndex.isValid())

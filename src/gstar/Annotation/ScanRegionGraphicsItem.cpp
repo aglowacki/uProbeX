@@ -20,13 +20,7 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
    : UProbeRegionGraphicsItem(parent)
 {
 
-   _bs_plan.uuid = "";
-   _queue_status = new AnnotationProperty(SCAN_REGION_QUEUE_STATUS, QVariant(STR_NOT_QUEUED));
-   _plan_type = new AnnotationProperty(SCAN_REGION_PLAN_TYPE, QVariant(""));
-   prependProperty(_plan_type);   
-   prependProperty(_queue_status);
-
-   connect(this, &AbstractGraphicsItem::viewUpdated, this, &ScanRegionGraphicsItem::onPlanDirty);
+   _init();
 
 }
 
@@ -34,44 +28,9 @@ ScanRegionGraphicsItem::ScanRegionGraphicsItem(AbstractGraphicsItem* parent)
 
 ScanRegionGraphicsItem::ScanRegionGraphicsItem(QMap<QString, QString>& marker,
                                                    AbstractGraphicsItem* parent)
-                                                   : UProbeRegionGraphicsItem(parent)
+                                                   : UProbeRegionGraphicsItem(marker, parent)
 {
-/*
-   m_mouseOverPixelCoordModel = nullptr;
-   m_lightToMicroCoordModel = nullptr;
-
-
-   m_outlineColor = QColor(marker[UPROBE_COLOR]);
-   m_rect = QRectF(marker["TopLeftX"].toDouble(),
-                   marker["TopLeftY"].toDouble(),
-                   marker["RectWidth"].toDouble(),
-                   marker["RectHeight"].toDouble());
-   setGripSize();
-   m_outlineColorProp = new AnnotationProperty(UPROBE_COLOR, m_outlineColor);
-   m_predictXProp = new AnnotationProperty(UPROBE_PRED_POS_X, marker[UPROBE_PRED_POS_X]);
-   m_predictYProp = new AnnotationProperty(UPROBE_PRED_POS_Y, marker[UPROBE_PRED_POS_Y]);
-   m_widthProp = new AnnotationProperty(UPROBE_WIDTH, 0.0);
-   m_heightProp = new AnnotationProperty(UPROBE_HEIGHT, 0.0);
-   m_sizeProp = new AnnotationProperty(UPROBE_SIZE, 20.0);    
-
-   m_data.push_back(m_outlineColorProp);
-   m_data.push_back(m_predictXProp);
-   m_data.push_back(m_predictYProp);
-   m_data.push_back(m_widthProp);
-   m_data.push_back(m_heightProp);
-
-
-   setSize(m_sizeProp->getValue().toDouble());
-
-   connectAllProperties();
-
-   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-   // Accept hover events
-   setAcceptHoverEvents(true);
-
-   initialScale();
-   updateStringSize();
-*/
+   _init();
 }
 
 //---------------------------------------------------------------------------
@@ -82,6 +41,21 @@ ScanRegionGraphicsItem::~ScanRegionGraphicsItem()
    {
       emit planRemoved(_bs_plan);
    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionGraphicsItem::_init()
+{
+
+   _bs_plan.uuid = "";
+   _queue_status = new AnnotationProperty(SCAN_REGION_QUEUE_STATUS, QVariant(STR_NOT_QUEUED));
+   _plan_type = new AnnotationProperty(SCAN_REGION_PLAN_TYPE, QVariant(""));
+   prependProperty(_plan_type);   
+   prependProperty(_queue_status);
+
+   connect(this, &AbstractGraphicsItem::viewUpdated, this, &ScanRegionGraphicsItem::onPlanDirty);
+
 }
 
 //---------------------------------------------------------------------------

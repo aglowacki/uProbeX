@@ -89,6 +89,8 @@ public:
     */
    QPointF getCenterPoint() const;
 
+   QRectF getSceneRect();
+
    /**
     * Even when the mouse leave the widget
     */

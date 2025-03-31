@@ -411,6 +411,19 @@ QPointF ImageViewWidget::getCenterPoint() const
 
 //---------------------------------------------------------------------------
 
+QRectF ImageViewWidget::getSceneRect()
+{  
+    const QRectF rect;
+    if (_sub_windows.size() > 0)
+    {
+        // Get image size
+        return _sub_windows[0].scene->sceneRect();
+    }
+    return rect;
+}
+
+//---------------------------------------------------------------------------
+
 void ImageViewWidget::leaveEvent(QEvent * event)
 {
 

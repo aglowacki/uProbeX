@@ -265,7 +265,17 @@ void VLM_Widget::onConfigRegionLink()
 
 void VLM_Widget::onAddMicroProbeRegion()
 {
-   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
+   
+   QRectF sceneRect = m_imageViewWidget->getSceneRect();
+   qreal halfW = sceneRect.width() / 2.0;
+   qreal halfH = sceneRect.height() / 2.0;
+   QMap<QString, QString> marker;
+   marker["TopLeftX"] = QString::number(-halfW);
+   marker["TopLeftY"] = QString::number(-halfH);
+   marker["RectWidth"] = QString::number(halfW);
+   marker["RectHeight"] = QString::number(halfH);
+
+   ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem(marker);
 
    connect(annotation, &ScanRegionGraphicsItem::planRemoved, this, &VLM_Widget::onScanRemoved);
    //UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
