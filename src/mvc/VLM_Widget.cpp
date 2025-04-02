@@ -2649,8 +2649,8 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                   
                   m_imageViewWidget->setLabel(STR_TOTAL_FLUORESCENCE_YIELD.c_str());
 
-                  MappedCoordTransformer * mapped = new MappedCoordTransformer();
-                  mapped->Init2(_live_h5model->get_x_axis(), _live_h5model->get_y_axis());
+                  MotorLookupTransformer * mapped = new MotorLookupTransformer();
+                  mapped->setMotors(_live_h5model->get_x_axis(), _live_h5model->get_y_axis());
                   m_lightToMicroCoordModel->setTransformer(mapped);
 
                   connect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &VLM_Widget::onElementSelect);
