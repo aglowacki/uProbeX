@@ -54,7 +54,7 @@ void ScanRegionGraphicsItem::_init()
    prependProperty(_plan_type);   
    prependProperty(_queue_status);
 
-   connect(this, &AbstractGraphicsItem::viewUpdated, this, &ScanRegionGraphicsItem::onPlanDirty);
+   connect(this, &AbstractGraphicsItem::viewUpdated, this, &ScanRegionGraphicsItem::checkIfPlanDirty);
 
 }
 
@@ -88,6 +88,8 @@ void ScanRegionGraphicsItem::setPlan(const BlueskyPlan& plan)
 
    if(_bs_plan.uuid.length() > 0)
    {
+      _queued_pos = QPointF(m_predictXProp->getValue().toDouble(), m_predictYProp->getValue().toDouble());
+      _queued_size = QSizeF(m_widthProp->getValue().toDouble(), m_heightProp->getValue().toDouble());
       _queue_status->setValue(STR_QUEUED);
       _plan_type->setValue(plan.type);
       updateView();
@@ -114,6 +116,18 @@ bool ScanRegionGraphicsItem::isQueued()
    _queue_status->setValue(STR_NOT_QUEUED);
    
    return false;
+}
+
+//---------------------------------------------------------------------------
+
+void ScanRegionGraphicsItem::checkIfPlanDirty()
+{
+   QPointF cur_pos = QPointF(m_predictXProp->getValue().toDouble(), m_predictYProp->getValue().toDouble());
+   QSizeF cur_size = QSizeF(m_widthProp->getValue().toDouble(), m_heightProp->getValue().toDouble());
+   if(cur_pos != _queued_pos || cur_size != _queued_size)
+   {
+      onPlanDirty();
+   }
 }
 
 //---------------------------------------------------------------------------

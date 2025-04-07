@@ -86,6 +86,8 @@ signals:
 private slots:
    void onPlanDirty();
 
+   void checkIfPlanDirty();
+
 protected:
 
    void _init();
@@ -95,6 +97,10 @@ protected:
    AnnotationProperty* _plan_type;
 
    BlueskyPlan _bs_plan;
+
+   QPointF _queued_pos;
+   
+   QSizeF _queued_size;
 
 };
 
