@@ -29,7 +29,7 @@
 #include <solver/PythonSolver.h>
 #include <solver/SV_CoordTransformer.h>
 #include <solver/LinearCoordTransformer.h>
-#include <solver/MappedCoordTransformer.h>
+#include <gstar/MotorLookupTransformer.h>
 #include <solver/PythonTransformer.h>
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"

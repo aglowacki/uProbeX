@@ -2649,8 +2649,8 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                   
                   m_imageViewWidget->setLabel(STR_TOTAL_FLUORESCENCE_YIELD.c_str());
 
-                  MappedCoordTransformer * mapped = new MappedCoordTransformer();
-                  mapped->Init2(_live_h5model->get_x_axis(), _live_h5model->get_y_axis());
+                  MotorLookupTransformer * mapped = new MotorLookupTransformer();
+                  mapped->setMotors(_live_h5model->get_x_axis(), _live_h5model->get_y_axis());
                   m_lightToMicroCoordModel->setTransformer(mapped);
 
                   connect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &VLM_Widget::onElementSelect);
@@ -2977,6 +2977,13 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
    if(rootJson.contains(STR_LIVE_BACKGROUND_PATH))
    {
       loadLiveBackground(rootJson.value(STR_LIVE_BACKGROUND_PATH).toString());
+
+      if(rootJson.contains(STR_LIVE_BACKGROUND_ELEMENT))
+      {
+         QString lastEl = rootJson.value(STR_LIVE_BACKGROUND_ELEMENT).toString();
+         m_imageViewWidget->setLabel(lastEl);
+         onElementSelect(lastEl, 0);
+      }
    }
 
    if (rootJson.contains(STR_SCAN_REGIONS) && rootJson[STR_SCAN_REGIONS].isArray())
@@ -3229,6 +3236,11 @@ void VLM_Widget::saveScanRegionLinks(QString dir)
    if(_live_h5model != nullptr)
    {
       rootJson[STR_LIVE_BACKGROUND_PATH] = _live_h5model->getFilePath();
+      QString element = m_imageViewWidget->getLabelAt(0);
+      if(element.length() > 0)
+      {
+         rootJson[STR_LIVE_BACKGROUND_ELEMENT] = element;
+      }
    }
 
    std::list<gstar::AbstractGraphicsItem*> clist = groupPtr->childList();

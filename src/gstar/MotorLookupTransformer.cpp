@@ -117,18 +117,40 @@ void MotorLookupTransformer::transformCommand(double inX,
     int col = (int)inX;
     int row = (int)inY;
     
-    if(row > -1 && row < _rows && col > -1 && col < _cols)
+    if(row < 0 )
     {
-        *outX = _motor_x_arr[col];
-        *outY = _motor_y_arr[row];
+      row = 0;
     }
-    else
+    else if( row >= _rows)
     {
-        *outX = 0.0;
-        *outY = 0.0;
+      row = _rows - 1;
     }
-    
-    *outZ = 0;
+    if(col < 0)
+    {
+      col = 0;
+    }
+    else if( col >= _cols)
+    {
+      col = _cols - 1;
+    }
+   
+   if(_motor_x_arr.size() > 0)
+   {
+      *outX = _motor_x_arr[col];
+   }
+   else
+   {
+      *outX = 0.0;
+   }
+   if(_motor_y_arr.size() > 0)
+   {
+      *outY = _motor_y_arr[row]; 
+   }
+   else
+   {
+      *outY = 0.0;
+   }
+   *outZ = 0;
     
 }
 

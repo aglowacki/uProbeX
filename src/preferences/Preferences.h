@@ -38,6 +38,7 @@
 #define STR_SCAN_REGION_PLAN_PARAMS "ScanRegionPlanParameters"
 
 #define STR_LIVE_BACKGROUND_PATH "LiveBackgroundPath"
+#define STR_LIVE_BACKGROUND_ELEMENT "LiveBackgroundElement"
 
 #define STR_SCAN_REGION_PLAN_PARAM_NAME "Name"
 #define STR_SCAN_REGION_PLAN_PARAM_KIND "Kind"
