@@ -61,6 +61,8 @@ public slots:
 
    void setHistoryLocation();
 
+   void incHistoryLocation();
+
    void clearHistory();
 
    void saveHistory();
