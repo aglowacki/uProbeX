@@ -2839,8 +2839,17 @@ void VLM_Widget::onQueueCustomMicroProbeRegion()
       }
 
       _scan_dialog->updatePlanDefaults(plan);
-      _scan_dialog->exec();
-      
+      if(_scan_dialog->execAndReturnPlan(plan))
+      {
+         if(item->isQueued())
+         {
+            emit onScanUpdated(plan, item); 
+         }
+         else
+         {
+            emit onQueueScan(plan, item); 
+         }
+      }
    }
 }
 
