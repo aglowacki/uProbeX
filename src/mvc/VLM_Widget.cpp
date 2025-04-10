@@ -2839,8 +2839,17 @@ void VLM_Widget::onQueueCustomMicroProbeRegion()
       }
 
       _scan_dialog->updatePlanDefaults(plan);
-      _scan_dialog->exec();
-      
+      if(_scan_dialog->execAndReturnPlan(plan))
+      {
+         if(item->isQueued())
+         {
+            emit onScanUpdated(plan, item); 
+         }
+         else
+         {
+            emit onQueueScan(plan, item); 
+         }
+      }
    }
 }
 
@@ -2983,6 +2992,7 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          QString lastEl = rootJson.value(STR_LIVE_BACKGROUND_ELEMENT).toString();
          m_imageViewWidget->setLabel(lastEl);
          onElementSelect(lastEl, 0);
+         QCoreApplication::processEvents();
       }
    }
 
@@ -2993,6 +3003,7 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
       {
          double real_pos_x = 0.;
          double real_pos_y = 0.;
+         QRectF load_rect = QRectF(-300, -300, 600, 600);
          BlueskyPlan item_plan;
          QJsonObject json_region_object = regions[i].toObject();
          ScanRegionGraphicsItem* annotation = new ScanRegionGraphicsItem();
@@ -3008,11 +3019,13 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          {
             real_pos_x = json_region_object.value(UPROBE_REAL_POS_X).toDouble();
             annotation->setPropertyValue(UPROBE_REAL_POS_X, real_pos_x);
+            //annotation->setX(real_pos_x);
          }
          if(json_region_object.contains(UPROBE_REAL_POS_Y))
          {
             real_pos_y =  json_region_object.value(UPROBE_REAL_POS_Y).toDouble();
             annotation->setPropertyValue(UPROBE_REAL_POS_Y, real_pos_y);
+            //annotation->setY(real_pos_y);
          }
          // LEGACY
          if(json_region_object.contains(UPROBE_PRED_POS_X))
@@ -3036,13 +3049,13 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          {
             double val = json_region_object.value(UPROBE_RECT_TLX).toDouble();
             annotation->setPropertyValue(UPROBE_RECT_TLX, val);
-            annotation->setX(val);
+            load_rect.setX(val);
          }
          if(json_region_object.contains(UPROBE_RECT_TLY))
          {
             double val = json_region_object.value(UPROBE_RECT_TLY).toDouble();
             annotation->setPropertyValue(UPROBE_RECT_TLY, val);
-            annotation->setY(val);
+            load_rect.setY(val);
          }
          if(json_region_object.contains(UPROBE_WIDTH))
          {
@@ -3056,13 +3069,13 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          {
             double val = json_region_object.value(UPROBE_RECT_W).toDouble();
             annotation->setPropertyValue(UPROBE_RECT_W, val);
-            annotation->setWidth(val);
+            load_rect.setWidth(val);
          }
          if(json_region_object.contains(UPROBE_RECT_H))
          {
             double val = json_region_object.value(UPROBE_RECT_H).toDouble();
             annotation->setPropertyValue(UPROBE_RECT_H, val);
-            annotation->setHeight(val);
+            load_rect.setHeight(val);
          }
          if(json_region_object.contains(UPROBE_SIZE))
          {
@@ -3170,6 +3183,9 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
             annotation->setPlan(item_plan);
          }
 
+
+         annotation->setSameRect(load_rect);
+         annotation->setGripSize();
          annotation->setMouseOverPixelCoordModel(m_coordinateModel);
          annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
 

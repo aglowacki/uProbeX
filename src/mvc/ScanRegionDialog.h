@@ -53,6 +53,8 @@ public:
 
    void setRegionNameVisible(bool val) { _lbl_region_name->setVisible(val); _scan_name->setVisible(false);}
 
+   bool execAndReturnPlan(BlueskyPlan &plan);
+
 signals:
 	
    void ScanUpdated(BlueskyPlan& plan);
@@ -97,6 +99,8 @@ private:
    std::map<QString, BlueskyPlan> *_avail_scans;
 
    ComboBoxBoolDelegate *_cbDelegate;
+
+   bool _emit_on_accept;
 
 };
 

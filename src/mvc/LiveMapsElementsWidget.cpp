@@ -398,22 +398,36 @@ void LiveMapsElementsWidget::saveHistory()
     {
         QFile file(fileName);
         QFileInfo finfo(fileName);
-
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            //QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
-            logW<<"Could not open QServer history filepath "<<fileName.toStdString()<<"\n";
-        }
         QString msg;
 
         if (fileName.endsWith(".json")) 
         {
-             if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
+            if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
             {
                 //QMessageBox::warning(nullptr, "Export History", "Failed to get scan history from QServer");
                 _scan_queue_widget->newDataArrived( msg );
             }
-            file.write(msg.toUtf8());
+            else
+            {
+                // check if we have less info than current history. If so then start new file.
+                if(msg.length() < finfo.size())
+                {
+                    logI<< "Scan history message smaller than file history. Creating new history filename\n";
+                    incHistoryLocation();
+                    fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
+                    file.setFileName(fileName);
+                }
+                if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+                {
+                    file.write(msg.toUtf8());
+                    file.close();
+                }
+                else
+                {
+                    //QMessageBox::warning(nullptr, "Export History", "Could not open the file.");
+                    logW<<"Could not open QServer history filepath "<<fileName.toStdString()<<"\n";
+                }
+            }            
         }
         else if (fileName.endsWith(".csv")) 
         {
@@ -424,30 +438,33 @@ void LiveMapsElementsWidget::saveHistory()
             }
             if(_finished_scans.size() > 0)
             {
-                QTextStream out(&file);
+                if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+                {
+                    QTextStream out(&file);
 
-                // Write header row
-                out << "Name,Type,";
-                for(auto & itr: _finished_scans.at(0).parameters)
-                {
-                    out<<itr.name<<",";
-                }
-                out << "exit_status,time_start,time_stop,msg\r\n";
-                for(auto &itr: _finished_scans)
-                {
-                    out<<itr.name<<","<<itr.type<<",";
-                    for(auto & itr2: itr.parameters)
+                    // Write header row
+                    out << "Name,Type,";
+                    for(auto & itr: _finished_scans.at(0).parameters)
                     {
-                        out<<itr2.default_val<<",";
+                        out<<itr.name<<",";
                     }
-                    QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
-                    QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);
-                    out<<itr.result.exit_status<<","<<dateTime1.toString("yyyy-MM-dd hh:mm:ss")<<","<<dateTime2.toString("yyyy-MM-dd hh:mm:ss")<<","<<itr.result.msg<<"\r\n";
+                    out << "exit_status,time_start,time_stop,msg\r\n";
+                    for(auto &itr: _finished_scans)
+                    {
+                        out<<itr.name<<","<<itr.type<<",";
+                        for(auto & itr2: itr.parameters)
+                        {
+                            out<<itr2.default_val<<",";
+                        }
+                        QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
+                        QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);
+                        out<<itr.result.exit_status<<","<<dateTime1.toString("yyyy-MM-dd hh:mm:ss")<<","<<dateTime2.toString("yyyy-MM-dd hh:mm:ss")<<","<<itr.result.msg<<"\r\n";
+                    }
+                    file.close();
                 }
             }
         }
-        file.close();
-
+        
         if(_vlm_widget != nullptr)
         {
             _vlm_widget->saveScanRegionLinks(finfo.absoluteDir().absolutePath());
@@ -458,9 +475,8 @@ void LiveMapsElementsWidget::saveHistory()
 
 //---------------------------------------------------------------------------
 
-void LiveMapsElementsWidget::clearHistory()
+void LiveMapsElementsWidget::incHistoryLocation()
 {
-
     QString fileName = Preferences::inst()->getValue(STR_SAVE_QSERVER_HISTORY_LOCATION).toString();
     
     // Set history name to new date so we don't lose old history
@@ -476,6 +492,14 @@ void LiveMapsElementsWidget::clearHistory()
         
         Preferences::inst()->setValue(STR_SAVE_QSERVER_HISTORY_LOCATION, apath);
     }
+}
+
+//---------------------------------------------------------------------------
+
+void LiveMapsElementsWidget::clearHistory()
+{
+
+    incHistoryLocation();
 
     QString msg;
     if (false == _qserverComm->clear_history(msg))

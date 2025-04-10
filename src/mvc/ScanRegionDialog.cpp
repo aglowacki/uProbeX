@@ -16,6 +16,7 @@
 //---------------------------------------------------------------------------
 ScanRegionDialog::ScanRegionDialog() : QDialog()
 {
+	_emit_on_accept = true;
 	_createLayout();
 }
 
@@ -137,6 +138,22 @@ void ScanRegionDialog::updateProps(QList<gstar::AnnotationProperty*> &anno_list)
 
 //---------------------------------------------------------------------------
 
+bool ScanRegionDialog::execAndReturnPlan(BlueskyPlan& plan)
+{
+	_emit_on_accept = false;
+	if (this->exec() == QDialog::Accepted)
+	{
+		plan.type = _scan_type->currentText();
+		_scan_table_model->getCurrentParams(plan);
+		_emit_on_accept = true;
+		return true;
+	}
+	_emit_on_accept = true;
+	return false;
+}
+
+//---------------------------------------------------------------------------
+
 void ScanRegionDialog::onUpdateAndQueue()
 {
 	if(_chk_batch_scan->checkState() == Qt::Checked)
@@ -157,7 +174,10 @@ void ScanRegionDialog::onUpdateAndQueue()
 					itr.default_val = QString::number(start);
 				}
 			}
-			emit ScanUpdated(plan);	
+			if(_emit_on_accept)
+			{
+				emit ScanUpdated(plan);	
+			}
 			start += inc;
 		}
 	}
@@ -166,7 +186,10 @@ void ScanRegionDialog::onUpdateAndQueue()
 		BlueskyPlan plan;
 		plan.type = _scan_type->currentText();
 		_scan_table_model->getCurrentParams(plan);
-		emit ScanUpdated(plan);
+		if(_emit_on_accept)
+		{
+			emit ScanUpdated(plan);
+		}
 	}
 	accept();
 }
