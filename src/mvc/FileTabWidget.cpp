@@ -152,7 +152,7 @@ void FileTabWidget::load_all_visible()
         {
             QModelIndex idx = list.at(i);
             QString val;
-            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
             {
                 sl.append(val);
             }
@@ -177,7 +177,7 @@ void FileTabWidget::unload_all_visible()
         {
             QModelIndex idx = list.at(i);
             QString val;
-            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
             {
                 sl.append(val);
             }
@@ -332,7 +332,7 @@ void FileTabWidget::onLoadFile()
     {
         QModelIndex idx = list.at(i);
         QString val;
-        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        if(false == _file_list_view->isRowHidden(i) && _file_list_model->getNameAtRow(idx.row(), val) )
         {
             sl.append(val);
         }
@@ -350,7 +350,7 @@ void FileTabWidget::onUnloadFile()
     {
         QModelIndex idx = list.at(i);
         QString val;
-        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        if(false == _file_list_view->isRowHidden(i) && _file_list_model->getNameAtRow(idx.row(), val) )
         {
             sl.append(val);
         }
@@ -438,7 +438,8 @@ void FileTabWidget::onCustomContext()
     {
         QModelIndex idx = list.at(i);
         QString val;
-        if( _file_list_model->getNameAtRow(idx.row(), val) )
+        
+        if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
         {
             sl.append(val);
         }
@@ -489,7 +490,7 @@ void FileTabWidget::onCustomButton()
         {
             QModelIndex idx = list.at(i);
             QString val;
-            if( _file_list_model->getNameAtRow(idx.row(), val) )
+            if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
             {
                 sl.append(val);
             }
