@@ -82,6 +82,8 @@ public slots:
 
    void on_remove_scan();
 
+   void on_duplicate_scan();
+   
    void on_clear_history();
 
 protected:
@@ -119,6 +121,8 @@ protected:
    QAction* _move_scan_up;
    
    QAction* _move_scan_down;
+
+   QAction* _duplicate_scan;
 
    QAction* _remove_scan;
 

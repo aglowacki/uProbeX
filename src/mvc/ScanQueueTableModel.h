@@ -272,13 +272,13 @@ public:
         {
             if(_data.at(index.row()).result.exit_status.length() > 0)
             {
-                return  Qt::ItemIsSelectable;
+                return  Qt::ItemIsEnabled | Qt::ItemIsSelectable;
             }
         }
 
         if(index.column() == 0)
         {
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+            return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         }
         return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }

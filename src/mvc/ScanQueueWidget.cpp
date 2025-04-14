@@ -134,7 +134,11 @@ void ScanQueueWidget::_createLayout()
             this,
             &ScanQueueWidget::on_remove_scan);
    
-    
+    _duplicate_scan = new QAction("Duplicate Scan", this);
+    connect(_duplicate_scan,
+            &QAction::triggered,
+            this,
+            &ScanQueueWidget::on_duplicate_scan);
 
     QGridLayout *grid = new QGridLayout();
     grid->addWidget(_btn_play, 0,0);
@@ -176,13 +180,22 @@ void ScanQueueWidget::scanContextMenu(const QPoint& pos)
     QMenu menu(_scan_queue_table_view);
     if (_scan_queue_table_view->selectionModel()->hasSelection())
     {   
-        auto selected = _scan_queue_table_view->selectionModel()->selectedIndexes();
-        if(selected.count() == 1)
+        QModelIndexList selected = _scan_queue_table_view->selectionModel()->selectedRows();
+        QModelIndex idx = selected.first();
+        Qt::ItemFlags first_flags = _scan_queue_table_model->flags(idx);
+        if(selected.size() == 1)
         {
-            menu.addAction(_move_scan_up);
-            menu.addAction(_move_scan_down);
+            menu.addAction(_duplicate_scan);
+            if(first_flags & Qt::ItemIsEditable)
+            {
+                menu.addAction(_move_scan_up);
+                menu.addAction(_move_scan_down);
+            }
         }
-        menu.addAction(_remove_scan);
+        if(first_flags & Qt::ItemIsEditable)
+        {
+            menu.addAction(_remove_scan);
+        }
     
         QAction* result = menu.exec(_scan_queue_table_view->viewport()->mapToGlobal(pos));
         if (result == nullptr)
@@ -252,6 +265,28 @@ void ScanQueueWidget::on_remove_scan()
             }
         }
         
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ScanQueueWidget::on_duplicate_scan()
+{
+    if (_scan_queue_table_view->selectionModel()->hasSelection())
+    {  
+        QModelIndexList selectedIndexes = _scan_queue_table_view->selectionModel()->selectedRows();
+
+        if(selectedIndexes.count() == 1)
+        {
+            for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+            {
+                QModelIndex index = selectedIndexes[i];
+                BlueskyPlan dplan = _scan_queue_table_model->item(index.row());
+                dplan.uuid = "";
+                dplan.filename = "";
+                emit onAddScan(dplan);
+            }
+        }
     }
 }
 
