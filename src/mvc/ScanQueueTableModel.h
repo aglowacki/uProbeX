@@ -379,6 +379,11 @@ public:
     const int get_finished_idx() {return _last_finished_idx;}
 
     //---------------------------------------------------------------------------
+
+    const std::map<QString, QString>& get_uuid_links() {return  _uuid_to_filename_map;}
+
+    //---------------------------------------------------------------------------
+
 signals:
 
     void moveScanRow(int, int);

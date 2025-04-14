@@ -362,7 +362,9 @@ void LiveMapsElementsWidget::setHistoryLocation()
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Scan History", apath,
-                                                    tr("JSON (*.json);;CSV (*.csv)"));
+                                                    tr("CSV (*.csv)"));
+                                                    //tr("JSON (*.json);;CSV (*.csv)"));
+                                                    
 
     if(fileName.length() > 0)
     {
@@ -399,7 +401,7 @@ void LiveMapsElementsWidget::saveHistory()
         QFile file(fileName);
         QFileInfo finfo(fileName);
         QString msg;
-
+/*
         if (fileName.endsWith(".json")) 
         {
             if (false == _qserverComm->get_scan_history(msg, _finished_scans, true))
@@ -430,6 +432,7 @@ void LiveMapsElementsWidget::saveHistory()
             }            
         }
         else if (fileName.endsWith(".csv")) 
+        */
         {
             if (false == _qserverComm->get_scan_history(msg, _finished_scans, false))
             {
@@ -438,6 +441,9 @@ void LiveMapsElementsWidget::saveHistory()
             }
             if(_finished_scans.size() > 0)
             {
+                std::map<QString, QString> uuid_link_map;
+                _scan_queue_widget->ScanQueueWidget::get_uuid_links();
+            
                 if (file.open(QIODevice::WriteOnly | QIODevice::Text))
                 {
                     QTextStream out(&file);
@@ -448,7 +454,7 @@ void LiveMapsElementsWidget::saveHistory()
                     {
                         out<<itr.name<<",";
                     }
-                    out << "exit_status,time_start,time_stop,msg\r\n";
+                    out << "filesname,exit_status,time_start,time_stop,msg\r\n";
                     for(auto &itr: _finished_scans)
                     {
                         out<<itr.name<<","<<itr.type<<",";
@@ -458,6 +464,14 @@ void LiveMapsElementsWidget::saveHistory()
                         }
                         QDateTime dateTime1 = QDateTime::fromSecsSinceEpoch(itr.result.time_start, Qt::UTC);
                         QDateTime dateTime2 = QDateTime::fromSecsSinceEpoch(itr.result.time_stop, Qt::UTC);
+                        if(uuid_link_map.count(itr.uuid))
+                        {
+                            out<<uuid_link_map.at(itr.uuid)<<",";
+                        }
+                        else
+                        {
+                            out<<",";
+                        }
                         out<<itr.result.exit_status<<","<<dateTime1.toString("yyyy-MM-dd hh:mm:ss")<<","<<dateTime2.toString("yyyy-MM-dd hh:mm:ss")<<","<<itr.result.msg<<"\r\n";
                     }
                     file.close();

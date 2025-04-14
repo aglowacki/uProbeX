@@ -38,6 +38,8 @@ public:
 
    void updateQueuedItems( std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
 
+   const std::map<QString, QString>& get_uuid_links();
+
 signals:
    void queueNeedsToBeUpdated();
 

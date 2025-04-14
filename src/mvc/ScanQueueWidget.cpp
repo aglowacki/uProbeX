@@ -353,3 +353,10 @@ void ScanQueueWidget::on_clear_history()
 }
 
 //---------------------------------------------------------------------------
+
+const std::map<QString, QString>& ScanQueueWidget::get_uuid_links()
+{
+    return _scan_queue_table_model->get_uuid_links();
+}
+
+//---------------------------------------------------------------------------

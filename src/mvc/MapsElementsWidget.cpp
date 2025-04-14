@@ -1594,7 +1594,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     cnts = std::min(counts_max, cnts);
                     cnts = std::max(counts_min, cnts);
                     //convert to pixel
-                    uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                    unsigned char data = (unsigned char)(((cnts - counts_min) / max_min) * 255);
                     image.setPixel(col, row, data);
                 }
             }
@@ -1622,11 +1622,11 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                         {
                             if (col >= startW && col <= endW)
                             {
-                                image.setPixel(col, row, uint(fcol));
+                                image.setPixel(col, row, static_cast<unsigned char>(fcol));
                             }
                             else
                             {
-                                image.setPixel(col, row, uint(127));
+                                image.setPixel(col, row, static_cast<unsigned char>(127));
                             }
                         }
                         fcol -= inc;
@@ -1636,7 +1636,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
                     {
                         for (int col = width; col < width + cm_ledgend; col++)
                         {
-                            image.setPixel(col, row, uint(127));
+                            image.setPixel(col, row, static_cast<unsigned char>(127));
                         }
                     }
                 }
