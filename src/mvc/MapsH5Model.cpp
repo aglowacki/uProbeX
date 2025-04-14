@@ -205,7 +205,7 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
 
         for(auto& itr2 : itr.second.fit_counts)
         {
-            xrf_counts->emplace(std::pair<std::string,EMatrixF>(itr2.first, EMatrixF() ));
+            xrf_counts->emplace(std::pair<std::string,data_struct::ArrayXXr<float>>(itr2.first, data_struct::ArrayXXr<float>() ));
             xrf_counts->at(itr2.first).resize(block->height(), block->width());
             xrf_counts->at(itr2.first).setZero(block->height(), block->width());
             xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
@@ -598,22 +598,16 @@ bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayTr<fl
 
 bool MapsH5Model::load(QString filepath)
 {
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
     try
     {
         _filepath = filepath;
         _dir = QDir(filepath);
         _datset_name = QFileInfo(filepath).fileName();
-        //_is_loaded = ERROR_LOADING;
-        //std::chrono::time_point<std::chrono::system_clock> start, end;
-        //start = std::chrono::system_clock::now();
 
-        //logW<<" MapsH5Model loading "<< filepath.toStdString() << "\n";
-
-        hid_t    file_id, dset_id, dataspace_id, maps_grp_id, memoryspace_id, analyzed_grp_id;
-        herr_t   error;
-        //hsize_t offset[1] = {0};
-        hsize_t count[1] = {1};
-
+        hid_t    file_id, maps_grp_id, analyzed_grp_id;
+        
         file_id = H5Fopen(filepath.toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
         if(file_id < 0)
         {
@@ -640,26 +634,7 @@ bool MapsH5Model::load(QString filepath)
             _version = 10.0;
         }
 
-        /*
-        dset_id = H5Dopen2(maps_grp_id, "version", H5P_DEFAULT);
-        if(dset_id < 0)
-        {
-            H5Gclose(maps_grp_id);
-            H5Fclose(file_id);
-            logW<<"Error opening dataset /MAPS/version";
-            return false;
-        }
-        dataspace_id = H5Dget_space(dset_id);
-
-        memoryspace_id = H5Screate_simple(1, count, nullptr);
-
-        error = H5Dread (dset_id, H5T_NATIVE_FLOAT, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&_version);
         
-        if(error != 0)
-        {
-            return false;
-        }
-        */
         if(_version < 10.0)
         {
             _is_fully_loaded = _load_version_9(maps_grp_id);
@@ -669,12 +644,8 @@ bool MapsH5Model::load(QString filepath)
             _is_fully_loaded = _load_version_10(file_id, maps_grp_id);
         }
 
-        //H5Sclose(memoryspace_id);
-        //H5Sclose(dataspace_id);
-        //H5Dclose(dset_id);
         H5Gclose(maps_grp_id);
-        //H5Fclose(file_id);
-
+        
         // close all objects
         if (file_id > 0)
         {
@@ -750,10 +721,6 @@ bool MapsH5Model::load(QString filepath)
         {
             logW << " could not close file because none is open" << "\n";
         }
-
-        //end = std::chrono::system_clock::now();
-        //std::chrono::duration<double> elapsed_seconds = end-start;
-        //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
     }
     catch (std::string& s)
     {
@@ -764,6 +731,10 @@ bool MapsH5Model::load(QString filepath)
         throw std::string("Failed to open Maps Analyzed dataset!");
     }
 
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    logI << "load elapsed time: " << elapsed_seconds.count() << "s\n";
+       
     return _is_fully_loaded;
 }
 
@@ -986,7 +957,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
             el_name = STR_DS_IC;
         }
 
-        _scalers.emplace(std::pair<std::string, EMatrixF>(el_name, EMatrixF()));
+        _scalers.emplace(std::pair<std::string, data_struct::ArrayXXr<float>>(el_name, data_struct::ArrayXXr<float>()));
         _scalers.at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
@@ -1304,7 +1275,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
         H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
         error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
         std::string el_name = std::string(tmp_name);
-        xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
+        xrf_counts->emplace(std::pair<std::string,data_struct::ArrayXXr<float>>(el_name, data_struct::ArrayXXr<float>() ));
         xrf_counts->at(el_name).resize(count[1], count[2]);
 
         H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
@@ -1344,16 +1315,44 @@ bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::
 
 bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 {
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds;
+    start = std::chrono::system_clock::now();
 
     _loaded_quantification = _load_quantification_10(maps_grp_id);
 
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
+    logI << "load quantification elapsed time: " << elapsed_seconds.count() << "s\n";
+    start = std::chrono::system_clock::now();
+
     _loaded_scalers = _load_scalers_10(maps_grp_id);
+
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
+    logI << "load scalers elapsed time: " << elapsed_seconds.count() << "s\n";
+    start = std::chrono::system_clock::now();
 
     _loaded_scan = _load_scan_10(maps_grp_id);
 
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
+    logI << "load scan info elapsed time: " << elapsed_seconds.count() << "s\n";
+    start = std::chrono::system_clock::now();
+
     _loaded_integrated_spectra = _load_integrated_spectra_10(file_id);
 
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
+    logI << "load int spec elapsed time: " << elapsed_seconds.count() << "s\n";
+    start = std::chrono::system_clock::now();
+
     _loaded_counts = _load_counts_10(maps_grp_id);
+
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
+    logI << "load counts elapsed time: " << elapsed_seconds.count() << "s\n";
+    
 
     return (_loaded_quantification && _loaded_scalers && _loaded_scan && _loaded_integrated_spectra &&_loaded_counts);
 
@@ -1808,31 +1807,44 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
         count[i] = dims_out[i];
     }
 
-    count[0] = 1;
+    //count[0] = 1;
 
     memoryspace_id = H5Screate_simple(3, count, nullptr);
     memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
     H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab(memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
-    for (hsize_t el_idx = 0; el_idx < dims_out[0]; el_idx++)
+    float *data_arr = new float[dims_out[0] * dims_out[1] * dims_out[2]];
+    H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(data_arr));
+    if (error > -1)
     {
-        offset[0] = el_idx;
-        offset_name[0] = el_idx;
-        memset(&tmp_name[0], 0, 254);
-        H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
-        error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
-        if (error > -1)
+        hsize_t doffset = 0;
+        for (hsize_t el_idx = 0; el_idx < dims_out[0]; el_idx++)
         {
-            std::string el_name = std::string(tmp_name);
-            _scalers.emplace(std::pair<std::string, EMatrixF>(el_name, EMatrixF()));
-            _scalers.at(el_name).resize(count[1], count[2]);
-
-            H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-            error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+            offset[0] = el_idx;
+            offset_name[0] = el_idx;
+            memset(&tmp_name[0], 0, 254);
+            H5Sselect_hyperslab(channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+            error = H5Dread(channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+            if (error > -1)
+            {
+                std::string el_name = std::string(tmp_name);
+                _scalers.emplace(std::pair<std::string, data_struct::ArrayXXr<float>>(el_name, data_struct::ArrayXXr<float>()));
+                _scalers.at(el_name).resize(count[1], count[2]);
+                doffset = (el_idx * count[1] * count[2]);
+                memcpy((void*)(_scalers.at(el_name).data()), &data_arr[doffset], count[1] * count[2] * sizeof(float));
+                
+                //H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                //error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_scalers.at(el_name).data()));
+            }
         }
     }
-
+    else
+    {
+        logW<<"Could not load scalers from hdf5\n";
+    }
+    delete [] data_arr;
     delete[]dims_out;
     H5Tclose(memtype);
     H5Sclose(memoryspace_name_id);
@@ -2237,7 +2249,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
        count[i] = dims_out[i];
     }
 
-    count[0] = 1;
+    //count[0] = 1;
 
     data_struct::Fit_Count_Dict<float> *xrf_counts = new data_struct::Fit_Count_Dict<float>();
     _analyzed_counts.insert( {group_name, xrf_counts} );
@@ -2247,21 +2259,38 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     H5Sselect_hyperslab (memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     H5Sselect_hyperslab (memoryspace_name_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
 
-    for(hsize_t el_idx=0; el_idx < dims_out[0]; el_idx++)
+    float *data_arr = new float[dims_out[0] * dims_out[1] * dims_out[2]];
+    H5Sselect_hyperslab(counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+    error = H5Dread(counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(data_arr));
+    if(error >-1 )
     {
-        offset[0] = el_idx;
-        offset_name[0] = el_idx;
-        memset(&tmp_name[0], 0, 254);
-        H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
-        error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
-        std::string el_name = std::string(tmp_name);
-        xrf_counts->emplace(std::pair<std::string,EMatrixF>(el_name, EMatrixF() ));
-        xrf_counts->at(el_name).resize(count[1], count[2]);
+        hsize_t doffset = 0;
+        for(hsize_t el_idx=0; el_idx < dims_out[0]; el_idx++)
+        {
+            offset[0] = el_idx;
+            offset_name[0] = el_idx;
+            memset(&tmp_name[0], 0, 254);
+            H5Sselect_hyperslab (channels_dspace_id, H5S_SELECT_SET, offset_name, nullptr, count_name, nullptr);
+            error = H5Dread (channels_dset_id, memtype, memoryspace_name_id, channels_dspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+            if(error > -1)
+            {
+                std::string el_name = std::string(tmp_name);
+                xrf_counts->emplace(std::pair<std::string,data_struct::ArrayXXr<float>>(el_name, data_struct::ArrayXXr<float>() ));
+                xrf_counts->at(el_name).resize(count[1], count[2]);
 
-        H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
-        error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
+                doffset = (el_idx * count[1] * count[2]);
+                memcpy((void*)(xrf_counts->at(el_name).data()), &data_arr[doffset], count[1] * count[2] * sizeof(float));
+                
+                //H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                //error = H5Dread (counts_dset_id, H5T_NATIVE_FLOAT, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(xrf_counts->at(el_name).data()));
+            }
+        }
     }
-
+    else
+    {
+        logW<<"Could not load counts!\n";
+    }
+    delete []data_arr;
     delete []dims_out;
 
     H5Sclose(memoryspace_name_id);
@@ -2415,7 +2444,7 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 }
 
 //---------------------------------------------------------------------------
-
+/*
 QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized) 
 {
     data_struct::Fit_Count_Dict<float> fit_counts;
@@ -2513,7 +2542,7 @@ QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& n
                 cnts = std::min(counts_max, cnts);
                 cnts = std::max(counts_min, cnts);
                 //convert to pixel
-                uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                unsigned char data = (unsigned char)(((cnts - counts_min) / max_min) * 255);
                 image.setPixel(col, row, data);
             }
         }
@@ -2541,11 +2570,11 @@ QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& n
                     {
                         if (col >= startW && col <= endW)
                         {
-                            image.setPixel(col, row, uint(fcol));
+                            image.setPixel(col, row, static_cast<unsigned char>(fcol));
                         }
                         else
                         {
-                            image.setPixel(col, row, uint(127));
+                            image.setPixel(col, row, static_cast<unsigned char>(127));
                         }
                     }
                     fcol -= inc;
@@ -2555,7 +2584,7 @@ QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& n
                 {
                     for (int col = width; col < width + cm_ledgend; col++)
                     {
-                        image.setPixel(col, row, uint(127));
+                        image.setPixel(col, row, static_cast<unsigned char>(127));
                     }
                 }
             }
@@ -2565,12 +2594,14 @@ QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& n
     }
     return QImage();
 }
-
+*/
 //---------------------------------------------------------------------------
 
 QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>& normalized)
 {
 
+    //std::chrono::time_point<std::chrono::system_clock> start, end;
+    //start = std::chrono::system_clock::now();
     data_struct::Fit_Count_Dict<float> fit_counts; 
     getAnalyzedCounts(props.analysis_type, fit_counts);
     bool draw = false;
@@ -2614,10 +2645,21 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
             cm_ledgend = 0;
         }
 
+                
         QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
+        
         if(props.selected_colormap != nullptr)
         {
             image.setColorTable(*props.selected_colormap);
+        }
+        else
+        {
+            QVector<QRgb> gray_colormap;
+            for (int i = 0; i < 256; i++)
+            {
+                gray_colormap.append(qRgb(i, i, i));
+            }
+            image.setColorTable(gray_colormap);
         }
         
 
@@ -2656,21 +2698,27 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
             counts_min = props.contrast_min;
         }
         
+        //int bpl = image.bytesPerLine();
+        //unsigned char *data = new unsigned char[height * bpl];
+        
         float max_min = counts_max - counts_min;
-        for (int row = 0; row < height; row++)
+        for (int row = 0; row < height; ++row)
         {
-            for (int col = 0; col < width; col++)
+            for (int col = 0; col < width; ++col)
             {
                 //first clamp the data to max min
                 float cnts = normalized(row, col);
                 cnts = std::min(counts_max, cnts);
                 cnts = std::max(counts_min, cnts);
+                //data[row * bpl + col] = static_cast<unsigned char>(((cnts - counts_min) / max_min) * 255);
                 //convert to pixel
-                uint data = (uint)(((cnts - counts_min) / max_min) * 255);
+                unsigned char data = (unsigned char)(((cnts - counts_min) / max_min) * 255);
                 image.setPixel(col, row, data);
             }
         }
-        
+        //memcpy(image.bits(), data, height * bpl);
+        //delete [] data;
+
         if (height > 3 || props.show_legend == true)
         {
             // add color map ledgend
@@ -2694,11 +2742,11 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                     {
                         if (col >= startW && col <= endW)
                         {
-                            image.setPixel(col, row, uint(fcol));
+                            image.setPixel(col, row, static_cast<unsigned char>(fcol));
                         }
                         else
                         {
-                            image.setPixel(col, row, uint(127));
+                            image.setPixel(col, row, static_cast<unsigned char>(127));
                         }
                     }
                     fcol -= inc;
@@ -2708,7 +2756,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 {
                     for (int col = width; col < width + cm_ledgend; col++)
                     {
-                        image.setPixel(col, row, uint(127));
+                        image.setPixel(col, row, static_cast<unsigned char>(127));
                     }
                 }
             }
@@ -2718,6 +2766,11 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
         {
             image = image.mirrored(false, true);
         }
+
+        //end = std::chrono::system_clock::now();
+        //std::chrono::duration<double> elapsed_seconds = end - start;
+        //logI << "=-=-=-=-=-=- Total elapsed time: " << elapsed_seconds.count() << "s =-=-=-=-=-=-=-\n" << std::endl; //endl will flush the print.
+       
         return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
     }
 

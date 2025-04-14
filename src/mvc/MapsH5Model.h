@@ -27,8 +27,6 @@
 
 #define MAX_DETECTORS 30
 
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixF;
-
 const std::string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
 const std::string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
 const std::string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
@@ -228,7 +226,7 @@ public:
     static bool load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr);
 
     //bool gen_image(const std::string analysis_type, const std::string element, bool log_color, bool show_legend, QImage& image, gstar::CountsLookupTransformer* counts_lookup, gstar::CountsStatsTransformer* counts_stats);
-    QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
+    //QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
 
     QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized);
 
