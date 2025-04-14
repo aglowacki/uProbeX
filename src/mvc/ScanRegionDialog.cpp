@@ -215,7 +215,7 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 				else
 				{
 					// only add non strings
-					if(itr.default_val.count('"') == 0 && itr.default_val.count('\'') == 0)
+					if(itr.kind == BlueskyParamType::Double)
 					{
 						_cb_batch_prop->addItem(itr.name);
 					}

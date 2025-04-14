@@ -2710,6 +2710,7 @@ void VLM_Widget::setAvailScans(std::map<QString, BlueskyPlan> * avail_scans)
 
 void VLM_Widget::onQueueMicroProbeRegion()
 {
+   bool found_link = false;
    ScanRegionGraphicsItem* item = static_cast<ScanRegionGraphicsItem*>(getSelectedRegion());
    if (item != nullptr)
    {
@@ -2730,6 +2731,7 @@ void VLM_Widget::onQueueMicroProbeRegion()
          {
             if(item->isQueued())
             {
+               found_link = true;
                break;
             }
             else
@@ -2742,16 +2744,23 @@ void VLM_Widget::onQueueMicroProbeRegion()
                      plan = _avail_scans->at(l_scan_type);
                      plan.type = l_scan_type;
                      plan.name = item->displayName();
+                     found_link = true;
                      break;
                   }
                   else
                   {
-                     QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update).");
+                     QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update) and make sure you setup Region Links (Setup tab -> Config Region Link).");
                      return;
                   }
                }
             }
          }
+      }
+
+      if(false == found_link)
+      {
+         QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update) and make sure you setup Region Links (Setup tab -> Config Region Link).");
+         return;
       }
 
       for(const auto& itr: propList)
@@ -2790,6 +2799,7 @@ void VLM_Widget::onQueueMicroProbeRegion()
 
 void VLM_Widget::onQueueCustomMicroProbeRegion()
 {
+   bool found_link = false;
    if(_scan_dialog != nullptr)
    {
       const std::vector<QString> propList = _scan_region_link_dialog->property_list();
@@ -2827,15 +2837,24 @@ void VLM_Widget::onQueueCustomMicroProbeRegion()
                               {
                                  param.default_val = val;
                               }
+                              found_link = true;
                               break;
                            }
                         }
                      }
                   }
+                  found_link = true;
                   break;
                }
             }
          }
+      }
+
+
+      if(false == found_link)
+      {
+         QMessageBox::warning(this, "Error Queuing Scan", "Could not Queue scan region. Please check if you are connected to ZMQ (Press Update) and make sure you setup Region Links (Setup tab -> Config Region Link).");
+         return;
       }
 
       _scan_dialog->updatePlanDefaults(plan);
