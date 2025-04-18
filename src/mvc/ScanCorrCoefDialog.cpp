@@ -134,7 +134,7 @@ double proc_corr_coef(MapsH5Model* model, std::string analysis_type, double rest
 
     data_struct::Fit_Count_Dict<float> fit_counts;
     model->getAnalyzedCounts(analysis_type, fit_counts);
-    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = model->getScalers();
+    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = model->getScalers();
 
     if (fit_counts.count(name_pair.first) > 0)
     {
@@ -203,7 +203,7 @@ void ScanCorrCoefDialog::onRun()
 
         if (use_scalers)
         {
-            std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+            const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
             for (auto& itr : *scalers)
             {
                 total_names.push_back(itr.first);

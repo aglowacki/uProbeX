@@ -587,8 +587,7 @@ void FitSpectraWidget::on_export_csv()
 void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 {
     if (_int_spec != nullptr)
-    {
-        //std::lock_guard<std::mutex> lock(_mutex);
+    {        
 
         data_struct::Fit_Parameters<double> fit_params = _fit_params_table_model->getFitParams();
 
@@ -621,7 +620,6 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         if (snipback)
         {
             Range range = get_energy_range(_int_spec->size(), &fit_params);
-            // TODO: Look into why memory access violation happens when streaming
             _spectra_background = snip_background<double>((Spectra<double>*)_int_spec,
                 fit_params[STR_ENERGY_OFFSET].value,
                 fit_params[STR_ENERGY_SLOPE].value,
@@ -1231,26 +1229,6 @@ void FitSpectraWidget::check_auto_model(int state)
 
 //---------------------------------------------------------------------------
 
-//void FitSpectraWidget::element_clicked(QModelIndex index)
-//{
-//    data_struct::Fit_Element_Map *element = _fit_elements_table_model->getElementByIndex(index);
-//    if(element != nullptr)
-//    {
-//        QString name = QString(element->full_name().c_str());
-//        float energy_offset = _fit_params_table_model->getFitParamValue(STR_ENERGY_OFFSET);
-//        float energy_slope = _fit_params_table_model->getFitParamValue(STR_ENERGY_SLOPE);
-//        //int x_val = int(((element->center() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int left_roi = int(((element->center() - element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int right_roi = int(((element->center() + element->width() / 2.0 / 1000.0) - energy_offset) / energy_slope);
-//        int x_val = ( (right_roi - left_roi) / 2.0 ) + left_roi;
-
-//        //emit(vertical_element_line_changed(x_val, name));
-//        _spectra_widget->set_vertical_line(x_val, name);
-//    }
-//}
-
-//---------------------------------------------------------------------------
-
 void FitSpectraWidget::element_selection_changed_from(QModelIndex current, QModelIndex previous)
 {
     _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
@@ -1325,10 +1303,8 @@ void FitSpectraWidget::optimizer_preset_changed(int val)
 
 void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
 {
-	{
-		///std::lock_guard<std::mutex> lock(_mutex);
-		_int_spec = int_spec;
-	}
+	
+	_int_spec = int_spec;
     replot_integrated_spectra(true);
     _spectra_widget->onResetChartViewOnlyY();
 }

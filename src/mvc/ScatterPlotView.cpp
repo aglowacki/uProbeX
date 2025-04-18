@@ -442,7 +442,7 @@ bool ScatterPlotView::_getXY_Maps(data_struct::ArrayXXr<float> &x_map, data_stru
         {
             _model->getAnalyzedCounts(_curAnalysis.toStdString(), fit_counts);
         }
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
 
         int xCnt = fit_counts.count(xName);
         if (xCnt != 0)
