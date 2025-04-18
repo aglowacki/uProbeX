@@ -13,6 +13,8 @@ SubImageWindow::SubImageWindow() : QObject()
 {
     _contrast_dialog = nullptr;
 	_contrast_updated = false;
+    _contrast_min = 0.;
+    _contrast_max = 1.;
     // Initialize scene
     scene = new ImageViewScene();
     //// scene->setSceneRect(scene->itemsBoundingRect());
@@ -116,12 +118,15 @@ void SubImageWindow::on_contrast_show()
 
 //---------------------------------------------------------------------------
 
-void SubImageWindow::on_update_min_max(float minCoef, float maxCoef)
+void SubImageWindow::on_update_min_max(float minCoef, float maxCoef, bool send_draw_event)
 {
 	_contrast_updated = true;
 	_contrast_min = minCoef;
 	_contrast_max = maxCoef;
-	emit redraw_event();
+    if(send_draw_event)
+    {
+	    emit redraw_event();
+    }
 }
 
 //---------------------------------------------------------------------------
