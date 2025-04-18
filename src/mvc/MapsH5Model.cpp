@@ -10,6 +10,8 @@
 
 /*----------------src/mvc/MapsH5Model.cpp \-----------------------------------------------------------*/
 
+std::mutex MapsH5Model::_mutex;
+
 MapsH5Model::MapsH5Model() : QObject()
 {
 
@@ -50,14 +52,21 @@ void MapsH5Model::clear_analyzed_counts()
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts)
+const std::map<std::string, data_struct::ArrayXXr<float>>* MapsH5Model::getScalers() const 
+{
+     return &_scalers; 
+}
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::getAnalyzedCounts(const std::string& analysis_type, data_struct::Fit_Count_Dict<float>& out_counts) const 
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_counts.clear();
 
     if(analysis_type.length() > 0 && _analyzed_counts.count(analysis_type) > 0)
     {
-        for (const auto& itr : *(_analyzed_counts[analysis_type]))
+        for (const auto& itr : *(_analyzed_counts.at(analysis_type)))
         {
             out_counts[itr.first] = itr.second;
         }
@@ -68,7 +77,29 @@ bool MapsH5Model::getAnalyzedCounts(std::string analysis_type, data_struct::Fit_
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::getAnalyzedQuantified(std::string analysis_type, std::string quant_type, data_struct::Fit_Count_Dict<float>& out_counts)
+bool MapsH5Model::getCountsOrScaler(const std::string& analysis_type, const std::string name, ArrayXXr<float>* out_counts) const 
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if(analysis_type.length() > 0 && _analyzed_counts.count(analysis_type) > 0)
+    {
+        if(_analyzed_counts.at(analysis_type)->count(name) > 0)
+        {
+            *out_counts = _analyzed_counts.at(analysis_type)->at(name);
+            return true;
+        }
+    }
+    if(_scalers.count(name) > 0)
+    {
+        *out_counts = _scalers.at(name);
+        return true;
+    }
+    return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::getAnalyzedQuantified(const std::string& analysis_type, const std::string& quant_type, data_struct::Fit_Count_Dict<float>& out_counts)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     out_counts.clear();
@@ -2391,7 +2422,7 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 
     data_struct::Fit_Count_Dict<float> fit_counts;
     getAnalyzedCounts(analysis_type.toStdString(), fit_counts);
-    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
+    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
     if (scalers != nullptr)
     {
         for (auto& itr : *scalers)
@@ -2444,184 +2475,20 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 }
 
 //---------------------------------------------------------------------------
-/*
-QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized) 
-{
-    data_struct::Fit_Count_Dict<float> fit_counts;
-    getAnalyzedCounts(props.analysis_type, fit_counts);
-    bool draw = false;
-    int height = 0;
-    int width = 0;
-    
-    if (fit_counts.count(props.element) > 0)
-    {
-        height = static_cast<int>(fit_counts.at(props.element).rows());
-        width = static_cast<int>(fit_counts.at(props.element).cols());
-        normalized = fit_counts.at(props.element);
-        draw = true;
-    }
-    
-    if (false == draw)
-    {
-        if (_scalers.count(props.element) > 0)
-        {
-            height = static_cast<int>(_scalers.at(props.element).rows());
-            width = static_cast<int>(_scalers.at(props.element).cols());
-            normalized = _scalers.at(props.element);
-            draw = true;
-        }
-    }
 
-    if (draw)
-    {
-        if (props.log_color)
-        {
-            normalized = normalized.log10();
-            normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
-        }
-
-        // add to width for color maps ledgend
-        int cm_ledgend = width * .05; // add 5% width for ledgend
-        if (cm_ledgend == 0)
-        {
-            cm_ledgend = 3;
-        }
-        if (height <= 3 || props.show_legend == false)
-        {
-            cm_ledgend = 0;
-        }
-        QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
-        if(props.selected_colormap != nullptr)
-        {
-            image.setColorTable(*props.selected_colormap);
-        }
-        else
-        {
-            // default to grayscale?
-        }
-
-        if (props.normalizer != nullptr && props.calib_curve != nullptr)
-        {
-            if (props.calib_curve->calib_curve.count(props.element) > 0)
-            {
-                double calib_val = props.calib_curve->calib_curve.at(props.element);
-                normalized /= (*props.normalizer);
-                normalized /= calib_val;
-                float min_coef = normalized.minCoeff();
-                if (std::isfinite(min_coef) == false)
-                {
-                    min_coef = 0.0f;
-                }
-                normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
-            }
-        }
-
-        float counts_max = normalized.maxCoeff();
-        float counts_min = normalized.minCoeff();
-
-        if (props.global_contrast)
-        {
-            // normalize contrast
-            counts_max = counts_min + ((counts_max - counts_min) * props.contrast_min);
-            counts_min = counts_min + ((counts_max - counts_min) * props.contrast_min);
-        }
-        else
-        {
-            //get user min max from contrast control
-            counts_max = props.contrast_min;
-            counts_min = props.contrast_min;
-        }
-
-        float max_min = counts_max - counts_min;
-        for (int row = 0; row < height; row++)
-        {
-            for (int col = 0; col < width; col++)
-            {
-                //first clamp the data to max min
-                float cnts = normalized(row, col);
-                cnts = std::min(counts_max, cnts);
-                cnts = std::max(counts_min, cnts);
-                //convert to pixel
-                unsigned char data = (unsigned char)(((cnts - counts_min) / max_min) * 255);
-                image.setPixel(col, row, data);
-            }
-        }
-        
-        if (height > 3 || props.show_legend == true)
-        {
-            // add color map ledgend
-            int startH = height * .1;
-            int endH = height - startH;
-            int startW = width + 1;
-            int endW = width + cm_ledgend;
-            if (cm_ledgend == 3)
-            {
-                endW--;
-            }
-                
-            float inc = 255.0 / float(endH - startH);
-            float fcol = 255.0;
-
-            for (int row = 0; row < height; row++)
-            {
-                if (row >= startH && row <= endH)
-                {
-                    for (int col = width; col < width + cm_ledgend; col++)
-                    {
-                        if (col >= startW && col <= endW)
-                        {
-                            image.setPixel(col, row, static_cast<unsigned char>(fcol));
-                        }
-                        else
-                        {
-                            image.setPixel(col, row, static_cast<unsigned char>(127));
-                        }
-                    }
-                    fcol -= inc;
-                    fcol = std::max(fcol, float(0.0));
-                }
-                else
-                {
-                    for (int col = width; col < width + cm_ledgend; col++)
-                    {
-                        image.setPixel(col, row, static_cast<unsigned char>(127));
-                    }
-                }
-            }
-        }
-        
-        return image.convertToFormat(QImage::Format_RGB32);
-    }
-    return QImage();
-}
-*/
-//---------------------------------------------------------------------------
-
-QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>& normalized)
+QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>& normalized) const
 {
 
     //std::chrono::time_point<std::chrono::system_clock> start, end;
     //start = std::chrono::system_clock::now();
-    data_struct::Fit_Count_Dict<float> fit_counts; 
-    getAnalyzedCounts(props.analysis_type, fit_counts);
-    bool draw = false;
+    if(props.analysis_type.length() < 1 || props.element.length() < 1)
+    {
+        return QPixmap();
+    }
+
+    bool draw = getCountsOrScaler(props.analysis_type, props.element, &normalized);
     int height = 0;
     int width = 0;
-
-    if (fit_counts.count(props.element) > 0)
-    {
-        normalized = fit_counts.at(props.element);
-        draw = true;
-    }
-
-    if (false == draw)
-    {
-        if (_scalers.count(props.element) > 0)
-        {
-            normalized = _scalers.at(props.element);
-            draw = true;
-        }
-    }
 
     if (draw)
     {

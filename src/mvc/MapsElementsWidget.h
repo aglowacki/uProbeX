@@ -176,7 +176,7 @@ protected:
 
    QComboBox* _cb_normalize;
 
-   data_struct::ArrayXXr<float>* _normalizer;
+   const data_struct::ArrayXXr<float>* _normalizer;
 
    Calibration_curve<double>* _calib_curve;
 

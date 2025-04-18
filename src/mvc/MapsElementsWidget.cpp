@@ -651,7 +651,7 @@ void MapsElementsWidget::openImageSegDialog()
 
         data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(analysis_text, fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         if (scalers != nullptr)
         {
             for (auto& itr : *scalers)
@@ -698,7 +698,7 @@ void MapsElementsWidget::openRoiStatsWidget()
 
         data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(analysis_text, fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         if (scalers != nullptr)
         {
             for (auto& itr : *scalers)
@@ -892,7 +892,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     {
         if (_model != nullptr)
         {
-            std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+            const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
             if (scalers->count(name.toStdString()) > 0)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
@@ -1164,7 +1164,7 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->clear();
     _cb_normalize->addItem("1");
 
-    std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
     
     if (scalers->count(STR_DS_IC) > 0)
     {
@@ -1339,12 +1339,12 @@ void MapsElementsWidget::redrawCounts()
             }
         }
 
+        m_imageViewWidget->resetCoordsToZero();
         while (job_queue.size() > 0)
         {
             std::vector<int> to_delete;
             for (auto& itr : job_queue)
-            {
-                m_imageViewWidget->resetCoordsToZero();
+            {       
                 m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
                 if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
                 {
@@ -1448,10 +1448,7 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
 //---------------------------------------------------------------------------
 
 void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
-{
-    m_imageViewWidget->scene(grid_idx)->setPixmap(generate_pixmap(analysis_type, element, log_color, grid_idx));
-/*
-    
+{    
 	if (_model != nullptr)
 	{
         
@@ -1479,12 +1476,15 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
         m_imageViewWidget->scene(grid_idx)->setPixmap(_model->gen_pixmap(props, normalized));
         if(normalized.rows() > 0 && normalized.cols() > 0)
         {
-            if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+            if(grid_idx == 0)
             {
-                m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
-                m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
+                if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+                {
+                    m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
+                    m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
+                }
+                m_imageViewWidget->resetCoordsToZero();
             }
-            m_imageViewWidget->resetCoordsToZero();
             m_imageViewWidget->setCountsTrasnformAt(grid_idx, normalized);
         }
 	}
@@ -1492,162 +1492,40 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
     {
         m_imageViewWidget->resetCoordsToZero();
     }
-    */
+    
 }
 
 //---------------------------------------------------------------------------
 
 QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {
+
     if (_model != nullptr)
     {
-        data_struct::Fit_Count_Dict<float> fit_counts; 
-        _model->getAnalyzedCounts(analysis_type, fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         ArrayXXr<float> normalized;
-        bool draw = false;
-        int height = 0;
-        int width = 0;
-
-        if (fit_counts.count(element) > 0)
-        {
-            height = static_cast<int>(fit_counts.at(element).rows());
-            width = static_cast<int>(fit_counts.at(element).cols());
-            normalized = fit_counts.at(element);
-            draw = true;
-        }
-
-        if (false == draw && scalers != nullptr)
-        {
-            if (scalers->count(element) > 0)
-            {
-                height = static_cast<int>(scalers->at(element).rows());
-                width = static_cast<int>(scalers->at(element).cols());
-                normalized = scalers->at(element);
-                draw = true;
-            }
-        }
-
-        if (draw)
-        {
-            if (log_color)
-            {
-                normalized = normalized.log10();
-                normalized = normalized.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0f; });
-            }
-            // add to width for color maps ledgend
-            int cm_ledgend = width * .05; // add 5% width for ledgend
-            if (cm_ledgend == 0)
-            {
-                cm_ledgend = 3;
-            }
-            if (height <= 3 || _chk_disp_color_ledgend->isChecked() == false)
-            {
-                cm_ledgend = 0;
-            }
-
-            QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
-            image.setColorTable(*_selected_colormap);
-
-            float counts_max;
-            float counts_min;
-            if (_normalizer != nullptr && _calib_curve != nullptr)
-            {
-                if (_calib_curve->calib_curve.count(element) > 0)
-                {
-                    double calib_val = _calib_curve->calib_curve.at(element);
-                    normalized /= (*_normalizer);
-                    normalized /= calib_val;
-                    float min_coef = normalized.minCoeff();
-                    if (std::isfinite(min_coef) == false)
-                    {
-                        min_coef = 0.0f;
-                    }
-                    normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
-                }
-            }
-
-            m_imageViewWidget->setCountsTrasnformAt(grid_idx, normalized);
-
-            counts_max = normalized.maxCoeff();
-            counts_min = normalized.minCoeff();
             
-            if (_global_contrast_chk->isChecked())
-            {
-                // normalize contrast
-                counts_max = counts_min + ((counts_max - counts_min) * _max_contrast_perc);
-                counts_min = counts_min + ((counts_max - counts_min) * _min_contrast_perc);
-            }
-            else
-            {
-				//get user min max from contrast control
-				m_imageViewWidget->getMinMaxAt(grid_idx, counts_min, counts_max);
-            }
-
-            float max_min = counts_max - counts_min;
-            for (int row = 0; row < height; row++)
-            {
-                for (int col = 0; col < width; col++)
-                {
-                    //first clamp the data to max min
-                    float cnts = normalized(row, col);
-                    cnts = std::min(counts_max, cnts);
-                    cnts = std::max(counts_min, cnts);
-                    //convert to pixel
-                    unsigned char data = (unsigned char)(((cnts - counts_min) / max_min) * 255);
-                    image.setPixel(col, row, data);
-                }
-            }
-
-            if (height > 3 || _chk_disp_color_ledgend->isChecked() == true)
-            {
-                // add color map ledgend
-                int startH = height * .1;
-                int endH = height - startH;
-                int startW = width + 1;
-                int endW = width + cm_ledgend;
-                if (cm_ledgend == 3)
-                {
-                    endW--;
-                }
-
-                float inc = 255.0 / float(endH - startH);
-                float fcol = 255.0;
-
-                for (int row = 0; row < height; row++)
-                {
-                    if (row >= startH && row <= endH)
-                    {
-                        for (int col = width; col < width + cm_ledgend; col++)
-                        {
-                            if (col >= startW && col <= endW)
-                            {
-                                image.setPixel(col, row, static_cast<unsigned char>(fcol));
-                            }
-                            else
-                            {
-                                image.setPixel(col, row, static_cast<unsigned char>(127));
-                            }
-                        }
-                        fcol -= inc;
-                        fcol = std::max(fcol, float(0.0));
-                    }
-                    else
-                    {
-                        for (int col = width; col < width + cm_ledgend; col++)
-                        {
-                            image.setPixel(col, row, static_cast<unsigned char>(127));
-                        }
-                    }
-                }
-            }
-            if (_chk_invert_y->isChecked())
-            {
-                image = image.mirrored(false, true);
-            }
-            return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
+        GenerateImageProp props;
+        props.analysis_type = analysis_type;
+        props.element = element;
+        props.log_color = log_color;
+        props.selected_colormap = _selected_colormap;
+        props.normalizer = _normalizer;
+        props.calib_curve = _calib_curve;
+        props.show_legend = _chk_disp_color_ledgend->isChecked();
+        props.invert_y = _chk_invert_y->isChecked();
+        props.global_contrast = _global_contrast_chk->isChecked();
+        if (_global_contrast_chk->isChecked())
+        {
+            props.contrast_max = _max_contrast_perc;
+            props.contrast_min =  _min_contrast_perc;
         }
+        else
+        {
+            m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max);
+        }
+        return _model->gen_pixmap(props, normalized);
     }
+        
     return QPixmap();
 }
 
@@ -1807,13 +1685,13 @@ void MapsElementsWidget::on_export_images()
                 // save normalized 32 bit float tiff
                 if (_export_maps_dialog->get_save_tiff())
                 {
-                    data_struct::ArrayXXr<float>* normalizer = nullptr;
+                    const data_struct::ArrayXXr<float>* normalizer = nullptr;
                     for (auto n_itr : normalizers)
                     {
                         tiff_dir.mkdir(QString(n_itr.c_str()));
                         tiff_dir.cd(QString(n_itr.c_str()));
 
-                        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
                         if (scalers->count(n_itr) > 0)
                         {
                             normalizer = &(scalers->at(n_itr));
@@ -2013,7 +1891,7 @@ void MapsElementsWidget::on_export_images()
             data_struct::Fit_Count_Dict<float> element_counts;
             _model->getAnalyzedCounts(a_itr, element_counts);
 
-            data_struct::ArrayXXr<float>* normalizer = nullptr;
+            const data_struct::ArrayXXr<float>* normalizer = nullptr;
 
             ascii_dir.mkdir(QString(a_itr.c_str()));
             ascii_dir.cd(QString(a_itr.c_str()));
@@ -2024,7 +1902,7 @@ void MapsElementsWidget::on_export_images()
                 ascii_dir.mkdir(QString(n_itr.c_str()));
                 ascii_dir.cd(QString(n_itr.c_str()));
 
-                std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
                 if (scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));

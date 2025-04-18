@@ -112,8 +112,8 @@ struct GenerateImageProp
     float contrast_min;
     float contrast_max;
     QVector<QRgb> *selected_colormap;
-    data_struct::ArrayXXr<float>*  normalizer;
-    Calibration_curve<double>* calib_curve;
+    const data_struct::ArrayXXr<float>*  normalizer;
+    const Calibration_curve<double>* calib_curve;
 };
 
 void gen_insert_order_list(std::vector<std::string> &all_lines);
@@ -145,16 +145,16 @@ public:
 
     std::vector<std::string> count_names();
 
-    std::map<std::string, data_struct::ArrayXXr<float>>* getScalers() { return &_scalers; }
+    const std::map<std::string, data_struct::ArrayXXr<float>>* getScalers() const;
 
     bool is_fully_loaded() { return _is_fully_loaded; }
 
-    //data_struct::Fit_Count_Dict* getAnalyzedCounts(std::string analysis_type);
-    bool getAnalyzedCounts(std::string analysis_type, data_struct::Fit_Count_Dict<float>& out_counts);
+    bool getAnalyzedCounts(const std::string& analysis_type, data_struct::Fit_Count_Dict<float>& out_counts) const;
 
-    bool getAnalyzedQuantified(std::string analysis_type, std::string quant_type, data_struct::Fit_Count_Dict<float>& out_counts);
+    bool getCountsOrScaler(const std::string& analysis_type, const std::string name, ArrayXXr<float>* out_counts) const;
 
-    //const data_struct::Spectra* getIntegratedSpectra() {return &_integrated_spectra;}
+    bool getAnalyzedQuantified(const std::string& analysis_type, const std::string& quant_type, data_struct::Fit_Count_Dict<float>& out_counts);
+
     void getIntegratedSpectra(data_struct::Spectra<double>& out_spectra);
 
     QString getFilePath() { return _filepath; }
@@ -228,7 +228,7 @@ public:
     //bool gen_image(const std::string analysis_type, const std::string element, bool log_color, bool show_legend, QImage& image, gstar::CountsLookupTransformer* counts_lookup, gstar::CountsStatsTransformer* counts_stats);
     //QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
 
-    QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized);
+    QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized) const;
 
 signals:
     void model_data_updated();
@@ -293,7 +293,7 @@ protected:
     std::map<std::string, data_struct::ArrayXXr<float>> _scalers;
 
 private:
-    std::mutex _mutex;
+    static std::mutex _mutex;
 
     QString _filepath;
 
