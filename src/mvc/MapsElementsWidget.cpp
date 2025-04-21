@@ -1339,7 +1339,6 @@ void MapsElementsWidget::redrawCounts()
             }
         }
 
-        m_imageViewWidget->resetCoordsToZero();
         while (job_queue.size() > 0)
         {
             std::vector<int> to_delete;
@@ -1359,6 +1358,7 @@ void MapsElementsWidget::redrawCounts()
                 job_queue.erase(itr);
             }
         }
+        m_imageViewWidget->resetCoordsToZero();
     }
     //redraw annotations
     m_selectionModel->clear();
@@ -1523,7 +1523,12 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
         {
             m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max);
         }
-        return _model->gen_pixmap(props, normalized);
+        QPixmap pm = _model->gen_pixmap(props, normalized);
+        if(normalized.rows() > 0 && normalized.cols() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(grid_idx, normalized);
+        }
+        return pm;
     }
         
     return QPixmap();
