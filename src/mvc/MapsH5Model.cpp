@@ -2532,7 +2532,7 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
 
         float counts_max;
         float counts_min;
-        
+        // show normalized by mass calib curve
         if (props.normalizer != nullptr && props.calib_curve != nullptr)
         {
             if (props.calib_curve->calib_curve.count(props.element) > 0)
@@ -2547,6 +2547,17 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 }
                 normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
             }
+        }
+        else if (props.normalizer != nullptr)
+        {
+            // show normalized just by scaler
+            normalized /= (*props.normalizer);
+            float min_coef = normalized.minCoeff();
+            if (std::isfinite(min_coef) == false)
+            {
+                min_coef = 0.0f;
+            }
+            normalized = normalized.unaryExpr([min_coef](float v) { return std::isfinite(v) ? v : min_coef; });
         }
         
         counts_max = normalized.maxCoeff();

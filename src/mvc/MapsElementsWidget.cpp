@@ -912,7 +912,15 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
                 m_imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
         }
-        
+    }
+    else if(_normalizer != nullptr)
+    {
+        // normalize just by scaler
+        int cnt = m_imageViewWidget->getViewCount();
+        for (int i = 0; i < cnt; i++)
+        {
+            m_imageViewWidget->setUnitLabel(i, " ");
+        }
     }
 
     _scatter_plot_widget->setQuantType(name);
