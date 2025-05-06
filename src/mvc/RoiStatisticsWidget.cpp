@@ -38,8 +38,8 @@ void RoiStatisticsWidget::_insert_item(QString roiName,
 										const data_struct::ArrayXXr<float>& img,
 										const std::vector<std::pair<int, int>>& roi_pixels,
 										int i,
-										data_struct::ArrayXXr<float>* normalizer,
-										Calibration_curve<double>* calib_curve)
+										const data_struct::ArrayXXr<float>* normalizer,
+										const Calibration_curve<double>* calib_curve)
 {
 	_table_widget->setItem(i, ROI_Name, new QTableWidgetItem(roiName));
 	_table_widget->setItem(i, MapName, new QTableWidgetItem(imgName));
@@ -166,8 +166,8 @@ void RoiStatisticsWidget::setData(QDir model_dir,
 								float sq_area,
 								std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data, 
 								std::vector<gstar::RoiMaskGraphicsItem*>& roi_list,
-                     			data_struct::ArrayXXr<float>* normalizer,
-                     			Calibration_curve<double>* calib_curve)
+                     			const data_struct::ArrayXXr<float>* normalizer,
+                     			const Calibration_curve<double>* calib_curve)
 {
 
 	int total = img_data.size() * roi_list.size();

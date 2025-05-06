@@ -5,6 +5,7 @@
 
 #include <gstar/CountsStatsTransformer.h>
 #include <math.h>
+#include <algorithm>
 
 using namespace gstar;
 
@@ -62,7 +63,7 @@ void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& count
 {
     _avg = counts.mean();
     _stdev = 0.0;
-    Eigen::ArrayXf cnts(counts.size());
+    std::vector<float> cnts(counts.size());
     int i = 0;
     for (int y = 0; y < counts.rows(); y++)
     {
@@ -75,9 +76,9 @@ void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& count
     }
     _stdev = sqrtf(_stdev / (float)cnts.size());
 
-    std::sort(cnts.begin(), cnts.end(), [](float const& t1, float const& t2) { return t1 < t2; });
+    std::sort(cnts.begin(), cnts.end(), std::greater<float>());
     int idx = cnts.size() / 2;
-    _median = cnts(idx);
+    _median = cnts[idx];
 }
 
 //---------------------------------------------------------------------------

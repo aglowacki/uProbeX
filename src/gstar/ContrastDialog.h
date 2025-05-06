@@ -33,7 +33,7 @@ public:
     void set_array(const data_struct::ArrayXXr<float>* arr);
 
 signals:
-	void on_min_max_update(float min, float max);
+	void on_min_max_update(float min, float max, bool send_draw_event);
 
 public slots:
 	void min_max_updated();

@@ -81,16 +81,24 @@ public slots:
         _running = true;
         data_struct::Stream_Block<float> *new_packet;
         zmq::message_t token, message;
+        zmq::recv_result_t res1, res2;
+        unsigned int sleepAtVal = 1;
+        if(_zmq_qserv_socket != nullptr)
+        {
+            sleepAtVal++;
+        }
+
         while(_running)
         {
-            zmq::recv_result_t res = _zmq_socket->recv(token, zmq::recv_flags::dontwait);
-            if(res.has_value())
+            unsigned int toSleepVal = 0;
+            res1 = _zmq_socket->recv(token, zmq::recv_flags::dontwait);
+            if(res1.has_value() && (EAGAIN != res1.value()))
             {
                 std::string s1 ((char*)token.data(), token.size());
                 if(s1 == "XRF-Counts-and-Spectra")
                 {
-                    zmq::recv_result_t res2 = _zmq_socket->recv(message);
-                    if(res2.has_value())
+                    zmq::recv_result_t res1_2 = _zmq_socket->recv(message);
+                    if(res1_2.has_value())
                     {
                         new_packet = _serializer.decode_counts_and_spectra((char*)message.data(), message.size());
                         emit newData(new_packet);
@@ -98,8 +106,8 @@ public slots:
                 }
                 else if(s1 == "XRF-Counts")
                 {
-                    zmq::recv_result_t res2 = _zmq_socket->recv(message);
-                    if(res2.has_value())
+                    zmq::recv_result_t res1_2 = _zmq_socket->recv(message);
+                    if(res1_2.has_value())
                     {
                         new_packet = _serializer.decode_counts((char*)message.data(), message.size());
                         emit newData(new_packet);
@@ -107,25 +115,29 @@ public slots:
                 }
                 else if(s1 == "XRF-Spectra")
                 {
-                    zmq::recv_result_t res2 = _zmq_socket->recv(message);
-                    if(res2.has_value())
+                    zmq::recv_result_t res1_2 = _zmq_socket->recv(message);
+                    if(res1_2.has_value())
                     {
                         new_packet = _serializer.decode_spectra((char*)message.data(), message.size());
                         emit newData(new_packet);
                     }
                 }
             }
+            else
+            {
+                toSleepVal ++;
+            }
             
             if(_zmq_qserv_socket != nullptr)
             {
-                res = _zmq_qserv_socket->recv(token, zmq::recv_flags::dontwait);
-                if(res.has_value())
+                res2 = _zmq_qserv_socket->recv(token, zmq::recv_flags::dontwait);
+                if(res2.has_value() && (EAGAIN != res2.value()))
                 {
                     std::string s1 ((char*)token.data(), token.size());
                     if(s1 == "QS_Console")
                     {
-                        zmq::recv_result_t r_res2 = _zmq_qserv_socket->recv(message);
-                        if(r_res2.has_value())
+                        zmq::recv_result_t res2_2 = _zmq_qserv_socket->recv(message);
+                        if(res2_2.has_value())
                         {
                             QJsonObject rootJson = QJsonDocument::fromJson(QString::fromUtf8((char*)message.data(), message.size()).toUtf8()).object();
                             if(rootJson.contains("msg"))
@@ -141,8 +153,16 @@ public slots:
                         }
                     }
                 }
+                else
+                {
+                    toSleepVal++;
+                }
             }
-            QThread::sleep(.25);
+            if(toSleepVal >= sleepAtVal)
+            { 
+                QThread::sleep(1.0);
+                
+            }
         }
         _zmq_socket->close();
         if(_zmq_qserv_socket != nullptr)

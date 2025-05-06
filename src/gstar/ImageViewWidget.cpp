@@ -815,7 +815,7 @@ QString ImageViewWidget::getLabelAt(int idx)
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidget::setCountsTrasnformAt(int idx, const ArrayXXr<float>& normalized)
+void ImageViewWidget::setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized)
 {
     if(idx < _sub_windows.size())
     {
@@ -827,6 +827,7 @@ void ImageViewWidget::setCountsTrasnformAt(int idx, const ArrayXXr<float>& norma
         {
             _sub_windows[idx].counts_stats->setCounts(normalized);
         }
+        _sub_windows[idx].on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), false);
     }
 }
 

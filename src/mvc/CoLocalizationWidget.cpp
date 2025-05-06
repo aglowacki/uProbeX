@@ -218,7 +218,7 @@ void CoLocalizationWidget::onSetAnalysisType(QString name)
     {
         data_struct::Fit_Count_Dict<float> fit_counts;
         _model->getAnalyzedCounts(name.toStdString(), fit_counts);
-        std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
         if (scalers != nullptr)
         {
             for (auto& itr : *scalers)

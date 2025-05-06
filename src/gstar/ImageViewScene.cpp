@@ -585,7 +585,6 @@ void ImageViewScene::setPixmap(QPixmap p)
         m_pixItem = addPixmap(p);
         //updateROIs();
     }
-
 }
 
 //---------------------------------------------------------------------------

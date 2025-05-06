@@ -71,7 +71,7 @@ namespace gstar
     public slots:
         void on_contrast_show();
 		
-		void on_update_min_max(float minCoef, float maxCoef);
+		void on_update_min_max(float minCoef, float maxCoef, bool send_draw_event);
 
 		void on_accept_contrast();
 

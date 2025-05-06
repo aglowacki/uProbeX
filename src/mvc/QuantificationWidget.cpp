@@ -66,15 +66,17 @@ void QuantificationWidget::_createLayout()
 
     _chart = new QChart();
     _chart->addAxis(_axisX, Qt::AlignBottom);
-    //_chart->addAxis(_top_axis_elements, Qt::AlignTop);
+
     
     if (_display_log10)
     {
         _currentYAxis = _axisYLog10;
+        _chart->addAxis(_axisYLog10, Qt::AlignLeft);
     }
     else
     {
         _currentYAxis = _axisY;
+        _chart->addAxis(_axisY, Qt::AlignLeft);
     }
     
     _chart->addAxis(_currentYAxis, Qt::AlignLeft);
@@ -93,8 +95,10 @@ void QuantificationWidget::_createLayout()
 
     _chartView = new ChartView(_chart);
     
-    layout->addWidget(_cb_analysis_types);
-    layout->addWidget(_cb_scalers);
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->addWidget(_cb_analysis_types);
+    hlayout->addWidget(_cb_scalers);
+    layout->addItem(hlayout);
     layout->addWidget(_chartView);
 
     setLayout(layout);
@@ -135,8 +139,8 @@ void QuantificationWidget::setModel(MapsH5Model* model)
 
 void QuantificationWidget::update(const QString& val)
 {
-    double max_val = -999.0;
-    double min_val = 999.0;
+    double max_val = -9999.0;
+    double min_val = 9999.0;
     _calib_curve = _model->get_calibration_curve(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
     if (_calib_curve != nullptr)
     {
@@ -244,7 +248,7 @@ void QuantificationWidget::update(const QString& val)
             ymin = _axisY->min();
         }
         */
-        double diff = (max_val - min_val) / 10.0;
+        double diff = (max_val - min_val) / 15.0;
         _currentYAxis->setRange(min_val, max_val+ diff);
         _axisX->setRange(10, 80);
     }
@@ -299,9 +303,9 @@ void QuantificationWidget::update(const QString& val)
     }
     
     _axisX->setRange(10, max_z + 1);
-    double diff = (max_val - min_val) / 10.0;
+    double diff = (max_val - min_val) / 15.0;
 
-    _axisYLog10->setRange(min_val, max_val+ diff);
+    _currentYAxis->setRange(min_val, max_val+ diff);
     
 }
 

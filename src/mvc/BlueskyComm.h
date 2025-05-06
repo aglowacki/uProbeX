@@ -31,6 +31,7 @@ public:
     */
    BlueskyComm(zmq::context_t *context, QString str_ip) 
    {
+        _zmq_comm_socket = nullptr;
         if(str_ip.length() > 0)
         {
             std::string conn_str = "tcp://"+str_ip.toStdString()+":60615";

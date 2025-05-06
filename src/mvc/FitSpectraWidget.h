@@ -14,7 +14,6 @@
 #include <QComboBox>
 #include <QTreeView>
 #include <QPushButton>
-#include <mutex>
 #include <QDockWidget>
 #include <QCheckBox>
 #include <algorithm>
@@ -186,8 +185,6 @@ private slots:
    void update_selected_element_to_add(QString);
 
 private:
-
-	//std::mutex _mutex;
 
     QCheckBox *_chk_auto_model;
 

@@ -38,6 +38,8 @@ public:
 
    void updateQueuedItems( std::vector<BlueskyPlan> &finished_plans, std::vector<BlueskyPlan> &queued_plans, BlueskyPlan &running_plan);
 
+   const std::map<QString, QString>& get_uuid_links();
+
 signals:
    void queueNeedsToBeUpdated();
 
@@ -80,6 +82,8 @@ public slots:
 
    void on_remove_scan();
 
+   void on_duplicate_scan();
+   
    void on_clear_history();
 
 protected:
@@ -117,6 +121,8 @@ protected:
    QAction* _move_scan_up;
    
    QAction* _move_scan_down;
+
+   QAction* _duplicate_scan;
 
    QAction* _remove_scan;
 

@@ -133,7 +133,7 @@ public:
 
    void setScenetPixmap(QPixmap p);
 
-   void setCountsTrasnformAt(int idx, const ArrayXXr<float>& normalized);
+   void setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized);
 
    /**
     * sets the coordinate model for coordinate widget

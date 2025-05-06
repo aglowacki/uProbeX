@@ -168,7 +168,7 @@ void MapsWorkspaceModel::load(QString filepath)
 {
     try
     {
-        std::vector<std::string> ignore_dir_list = { "img.dat", "mda", "output" };
+        std::vector<std::regex> ignore_dir_list = { std::regex("img.dat.*"), std::regex("mda.*"), std::regex("output.*"), std::regex("rois"), std::regex("flyXRF"), std::regex("XRF"), std::regex("[vV][lL][mM]") };
 
         _dir = new QDir(filepath);
         if (!_dir->exists())

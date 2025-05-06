@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QAbstractTableModel>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ public:
         _headers[1] = "Value";
         _headers[2] = "Desc";
         _headers[3] = "Type";
+        _decimalPreci = Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt();
     }
     
     //---------------------------------------------------------------------------
@@ -90,7 +92,15 @@ public:
             case 0:
                 return rowData.name;
             case 1:
-                return rowData.default_val;
+                if(rowData.kind == BlueskyParamType::Double)
+                {
+                    double d1 = rowData.default_val.toDouble();
+                    return QString::number(d1, 'f', _decimalPreci);
+                }
+                else
+                {
+                    return rowData.default_val;
+                }
             case 2:
                 return rowData.description;
             case 3:
@@ -224,6 +234,8 @@ private:
     std::vector<BlueskyParam> _data;
 
     QString _headers[4];
+
+    int _decimalPreci;
 };
 
 

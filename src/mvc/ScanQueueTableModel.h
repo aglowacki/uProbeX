@@ -14,6 +14,7 @@
 #include <QIODevice>
 #include <QColor>
 #include <QDateTime>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -27,6 +28,7 @@ public:
     ScanQueueTableModel(QObject* parent = nullptr) : QAbstractTableModel(parent) 
     {
         _headers = "Type";
+        _decimalPreci = Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt();
         _last_finished_idx = 0;
     }
 
@@ -171,6 +173,11 @@ public:
                 section = section - 1; // reset to 0 based
                 if(section > -1 && section < parms_size)
                 {
+                    if(rowData.parameters.at(section).kind == BlueskyParamType::Double)
+                    {
+                        double d1 = rowData.parameters.at(section).default_val.toDouble();
+                        return QString::number(d1, 'f', _decimalPreci);
+                    }
                     return rowData.parameters.at(section).default_val;
                 }
             }
@@ -272,13 +279,13 @@ public:
         {
             if(_data.at(index.row()).result.exit_status.length() > 0)
             {
-                return  Qt::ItemIsSelectable;
+                return  Qt::ItemIsEnabled | Qt::ItemIsSelectable;
             }
         }
 
         if(index.column() == 0)
         {
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+            return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         }
         return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
@@ -379,6 +386,11 @@ public:
     const int get_finished_idx() {return _last_finished_idx;}
 
     //---------------------------------------------------------------------------
+
+    const std::map<QString, QString>& get_uuid_links() {return  _uuid_to_filename_map;}
+
+    //---------------------------------------------------------------------------
+
 signals:
 
     void moveScanRow(int, int);
@@ -395,6 +407,8 @@ private:
     std::map<QString, QString> _uuid_to_filename_map;
 
     QString _headers;
+
+    int _decimalPreci;
 };
 
 
