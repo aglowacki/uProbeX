@@ -220,7 +220,7 @@ private:
 
     std::unordered_map<std::string, ArrayDr*> _max_chan_spec_map;
 
-    std::unordered_map<std::string, ArrayDr*> _roi_spec_map;
+    std::map<std::string, ArrayDr*> _roi_spec_map;
 
     std::unordered_map<std::string, QColor> _roi_spec_colors;
 

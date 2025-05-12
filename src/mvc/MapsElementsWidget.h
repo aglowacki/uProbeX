@@ -131,6 +131,8 @@ public slots:
 
    void onDockFloatChanged(bool floating);
 
+   void plotPixelSpectra(const QPoint& pos);
+
 protected:
 
    /**
@@ -143,6 +145,8 @@ protected:
    virtual void displayContextMenu(QWidget* parent, const QPoint& pos);
 
    void _appendRoiTab();
+
+   void _model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec);
 
    MapsH5Model *_model;
 
@@ -250,6 +254,8 @@ protected:
    gstar::MotorLookupTransformer _motor_trans;
 
    QTabWidget* _tw_image_controls;
+
+   QAction* _plotPixelSpectraAction;
 
 };
 

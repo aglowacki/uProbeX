@@ -65,6 +65,9 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 	_selected_colormap = &_gray_colormap;
 
     connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
+
+    _plotPixelSpectraAction = new QAction("Plot Pixel Spectra", this);
+
     setAttribute(Qt::WA_DeleteOnClose, true);
     _createLayout(create_image_nav, restore_floating);
 }
@@ -506,6 +509,20 @@ void MapsElementsWidget::_appendRoiTab()
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::plotPixelSpectra(const QPoint& pos)
+{
+    if(_model != nullptr)
+    {
+        data_struct::Spectra<double> spectra;
+        if(_model->load_pixel_spectra(pos, spectra))
+        {
+
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::roiTreeContextMenu(const QPoint& pos)
 {
 
@@ -771,8 +788,10 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
       return;
 
    QMenu menu(parent);
+   //menu.addAction(_plotPixelSpectraAction); // TODO : future impl
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
+   
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -793,6 +812,10 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    if (result == nullptr)
    {
       m_selectionModel->clearSelection();
+   }
+   else if(result == _plotPixelSpectraAction)
+   {
+        plotPixelSpectra(pos);
    }
 
 }
@@ -928,6 +951,157 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     redrawCounts();
 }
 
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::_model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec)
+{
+    if(_model != nullptr)
+    {
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = spec->size() - 1;
+        fitting::models::Gaussian_Model<double> gauss_model;
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        //data_struct::Fit_Parameters<double> fit_params = _model->getFileFitParams();
+        //data_struct::Fit_Element_Map_Dict<double> elements_to_model;
+        
+        data_struct::Params_Override<double>* po = _model->getParamOverride();
+        if(po == nullptr)
+        {
+            return;
+        }
+        data_struct::Fit_Element_Map_Dict<double> elements_to_model = po->elements_to_fit;
+		data_struct::Fit_Parameters<double> fit_params = po->fit_params;
+        
+
+        if(fit_params.size() == 0)
+        {
+            return;
+        }
+        if(scalers == nullptr)
+        {
+            return;
+        }
+        if(scalers->count(STR_ELT) == 0)
+        {
+            return;
+        }
+        const data_struct::ArrayXXr<float>* elt_map = &scalers->at(STR_ELT);
+        if(false == fit_params.contains(STR_COHERENT_SCT_AMPLITUDE))
+        {
+            data_struct::Fit_Param<double> param(STR_COHERENT_SCT_AMPLITUDE, 1.0e-10);
+            fit_params.add_parameter(param);
+        }
+        if(false == fit_params.contains(STR_COMPTON_AMPLITUDE))
+        {
+            data_struct::Fit_Param<double> param(STR_COMPTON_AMPLITUDE, 1.0e-10);
+            fit_params.add_parameter(param);
+        }
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        if(_model->getAnalyzedCounts(analysis_name, fit_counts))
+        {
+            for(const auto & p_itr: pixel_list)
+            {   
+                for(const auto &itr: fit_counts)
+                {
+                    if(elements_to_model.count(itr.first) == 0)
+                    {
+                        Element_Info<double>* eptr = Element_Info_Map<double>::inst()->get_element(itr.first);
+                        if(eptr != nullptr)
+                        {
+                            data_struct::Fit_Element_Map<double>* em = new data_struct::Fit_Element_Map<double>(itr.first, eptr);
+                            em->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element("Si")); // don't know how to look up
+                            elements_to_model[itr.first] = em;
+                        }
+                        else
+                        {
+                //            logW<<"Skipping "<<itr.first<<" since element info is nullptr\n";
+                        }
+                    }
+                    
+                    if(itr.second.rows() > p_itr.second && itr.second.cols() > p_itr.first)
+                    {
+                        double value = static_cast<double>(itr.second(p_itr.second, p_itr.first));
+                        if(value > 0.0)
+                        {
+                            // multiply by elt to convert counts/sec to counts
+                            double elt = static_cast<double>((*elt_map)(p_itr.second, p_itr.first));
+                            value *= elt;
+                            value = log10(value);
+                            if(false == std::isfinite(value))
+                            {
+                                value = 1.0e-10;
+                                logI<<itr.first<<" = "<<value<<"\n";
+                            }
+                        }
+                        /*
+                        else 
+                        {
+                            value = 1.0e-10;
+                        }
+                        */
+                        if(fit_params.contains(itr.first))
+                        {
+                            fit_params[itr.first].value = value;
+                            //logI<<itr.first<<" : "<<value<<"\n";
+                        }
+                        else
+                        {
+                            if(elements_to_model.count(itr.first) > 0)
+                            {
+                                data_struct::Fit_Param<double> param(itr.first, value);
+                                fit_params.add_parameter(param);
+
+                            //logI<<itr.first<<" :: "<<value<<"\n";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logW<<"Pixel out of range!\n";
+                        // clean up
+                        /*
+                        for(auto &em_itr : elements_to_model)
+                        {
+                            delete em_itr.second;
+                        }
+                          */  
+                        return;
+                    }
+                }
+                
+                /*
+                data_struct::Spectra<double> single_spec(spec->size());
+                fitting::routines::Matrix_Optimized_Fit_Routine<double> matrix_fit;
+                gauss_model.update_fit_params_values(&fit_params);
+                matrix_fit.initialize(&gauss_model, &elements_to_model,energy_range);
+                matrix_fit.model_spectrum(&gauss_model, &fit_params, &energy_range, &single_spec);
+                */
+
+                data_struct::Spectra<double> single_spec = gauss_model.model_spectrum_mp(&fit_params, &elements_to_model, energy_range);
+                
+                // sum up results
+                if(single_spec.size() == spec->size() && single_spec.maxCoeff() > 0.)
+                {            
+                    (*spec) += (ArrayDr)single_spec;
+                }
+                else
+                {
+                    logW<<"Skipping "<<p_itr.first<<" : "<<p_itr.second<<" . Size = "<< single_spec.size()<<"\n";
+                }
+                
+            }
+            // clean up
+            /*
+            for(auto &em_itr : elements_to_model)
+            {
+                delete em_itr.second;
+            }
+                */
+        }
+    }
+}
+
  //---------------------------------------------------------------------------
 
 void MapsElementsWidget::setModel(MapsH5Model* model)
@@ -991,6 +1165,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
                 if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
                 {
+                    // plot roi int spec
                     _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec.at(_model->getDatasetName().toStdString())), itr.second.color);
                 }
             }
@@ -1576,6 +1751,57 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 
                 _model->appendMapRoi(itr->getName().toStdString(), roi);
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
+
+                 // duplicate , need to normalize to a function
+                // TODO: check preferences if we want to display this
+                std::vector<std::string> fittings;
+                
+                if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool() )
+                {
+                    fittings.push_back(STR_FIT_GAUSS_MATRIX);
+                }
+                if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool() )
+                {
+                    fittings.push_back(STR_FIT_NNLS);
+                }
+                for(auto f_itr : fittings)
+                {
+                    QColor color = Qt::darkBlue;
+                    if(f_itr == STR_FIT_NNLS)
+                    {
+                        color = Qt::darkGreen;
+                    }
+                    // create per pixel fitted spec for this roi and add it to spec widget 
+                    ArrayDr* roi_fitted_int_spec = new ArrayDr(int_spectra->size());
+                    roi_fitted_int_spec->setZero();
+                    _model_custom_spectra(f_itr, roi.pixel_list, roi_fitted_int_spec);
+                    if(roi_fitted_int_spec->maxCoeff() > 0)
+                    {
+                        data_struct::Params_Override<double>* po = _model->getParamOverride();
+                        if(po == nullptr)
+                        {
+                            return;
+                        }
+                        data_struct::Fit_Parameters<double> fit_params = po->fit_params;
+                        
+                        Range range = get_energy_range(int_spectra->size(), &fit_params);
+                        ArrayDr spectra_background = snip_background<double>(int_spectra,
+                            fit_params[STR_ENERGY_OFFSET].value,
+                            fit_params[STR_ENERGY_SLOPE].value,
+                            fit_params[STR_ENERGY_QUADRATIC].value,
+                            fit_params[STR_SNIP_WIDTH].value,
+                            range.min,
+                            range.max);
+
+                        *roi_fitted_int_spec += spectra_background;
+                        std::string fitted_name = roi.name+"_"+f_itr;
+                        _spectra_widget->appendROISpectra(fitted_name, roi_fitted_int_spec, color);
+                    }
+                    else
+                    {
+                        logW<<"Failed to model per pixel spectra fitting for roi "<<roi.name<<" "<<f_itr<<"\n";
+                    }
+                }
             }
         }
     

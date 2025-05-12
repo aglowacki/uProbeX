@@ -771,14 +771,6 @@ bool MapsH5Model::load(QString filepath)
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::load_roi(const std::vector<QPoint> &roi_list, data_struct::Spectra<double>& spec)
-{
-    if (_version < 10.0)
-    {
-        return _load_roi_9(roi_list, spec);
-    }
-    return _load_roi_10(roi_list, spec);
-}
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------Version 10---------------------------------------------------------
@@ -1331,15 +1323,6 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     return true;
 }
 
-//---------------------------------------------------------------------------
-
-bool MapsH5Model::_load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
-{
-    return false;
-
-}
-
-
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------Version 10---------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
@@ -1379,6 +1362,8 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
     start = std::chrono::system_clock::now();
 
     _loaded_counts = _load_counts_10(maps_grp_id);
+
+    _load_fit_parameters_10(maps_grp_id);
 
     end = std::chrono::system_clock::now();
     elapsed_seconds = end - start;
@@ -2132,6 +2117,78 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 
 //---------------------------------------------------------------------------
 
+bool MapsH5Model::load_pixel_spectra(const QPoint& point, data_struct::Spectra<double>& spectra)
+{
+    std::string mca_arr_path_10 = "/MAPS/Spectra/mca_arr";
+    std::string mca_arr_path_9 = "/MAPS/mca_arr";
+
+    hid_t file_id = H5Fopen(_filepath.toStdString().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(file_id < 0)
+    {
+        logW<<"Error opening file "<<_filepath.toStdString() << "\n";
+        return false;
+    }
+
+    hid_t dset_id = H5Dopen(file_id, mca_arr_path_10.c_str(), H5P_DEFAULT);
+    if (dset_id < 0)
+    {
+        dset_id = H5Dopen(file_id, mca_arr_path_9.c_str(), H5P_DEFAULT);
+        if (dset_id < 0)
+        {
+            H5Fclose(file_id);;
+            return false;
+        }
+    }
+
+    bool isReadVal = false;
+    hid_t dataspace_id = H5Dget_space(dset_id);
+    int rank = H5Sget_simple_extent_ndims(dataspace_id);
+    if (rank == 3)
+    {
+        hsize_t offset[3] = { 0, 0, 0 };
+        hsize_t count[3] = { 0, 1, 1 };
+        hsize_t dims_in[3] = { 0, 0, 0 };
+        int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+        if (status_n > -1)
+        {
+            count[0] = dims_in[0];
+            spectra.resize(dims_in[0]);
+            if(point.y() < dims_in[1] && point.x() < dims_in[2])
+            {
+                offset[1] = point.y();
+                offset[2] = point.x();
+                hid_t memoryspace_id = H5Screate_simple(3, count, nullptr);
+				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+				herr_t error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, spectra.data());
+                if (error > -1)
+                {
+                    isReadVal = true;
+                }
+                H5Sclose(memoryspace_id);
+            }
+            else
+            {
+                logW<<"Can not load out of bounds. Requested: point.y "<<point.y()<<" , point.x "<< point.x() << " dims = "<<dims_in[1]<<" , "<<dims_in[2]<<"\n"; 
+            }
+        }
+        else
+        {
+            logW<<"Could not read mca_arr dims.\n";
+        }
+    }
+    else
+    {
+        logW<<"Rank is "<<rank<<" , should == 3, can not load this.\n";
+    }
+    H5Sclose(dataspace_id);
+    H5Dclose(dset_id);
+    H5Fclose(file_id);
+    return isReadVal;
+}
+
+//---------------------------------------------------------------------------
+
 bool MapsH5Model::_load_counts_10(hid_t maps_grp_id)
 {
 
@@ -2343,9 +2400,96 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::_load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec)
+bool MapsH5Model::_load_fit_parameters_10(hid_t maps_grp_id)
 {
+    std::string param_names_str = "Fit_Parameters_Override/Fit_Parameters_Names";
+    std::string param_vals_str = "Fit_Parameters_Override/Fit_Parameters_Values";
+    char tmp_name[255] = {0};
+    hid_t dset_name_id = H5Dopen(maps_grp_id, param_names_str.c_str(), H5P_DEFAULT);
+    hid_t dset_val_id = H5Dopen(maps_grp_id, param_vals_str.c_str(), H5P_DEFAULT);
 
+    if(dset_name_id > -1 && dset_val_id > -1)
+    {
+        hid_t dspace_names = H5Dget_space(dset_name_id);
+        hid_t dspace_vals = H5Dget_space(dset_val_id);
+
+        int rank_name = H5Sget_simple_extent_ndims(dspace_names);
+        int rank_val = H5Sget_simple_extent_ndims(dspace_vals);
+        if (rank_name == 1 && rank_val == 2 )
+        {
+            hsize_t offset[1] = { 0 };
+            hsize_t count[1] = { 1 };
+            hsize_t dims_in[1] = { 0 };
+
+            hsize_t offset2[3] = { 0, 0};
+            hsize_t count2[3] = { 1, 4 };
+            hsize_t dims_in2[3] = { 0, 0 };
+            H5Sget_simple_extent_dims(dspace_names, &dims_in[0], nullptr);
+            H5Sget_simple_extent_dims(dspace_vals, &dims_in2[0], nullptr);
+
+
+            if(dims_in[0] != dims_in2[0])
+            {
+                logW<<"Fit params names dims do not match values dims: "<<dims_in[0] << " "<<dims_in2[0]<<". Setting it to the min of both.\n";
+                size_t minval = std::min(dims_in[0], dims_in2[0]);
+                dims_in[0] = minval;
+                dims_in2[0] = minval;
+            }
+
+            hid_t memoryspace_id = H5Screate_simple(1, count, nullptr);
+            hid_t memoryspace_id2 = H5Screate_simple(2, count2, nullptr);
+            
+            hid_t memtype = H5Tcopy(H5T_C_S1);
+            H5Tset_size(memtype, 255);
+
+            for(size_t i = 0; i < dims_in[0]; i++)
+            {
+                offset[0] = i;
+                memset(&tmp_name[0], 0, 254);
+                H5Sselect_hyperslab(dspace_names, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                herr_t status = H5Dread(dset_name_id, memtype, memoryspace_id, dspace_names, H5P_DEFAULT, (void*)&tmp_name[0]);
+
+                double fvals[4];
+                offset2[0] = i;
+                H5Sselect_hyperslab(dspace_vals, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
+                herr_t status2 = H5Dread(dset_val_id, H5T_NATIVE_DOUBLE, memoryspace_id2, dspace_vals, H5P_DEFAULT, (void*)&fvals[0]);
+                if (status > -1 && status2 > -1)
+                {
+                    std::string el_name = std::string(tmp_name);
+                    // save fit param
+                    data_struct::Fit_Param<double> fp;
+                    fp.name = el_name;
+                    fp.value = fvals[0];
+                    if( std::isfinite(fvals[1]) )
+                    {
+                        fp.min_val = fvals[1];
+                    }
+                    if( std::isfinite(fvals[2]) )
+                    {
+                        fp.max_val = fvals[2];
+                    }
+                    if( std::isfinite(fvals[3]) )
+                    {
+                        //fp. = fvals[3];
+                    }
+                    _file_fit_params.add_parameter(fp);
+                }
+            }
+            H5Sclose(memoryspace_id);
+            H5Sclose(memoryspace_id2);
+        }
+        else
+        {
+            logW<<"Rank for name should be 1 but is "<<rank_name<<" and rank for values should be 2 but is "<<rank_val<<"\n";
+        }
+        
+        H5Sclose(dspace_names);
+        H5Sclose(dspace_vals);
+
+        H5Dclose(dset_name_id);
+        H5Dclose(dset_val_id);
+        return true;
+    }
     return false;
 }
 

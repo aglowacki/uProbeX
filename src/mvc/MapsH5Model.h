@@ -185,7 +185,7 @@ public:
 
     data_struct::Params_Override<double>* getParamOverride() { return _params_override; }
 
-    bool load_roi(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
+    const data_struct::Fit_Parameters<double>& getFileFitParams() { return _file_fit_params; }
 
     std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
 
@@ -217,8 +217,6 @@ public:
 
     QStringList get_calibration_curve_scalers(std::string analysis_type);
 
-    QStringList get_analysis_types();
-
     const std::vector<data_struct::Quantification_Standard<double> >& quant_standards() { return _quant_standards; }
 
     const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
@@ -229,6 +227,8 @@ public:
     //QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
 
     QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized) const;
+
+    bool load_pixel_spectra(const QPoint& point, data_struct::Spectra<double>& spectra);
 
 signals:
     void model_data_updated();
@@ -254,8 +254,6 @@ protected:
 
     bool _load_analyzed_counts_9(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_9(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
-
     //Version 10
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
@@ -278,7 +276,7 @@ protected:
 
     bool _load_analyzed_counts_10(hid_t analyzed_grp_id, std::string group_name);
 
-    bool _load_roi_10(const std::vector<QPoint>& roi_list, data_struct::Spectra<double>& spec);
+    bool _load_fit_parameters_10(hid_t maps_grp_id);
 
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
@@ -291,6 +289,8 @@ protected:
     data_struct::Params_Override<double>* _params_override;
 
     std::map<std::string, data_struct::ArrayXXr<float>> _scalers;
+
+    data_struct::Fit_Parameters<double> _file_fit_params;
 
 private:
     static std::mutex _mutex;
