@@ -185,12 +185,14 @@ QVariant RectItem::itemChange(GraphicsItemChange change,
             // Get boundary item rectangle
             QRectF boundRect = ((ImageViewScene*)scene())->pixRect();
 
+            auto mmax1 = boundRect.right() - m_rect.width();
+            auto mmax2 = boundRect.bottom() - m_rect.height();
+            if(mmax1 > boundRect.left() && mmax2 > boundRect.top())
+            {
             // Check bounds
-            setPos(qBound(boundRect.left(), pos().x(),
-                boundRect.right() - m_rect.width()),
-                qBound(boundRect.top(), pos().y(),
-                    boundRect.bottom() - m_rect.height()));
-
+            setPos(qBound(boundRect.left(), pos().x(), mmax1),
+                qBound(boundRect.top(), pos().y(), mmax2));
+            }
         }
     }
 
