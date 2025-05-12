@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QGridLayout>
+#include "preferences/Preferences.h"
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/core/eigen.hpp>
 #endif
@@ -30,6 +31,8 @@ const int ACTION_ERASE_POLY = 3;
 
 ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 {
+
+	_model = nullptr;
 
 	_color_map.insert({ 0, QColor(Qt::red) });
 	_color_map.insert({ 1, QColor(Qt::green) });
@@ -53,6 +56,7 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	_layout_map[STR_MANUAL] = _createManualLayout();
 	_next_color = 0;
     createLayout();
+	updateCustomCursor(1);
 
 }
 
@@ -358,7 +362,7 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 	_manual_sp_brush_size = new QSpinBox();
 	_manual_sp_brush_size->setRange(1, 100);
 	_manual_sp_brush_size->setSingleStep(1.0);
-	_manual_sp_brush_size->setValue(10);
+	_manual_sp_brush_size->setValue(1);
 	connect(_manual_sp_brush_size, qOverload<int>(&QSpinBox::valueChanged), this, &ImageSegRoiDialog::updateCustomCursor);
 
 	hlayout = new QHBoxLayout();
@@ -385,9 +389,11 @@ void ImageSegRoiDialog::createLayout()
 	connect(_techTabs, &QTabWidget::currentChanged, this, &ImageSegRoiDialog::onTabChanged);
 
 	_acceptBtn = new QPushButton("Accept");
+	_plotBtn = new QPushButton("Plot");
 	//_acceptBtn->setEnabled(false);
 	_cancelBtn = new QPushButton("Cancel");
 	connect(_acceptBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onAccept);
+	connect(_plotBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onPlot);
 	connect(_cancelBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onClose);
 
 	_img_list_model = new QStandardItemModel();
@@ -400,7 +406,13 @@ void ImageSegRoiDialog::createLayout()
 
 	_int_img_widget = new ImageSegWidget();
 
-	QHBoxLayout* mainLayout = new QHBoxLayout;
+	_spectra_widget = new SpectraWidget();
+	_spectra_widget->setSettingsBtnVisible(false);
+	_spectra_widget->setResetBtnVisible(false);
+
+
+	QVBoxLayout* mainLayout = new QVBoxLayout;
+	QHBoxLayout* subLayout = new QHBoxLayout;
 	QVBoxLayout *leftLayout = new QVBoxLayout;
 	QHBoxLayout* optionLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
@@ -411,6 +423,7 @@ void ImageSegRoiDialog::createLayout()
 	optionLayout->addWidget(_chk_normalize_sum);
 
 	buttonLayout->addWidget(_acceptBtn);
+	buttonLayout->addWidget(_plotBtn);
 	buttonLayout->addWidget(_cancelBtn);
 	
 	leftLayout->addWidget(_img_names_view);
@@ -418,12 +431,35 @@ void ImageSegRoiDialog::createLayout()
 	leftLayout->addWidget(_techTabs);
 	leftLayout->addItem(buttonLayout);
 
-	mainLayout->addItem(leftLayout);
-	mainLayout->addWidget(_int_img_widget);
+	subLayout->addItem(leftLayout);
 
+	_tab_widget = new QTabWidget(this);
+	_tab_widget->addTab(_int_img_widget, QIcon(), "Image");
+	_tab_widget->addTab(_spectra_widget, QIcon(), "Spectra");
+
+	subLayout->addWidget(_tab_widget);
+
+
+	
+	_pb_pixels = new QProgressBar();
+	_pb_rois = new QProgressBar();
+
+	mainLayout->addItem(subLayout);
+	mainLayout->addWidget(_pb_pixels);	
+	mainLayout->addWidget(_pb_rois);	
+	
 	setLayout(mainLayout);
 
 	setWindowTitle("ROI Image Segmentation");
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::setModel(MapsH5Model* model)
+{
+
+	_model = model;
+
 }
 
 //---------------------------------------------------------------------------
@@ -529,6 +565,91 @@ void ImageSegRoiDialog::onAccept()
 	// emit list of roi's
 	emit onNewROIs(_int_img_widget->getAllROIs());
 	close();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onPlot()
+{	
+	std::vector<gstar::RoiMaskGraphicsItem*> rois = _int_img_widget->getAllROIs();
+	if (_model != nullptr)
+    {
+		_spectra_widget->clearAllSpectra();
+		data_struct::Params_Override<double>* po = _model->getParamOverride();
+        if(po == nullptr)
+        {
+            return;
+        }
+		data_struct::Fit_Parameters<double> fit_params = po->fit_params;
+		ArrayDr energy(0); 
+		ArrayDr ev(0); 
+		int i =	0;
+		_pb_rois->setRange(0,rois.size()*2);
+		_pb_rois->setValue(i);
+		for(auto &itr : rois)
+		{
+			std::vector<std::pair<int, int>> pixel_list;
+			itr->to_roi_vec(pixel_list);
+			data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
+			if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
+			{
+				if(ev.size() == 0)
+				{
+					data_struct::Range energy_range;
+					energy_range.min = 0;
+					energy_range.max = int_spectra->size() - 1;
+					energy = ArrayDr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
+					ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, 2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
+				}
+
+				struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
+
+				_model->appendMapRoi(itr->getName().toStdString(), roi);
+				QColor color = itr->getColor();
+				_spectra_widget->append_spectra(itr->getName(), int_spectra, &ev, &color);
+
+					// duplicate , need to normalize to a function
+				// TODO: check preferences if we want to display this
+				QStringList fittings;
+				
+				//if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool() )
+				{
+					fittings.push_back(QString(STR_FIT_GAUSS_MATRIX.c_str()));
+				}
+				//if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool() )
+				{
+					fittings.push_back(QString(STR_FIT_NNLS.c_str()));
+				}
+				for(auto f_itr : fittings)
+				{
+					QColor color = Qt::darkBlue;
+					if(f_itr == QString(STR_FIT_NNLS.c_str()))
+					{
+						color = Qt::darkGreen;
+					}
+					// create per pixel fitted spec for this roi and add it to spec widget 
+					ArrayDr* roi_fitted_int_spec = new ArrayDr(int_spectra->size());
+					roi_fitted_int_spec->setZero();
+					_model_custom_spectra(f_itr.toStdString(), roi.pixel_list, roi_fitted_int_spec);
+					if(roi_fitted_int_spec->maxCoeff() > 0)
+					{					
+						QString fitted_name = QString(roi.name.c_str())+"_"+f_itr;
+						_spectra_widget->append_spectra(fitted_name, roi_fitted_int_spec, &ev, &color);
+					}
+					else
+					{
+						logW<<"Failed to model per pixel spectra fitting for roi "<<roi.name<<" "<<f_itr.toStdString()<<"\n";
+					}
+					i++;
+					_pb_rois->setValue(i);
+					QCoreApplication::processEvents();
+				}
+			}
+		}
+		_pb_rois->setValue(rois.size()*2);
+		QCoreApplication::processEvents();
+		_tab_widget->setCurrentIndex(1);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -801,6 +922,182 @@ void ImageSegRoiDialog::clear_image()
 	QImage image(_image_size, QImage::Format_ARGB32_Premultiplied);
 	image.fill(QColor(Qt::gray));
 	_int_img_widget->setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::_model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec)
+{
+    if(_model != nullptr)
+    {
+		_pb_pixels->setRange(0, pixel_list.size());
+        fitting::models::Range energy_range;
+        energy_range.min = 0;
+        energy_range.max = spec->size() - 1;
+        fitting::models::Gaussian_Model<double> gauss_model;
+        const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+        //data_struct::Fit_Parameters<double> fit_params = _model->getFileFitParams();
+        //data_struct::Fit_Element_Map_Dict<double> elements_to_model;
+        
+        data_struct::Params_Override<double>* po = _model->getParamOverride();
+        if(po == nullptr)
+        {
+            return;
+        }
+        data_struct::Fit_Element_Map_Dict<double> elements_to_model = po->elements_to_fit;
+		data_struct::Fit_Parameters<double> fit_params = po->fit_params;
+
+        if(fit_params.size() == 0)
+        {
+            return;
+        }
+        if(scalers == nullptr)
+        {
+            return;
+        }
+        if(scalers->count(STR_ELT) == 0)
+        {
+            return;
+        }
+        const data_struct::ArrayXXr<float>* elt_map = &scalers->at(STR_ELT);
+        if(false == fit_params.contains(STR_COHERENT_SCT_AMPLITUDE))
+        {
+            data_struct::Fit_Param<double> param(STR_COHERENT_SCT_AMPLITUDE, 1.0e-10);
+            fit_params.add_parameter(param);
+        }
+        if(false == fit_params.contains(STR_COMPTON_AMPLITUDE))
+        {
+            data_struct::Fit_Param<double> param(STR_COMPTON_AMPLITUDE, 1.0e-10);
+            fit_params.add_parameter(param);
+        }
+        data_struct::Fit_Count_Dict<float> fit_counts;
+        if(_model->getAnalyzedCounts(analysis_name, fit_counts))
+        {
+			int i = 0;
+			_pb_pixels->setValue(i);
+            for(const auto & p_itr: pixel_list)
+            {   		
+                for(const auto &itr: fit_counts)
+                {
+                    if(elements_to_model.count(itr.first) == 0)
+                    {
+                        Element_Info<double>* eptr = Element_Info_Map<double>::inst()->get_element(itr.first);
+                        if(eptr != nullptr)
+                        {
+                            data_struct::Fit_Element_Map<double>* em = new data_struct::Fit_Element_Map<double>(itr.first, eptr);
+                            em->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element("Si")); // don't know how to look up
+                            elements_to_model[itr.first] = em;
+                        }
+                        else
+                        {
+                //            logW<<"Skipping "<<itr.first<<" since element info is nullptr\n";
+                        }
+                    }
+                    
+                    if(itr.second.rows() > p_itr.second && itr.second.cols() > p_itr.first)
+                    {
+                        double value = static_cast<double>(itr.second(p_itr.second, p_itr.first));
+                        if(value > 0.0)
+                        {
+                            // multiply by elt to convert counts/sec to counts
+                            double elt = static_cast<double>((*elt_map)(p_itr.second, p_itr.first));
+                            value *= elt;
+                            value = log10(value);
+                            if(false == std::isfinite(value))
+                            {
+                                value = 1.0e-10;
+                                logI<<itr.first<<" = "<<value<<"\n";
+                            }
+                        }
+                        /*
+                        else 
+                        {
+                            value = 1.0e-10;
+                        }
+                        */
+                        if(fit_params.contains(itr.first))
+                        {
+                            fit_params[itr.first].value = value;
+                            //logI<<itr.first<<" : "<<value<<"\n";
+                        }
+                        else
+                        {
+                            if(elements_to_model.count(itr.first) > 0)
+                            {
+                                data_struct::Fit_Param<double> param(itr.first, value);
+                                fit_params.add_parameter(param);
+
+                            //logI<<itr.first<<" :: "<<value<<"\n";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logW<<"Pixel out of range!\n";
+                        // clean up
+                        /*
+                        for(auto &em_itr : elements_to_model)
+                        {
+                            delete em_itr.second;
+                        }
+                          */  
+                        return;
+                    }
+                }
+                
+                /*
+                data_struct::Spectra<double> single_spec(spec->size());
+                fitting::routines::Matrix_Optimized_Fit_Routine<double> matrix_fit;
+                gauss_model.update_fit_params_values(&fit_params);
+                matrix_fit.initialize(&gauss_model, &elements_to_model,energy_range);
+                matrix_fit.model_spectrum(&gauss_model, &fit_params, &energy_range, &single_spec);
+                */
+
+                data_struct::Spectra<double> single_spec = gauss_model.model_spectrum_mp(&fit_params, &elements_to_model, energy_range);
+                
+                // sum up results
+                if(single_spec.size() == spec->size() && single_spec.maxCoeff() > 0.)
+                {
+                    ArrayDr int_spectra;
+                    if(_model->load_pixel_spectra(p_itr, int_spectra))
+                    {
+                        ArrayDr spectra_background = snip_background<double>((data_struct::Spectra<double>*)&int_spectra,
+                            fit_params[STR_ENERGY_OFFSET].value,
+                            fit_params[STR_ENERGY_SLOPE].value,
+                            fit_params[STR_ENERGY_QUADRATIC].value,
+                            fit_params[STR_SNIP_WIDTH].value,
+                            energy_range.min,
+                            energy_range.max);
+
+                        spectra_background = spectra_background.unaryExpr([](double v) { return (v > 0.0) ? v : 0.0; });
+                        (ArrayDr)single_spec += spectra_background;
+                    }
+                    else
+                    {
+                         logW<<"Failed to load per pixel spectra at "<<p_itr.second<<" : "<<p_itr.first<<"\n";
+                    } 
+                    
+                    (*spec) += (ArrayDr)single_spec;
+                }
+                else
+                {
+                    logW<<"Skipping "<<p_itr.first<<" : "<<p_itr.second<<" . Size = "<< single_spec.size()<<"\n";
+                }
+				i++;
+				_pb_pixels->setValue(i);
+				QCoreApplication::processEvents();
+            }
+            // clean up
+            /*
+            for(auto &em_itr : elements_to_model)
+            {
+                delete em_itr.second;
+            }
+                */
+			_pb_pixels->setValue(pixel_list.size());
+			QCoreApplication::processEvents();
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

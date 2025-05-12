@@ -2117,7 +2117,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::load_pixel_spectra(const QPoint& point, data_struct::Spectra<double>& spectra)
+bool MapsH5Model::load_pixel_spectra(const std::pair<int, int>& point, ArrayDr& spectra)
 {
     std::string mca_arr_path_10 = "/MAPS/Spectra/mca_arr";
     std::string mca_arr_path_9 = "/MAPS/mca_arr";
@@ -2153,15 +2153,15 @@ bool MapsH5Model::load_pixel_spectra(const QPoint& point, data_struct::Spectra<d
         {
             count[0] = dims_in[0];
             spectra.resize(dims_in[0]);
-            if(point.y() < dims_in[1] && point.x() < dims_in[2])
+            if(point.second < dims_in[1] && point.first < dims_in[2])
             {
-                offset[1] = point.y();
-                offset[2] = point.x();
+                offset[1] = point.second;
+                offset[2] = point.first;
                 hid_t memoryspace_id = H5Screate_simple(3, count, nullptr);
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
-				herr_t error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, spectra.data());
-                if (error > -1)
+				herr_t err = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, spectra.data());
+                if (err > -1)
                 {
                     isReadVal = true;
                 }
@@ -2169,7 +2169,7 @@ bool MapsH5Model::load_pixel_spectra(const QPoint& point, data_struct::Spectra<d
             }
             else
             {
-                logW<<"Can not load out of bounds. Requested: point.y "<<point.y()<<" , point.x "<< point.x() << " dims = "<<dims_in[1]<<" , "<<dims_in[2]<<"\n"; 
+                logW<<"Can not load out of bounds. Requested: row "<<point.first<<" , col "<< point.second << " dims = "<<dims_in[1]<<" , "<<dims_in[2]<<"\n"; 
             }
         }
         else

@@ -228,7 +228,7 @@ public:
 
     QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized) const;
 
-    bool load_pixel_spectra(const QPoint& point, data_struct::Spectra<double>& spectra);
+    bool load_pixel_spectra(const std::pair<int, int>& point, ArrayDr& spectra);
 
 signals:
     void model_data_updated();

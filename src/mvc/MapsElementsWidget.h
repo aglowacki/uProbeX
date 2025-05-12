@@ -146,8 +146,6 @@ protected:
 
    void _appendRoiTab();
 
-   void _model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec);
-
    MapsH5Model *_model;
 
    FitSpectraWidget* _spectra_widget;
