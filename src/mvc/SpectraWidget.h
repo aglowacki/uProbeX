@@ -107,6 +107,10 @@ public:
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
+    void setSettingsBtnVisible(bool val) { _btnSsettings->setVisible(val); }
+
+    void setResetBtnVisible(bool val) { _btn_reset_chart_view->setVisible(val); }
+
     QPixmap getPngofChart();
 
     void setBackgroundBlack(bool val);
