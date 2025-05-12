@@ -178,9 +178,9 @@ private:
 
     QLineEdit *_display_eneergy_min;
 
-    //QLineEdit* _display_height_max;
+    QLineEdit* _display_height_max;
 
-    //QLineEdit* _display_height_min;
+    QLineEdit* _display_height_min;
 
     QPushButton* _btn_reset_chart_view;
 
