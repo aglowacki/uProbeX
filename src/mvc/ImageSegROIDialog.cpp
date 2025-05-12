@@ -714,7 +714,7 @@ void ImageSegRoiDialog::updateCustomCursor(int val)
 		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_POLY);
 	}
 	
-	_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));
+	//_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));
 }
 
 //---------------------------------------------------------------------------
@@ -1005,16 +1005,15 @@ void ImageSegRoiDialog::_model_custom_spectra(const std::string& analysis_name, 
                             value = log10(value);
                             if(false == std::isfinite(value))
                             {
-                                value = 1.0e-10;
+                                value = -1.0;
                                 logI<<itr.first<<" = "<<value<<"\n";
                             }
                         }
-                        /*
                         else 
                         {
-                            value = 1.0e-10;
+                            value = -1.0;
                         }
-                        */
+                        
                         if(fit_params.contains(itr.first))
                         {
                             fit_params[itr.first].value = value;
@@ -1099,5 +1098,6 @@ void ImageSegRoiDialog::_model_custom_spectra(const std::string& analysis_name, 
         }
     }
 }
+
 
 //---------------------------------------------------------------------------
