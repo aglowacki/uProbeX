@@ -100,16 +100,14 @@ protected:
    bool _get_img(ArrayXXr<float>& int_img, bool normalize);
 
 	void _model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec);
-	
-   //std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
 
-   //QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
+	QWidget* _createKMeansLayout();
 
-   QWidget* _createKMeansLayout();
+	QWidget* _createDBScanLayout();
 
-   QWidget* _createDBScanLayout();
+	QWidget* _createManualLayout();
 
-   QWidget* _createManualLayout();
+	QWidget* _createPlotOptionsLayout();
 
 private:
 	QTabWidget* _techTabs;
@@ -152,6 +150,9 @@ private:
 	QComboBox* _manual_cb_action;
 	QSpinBox* _manual_sp_brush_size;
 	QPushButton* _manual_invert_roi;
+
+	QCheckBox* _plot_ck_model_nnls;
+	QCheckBox* _plot_ck_model_matrix;
 
 	int _next_color;
 

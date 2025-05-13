@@ -18,6 +18,7 @@
 static const QString STR_KMEANS = QString("KMeans");
 static const QString STR_DBSCAN = QString("DBSCAN");
 static const QString STR_MANUAL = QString("Manual");
+static const QString STR_PLOT_OPTIONS = QString("Plot Options");
 
 const int TAB_KMEANS = 0;
 const int TAB_MANUAL = 1;
@@ -54,6 +55,7 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
 	_layout_map[STR_DBSCAN] = _createDBScanLayout();
 	_layout_map[STR_MANUAL] = _createManualLayout();
+	_layout_map[STR_PLOT_OPTIONS] = _createPlotOptionsLayout();
 	_next_color = 0;
     createLayout();
 	updateCustomCursor(1);
@@ -379,12 +381,30 @@ QWidget* ImageSegRoiDialog::_createManualLayout()
 
 //---------------------------------------------------------------------------
 
+QWidget* ImageSegRoiDialog::_createPlotOptionsLayout()
+{
+	QVBoxLayout* layout = new QVBoxLayout();
+
+	_plot_ck_model_nnls = new QCheckBox("Model Per Pixel NNLS");
+	_plot_ck_model_matrix = new QCheckBox("Model Per Pixel Matrix");
+	
+	layout->addWidget(_plot_ck_model_nnls);
+	layout->addWidget(_plot_ck_model_matrix);
+
+	QWidget* widget = new QWidget();
+	widget->setLayout(layout);
+	return widget;
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegRoiDialog::createLayout()
 {
 	_techTabs = new QTabWidget();
 	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
 	_techTabs->addTab(_layout_map[STR_DBSCAN], STR_DBSCAN);
 	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
+	_techTabs->addTab(_layout_map[STR_PLOT_OPTIONS], STR_PLOT_OPTIONS);
 	_techTabs->setEnabled(false);
 	connect(_techTabs, &QTabWidget::currentChanged, this, &ImageSegRoiDialog::onTabChanged);
 
@@ -574,6 +594,7 @@ void ImageSegRoiDialog::onPlot()
 	std::vector<gstar::RoiMaskGraphicsItem*> rois = _int_img_widget->getAllROIs();
 	if (_model != nullptr)
     {
+		_tab_widget->setCurrentIndex(1);
 		_spectra_widget->clearAllSpectra();
 		data_struct::Params_Override<double>* po = _model->getParamOverride();
         if(po == nullptr)
@@ -608,15 +629,12 @@ void ImageSegRoiDialog::onPlot()
 				QColor color = itr->getColor();
 				_spectra_widget->append_spectra(itr->getName(), int_spectra, &ev, &color);
 
-					// duplicate , need to normalize to a function
-				// TODO: check preferences if we want to display this
-				QStringList fittings;
-				
-				//if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool() )
+				QStringList fittings;				
+				if( _plot_ck_model_matrix->isChecked() )
 				{
 					fittings.push_back(QString(STR_FIT_GAUSS_MATRIX.c_str()));
 				}
-				//if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool() )
+				if( _plot_ck_model_nnls->isChecked() )
 				{
 					fittings.push_back(QString(STR_FIT_NNLS.c_str()));
 				}
@@ -648,7 +666,6 @@ void ImageSegRoiDialog::onPlot()
 		}
 		_pb_rois->setValue(rois.size()*2);
 		QCoreApplication::processEvents();
-		_tab_widget->setCurrentIndex(1);
 	}
 }
 
