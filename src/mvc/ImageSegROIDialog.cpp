@@ -972,11 +972,23 @@ void ImageSegRoiDialog::_model_custom_spectra(const std::string& analysis_name, 
         {
             return;
         }
+		const data_struct::ArrayXXr<float>* elt_map;
         if(scalers->count(STR_ELT) == 0)
         {
-            return;
+			if(scalers->count(STR_ELT+"1") == 0) // legacy datasets store it as ELT1
+			{
+            	return;
+			}
+			else
+			{
+				elt_map = &scalers->at(STR_ELT+"1");
+			}
         }
-        const data_struct::ArrayXXr<float>* elt_map = &scalers->at(STR_ELT);
+		else
+		{
+			elt_map = &scalers->at(STR_ELT);
+		}
+        
         if(false == fit_params.contains(STR_COHERENT_SCT_AMPLITUDE))
         {
             data_struct::Fit_Param<double> param(STR_COHERENT_SCT_AMPLITUDE, 1.0e-10);
