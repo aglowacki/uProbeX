@@ -24,7 +24,10 @@
 #include "data_struct/fit_parameters.h"
 #include <mvc/ImageSegWidget.h>
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
+#include "mvc/SpectraWidget.h"
+#include <QTabWidget>
 #include <mvc/MapsH5Model.h>
+#include <QProgressBar>
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
@@ -51,6 +54,8 @@ public:
    ~ImageSegRoiDialog();
 
    void setImageData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data);
+
+   void setModel(MapsH5Model* model);
 
    void setColorMap(QVector<QRgb>* selected_colormap);
 
@@ -86,21 +91,23 @@ private slots:
 
 	void onNormalizeChanged(int);
 
+	void onPlot();
+
 protected:
 
    void createLayout();
 
    bool _get_img(ArrayXXr<float>& int_img, bool normalize);
 
-   //std::vector<QImage> _generate_images(int num_images, cv::Mat& mat);
+	void _model_custom_spectra(const std::string& analysis_name, const std::vector<std::pair<int, int>>& pixel_list, ArrayDr* spec);
 
-   //QImage _generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_img, uchar alpha=127);
+	QWidget* _createKMeansLayout();
 
-   QWidget* _createKMeansLayout();
+	QWidget* _createDBScanLayout();
 
-   QWidget* _createDBScanLayout();
+	QWidget* _createManualLayout();
 
-   QWidget* _createManualLayout();
+	QWidget* _createPlotOptionsLayout();
 
 private:
 	QTabWidget* _techTabs;
@@ -115,11 +122,15 @@ private:
 	
 	ImageSegWidget* _int_img_widget;
 
+	SpectraWidget* _spectra_widget;
+
 	QVector<QRgb>* _selected_colormap;
 
 	std::map<QString, QWidget*> _layout_map;
 
 	std::map<QString, data_struct::ArrayXXr<float>> _img_data;
+
+
 
 	std::map<int, QColor> _color_map;
 
@@ -140,7 +151,20 @@ private:
 	QSpinBox* _manual_sp_brush_size;
 	QPushButton* _manual_invert_roi;
 
+	QCheckBox* _plot_ck_model_nnls;
+	QCheckBox* _plot_ck_model_matrix;
+
 	int _next_color;
+
+	QTabWidget* _tab_widget;
+
+	QPushButton* _plotBtn;
+
+	 MapsH5Model* _model;
+
+	 QProgressBar* _pb_pixels;
+
+	 QProgressBar* _pb_rois;
 };
 
 

@@ -534,28 +534,32 @@ void RoiMaskGraphicsItem::onMousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-   if(_mouse_down == true)
-   {
-       if (_draw_action == DRAW_ACTION_MODES::ADD_DRAW)
-       {
-           add_to_roi(event->scenePos());
-       }
-       else if (_draw_action == DRAW_ACTION_MODES::ERASE_DRAW)
-       {
-           erase_from_roi(event->scenePos());
-       }
-       /*
-       else if (_draw_action == DRAW_ACTION_MODES::ADD_POLY)
-       {
+    QPointF spos = event->scenePos();
+    spos.setX( spos.x() - .5) ;
+    spos.setY( spos.y() - .5) ;
+    if(_mouse_down == true)
+    {
+        if (_draw_action == DRAW_ACTION_MODES::ADD_DRAW)
+        {
+            add_to_roi(event->scenePos());
+        }
+        else if (_draw_action == DRAW_ACTION_MODES::ERASE_DRAW)
+        {
+            erase_from_roi(event->scenePos());
+        }
+        /*
+        else if (_draw_action == DRAW_ACTION_MODES::ADD_POLY)
+        {
 
-       }
-       else if (_draw_action == DRAW_ACTION_MODES::ERASE_POLY)
-       {
+        }
+        else if (_draw_action == DRAW_ACTION_MODES::ERASE_POLY)
+        {
 
-       }
-       */
-   }
-   _cursor->setPos(event->scenePos());
+        }
+        */
+    }
+   _cursor->setPos(spos);
+   //_cursor->setPos(event->scenePos());
    QGraphicsItem::mouseMoveEvent(event);
 }
 
@@ -574,7 +578,7 @@ void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 void RoiMaskGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    _cursor->setPos(event->scenePos());
+    //_cursor->setPos(event->scenePos());
     this->scene()->addItem(_cursor);
     update(boundingRect());
 }
@@ -591,6 +595,14 @@ void RoiMaskGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 
 void RoiMaskGraphicsItem::setBrushSize(QSize brushSize)
 {
+    if(brushSize.width() < 1)
+    {
+        brushSize.setWidth(1);
+    }
+    if(brushSize.height() < 1)
+    {
+        brushSize.setHeight(1);
+    }
     _brush_size = brushSize;
     double w = (double)(brushSize.width());
     double h = (double)(brushSize.height());

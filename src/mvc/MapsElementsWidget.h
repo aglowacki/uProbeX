@@ -131,6 +131,8 @@ public slots:
 
    void onDockFloatChanged(bool floating);
 
+   void plotPixelSpectra(const QPoint& pos);
+
 protected:
 
    /**
@@ -250,6 +252,8 @@ protected:
    gstar::MotorLookupTransformer _motor_trans;
 
    QTabWidget* _tw_image_controls;
+
+   QAction* _plotPixelSpectraAction;
 
 };
 

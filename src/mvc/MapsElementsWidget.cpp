@@ -65,6 +65,9 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav
 	_selected_colormap = &_gray_colormap;
 
     connect(&_img_seg_diag, &ImageSegRoiDialog::onNewROIs, this, &MapsElementsWidget::on_add_new_ROIs);
+
+    _plotPixelSpectraAction = new QAction("Plot Pixel Spectra", this);
+
     setAttribute(Qt::WA_DeleteOnClose, true);
     _createLayout(create_image_nav, restore_floating);
 }
@@ -506,6 +509,22 @@ void MapsElementsWidget::_appendRoiTab()
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::plotPixelSpectra(const QPoint& pos)
+{
+    /*
+    if(_model != nullptr)
+    {
+        data_struct::Spectra<double> spectra;
+        if(_model->load_pixel_spectra(pos, spectra))
+        {
+
+        }
+    }
+        */
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::roiTreeContextMenu(const QPoint& pos)
 {
 
@@ -661,6 +680,7 @@ void MapsElementsWidget::openImageSegDialog()
         }
         _img_seg_diag.setColorMap(_selected_colormap);
         _img_seg_diag.setImageData(fit_counts);
+        _img_seg_diag.setModel(_model);
         
         // add any roi's that were loaded.
         std::vector<gstar::RoiMaskGraphicsItem*> roi_list;
@@ -771,8 +791,10 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
       return;
 
    QMenu menu(parent);
+   //menu.addAction(_plotPixelSpectraAction); // TODO : future impl
    menu.addAction(m_addMarkerAction);
    menu.addAction(m_addRulerAction);
+   
 
    if (m_treeModel != nullptr && m_treeModel->rowCount() > 0)
    {
@@ -793,6 +815,10 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
    if (result == nullptr)
    {
       m_selectionModel->clearSelection();
+   }
+   else if(result == _plotPixelSpectraAction)
+   {
+        plotPixelSpectra(pos);
    }
 
 }
@@ -991,6 +1017,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
                 if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
                 {
+                    // plot roi int spec
                     _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec.at(_model->getDatasetName().toStdString())), itr.second.color);
                 }
             }
@@ -1576,6 +1603,44 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 
                 _model->appendMapRoi(itr->getName().toStdString(), roi);
                 _spectra_widget->appendROISpectra(itr->getName().toStdString(), int_spectra, itr->getColor());
+
+                /*
+                 // duplicate , need to normalize to a function
+                // TODO: check preferences if we want to display this
+                std::vector<std::string> fittings;
+                
+                if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_MATRIX).toBool() )
+                {
+                    fittings.push_back(STR_FIT_GAUSS_MATRIX);
+                }
+                if( Preferences::inst()->getValue(STR_PFR_SHOW_FIT_INT_NNLS).toBool() )
+                {
+                    fittings.push_back(STR_FIT_NNLS);
+                }
+                for(auto f_itr : fittings)
+                {
+                    QColor color = Qt::darkBlue;
+                    if(f_itr == STR_FIT_NNLS)
+                    {
+                        color = Qt::darkGreen;
+                    }
+                    // create per pixel fitted spec for this roi and add it to spec widget 
+                    ArrayDr* roi_fitted_int_spec = new ArrayDr(int_spectra->size());
+                    roi_fitted_int_spec->setZero();
+                    _model_custom_spectra(f_itr, roi.pixel_list, roi_fitted_int_spec);
+                    if(roi_fitted_int_spec->maxCoeff() > 0)
+                    {
+                        // need to load and do per pixel snip_background to have correct fit
+                        
+                        std::string fitted_name = roi.name+"_"+f_itr;
+                        _spectra_widget->appendROISpectra(fitted_name, roi_fitted_int_spec, color);
+                    }
+                    else
+                    {
+                        logW<<"Failed to model per pixel spectra fitting for roi "<<roi.name<<" "<<f_itr<<"\n";
+                    }
+                }
+                */
             }
         }
     
