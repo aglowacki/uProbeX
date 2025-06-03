@@ -21,7 +21,7 @@ static const QString STR_MANUAL = QString("Manual");
 static const QString STR_PLOT_OPTIONS = QString("Plot Options");
 
 const int TAB_KMEANS = 0;
-const int TAB_MANUAL = 1;
+const int TAB_MANUAL = 2;
 
 const int ACTION_ADD = 0;
 const int ACTION_ERASE = 1;
