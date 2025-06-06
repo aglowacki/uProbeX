@@ -297,7 +297,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 			for (unsigned int i = 0; i < spectra->size(); i++)
 			{
 
-				float val = (*spectra)[i];
+				double val = (*spectra)[i];
 				bool isFine = std::isfinite(val);
 				if (false == isFine || val == 0.0f)
 				{

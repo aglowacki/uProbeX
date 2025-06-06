@@ -8,6 +8,7 @@
 
 //---------------------------------------------------------------------------
 
+#include <QComboBox>
 #include <mvc/MapsH5Model.h>
 #include <mvc/SpectraWidget.h>
 #include <mvc/PolarXanesWidget.h>
@@ -38,9 +39,15 @@ public:
 
     void createLayout();
 
-    void setIntegratedSpectra(ArrayDr* lhcp_int_spec, ArrayDr* rhcp_int_spec);
+    void setModel(MapsH5Model* model);
 
-    void clearAllSpectra();
+protected:
+
+    void _plot_new_element(QString analysis, QString element);
+
+protected slots:
+
+    void onSelecAnalysisOrElement(QString val);
 
 private:
 
@@ -50,6 +57,11 @@ private:
 
     ArrayDr* _rhcp_int_spec;
 
+    MapsH5Model* _model;
+
+    QComboBox* _cb_analysis;
+
+    QComboBox* _cb_elements;
 };
 
 

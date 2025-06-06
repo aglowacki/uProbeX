@@ -1006,7 +1006,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _tab_widget->setTabVisible(4, false); // set coloc not visible   
                 _tab_widget->setTabVisible(6, false); // set extra pvs not visible   
 
-                //_polar_xanes_widget->setIntegratedSpectra(&lhcp_spectra, &rhcp_spectra);
+                _polar_xanes_widget->setModel(_model);                
+
                 _spectra_widget->appendMaxChanSpectra(STR_LHCP_SPECTRA, _model->get_lhcp_spectra());
                 _spectra_widget->appendMaxChanSpectra(STR_RHCP_SPECTRA, _model->get_rhcp_spectra());
 
