@@ -29,6 +29,7 @@
 #include <mvc/QuantificationWidget.h>
 #include <mvc/RoiStatisticsWidget.h>
 #include <gstar/MotorLookupTransformer.h>
+#include <mvc/PolarXanesWidget.h>
 
 using gstar::AbstractGraphicsItem;
 //---------------------------------------------------------------------------
@@ -150,6 +151,8 @@ protected:
 
    FitSpectraWidget* _spectra_widget;
 
+   PolarXanesWidget* _polar_spectra_widget;
+
    QLabel *_dataset_directory;
 
    QLabel *_dataset_name;
@@ -238,6 +241,8 @@ protected:
    QDockWidget* _counts_dock;
 
    QDockWidget* _intspectra_dock;
+
+   QDockWidget* _polar_dock;
 
    QDockWidget* _quant_dock;
 

@@ -230,6 +230,8 @@ public:
 
     bool load_pixel_spectra(const std::pair<int, int>& point, ArrayDr& spectra);
 
+    bool is_polar_xanes_scan();
+    
 signals:
     void model_data_updated();
 
@@ -300,6 +302,8 @@ private:
     QString _datset_name;
 
     QDir _dir;
+
+    std::string _scan_type_as_str;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 

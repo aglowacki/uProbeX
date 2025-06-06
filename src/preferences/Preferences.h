@@ -116,6 +116,7 @@
 #define STR_MAPS_WIDGET_GEOMETRY "MapsWidgetGeometry"
 #define STR_COUNTS_DOCK "CountsDock"
 #define STR_INTSPEC_DOCK "IntSpecDock"
+#define STR_POLAR_DOCK "PolarXanesDock"
 #define STR_QUANT_DOCK "QuantDock"
 #define STR_COLOR_DOCK "ColorDock"
 #define STR_SCATTER_DOCK "ScatterDock"

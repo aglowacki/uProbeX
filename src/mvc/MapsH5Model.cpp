@@ -14,7 +14,7 @@ std::mutex MapsH5Model::_mutex;
 
 MapsH5Model::MapsH5Model() : QObject()
 {
-
+    _scan_type_as_str = "";
     _filepath = "";
     _is_fully_loaded = false;
     _version = 0.0f;
@@ -1884,17 +1884,18 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id;
+    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id;
     std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
     std::string extra_pvs_name = "Scan/Extra_PVs/Names";
     std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
     std::string extra_pvs_val = "Scan/Extra_PVs/Values";
     std::string x_axis_loc = "Scan/x_axis";
     std::string y_axis_loc = "Scan/y_axis";
+    std::string scan_type_loc = "Scan/scan_type";
     hsize_t offset[1] = { 0, };
     hsize_t count[1] = { 1 };
     hid_t   filetype, memtype, status;
-    char tmp_name[255];
+    char tmp_name[255] = {0};
 
     desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
     name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
@@ -1902,11 +1903,24 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
     x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
     y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
+    scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
     memtype = H5Tcopy(H5T_C_S1);
     status = H5Tset_size(memtype, 255);
+
+    if(scan_type_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(scan_type_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(scan_type_id, memtype, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+            _scan_type_as_str = std::string(tmp_name);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(scan_type_id);
+    }
 
     if (desc_id > -1 && name_id > -1 && unit_id > -1 && val_id > -1)
     {
@@ -1952,7 +1966,15 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 
                     _scan_info.extra_pvs.push_back(epv);
                 }
+                if(memoryspace_id > -1)
+                {
+                    H5Sclose(memoryspace_id);
+                }
             }
+        }
+        if(dataspace_id > -1)
+        {
+            H5Sclose(dataspace_id);
         }
     }
     if (desc_id > -1)
@@ -2488,6 +2510,17 @@ bool MapsH5Model::_load_fit_parameters_10(hid_t maps_grp_id)
 
         H5Dclose(dset_name_id);
         H5Dclose(dset_val_id);
+        return true;
+    }
+    return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::is_polar_xanes_scan()
+{
+    if(_scan_type_as_str == STR_SCAN_TYPE_POLAR_XANES)
+    {
         return true;
     }
     return false;
