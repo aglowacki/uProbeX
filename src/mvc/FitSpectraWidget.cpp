@@ -708,7 +708,7 @@ void FitSpectraWidget::appendFitIntSpectra(std::string name, ArrayDr* spec)
 
 //---------------------------------------------------------------------------
 
-void FitSpectraWidget::appendMaxChanSpectra(std::string name, ArrayDr* spec)
+void FitSpectraWidget::appendMaxChanSpectra(std::string name, const ArrayDr* spec)
 {
     _max_chan_spec_map[name] = spec;
 }
@@ -1303,7 +1303,6 @@ void FitSpectraWidget::optimizer_preset_changed(int val)
 
 void FitSpectraWidget::setIntegratedSpectra(ArrayDr* int_spec)
 {
-	
 	_int_spec = int_spec;
     replot_integrated_spectra(true);
     _spectra_widget->onResetChartViewOnlyY();

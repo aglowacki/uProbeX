@@ -270,7 +270,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _counts_window = new QWidget();
     _counts_window->setLayout(counts_layout);
 
-    _polar_spectra_widget = new PolarXanesWidget();
+    _polar_xanes_widget = new PolarXanesWidget();
 
     _co_loc_widget = new CoLocalizationWidget();
     _quant_widget = new QuantificationWidget();
@@ -292,7 +292,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     _polar_dock = new QDockWidget("POLAR XANES", this);
     _polar_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-	_polar_dock->setWidget(_polar_spectra_widget);
+	_polar_dock->setWidget(_polar_xanes_widget);
     _polar_dock->setContentsMargins(0, 0, 0, 0);
     _dockMap[STR_POLAR_DOCK] = _polar_dock;
 
@@ -980,20 +980,6 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         model_updated();
         if (_model != nullptr)
         {
-            if(_model->is_polar_xanes_scan() )
-            {
-                _tab_widget->setTabVisible(2, true); // set polar xanes visible
-                _tab_widget->setTabVisible(3, false); // set quantification not visible   
-                _tab_widget->setTabVisible(4, false); // set coloc not visible   
-                _tab_widget->setTabVisible(6, false); // set extra pvs not visible   
-            }
-            else
-            {
-                _tab_widget->setTabVisible(2, false); // set polar xanes not visible
-                _tab_widget->setTabVisible(3, true); // set quantification  visible
-                _tab_widget->setTabVisible(4, true); // set coloc visible   
-                _tab_widget->setTabVisible(6, true); // set extra pvs visible   
-            }
             data_struct::Params_Override<double>* po = _model->getParamOverride();
             if (po != nullptr)
             {
@@ -1013,9 +999,33 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             }
             
 
-			_model->getIntegratedSpectra(_int_spec);
-			_spectra_widget->setIntegratedSpectra(&_int_spec);
-            _spectra_widget->setDatasetDir(_model->getDir());
+            if(_model->is_polar_xanes_scan() )
+            {
+                _tab_widget->setTabVisible(2, true); // set polar xanes visible
+                _tab_widget->setTabVisible(3, false); // set quantification not visible   
+                _tab_widget->setTabVisible(4, false); // set coloc not visible   
+                _tab_widget->setTabVisible(6, false); // set extra pvs not visible   
+
+                //_polar_xanes_widget->setIntegratedSpectra(&lhcp_spectra, &rhcp_spectra);
+                _spectra_widget->appendMaxChanSpectra(STR_LHCP_SPECTRA, _model->get_lhcp_spectra());
+                _spectra_widget->appendMaxChanSpectra(STR_RHCP_SPECTRA, _model->get_rhcp_spectra());
+
+                _model->getIntegratedSpectra(_int_spec);
+                _int_spec /= 2.0;
+			    _spectra_widget->setIntegratedSpectra(&_int_spec);
+            }
+            else
+            {
+                _tab_widget->setTabVisible(2, false); // set polar xanes not visible
+                _tab_widget->setTabVisible(3, true); // set quantification  visible
+                _tab_widget->setTabVisible(4, true); // set coloc visible   
+                _tab_widget->setTabVisible(6, true); // set extra pvs visible   
+                _model->getIntegratedSpectra(_int_spec);
+			    _spectra_widget->setIntegratedSpectra(&_int_spec);
+            
+            }
+
+			_spectra_widget->setDatasetDir(_model->getDir());
 
             connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
 

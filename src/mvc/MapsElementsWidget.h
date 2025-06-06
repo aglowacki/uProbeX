@@ -151,7 +151,7 @@ protected:
 
    FitSpectraWidget* _spectra_widget;
 
-   PolarXanesWidget* _polar_spectra_widget;
+   PolarXanesWidget* _polar_xanes_widget;
 
    QLabel *_dataset_directory;
 

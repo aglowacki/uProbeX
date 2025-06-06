@@ -66,7 +66,7 @@ public:
 
    void appendFitIntSpectra(std::string, ArrayDr*);
 
-   void appendMaxChanSpectra(std::string name, ArrayDr* spec);
+   void appendMaxChanSpectra(std::string name, const ArrayDr* spec);
 
    void appendROISpectra(std::string name, ArrayDr* spec, QColor color);
 
@@ -218,7 +218,7 @@ private:
 
     std::unordered_map<std::string, ArrayDr*> _fit_int_spec_map;
 
-    std::unordered_map<std::string, ArrayDr*> _max_chan_spec_map;
+    std::unordered_map<std::string, const ArrayDr*> _max_chan_spec_map;
 
     std::map<std::string, ArrayDr*> _roi_spec_map;
 
