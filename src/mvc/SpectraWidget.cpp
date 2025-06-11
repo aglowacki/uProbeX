@@ -98,12 +98,12 @@ void SpectraWidget::createLayout()
 
     // Toolbar zoom out action
     _display_eneergy_min = new QLineEdit(QString::number(_axisX->min(), 'f', 2));
-    _display_eneergy_min->setMinimumWidth(50);
+    _display_eneergy_min->setMinimumWidth(60);
     connect(_display_eneergy_min, &QLineEdit::textEdited, this, &SpectraWidget::onSpectraDisplayChanged);
 
 
     _display_eneergy_max = new QLineEdit(QString::number(_axisX->max(), 'f', 2));
-    _display_eneergy_max->setMinimumWidth(50);
+    _display_eneergy_max->setMinimumWidth(60);
     connect(_display_eneergy_max, &QLineEdit::textEdited, this, &SpectraWidget::onSpectraDisplayChanged);
 
     _display_height_min = new QLineEdit(QString::number(ymin));
@@ -176,6 +176,18 @@ void SpectraWidget::setBackgroundBlack(bool val)
     {
         _chart->setBackgroundBrush(QBrush(QColor("white")));
     }
+}
+
+void SpectraWidget::setDisplayRange(double wmin, double wmax, double hmin, double hmax)
+{
+    _axisX->setLabelFormat("%f");
+    _axisX->setTruncateLabels(false);
+    _axisX->setTickAnchor(wmin);
+    _axisX->setTickInterval(.01);
+
+    _axisY->setTitleText("Diff");
+    _axisY->setLabelFormat("%f");
+    setDisplayRange(QString::number(wmin),QString::number(wmax),QString::number(hmin),QString::number(hmax));
 }
 
 void SpectraWidget::setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax)
@@ -255,7 +267,7 @@ void SpectraWidget::onUpdateChartLineEdits()
 
 //---------------------------------------------------------------------------
 
-void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy, QColor* color)
+void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy, QColor* color, bool showHover)
 {
     if (spectra == nullptr)
         return;
@@ -276,7 +288,7 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
         }
     }
 
-    if (name == DEF_STR_INT_SPECTRA)
+    if (name == DEF_STR_INT_SPECTRA || showHover)
     {
         _int_spec_max_x = energy->maxCoeff();
         _int_spec_max_y = spectra->maxCoeff();

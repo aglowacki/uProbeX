@@ -135,17 +135,18 @@ void PolarXanesWidget::_plot_new_element(QString analysis_name, QString element_
                     rhcp_energy.resize(element_arr.cols());
                     for (int c = 0; c < element_arr.cols(); c++)
                     {
-                        lhcp_element[c] = static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c));
-                        logI<<lhcp_element[c]<<"\n";
-                        rhcp_element[c] = static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c));
+                        lhcp_element[c] = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) - (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)));
+                        //logI<<lhcp_element[c]<<"\n";
+                        //rhcp_element[c] = ;
                         lhcp_energy[c] = static_cast<double>(energy_map(0,c));
-                        rhcp_energy[c] = static_cast<double>(energy_map(1,c));
+                        //rhcp_energy[c] = static_cast<double>(energy_map(1,c));
                     }
-                    QString name = "LHCP_" + element_name;
-                    _spectra_widget->append_spectra(name, &lhcp_element, &lhcp_energy);
+                    QString name = "(LHCP/I0)-(RHCP/I0)" + element_name;
+                    _spectra_widget->append_spectra(name, &lhcp_element, &lhcp_energy, nullptr, true);
+                    _spectra_widget->setDisplayRange(lhcp_energy.minCoeff(), lhcp_energy.maxCoeff(), lhcp_element.minCoeff(), lhcp_element.maxCoeff());
 
-                    name = "RHCP_" + element_name;
-                    _spectra_widget->append_spectra(name, &rhcp_element, &rhcp_energy);
+                    //name = "RHCP_" + element_name;
+                    //_spectra_widget->append_spectra(name, &rhcp_element, &rhcp_energy);
                 }
             }
         }

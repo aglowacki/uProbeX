@@ -91,7 +91,7 @@ public:
     */
     ~SpectraWidget();
 
-    void append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy=nullptr, QColor* color=nullptr);
+    void append_spectra(QString name, const data_struct::ArrayTr<double>* spectra, const data_struct::ArrayTr<double>*energy=nullptr, QColor* color=nullptr, bool showHover = false);
 
     void setXLabel(QString val) { _axisX->setTitleText(val); }
 
@@ -104,6 +104,8 @@ public:
     QString getDisplayHeightMin() { return QString::number(1.);}//_display_height_min->text(); }
     
     QString getDisplayHeightMax() { return QString::number(_int_spec_max_y);}//_display_height_max->text(); }
+
+    void setDisplayRange(double wmin, double wmax, double hmin, double hmax);
 
     void setDisplayRange(QString wmin, QString wmax, QString hmin, QString hmax);
 
