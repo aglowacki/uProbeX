@@ -869,7 +869,10 @@ void FitSpectraWidget::del_element()
     {
         if(i.isValid())
         {
-            data_struct::Fit_Element_Map<double>* fit_element = _fit_elements_table_model->getElementByIndex(i);
+            data_struct::Fit_Element_Map<double>* fit_element = nullptr;
+            QString out_name;
+            bool is_parent = false;
+            _fit_elements_table_model->getElementByIndex(i, &fit_element, out_name, is_parent);
 
             if( fit_element != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
             {
@@ -1231,7 +1234,24 @@ void FitSpectraWidget::check_auto_model(int state)
 
 void FitSpectraWidget::element_selection_changed_from(QModelIndex current, QModelIndex previous)
 {
-    _spectra_widget->set_element_lines(_fit_elements_table_model->getElementByIndex(current));
+
+    data_struct::Fit_Element_Map<double>* out_element = nullptr;
+    QString out_name;
+    bool is_parent = false;
+    if(_fit_elements_table_model->getElementByIndex(current, &out_element, out_name, is_parent))
+    {
+        if(is_parent)
+        {
+            _spectra_widget->set_element_lines(out_element);
+        }
+        else // is element line, show ROI width instead 
+        {
+            if(data_struct::Str_Element_Param_Map.count(out_name.toStdString()))
+            {
+                _spectra_widget->set_element_width(out_element, data_struct::Str_Element_Param_Map.at(out_name.toStdString()));
+            }
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

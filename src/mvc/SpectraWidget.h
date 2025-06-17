@@ -140,6 +140,8 @@ public slots:
 
     void set_element_lines(data_struct::Fit_Element_Map<double>* element);
 
+    void set_element_width(data_struct::Fit_Element_Map<double>* element, data_struct::Element_Param_Type shell);
+    
     void clear_top_axis();
 
     void set_top_axis(std::map < float, std::string> elements);

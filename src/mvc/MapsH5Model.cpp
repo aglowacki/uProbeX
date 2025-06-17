@@ -2383,6 +2383,11 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                if ( is_polar_xanes_scan() )
+                {
+                    *spectra = *spectra / 2.0;
+                }
+
 				_fit_int_spec_dict.insert({ group_name , spectra });
 			}
 		}
@@ -2415,6 +2420,10 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
 				//_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+                if ( is_polar_xanes_scan() )
+                {
+                    *spectra = *spectra / 2.0;
+                }
 				_fit_int_spec_dict.insert({ "Background" , spectra });
 			}
 		}

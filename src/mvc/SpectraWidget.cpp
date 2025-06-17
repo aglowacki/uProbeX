@@ -521,8 +521,8 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
                 }
 				line->append(itr.energy, line_height);
 			}
-			QString eName = QString(element->full_name().c_str());
-            eName = QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str());
+		
+            QString eName = QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str());
 
             line->setName(eName);
             _chart->addSeries(line);
@@ -531,6 +531,70 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
             _element_lines.push_back(line);
         }
         emit trigger_connect_markers();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void SpectraWidget::set_element_width(data_struct::Fit_Element_Map<double>* element, data_struct::Element_Param_Type shell)
+{
+    //clear old one
+	for (QLineSeries* itr : _element_lines)
+	{
+		itr->detachAxis(_axisX);
+        itr->detachAxis(_currentYAxis);
+		_chart->removeSeries(itr);
+		delete itr;
+	}
+	_element_lines.clear();
+
+    float line_min = 0.1;
+    float line_max = 9999;
+
+    line_min = std::max(0.1, ((QValueAxis*)_currentYAxis)->min());
+    line_max = ((QValueAxis*)_currentYAxis)->max();
+
+    if(element != nullptr)
+    {
+        bool found = false;
+        float center = 0;
+        const std::vector<data_struct::Element_Energy_Ratio<double>>& energy_ratios = element->energy_ratios();
+        for(auto& itr : energy_ratios)
+        {
+            if (itr.ptype == shell)
+            {
+                center = itr.energy;
+                found = true;
+                break;
+            }
+        }
+        if (found)
+        {
+            float left_roi = (center - element->width());
+            float right_roi = (center + element->width()); 
+
+            QLineSeries* left_line = new QLineSeries();
+            left_line->append(left_roi, line_min);
+            left_line->append(left_roi, line_max);
+            QString left_name = "ROI_Left";
+            left_line->setName(left_name);
+            _chart->addSeries(left_line);
+            left_line->attachAxis(_axisX);
+            left_line->attachAxis(_currentYAxis);
+            _element_lines.push_back(left_line);
+
+            QLineSeries* right_line = new QLineSeries();        
+            right_line->append(right_roi, line_min);
+            right_line->append(right_roi, line_max);
+            QString right_name = "ROI_Right";
+            right_line->setName(right_name);
+            _chart->addSeries(right_line);
+            right_line->attachAxis(_axisX);
+            right_line->attachAxis(_currentYAxis);
+            _element_lines.push_back(right_line);
+
+            emit trigger_connect_markers();
+        }
     }
 }
 
