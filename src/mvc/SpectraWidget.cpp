@@ -292,8 +292,11 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
     {
         _int_spec_max_x = energy->maxCoeff();
         _int_spec_max_y = spectra->maxCoeff();
-        disconnect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
-        connect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
+        if(series != nullptr)
+        {
+            disconnect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
+            connect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
+        }
     }
 
     if(series == nullptr)
@@ -339,7 +342,6 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
         }
         else
         {
-            int r, g, b, a;
             if (name == DEF_STR_INT_SPECTRA)
             {
                 pen.setColor(QColor::fromRgb(INT_SPEC_R, INT_SPEC_G, INT_SPEC_B));
@@ -358,6 +360,11 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
             }
         }
         series->setPen(pen);
+
+        if (showHover)
+        {
+            connect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);
+        }
     }
     else
     {

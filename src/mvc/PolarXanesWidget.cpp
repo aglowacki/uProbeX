@@ -125,28 +125,28 @@ void PolarXanesWidget::_plot_new_element(QString analysis_name, QString element_
                     _model->getAnalyzedCounts(analysis_name.toStdString(), element_counts);
                     
                     data_struct::ArrayXXr<float> element_arr = element_counts.at(element_name.toStdString());
-                    ArrayDr lhcp_element;
-                    ArrayDr lhcp_energy;
-                    ArrayDr rhcp_element;
-                    ArrayDr rhcp_energy;
-                    lhcp_element.resize(element_arr.cols());
-                    lhcp_energy.resize(element_arr.cols());
-                    rhcp_element.resize(element_arr.cols());
-                    rhcp_energy.resize(element_arr.cols());
+                    ArrayDr element_diff;
+                    ArrayDr energy;
+                    ArrayDr element_avg;
+                    element_diff.resize(element_arr.cols());
+                    energy.resize(element_arr.cols());
+                    element_avg.resize(element_arr.cols());
                     for (int c = 0; c < element_arr.cols(); c++)
                     {
-                        lhcp_element[c] = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) - (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)));
-                        //logI<<lhcp_element[c]<<"\n";
-                        //rhcp_element[c] = ;
-                        lhcp_energy[c] = static_cast<double>(energy_map(0,c));
-                        //rhcp_energy[c] = static_cast<double>(energy_map(1,c));
+                        element_diff[c] = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) - (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)));
+                        element_avg[c] = ((static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) + (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)))) / 2.0;                        
+                        energy[c] = static_cast<double>(energy_map(0,c));                        
                     }
-                    QString name = "(LHCP/I0)-(RHCP/I0)" + element_name;
-                    _spectra_widget->append_spectra(name, &lhcp_element, &lhcp_energy, nullptr, true);
-                    _spectra_widget->setDisplayRange(lhcp_energy.minCoeff(), lhcp_energy.maxCoeff(), lhcp_element.minCoeff(), lhcp_element.maxCoeff());
+                    QString diff_name = "(LHCP/I0)-(RHCP/I0)";
+                    _spectra_widget->append_spectra(diff_name, &element_diff, &energy, nullptr, true);
 
-                    //name = "RHCP_" + element_name;
-                    //_spectra_widget->append_spectra(name, &rhcp_element, &rhcp_energy);
+                    QString avg_name = "((LHCP/I0)+(RHCP/I0)) / 2";
+                    _spectra_widget->append_spectra(avg_name, &element_avg, &energy, nullptr, true);
+
+                    double main_min = std::min (element_diff.minCoeff() , element_avg.minCoeff());
+                    double main_max = std::max (element_diff.maxCoeff() , element_avg.maxCoeff());
+
+                    _spectra_widget->setDisplayRange(energy.minCoeff(), energy.maxCoeff(), main_min, main_max);
                 }
             }
         }
