@@ -239,7 +239,10 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
             xrf_counts->emplace(std::pair<std::string,data_struct::ArrayXXr<float>>(itr2.first, data_struct::ArrayXXr<float>() ));
             xrf_counts->at(itr2.first).resize(block->height(), block->width());
             xrf_counts->at(itr2.first).setZero(block->height(), block->width());
-            xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+            if((block->height() > block->row()) && (block->width() > block->col())) 
+            { 
+                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+            }
         }
     }
     emit model_data_updated();
@@ -505,22 +508,28 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* blo
             if(_analyzed_counts.count(group_name) > 0)
             {
                 data_struct::Fit_Count_Dict<float>* xrf_counts = _analyzed_counts[group_name];
-                for(auto& itr2 : itr.second.fit_counts)
+                if(xrf_counts != nullptr)
                 {
-					if (xrf_counts->count(itr2.first) < 1)
-					{
-						initialize_from_stream_block(block);
-						break;
-					}
-                    if (std::isfinite(itr2.second))
+                    for(auto& itr2 : itr.second.fit_counts)
                     {
-						std::lock_guard<std::mutex> lock(_mutex);
-                        xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
-                    }
-                    else
-                    {
-						std::lock_guard<std::mutex> lock(_mutex);
-                        xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
+                        if (xrf_counts->count(itr2.first) < 1)
+                        {
+                            initialize_from_stream_block(block);
+                            break;
+                        }
+                        if((xrf_counts->at(itr2.first).rows() > block->row()) && (xrf_counts->at(itr2.first).cols() > block->col()))
+                        {
+                            if (std::isfinite(itr2.second))
+                            {
+                                std::lock_guard<std::mutex> lock(_mutex);
+                                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                            }
+                            else
+                            {
+                                std::lock_guard<std::mutex> lock(_mutex);
+                                xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
+                            }
+                        }
                     }
                 }
             }
