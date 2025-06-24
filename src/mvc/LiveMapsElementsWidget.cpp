@@ -241,6 +241,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         {
             start_new_image = true;
         }
+        /*
 		size_t dlen = new_packet->dataset_name->length();
 		if (new_packet->dataset_name->at(dlen - 3) != '.' && new_packet->dataset_name->at(dlen - 2) != 'n' && new_packet->dataset_name->at(dlen - 1) != 'c')
 		{
@@ -249,6 +250,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
 			    start_new_image = true;
 			}
 		}
+        */
     }
     if(_currentModel == nullptr)
     {

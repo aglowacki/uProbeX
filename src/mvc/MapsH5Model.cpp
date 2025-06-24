@@ -14,7 +14,7 @@ std::mutex MapsH5Model::_mutex;
 
 MapsH5Model::MapsH5Model() : QObject()
 {
-
+    _scan_type_as_str = "";
     _filepath = "";
     _is_fully_loaded = false;
     _version = 0.0f;
@@ -239,7 +239,10 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
             xrf_counts->emplace(std::pair<std::string,data_struct::ArrayXXr<float>>(itr2.first, data_struct::ArrayXXr<float>() ));
             xrf_counts->at(itr2.first).resize(block->height(), block->width());
             xrf_counts->at(itr2.first).setZero(block->height(), block->width());
-            xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+            if((block->height() > block->row()) && (block->width() > block->col())) 
+            { 
+                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+            }
         }
     }
     emit model_data_updated();
@@ -505,22 +508,28 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* blo
             if(_analyzed_counts.count(group_name) > 0)
             {
                 data_struct::Fit_Count_Dict<float>* xrf_counts = _analyzed_counts[group_name];
-                for(auto& itr2 : itr.second.fit_counts)
+                if(xrf_counts != nullptr)
                 {
-					if (xrf_counts->count(itr2.first) < 1)
-					{
-						initialize_from_stream_block(block);
-						break;
-					}
-                    if (std::isfinite(itr2.second))
+                    for(auto& itr2 : itr.second.fit_counts)
                     {
-						std::lock_guard<std::mutex> lock(_mutex);
-                        xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
-                    }
-                    else
-                    {
-						std::lock_guard<std::mutex> lock(_mutex);
-                        xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
+                        if (xrf_counts->count(itr2.first) < 1)
+                        {
+                            initialize_from_stream_block(block);
+                            break;
+                        }
+                        if((xrf_counts->at(itr2.first).rows() > block->row()) && (xrf_counts->at(itr2.first).cols() > block->col()))
+                        {
+                            if (std::isfinite(itr2.second))
+                            {
+                                std::lock_guard<std::mutex> lock(_mutex);
+                                xrf_counts->at(itr2.first)(block->row(), block->col()) = itr2.second;
+                            }
+                            else
+                            {
+                                std::lock_guard<std::mutex> lock(_mutex);
+                                xrf_counts->at(itr2.first)(block->row(), block->col()) = 0.0;
+                            }
+                        }
                     }
                 }
             }
@@ -1884,17 +1893,18 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id;
+    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id;
     std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
     std::string extra_pvs_name = "Scan/Extra_PVs/Names";
     std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
     std::string extra_pvs_val = "Scan/Extra_PVs/Values";
     std::string x_axis_loc = "Scan/x_axis";
     std::string y_axis_loc = "Scan/y_axis";
+    std::string scan_type_loc = "Scan/scan_type";
     hsize_t offset[1] = { 0, };
     hsize_t count[1] = { 1 };
     hid_t   filetype, memtype, status;
-    char tmp_name[255];
+    char tmp_name[255] = {0};
 
     desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
     name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
@@ -1902,11 +1912,24 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
     x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
     y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
+    scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
     memtype = H5Tcopy(H5T_C_S1);
     status = H5Tset_size(memtype, 255);
+
+    if(scan_type_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(scan_type_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(scan_type_id, memtype, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name[0]);
+            _scan_type_as_str = std::string(tmp_name);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(scan_type_id);
+    }
 
     if (desc_id > -1 && name_id > -1 && unit_id > -1 && val_id > -1)
     {
@@ -1952,7 +1975,15 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 
                     _scan_info.extra_pvs.push_back(epv);
                 }
+                if(memoryspace_id > -1)
+                {
+                    H5Sclose(memoryspace_id);
+                }
             }
+        }
+        if(dataspace_id > -1)
+        {
+            H5Sclose(dataspace_id);
         }
     }
     if (desc_id > -1)
@@ -2026,6 +2057,78 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 
     std::string max_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX_CHANNELS_INT_SPEC;
     std::string max_10_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_MAX10_INT_SPEC;
+
+    if ( is_polar_xanes_scan() )
+    {
+        std::string lhcp_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_LHCP_SPECTRA;
+        dset_id = H5Dopen(file_id, lhcp_path.c_str(), H5P_DEFAULT);
+        if (dset_id > -1)
+        {
+            hid_t dataspace_id = H5Dget_space(dset_id);
+            int rank = H5Sget_simple_extent_ndims(dataspace_id);
+            if (rank == 1)
+            {
+                hsize_t dims_in[1] = { 0 };
+                int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+                if (status_n > -1)
+                {
+                    for (int i = 0; i < rank; i++)
+                    {
+                        offset[i] = 0;
+                        count[i] = dims_in[i];
+                    }
+
+                    _lhcp_integrated_spectra.resize(dims_in[0]);
+
+                    count[0] = dims_in[0];
+
+                    memoryspace_id = H5Screate_simple(1, count, nullptr);
+                    H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+                    error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(_lhcp_integrated_spectra)[0]);
+                    H5Sclose(memoryspace_id);
+                }
+            }
+            H5Sclose(dataspace_id);
+            H5Dclose(dset_id);
+        }
+
+        std::string rhcp_path = "/MAPS/Spectra/" + STR_INT_SPEC + "/" + STR_RHCP_SPECTRA;
+        dset_id = H5Dopen(file_id, rhcp_path.c_str(), H5P_DEFAULT);
+        if (dset_id > -1)
+        {
+            hid_t dataspace_id = H5Dget_space(dset_id);
+            int rank = H5Sget_simple_extent_ndims(dataspace_id);
+            if (rank == 1)
+            {
+                hsize_t dims_in[1] = { 0 };
+                int status_n = H5Sget_simple_extent_dims(dataspace_id, &dims_in[0], nullptr);
+                if (status_n > -1)
+                {
+                    for (int i = 0; i < rank; i++)
+                    {
+                        offset[i] = 0;
+                        count[i] = dims_in[i];
+                    }
+
+                    _rhcp_integrated_spectra.resize(dims_in[0]);
+
+                    count[0] = dims_in[0];
+
+                    memoryspace_id = H5Screate_simple(1, count, nullptr);
+                    H5Sselect_hyperslab(memoryspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+                    H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+                    error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(_rhcp_integrated_spectra)[0]);
+                    H5Sclose(memoryspace_id);
+                }
+            }
+            H5Sclose(dataspace_id);
+            H5Dclose(dset_id);
+        }
+    }
+    
 
     dset_id = H5Dopen(file_id, max_path.c_str(), H5P_DEFAULT);
     if (dset_id > -1)
@@ -2113,6 +2216,14 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
 
     return io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5(_filepath.toStdString(), &_integrated_spectra);
 
+}
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::get_copy_lhcp_rhcp_spectra(data_struct::Spectra<double>& out_lhcp_spectra, data_struct::Spectra<double>& out_rhcp_spectra)
+{
+    out_lhcp_spectra = _lhcp_integrated_spectra;
+    out_rhcp_spectra = _rhcp_integrated_spectra;
 }
 
 //---------------------------------------------------------------------------
@@ -2281,6 +2392,11 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 				H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
+                if ( is_polar_xanes_scan() )
+                {
+                    *spectra = *spectra / 2.0;
+                }
+
 				_fit_int_spec_dict.insert({ group_name , spectra });
 			}
 		}
@@ -2313,6 +2429,10 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
 				error = H5Dread(fit_int_spec_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
 				//_fit_int_spec_dict.insert({ group_name+"_Background" , spectra });
+                if ( is_polar_xanes_scan() )
+                {
+                    *spectra = *spectra / 2.0;
+                }
 				_fit_int_spec_dict.insert({ "Background" , spectra });
 			}
 		}
@@ -2488,6 +2608,17 @@ bool MapsH5Model::_load_fit_parameters_10(hid_t maps_grp_id)
 
         H5Dclose(dset_name_id);
         H5Dclose(dset_val_id);
+        return true;
+    }
+    return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::is_polar_xanes_scan()
+{
+    if(_scan_type_as_str == STR_SCAN_TYPE_POLAR_XANES)
+    {
         return true;
     }
     return false;

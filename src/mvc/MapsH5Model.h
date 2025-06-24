@@ -230,6 +230,14 @@ public:
 
     bool load_pixel_spectra(const std::pair<int, int>& point, ArrayDr& spectra);
 
+    bool is_polar_xanes_scan();
+
+    bool get_copy_lhcp_rhcp_spectra(data_struct::Spectra<double>& out_lhcp_spectra, data_struct::Spectra<double>& out_rhcp_spectra);
+
+    const data_struct::Spectra<double>* get_lhcp_spectra() {return & _lhcp_integrated_spectra; }
+
+    const data_struct::Spectra<double>* get_rhcp_spectra() {return & _rhcp_integrated_spectra; }
+
 signals:
     void model_data_updated();
 
@@ -284,6 +292,10 @@ protected:
 
     data_struct::Spectra<double> _integrated_spectra;
 
+    data_struct::Spectra<double> _lhcp_integrated_spectra;
+
+    data_struct::Spectra<double> _rhcp_integrated_spectra;
+
     data_struct::ArrayTr<double> _energy_array;
 
     data_struct::Params_Override<double>* _params_override;
@@ -301,6 +313,8 @@ private:
 
     QDir _dir;
 
+    std::string _scan_type_as_str;
+
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_nnls;
@@ -314,6 +328,7 @@ private:
     data_struct::Scan_Info<double> _scan_info;
 
     std::vector<float> _x_axis;
+
     std::vector<float> _y_axis;
 
     std::vector<data_struct::Quantification_Standard<double> > _quant_standards;
@@ -326,9 +341,13 @@ private:
     bool _initialized_by_stream_block;
 
     bool _loaded_scalers;
+
     bool _loaded_quantification;
+
     bool _loaded_scan;
+
     bool _loaded_integrated_spectra;
+
     bool _loaded_counts;
 
     bool _is_fully_loaded;

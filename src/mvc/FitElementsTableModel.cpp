@@ -478,19 +478,25 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
 
 //---------------------------------------------------------------------------
 
-data_struct::Fit_Element_Map<double>* FitElementsTableModel::getElementByIndex(QModelIndex index) const
+bool FitElementsTableModel::getElementByIndex(QModelIndex index, data_struct::Fit_Element_Map<double>** out_element, QString &out_name, bool &is_parent) const
 {
     if (index.isValid())
     {
+        is_parent = true;
         TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+        if( childItem->itemData.size() > 0)
+        {
+            out_name = childItem->itemData[0].toString();
+        }
         while(childItem->parentItem != nullptr)
         {
             childItem = childItem->parentItem;
-
+            is_parent = false;
         }
-        return childItem->element_data;
+        *out_element = childItem->element_data;
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
 //---------------------------------------------------------------------------

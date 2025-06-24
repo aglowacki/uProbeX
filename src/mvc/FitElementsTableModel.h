@@ -56,7 +56,7 @@ public:
 
    void updateElementValues(data_struct::Fit_Parameters<double>*fit_params);
 
-   data_struct::Fit_Element_Map<double>* getElementByIndex(QModelIndex index) const;
+   bool getElementByIndex(QModelIndex index, data_struct::Fit_Element_Map<double>** out_element, QString &out_name, bool &is_parent) const;
 
    /**
     * @brief Clear all
