@@ -54,7 +54,7 @@ void ImageStackControlWidget::createLayout()
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	//QHBoxLayout* hlayout2 = new QHBoxLayout();
-	_imageGrid = new MapsElementsWidget(1,1);
+	_imageGrid = new MapsElementsWidget(1,1,true);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 

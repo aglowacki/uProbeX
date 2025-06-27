@@ -387,9 +387,11 @@ QWidget* ImageSegRoiDialog::_createPlotOptionsLayout()
 
 	_plot_ck_model_nnls = new QCheckBox("Model Per Pixel NNLS");
 	_plot_ck_model_matrix = new QCheckBox("Model Per Pixel Matrix");
+	_plot_ck_model_svd = new QCheckBox("Model Per Pixel SVD");
 	
 	layout->addWidget(_plot_ck_model_nnls);
 	layout->addWidget(_plot_ck_model_matrix);
+	layout->addWidget(_plot_ck_model_svd);
 
 	QWidget* widget = new QWidget();
 	widget->setLayout(layout);
@@ -638,12 +640,20 @@ void ImageSegRoiDialog::onPlot()
 				{
 					fittings.push_back(QString(STR_FIT_NNLS.c_str()));
 				}
+				if( _plot_ck_model_svd->isChecked() )
+				{
+					fittings.push_back(QString(STR_FIT_SVD.c_str()));
+				}
 				for(auto f_itr : fittings)
 				{
 					QColor color = Qt::darkBlue;
 					if(f_itr == QString(STR_FIT_NNLS.c_str()))
 					{
 						color = Qt::darkGreen;
+					}
+					else if (f_itr == QString(STR_FIT_SVD.c_str()))
+					{
+						color = Qt::magenta;
 					}
 					// create per pixel fitted spec for this roi and add it to spec widget 
 					ArrayDr* roi_fitted_int_spec = new ArrayDr(int_spectra->size());
