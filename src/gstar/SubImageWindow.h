@@ -48,8 +48,6 @@ namespace gstar
 
         void setCountsVisible(bool val);
 
-        void redraw() { emit redraw_event(); }
-
         QGraphicsView* view;
         ImageViewScene* scene;
         QComboBox* cb_image_label;
@@ -66,7 +64,7 @@ namespace gstar
         QVBoxLayout* layout;
 
 	signals:
-		void redraw_event();
+		void redraw_event(SubImageWindow*);
 
     public slots:
         void on_contrast_show();

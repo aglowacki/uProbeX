@@ -177,7 +177,7 @@ public:
 
    void setUnitLabels(QString label);
 
-   void redrawSubWindows();
+   //void redrawSubWindows();
 
    /**
     * @ brief view
@@ -207,7 +207,7 @@ public:
    
    void setGlobalContrast(bool val);
 
-   void getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
+   bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
 
    QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap);
 
@@ -282,7 +282,7 @@ signals:
 
    void cbLabelChanged(QString value, int viewIdx);
 
-   void parent_redraw();
+   void parent_redraw(int idx);
 
 protected slots:
 
@@ -294,6 +294,8 @@ protected slots:
     */
    //virtual void mouseOverPixel(int x, int y);
     void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
+
+   void subwindow_redraw(SubImageWindow*);
 
 private slots:
 

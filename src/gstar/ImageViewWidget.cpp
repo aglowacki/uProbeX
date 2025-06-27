@@ -239,7 +239,7 @@ void ImageViewWidget::createSceneAndView(int rows, int cols)
        
         connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
 
-		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
+		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::subwindow_redraw);
 	}
 }
 
@@ -269,16 +269,6 @@ QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& co
         }
     }
     return image;
-}
-
-//---------------------------------------------------------------------------
-
-void ImageViewWidget::redrawSubWindows()
-{
-    for (auto& itr : _sub_windows)
-    {
-        itr.redraw();
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -316,7 +306,7 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 		disconnect(itr.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidget::sceneRectUpdated);
 		disconnect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidget::onMouseMoveEvent);
 		disconnect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidget::onComboBoxChange);
-		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::parent_redraw);
+		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidget::subwindow_redraw);
 	}
     _sub_windows.clear();
 
@@ -325,6 +315,22 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
     //create new layout
     createSceneAndView(rows, cols);
     createLayout();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidget::subwindow_redraw(SubImageWindow* win)
+{
+    int idx = 0;
+    for (auto &itr : _sub_windows)
+	{
+        if (&itr == win)
+        {
+            emit parent_redraw(idx);
+            break;
+        }
+        idx ++;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -827,7 +833,7 @@ void ImageViewWidget::setCountsTrasnformAt(unsigned int idx, const ArrayXXr<floa
         {
             _sub_windows[idx].counts_stats->setCounts(normalized);
         }
-        _sub_windows[idx].on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), false);
+        //_sub_windows[idx].on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), false);
     }
 }
 
@@ -891,16 +897,18 @@ void ImageViewWidget::resetCoordsToZero()
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidget::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
+bool ImageViewWidget::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
 {
-	if (grid_idx < _sub_windows.size())
+	if (grid_idx > -1 && grid_idx < _sub_windows.size())
 	{
 		if (_sub_windows[grid_idx].contrast_updated())
 		{
 			counts_min = _sub_windows[grid_idx].contrast_min();
 			counts_max = _sub_windows[grid_idx].contrast_max();
+            return true;
 		}
 	}
+    return false;
 }
 
 //---------------------------------------------------------------------------

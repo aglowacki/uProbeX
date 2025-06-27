@@ -103,29 +103,29 @@ void SubImageWindow::on_contrast_show()
 {
     if (_contrast_dialog == nullptr)
     {
+        _contrast_updated = true;
         _contrast_dialog = new ContrastDialog();
 		_contrast_dialog->setWindowTitle("Contrast");
+        _contrast_dialog->set_array(counts_lookup->get_count_array());
 		connect(_contrast_dialog, &ContrastDialog::on_min_max_update, this, &SubImageWindow::on_update_min_max);
 		connect(_contrast_dialog, &ContrastDialog::accepted, this, &SubImageWindow::on_accept_contrast);
 		connect(_contrast_dialog, &ContrastDialog::rejected, this, &SubImageWindow::on_cancel_contrast);
+        _contrast_dialog->min_max_updated();
     }
 	_contrast_dialog->show();
 	_contrast_dialog->raise();
 	_contrast_dialog->activateWindow();
-    _contrast_dialog->set_array(counts_lookup->get_count_array());
-    _contrast_dialog->min_max_updated();
 }
 
 //---------------------------------------------------------------------------
 
 void SubImageWindow::on_update_min_max(float minCoef, float maxCoef, bool send_draw_event)
 {
-	_contrast_updated = true;
 	_contrast_min = minCoef;
 	_contrast_max = maxCoef;
     if(send_draw_event)
     {
-	    emit redraw_event();
+	    emit redraw_event(this);
     }
 }
 
@@ -141,7 +141,7 @@ void SubImageWindow::on_accept_contrast()
 void SubImageWindow::on_cancel_contrast()
 {
 	_contrast_updated = false;
-	emit redraw_event();
+	emit redraw_event(this);
 }
 
 //---------------------------------------------------------------------------
