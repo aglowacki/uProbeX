@@ -25,6 +25,7 @@ FittingDialog::FittingDialog(QWidget *parent) : QDialog(parent)
     _accepted = false;
     _canceled = false;
     _running = false;
+    _custom_background = false;
     _elements_to_fit = nullptr;
     _param_fit_routine.set_update_coherent_amplitude_on_fit(false);
     _param_fit_routine.set_optimizer(&_nlopt_optimizer);
@@ -262,8 +263,22 @@ void FittingDialog::setSpectra(data_struct::Spectra<double>* spectra, ArrayDr en
         _spectra_widget->append_spectra(DEF_STR_INT_SPECTRA, &_int_spec, &_ev);
         _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
 
+        _custom_background = false;
+
         //get original back
         _int_spec = *spectra;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void FittingDialog::setCustomBackground(data_struct::Spectra<double>* spectra)
+{
+    if(spectra != nullptr)
+    {
+        _custom_background = true;
+        _spectra_background = *spectra;
+        _spectra_widget->append_spectra(DEF_STR_BACK_SPECTRA, &_spectra_background, (data_struct::Spectra<double>*) & _ev);
     }
 }
 
@@ -376,11 +391,25 @@ void FittingDialog::runProcessing()
         //Initialize the fit routine
         if (_optimizer_widget->isHybrid())
         {
-            _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+            if(_custom_background)
+            {
+                _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range, &_spectra_background);
+            }
+            else
+            {
+                _hybrid_fit_routine.initialize(&_model, _elements_to_fit, _energy_range, nullptr);
+            }
         }
         else
         {
-            _param_fit_routine.initialize(&_model, _elements_to_fit, _energy_range);
+            if(_custom_background)
+            {
+                _param_fit_routine.initialize(&_model, _elements_to_fit, _energy_range, &_spectra_background);
+            }
+            else
+            {
+                _param_fit_routine.initialize(&_model, _elements_to_fit, _energy_range, nullptr);
+            }
         }
         //Fit the spectra saving the element counts in element_fit_count_dict
         // single threaded

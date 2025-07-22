@@ -22,6 +22,7 @@
 #include "data_struct/element_info.h"
 #include "io/file/hl_file_io.h"
 #include <mvc/NumericPrecDelegate.h>
+#include <mvc/RoiSelectorDialog.h>
 #include <preferences/Preferences.h>
 #include "io/file/aps/aps_roi.h"
 
@@ -1027,47 +1028,55 @@ void FitSpectraWidget::Fit_Spectra_Click()
 void FitSpectraWidget::Fit_ROI_Spectra_Click()
 {
     // bring up dialog to select roi 
-    QString roi_name;
+    QString roi_name, back_name;
     ArrayDr* roi_spec = nullptr;
+    ArrayDr* back_spec = nullptr;
 
-    if (_roi_spec_map.size() > 1)
+    if (_roi_spec_map.size() < 1)
     {
-        QInputDialog qDialog;
+        return;
+    }
+    RoiSelectorDialog roiDialog;
 
-        QStringList items;
-        for (auto itr : _roi_spec_map)
-        {
-            items << QString(itr.first.c_str());
-        }
+    QStringList items;
+    for (auto itr : _roi_spec_map)
+    {
+        items << QString(itr.first.c_str());
+    }
 
-        qDialog.setOptions(QInputDialog::UseListViewForComboBoxItems);
-        qDialog.setComboBoxItems(items);
-        qDialog.setWindowTitle("Select ROI to fit");
+    roiDialog.setROIs(items);
+    roiDialog.setBackgrounds(items);
+    roiDialog.setWindowTitle("Select ROI to fit");
 
-        qDialog.exec();
+    if (roiDialog.exec() != QDialog::Accepted)
+    {
+        return;
+    }
 
-        roi_name = qDialog.textValue();
+    roi_name = roiDialog.selectedROI();
 
-        if (_roi_spec_map.count(roi_name.toStdString()) > 0)
-        {
-            roi_spec = _roi_spec_map.at(roi_name.toStdString());
-        }
-        else
-        {
-            logE << "Could not find roi spectra " << roi_name.toStdString() << "\n";
-            return;
-        }
+    if (_roi_spec_map.count(roi_name.toStdString()) > 0)
+    {
+        roi_spec = _roi_spec_map.at(roi_name.toStdString());
     }
     else
     {
-        for (auto itr : _roi_spec_map)
-        {
-            roi_name = QString(itr.first.c_str());
-            roi_spec = itr.second;
-            break;
-        }
+        logE << "Could not find roi spectra " << roi_name.toStdString() << "\n";
+        return;
     }
-   
+
+    back_name = roiDialog.selectedBackground();
+
+    if (_roi_spec_map.count(back_name.toStdString()) > 0)
+    {
+        back_spec = _roi_spec_map.at(back_name.toStdString());
+    }
+    else
+    {
+        logE << "Could not find roi spectra " << back_name.toStdString() << "\n";
+        return;
+    }
+
 
     if (_elements_to_fit != nullptr && roi_spec != nullptr)
     {
@@ -1082,6 +1091,10 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
         //_fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
         _fitting_dialog->setSpectra((Spectra<double>*)roi_spec, _ev);
+
+        // todo add custom background 
+        _fitting_dialog->setCustomBackground((Spectra<double>*)back_spec);
+
         _fitting_dialog->setElementsToFit(_elements_to_fit);
         if (_fit_spec.size() > 0)
         {
