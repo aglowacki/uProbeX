@@ -74,10 +74,12 @@ void RoiSelectorDialog::setBackgrounds(QStringList items)
 {
    _cb_background->clear();
    _cb_background->addItem("SNIP Algorithm");
+   /* TODO: wait for feature to be fully impl before allowing other backgrounds
    for(auto &itr : items)
    {
       _cb_background->addItem(itr);
    }
+   */
 }
 
 //---------------------------------------------------------------------------
