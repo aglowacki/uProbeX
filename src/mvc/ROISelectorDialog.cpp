@@ -19,7 +19,7 @@ RoiSelectorDialog::RoiSelectorDialog(QWidget *parent) : QDialog(parent)
 
    QVBoxLayout* vboxLayout = new QVBoxLayout();
 
-   QPushButton* btnUse = new QPushButton("Use New Values");
+   QPushButton* btnUse = new QPushButton("Continue");
    QPushButton* btnCancel = new QPushButton("Cancel");
 
    _cb_rois = new QComboBox();
