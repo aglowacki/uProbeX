@@ -36,7 +36,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 			{
 				fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
 			}
-			if (uProbeX::log_textedit == nullptr)
+			if (uProbeX::log_textedit != nullptr)
 			{
 				cnt += h_msg.count("Info: ");
 				cnt += h_msg.count("Warning: ");
@@ -55,7 +55,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 		else if (type == QtWarningMsg)
 		{
 			fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			if (uProbeX::log_textedit == nullptr)
+			if (uProbeX::log_textedit != nullptr)
 			{
 				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
 				uProbeX::log_textedit->insertHtml(h_msg);
@@ -64,7 +64,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 		else if (type == QtCriticalMsg)
 		{
 			fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			if (uProbeX::log_textedit == nullptr)
+			if (uProbeX::log_textedit != nullptr)
 			{
 				h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
 				uProbeX::log_textedit->insertHtml(h_msg);
