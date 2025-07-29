@@ -203,8 +203,7 @@ QVariant AnnotationTreeModel::data(const QModelIndex& index, int role) const
         {
             return QVariant();
         }
-
-        return item->data(index.row(), index.column());
+        return var;
     }
 
     return QVariant();
