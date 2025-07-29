@@ -90,7 +90,6 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, A
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
     _mask = new QImage(width, height, QImage::Format_ARGB32);
-    _init(color, alpha);
     // clear the image
     for (int w = 0; w < width; w++)
     {
@@ -118,7 +117,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, 
     {
         appendProperty(new AnnotationProperty(DEF_STR_DISPLAY_NAME, name));
     }
-    
+    _init(color, alpha);
 }
 
 //-----------------------------------------------------------------------------
@@ -136,10 +135,9 @@ RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 
 void RoiMaskGraphicsItem::_init(QColor color, int alpha)
 {
-    _cursor = new RectItem();
-    _cursor->setWidth(10.);
-    _cursor->setHeight(10.);
-    _cursor->setColor(Qt::gray);
+    _cursor.setWidth(10.);
+    _cursor.setHeight(10.);
+    _cursor.setColor(Qt::gray);
 
     setFlags(ItemIsSelectable);
     setAcceptHoverEvents(true);
@@ -558,8 +556,8 @@ void RoiMaskGraphicsItem::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
         }
         */
     }
-   _cursor->setPos(spos);
-   //_cursor->setPos(event->scenePos());
+   _cursor.setPos(spos);
+   //_cursor.setPos(event->scenePos());
    QGraphicsItem::mouseMoveEvent(event);
 }
 
@@ -578,8 +576,8 @@ void RoiMaskGraphicsItem::onMouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 void RoiMaskGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-    //_cursor->setPos(event->scenePos());
-    this->scene()->addItem(_cursor);
+    //_cursor.setPos(event->scenePos());
+    this->scene()->addItem(&_cursor);
     update(boundingRect());
 }
 
@@ -587,7 +585,7 @@ void RoiMaskGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 
 void RoiMaskGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-    this->scene()->removeItem(_cursor);
+    this->scene()->removeItem(&_cursor);
     update(boundingRect());
 }
 
@@ -606,8 +604,8 @@ void RoiMaskGraphicsItem::setBrushSize(QSize brushSize)
     _brush_size = brushSize;
     double w = (double)(brushSize.width());
     double h = (double)(brushSize.height());
-    _cursor->setWidth(w); 
-    _cursor->setHeight(h);
+    _cursor.setWidth(w); 
+    _cursor.setHeight(h);
 }
 
 //-----------------------------------------------------------------------------

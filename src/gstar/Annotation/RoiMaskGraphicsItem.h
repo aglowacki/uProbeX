@@ -157,7 +157,7 @@ protected:
 
     bool _mouse_down;
 
-    RectItem* _cursor;
+    RectItem _cursor;
 };
 
 }
