@@ -153,6 +153,7 @@ private:
 
 	QCheckBox* _plot_ck_model_nnls;
 	QCheckBox* _plot_ck_model_matrix;
+	QCheckBox* _plot_ck_model_svd;
 
 	int _next_color;
 

@@ -141,12 +141,15 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
     insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi, false);
     // auto select the new roi
     _selected_roi = roi;
-    _selected_roi->setBrushSize(_roi_brush_size);
-    _selected_roi->setDrawAction(_draw_action_mode);
-
-    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
-    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
-    connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+    if (_selected_roi != nullptr)
+    {
+        _selected_roi->setBrushSize(_roi_brush_size);
+        _selected_roi->setDrawAction(_draw_action_mode);
+    
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
+        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -69,6 +69,8 @@ public:
 
     void setFitSpectra(data_struct::Spectra<double>* spectra);
 
+    void setCustomBackground(data_struct::Spectra<double>* spectra);
+
     void setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit);
 
 	data_struct::Spectra<double> get_fit_spectra(std::unordered_map<std::string, ArrayDr>* labeled_spectras);
@@ -181,6 +183,8 @@ protected:
    ArrayDr _ev;
 
    fitting::optimizers::OPTIMIZER_OUTCOME _outcome;
+
+   bool _custom_background;
 
 };
 

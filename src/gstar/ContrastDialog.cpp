@@ -46,6 +46,8 @@ ContrastDialog::~ContrastDialog()
 
 }
 
+//---------------------------------------------------------------------------
+
 void ContrastDialog::set_array(const data_struct::ArrayXXr<float>* arr)
 {
 	if (arr != nullptr)

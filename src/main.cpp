@@ -22,36 +22,22 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 {
 	if (running)
 	{
-		//QProcess::readAllStandardOutput();
-		if (uProbeX::log_textedit == nullptr)
+
+		QString h_msg(msg);
+		QByteArray localMsg = msg.toLocal8Bit();
+		int cnt = 0;	
+		if (type == QtInfoMsg || type == QtDebugMsg)
 		{
-			QByteArray localMsg = msg.toLocal8Bit();
-			switch (type) 
+			if (type == QtInfoMsg)
 			{
-			case QtInfoMsg:
 				fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			case QtDebugMsg:
-				fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-				break;
-			case QtWarningMsg:
-				fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-				break;
-			case QtCriticalMsg:
-				fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-				break;
-			case QtFatalMsg:
-				fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-				abort();
 			}
-		}
-		else
-		{
-			QString h_msg(msg);
-			int cnt = 0;
-			switch (type)
+			else if(type == QtDebugMsg)
 			{
-			case QtInfoMsg:
-			case QtDebugMsg:
+				fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+			}
+			if (uProbeX::log_textedit != nullptr)
+			{
 				cnt += h_msg.count("Info: ");
 				cnt += h_msg.count("Warning: ");
 				cnt += h_msg.count("Error: ");
@@ -64,19 +50,34 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 				}
 				uProbeX::log_textedit->insertHtml(h_msg);
 				uProbeX::log_textedit->ensureCursorVisible();
-				break;
-			case QtWarningMsg:
+			}
+		}
+		else if (type == QtWarningMsg)
+		{
+			fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+			if (uProbeX::log_textedit != nullptr)
+			{
 				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
 				uProbeX::log_textedit->insertHtml(h_msg);
-				break;
-			case QtCriticalMsg:
+			}
+		}
+		else if (type == QtCriticalMsg)
+		{
+			fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+			if (uProbeX::log_textedit != nullptr)
+			{
 				h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
 				uProbeX::log_textedit->insertHtml(h_msg);
-				break;
-			case QtFatalMsg:
-				//abort();
-				break;
 			}
+		}
+		else if (type == QtFatalMsg)
+		{
+			fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+			running = false;
+		}
+		else
+		{
+			fprintf(stderr, "Unknown: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
 		}
 	}
 }
@@ -183,18 +184,25 @@ int main(int argc, char** argv)
         return -1;
     }
     
-#if defined _WIN32 || defined __CYGWIN__
-	FreeConsole();
-#endif
+//#if defined _WIN32 || defined __CYGWIN__
+//	FreeConsole();
+//#endif
 	// Startup application
 	uProbeX* widget = new uProbeX(nullptr);
 	//widget->setAttribute(Qt::WA_DeleteOnClose);
 	widget->setWindowState(Qt::WindowMaximized);
 	widget->show();
+	int ret = 0;
+	try
+	{
+			// Run
+		ret = app.exec();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 	
-	// Run
-	int ret = app.exec();
-
 	running = false;
 
 	// Clean up

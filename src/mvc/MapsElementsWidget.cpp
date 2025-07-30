@@ -387,7 +387,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     m_imageViewWidget->set_null_mouse_pos = false;
     connect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &MapsElementsWidget::onElementSelect);
 
-	connect(m_imageViewWidget, &ImageViewWidget::parent_redraw, this, &MapsElementsWidget::redrawCounts);
+	connect(m_imageViewWidget, &ImageViewWidget::parent_redraw, this, &MapsElementsWidget::singleRedrawCounts);
 
 
     appendAnnotationTab();
@@ -1385,6 +1385,20 @@ void MapsElementsWidget::model_updated()
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::singleRedrawCounts(int idx)
+{
+    std::string analysis_text = _cb_analysis->currentText().toStdString();
+    int view_cnt = m_imageViewWidget->getViewCount();
+    
+    if ( idx > -1 && idx < view_cnt)
+    {
+        QString element = m_imageViewWidget->getLabelAt(idx);
+        displayCounts(analysis_text, element.toStdString(), _chk_log_color->isChecked(), idx);
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::redrawCounts()
 {
     int view_cnt = m_imageViewWidget->getViewCount();
@@ -1540,14 +1554,19 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
         props.show_legend = _chk_disp_color_ledgend->isChecked();
         props.invert_y = _chk_invert_y->isChecked();
         props.global_contrast = _global_contrast_chk->isChecked();
-        if (_global_contrast_chk->isChecked())
+        if (props.global_contrast)
         {
             props.contrast_max = _max_contrast_perc;
             props.contrast_min =  _min_contrast_perc;
         }
         else
         {
-            m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max);
+            if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
+            {
+                props.contrast_max = _max_contrast_perc;
+                props.contrast_min = _min_contrast_perc;
+                props.global_contrast = true;
+            }
         }
         m_imageViewWidget->scene(grid_idx)->setPixmap(_model->gen_pixmap(props, normalized));
         if(normalized.rows() > 0 && normalized.cols() > 0)
@@ -1590,14 +1609,19 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
         props.show_legend = _chk_disp_color_ledgend->isChecked();
         props.invert_y = _chk_invert_y->isChecked();
         props.global_contrast = _global_contrast_chk->isChecked();
-        if (_global_contrast_chk->isChecked())
+        if (props.global_contrast)
         {
             props.contrast_max = _max_contrast_perc;
-            props.contrast_min =  _min_contrast_perc;
+            props.contrast_min = _min_contrast_perc;
         }
         else
         {
-            m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max);
+            if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
+            {
+                props.contrast_max = _max_contrast_perc;
+                props.contrast_min = _min_contrast_perc;
+                props.global_contrast = true;
+            }
         }
         QPixmap pm = _model->gen_pixmap(props, normalized);
         if(normalized.rows() > 0 && normalized.cols() > 0)

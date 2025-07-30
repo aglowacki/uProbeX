@@ -2224,6 +2224,7 @@ bool MapsH5Model::get_copy_lhcp_rhcp_spectra(data_struct::Spectra<double>& out_l
 {
     out_lhcp_spectra = _lhcp_integrated_spectra;
     out_rhcp_spectra = _rhcp_integrated_spectra;
+    return true;
 }
 
 //---------------------------------------------------------------------------
