@@ -711,7 +711,6 @@ void MapsElementsWidget::openImageSegDialog()
         {
             _img_seg_diag.append_roi((gstar::RoiMaskGraphicsItem*)(itr->duplicate()));
         }
-        m_roiTreeModel->clearAll();
         _spectra_widget->deleteAllROISpectra();
 
         _img_seg_diag.show();
@@ -1654,8 +1653,10 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 {
     if (_model != nullptr)
     {
-        _model->clearAllMapRois();
 
+        _model->clearAllMapRois();
+        m_roiTreeModel->clearAll();
+        
         for (auto& itr : roi_list)
         {
             insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
