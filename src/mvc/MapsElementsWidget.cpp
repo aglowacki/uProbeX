@@ -976,6 +976,8 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
     if (_model != model)
     {
         _model = model;
+        _normalizer = nullptr;
+        _calib_curve = nullptr;
         model_updated();
         if (_model != nullptr)
         {
@@ -1656,7 +1658,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 
         _model->clearAllMapRois();
         m_roiTreeModel->clearAll();
-        
+
         for (auto& itr : roi_list)
         {
             insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
