@@ -76,7 +76,7 @@ namespace gstar
 		void on_cancel_contrast();
 
 	protected:
-        ContrastDialog* _contrast_dialog;
+        ContrastDialog _contrast_dialog;
 
 		bool _contrast_updated;
 

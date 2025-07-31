@@ -1054,29 +1054,33 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
     }
 
     roi_name = roiDialog.selectedROI();
-
+    
     if (_roi_spec_map.count(roi_name.toStdString()) > 0)
     {
         roi_spec = _roi_spec_map.at(roi_name.toStdString());
     }
     else
     {
+        QMessageBox::warning(this, "Error", "Could not find roi spectra "+roi_name);
         logE << "Could not find roi spectra " << roi_name.toStdString() << "\n";
         return;
     }
-
+    
     back_name = roiDialog.selectedBackground();
 
-    if (_roi_spec_map.count(back_name.toStdString()) > 0)
+    if(back_name != "SNIP Algorithm")
     {
-        back_spec = _roi_spec_map.at(back_name.toStdString());
+        if (_roi_spec_map.count(back_name.toStdString()) > 0)
+        {
+            back_spec = _roi_spec_map.at(back_name.toStdString());
+        }
+        else
+        {
+            QMessageBox::warning(this, "Error", "Could not find roi spectra "+back_name);
+            logE << "Could not find roi spectra " << back_name.toStdString() << "\n";
+            return;
+        }
     }
-    else
-    {
-        logE << "Could not find roi spectra " << back_name.toStdString() << "\n";
-        return;
-    }
-
 
     if (_elements_to_fit != nullptr && roi_spec != nullptr)
     {
