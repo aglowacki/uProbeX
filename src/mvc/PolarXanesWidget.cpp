@@ -128,6 +128,17 @@ void PolarXanesWidget::_plot_new_element(QString analysis_name, QString element_
                     ArrayDr element_diff;
                     ArrayDr energy;
                     ArrayDr element_avg;
+
+                    ArrayDr element_lhcp;
+                    ArrayDr energy_lhcp;
+                    ArrayDr element_rhcp;
+                    ArrayDr energy_rhcp;
+                    element_lhcp.resize(element_arr.cols());
+                    energy_lhcp.resize(element_arr.cols());
+                    element_rhcp.resize(element_arr.cols());
+                    energy_rhcp.resize(element_arr.cols());
+
+
                     element_diff.resize(element_arr.cols());
                     energy.resize(element_arr.cols());
                     element_avg.resize(element_arr.cols());
@@ -135,13 +146,21 @@ void PolarXanesWidget::_plot_new_element(QString analysis_name, QString element_
                     {
                         element_diff[c] = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) - (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)));
                         element_avg[c] = ((static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) ) + (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)))) / 2.0;                        
-                        energy[c] = static_cast<double>(energy_map(0,c));                        
+                        energy[c] = static_cast<double>(energy_map(0,c));
+
+                        element_lhcp[c] = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) );
+                        energy_lhcp[c] = static_cast<double>(energy_map(0,c));
+                        element_rhcp[c] = (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)) );
+                        energy_rhcp[c] = static_cast<double>(energy_map(1,c));
                     }
                     QString diff_name = "(LHCP/I0)-(RHCP/I0)";
                     _spectra_widget->append_spectra(diff_name, &element_diff, &energy, nullptr, true);
 
                     QString avg_name = "((LHCP/I0)+(RHCP/I0)) / 2";
                     _spectra_widget->append_spectra(avg_name, &element_avg, &energy, nullptr, true);
+
+                    _spectra_widget->append_spectra("LHCP", &element_lhcp, &energy_lhcp, nullptr, true);
+                    _spectra_widget->append_spectra("RHCP", &element_rhcp, &energy_rhcp, nullptr, true);
 
                     double main_min = std::min (element_diff.minCoeff() , element_avg.minCoeff());
                     double main_max = std::max (element_diff.maxCoeff() , element_avg.maxCoeff());
