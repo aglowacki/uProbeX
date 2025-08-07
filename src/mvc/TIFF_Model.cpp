@@ -215,10 +215,30 @@ int TIFF_Model::getRank()
 
 bool TIFF_Model::save_img(QString filename)
 {
-    #ifdef _BUILD_WITH_OPENCV
-    QImageWriter writer(filename);
-    if (false == writer.write(_img))
+    QFileInfo fileInfo(filename);
+    QString baseDirectory = fileInfo.absolutePath(); // Gets the absolute path of the parent directory
+
+    QDir dir(baseDirectory);
+    if (!dir.exists()) 
     {
+        if (dir.mkpath("."))
+        { // Create the directory and any necessary parent directories
+            logI << "Directory created successfully:" << baseDirectory.toStdString()<<"\n";
+        }
+        else 
+        {
+            logE << "Failed to create directory:" << baseDirectory.toStdString()<<"\n";
+        }
+    } 
+    else 
+    {
+        logI << "Directory already exists:" << baseDirectory.toStdString()<<"\n";
+    }
+
+    QImageWriter writer(filename, "TIFF");
+    if (false == writer.write(_img)) 
+    {
+        #ifdef _BUILD_WITH_OPENCV
         cv::Mat mat(_img.height(), _img.width(), CV_8UC4);
         for (int h = 0; h < mat.rows; ++h)
         {
@@ -239,14 +259,15 @@ bool TIFF_Model::save_img(QString filename)
         }
         catch (const cv::Exception& ex)
         {
-            logW<<"Exception converting image to PNG format: "<< ex.what()<<"\n";
+            logE<<"Exception converting image to PNG format: "<< ex.what()<<"\n";
             return false;
         }
+        #else
+        return false;
+        #endif
     }
     return true;
-    #else
-    return false;
-    #endif
+    
 }
 
 //---------------------------------------------------------------------------
