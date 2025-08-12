@@ -668,8 +668,8 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
     m_imageViewWidget->newGridLayout(rows, cols);
     model_updated();
-    m_imageViewWidget->restoreLabels(element_view_list);
-    redrawCounts();
+    //m_imageViewWidget->restoreLabels(element_view_list);
+    //redrawCounts();
     Preferences::inst()->setValue(STR_GRID_ROWS,rows);
     Preferences::inst()->setValue(STR_GRID_COLS,cols);
     Preferences::inst()->save();

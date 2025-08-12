@@ -191,8 +191,6 @@ void ImageViewWidget::clickZoomOut()
 void ImageViewWidget::createLayout()
 {
 
-   m_coordWidget = new CoordinateWidget();
-
    // Layout
    _main_layout = new QVBoxLayout();
    _main_layout->setContentsMargins(0, 0, 0, 0);
@@ -209,6 +207,10 @@ void ImageViewWidget::createLayout()
    }
 
     _main_layout->addItem(_image_view_grid_layout);
+    if(m_coordWidget == nullptr)
+    {
+        m_coordWidget = new CoordinateWidget();
+    }
     _main_layout->addWidget(m_coordWidget);
 
 
@@ -310,7 +312,6 @@ void ImageViewWidget::newGridLayout(int rows, int cols)
 	}
     _sub_windows.clear();
 
-    delete m_coordWidget;
     delete _main_layout;
     //create new layout
     createSceneAndView(rows, cols);
