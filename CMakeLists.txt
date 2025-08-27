@@ -119,7 +119,7 @@ IF(NOT DEFINED CMAKE_PREFIX_PATH)
   MESSAGE( "IF qt6-config.cmake is not found, set CMAKE_PREFIX_PATH = Qt root directory")
 ENDIF()
 add_definitions(-D_BUILD_WITH_QT)
-set(CMAKE_CXX_STANDARD 17)
+
 find_package(Qt6 COMPONENTS Core Charts REQUIRED)
 include_directories(${Qt6Charts_INCLUDES})
 set(CMAKE_CXX_FLAGS "${Qt6Charts_EXECUTABLE_COMPILE_FLAGS}")
@@ -140,7 +140,7 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
   set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -D__APPLE__")
   ENDIF()
   # Enable C++11 mode on C++ / Clang
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -D__Unix__  -fPIC -g")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -D__Unix__  -fPIC -g")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__Unix__  -fPIC")
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
@@ -208,9 +208,17 @@ set(CompilerFlags
   LIBRARY_OUTPUT_DIRECTORY LIBRARY_OUTPUT_DIRECTORY_RELEASE LIBRARY_OUTPUT_DIRECTORY_DEBUG
   RUNTIME_OUTPUT_DIRECTORY RUNTIME_OUTPUT_DIRECTORY_RELEASE RUNTIME_OUTPUT_DIRECTORY_DEBUG)
 
+set_target_properties(uProbeX PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
 foreach(CompilerFlag ${CompilerFlags})
   set_target_properties(uProbeX PROPERTIES ${CompilerFlag} ${PROJECT_SOURCE_DIR}/bin)
 endforeach()
+
+
 
 
 #qt_use_modules(uProbeX Core Widgets Gui)
