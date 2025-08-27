@@ -3,7 +3,7 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <mvc/ROISelectorDialog.h>
+#include <mvc/RoiSelectorDialog.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
