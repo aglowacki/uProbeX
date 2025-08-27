@@ -26,6 +26,7 @@
 #include <preferences/Preferences.h>
 #include "io/file/aps/aps_roi.h"
 
+
 using namespace data_struct;
 
 //---------------------------------------------------------------------------
@@ -202,6 +203,12 @@ void FitSpectraWidget::createLayout()
     _btn_periodic_table->setFixedSize(32,32);
     connect(_btn_periodic_table, &QPushButton::released, this, &FitSpectraWidget::display_periodic_table);
 
+    _btn_element_info = new QPushButton();
+    _btn_element_info->setIcon(QIcon(":images/info.png"));
+    _btn_element_info->setFixedSize(32,32);
+    connect(_btn_element_info, &QPushButton::released, this, &FitSpectraWidget::display_element_info);
+
+
     QGridLayout* add_element_grid_layout = new QGridLayout();
     add_element_grid_layout->setAlignment(Qt::AlignTop);
     add_element_grid_layout->addWidget(new QLabel("Element"), 0, 0);
@@ -209,6 +216,7 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_btn_periodic_table, 0, 2);
     add_element_grid_layout->addWidget(new QLabel("Shell"), 1, 0);
     add_element_grid_layout->addWidget(_cb_add_shell, 1, 1);
+    add_element_grid_layout->addWidget(_btn_element_info, 1, 2);
     //add_element_grid_layout->addWidget(new QLabel("Detector Element"), 2, 0);
     //add_element_grid_layout->addWidget(_cb_detector_element, 2, 1);
     add_element_grid_layout->addWidget(_chk_is_pileup, 2, 0);
@@ -798,6 +806,13 @@ void FitSpectraWidget::clearROISpectra()
 void FitSpectraWidget::display_periodic_table()
 {
     _periodic_table_widget->show();
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::display_element_info()
+{
+    _element_info_dialog.show();
 }
 
 //---------------------------------------------------------------------------
