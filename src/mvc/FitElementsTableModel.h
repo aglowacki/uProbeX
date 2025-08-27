@@ -34,6 +34,7 @@ public:
       COUNTS,
       RATIO_MULTI,
       RATIO,
+      WIDTH_MULTI,
       NUM_PROPS
    };
 
@@ -124,6 +125,8 @@ public:
 signals:
    void braching_ratio_changed(data_struct::Fit_Element_Map<double>* element);
 
+   void width_multi_changed(data_struct::Fit_Element_Map<double>* element, const QString&);
+
 public slots:
    void update_counts_log10(bool is_log10);
 
@@ -165,6 +168,7 @@ private:
            itemData.push_back(QVariant(0.0));
            itemData.push_back(QVariant(" "));
            itemData.push_back(QVariant(" "));
+           itemData.push_back(QVariant(" "));
 
            TreeItem* child;
            /*
@@ -193,6 +197,7 @@ private:
                 child->itemData.push_back(QVariant(itr.energy));
                 child->itemData.push_back(QVariant(multi_vec[i]));
                 child->itemData.push_back(QVariant(itr.ratio));
+                child->itemData.push_back(QVariant(element->width_multi()));
                 childItems.push_back(child);
                 i++;
             }

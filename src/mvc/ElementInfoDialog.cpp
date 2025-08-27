@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QGridLayout>
 #include "data_struct/element_info.h"
+#include "data_struct/fit_element_map.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -15,6 +16,7 @@
 ElementInfoDialog::ElementInfoDialog() : QDialog()
 {
 
+	_param_override = nullptr;
     createLayout();
 
 }
@@ -57,6 +59,45 @@ void ElementInfoDialog::createLayout()
 	setLayout(mainLayout);
 
 	setWindowTitle("Element Info");
+}
+
+//---------------------------------------------------------------------------
+
+void ElementInfoDialog::set_selected_element(const QString& el_name)
+{
+	_cb_element_selector->setCurrentText(el_name);
+	std::string _detector_element = "Si";
+	
+	//data_struct::Element_Info_Map<T_real>* element_map = data_struct::Element_Info_Map<T_real>::inst();
+	data_struct::Fit_Element_Map<double>* fit_element = data_struct::gen_element_map<double>(el_name.toStdString());
+    if(fit_element != nullptr)
+    {
+		
+		if (_param_override != nullptr)
+		{
+            std::map<int, double> ratios = _param_override->get_custom_factor(el_name.toStdString());
+			for (const auto &itr : ratios)
+			{
+				fit_element->multiply_custom_multiply_ratio(itr.first, itr.second);
+			}
+		}
+		/*
+        if(_chk_is_pileup->checkState() == Qt::CheckState::Checked)
+        {
+            QString pileup_name = _cb_pileup_elements->currentText();
+            data_struct::Element_Info<double>* pileup_element = data_struct::Element_Info_Map<double>::inst()->get_element(pileup_name.toStdString());
+            if(pileup_element != nullptr)
+            {
+                el_name += "_" + pileup_name;
+                fit_element->set_as_pileup(pileup_name.toStdString(), pileup_element);
+            }
+        }
+		*/
+        fit_element->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
+		const std::vector<data_struct::Element_Energy_Ratio<double>>& ratios = fit_element->energy_ratios();
+    	const  std::vector<double>& energy_ratio_multipliers = fit_element->energy_ratio_multipliers();
+    }
+	
 }
 
 //---------------------------------------------------------------------------

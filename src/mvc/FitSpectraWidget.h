@@ -131,6 +131,8 @@ public slots:
    void on_export_csv();
 
    void on_braching_ratio_update(data_struct::Fit_Element_Map<double>* element);
+   
+   void on_width_multi_changed(data_struct::Fit_Element_Map<double>* element, const QString& shell_name);
 
 protected:
 

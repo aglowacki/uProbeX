@@ -164,6 +164,7 @@ void FitSpectraWidget::createLayout()
 
     connect(_spectra_widget, &SpectraWidget::y_axis_changed, _fit_elements_table_model, &FitElementsTableModel::update_counts_log10);
     connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
+    connect(_fit_elements_table_model, &FitElementsTableModel::width_multi_changed, this, &FitSpectraWidget::on_width_multi_changed);
 
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
@@ -360,6 +361,16 @@ void FitSpectraWidget::on_braching_ratio_update(data_struct::Fit_Element_Map<dou
     if (element != nullptr)
     {
         _spectra_widget->set_element_lines(element);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::on_width_multi_changed(data_struct::Fit_Element_Map<double>* element, const QString& shell_name)
+{
+    if (element != nullptr)
+    {
+        _spectra_widget->set_element_width(element, data_struct::Str_Element_Param_Map.at(shell_name.toStdString()));
     }
 }
 
@@ -812,6 +823,8 @@ void FitSpectraWidget::display_periodic_table()
 
 void FitSpectraWidget::display_element_info()
 {
+    _element_info_dialog.set_param_override(_param_override);
+    _element_info_dialog.set_selected_element(_cb_add_elements->currentText());
     _element_info_dialog.show();
 }
 

@@ -16,6 +16,7 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
     m_headers[HEADERS::COUNTS] = tr("Counts (10^Cnts)");
     m_headers[HEADERS::RATIO_MULTI] = tr("Multiplier");
     m_headers[HEADERS::RATIO] = tr("Ratio");
+    m_headers[HEADERS::WIDTH_MULTI] = tr("Width Multiplier");
     _detector_element = detector_element;
 }
 
@@ -392,6 +393,8 @@ Qt::ItemFlags FitElementsTableModel::flags(const QModelIndex &index) const
         //if(index.column() > 0 && node->props_editable)
         if (index.column() == HEADERS::RATIO_MULTI)
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+        if (index.column() == HEADERS::WIDTH_MULTI)
+            return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     }
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -612,6 +615,27 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
                                 node->itemData[RATIO] = QVariant(ratio_vec[index.row()].ratio);
                             }
                             emit (braching_ratio_changed(node->parentItem->element_data));
+                        }
+                    }
+                }
+                if (index.column() == WIDTH_MULTI)
+                {
+                    node->itemData[index.column()] = value;
+                    if (node->parentItem != nullptr)
+                    {
+                        // set all Shell lines to same width
+                        for (auto itr: node->parentItem->childItems)
+                        {
+                            if(itr != nullptr)
+                            {
+                                itr->itemData[index.column()] = value;
+                            }
+                        }
+                        if (node->parentItem->element_data != nullptr)
+                        {
+                            node->parentItem->element_data->set_width_multi(value.toDouble());
+                            node->parentItem->element_data->init_energy_ratio_for_detector_element(data_struct::Element_Info_Map<double>::inst()->get_element(_detector_element));
+                            emit (width_multi_changed(node->parentItem->element_data, node->itemData[SYMBOL].toString()) );
                         }
                     }
                 }

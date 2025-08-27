@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QComboBox>
+#include "data_struct/params_override.h"
 
 //---------------------------------------------------------------------------
 
@@ -36,6 +37,10 @@ public:
     */
    ~ElementInfoDialog();
 
+   void set_param_override(data_struct::Params_Override<double>* param_override) {_param_override = param_override;}
+
+   void set_selected_element(const QString& el_name);
+
 signals:
 	void onNewGridLayout(int rows, int cols);
 
@@ -47,6 +52,8 @@ protected:
    void createLayout();
 
 private:
+   data_struct::Params_Override<double>* _param_override;
+
    QPushButton *_btn_update;
    QPushButton *_btn_cancel;
 
