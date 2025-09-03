@@ -27,6 +27,7 @@
 #include "data_struct/params_override.h"
 #include "mvc/SpectraWidgetSettingsDialog.h"
 #include "mvc/PeriodicTableWidget.h"
+#include "mvc/ElementInfoDialog.h"
 
 //---------------------------------------------------------------------------
 
@@ -130,6 +131,8 @@ public slots:
    void on_export_csv();
 
    void on_braching_ratio_update(data_struct::Fit_Element_Map<double>* element);
+   
+   void on_width_multi_changed(data_struct::Fit_Element_Map<double>* element, const QString& shell_name);
 
 protected:
 
@@ -182,81 +185,87 @@ private slots:
 
    void display_periodic_table();
 
+   void display_element_info();
+
    void update_selected_element_to_add(QString);
 
 private:
 
-    QCheckBox *_chk_auto_model;
+   QCheckBox *_chk_auto_model;
 
-    QComboBox *_cb_fitting_preset;
+   QComboBox *_cb_fitting_preset;
 
-    QTabWidget *_fit_params_tab_widget;
+   QTabWidget *_fit_params_tab_widget;
 
-    QPushButton* _btn_fit_spectra;
+   QPushButton* _btn_fit_spectra;
 
-    QPushButton* _btn_fit_roi_spectra;
+   QPushButton* _btn_fit_roi_spectra;
 
-    QPushButton* _btn_model_spectra;
+   QPushButton* _btn_model_spectra;
 
-    QPushButton* _btn_export_parameters;
+   QPushButton* _btn_export_parameters;
 
-    QPushButton* _btn_export_csv;
+   QPushButton* _btn_export_csv;
 
-    QPushButton* _btn_add_element;
+   QPushButton* _btn_add_element;
 
-    QPushButton* _btn_del_element;
+   QPushButton* _btn_del_element;
 
-    ArrayDr* _int_spec;
+   ArrayDr* _int_spec;
 
-    ArrayDr _spectra_background;
+   ArrayDr _spectra_background;
 
-    ArrayDr _ev;
+   ArrayDr _ev;
 
-    data_struct::Spectra<double> _fit_spec;
+   data_struct::Spectra<double> _fit_spec;
 
-    data_struct::Params_Override<double>* _param_override;
+   data_struct::Params_Override<double>* _param_override;
 
-    std::unordered_map<std::string, ArrayDr*> _fit_int_spec_map;
+   std::unordered_map<std::string, ArrayDr*> _fit_int_spec_map;
 
-    std::unordered_map<std::string, const ArrayDr*> _max_chan_spec_map;
+   std::unordered_map<std::string, const ArrayDr*> _max_chan_spec_map;
 
-    std::map<std::string, ArrayDr*> _roi_spec_map;
+   std::map<std::string, ArrayDr*> _roi_spec_map;
 
-    std::unordered_map<std::string, QColor> _roi_spec_colors;
+   std::unordered_map<std::string, QColor> _roi_spec_colors;
 
-    std::string _detector_element;
+   std::string _detector_element;
 
-    QMenu *_fit_param_contextMenu;
+   QMenu *_fit_param_contextMenu;
 
-    QMenu *_set_fit_params_bounds_menu;
+   QMenu *_set_fit_params_bounds_menu;
 
-    QComboBox* _cb_add_elements;
+   QComboBox* _cb_add_elements;
 
-    QComboBox* _cb_add_shell;
+   QComboBox* _cb_add_shell;
 
-    QComboBox* _cb_pileup_elements;
+   QComboBox* _cb_pileup_elements;
 
-    QCheckBox* _chk_is_pileup;
+   QCheckBox* _chk_is_pileup;
 
-    QComboBox* _cb_detector_element;
+   QComboBox* _cb_detector_element;
 
-    bool _showDetailedFitSpec;
+   bool _showDetailedFitSpec;
 
 	bool _showFitIntMatrix;
 
-    bool _showFitIntNNLS;
+   bool _showFitIntNNLS;
 
-    bool _showMaxChanSpec;
+   bool _showMaxChanSpec;
 
-    bool _displayROIs;
+   bool _displayROIs;
 
-    std::unordered_map<std::string, ArrayDr> _labeled_spectras;
+   std::unordered_map<std::string, ArrayDr> _labeled_spectras;
 
-    QDir _dataset_dir;
+   QDir _dataset_dir;
 
    QPushButton* _btn_periodic_table;
 
-    PeriodicTableWidget* _periodic_table_widget;
+   QPushButton* _btn_element_info;
+
+   PeriodicTableWidget* _periodic_table_widget;
+
+   ElementInfoDialog _element_info_dialog;
 };
 
 

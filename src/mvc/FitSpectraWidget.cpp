@@ -26,6 +26,7 @@
 #include <preferences/Preferences.h>
 #include "io/file/aps/aps_roi.h"
 
+
 using namespace data_struct;
 
 //---------------------------------------------------------------------------
@@ -163,6 +164,7 @@ void FitSpectraWidget::createLayout()
 
     connect(_spectra_widget, &SpectraWidget::y_axis_changed, _fit_elements_table_model, &FitElementsTableModel::update_counts_log10);
     connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
+    connect(_fit_elements_table_model, &FitElementsTableModel::width_multi_changed, this, &FitSpectraWidget::on_width_multi_changed);
 
     _fit_elements_table = new QTreeView();
     _fit_elements_table->setModel(_fit_elements_table_model);
@@ -202,6 +204,12 @@ void FitSpectraWidget::createLayout()
     _btn_periodic_table->setFixedSize(32,32);
     connect(_btn_periodic_table, &QPushButton::released, this, &FitSpectraWidget::display_periodic_table);
 
+    _btn_element_info = new QPushButton();
+    _btn_element_info->setIcon(QIcon(":images/info.png"));
+    _btn_element_info->setFixedSize(32,32);
+    connect(_btn_element_info, &QPushButton::released, this, &FitSpectraWidget::display_element_info);
+
+
     QGridLayout* add_element_grid_layout = new QGridLayout();
     add_element_grid_layout->setAlignment(Qt::AlignTop);
     add_element_grid_layout->addWidget(new QLabel("Element"), 0, 0);
@@ -209,6 +217,7 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_btn_periodic_table, 0, 2);
     add_element_grid_layout->addWidget(new QLabel("Shell"), 1, 0);
     add_element_grid_layout->addWidget(_cb_add_shell, 1, 1);
+    add_element_grid_layout->addWidget(_btn_element_info, 1, 2);
     //add_element_grid_layout->addWidget(new QLabel("Detector Element"), 2, 0);
     //add_element_grid_layout->addWidget(_cb_detector_element, 2, 1);
     add_element_grid_layout->addWidget(_chk_is_pileup, 2, 0);
@@ -352,6 +361,16 @@ void FitSpectraWidget::on_braching_ratio_update(data_struct::Fit_Element_Map<dou
     if (element != nullptr)
     {
         _spectra_widget->set_element_lines(element);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::on_width_multi_changed(data_struct::Fit_Element_Map<double>* element, const QString& shell_name)
+{
+    if (element != nullptr)
+    {
+        _spectra_widget->set_element_width(element, data_struct::Str_Element_Param_Map.at(shell_name.toStdString()));
     }
 }
 
@@ -798,6 +817,15 @@ void FitSpectraWidget::clearROISpectra()
 void FitSpectraWidget::display_periodic_table()
 {
     _periodic_table_widget->show();
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::display_element_info()
+{
+    _element_info_dialog.set_param_override(_param_override);
+    _element_info_dialog.set_selected_element(_cb_add_elements->currentText());
+    _element_info_dialog.show();
 }
 
 //---------------------------------------------------------------------------
