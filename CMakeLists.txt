@@ -75,6 +75,29 @@ option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
 option(MSVC_DEBUG_INFO_REL "Compule with debug info in Release build for MSVC" OFF)
 option(BUILD_WITH_OPENCV_SUPPORT "Compule with opencv support for image segmentation" ON)
 
+# Get the Git commit hash
+execute_process(
+    COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(
+    COMMAND git describe --exact-match --tags
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Define the header content
+set(HEADER_CONTENT "#pragma once\n")
+string(APPEND HEADER_CONTENT "#define GIT_COMMIT_HASH \"${GIT_HASH}\"\n")
+string(APPEND HEADER_CONTENT "#define GIT_COMMIT_TAG \"${GIT_TAG}\"\n")
+
+# Write the content to the header file
+file(WRITE "${CMAKE_SOURCE_DIR}/src/core/git_hash.h" "${HEADER_CONTENT}")
+
 IF (UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/linux)
 ENDIF()
