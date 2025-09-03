@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QVBoxLayout>
+#include "core/git_hash.h"
 
 using gstar::Splash;
 
@@ -42,7 +43,8 @@ Splash::Splash(QWidget* parent, Qt::WindowFlags f,
 
    // Make label for date
    QLabel* lblDate = new QLabel();
-   lblDate -> setText(QString::fromLocal8Bit(__DATE__));
+   QString date_and_version = QString::fromLocal8Bit(__DATE__) + " Version: " + GIT_COMMIT_TAG + " Git Hash: " + GIT_COMMIT_HASH;
+   lblDate -> setText(date_and_version);
 
    // Status
    m_status = new QTextEdit;
