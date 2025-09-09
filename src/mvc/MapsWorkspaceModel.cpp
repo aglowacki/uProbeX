@@ -200,6 +200,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[5] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 
             _is_fit_params_loaded = _load_fit_params();
+            
 
             while (job_queue.size() > 0)
             {
@@ -421,6 +422,10 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
             model->setParamOverride(itr.first, &(itr.second));
         }
         QFileInfo fileInfo = _raw_fileinfo_list[name];
+        if(io::file::File_Scan::inst()->get_total_count() == 0)
+		{
+			io::file::File_Scan::inst()->populate_netcdf_hdf5_files(fileInfo.absolutePath().toStdString());
+		}
         if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {
             _raw_models.insert( {fileInfo.fileName(), model} );
