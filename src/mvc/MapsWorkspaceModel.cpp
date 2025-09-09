@@ -200,7 +200,6 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[5] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 
             _is_fit_params_loaded = _load_fit_params();
-            io::file::File_Scan::inst()->populate_netcdf_hdf5_files(filepath.toStdString());
 
             while (job_queue.size() > 0)
             {
