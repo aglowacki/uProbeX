@@ -376,6 +376,7 @@ void uProbeX::exitApplication()
         _liveMapsViewer = nullptr;
     }
     // Quit
+    qInstallMessageHandler(nullptr);
     QCoreApplication::quit();
 
 }
