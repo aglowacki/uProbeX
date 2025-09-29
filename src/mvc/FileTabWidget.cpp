@@ -40,8 +40,8 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 
     //_file_list_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     _file_list_view->horizontalHeader()->resizeSections(QHeaderView::Interactive);
-    _file_list_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    
+    _file_list_view->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    _file_list_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);    
 
     // if preferences saves on select changes loaded dataset
     connect(_file_list_view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &FileTabWidget::onFileRowChange);
