@@ -96,6 +96,10 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_strict_regex->setChecked(Preferences::inst()->getValue(STR_PRF_STRICT_REGEX).toBool());
 
 
+   QLabel* lblUseOpenGL = new QLabel("Use OpenGL acceleration");
+   lblUseOpenGL->setFont(font);
+   _ck_use_opengl = new QCheckBox();
+   _ck_use_opengl->setChecked(Preferences::inst()->getValue(STR_PFR_SHOW_SCAN_QUEUE_HEADER).toBool());
 
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
@@ -109,6 +113,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblSearchDatasets, _ck_search_datasets);
    mainLayout->addRow(lblStrictRegex, _ck_strict_regex);
    mainLayout->addRow(lblShowScanQueueHeader, _ck_show_scan_queue_header);
+   mainLayout->addRow(lblUseOpenGL, _ck_use_opengl);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 

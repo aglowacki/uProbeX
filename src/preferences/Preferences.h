@@ -132,6 +132,7 @@
 #define STR_PREF_LAST_SCAN_LINK_SELECTED "Last_Scan_Link_Selected"
 #define STR_PFR_SHOW_SCAN_QUEUE_HEADER "Show_Scan_Queue_Header"
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
+#define STR_PFR_USE_OPENGL "Use_OpenGL"
 
 
 /**
@@ -165,6 +166,8 @@ public:
     * @param value - the value to store as a QVariant
     */
    void setValue(QString key, QVariant value);
+
+   void checkAndSet(QString key, QVariant value);
 
    /**
    * load from file

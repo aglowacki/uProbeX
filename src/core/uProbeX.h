@@ -61,6 +61,8 @@ public:
    //Static log windows 
    static QTextEdit * log_textedit;
 
+   void check_and_set_default_pref();
+   
 signals:
 
    void loadMapsWorkspace(MapsWorkspaceController*, QString);

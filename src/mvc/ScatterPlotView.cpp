@@ -75,7 +75,7 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
         val = 1;
     }
     _scatter_series->setMarkerSize(val);
-    _scatter_series->setUseOpenGL(true); // causes exception when deconstructor called.
+    _scatter_series->setUseOpenGL(Preferences::inst()->getValue(STR_PFR_USE_OPENGL).toBool());
     _chart->addSeries(_scatter_series);
     _display_log10 = display_log10;
     if (_display_log10)
