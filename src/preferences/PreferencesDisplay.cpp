@@ -99,7 +99,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    QLabel* lblUseOpenGL = new QLabel("Use OpenGL acceleration");
    lblUseOpenGL->setFont(font);
    _ck_use_opengl = new QCheckBox();
-   _ck_use_opengl->setChecked(Preferences::inst()->getValue(STR_PFR_SHOW_SCAN_QUEUE_HEADER).toBool());
+   _ck_use_opengl->setChecked(Preferences::inst()->getValue(STR_PFR_USE_OPENGL).toBool());
 
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
@@ -180,6 +180,8 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_SEARCH_SUB_DIR_FOR_DATASETS, _ck_search_datasets->isChecked());
     Preferences::inst()->setValue(STR_PRF_STRICT_REGEX, _ck_strict_regex->isChecked());
     Preferences::inst()->setValue(STR_PRF_FILE_SIZE, _cb_file_size->currentIndex());
+    Preferences::inst()->setValue(STR_PFR_USE_OPENGL, _ck_use_opengl->isChecked());
+    
      
 }
 
