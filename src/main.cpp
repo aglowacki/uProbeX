@@ -13,73 +13,69 @@
 #include "core/PythonLoader.h"
 #include "mvc/LiveMapsElementsWidget.h"
 
-bool running = true;
 static std::ostringstream strCout;
 
 /*---------------------------------------------------------------------------*/
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-	if (running)
-	{
 
-		QString h_msg(msg);
-		QByteArray localMsg = msg.toLocal8Bit();
-		int cnt = 0;	
-		if (type == QtInfoMsg || type == QtDebugMsg)
+	QString h_msg(msg);
+	QByteArray localMsg = msg.toLocal8Bit();
+	int cnt = 0;	
+	if (type == QtInfoMsg || type == QtDebugMsg)
+	{
+		if (type == QtInfoMsg)
 		{
-			if (type == QtInfoMsg)
-			{
-				fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			}
-			else if(type == QtDebugMsg)
-			{
-				fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			}
-			if (uProbeX::log_textedit != nullptr)
-			{
-				cnt += h_msg.count("Info: ");
-				cnt += h_msg.count("Warning: ");
-				cnt += h_msg.count("Error: ");
-				h_msg.replace("Info: ", "<span style=\" font-weight: bold; \">Info: </span>");
-				h_msg.replace("\033[1;31mError: \033[0;m", "<span style=\"color : red; font-weight: bold; \">Error: </span>");
-				h_msg.replace("\033[1;33mWarning: \033[0;m", "<span style=\"color : yellow; font-weight: bold; \">Warning: </span>");
-				if (cnt > 0)
-				{
-					h_msg.replace("\n", "<br>");
-				}
-				uProbeX::log_textedit->insertHtml(h_msg);
-				uProbeX::log_textedit->ensureCursorVisible();
-			}
+			fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
 		}
-		else if (type == QtWarningMsg)
+		else if(type == QtDebugMsg)
 		{
-			fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			if (uProbeX::log_textedit != nullptr)
+			fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		}
+		if (uProbeX::log_textedit != nullptr)
+		{
+			cnt += h_msg.count("Info: ");
+			cnt += h_msg.count("Warning: ");
+			cnt += h_msg.count("Error: ");
+			h_msg.replace("Info: ", "<span style=\" font-weight: bold; \">Info: </span>");
+			h_msg.replace("\033[1;31mError: \033[0;m", "<span style=\"color : red; font-weight: bold; \">Error: </span>");
+			h_msg.replace("\033[1;33mWarning: \033[0;m", "<span style=\"color : yellow; font-weight: bold; \">Warning: </span>");
+			if (cnt > 0)
 			{
-				h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
-				uProbeX::log_textedit->insertHtml(h_msg);
+				h_msg.replace("\n", "<br>");
 			}
-		}
-		else if (type == QtCriticalMsg)
-		{
-			fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			if (uProbeX::log_textedit != nullptr)
-			{
-				h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
-				uProbeX::log_textedit->insertHtml(h_msg);
-			}
-		}
-		else if (type == QtFatalMsg)
-		{
-			fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
-			running = false;
-		}
-		else
-		{
-			fprintf(stderr, "Unknown: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+			uProbeX::log_textedit->insertHtml(h_msg);
+			uProbeX::log_textedit->ensureCursorVisible();
 		}
 	}
+	else if (type == QtWarningMsg)
+	{
+		fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		if (uProbeX::log_textedit != nullptr)
+		{
+			h_msg = "<span style=\"color : yellow; \">" + msg + "</span><br />";
+			uProbeX::log_textedit->insertHtml(h_msg);
+		}
+	}
+	else if (type == QtCriticalMsg)
+	{
+		fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+		if (uProbeX::log_textedit != nullptr)
+		{
+			h_msg = "<span style=\"color : red; \">" + msg + "</span><br />";
+			uProbeX::log_textedit->insertHtml(h_msg);
+		}
+	}
+	else if (type == QtFatalMsg)
+	{
+		fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+	}
+	else
+	{
+		fprintf(stderr, "Unknown: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+	}
+	
 }
 
 /*---------------------------------------------------------------------------*/
@@ -202,8 +198,6 @@ int main(int argc, char** argv)
 	{
 		std::cerr << e.what() << '\n';
 	}
-	
-	running = false;
 
 	// Clean up
 	if (widget != nullptr)
