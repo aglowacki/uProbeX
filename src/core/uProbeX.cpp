@@ -40,7 +40,8 @@ QTextEdit * uProbeX::log_textedit = 0;
 
 uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
-	
+	check_and_set_default_pref();
+
 	log_textedit = new QTextEdit();
     //m_autosaveTimer = nullptr;
     _liveMapsViewer = nullptr;
@@ -134,6 +135,25 @@ void uProbeX::adjustDisplaySettings()
         QApplication::setFont(font);
     }
 
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::check_and_set_default_pref()
+{
+
+    Preferences::inst()->checkAndSet(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION, QVariant(1));
+    Preferences::inst()->checkAndSet(STR_PRF_FontSize, QVariant(14));
+    Preferences::inst()->checkAndSet(STR_PRF_SHOW_DATASET_ON_FILE_SELECT, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PRF_STRICT_REGEX, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PRF_DecimalPrecision, QVariant(3));
+    Preferences::inst()->checkAndSet(STR_PRF_FILE_SIZE, QVariant(2));
+    Preferences::inst()->checkAndSet(STR_PRF_SHOW_DATASET_ON_LOAD, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PREF_RADIO_LOAD_SELECTED_OPTION, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PFR_LOG_10, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant(true));
+    
 }
 
 //---------------------------------------------------------------------------
@@ -376,6 +396,7 @@ void uProbeX::exitApplication()
         _liveMapsViewer = nullptr;
     }
     // Quit
+    qInstallMessageHandler(nullptr);
     QCoreApplication::quit();
 
 }

@@ -1,0 +1,61 @@
+app-id: org.UChicagoLLC.ANL.APS.uProbeX
+runtime: org.kde.Platform
+runtime-version: '6.8' 
+sdk: org.kde.Sdk
+command: uProbeX
+finish-args:
+  - --env=LD_LIBRARY_PATH=/app/lib
+  - --socket=x11 # Grants access to the X11 socket
+  - --command=/app/bin/uProbeX
+modules:
+  - name: krb5
+    buildsystem: simple
+    builddir: true
+    sources:
+      - type: archive
+        url: https://web.mit.edu/kerberos/dist/krb5/1.21/krb5-1.21.2.tar.gz
+        sha256: 9560941a9d843c0243a71b17a7ac6fe31c7cebb5bce3983db79e52ae7e850491
+    build-commands:
+      - echo "Building krb5"
+      - ls
+      - cd src && ./configure --prefix=/app
+      - cd src && make -j8
+      - cd src && make install
+  - name: xcb-util-cursor
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://xorg.freedesktop.org/archive/individual/lib/xcb-util-cursor-0.1.6.tar.xz
+        sha256: fdeb8bd127873519be5cc70dcd0d3b5d33b667877200f9925a59fdcad8f7a933
+  - name: XRF-Maps 
+    buildsystem: simple
+    sources:
+      - type: file
+        path: ../XRF-Maps/bin/xrf_maps
+      - type: file
+        path: ../XRF-Maps/bin/libxrf_io.so
+      - type: file
+        path: ../XRF-Maps/bin/libxrf_fit.so
+      - type: file
+        path: /lib/x86_64-linux-gnu/libtirpc.so.3 
+      - type: file
+        path: /usr/lib/llvm-15/lib/libomp.so.5
+      - type: dir
+        path: ../XRF-Maps/reference
+    build-commands:
+      - install -D xrf_maps /app/bin/xrf_maps
+      - install -D libxrf_io.so /app/lib/libxrf_io.so
+      - install -D libxrf_fit.so /app/lib/libxrf_fit.so
+      - install -D libtirpc.so.3 /app/lib/libtirpc.so.3
+      - install -D libomp.so.5 /app/lib/libomp.so.5
+      - install -D henke.xdr /app/reference/henke.xdr
+      - install -D Scaler_to_PV_map.yaml /app/reference/Scaler_to_PV_map.yaml
+      - install -D xrf_library.csv /app/reference/xrf_library.csv
+  - name: uProbeX
+    buildsystem: simple
+    sources:
+      - type: file
+        path: ../uProbeX/bin/uProbeX
+    build-commands:
+      - install -D uProbeX /app/bin/uProbeX
+

@@ -99,6 +99,7 @@ Preferences::Preferences()
         {STR_PREF_LAST_SCAN_LINK_SELECTED, QVariant()},
         {STR_PREF_SCAN_LINK_PROFILES, QVariant()},
         {STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant()},
+        {STR_PFR_USE_OPENGL, QVariant()},
         {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
    load();
@@ -134,6 +135,25 @@ QVariant Preferences::getValue(QString key) const
         return _pref_map.at(key.toStdString());
     }
     return QVariant();
+
+}
+
+//---------------------------------------------------------------------------
+
+void Preferences::checkAndSet(QString key, QVariant value)
+{
+
+    if (_pref_map.count(key.toStdString()) > 0)
+    {
+        if ( false == _pref_map[key.toStdString()].isValid())
+        {
+            _pref_map[key.toStdString()] = value;
+        }
+    }
+    else
+    {
+        _pref_map[key.toStdString()] = value;
+    }
 
 }
 
