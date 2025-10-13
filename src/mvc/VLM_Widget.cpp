@@ -2455,7 +2455,7 @@ void VLM_Widget::treeContextMenu(const QPoint& pos)
 void VLM_Widget::updatedPixelToLight(double x, double y, double z)
 {
 
-   if(false == m_imageViewWidget->getMouseLeaveState())
+   //if(false == m_imageViewWidget->getMouseLeaveState())
    {
       m_lightToMicroCoordWidget->setCoordinate(x,y,z);
    }

@@ -19,6 +19,8 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include "gstar/ImageViewWidgetSubWin.h"
+#include "gstar/ImageViewWidgetCompact.h"
 
 using namespace gstar;
 
@@ -65,14 +67,14 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    connect(m_annoTreeView, &QTreeView::customContextMenuRequested, this, &AbstractImageWidget::treeContextMenu);
    connect(m_annoTreeView, &QTreeView::doubleClicked, this, &AbstractImageWidget::treeDoubleClicked);
 
-   m_imageViewWidget = new ImageViewWidget(rows, cols);
+   //m_imageViewWidget = new ImageViewWidgetSubWin(rows, cols);
+   m_imageViewWidget = new ImageViewWidgetCompact(rows, cols);
    m_imageViewWidget->setSceneModel(m_treeModel);
    m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
    connect(m_imageViewWidget, &ImageViewWidget::customContextMenuRequested, this, &AbstractImageWidget::viewContextMenu);
 
    createAnnotationToolBar();
-
 
    m_annotationsEnabled = true;
    //add it in parent class so you can control what tab it is on.

@@ -13,7 +13,6 @@
 #include "gstar/RangeWidget.h"
 
 #include <QResizeEvent>
-#include <QAction>
 #include <QCursor>
 #include <QGraphicsView>
 #include <QIcon>
@@ -65,192 +64,115 @@ public:
    /**
     * Destructor
     */
-   ~ImageViewWidget();
+   virtual ~ImageViewWidget();
 
-   /**
-    * @brief coordinateWidget
-    * @return
-    */
    CoordinateWidget* coordinateWidget();
-
-   /**
-    * Even when the mouse enter the widget
-    */
-   void enterEvent(QEvent * event);
-
-   /**
-    * Widget for controlling image setting. 
-    */
-   QToolBar* getImageControlsWidget();
-
-   /**
-    * @brief getCenterPoint
-    * @return
-    */
-   QPointF getCenterPoint() const;
-
-   QRectF getSceneRect();
-
-   /**
-    * Even when the mouse leave the widget
-    */
-   void leaveEvent(QEvent * event);
-
-   /**
-    * getMouseLeaveState
-    */
-   bool getMouseLeaveState();
 
    void setCoordsVisible(bool val);
 
-   void setSelectorVisible(bool val);
-
-   void setCountsVisible(bool val);
-
-   /**
-    * Returns a pointer to the scene that is currently visualized in the view.
-    * If no scene is currently visualized, 0 is returned.
-    *
-    * @return the current scene.
-    */
-   ImageViewScene* scene(int grid_idx = 0);
-
-   void setSceneModel(QAbstractItemModel* model);
-
-   void setSceneSelectionModel(QItemSelectionModel* selectionModel);
-
-   void setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel);
-
-   void sceneEnableAnnotations(bool state);
-
-   void setSceneUnitsLabel(QString label);
-
-   void setSceneUnitsPerPixelX(double val);
-
-   void setSceneUnitsPerPixelY(double val);
-
-   void sceneUpdateModel();
-
-   void setScenetPixmap(QPixmap p);
-
-   void setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized);
-
-   /**
-    * sets the coordinate model for coordinate widget
-    */
    void setCoordinateModel(CoordinateModel* model);
 
-   /**
-    *  Set the number of images for range widget.
-    */
-   void setNumberOfImages(int images);
-
-   /**
-    * Set the dim of the two comboxes.
-    */
-   void setRank(int m_rankDim);
-
-   /**
-    * Set the enable status of the rangeWidget.
-    */
-   void setRangeWidgetEnable(bool m_rangeEnable = false);
-
-   /**
-    * Set starting index for the range widget
-    */
-   void setRangeWidgetStartIndex(int index);
-
-   /**
-    * Set the visible status of the rangeWidget.
-    */
-   void setRangewidgetVisible(bool m_rangeVisible = false);
-
-   /**
-    * The widget to display current zoom value.
-    *
-    * This widget is created in ImageViewToolBar.
-    */
-   void setZoomPercentWidget(QComboBox* zoomPercent);
-
-
-   void setUnitLabel(int idx, QString label);
-
-   void setUnitLabels(QString label);
-
-   //void redrawSubWindows();
-
-   /**
-    * @ brief view
-    *
-    */
-   QGraphicsView* view();
+   QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap);
 
    int getViewCount(){return _grid_rows * _grid_cols;}
 
-   QString getLabelAt(int idx);
+   void enterEvent(QEvent * event);
+   
+   void leaveEvent(QEvent * event);
 
-   void getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats);
+   virtual QRectF getSceneRect() = 0;
 
-   void resetCoordsToZero();
+   virtual void setZoomPercentWidget(QComboBox* zoomPercent);
 
-   std::vector<QString> getLabelList();
+   virtual QPointF getCenterPoint() const = 0;
 
-   void restoreLabels(const std::vector<QString>& labels);
+   virtual void setSelectorVisible(bool val) = 0;
+
+   virtual void setCountsVisible(bool val) = 0;
+
+   virtual ImageViewScene* scene(int grid_idx = 0) = 0;
+
+   virtual void setSceneModel(QAbstractItemModel* model) = 0;
+
+   virtual void setSceneSelectionModel(QItemSelectionModel* selectionModel) = 0;
+
+   virtual void setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel) = 0;
+
+   virtual void sceneEnableAnnotations(bool state) = 0;
+
+   virtual void setSceneUnitsLabel(QString label) = 0;
+
+   virtual void setSceneUnitsPerPixelX(double val) = 0;
+
+   virtual void setSceneUnitsPerPixelY(double val) = 0;
+
+   virtual void sceneUpdateModel() = 0;
+
+   virtual void setScenetPixmap(QPixmap p) = 0;
+
+   virtual void setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized) = 0;
+
+   virtual void setUnitLabel(int idx, QString label) = 0;
+
+   virtual void setUnitLabels(QString label) = 0;
+
+   virtual QGraphicsView* view() = 0;
+
+   virtual QString getLabelAt(int idx) = 0;
+
+   virtual void getMouseTrasnformAt(int idx, CountsLookupTransformer** counts_lookup, CountsStatsTransformer** counts_stats) = 0;
+
+   virtual void resetCoordsToZero() = 0;
+
+   virtual std::vector<QString> getLabelList() = 0;
+
+   virtual void restoreLabels(const std::vector<QString>& labels) = 0;
+
+   virtual virtual void clearLabels() = 0;
+
+   virtual void addLabel(QString lbl) = 0;
+
+   virtual void setLabel(QString lbl) = 0;
+   
+   virtual void setGlobalContrast(bool val) = 0;
+
+   virtual bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max) = 0;
 
    bool set_null_mouse_pos;
-
-   void clearLabels();
-
-   void addLabel(QString lbl);
-
-   void setLabel(QString lbl);
-   
-   void setGlobalContrast(bool val);
-
-   bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
-
-   QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap);
 
 public slots:
 
    /**
     * Handle click on cursor tool bar icon
     */
-   void clickCursor();
+   virtual void clickCursor() = 0;
 
    /**
     * Handle click on zoom in tool bar icon. Switch to zoom in mode.
     */
-   void clickZoomIn();
+   virtual void clickZoomIn() = 0;
 
    /**
     * Handle click on fill tool bar icon. Switch to fill mode.
     *
     * @param check - The flag for the fill button state. 
     */
-   void clickFill(bool check);
+   virtual void clickFill(bool check) = 0;
    /**
     * Handle click on zoom back to original tool bar icon.
     */
-   void clickZoomOriginal();
+   virtual void clickZoomOriginal() = 0;
 
    /**
     * Handle click on zoom out tool bar icon. Switch to zoom out mode.
     */
-   void clickZoomOut();
+   virtual void clickZoomOut() = 0;
 
-   void customCursor(QCursor cursor);
+   virtual void customCursor(QCursor cursor) = 0;
 
-//protected:
+   virtual void resizeEvent(QResizeEvent* event) = 0;
 
-   /**
-    * Overridden resize handler
-    *
-    * See Qt documentation
-    */
-   void resizeEvent(QResizeEvent* event);
-
-   void newGridLayout(int rows, int cols);
+   virtual void newGridLayout(int rows, int cols) = 0;
 
 signals:
 
@@ -286,16 +208,11 @@ signals:
 
 protected slots:
 
-   /**
-    * The coordinates that when mouse moves over
-    *
-    * @param x - x coordinate.
-    * @param y - y coordinate.
-    */
-   //virtual void mouseOverPixel(int x, int y);
-    void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
+   virtual void onMouseMoveEvent(QGraphicsSceneMouseEvent* event) = 0;
 
-   void subwindow_redraw(SubImageWindow*);
+   virtual void subwindow_redraw(SubImageWindow*) = 0;
+
+   void updateZoomPercentage();
 
 private slots:
 
@@ -307,16 +224,11 @@ private slots:
    void sceneRectUpdated(const QRectF& rect);
 
    /**
-    * Handle change to image zoom percentage factor.
-    */
-   void updateZoomPercentage();
-
-   /**
     * A slot that performs a zoom to a particular item on the scene.
     *
     * @param zoomObject - object on the scene to zoom into.
     */
-   void zoomIn(QGraphicsItem* zoomObject);
+   virtual void zoomIn(QGraphicsItem* zoomObject) = 0;
 
    /**
     * Zoom in the region of the image selected by the user.
@@ -325,19 +237,19 @@ private slots:
     *
     * @param zoomRect - zoom selection rectangle.
     */
-   void zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event);
+   virtual void zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event) = 0;
 
    /**
     * Zoom out
     */
-   void zoomOut();
+   virtual void zoomOut() = 0;
 
    /**
     * Called when zoom percentage is updated by the user.
     */
-   void zoomValueChanged(int val);
+   virtual void zoomValueChanged(int val) = 0;
 
-   void onComboBoxChange(QString lbl);
+   virtual void onComboBoxChange(QString lbl) = 0;
 
 private:
 
@@ -345,72 +257,37 @@ private:
     * @brief getCurrentZoomPercent
     * @return
     */
-   qreal getCurrentZoomPercent();
+   virtual qreal getCurrentZoomPercent() = 0;
    
    /**
     * Create layout for widget
     */
-   void createLayout();
+   virtual void createLayout() = 0;
 
    /**
     * Create graphics scene and graphics view
     */
-   void createSceneAndView(int rows, int cols);
+   virtual void createSceneAndView(int rows, int cols) = 0;
 
-   /**
-    * Create and setup the rangewidget.
-    */
-   void createRangewidget();
+protected:
 
-
-private:
-
-   /**
-    * Coordinate widget
-    */
    CoordinateWidget* m_coordWidget;
 
-   /**
-    * Widget
-    */
    QWidget* m_widget;
 
-   std::vector<SubImageWindow> _sub_windows;
-
-   /**
-    * Zoom in cursor
-    */
    QCursor m_zoomInCursor;
 
-   /**
-    * Zoom out cursor
-    */
    QCursor m_zoomOutCursor;
 
-   /**
-    * Zoom percent combobox
-    */
    QComboBox* m_zoomPercent;
 
-   /**
-    * Fill action requires us to maintain a state
-    *  that is used during resize event of the widget
-    */
    bool m_fillState;
-
-   /**
-    * Zoom percent combobox
-    */
-   bool m_mouseLeaveState;
-
-   QGridLayout *_image_view_grid_layout;
 
    int _grid_rows;
 
    int _grid_cols;
 
    QVBoxLayout* _main_layout;
-
 };
 
 }

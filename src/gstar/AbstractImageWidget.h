@@ -23,11 +23,11 @@
 #include "gstar/Annotation/MarkerGraphicsItem.h"
 #include "gstar/Annotation/RulerGraphicsItem.h"
 #include "gstar/AnnotationToolBarWidget.h"
-#include "gstar/ImageViewWidget.h"
 #include "gstar/ImageViewToolBar.h"
 #include "gstar/RangeWidget.h"
 #include "gstar/RulerUnitsDialog.h"
 #include "mvc/AnnimateSlideWidget.h"
+#include "gstar/ImageViewWidget.h"
 
 //---------------------------------------------------------------------------
 

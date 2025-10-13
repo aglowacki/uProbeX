@@ -196,8 +196,7 @@ void CoLocalizationWidget::onNewGridLayout(int rows, int cols)
     m_imageViewWidget->setCoordsVisible(false);
     m_imageViewWidget->setSelectorVisible(false);
     m_imageViewWidget->setCountsVisible(false);
-    //model_updated();
-    //m_imageViewWidget->restoreLabels(element_view_list);
+    
 }
 
 //---------------------------------------------------------------------------
