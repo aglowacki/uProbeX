@@ -30,8 +30,8 @@ using gstar::ImageViewWidget;
 
 //---------------------------------------------------------------------------
 
-MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, bool restore_floating, QWidget* parent)
-    : AbstractImageWidget(rows, cols, parent)
+MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bool create_image_nav, bool restore_floating, QWidget* parent)
+    : AbstractImageWidget(rows, cols, compact_view, parent)
 {
     
     _model = nullptr;
@@ -872,7 +872,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 
     if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
-        m_imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
+        m_imageViewWidget->setSubScenePixmap(viewIdx, QPixmap::fromImage((_model->regionLinks().at(name))));
     }
     else
     {
@@ -1052,8 +1052,10 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             _model->loadAllRoiMaps();
             for (auto& itr : _model->get_map_rois())
             {
-                int width = (int)m_imageViewWidget->scene()->width();
-                int height = (int)m_imageViewWidget->scene()->height();
+                
+                QRectF scene_dims = m_imageViewWidget->getSceneRect();
+                int width = (int)scene_dims.width();
+                int height = (int)scene_dims.height();
                 logI<< "Loading roi: "<< itr.first<<"\n";
                 gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
@@ -1422,7 +1424,7 @@ void MapsElementsWidget::redrawCounts()
             QString element = m_imageViewWidget->getLabelAt(vidx);
             if (_model != nullptr && _model->regionLinks().count(element) > 0)
             {
-                m_imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
+                m_imageViewWidget->setSubScenePixmap(vidx, QPixmap::fromImage((_model->regionLinks().at(element))));
             }
             else
             {
@@ -1430,16 +1432,22 @@ void MapsElementsWidget::redrawCounts()
             }
         }
 
+        bool set_dims = true;
         while (job_queue.size() > 0)
         {
             std::vector<int> to_delete;
             for (auto& itr : job_queue)
             {       
-                m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
-                if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+                m_imageViewWidget->setSubScenePixmap(itr.first, itr.second.get());
+                if(set_dims)
                 {
-                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
-                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                    if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+                    {
+                        QRectF scene_dims = m_imageViewWidget->getSceneRect();
+                        m_imageHeightDim->setCurrentText(QString::number(scene_dims.height()));
+                        m_imageWidthDim->setCurrentText(QString::number(scene_dims.width()));
+                    }
+                    set_dims = false;
                 }
                 to_delete.push_back(itr.first);
             }
@@ -1569,7 +1577,7 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 props.global_contrast = true;
             }
         }
-        m_imageViewWidget->scene(grid_idx)->setPixmap(_model->gen_pixmap(props, normalized));
+        m_imageViewWidget->setSubScenePixmap(grid_idx, _model->gen_pixmap(props, normalized));
         if(normalized.rows() > 0 && normalized.cols() > 0)
         {
             if(grid_idx == 0)

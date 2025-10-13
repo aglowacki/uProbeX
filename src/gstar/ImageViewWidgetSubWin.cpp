@@ -400,18 +400,21 @@ void ImageViewWidgetSubWin::resizeEvent(QResizeEvent* event)
 
 //---------------------------------------------------------------------------
 
-ImageViewScene* ImageViewWidgetSubWin::scene(int grid_idx)
+void ImageViewWidgetSubWin::connectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi)
 {
-
-   // Return current scene
-    if(_sub_windows.size() > grid_idx)
-    {
-        return _sub_windows[grid_idx].scene;
-    }
-    return nullptr;
-
+    connect(_sub_windows[0].scene, &ImageViewScene::onMousePressEvent, roi, &RoiMaskGraphicsItem::onMousePressEvent);
+    connect(_sub_windows[0].scene, &ImageViewScene::onMouseMoveEvent, roi, &RoiMaskGraphicsItem::onMouseMoveEvent);
+    connect(_sub_windows[0].scene, &ImageViewScene::onMouseReleaseEvent, roi, &RoiMaskGraphicsItem::onMouseReleaseEvent);
 }
 
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetSubWin::disconnectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi)
+{
+    disconnect(_sub_windows[0].scene, &ImageViewScene::onMousePressEvent, roi, &RoiMaskGraphicsItem::onMousePressEvent);
+    disconnect(_sub_windows[0].scene, &ImageViewScene::onMouseMoveEvent, roi, &RoiMaskGraphicsItem::onMouseMoveEvent);
+    disconnect(_sub_windows[0].scene, &ImageViewScene::onMouseReleaseEvent, roi, &RoiMaskGraphicsItem::onMouseReleaseEvent);
+}
 //---------------------------------------------------------------------------
 
 void ImageViewWidgetSubWin::setSceneModel(QAbstractItemModel* model)
@@ -497,11 +500,21 @@ void ImageViewWidgetSubWin::sceneUpdateModel()
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetSubWin::setScenetPixmap(QPixmap p)
+void ImageViewWidgetSubWin::setScenePixmap(const QPixmap& p)
 {
     for (auto& itr : _sub_windows)
     {
         itr.scene->setPixmap(p);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetSubWin::setSubScenePixmap(int idx, const QPixmap& p)
+{
+    if(idx > -1 && idx < _sub_windows.size())
+    {
+        _sub_windows[idx].scene->setPixmap(p);
     }
 }
 

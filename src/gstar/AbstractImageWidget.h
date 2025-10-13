@@ -50,7 +50,7 @@ public:
    /**
     * Constructor.
     */
-   AbstractImageWidget(int rows = 1, int cols = 1, QWidget* parent = nullptr);
+   AbstractImageWidget(int rows = 1, int cols = 1, bool compact_view = false, QWidget* parent = nullptr);
 
    /**
     * Destructor.

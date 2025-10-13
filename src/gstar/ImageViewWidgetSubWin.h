@@ -47,7 +47,9 @@ public:
 
    virtual QGraphicsView* view();
 
-   virtual ImageViewScene* scene(int grid_idx = 0);
+   virtual void connectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi);
+
+   virtual void disconnectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi);
    
    virtual QPointF getCenterPoint() const;
 
@@ -67,7 +69,9 @@ public:
 
    virtual void sceneUpdateModel();
 
-   virtual void setScenetPixmap(QPixmap p);
+   virtual void setScenePixmap(const QPixmap& p);
+
+   virtual void setSubScenePixmap(int idx, const QPixmap& p);
 
    virtual void setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized);
 

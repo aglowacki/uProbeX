@@ -36,12 +36,13 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
    // Initialize mode
    m_mode = None;
 
+   
    // Set initial pixmap
    QPixmap p(1024, 1024);
    p.fill(Qt::gray);
    m_pixItem = addPixmap(p);
    setSceneRect(m_pixItem -> boundingRect());
-
+   
    // Connect selectionChanged signal to annotation slot
    connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
@@ -255,8 +256,11 @@ void ImageViewScene::enableAnnotations(bool state)
    rootItem->setEnabled(state);
    recursiveSetEnabled(rootItem, state);
 
-   // Reset view; just in case...
-   setSceneRect(m_pixItem -> boundingRect());
+   if(m_pixItem != nullptr)
+   {
+      // Reset view; just in case...
+      setSceneRect(m_pixItem -> boundingRect());
+   }
 
 }
 
@@ -313,6 +317,19 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
 
    connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewScene::removeDefaultPixmap() 
+{
+   if(m_pixItem != nullptr)
+   {
+      this->removeItem(m_pixItem); 
+      delete m_pixItem;
+      m_pixItem = nullptr;
+      setSceneRect(0,0,1024,1024);
+   }
 }
 
 //---------------------------------------------------------------------------
@@ -434,7 +451,12 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 QRectF ImageViewScene::pixRect()
 {
 
-   return m_pixItem -> boundingRect();
+   QRectF tmp(0,0,1024,1024);
+   if(m_pixItem != nullptr)
+   {
+      return m_pixItem -> boundingRect();
+   }
+   return tmp;
 
 }
 
@@ -556,7 +578,7 @@ void ImageViewScene::sceneSelectionChanged()
 
 //---------------------------------------------------------------------------
 
-void ImageViewScene::setPixmap(QPixmap p)
+void ImageViewScene::setPixmap(const QPixmap& p)
 {
 
     // Set pixmap

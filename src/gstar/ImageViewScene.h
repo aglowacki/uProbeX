@@ -109,6 +109,8 @@ public:
     */
    void setSelectionModel(QItemSelectionModel* selectionModel);
 
+   void removeDefaultPixmap();
+   
 public slots:
 
    /**
@@ -130,7 +132,7 @@ public slots:
     *
     * @param p - image to visualize
     */
-   void setPixmap(QPixmap p);
+   void setPixmap(const QPixmap& p);
 
    /**
     * @brief setUnitsLabel

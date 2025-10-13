@@ -12,9 +12,13 @@ using namespace gstar;
 ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* parent) : ImageViewWidget(rows, cols, parent)
 {
 
-   // Create main layout and add widgets
-   createSceneAndView(rows,cols);
-   createLayout();
+    _main_layout = nullptr;
+    _sub_window.scene->removeDefaultPixmap();
+    // Create main layout and add widgets
+    createSceneAndView(rows,cols);
+    createLayout();
+    _sub_window.setImageLabelVisible(false);
+    _sub_window.setCountsVisible(false);
 
 }
 
@@ -137,34 +141,41 @@ void ImageViewWidgetCompact::clickZoomOut()
 void ImageViewWidgetCompact::createLayout()
 {
 
-   // Layout
-   _main_layout = new QVBoxLayout();
-   _main_layout->setContentsMargins(0, 0, 0, 0);
-/*
-   for (int i = 0; i < _grid_rows; i++)
-   {
-	   for (int j = 0; j < _grid_cols; j++)
-	   {
-           int idx = (i * _grid_cols) + j;
-           //_cb_image_label
-           _image_view_grid_layout->addItem(_sub_window.layout, i, j);
-	   }
-   }
-*/
-    _main_layout->addItem(_sub_window.layout);
+    QPixmap pmap(100, 100);
+    pmap.fill(Qt::blue);
+   
+    _sub_window.scene->clear();
+    _pixmaps.clear();
+    for (int i = 0; i < _grid_rows; i++)
+    {
+        for (int j = 0; j < _grid_cols; j++)
+        {
+            _pixmaps.emplace_back(_sub_window.scene->addPixmap(pmap));
+            _pixmaps.back()->setPos(j*100, i*100);
+        }
+    }
+
+    _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
+
     if(m_coordWidget == nullptr)
     {
         m_coordWidget = new CoordinateWidget();
     }
-    _main_layout->addWidget(m_coordWidget);
 
-
-    _main_layout->setSpacing(0);
-    _main_layout->setContentsMargins(0, 0, 0, 0);
-
+    // Main Layout
+    if(_main_layout == nullptr)
+    {
+        _main_layout = new QVBoxLayout();
+        _main_layout->setContentsMargins(0, 0, 0, 0);
+        _main_layout->addItem(_sub_window.layout);
+        _main_layout->addWidget(m_coordWidget);
+        _main_layout->setSpacing(0);
+        _main_layout->setContentsMargins(0, 0, 0, 0);
+    }
     // Set widget's layout
     setLayout(_main_layout);
 
+    _sub_window.scene->update();
 }
 
 //---------------------------------------------------------------------------
@@ -211,29 +222,26 @@ void ImageViewWidgetCompact::setUnitLabels(QString label)
 
 void ImageViewWidgetCompact::newGridLayout(int rows, int cols)
 {
-/*
+
     disconnect(_sub_window.scene, &ImageViewScene::zoomIn, this, &ImageViewWidgetCompact::zoomIn);
     disconnect(_sub_window.scene, &ImageViewScene::zoomInRect, this, &ImageViewWidgetCompact::zoomInRect);
     disconnect(_sub_window.scene, &ImageViewScene::zoomOut, this, &ImageViewWidgetCompact::zoomOut);
-    disconnect(_sub_window.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidgetCompact::sceneRectUpdated);
+    //disconnect(_sub_window.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidgetCompact::sceneRectUpdated);
     disconnect(_sub_window.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidgetCompact::onMouseMoveEvent);
     disconnect(_sub_window.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidgetCompact::onComboBoxChange);
     disconnect(&_sub_window, &SubImageWindow::redraw_event, this, &ImageViewWidgetCompact::subwindow_redraw);
-*/  
+
+    //_sub_window.scene->clear();
+    createSceneAndView(rows, cols);
+    createLayout();
 }
 
 //---------------------------------------------------------------------------
 
 void ImageViewWidgetCompact::subwindow_redraw(SubImageWindow* win)
 {
-    /*
-    
-    if (&itr == win)
-    {
-        emit parent_redraw(idx);
-    }
-    }
-        */
+    _sub_window.scene->update();
+    emit parent_redraw(0);
 }
 
 
@@ -316,7 +324,6 @@ void ImageViewWidgetCompact::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
     int y = event->scenePos().y();
     m_coordWidget -> setCoordinate(x,y);
     _sub_window.counts_coord_widget->setCoordinate(x, y, 0);
-
 }
 
 //---------------------------------------------------------------------------
@@ -324,29 +331,38 @@ void ImageViewWidgetCompact::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 void ImageViewWidgetCompact::resizeEvent(QResizeEvent* event)
 {
 
-   Q_UNUSED(event)
+    Q_UNUSED(event)
 
-   if (m_fillState == false) return;
-   
-   
+    if (m_fillState == false) return;
+
+
     QRectF r(0, 0, (_sub_window.scene->sceneRect()).width(), (_sub_window.scene->sceneRect()).height());
-    
+
     _sub_window.view->fitInView(r, Qt::KeepAspectRatio);
 
     _sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    
-   updateZoomPercentage();
-   update();
+
+    updateZoomPercentage();
+    update();
 }
 
 //---------------------------------------------------------------------------
 
-ImageViewScene* ImageViewWidgetCompact::scene(int grid_idx)
+void ImageViewWidgetCompact::connectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi)
 {
+    connect(_sub_window.scene, &ImageViewScene::onMousePressEvent, roi, &RoiMaskGraphicsItem::onMousePressEvent);
+    connect(_sub_window.scene, &ImageViewScene::onMouseMoveEvent, roi, &RoiMaskGraphicsItem::onMouseMoveEvent);
+    connect(_sub_window.scene, &ImageViewScene::onMouseReleaseEvent, roi, &RoiMaskGraphicsItem::onMouseReleaseEvent);
+}
 
-    return _sub_window.scene;
+//---------------------------------------------------------------------------
 
+void ImageViewWidgetCompact::disconnectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi)
+{
+    disconnect(_sub_window.scene, &ImageViewScene::onMousePressEvent, roi, &RoiMaskGraphicsItem::onMousePressEvent);
+    disconnect(_sub_window.scene, &ImageViewScene::onMouseMoveEvent, roi, &RoiMaskGraphicsItem::onMouseMoveEvent);
+    disconnect(_sub_window.scene, &ImageViewScene::onMouseReleaseEvent, roi, &RoiMaskGraphicsItem::onMouseReleaseEvent);
 }
 
 //---------------------------------------------------------------------------
@@ -420,9 +436,21 @@ void ImageViewWidgetCompact::sceneUpdateModel()
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetCompact::setScenetPixmap(QPixmap p)
+void ImageViewWidgetCompact::setScenePixmap(const QPixmap& p)
 {
     _sub_window.scene->setPixmap(p);
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
+{
+    if(idx > -1 && idx < _pixmaps.size())
+    {
+        _pixmaps[idx]->setPixmap(p);
+    }
+    
+    _sub_window.scene->update();
 }
 
 //---------------------------------------------------------------------------
@@ -559,7 +587,9 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
 QString ImageViewWidgetCompact::getLabelAt(int idx)
 {
     
-    return _sub_window.cb_image_label->currentText();
+    return "Si";
+    //return _sub_window.cb_image_label->currentText();
+    // TODO: have a list of elements that were selected to display. 
 
 }
 

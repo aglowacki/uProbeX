@@ -759,7 +759,7 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
    tempTreeModel->appendNode(clonedItem);
    clonedItem->setPropertyValue(UPROBE_NAME,"");
    clonedItem->setPos(item->pos());
-   m_imageViewWidget->scene()->setModel(tempTreeModel);
+   m_imageViewWidget->setSceneModel(tempTreeModel);
 
    QGraphicsView* view = m_imageViewWidget->view();
 
@@ -863,7 +863,7 @@ void VLM_Widget::exportRegionXMLAndImage(UProbeRegionGraphicsItem* item,
    QApplication::restoreOverrideCursor();
 
    // Restore last model
-   m_imageViewWidget->scene()->setModel(m_mpTreeModel);
+   m_imageViewWidget->setSceneModel(m_mpTreeModel);
    view->fitInView(originalBounds, Qt::KeepAspectRatio);
 
    delete painter;
@@ -1326,8 +1326,7 @@ void VLM_Widget::createLayout()
    m_tabWidget->addTab(m_microProbeTabWidget, QIcon(), "MicroProbe");
 
    //set calibration as initial model
-   m_imageViewWidget->scene()->setModel(m_calTreeModel);
-   m_imageViewWidget->scene()->setSelectionModel(m_calSelectionModel);
+   m_imageViewWidget->setSceneModelAndSelection(m_calTreeModel, m_calSelectionModel);
 
    m_imageViewWidget->coordinateWidget()->setLabel("Light  X :",
                                                    "Light  Y :",
@@ -2414,14 +2413,12 @@ void VLM_Widget::tabIndexChanged(int index)
    switch(index)
    {
       case CALIBRATION_IDX:
-         m_imageViewWidget->scene()->setModel(m_calTreeModel);
+         m_imageViewWidget->setSceneModelAndSelection(m_calTreeModel, m_calSelectionModel);
          m_mpSelectionModel->clear();
-         m_imageViewWidget->scene()->setSelectionModel(m_calSelectionModel);
          break;
       case MICROPROBE_IDX:
-         m_imageViewWidget->scene()->setModel(m_mpTreeModel);
+         m_imageViewWidget->setSceneModelAndSelection(m_mpTreeModel, m_mpSelectionModel);
          m_calSelectionModel->clear();
-         m_imageViewWidget->scene()->setSelectionModel(m_mpSelectionModel);
          break;
       default:
          break;
@@ -2620,7 +2617,7 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                   props.element = STR_TOTAL_FLUORESCENCE_YIELD;
                   props.selected_colormap = ColorMap::inst()->get_color_map(Preferences::inst()->getValue(STR_COLORMAP).toString());
 
-                  m_imageViewWidget->scene(0)->setPixmap(_live_h5model->gen_pixmap(props, normalized));
+                  m_imageViewWidget->setSubScenePixmap(0, _live_h5model->gen_pixmap(props, normalized));
                   if(normalized.rows() > 0 && normalized.cols() > 0)
                   {
                      if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
@@ -2662,7 +2659,7 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                   _live_h5model = nullptr;
                   if (h5image_model.load(fileName))
                   {
-                     m_imageViewWidget->scene(0)->setPixmap(h5image_model.gen_pixmap());
+                     m_imageViewWidget->setSubScenePixmap(0, h5image_model.gen_pixmap());
                   }
                   else
                   {
@@ -2688,7 +2685,7 @@ void VLM_Widget::onElementSelect(QString value, int viewIdx)
    props.element = value.toStdString();
    props.selected_colormap = ColorMap::inst()->get_color_map(Preferences::inst()->getValue(STR_COLORMAP).toString());
 
-   m_imageViewWidget->scene(0)->setPixmap(_live_h5model->gen_pixmap(props, normalized));
+   m_imageViewWidget->setSubScenePixmap(0, _live_h5model->gen_pixmap(props, normalized));
 }
 
 //--------------------------------------------------------------------------

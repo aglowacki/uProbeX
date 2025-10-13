@@ -54,7 +54,10 @@ void ImageStackControlWidget::createLayout()
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout1 = new QHBoxLayout();
 	//QHBoxLayout* hlayout2 = new QHBoxLayout();
-	_imageGrid = new MapsElementsWidget(1,1,true);
+
+	// check preferences if we want compact view for counts
+	bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+	_imageGrid = new MapsElementsWidget(1,1, compact_view, true);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 

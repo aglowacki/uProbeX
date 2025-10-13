@@ -118,6 +118,8 @@ private:
    QComboBox* _ck_int_spec_horiz;
 
    QCheckBox* _ck_use_opengl;
+
+   QCheckBox* _ck_use_compact_view;
 };
 
 //---------------------------------------------------------------------------

@@ -28,6 +28,7 @@
 #include <QComboBox>
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/SubImageWindow.h"
+#include "gstar/Annotation/RoiMaskGraphicsItem.h"
 
 
 //---------------------------------------------------------------------------
@@ -80,6 +81,10 @@ public:
    
    void leaveEvent(QEvent * event);
 
+   virtual void connectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi) = 0;
+
+   virtual void disconnectRoiGraphicsItemToMouseEvents(RoiMaskGraphicsItem* roi) = 0;
+   
    virtual QRectF getSceneRect() = 0;
 
    virtual void setZoomPercentWidget(QComboBox* zoomPercent);
@@ -89,8 +94,6 @@ public:
    virtual void setSelectorVisible(bool val) = 0;
 
    virtual void setCountsVisible(bool val) = 0;
-
-   virtual ImageViewScene* scene(int grid_idx = 0) = 0;
 
    virtual void setSceneModel(QAbstractItemModel* model) = 0;
 
@@ -108,7 +111,9 @@ public:
 
    virtual void sceneUpdateModel() = 0;
 
-   virtual void setScenetPixmap(QPixmap p) = 0;
+   virtual void setScenePixmap(const QPixmap& p) = 0;
+
+   virtual void setSubScenePixmap(int idx, const QPixmap& p) = 0;
 
    virtual void setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized) = 0;
 

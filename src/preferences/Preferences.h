@@ -133,6 +133,7 @@
 #define STR_PFR_SHOW_SCAN_QUEUE_HEADER "Show_Scan_Queue_Header"
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
 #define STR_PFR_USE_OPENGL "Use_OpenGL"
+#define STR_PRF_COMPACT_COUNTS_VIEW "Counts_Compact_View"
 
 
 /**

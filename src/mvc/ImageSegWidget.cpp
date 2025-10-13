@@ -58,9 +58,9 @@ void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& 
 
 //---------------------------------------------------------------------------
 
-void ImageSegWidget::setPixMap(QPixmap pix)
+void ImageSegWidget::setPixMap(const QPixmap& pix)
 {
-    m_imageViewWidget->scene(0)->setPixmap(pix);
+    m_imageViewWidget->setScenePixmap(pix);
     if (_first_pixmap_set)
     {
         m_imageViewWidget->clickFill(true);
@@ -133,9 +133,7 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
 {
     if (_selected_roi != nullptr)
     {
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+        m_imageViewWidget->disconnectRoiGraphicsItemToMouseEvents(_selected_roi);
     }
 
     insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi, false);
@@ -146,9 +144,7 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
         _selected_roi->setBrushSize(_roi_brush_size);
         _selected_roi->setDrawAction(_draw_action_mode);
     
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+        m_imageViewWidget->connectRoiGraphicsItemToMouseEvents(_selected_roi);
     }
 }
 
@@ -168,9 +164,7 @@ void ImageSegWidget::currentRoiChanged(const QModelIndex& current, const QModelI
 {
     if (_selected_roi != nullptr)
     {
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
-        disconnect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+        m_imageViewWidget->disconnectRoiGraphicsItemToMouseEvents(_selected_roi);
     }
 
     gstar::AbstractGraphicsItem* abstractItem = static_cast<gstar::AbstractGraphicsItem*>(current.internalPointer());
@@ -181,9 +175,7 @@ void ImageSegWidget::currentRoiChanged(const QModelIndex& current, const QModelI
     {
         _selected_roi->setBrushSize(_roi_brush_size);
         _selected_roi->setDrawAction(_draw_action_mode);
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMousePressEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMousePressEvent);
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseMoveEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseMoveEvent);
-        connect(m_imageViewWidget->scene(), &gstar::ImageViewScene::onMouseReleaseEvent, _selected_roi, &gstar::RoiMaskGraphicsItem::onMouseReleaseEvent);
+        m_imageViewWidget->connectRoiGraphicsItemToMouseEvents(_selected_roi);
     }
 }
 

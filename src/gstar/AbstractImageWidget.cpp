@@ -26,7 +26,7 @@ using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
+AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, QWidget* parent)
 : QWidget(parent)
 {
    // Background
@@ -67,8 +67,15 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    connect(m_annoTreeView, &QTreeView::customContextMenuRequested, this, &AbstractImageWidget::treeContextMenu);
    connect(m_annoTreeView, &QTreeView::doubleClicked, this, &AbstractImageWidget::treeDoubleClicked);
 
-   //m_imageViewWidget = new ImageViewWidgetSubWin(rows, cols);
-   m_imageViewWidget = new ImageViewWidgetCompact(rows, cols);
+   if(compact_view)
+   {
+      m_imageViewWidget = new ImageViewWidgetCompact(rows, cols);
+   }
+   else
+   {
+      m_imageViewWidget = new ImageViewWidgetSubWin(rows, cols);
+   }
+   
    m_imageViewWidget->setSceneModel(m_treeModel);
    m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -649,9 +656,9 @@ void AbstractImageWidget::showRulerUnitsDialog()
 
    // Show GenerateSeriesDialog with current settings
    RulerUnitsDialog* dialog = new RulerUnitsDialog(this, Qt::Dialog);
-   dialog->setUnitLabel(m_imageViewWidget->scene()->getUnitsLabel());
-   dialog->setUnitsPerPixelX(m_imageViewWidget->scene()->getUnitsPerPixelX());
-   dialog->setUnitsPerPixelY(m_imageViewWidget->scene()->getUnitsPerPixelY());
+   //dialog->setUnitLabel(m_imageViewWidget->scene()->getUnitsLabel());
+   //dialog->setUnitsPerPixelX(m_imageViewWidget->scene()->getUnitsPerPixelX());
+   //dialog->setUnitsPerPixelY(m_imageViewWidget->scene()->getUnitsPerPixelY());
 
    // Update with current settings
    if (dialog->exec() == QDialog::Accepted)
@@ -721,7 +728,7 @@ void AbstractImageWidget::updateFrame(QImage *img)
     if (img != nullptr)
     {
         // Create pixmap from image
-        m_imageViewWidget->setScenetPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setScenePixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
     }
 
 }
