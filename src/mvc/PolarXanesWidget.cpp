@@ -41,6 +41,8 @@ void PolarXanesWidget::createLayout()
     QLayout* layout = new QVBoxLayout();
     layout->addItem(hbox);
     layout->addWidget(_spectra_widget);
+    layout->setContentsMargins(0, 0, 0, 0);
+    
     setLayout(layout);
 
 }

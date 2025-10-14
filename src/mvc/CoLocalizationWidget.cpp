@@ -84,6 +84,8 @@ void CoLocalizationWidget::_createLayout()
 
     //createActions();
 
+    layout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(layout);
 
 }

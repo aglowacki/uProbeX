@@ -14,11 +14,12 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
 
     _main_layout = nullptr;
     _sub_window.scene->removeDefaultPixmap();
+    _sub_window.setImageLabelVisible(false);
+    _sub_window.setCountsVisible(false);
+
     // Create main layout and add widgets
     createSceneAndView(rows,cols);
     createLayout();
-    _sub_window.setImageLabelVisible(false);
-    _sub_window.setCountsVisible(false);
 
 }
 
@@ -141,17 +142,26 @@ void ImageViewWidgetCompact::clickZoomOut()
 void ImageViewWidgetCompact::createLayout()
 {
 
-    QPixmap pmap(100, 100);
+    QPixmap pmap(90, 90);
     pmap.fill(Qt::blue);
    
-    _sub_window.scene->clear();
+
+    for(auto itr : _pixmaps)
+    {
+        _sub_window.scene->removeItem(itr);
+        delete itr;
+    }
     _pixmaps.clear();
     for (int i = 0; i < _grid_rows; i++)
     {
         for (int j = 0; j < _grid_cols; j++)
         {
-            _pixmaps.emplace_back(_sub_window.scene->addPixmap(pmap));
-            _pixmaps.back()->setPos(j*100, i*100);
+            _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
+            QRectF bbox = _pixmaps.back()->boundingRect();
+            float width = bbox.width() + 10.0;
+            float height = bbox.height() + 10.0;
+            _pixmaps.back()->setPos(j * width, i * height);
+            _sub_window.scene->addItem(_pixmaps.back());
         }
     }
 
@@ -166,14 +176,14 @@ void ImageViewWidgetCompact::createLayout()
     if(_main_layout == nullptr)
     {
         _main_layout = new QVBoxLayout();
-        _main_layout->setContentsMargins(0, 0, 0, 0);
         _main_layout->addItem(_sub_window.layout);
         _main_layout->addWidget(m_coordWidget);
         _main_layout->setSpacing(0);
         _main_layout->setContentsMargins(0, 0, 0, 0);
+        // Set widget's layout
+        setLayout(_main_layout);
+
     }
-    // Set widget's layout
-    setLayout(_main_layout);
 
     _sub_window.scene->update();
 }
@@ -231,7 +241,6 @@ void ImageViewWidgetCompact::newGridLayout(int rows, int cols)
     disconnect(_sub_window.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidgetCompact::onComboBoxChange);
     disconnect(&_sub_window, &SubImageWindow::redraw_event, this, &ImageViewWidgetCompact::subwindow_redraw);
 
-    //_sub_window.scene->clear();
     createSceneAndView(rows, cols);
     createLayout();
 }
@@ -240,7 +249,7 @@ void ImageViewWidgetCompact::newGridLayout(int rows, int cols)
 
 void ImageViewWidgetCompact::subwindow_redraw(SubImageWindow* win)
 {
-    _sub_window.scene->update();
+    //_sub_window.scene->update();
     emit parent_redraw(0);
 }
 
@@ -438,19 +447,39 @@ void ImageViewWidgetCompact::sceneUpdateModel()
 
 void ImageViewWidgetCompact::setScenePixmap(const QPixmap& p)
 {
-    _sub_window.scene->setPixmap(p);
+ //   _sub_window.scene->setPixmap(p);
 }
 
 //---------------------------------------------------------------------------
 
 void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
 {
-    if(idx > -1 && idx < _pixmaps.size())
+    if(false == p.isNull())
     {
-        _pixmaps[idx]->setPixmap(p);
+        if(idx > -1 && idx < _pixmaps.size())
+        {
+          _pixmaps[idx]->setPixmap(p);
+        }
+        // re position them
+        if(_pixmaps.size() > 0)
+        {
+            QRectF bbox = _pixmaps[0]->boundingRect();
+            float width = bbox.width() + 10.0;
+            float height = bbox.height() + 10.0;
+                    
+            int n = 0;
+            for (int i = 0; i < _grid_rows; i++)
+            {
+                for (int j = 0; j < _grid_cols; j++)
+                {
+                    _pixmaps[n]->setPos(j * width, i * height);
+                    n++;
+                }
+            }
+        }
+        _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
     }
-    
-    _sub_window.scene->update();
+  //  _sub_window.scene->update();
 }
 
 //---------------------------------------------------------------------------
@@ -586,8 +615,11 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
 
 QString ImageViewWidgetCompact::getLabelAt(int idx)
 {
-    
-    return "Si";
+    if(idx > -1 && idx < _sub_window.cb_image_label->count())
+    {
+        return _sub_window.cb_image_label->itemText(idx);
+    }
+    return "";
     //return _sub_window.cb_image_label->currentText();
     // TODO: have a list of elements that were selected to display. 
 

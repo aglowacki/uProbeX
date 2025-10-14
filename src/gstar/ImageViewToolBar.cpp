@@ -89,6 +89,8 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    m_toolbar->addWidget(m_lbl);
    m_toolbar->addWidget(m_zoomPercent);
 
+   m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
+
    // Set the fill button checked initially
    m_cursorAction->setChecked(true);
    m_fillAction->setChecked(true);

@@ -109,9 +109,13 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     //QHBoxLayout* toolbar_hbox = new QHBoxLayout();
 
     QHBoxLayout* hbox = new QHBoxLayout();
+    hbox->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* hbox2 = new QHBoxLayout();
+    hbox2->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* counts_layout = new QVBoxLayout();
+    counts_layout->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* layout = new QVBoxLayout();
+
 
 	connect(&iDiag, &ImageGridDialog::onNewGridLayout, this, &MapsElementsWidget::onNewGridLayout);
 
@@ -163,6 +167,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     QWidget* color_maps_widgets = new QWidget();
     QHBoxLayout* colormapsHBox = new QHBoxLayout();
+    colormapsHBox->setContentsMargins(0, 0, 0, 0);
     colormapsHBox->addWidget(new QLabel(" ColorMap :"));
     colormapsHBox->addWidget(_cb_colormap);
     colormapsHBox->addWidget(_color_map_ledgend_lbl);
@@ -190,19 +195,23 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
 
     QWidget* options_widgets = new QWidget();
-    QVBoxLayout* optionsVBox = new QVBoxLayout();
+    QHBoxLayout* optionsHBox = new QHBoxLayout();
+    optionsHBox->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* optionsHboxS = new QHBoxLayout();
+    optionsHboxS->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* optionsHboxM = new QHBoxLayout();
-    optionsVBox->addWidget(_chk_log_color);
-    optionsVBox->addWidget(_chk_disp_color_ledgend);
-    optionsVBox->addWidget(_chk_invert_y);
+    optionsHboxM->setContentsMargins(0, 0, 0, 0);
+    optionsHBox->addWidget(_chk_log_color);
+    optionsHBox->addWidget(_chk_disp_color_ledgend);
+    optionsHBox->addWidget(_chk_invert_y);
     optionsHboxS->addWidget(new QLabel("Layout:"));
     optionsHboxS->addWidget(_grid_button);
     optionsHboxS->addWidget(_btn_export_as_image);
 
-    optionsHboxM->addItem(optionsVBox);
+    optionsHboxM->addItem(optionsHBox);
     optionsHboxM->addItem(optionsHboxS);
     options_widgets->setLayout(optionsHboxM);
+    options_widgets->setContentsMargins(0, 0, 0, 0);
 
     
     _cb_normalize = new QComboBox();
@@ -216,7 +225,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
     
     _contrast_widget = new gstar::MinMaxSlider();
-    _contrast_widget->setMinimumWidth(200);
+    _contrast_widget->setMinimumWidth(100);
+    _contrast_widget->setMaximumHeight(70);
+    _contrast_widget->setContentsMargins(0, 0, 0, 0);
     connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);    
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
@@ -234,13 +245,15 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     hbox_normalize->addWidget(new QLabel("  Normalize By: "));
     hbox_normalize->addWidget(_cb_normalize);
     w_normalize->setLayout(hbox_normalize);
-
+    w_normalize->setContentsMargins(0, 0, 0, 0);
+    
     QWidget* w_contrast = new QWidget();
     QHBoxLayout* hbox_contrast = new QHBoxLayout();
     hbox_contrast->addWidget(_global_contrast_chk);
     hbox_contrast->addWidget(_contrast_widget);
     w_contrast->setLayout(hbox_contrast);
-
+    w_contrast->setMaximumHeight(70);
+    w_contrast->setContentsMargins(0, 0, 0, 0);
 
     _tw_image_controls->addTab(m_toolbar, "Zoom");
     _tw_image_controls->addTab(color_maps_widgets, "Color Map");
@@ -248,20 +261,10 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _tw_image_controls->addTab(w_normalize, "Normalize");
     _tw_image_controls->addTab(w_contrast, "Contrast");
     _tw_image_controls->setProperty("padding", QVariant("1px"));
-    //toolbar_widget->setLayout(toolbar_hbox);
+    _tw_image_controls->setMaximumHeight(70);
+    _tw_image_controls->setContentsMargins(0, 0, 0, 0);
 
-    //_tabWidget->addTab(color_maps_widgets, "Color Map");
-
-    QScrollArea* scrollArea = new QScrollArea();
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setMinimumHeight(110);
-    scrollArea->setMaximumHeight(140);
-    //scrollArea->setWidget(toolbar_widget);
-    scrollArea->setWidget(_tw_image_controls);
-
-    counts_layout->addWidget(scrollArea);
+    counts_layout->addWidget(_tw_image_controls);
     counts_layout->addWidget(splitter);
 
     counts_layout->setSpacing(0);
@@ -1577,7 +1580,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 props.global_contrast = true;
             }
         }
-        m_imageViewWidget->setSubScenePixmap(grid_idx, _model->gen_pixmap(props, normalized));
+        QPixmap p = _model->gen_pixmap(props, normalized);
+        m_imageViewWidget->setSubScenePixmap(grid_idx, p);
         if(normalized.rows() > 0 && normalized.cols() > 0)
         {
             if(grid_idx == 0)

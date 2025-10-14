@@ -71,6 +71,8 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
    m_toolbar->addAction(m_markerAction);
 //   m_toolbar->addAction(m_crossHairAction);
 
+   m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
+
 }
 
 AnnotationToolBarWidget::~AnnotationToolBarWidget()

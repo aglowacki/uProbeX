@@ -38,13 +38,6 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
    m_imageWidthDim = nullptr;
    m_imageHeightDim = nullptr;
    m_tabWidget = new QTabWidget(this);
-   //m_tabWidget->setPalette(pal);
-   //m_tabWidget->setAutoFillBackground(true);
-   //m_tabWidget->addTab(layoutWidget, QIcon(), "Annotations");
-   //QPalette pal = this->palette();
-   //pal.setColor(this->backgroundRole(), Qt::white);
-   //this->setPalette(pal);
-   //setAutoFillBackground(true);
 
    createActions();
 
@@ -56,8 +49,6 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
    m_selectionModel = new QItemSelectionModel(m_treeModel);
 
    m_annoTreeView = new QTreeView();
-   //m_annoTreeView->setPalette(pal);
-   //m_annoTreeView->setAutoFillBackground(true);
    m_annoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_annoTreeView->setAnimated(true);
    m_annoTreeView->setModel(m_treeModel);
@@ -186,27 +177,27 @@ void AbstractImageWidget::createActions()
 
 void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav)
 {
+   m_toolbar = new QToolBar(this);
+   m_toolbar->setMaximumHeight(70);
+   m_toolbar->setFloatable(true);
+   m_toolbar->setMovable(true);
 
-    m_toolbar = new QToolBar(this);
-    m_toolbar->setFloatable(true);
-    m_toolbar->setMovable(true);
+   m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
 
-    m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
+   m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
+   m_toolbar->addSeparator();
+   if (create_image_nav)
+   {
 
-    m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
-    m_toolbar->addSeparator();
-    if (create_image_nav)
-    {
+      createRangeWidget();
+      m_toolbar->addWidget(m_range);
 
-        createRangeWidget();
-        m_toolbar->addWidget(m_range);
-
-        m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
-        m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
-        m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
-        m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
-    }
-    
+      m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
+      m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
+      m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
+      m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
+   }
+   m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
 }
 
 //---------------------------------------------------------------------------
@@ -391,6 +382,7 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 
    mainLayout->addWidget(m_toolbar);
    mainLayout->addWidget(splitter);
+   mainLayout->setContentsMargins(QMargins(0, 0, 0, 0));
 
    return mainLayout;
 

@@ -36,7 +36,8 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
    // Initialize mode
    m_mode = None;
 
-   
+   //this->setBackgroundBrush(QBrush(Qt::lightGray));
+
    // Set initial pixmap
    QPixmap p(1024, 1024);
    p.fill(Qt::gray);
@@ -225,6 +226,10 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
 
 void ImageViewScene::enableAnnotations(bool state)
 {
+   if(m_model == nullptr)
+   {
+      return;
+   }
 
    if (typeid(*m_model) != typeid(AnnotationTreeModel))
    {
@@ -507,10 +512,15 @@ void ImageViewScene::removeAllAnnotationItems()
    QList<QGraphicsItem*> allItems = QGraphicsScene::items();
    foreach(QGraphicsItem* item, allItems)
    {
-      if(item != m_pixItem)
+      if(qgraphicsitem_cast<QGraphicsPixmapItem*>(item))
+      {
+         continue;
+      }
+      else if(item != m_pixItem)
+      {
          removeItem(item);
+      }
    }
-
 }
 
 //---------------------------------------------------------------------------
