@@ -197,6 +197,7 @@ private:
    SubImageWindow _sub_window;
 
    std::vector<QGraphicsPixmapItem*> _pixmaps;
+   std::vector<QGraphicsTextItem*> _textitems;
    
 };
 

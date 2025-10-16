@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "gstar/ImageViewWidgetSubWin.h"
-
+#include <QSpacerItem>
 using namespace gstar;
 
 //---------------------------------------------------------------------------
@@ -12,8 +12,8 @@ using namespace gstar;
 ImageViewWidgetSubWin::ImageViewWidgetSubWin(int rows, int cols , QWidget* parent) : ImageViewWidget(rows, cols, parent)
 {
    // Create main layout and add widgets
-   createSceneAndView(rows,cols);
-   createLayout();
+    createSceneAndView(rows,cols);
+    createLayout();
 
 }
 
@@ -158,20 +158,30 @@ void ImageViewWidgetSubWin::clickZoomOut()
 void ImageViewWidgetSubWin::createLayout()
 {
 
-   // Layout
-   _main_layout = new QVBoxLayout();
-   _main_layout->setContentsMargins(0, 0, 0, 0);
+    // Layout
+    _main_layout = new QVBoxLayout();
+    _main_layout->setSpacing(0);
+    _main_layout->setContentsMargins(0, 0, 0, 0);
 
-   _image_view_grid_layout = new QGridLayout();
-   for (int i = 0; i < _grid_rows; i++)
-   {
-	   for (int j = 0; j < _grid_cols; j++)
-	   {
-           int idx = (i * _grid_cols) + j;
-           //_cb_image_label
-           _image_view_grid_layout->addItem(_sub_windows[idx].layout, i, j);
-	   }
-   }
+    _image_view_grid_layout = new QGridLayout();
+    _image_view_grid_layout->setContentsMargins(0, 0, 0, 0);
+    _image_view_grid_layout->setVerticalSpacing(0);
+    _image_view_grid_layout->setHorizontalSpacing(0);
+   
+    for (int i = 0; i < _grid_rows; i++)
+    {
+        //QHBoxLayout *new_row = new QHBoxLayout();
+        //new_row->setContentsMargins(0, 0, 0, 0);
+        //_main_layout->addItem(new_row);
+        for (int j = 0; j < _grid_cols; j++)
+        {
+            int idx = (i * _grid_cols) + j;
+            //_cb_image_label
+            //new_row->addItem(_sub_windows[idx].layout);
+            _image_view_grid_layout->addItem(_sub_windows[idx].layout, i, j);
+        }
+        //new_row->addItem(new QSpacerItem(1000,10,QSizePolicy::Maximum));
+    }
 
     _main_layout->addItem(_image_view_grid_layout);
     if(m_coordWidget == nullptr)
@@ -180,9 +190,6 @@ void ImageViewWidgetSubWin::createLayout()
     }
     _main_layout->addWidget(m_coordWidget);
 
-
-    _main_layout->setSpacing(0);
-    _main_layout->setContentsMargins(0, 0, 0, 0);
 
     // Set widget's layout
     setLayout(_main_layout);
@@ -219,7 +226,7 @@ void ImageViewWidgetSubWin::setUnitLabel(int idx, QString label)
     if (idx > -1 && idx < _sub_windows.size())
     {
         _sub_windows[idx].counts_coord_widget->setUnitsLabel(label);
-        _sub_windows[idx].counts_stats_widget->setUnitsLabel(label);
+       // _sub_windows[idx].counts_stats_widget->setUnitsLabel(label);
     }
 }
 
@@ -230,7 +237,7 @@ void ImageViewWidgetSubWin::setUnitLabels(QString label)
     for (auto& itr : _sub_windows)
     {
         itr.counts_coord_widget->setUnitsLabel(label);
-        itr.counts_stats_widget->setUnitsLabel(label);
+        //itr.counts_stats_widget->setUnitsLabel(label);
     }
 }
 

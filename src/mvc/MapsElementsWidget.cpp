@@ -103,6 +103,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
     connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MapsElementsWidget::on_export_csv_and_png);
 
+
     _cb_analysis = new QComboBox(this);
 
     //QWidget* toolbar_widget = new QWidget();
@@ -676,6 +677,11 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     Preferences::inst()->setValue(STR_GRID_ROWS,rows);
     Preferences::inst()->setValue(STR_GRID_COLS,cols);
     Preferences::inst()->save();
+
+//testing compact view
+//m_imageViewWidget->setSelectorVisible(false);
+//m_imageViewWidget->setCountsVisible(false);
+//m_imageViewWidget->setCoordsVisible(false);
 }
 
 //---------------------------------------------------------------------------

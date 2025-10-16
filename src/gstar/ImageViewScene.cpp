@@ -516,6 +516,10 @@ void ImageViewScene::removeAllAnnotationItems()
       {
          continue;
       }
+      else if (qgraphicsitem_cast<QGraphicsTextItem*>(item))
+      {
+         continue;
+      }
       else if(item != m_pixItem)
       {
          removeItem(item);

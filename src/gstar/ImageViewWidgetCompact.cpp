@@ -152,16 +152,30 @@ void ImageViewWidgetCompact::createLayout()
         delete itr;
     }
     _pixmaps.clear();
+
+    for(auto itr : _textitems)
+    {
+        _sub_window.scene->removeItem(itr);
+        delete itr;
+    }
+    _textitems.clear();
+    
+
     for (int i = 0; i < _grid_rows; i++)
     {
         for (int j = 0; j < _grid_cols; j++)
         {
             _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
+            _textitems.emplace_back(new QGraphicsTextItem("A"));
             QRectF bbox = _pixmaps.back()->boundingRect();
             float width = bbox.width() + 10.0;
             float height = bbox.height() + 10.0;
             _pixmaps.back()->setPos(j * width, i * height);
+            _textitems.back()->setPos(j * width, i * height);
+            _textitems.back()->setDefaultTextColor(Qt::white);
+            _textitems.back()->setPos(j * width, i * height);
             _sub_window.scene->addItem(_pixmaps.back());
+            _sub_window.scene->addItem(_textitems.back());
         }
     }
 
@@ -464,22 +478,27 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
         if(_pixmaps.size() > 0)
         {
             QRectF bbox = _pixmaps[0]->boundingRect();
-            float width = bbox.width() + 10.0;
-            float height = bbox.height() + 10.0;
+            float width = bbox.width() + 4.0;
+            float height = bbox.height() + 20.0;
                     
             int n = 0;
             for (int i = 0; i < _grid_rows; i++)
             {
                 for (int j = 0; j < _grid_cols; j++)
                 {
-                    _pixmaps[n]->setPos(j * width, i * height);
+                    _pixmaps[n]->setPos(j * width, (i * height) + 20);
+                    _textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
+                    //logI<<n<<" ==== "<<_sub_window.cb_image_label->itemText(n).toStdString()<<"\n";
+                    _textitems[n]->adjustSize();
+                    _textitems[n]->setPos(j * width, (i * height) );
                     n++;
                 }
             }
         }
         _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
+        //_sub_window.scene->update();
     }
-  //  _sub_window.scene->update();
+    
 }
 
 //---------------------------------------------------------------------------
@@ -637,7 +656,7 @@ QString ImageViewWidgetCompact::getLabelAt(int idx)
 
 void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized)
 {
-    
+    /* causes seg fault
     if(_sub_window.counts_lookup != nullptr)
     {
         _sub_window.counts_lookup->setCounts(normalized);
@@ -646,7 +665,7 @@ void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayX
     {
         _sub_window.counts_stats->setCounts(normalized);
     }
-
+*/
 }
 
 //---------------------------------------------------------------------------

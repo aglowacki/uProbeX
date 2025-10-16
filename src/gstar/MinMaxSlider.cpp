@@ -14,7 +14,9 @@ MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 : QWidget(parent)
 {
 	QHBoxLayout* layout = new QHBoxLayout();
+	//layout->setContentsMargins(0, 0, 0, 0);
 	QVBoxLayout* vlay = new QVBoxLayout();
+	//vlay->setContentsMargins(20, 20, 20, 20);
 	_min_label = nullptr;
 	_max_label = nullptr;
 
