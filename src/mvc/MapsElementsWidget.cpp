@@ -1024,6 +1024,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _model->getIntegratedSpectra(_int_spec);
                 _int_spec /= 2.0;
 			    _spectra_widget->setIntegratedSpectra(&_int_spec);
+                _tab_widget->setCurrentIndex(2);
             }
             else
             {
