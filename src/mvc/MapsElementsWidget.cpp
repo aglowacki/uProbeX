@@ -1427,45 +1427,53 @@ void MapsElementsWidget::redrawCounts()
     }
     else
     {
-        std::map<int, std::future<QPixmap> > job_queue;
-
-        for (int vidx = 0; vidx < view_cnt; vidx++)
+        bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+        if(compact_view)
         {
-            QString element = m_imageViewWidget->getLabelAt(vidx);
-            if (_model != nullptr && _model->regionLinks().count(element) > 0)
+            for (int vidx = 0; vidx < view_cnt; vidx++)
             {
-                m_imageViewWidget->setSubScenePixmap(vidx, QPixmap::fromImage((_model->regionLinks().at(element))));
-            }
-            else
-            {
-                job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+                m_imageViewWidget->setSubScenePixmap(vidx, generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx));
             }
         }
-
-        bool set_dims = true;
-        while (job_queue.size() > 0)
+        else
         {
-            std::vector<int> to_delete;
-            for (auto& itr : job_queue)
-            {       
-                m_imageViewWidget->setSubScenePixmap(itr.first, itr.second.get());
-                if(set_dims)
+            std::map<int, std::future<QPixmap> > job_queue;
+
+            for (int vidx = 0; vidx < view_cnt; vidx++)
+            {
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+                if (_model != nullptr && _model->regionLinks().count(element) > 0)
                 {
-                    if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
-                    {
-                        QRectF scene_dims = m_imageViewWidget->getSceneRect();
-                        m_imageHeightDim->setCurrentText(QString::number(scene_dims.height()));
-                        m_imageWidthDim->setCurrentText(QString::number(scene_dims.width()));
-                    }
-                    set_dims = false;
+                    m_imageViewWidget->setSubScenePixmap(vidx, QPixmap::fromImage((_model->regionLinks().at(element))));
                 }
-                to_delete.push_back(itr.first);
+                else
+                {
+                    job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                }
             }
 
-            for (const auto& itr : to_delete)
+            bool set_dims = true;
+            while (job_queue.size() > 0)
             {
-                job_queue.erase(itr);
+                std::vector<int> to_delete;
+                for (auto& itr : job_queue)
+                {       
+                    m_imageViewWidget->setSubScenePixmap(itr.first, itr.second.get());
+                    to_delete.push_back(itr.first);
+                }
+
+                for (const auto& itr : to_delete)
+                {
+                    job_queue.erase(itr);
+                }
             }
+        }
+        if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+        {
+            QRectF scene_dims = m_imageViewWidget->getSceneRect();
+            m_imageHeightDim->setCurrentText(QString::number(scene_dims.height()));
+            m_imageWidthDim->setCurrentText(QString::number(scene_dims.width()));
         }
         m_imageViewWidget->resetCoordsToZero();
     }

@@ -155,30 +155,54 @@ void ImageViewWidgetCompact::createLayout()
     }
     _pixmaps.clear();
 
-    for(auto itr : _textitems)
+    for(auto itr : _el_textitems)
     {
         _sub_window.scene->removeItem(itr);
         delete itr;
     }
-    _textitems.clear();
+    for(auto itr : _min_textitems)
+    {
+        _sub_window.scene->removeItem(itr);
+        delete itr;
+    }
+    for(auto itr : _max_textitems)
+    {
+        _sub_window.scene->removeItem(itr);
+        delete itr;
+    }
+    _el_textitems.clear();
+    _min_textitems.clear();
+    _max_textitems.clear();
 
     for (int i = 0; i < _grid_rows; i++)
     {
         for (int j = 0; j < _grid_cols; j++)
         {
             _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
-            _textitems.emplace_back(new QGraphicsTextItem("A"));
+            _el_textitems.emplace_back(new QGraphicsTextItem("E"));
+            _min_textitems.emplace_back(new QGraphicsTextItem("m"));
+            _max_textitems.emplace_back(new QGraphicsTextItem("M"));
             QRectF bbox = _pixmaps.back()->boundingRect();
             float width = bbox.width() + 10.0;
             float height = bbox.height() + 10.0;
             _pixmaps.back()->setPos(j * width, i * height);
-            _textitems.back()->setPos(j * width, i * height);
-            _textitems.back()->setDefaultTextColor(Qt::white);
-            _textitems.back()->setPos(j * width, i * height);
+            _el_textitems.back()->setPos(j * width, i * height);
+            _el_textitems.back()->setDefaultTextColor(Qt::white);
+            _el_textitems.back()->setFont(_element_font);
 
-            _textitems.back()->setFont(_element_font);
+            _min_textitems.back()->setPos(j * width + 28, i * height);
+            _min_textitems.back()->setDefaultTextColor(Qt::white);
+            _min_textitems.back()->setFont(_min_max_font);
+
+            _max_textitems.back()->setPos(j * width + 28, i * height + 8);
+            _max_textitems.back()->setDefaultTextColor(Qt::white);
+            _max_textitems.back()->setFont(_min_max_font);
+
+
             _sub_window.scene->addItem(_pixmaps.back());
-            _sub_window.scene->addItem(_textitems.back());
+            _sub_window.scene->addItem(_el_textitems.back());
+            _sub_window.scene->addItem(_min_textitems.back());
+            _sub_window.scene->addItem(_max_textitems.back());
         }
     }
 
@@ -490,11 +514,13 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
                 for (int j = 0; j < _grid_cols; j++)
                 {
                     _pixmaps[n]->setPos(j * width, (i * height) + 20);
-                    _textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
-                    _textitems[n]->setFont(_element_font);
+                    _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
+                    //_el_textitems[n]->setFont(_element_font);
                     //logI<<n<<" ==== "<<_sub_window.cb_image_label->itemText(n).toStdString()<<"\n";
-                    _textitems[n]->adjustSize();
-                    _textitems[n]->setPos(j * width, (i * height) );
+                    _el_textitems[n]->adjustSize();
+                    _el_textitems[n]->setPos(j * width, (i * height) );
+                    _min_textitems[n]->setPos(j * width + 28, i * height);
+                    _max_textitems[n]->setPos(j * width + 28, i * height + 8);
                     n++;
                 }
             }
@@ -660,16 +686,19 @@ QString ImageViewWidgetCompact::getLabelAt(int idx)
 
 void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized)
 {
-    /* causes seg fault
-    if(_sub_window.counts_lookup != nullptr)
+
+    if(idx < _min_textitems.size())
     {
-        _sub_window.counts_lookup->setCounts(normalized);
+        QString minStr = "min: "+ QString::number(normalized.minCoeff());
+        QString maxStr = "max: "+ QString::number(normalized.maxCoeff());
+        _min_textitems[idx]->setPlainText(minStr);
+        _max_textitems[idx]->setPlainText(maxStr);
+        _min_textitems[idx]->adjustSize();
+        _max_textitems[idx]->adjustSize();
     }
-    if(_sub_window.counts_stats != nullptr)
-    {
-        _sub_window.counts_stats->setCounts(normalized);
-    }
-*/
+    
+//TODO save to array
+
 }
 
 //---------------------------------------------------------------------------

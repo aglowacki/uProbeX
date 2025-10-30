@@ -197,7 +197,9 @@ private:
    SubImageWindow _sub_window;
 
    std::vector<QGraphicsPixmapItem*> _pixmaps;
-   std::vector<QGraphicsTextItem*> _textitems;
+   std::vector<QGraphicsTextItem*> _el_textitems;
+   std::vector<QGraphicsTextItem*> _min_textitems;
+   std::vector<QGraphicsTextItem*> _max_textitems;
    QFont _element_font;
    QFont _min_max_font;
 
