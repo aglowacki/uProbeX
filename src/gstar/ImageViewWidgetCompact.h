@@ -198,7 +198,9 @@ private:
 
    std::vector<QGraphicsPixmapItem*> _pixmaps;
    std::vector<QGraphicsTextItem*> _textitems;
-   
+   QFont _element_font;
+   QFont _min_max_font;
+
 };
 
 }

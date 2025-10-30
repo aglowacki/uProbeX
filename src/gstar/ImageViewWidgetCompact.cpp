@@ -17,6 +17,8 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
     _sub_window.setImageLabelVisible(false);
     _sub_window.setCountsVisible(false);
 
+    _element_font = QFont("Ariel", 10, QFont::Bold);
+    _min_max_font = QFont("Ariel", 6);
     // Create main layout and add widgets
     createSceneAndView(rows,cols);
     createLayout();
@@ -159,7 +161,6 @@ void ImageViewWidgetCompact::createLayout()
         delete itr;
     }
     _textitems.clear();
-    
 
     for (int i = 0; i < _grid_rows; i++)
     {
@@ -174,6 +175,8 @@ void ImageViewWidgetCompact::createLayout()
             _textitems.back()->setPos(j * width, i * height);
             _textitems.back()->setDefaultTextColor(Qt::white);
             _textitems.back()->setPos(j * width, i * height);
+
+            _textitems.back()->setFont(_element_font);
             _sub_window.scene->addItem(_pixmaps.back());
             _sub_window.scene->addItem(_textitems.back());
         }
@@ -480,7 +483,7 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
             QRectF bbox = _pixmaps[0]->boundingRect();
             float width = bbox.width() + 4.0;
             float height = bbox.height() + 20.0;
-                    
+            //_element_font.setPointSize(4); // TODO: calc from size of map
             int n = 0;
             for (int i = 0; i < _grid_rows; i++)
             {
@@ -488,6 +491,7 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
                 {
                     _pixmaps[n]->setPos(j * width, (i * height) + 20);
                     _textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
+                    _textitems[n]->setFont(_element_font);
                     //logI<<n<<" ==== "<<_sub_window.cb_image_label->itemText(n).toStdString()<<"\n";
                     _textitems[n]->adjustSize();
                     _textitems[n]->setPos(j * width, (i * height) );
