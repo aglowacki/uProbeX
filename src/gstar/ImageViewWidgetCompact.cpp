@@ -13,10 +13,12 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
 {
 
     _main_layout = nullptr;
+    _height_offset = 20.0;
     _sub_window.scene->removeDefaultPixmap();
+    _sub_window.scene->setItemOffset(QPointF(0.0f,_height_offset)); 
     _sub_window.setImageLabelVisible(false);
     _sub_window.setCountsVisible(false);
-
+    
     _element_font = QFont("Ariel", 10, QFont::Bold);
     _min_max_font = QFont("Ariel", 6);
     // Create main layout and add widgets
@@ -80,26 +82,17 @@ void ImageViewWidgetCompact::setCountsVisible(bool val)
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetCompact::clickFill(bool checked)
+void ImageViewWidgetCompact::clickFill()
 {
-
-    // State is used by the resizeEvent raised below.
-    //  Make sure state is set before calling resizeEvent method.
-    m_fillState = checked;
-   
-    // Get out of zoom mode
-    clickCursor();
-
     // Set scene mode
-    if (checked == true) 
-    {
-        _sub_window.scene->setZoomModeToFit();
-    }
-
+    _sub_window.scene->setZoomModeToFit();
+    
     // Set regular cursor
     _sub_window.view->viewport()->setCursor(Qt::ArrowCursor);
 
-    resizeEvent(nullptr);
+    //resizeEvent(nullptr);
+    QRectF r(0, 0, (_sub_window.scene->sceneRect()).width(), (_sub_window.scene->sceneRect()).height());
+    _sub_window.view->fitInView(r, Qt::KeepAspectRatio);
     m_zoomPercent->setCurrentIndex(-1);
 
 }
@@ -173,6 +166,7 @@ void ImageViewWidgetCompact::createLayout()
     _el_textitems.clear();
     _min_textitems.clear();
     _max_textitems.clear();
+    _raw_data_items.clear();
 
     for (int i = 0; i < _grid_rows; i++)
     {
@@ -383,13 +377,9 @@ void ImageViewWidgetCompact::resizeEvent(QResizeEvent* event)
 
     Q_UNUSED(event)
 
-    if (m_fillState == false) return;
-
-
     QRectF r(0, 0, (_sub_window.scene->sceneRect()).width(), (_sub_window.scene->sceneRect()).height());
-
+    
     _sub_window.view->fitInView(r, Qt::KeepAspectRatio);
-
     _sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -419,7 +409,7 @@ void ImageViewWidgetCompact::disconnectRoiGraphicsItemToMouseEvents(RoiMaskGraph
 
 void ImageViewWidgetCompact::setSceneModel(QAbstractItemModel* model)
 {
-    _sub_window.scene->setModel(model, false);
+    _sub_window.scene->setModel(model, true);
 }
 
 //---------------------------------------------------------------------------
@@ -435,7 +425,7 @@ void ImageViewWidgetCompact::setSceneSelectionModel(QItemSelectionModel* selecti
 
 void ImageViewWidgetCompact::setSceneModelAndSelection(QAbstractItemModel* model, QItemSelectionModel* selectionModel)
 {
-    _sub_window.scene->setModel(model, false);
+    _sub_window.scene->setModel(model, true);
     _sub_window.scene->setSelectionModel(selectionModel);
 }
 
@@ -506,17 +496,15 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
         {
             QRectF bbox = _pixmaps[0]->boundingRect();
             float width = bbox.width() + 4.0;
-            float height = bbox.height() + 20.0;
+            float height = bbox.height() + _height_offset;
             //_element_font.setPointSize(4); // TODO: calc from size of map
             int n = 0;
             for (int i = 0; i < _grid_rows; i++)
             {
                 for (int j = 0; j < _grid_cols; j++)
                 {
-                    _pixmaps[n]->setPos(j * width, (i * height) + 20);
+                    _pixmaps[n]->setPos(j * width, (i * height) + _height_offset);
                     _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
-                    //_el_textitems[n]->setFont(_element_font);
-                    //logI<<n<<" ==== "<<_sub_window.cb_image_label->itemText(n).toStdString()<<"\n";
                     _el_textitems[n]->adjustSize();
                     _el_textitems[n]->setPos(j * width, (i * height) );
                     _min_textitems[n]->setPos(j * width + 28, i * height);
@@ -545,17 +533,16 @@ QGraphicsView* ImageViewWidgetCompact::view()
 void ImageViewWidgetCompact::zoomIn(QGraphicsItem* zoomObject)
 {
 	
-	_sub_window.view->fitInView(zoomObject, Qt::KeepAspectRatio);
+	//_sub_window.view->fitInView(zoomObject, Qt::KeepAspectRatio);
 
 		// Force update scroll bars
-	_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	//_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	//_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	
-   updateZoomPercentage();
+   //updateZoomPercentage();
 
-   clickCursor();
-   m_fillState = false;
-   emit resetZoomToolBar();
+   //clickCursor();
+   //emit resetZoomToolBar();
 }
 
 //---------------------------------------------------------------------------
@@ -575,7 +562,7 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
     if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty()) && (zoomWidth > 10 && zoomHeight > 10))
     {
         
-        _sub_window.view->fitInView(QRectF(_sub_window.view->mapToScene(zoomRect.topLeft().toPoint()), _sub_window.view->mapToScene(zoomRect.bottomRight().toPoint())), Qt::KeepAspectRatio);
+        //_sub_window.view->fitInView(QRectF(_sub_window.view->mapToScene(zoomRect.topLeft().toPoint()), _sub_window.view->mapToScene(zoomRect.bottomRight().toPoint())), Qt::KeepAspectRatio);
         
         /*
         QRect viewport = m_view -> rect();
@@ -600,15 +587,16 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
 
     else
     {
-        // Without zoom rectangle, scale using fixed value
-        _sub_window.view->scale(1.50, 1.50);
-        _sub_window.view->centerOn(event->lastScenePos());
+        //TODO : crop each maps and redraw
+
+        //_sub_window.view->scale(1.50, 1.50);
+        //_sub_window.view->centerOn(event->lastScenePos());
         
     }
     
     // Force update scroll bars
-    _sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    _sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
     updateZoomPercentage();
 }
@@ -622,11 +610,11 @@ void ImageViewWidgetCompact::zoomOut()
 
    if (wp <= 12.5) return;
    
-    _sub_window.view->scale(.66, .66);
+    _sub_window.view->scale(1.0, 1.0);
 
     // Force update scroll bars
-    _sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    _sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
    
     updateZoomPercentage();
 
@@ -689,6 +677,7 @@ void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayX
 
     if(idx < _min_textitems.size())
     {
+        _raw_data_items[idx] = ArrayXXr<float>(normalized);
         QString minStr = "min: "+ QString::number(normalized.minCoeff());
         QString maxStr = "max: "+ QString::number(normalized.maxCoeff());
         _min_textitems[idx]->setPlainText(minStr);
@@ -706,8 +695,10 @@ void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayX
 std::vector<QString> ImageViewWidgetCompact::getLabelList()
 {
     std::vector<QString> label_list;
-    label_list.push_back(_sub_window.cb_image_label->currentText());
-
+    for(int i=0; i< _sub_window.cb_image_label->count(); i++)
+    { 
+        label_list.push_back(_sub_window.cb_image_label->itemText(i));
+    }
     return label_list;
 }
 

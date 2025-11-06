@@ -10,7 +10,7 @@ using namespace gstar;
 //---------------------------------------------------------------------------
 
 ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
-: QWidget(parent), m_fillState(false)
+: QWidget(parent)
 {
 
    m_coordWidget = nullptr;

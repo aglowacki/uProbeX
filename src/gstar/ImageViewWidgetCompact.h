@@ -116,7 +116,7 @@ public slots:
     *
     * @param check - The flag for the fill button state. 
     */
-   virtual void clickFill(bool check);
+   virtual void clickFill();
    /**
     * Handle click on zoom back to original tool bar icon.
     */
@@ -200,9 +200,13 @@ private:
    std::vector<QGraphicsTextItem*> _el_textitems;
    std::vector<QGraphicsTextItem*> _min_textitems;
    std::vector<QGraphicsTextItem*> _max_textitems;
+
+   std::unordered_map<int, ArrayXXr<float> > _raw_data_items;
+
    QFont _element_font;
    QFont _min_max_font;
 
+   float _height_offset;
 };
 
 }

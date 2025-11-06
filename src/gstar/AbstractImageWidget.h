@@ -92,6 +92,8 @@ public:
     */
    void setToolBarVisible(bool visible);
 
+   bool isCompactView() { return _compact_view;}
+   
 public slots:
 
    /**
@@ -416,6 +418,8 @@ protected:
    QWidget* m_treeTabWidget;
 
    AnnimateSlideWidget* _anim_widget;
+
+   bool _compact_view;
 
 };
 

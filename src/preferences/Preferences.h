@@ -134,6 +134,7 @@
 #define STR_PREF_SCAN_LINK_PROFILES  "Scan_Link_Profiles"
 #define STR_PFR_USE_OPENGL "Use_OpenGL"
 #define STR_PRF_COMPACT_COUNTS_VIEW "Counts_Compact_View"
+#define STR_PFR_SELECTED_ELEMENTS "Selected_Elements"
 
 
 /**

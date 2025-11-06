@@ -182,7 +182,7 @@ void CoLocalizationWidget::onColorSelected(QString name)
     }
     if (_first_pixmap_set)
     {
-        m_imageViewWidget->clickFill(true);
+        m_imageViewWidget->clickFill();
         _first_pixmap_set = false;
     }
 }

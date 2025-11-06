@@ -101,6 +101,7 @@ Preferences::Preferences()
         {STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant()},
         {STR_PFR_USE_OPENGL, QVariant()},
         {STR_PRF_COMPACT_COUNTS_VIEW, QVariant()},
+        {STR_PFR_SELECTED_ELEMENTS, QVariant()},
         {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
    load();

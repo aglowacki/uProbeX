@@ -58,6 +58,7 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
    connect(m_annoTreeView, &QTreeView::customContextMenuRequested, this, &AbstractImageWidget::treeContextMenu);
    connect(m_annoTreeView, &QTreeView::doubleClicked, this, &AbstractImageWidget::treeDoubleClicked);
 
+   _compact_view = compact_view;
    if(compact_view)
    {
       m_imageViewWidget = new ImageViewWidgetCompact(rows, cols);

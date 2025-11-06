@@ -111,26 +111,29 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     QHBoxLayout* hbox = new QHBoxLayout();
     hbox->setContentsMargins(0, 0, 0, 0);
-    QHBoxLayout* hbox2 = new QHBoxLayout();
-    hbox2->setContentsMargins(0, 0, 0, 0);
+    //QHBoxLayout* hbox2 = new QHBoxLayout();
+    //hbox2->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* counts_layout = new QVBoxLayout();
     counts_layout->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* layout = new QVBoxLayout();
 
+    QHBoxLayout* counts_annotationHbox = new QHBoxLayout();
 
 	connect(&iDiag, &ImageGridDialog::onNewGridLayout, this, &MapsElementsWidget::onNewGridLayout);
 
     _dataset_directory = new QLabel();
     _dataset_name = new QLabel();
-    hbox2->addWidget(new QLabel("Dataset: "));
-    hbox2->addWidget(_dataset_directory);
-    //hbox2->addWidget(_dataset_name);
-    hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
+    //hbox2->addWidget(new QLabel("Dataset: "));
+    //hbox2->addWidget(_dataset_directory);
+    //hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
 
     _anim_widget = new AnnimateSlideWidget();
     _anim_widget->setAnimWidget(m_tabWidget);
-      
+ 
+    //counts_annotationHbox->addWidget(m_imageViewWidget);
+    //counts_annotationHbox->addWidget(_anim_widget);
+    
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Horizontal);
     splitter->addWidget(m_imageViewWidget);
@@ -138,7 +141,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     splitter->addWidget(_anim_widget);
     splitter->setCollapsible(0, false);
     splitter->setCollapsible(1, true);
-
+    
     createToolBar(m_imageViewWidget, create_image_nav);
 
 	_cb_colormap = new QComboBox();
@@ -210,6 +213,12 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     optionsHboxS->addWidget(_btn_export_as_image);
 
     optionsHboxM->addItem(optionsHBox);
+    if(isCompactView())
+    {
+        _element_select_button = new QPushButton("Select Elements");
+        connect(_element_select_button, &QPushButton::pressed, this, &MapsElementsWidget::onSelectElements);
+        optionsHboxM->addWidget(_element_select_button);
+    }
     optionsHboxM->addItem(optionsHboxS);
     options_widgets->setLayout(optionsHboxM);
     options_widgets->setContentsMargins(0, 0, 0, 0);
@@ -267,6 +276,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     counts_layout->addWidget(_tw_image_controls);
     counts_layout->addWidget(splitter);
+    //counts_layout->addItem(counts_annotationHbox);
 
     counts_layout->setSpacing(0);
 	counts_layout->setContentsMargins(0, 0, 0, 0);
@@ -384,7 +394,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     _tab_widget->setProperty("padding", QVariant("1px"));
 
-    layout->addItem(hbox2);
+    //layout->addItem(hbox2);
     layout->addWidget(_tab_widget);
 
     //don't erase counts when mouse is off scene
@@ -427,8 +437,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     hbox->setSpacing(0);
 	hbox->setContentsMargins(0, 0, 0, 0);
-    hbox2->setSpacing(0);
-	hbox2->setContentsMargins(0, 0, 0, 0);
+    //hbox2->setSpacing(0);
+	//hbox2->setContentsMargins(0, 0, 0, 0);
 
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -668,7 +678,7 @@ void MapsElementsWidget::on_min_max_contrast_changed()
 
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
-    const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    //const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
     m_imageViewWidget->newGridLayout(rows, cols);
     model_updated();
@@ -677,11 +687,6 @@ void MapsElementsWidget::onNewGridLayout(int rows, int cols)
     Preferences::inst()->setValue(STR_GRID_ROWS,rows);
     Preferences::inst()->setValue(STR_GRID_COLS,cols);
     Preferences::inst()->save();
-
-//testing compact view
-//m_imageViewWidget->setSelectorVisible(false);
-//m_imageViewWidget->setCountsVisible(false);
-//m_imageViewWidget->setCoordsVisible(false);
 }
 
 //---------------------------------------------------------------------------
@@ -926,6 +931,45 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
 	redrawCounts();
     
     Preferences::inst()->save();
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::onSelectElements()
+{
+
+    data_struct::Fit_Count_Dict<float> element_counts;
+
+    std::string current_a;
+    QString current_analysis = _cb_analysis->currentText();
+    std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+    _model->getAnalyzedCounts(current_analysis.toStdString(), element_counts);
+    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+
+    _element_select_dialog.setListData(element_counts, scalers);
+    if (_element_select_dialog.exec() != QDialog::Accepted)
+    {
+        QStringList itemList = _element_select_dialog.getSelection();
+        m_imageViewWidget->clearLabels();
+        /*
+        // insert any region links
+        for (const auto& itr : _model->regionLinks())
+        {
+            m_imageViewWidget->addLabel(itr.first);
+        }
+        */
+        
+        // insert in z order
+        for (QString val : itemList)
+        {
+            m_imageViewWidget->addLabel(val);
+        }
+
+        Preferences::inst()->setValue(STR_PFR_SELECTED_ELEMENTS, itemList);
+        Preferences::inst()->save();
+        redrawCounts();
+        
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -1309,7 +1353,6 @@ void MapsElementsWidget::model_updated()
 	std::vector<std::string> final_counts_to_add_before_scalers;
 	gen_insert_order_lists(element_lines, scalers_to_add_first, final_counts_to_add_before_scalers);
 
-
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
@@ -1391,6 +1434,24 @@ void MapsElementsWidget::model_updated()
         }
     }
 
+    
+    if(isCompactView())
+    {
+        QStringList itemList = Preferences::inst()->getValue(STR_PFR_SELECTED_ELEMENTS).toStringList();
+        std::vector<QString> cur_list = m_imageViewWidget->getLabelList();
+        m_imageViewWidget->clearLabels();
+        for (QString val : itemList)
+        {
+            m_imageViewWidget->addLabel(val);
+            //cur_list.erase(std::remove(cur_list.begin(), cur_list.end(), val), cur_list.end());
+            auto itr = std::find(cur_list.begin(), cur_list.end(), val);
+            if (itr != cur_list.end()) cur_list.erase(itr);
+        }
+        for(QString val: cur_list)
+        {
+            m_imageViewWidget->addLabel(val);
+        }
+    }
     redrawCounts();
 
     connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);

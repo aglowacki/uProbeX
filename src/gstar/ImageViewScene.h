@@ -111,6 +111,8 @@ public:
 
    void removeDefaultPixmap();
    
+   void setItemOffset(QPointF off) {_item_offset = off;}
+   
 public slots:
 
    /**
@@ -342,6 +344,7 @@ private:
 
    bool _is_multi_scene;
 
+   QPointF _item_offset;
 };
 
 }

@@ -35,6 +35,7 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
 
    // Initialize mode
    m_mode = None;
+   _item_offset = QPointF(0.0f, 0.0f);
 
    //this->setBackgroundBrush(QBrush(Qt::lightGray));
 
@@ -475,6 +476,9 @@ void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
         if (_is_multi_scene)
         {
             AbstractGraphicsItem* clone = item->duplicate();
+            QPointF pos = clone->pos();
+            pos += _item_offset;
+            clone->setPos(pos);
             clone->linkProperties(item->properties());
             item->linkProperties(clone->properties());
             addItem(clone);

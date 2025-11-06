@@ -30,6 +30,7 @@
 #include <mvc/RoiStatisticsWidget.h>
 #include <gstar/MotorLookupTransformer.h>
 #include <mvc/PolarXanesWidget.h>
+#include <mvc/ElementSelectDialog.h>
 
 using gstar::AbstractGraphicsItem;
 //---------------------------------------------------------------------------
@@ -135,6 +136,8 @@ public slots:
    void onDockFloatChanged(bool floating);
 
    void plotPixelSpectra(const QPoint& pos);
+
+   void onSelectElements();
 
 protected:
 
@@ -262,6 +265,10 @@ protected:
 
    QAction* _plotPixelSpectraAction;
 
+   QPushButton* _element_select_button;
+
+   ElementSelectDialog _element_select_dialog;
+	
 };
 
 

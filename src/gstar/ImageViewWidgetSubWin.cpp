@@ -82,12 +82,8 @@ void ImageViewWidgetSubWin::setCountsVisible(bool val)
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetSubWin::clickFill(bool checked)
+void ImageViewWidgetSubWin::clickFill()
 {
-
-    // State is used by the resizeEvent raised below.
-    //  Make sure state is set before calling resizeEvent method.
-    m_fillState = checked;
    
     // Get out of zoom mode
     clickCursor();
@@ -95,10 +91,7 @@ void ImageViewWidgetSubWin::clickFill(bool checked)
     for (auto& itr : _sub_windows)
     {
         // Set scene mode
-        if (checked == true) 
-        {
-            itr.scene->setZoomModeToFit();
-        }
+        itr.scene->setZoomModeToFit();
 
         // Set regular cursor
         itr.view->viewport()->setCursor(Qt::ArrowCursor);
@@ -386,8 +379,6 @@ void ImageViewWidgetSubWin::resizeEvent(QResizeEvent* event)
 {
 
    Q_UNUSED(event)
-
-   if (m_fillState == false) return;
    
    if (_sub_windows.size() > 0)
    {
@@ -396,7 +387,6 @@ void ImageViewWidgetSubWin::resizeEvent(QResizeEvent* event)
        for (auto& itr : _sub_windows)
        {
            itr.view->fitInView(r, Qt::KeepAspectRatio);
-
            itr.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
            itr.view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
        }
@@ -554,7 +544,6 @@ void ImageViewWidgetSubWin::zoomIn(QGraphicsItem* zoomObject)
    updateZoomPercentage();
 
    clickCursor();
-   m_fillState = false;
    emit resetZoomToolBar();
 }
 

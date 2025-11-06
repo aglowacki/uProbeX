@@ -155,7 +155,7 @@ void VLM_Widget::_init()
    createActions();
    createMicroProbeMenu();
    _createSolver();
-   m_imageViewWidget->clickFill(true);
+   m_imageViewWidget->clickFill();
    
    m_grabbingPvsX = false;
    m_grabbingPvsY = false;

@@ -63,7 +63,7 @@ void ImageSegWidget::setPixMap(const QPixmap& pix)
     m_imageViewWidget->setScenePixmap(pix);
     if (_first_pixmap_set)
     {
-        m_imageViewWidget->clickFill(true);
+        m_imageViewWidget->clickFill();
         _first_pixmap_set = false;
     }
 }

@@ -116,7 +116,7 @@ public slots:
     *
     * @param check - The flag for the fill button state. 
     */
-   virtual void clickFill(bool check);
+   virtual void clickFill();
    /**
     * Handle click on zoom back to original tool bar icon.
     */

@@ -162,7 +162,7 @@ public slots:
     *
     * @param check - The flag for the fill button state. 
     */
-   virtual void clickFill(bool check) = 0;
+   virtual void clickFill() = 0;
    /**
     * Handle click on zoom back to original tool bar icon.
     */
@@ -285,8 +285,6 @@ protected:
    QCursor m_zoomOutCursor;
 
    QComboBox* m_zoomPercent;
-
-   bool m_fillState;
 
    int _grid_rows;
 
