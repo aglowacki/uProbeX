@@ -238,7 +238,15 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _contrast_widget->setMinimumWidth(100);
     _contrast_widget->setMaximumHeight(70);
     _contrast_widget->setContentsMargins(0, 0, 0, 0);
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);    
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
+
+    _cb_contrast = new QComboBox();
+    _cb_contrast->addItem(STR_FULL_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_2_3_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_3_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_4_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_6_IMAGE);
+    connect(_cb_contrast, &QComboBox::currentTextChanged, this, &MapsElementsWidget::on_contrast_changed);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -259,10 +267,11 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     
     QWidget* w_contrast = new QWidget();
     QHBoxLayout* hbox_contrast = new QHBoxLayout();
+    hbox_contrast->addWidget(_cb_contrast);
     hbox_contrast->addWidget(_global_contrast_chk);
     hbox_contrast->addWidget(_contrast_widget);
     w_contrast->setLayout(hbox_contrast);
-    w_contrast->setMaximumHeight(70);
+    //w_contrast->setMaximumHeight(70);
     w_contrast->setContentsMargins(0, 0, 0, 0);
 
     _tw_image_controls->addTab(m_toolbar, "Zoom");
@@ -271,7 +280,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _tw_image_controls->addTab(w_normalize, "Normalize");
     _tw_image_controls->addTab(w_contrast, "Contrast");
     _tw_image_controls->setProperty("padding", QVariant("1px"));
-    _tw_image_controls->setMaximumHeight(70);
+    //_tw_image_controls->setMaximumHeight(70);
     _tw_image_controls->setContentsMargins(0, 0, 0, 0);
 
     counts_layout->addWidget(_tw_image_controls);
@@ -661,6 +670,25 @@ void MapsElementsWidget::on_invert_y_axis(int state)
 {
     Preferences::inst()->setValue(STR_INVERT_Y_AXIS, _chk_invert_y->isChecked());
     redrawCounts();
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::on_contrast_changed(QString val)
+{
+
+    if(val == STR_FULL_IMAGE)
+    {
+         _global_contrast_chk->setVisible(true);
+        _contrast_widget->setVisible(true);
+    }
+    else
+    {
+         _global_contrast_chk->setVisible(false);
+        _contrast_widget->setVisible(false);
+    }
+    redrawCounts();
+
 }
 
 //---------------------------------------------------------------------------
@@ -1697,6 +1725,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
         props.calib_curve = _calib_curve;
         props.show_legend = _chk_disp_color_ledgend->isChecked();
         props.invert_y = _chk_invert_y->isChecked();
+        props.contrast_limits = _cb_contrast->currentText();
         props.global_contrast = _global_contrast_chk->isChecked();
         if (props.global_contrast)
         {

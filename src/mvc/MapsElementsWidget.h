@@ -105,6 +105,8 @@ public slots:
 
    void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
+   void on_contrast_changed(QString val);
+
    void on_min_max_contrast_changed();
 
    void on_global_contrast_changed(int);
@@ -198,6 +200,8 @@ protected:
    //QTableWidget* _scaler_table_widget;
 
    gstar::MinMaxSlider* _contrast_widget;
+
+   QComboBox* _cb_contrast;
 
    QCheckBox* _global_contrast_chk;
 
