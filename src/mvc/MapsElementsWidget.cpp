@@ -30,8 +30,8 @@ using gstar::ImageViewWidget;
 
 //---------------------------------------------------------------------------
 
-MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool create_image_nav, bool restore_floating, QWidget* parent)
-    : AbstractImageWidget(rows, cols, parent)
+MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bool create_image_nav, bool restore_floating, QWidget* parent)
+    : AbstractImageWidget(rows, cols, compact_view, parent)
 {
     
     _model = nullptr;
@@ -103,29 +103,37 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_spectra_widget, &FitSpectraWidget::export_fit_paramters, this, &MapsElementsWidget::on_export_fit_params);
     connect(_spectra_widget, &FitSpectraWidget::export_csv_and_png, this, &MapsElementsWidget::on_export_csv_and_png);
 
+
     _cb_analysis = new QComboBox(this);
 
     //QWidget* toolbar_widget = new QWidget();
     //QHBoxLayout* toolbar_hbox = new QHBoxLayout();
 
     QHBoxLayout* hbox = new QHBoxLayout();
-    QHBoxLayout* hbox2 = new QHBoxLayout();
+    hbox->setContentsMargins(0, 0, 0, 0);
+    //QHBoxLayout* hbox2 = new QHBoxLayout();
+    //hbox2->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* counts_layout = new QVBoxLayout();
+    counts_layout->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout* layout = new QVBoxLayout();
+
+    QHBoxLayout* counts_annotationHbox = new QHBoxLayout();
 
 	connect(&iDiag, &ImageGridDialog::onNewGridLayout, this, &MapsElementsWidget::onNewGridLayout);
 
     _dataset_directory = new QLabel();
     _dataset_name = new QLabel();
-    hbox2->addWidget(new QLabel("Dataset: "));
-    hbox2->addWidget(_dataset_directory);
-    //hbox2->addWidget(_dataset_name);
-    hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
+    //hbox2->addWidget(new QLabel("Dataset: "));
+    //hbox2->addWidget(_dataset_directory);
+    //hbox2->addItem(new QSpacerItem(9999, 40, QSizePolicy::Maximum));
 
 
     _anim_widget = new AnnimateSlideWidget();
     _anim_widget->setAnimWidget(m_tabWidget);
-      
+ 
+    //counts_annotationHbox->addWidget(m_imageViewWidget);
+    //counts_annotationHbox->addWidget(_anim_widget);
+    
     QSplitter* splitter = new QSplitter();
     splitter->setOrientation(Qt::Horizontal);
     splitter->addWidget(m_imageViewWidget);
@@ -133,7 +141,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     splitter->addWidget(_anim_widget);
     splitter->setCollapsible(0, false);
     splitter->setCollapsible(1, true);
-
+    
     createToolBar(m_imageViewWidget, create_image_nav);
 
 	_cb_colormap = new QComboBox();
@@ -163,6 +171,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     QWidget* color_maps_widgets = new QWidget();
     QHBoxLayout* colormapsHBox = new QHBoxLayout();
+    colormapsHBox->setContentsMargins(0, 0, 0, 0);
     colormapsHBox->addWidget(new QLabel(" ColorMap :"));
     colormapsHBox->addWidget(_cb_colormap);
     colormapsHBox->addWidget(_color_map_ledgend_lbl);
@@ -190,19 +199,29 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
 
     QWidget* options_widgets = new QWidget();
-    QVBoxLayout* optionsVBox = new QVBoxLayout();
+    QHBoxLayout* optionsHBox = new QHBoxLayout();
+    optionsHBox->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* optionsHboxS = new QHBoxLayout();
+    optionsHboxS->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* optionsHboxM = new QHBoxLayout();
-    optionsVBox->addWidget(_chk_log_color);
-    optionsVBox->addWidget(_chk_disp_color_ledgend);
-    optionsVBox->addWidget(_chk_invert_y);
+    optionsHboxM->setContentsMargins(0, 0, 0, 0);
+    optionsHBox->addWidget(_chk_log_color);
+    optionsHBox->addWidget(_chk_disp_color_ledgend);
+    optionsHBox->addWidget(_chk_invert_y);
     optionsHboxS->addWidget(new QLabel("Layout:"));
     optionsHboxS->addWidget(_grid_button);
     optionsHboxS->addWidget(_btn_export_as_image);
 
-    optionsHboxM->addItem(optionsVBox);
+    optionsHboxM->addItem(optionsHBox);
+    if(isCompactView())
+    {
+        _element_select_button = new QPushButton("Select Elements");
+        connect(_element_select_button, &QPushButton::pressed, this, &MapsElementsWidget::onSelectElements);
+        optionsHboxM->addWidget(_element_select_button);
+    }
     optionsHboxM->addItem(optionsHboxS);
     options_widgets->setLayout(optionsHboxM);
+    options_widgets->setContentsMargins(0, 0, 0, 0);
 
     
     _cb_normalize = new QComboBox();
@@ -216,8 +235,18 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
     
     _contrast_widget = new gstar::MinMaxSlider();
-    _contrast_widget->setMinimumWidth(200);
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);    
+    _contrast_widget->setMinimumWidth(100);
+    _contrast_widget->setMaximumHeight(70);
+    _contrast_widget->setContentsMargins(0, 0, 0, 0);
+    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
+
+    _cb_contrast = new QComboBox();
+    _cb_contrast->addItem(STR_FULL_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_2_3_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_3_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_4_IMAGE);
+    _cb_contrast->addItem(STR_CENTER_1_6_IMAGE);
+    connect(_cb_contrast, &QComboBox::currentTextChanged, this, &MapsElementsWidget::on_contrast_changed);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
@@ -234,13 +263,16 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     hbox_normalize->addWidget(new QLabel("  Normalize By: "));
     hbox_normalize->addWidget(_cb_normalize);
     w_normalize->setLayout(hbox_normalize);
-
+    w_normalize->setContentsMargins(0, 0, 0, 0);
+    
     QWidget* w_contrast = new QWidget();
     QHBoxLayout* hbox_contrast = new QHBoxLayout();
+    hbox_contrast->addWidget(_cb_contrast);
     hbox_contrast->addWidget(_global_contrast_chk);
     hbox_contrast->addWidget(_contrast_widget);
     w_contrast->setLayout(hbox_contrast);
-
+    //w_contrast->setMaximumHeight(70);
+    w_contrast->setContentsMargins(0, 0, 0, 0);
 
     _tw_image_controls->addTab(m_toolbar, "Zoom");
     _tw_image_controls->addTab(color_maps_widgets, "Color Map");
@@ -248,21 +280,12 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _tw_image_controls->addTab(w_normalize, "Normalize");
     _tw_image_controls->addTab(w_contrast, "Contrast");
     _tw_image_controls->setProperty("padding", QVariant("1px"));
-    //toolbar_widget->setLayout(toolbar_hbox);
+    //_tw_image_controls->setMaximumHeight(70);
+    _tw_image_controls->setContentsMargins(0, 0, 0, 0);
 
-    //_tabWidget->addTab(color_maps_widgets, "Color Map");
-
-    QScrollArea* scrollArea = new QScrollArea();
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setMinimumHeight(110);
-    scrollArea->setMaximumHeight(140);
-    //scrollArea->setWidget(toolbar_widget);
-    scrollArea->setWidget(_tw_image_controls);
-
-    counts_layout->addWidget(scrollArea);
+    counts_layout->addWidget(_tw_image_controls);
     counts_layout->addWidget(splitter);
+    //counts_layout->addItem(counts_annotationHbox);
 
     counts_layout->setSpacing(0);
 	counts_layout->setContentsMargins(0, 0, 0, 0);
@@ -380,7 +403,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     _tab_widget->setProperty("padding", QVariant("1px"));
 
-    layout->addItem(hbox2);
+    //layout->addItem(hbox2);
     layout->addWidget(_tab_widget);
 
     //don't erase counts when mouse is off scene
@@ -423,8 +446,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 
     hbox->setSpacing(0);
 	hbox->setContentsMargins(0, 0, 0, 0);
-    hbox2->setSpacing(0);
-	hbox2->setContentsMargins(0, 0, 0, 0);
+    //hbox2->setSpacing(0);
+	//hbox2->setContentsMargins(0, 0, 0, 0);
 
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -651,6 +674,25 @@ void MapsElementsWidget::on_invert_y_axis(int state)
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::on_contrast_changed(QString val)
+{
+
+    if(val == STR_FULL_IMAGE)
+    {
+         _global_contrast_chk->setVisible(true);
+        _contrast_widget->setVisible(true);
+    }
+    else
+    {
+         _global_contrast_chk->setVisible(false);
+        _contrast_widget->setVisible(false);
+    }
+    redrawCounts();
+
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::on_min_max_contrast_changed()
 {
 
@@ -664,7 +706,7 @@ void MapsElementsWidget::on_min_max_contrast_changed()
 
 void MapsElementsWidget::onNewGridLayout(int rows, int cols)
 {
-    const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
+    //const std::vector<QString> element_view_list = m_imageViewWidget->getLabelList();
     m_imageViewWidget->setSceneModelAndSelection(nullptr, nullptr);
     m_imageViewWidget->newGridLayout(rows, cols);
     model_updated();
@@ -872,7 +914,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 
     if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
-        m_imageViewWidget->scene(viewIdx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(name))));
+        m_imageViewWidget->setSubScenePixmap(viewIdx, QPixmap::fromImage((_model->regionLinks().at(name))));
     }
     else
     {
@@ -917,6 +959,45 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
 	redrawCounts();
     
     Preferences::inst()->save();
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::onSelectElements()
+{
+
+    data_struct::Fit_Count_Dict<float> element_counts;
+
+    std::string current_a;
+    QString current_analysis = _cb_analysis->currentText();
+    std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
+    _model->getAnalyzedCounts(current_analysis.toStdString(), element_counts);
+    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+
+    _element_select_dialog.setListData(element_counts, scalers);
+    if (_element_select_dialog.exec() != QDialog::Accepted)
+    {
+        QStringList itemList = _element_select_dialog.getSelection();
+        m_imageViewWidget->clearLabels();
+        /*
+        // insert any region links
+        for (const auto& itr : _model->regionLinks())
+        {
+            m_imageViewWidget->addLabel(itr.first);
+        }
+        */
+        
+        // insert in z order
+        for (QString val : itemList)
+        {
+            m_imageViewWidget->addLabel(val);
+        }
+
+        Preferences::inst()->setValue(STR_PFR_SELECTED_ELEMENTS, itemList);
+        Preferences::inst()->save();
+        redrawCounts();
+        
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -1015,6 +1096,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _model->getIntegratedSpectra(_int_spec);
                 _int_spec /= 2.0;
 			    _spectra_widget->setIntegratedSpectra(&_int_spec);
+                _tab_widget->setCurrentIndex(2);
             }
             else
             {
@@ -1052,8 +1134,10 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             _model->loadAllRoiMaps();
             for (auto& itr : _model->get_map_rois())
             {
-                int width = (int)m_imageViewWidget->scene()->width();
-                int height = (int)m_imageViewWidget->scene()->height();
+                
+                QRectF scene_dims = m_imageViewWidget->getSceneRect();
+                int width = (int)scene_dims.width();
+                int height = (int)scene_dims.height();
                 logI<< "Loading roi: "<< itr.first<<"\n";
                 gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
                 insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
@@ -1297,7 +1381,6 @@ void MapsElementsWidget::model_updated()
 	std::vector<std::string> final_counts_to_add_before_scalers;
 	gen_insert_order_lists(element_lines, scalers_to_add_first, final_counts_to_add_before_scalers);
 
-
     data_struct::Fit_Count_Dict<float> element_counts;
     _model->getAnalyzedCounts(current_a, element_counts);
 
@@ -1379,6 +1462,24 @@ void MapsElementsWidget::model_updated()
         }
     }
 
+    
+    if(isCompactView())
+    {
+        QStringList itemList = Preferences::inst()->getValue(STR_PFR_SELECTED_ELEMENTS).toStringList();
+        std::vector<QString> cur_list = m_imageViewWidget->getLabelList();
+        m_imageViewWidget->clearLabels();
+        for (QString val : itemList)
+        {
+            m_imageViewWidget->addLabel(val);
+            //cur_list.erase(std::remove(cur_list.begin(), cur_list.end(), val), cur_list.end());
+            auto itr = std::find(cur_list.begin(), cur_list.end(), val);
+            if (itr != cur_list.end()) cur_list.erase(itr);
+        }
+        for(QString val: cur_list)
+        {
+            m_imageViewWidget->addLabel(val);
+        }
+    }
     redrawCounts();
 
     connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
@@ -1415,39 +1516,53 @@ void MapsElementsWidget::redrawCounts()
     }
     else
     {
-        std::map<int, std::future<QPixmap> > job_queue;
-
-        for (int vidx = 0; vidx < view_cnt; vidx++)
+        bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+        if(compact_view)
         {
-            QString element = m_imageViewWidget->getLabelAt(vidx);
-            if (_model != nullptr && _model->regionLinks().count(element) > 0)
+            for (int vidx = 0; vidx < view_cnt; vidx++)
             {
-                m_imageViewWidget->scene(vidx)->setPixmap(QPixmap::fromImage((_model->regionLinks().at(element))));
-            }
-            else
-            {
-                job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+                m_imageViewWidget->setSubScenePixmap(vidx, generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx));
             }
         }
-
-        while (job_queue.size() > 0)
+        else
         {
-            std::vector<int> to_delete;
-            for (auto& itr : job_queue)
-            {       
-                m_imageViewWidget->scene(itr.first)->setPixmap(itr.second.get());
-                if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+            std::map<int, std::future<QPixmap> > job_queue;
+
+            for (int vidx = 0; vidx < view_cnt; vidx++)
+            {
+                QString element = m_imageViewWidget->getLabelAt(vidx);
+                if (_model != nullptr && _model->regionLinks().count(element) > 0)
                 {
-                    m_imageHeightDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->height()));
-                    m_imageWidthDim->setCurrentText(QString::number(m_imageViewWidget->scene(itr.first)->width()));
+                    m_imageViewWidget->setSubScenePixmap(vidx, QPixmap::fromImage((_model->regionLinks().at(element))));
                 }
-                to_delete.push_back(itr.first);
+                else
+                {
+                    job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                }
             }
 
-            for (const auto& itr : to_delete)
+            bool set_dims = true;
+            while (job_queue.size() > 0)
             {
-                job_queue.erase(itr);
+                std::vector<int> to_delete;
+                for (auto& itr : job_queue)
+                {       
+                    m_imageViewWidget->setSubScenePixmap(itr.first, itr.second.get());
+                    to_delete.push_back(itr.first);
+                }
+
+                for (const auto& itr : to_delete)
+                {
+                    job_queue.erase(itr);
+                }
             }
+        }
+        if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+        {
+            QRectF scene_dims = m_imageViewWidget->getSceneRect();
+            m_imageHeightDim->setCurrentText(QString::number(scene_dims.height()));
+            m_imageWidthDim->setCurrentText(QString::number(scene_dims.width()));
         }
         m_imageViewWidget->resetCoordsToZero();
     }
@@ -1569,7 +1684,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
                 props.global_contrast = true;
             }
         }
-        m_imageViewWidget->scene(grid_idx)->setPixmap(_model->gen_pixmap(props, normalized));
+        QPixmap p = _model->gen_pixmap(props, normalized);
+        m_imageViewWidget->setSubScenePixmap(grid_idx, p);
         if(normalized.rows() > 0 && normalized.cols() > 0)
         {
             if(grid_idx == 0)
@@ -1609,6 +1725,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
         props.calib_curve = _calib_curve;
         props.show_legend = _chk_disp_color_ledgend->isChecked();
         props.invert_y = _chk_invert_y->isChecked();
+        props.contrast_limits = _cb_contrast->currentText();
         props.global_contrast = _global_contrast_chk->isChecked();
         if (props.global_contrast)
         {

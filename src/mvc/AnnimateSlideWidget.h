@@ -39,6 +39,8 @@ private slots:
    {
       if(_anim_enabled)
       {
+         //_anim_widget->setVisible(!_anim_widget->isVisible());
+         
          if(_isShown)
          {
             animateSlideIn();

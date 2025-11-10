@@ -22,18 +22,6 @@ Splash::Splash(QWidget* parent, Qt::WindowFlags f,
   m_aboutMode(aboutMode)
 {
 
-   // Background color
-   //QPalette pal = this -> palette();
-   //pal.setColor(this -> backgroundRole(), Qt::white);
-   //this -> setPalette(pal);
-
-   // Autofill background
-//   setAutoFillBackground(true);
-
-   // Make label for pixmap
-   //QLabel* lblPix = new QLabel();
-   //lblPix -> setPixmap(icon);
-
    // Make label for name
    QFont font;
    font.setPointSize(22);

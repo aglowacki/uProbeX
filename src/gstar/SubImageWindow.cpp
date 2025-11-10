@@ -31,13 +31,15 @@ SubImageWindow::SubImageWindow() : QObject()
     counts_coord_widget->setModel(counts_coord_model);
     counts_coord_widget->setLabel("Counts: ", "Min:  ", "Max:  ");
     counts_coord_widget->setUnitsLabel("cts/s");
+    counts_coord_widget->setContentsMargins(0, 0, 0, 0);
 
     counts_stats = new gstar::CountsStatsTransformer();
     counts_stats_model = new gstar::CoordinateModel(counts_stats);
     counts_stats_widget = new gstar::CoordinateWidget(true);
     counts_stats_widget->setModel(counts_stats_model);
     counts_stats_widget->setLabel("Avg: ", "Median:  ", "StDev:  ");
-    counts_stats_widget->setUnitsLabel("cts/s");
+    counts_stats_widget->setUnitsLabel("");
+    counts_stats_widget->setContentsMargins(0, 0, 0, 0);
 
     btn_contrast = new QPushButton("C");
     connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
@@ -47,13 +49,13 @@ SubImageWindow::SubImageWindow() : QObject()
     hbox->addWidget(counts_coord_widget);
     hbox->addWidget(counts_stats_widget);
     hbox->addWidget(btn_contrast);
+    hbox->setContentsMargins(0, 0, 0, 0);
 
     layout = new QVBoxLayout();
-
     layout->addItem(hbox);
     layout->addWidget(view);
     layout->addWidget(cb_image_label);
-
+    layout->setContentsMargins(0, 0, 0, 0);
 }
 
 //---------------------------------------------------------------------------

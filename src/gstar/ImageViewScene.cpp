@@ -35,13 +35,16 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
 
    // Initialize mode
    m_mode = None;
+   _item_offset = QPointF(0.0f, 0.0f);
+
+   //this->setBackgroundBrush(QBrush(Qt::lightGray));
 
    // Set initial pixmap
    QPixmap p(1024, 1024);
    p.fill(Qt::gray);
    m_pixItem = addPixmap(p);
    setSceneRect(m_pixItem -> boundingRect());
-
+   
    // Connect selectionChanged signal to annotation slot
    connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
@@ -224,6 +227,10 @@ void ImageViewScene::modelRowsRemoved(const QModelIndex& parent, int start, int 
 
 void ImageViewScene::enableAnnotations(bool state)
 {
+   if(m_model == nullptr)
+   {
+      return;
+   }
 
    if (typeid(*m_model) != typeid(AnnotationTreeModel))
    {
@@ -255,8 +262,11 @@ void ImageViewScene::enableAnnotations(bool state)
    rootItem->setEnabled(state);
    recursiveSetEnabled(rootItem, state);
 
-   // Reset view; just in case...
-   setSceneRect(m_pixItem -> boundingRect());
+   if(m_pixItem != nullptr)
+   {
+      // Reset view; just in case...
+      setSceneRect(m_pixItem -> boundingRect());
+   }
 
 }
 
@@ -313,6 +323,19 @@ void ImageViewScene::modelSelectionChanged(const QItemSelection& selected,
 
    connect(this, &ImageViewScene::selectionChanged, this, &ImageViewScene::sceneSelectionChanged);
 
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewScene::removeDefaultPixmap() 
+{
+   if(m_pixItem != nullptr)
+   {
+      this->removeItem(m_pixItem); 
+      delete m_pixItem;
+      m_pixItem = nullptr;
+      setSceneRect(0,0,1024,1024);
+   }
 }
 
 //---------------------------------------------------------------------------
@@ -434,7 +457,12 @@ void ImageViewScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 QRectF ImageViewScene::pixRect()
 {
 
-   return m_pixItem -> boundingRect();
+   QRectF tmp(0,0,1024,1024);
+   if(m_pixItem != nullptr)
+   {
+      return m_pixItem -> boundingRect();
+   }
+   return tmp;
 
 }
 
@@ -448,6 +476,9 @@ void ImageViewScene::recursiveAddAnnotation(AbstractGraphicsItem* item)
         if (_is_multi_scene)
         {
             AbstractGraphicsItem* clone = item->duplicate();
+            QPointF pos = clone->pos();
+            pos += _item_offset;
+            clone->setPos(pos);
             clone->linkProperties(item->properties());
             item->linkProperties(clone->properties());
             addItem(clone);
@@ -485,10 +516,19 @@ void ImageViewScene::removeAllAnnotationItems()
    QList<QGraphicsItem*> allItems = QGraphicsScene::items();
    foreach(QGraphicsItem* item, allItems)
    {
-      if(item != m_pixItem)
+      if(qgraphicsitem_cast<QGraphicsPixmapItem*>(item))
+      {
+         continue;
+      }
+      else if (qgraphicsitem_cast<QGraphicsTextItem*>(item))
+      {
+         continue;
+      }
+      else if(item != m_pixItem)
+      {
          removeItem(item);
+      }
    }
-
 }
 
 //---------------------------------------------------------------------------
@@ -556,7 +596,7 @@ void ImageViewScene::sceneSelectionChanged()
 
 //---------------------------------------------------------------------------
 
-void ImageViewScene::setPixmap(QPixmap p)
+void ImageViewScene::setPixmap(const QPixmap& p)
 {
 
     // Set pixmap

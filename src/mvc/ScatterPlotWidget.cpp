@@ -119,6 +119,8 @@ void ScatterPlotWidget::_createLayout()
     updateMarkerSize(Preferences::inst()->getValue(STR_PRF_ScatterPlot_Size).toInt());
     onShapeChange(Preferences::inst()->getValue(STR_PFR_MARKER_SHAPE).toString());
 
+    _mainlayout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(_mainlayout);
 
 }

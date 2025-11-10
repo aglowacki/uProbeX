@@ -101,6 +101,8 @@ void QuantificationWidget::_createLayout()
     layout->addItem(hlayout);
     layout->addWidget(_chartView);
 
+    layout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(layout);
 
 }

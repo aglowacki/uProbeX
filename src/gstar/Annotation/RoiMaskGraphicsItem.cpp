@@ -453,7 +453,7 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
 
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    setPos(0, 0);
+    ////setPos(0, 0);
     painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
     if (_roi_polygon.size() > 0)
     {

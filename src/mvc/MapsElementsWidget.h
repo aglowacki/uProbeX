@@ -30,6 +30,7 @@
 #include <mvc/RoiStatisticsWidget.h>
 #include <gstar/MotorLookupTransformer.h>
 #include <mvc/PolarXanesWidget.h>
+#include <mvc/ElementSelectDialog.h>
 
 using gstar::AbstractGraphicsItem;
 //---------------------------------------------------------------------------
@@ -50,7 +51,7 @@ public:
    /**
     * Constructor.
     */
-   MapsElementsWidget(int rows = 1, int cols = 1, bool create_image_nav=false, bool restore_floating=true, QWidget* parent = nullptr);
+   MapsElementsWidget(int rows = 1, int cols = 1, bool compact_view = false, bool create_image_nav=false, bool restore_floating=true, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -104,6 +105,8 @@ public slots:
 
    void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
+   void on_contrast_changed(QString val);
+
    void on_min_max_contrast_changed();
 
    void on_global_contrast_changed(int);
@@ -135,6 +138,8 @@ public slots:
    void onDockFloatChanged(bool floating);
 
    void plotPixelSpectra(const QPoint& pos);
+
+   void onSelectElements();
 
 protected:
 
@@ -195,6 +200,8 @@ protected:
    //QTableWidget* _scaler_table_widget;
 
    gstar::MinMaxSlider* _contrast_widget;
+
+   QComboBox* _cb_contrast;
 
    QCheckBox* _global_contrast_chk;
 
@@ -262,6 +269,10 @@ protected:
 
    QAction* _plotPixelSpectraAction;
 
+   QPushButton* _element_select_button;
+
+   ElementSelectDialog _element_select_dialog;
+	
 };
 
 

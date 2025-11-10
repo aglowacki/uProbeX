@@ -84,6 +84,8 @@ void CoLocalizationWidget::_createLayout()
 
     //createActions();
 
+    layout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(layout);
 
 }
@@ -165,10 +167,10 @@ void CoLocalizationWidget::onColorSelected(QString name)
             blue_img = blue_img.mirrored(false, true);
             sum_img = sum_img.mirrored(false, true);
         }
-        m_imageViewWidget->scene(0)->setPixmap(QPixmap::fromImage(red_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->scene(1)->setPixmap(QPixmap::fromImage(green_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->scene(2)->setPixmap(QPixmap::fromImage(blue_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->scene(3)->setPixmap(QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setSubScenePixmap(0, QPixmap::fromImage(red_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setSubScenePixmap(1, QPixmap::fromImage(green_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setSubScenePixmap(2, QPixmap::fromImage(blue_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setSubScenePixmap(3, QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
     }
     else
     {
@@ -176,11 +178,11 @@ void CoLocalizationWidget::onColorSelected(QString name)
         {
             sum_img = sum_img.mirrored(false, true);
         }
-        m_imageViewWidget->scene(0)->setPixmap(QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setScenePixmap(QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
     }
     if (_first_pixmap_set)
     {
-        m_imageViewWidget->clickFill(true);
+        m_imageViewWidget->clickFill();
         _first_pixmap_set = false;
     }
 }
@@ -196,8 +198,7 @@ void CoLocalizationWidget::onNewGridLayout(int rows, int cols)
     m_imageViewWidget->setCoordsVisible(false);
     m_imageViewWidget->setSelectorVisible(false);
     m_imageViewWidget->setCountsVisible(false);
-    //model_updated();
-    //m_imageViewWidget->restoreLabels(element_view_list);
+    
 }
 
 //---------------------------------------------------------------------------

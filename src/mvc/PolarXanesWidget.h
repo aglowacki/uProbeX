@@ -45,9 +45,15 @@ protected:
 
     void _plot_new_element(QString analysis, QString element);
 
+    void _exportPolarXanesCSV(QString filePath);
+
+    bool _generate_plot_axis(QString analysis_name, QString element_name, ArrayDr &out_element_diff, ArrayDr &out_element_avg, ArrayDr &out_energy );
+
 protected slots:
 
     void onSelecAnalysisOrElement(QString val);
+
+    void onExportPressed();
 
 private:
 
@@ -62,6 +68,8 @@ private:
     QComboBox* _cb_analysis;
 
     QComboBox* _cb_elements;
+
+    QPushButton* _btn_export;
 };
 
 

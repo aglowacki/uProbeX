@@ -64,17 +64,17 @@ CoordinateWidget::CoordinateWidget(bool vertical, QWidget* parent)
        coordHlayout1->addWidget(m_lblPixelXLabel);
        coordHlayout1->addWidget(m_lblPixelXCoordinate);
        coordHlayout1->addWidget(m_lblXUnits);
-       coordHlayout1->addStretch(1);
+       //coordHlayout1->addStretch(1);
        QHBoxLayout* coordHlayout2 = new QHBoxLayout();
        coordHlayout2->addWidget(m_lblPixelYLabel);
        coordHlayout2->addWidget(m_lblPixelYCoordinate);
        coordHlayout2->addWidget(m_lblYUnits);
-       coordHlayout2->addStretch(1);
+       //coordHlayout2->addStretch(1);
        QHBoxLayout* coordHlayout3 = new QHBoxLayout();
        coordHlayout3->addWidget(m_lblPixelZLabel);
        coordHlayout3->addWidget(m_lblPixelZCoordinate);
        coordHlayout3->addWidget(m_lblZUnits);
-       coordHlayout3->addStretch(1);
+       //coordHlayout3->addStretch(1);
 
        coordHlayout1->setContentsMargins(QMargins(0, 0, 0, 0));
        coordHlayout2->setContentsMargins(QMargins(0, 0, 0, 0));
@@ -83,6 +83,7 @@ CoordinateWidget::CoordinateWidget(bool vertical, QWidget* parent)
        coordVlayout->addItem(coordHlayout1);
        coordVlayout->addItem(coordHlayout2);
        coordVlayout->addItem(coordHlayout3);
+       coordVlayout->setContentsMargins(QMargins(0, 0, 0, 0));
        setLayout(coordVlayout);
    }
 //   m_decimalPreci = 2;

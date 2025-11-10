@@ -122,6 +122,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     }
     
     _raw_suffex.append("h5");
+    _raw_suffex.append("hdf");
     _raw_suffex.append("hdf5");
     _raw_suffex.append("emd");
 

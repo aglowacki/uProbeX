@@ -47,6 +47,12 @@ const std::string STR_FITS_V9 = "XRF_fits";
 
 const std::string STR_MAPS_ROIS_DIR_NAME = "rois";
 
+const QString STR_FULL_IMAGE = "Full Image";
+const QString STR_CENTER_2_3_IMAGE = "Center 2/3";
+const QString STR_CENTER_1_3_IMAGE = "Center 1/3";
+const QString STR_CENTER_1_4_IMAGE = "Center 1/4";
+const QString STR_CENTER_1_6_IMAGE = "Center 1/6";
+
 template <typename T_real>
 struct Calibration_curve
 {
@@ -108,6 +114,7 @@ struct GenerateImageProp
     bool log_color;
     bool show_legend;
     bool global_contrast;
+    QString contrast_limits;
     bool invert_y;
     float contrast_min;
     float contrast_max;
