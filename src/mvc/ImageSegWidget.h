@@ -40,7 +40,7 @@ public:
     */
    void widgetChanged(bool enable);
 
-   void setPixMap(QPixmap pix);
+   void setPixMap(const QPixmap& pix);
 
    void setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap);
 

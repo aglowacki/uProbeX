@@ -46,7 +46,7 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    // Toolbar fill action
    m_fillAction = new QAction(QIcon(":/images/fill.png"),
                               tr("Fill"), this);
-   m_fillAction -> setCheckable(true);
+   //m_fillAction -> setCheckable(true);
    connect(m_fillAction, &QAction::triggered, this, &ImageViewToolBar::clickFill);
 
    QLabel* m_lbl = new QLabel("Zoom (%) :");
@@ -89,11 +89,13 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    m_toolbar->addWidget(m_lbl);
    m_toolbar->addWidget(m_zoomPercent);
 
+   m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
+
    // Set the fill button checked initially
-   m_cursorAction->setChecked(true);
-   m_fillAction->setChecked(true);
-   m_zoomGroup->setEnabled(false);
-   m_zoomPercent->setEnabled(false);
+   //m_cursorAction->setChecked(true);
+   //m_fillAction->setChecked(true);
+   //m_zoomGroup->setEnabled(false);
+   //m_zoomPercent->setEnabled(false);
 
 } 
 
@@ -150,9 +152,9 @@ void ImageViewToolBar::clickZoomIn()
 
 void ImageViewToolBar::resetZoomToolBar()
 {
-   m_zoomGroup->setEnabled(true);
-   m_zoomPercent->setEnabled(true);
-   m_fillAction->setChecked(false);
+   //m_zoomGroup->setEnabled(true);
+   //m_zoomPercent->setEnabled(true);
+   //m_fillAction->setChecked(false);
    m_cursorAction->setChecked(true);
 }
 
@@ -161,11 +163,12 @@ void ImageViewToolBar::resetZoomToolBar()
 void ImageViewToolBar::clickFill()
 {
    // Make tool bar button look checked
-   m_cursorAction->setChecked(true);
+   //m_cursorAction->setChecked(true);
    
    for(auto &itr : m_imageWidget)
-        itr->clickFill(m_fillAction->isChecked());
+        itr->clickFill();
 
+   /*
    // Set scene mode
    if (m_fillAction->isChecked()) {
       m_zoomGroup->setEnabled(false);
@@ -175,7 +178,7 @@ void ImageViewToolBar::clickFill()
       m_zoomGroup->setEnabled(true);
       m_zoomPercent->setEnabled(true);
    }
-
+   */
 }
 
 //---------------------------------------------------------------------------

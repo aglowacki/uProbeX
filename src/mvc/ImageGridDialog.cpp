@@ -40,12 +40,12 @@ void ImageGridDialog::createLayout()
 
 
 	sbRow->setMinimum(1);
-	sbRow->setMaximum(6);
+	sbRow->setMaximum(10);
 	sbRow->setSingleStep(1);
 	sbRow->setValue(1);
 
 	sbCol->setMinimum(1);
-	sbCol->setMaximum(6);
+	sbCol->setMaximum(10);
 	sbCol->setSingleStep(1);
 	sbCol->setValue(1);
 

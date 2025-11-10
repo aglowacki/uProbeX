@@ -109,6 +109,10 @@ public:
     */
    void setSelectionModel(QItemSelectionModel* selectionModel);
 
+   void removeDefaultPixmap();
+   
+   void setItemOffset(QPointF off) {_item_offset = off;}
+   
 public slots:
 
    /**
@@ -130,7 +134,7 @@ public slots:
     *
     * @param p - image to visualize
     */
-   void setPixmap(QPixmap p);
+   void setPixmap(const QPixmap& p);
 
    /**
     * @brief setUnitsLabel
@@ -340,6 +344,7 @@ private:
 
    bool _is_multi_scene;
 
+   QPointF _item_offset;
 };
 
 }

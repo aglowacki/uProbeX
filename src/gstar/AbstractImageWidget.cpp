@@ -19,12 +19,14 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include "gstar/ImageViewWidgetSubWin.h"
+#include "gstar/ImageViewWidgetCompact.h"
 
 using namespace gstar;
 
 //---------------------------------------------------------------------------
 
-AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
+AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, QWidget* parent)
 : QWidget(parent)
 {
    // Background
@@ -36,13 +38,6 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    m_imageWidthDim = nullptr;
    m_imageHeightDim = nullptr;
    m_tabWidget = new QTabWidget(this);
-   //m_tabWidget->setPalette(pal);
-   //m_tabWidget->setAutoFillBackground(true);
-   //m_tabWidget->addTab(layoutWidget, QIcon(), "Annotations");
-   //QPalette pal = this->palette();
-   //pal.setColor(this->backgroundRole(), Qt::white);
-   //this->setPalette(pal);
-   //setAutoFillBackground(true);
 
    createActions();
 
@@ -54,8 +49,6 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    m_selectionModel = new QItemSelectionModel(m_treeModel);
 
    m_annoTreeView = new QTreeView();
-   //m_annoTreeView->setPalette(pal);
-   //m_annoTreeView->setAutoFillBackground(true);
    m_annoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_annoTreeView->setAnimated(true);
    m_annoTreeView->setModel(m_treeModel);
@@ -65,14 +58,22 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, QWidget* parent)
    connect(m_annoTreeView, &QTreeView::customContextMenuRequested, this, &AbstractImageWidget::treeContextMenu);
    connect(m_annoTreeView, &QTreeView::doubleClicked, this, &AbstractImageWidget::treeDoubleClicked);
 
-   m_imageViewWidget = new ImageViewWidget(rows, cols);
+   _compact_view = compact_view;
+   if(compact_view)
+   {
+      m_imageViewWidget = new ImageViewWidgetCompact(rows, cols);
+   }
+   else
+   {
+      m_imageViewWidget = new ImageViewWidgetSubWin(rows, cols);
+   }
+   
    m_imageViewWidget->setSceneModel(m_treeModel);
    m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
    connect(m_imageViewWidget, &ImageViewWidget::customContextMenuRequested, this, &AbstractImageWidget::viewContextMenu);
 
    createAnnotationToolBar();
-
 
    m_annotationsEnabled = true;
    //add it in parent class so you can control what tab it is on.
@@ -177,27 +178,27 @@ void AbstractImageWidget::createActions()
 
 void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool create_image_nav)
 {
+   m_toolbar = new QToolBar(this);
+   m_toolbar->setMaximumHeight(70);
+   m_toolbar->setFloatable(true);
+   m_toolbar->setMovable(true);
 
-    m_toolbar = new QToolBar(this);
-    m_toolbar->setFloatable(true);
-    m_toolbar->setMovable(true);
+   m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
 
-    m_imageWidgetToolBar = new ImageViewToolBar(imageViewWidget);
+   m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
+   m_toolbar->addSeparator();
+   if (create_image_nav)
+   {
 
-    m_toolbar->addWidget(m_imageWidgetToolBar->getToolBar());
-    m_toolbar->addSeparator();
-    if (create_image_nav)
-    {
+      createRangeWidget();
+      m_toolbar->addWidget(m_range);
 
-        createRangeWidget();
-        m_toolbar->addWidget(m_range);
-
-        m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
-        m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
-        m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
-        m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
-    }
-    
+      m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
+      m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
+      m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
+      m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
+   }
+   m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
 }
 
 //---------------------------------------------------------------------------
@@ -382,6 +383,7 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
 
    mainLayout->addWidget(m_toolbar);
    mainLayout->addWidget(splitter);
+   mainLayout->setContentsMargins(QMargins(0, 0, 0, 0));
 
    return mainLayout;
 
@@ -647,9 +649,9 @@ void AbstractImageWidget::showRulerUnitsDialog()
 
    // Show GenerateSeriesDialog with current settings
    RulerUnitsDialog* dialog = new RulerUnitsDialog(this, Qt::Dialog);
-   dialog->setUnitLabel(m_imageViewWidget->scene()->getUnitsLabel());
-   dialog->setUnitsPerPixelX(m_imageViewWidget->scene()->getUnitsPerPixelX());
-   dialog->setUnitsPerPixelY(m_imageViewWidget->scene()->getUnitsPerPixelY());
+   //dialog->setUnitLabel(m_imageViewWidget->scene()->getUnitsLabel());
+   //dialog->setUnitsPerPixelX(m_imageViewWidget->scene()->getUnitsPerPixelX());
+   //dialog->setUnitsPerPixelY(m_imageViewWidget->scene()->getUnitsPerPixelY());
 
    // Update with current settings
    if (dialog->exec() == QDialog::Accepted)
@@ -719,7 +721,7 @@ void AbstractImageWidget::updateFrame(QImage *img)
     if (img != nullptr)
     {
         // Create pixmap from image
-        m_imageViewWidget->setScenetPixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setScenePixmap(QPixmap::fromImage(img->convertToFormat(QImage::Format_RGB32)));
     }
 
 }

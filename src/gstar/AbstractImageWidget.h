@@ -23,11 +23,11 @@
 #include "gstar/Annotation/MarkerGraphicsItem.h"
 #include "gstar/Annotation/RulerGraphicsItem.h"
 #include "gstar/AnnotationToolBarWidget.h"
-#include "gstar/ImageViewWidget.h"
 #include "gstar/ImageViewToolBar.h"
 #include "gstar/RangeWidget.h"
 #include "gstar/RulerUnitsDialog.h"
 #include "mvc/AnnimateSlideWidget.h"
+#include "gstar/ImageViewWidget.h"
 
 //---------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ public:
    /**
     * Constructor.
     */
-   AbstractImageWidget(int rows = 1, int cols = 1, QWidget* parent = nullptr);
+   AbstractImageWidget(int rows = 1, int cols = 1, bool compact_view = false, QWidget* parent = nullptr);
 
    /**
     * Destructor.
@@ -92,6 +92,8 @@ public:
     */
    void setToolBarVisible(bool visible);
 
+   bool isCompactView() { return _compact_view;}
+   
 public slots:
 
    /**
@@ -416,6 +418,8 @@ protected:
    QWidget* m_treeTabWidget;
 
    AnnimateSlideWidget* _anim_widget;
+
+   bool _compact_view;
 
 };
 

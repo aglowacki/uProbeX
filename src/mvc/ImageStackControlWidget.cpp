@@ -53,8 +53,11 @@ void ImageStackControlWidget::createLayout()
 {
     QVBoxLayout* vlayout = new QVBoxLayout();
     QHBoxLayout* hlayout1 = new QHBoxLayout();
-	//QHBoxLayout* hlayout2 = new QHBoxLayout();
-	_imageGrid = new MapsElementsWidget(1,1,true);
+	//QVBoxLayout* files_vlayout = new QVBoxLayout();
+
+	// check preferences if we want compact view for counts
+	bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+	_imageGrid = new MapsElementsWidget(1,1, compact_view, true);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 
@@ -69,7 +72,7 @@ void ImageStackControlWidget::createLayout()
 
     _left_btn =  new QPushButton();
     _left_btn->setIcon(QIcon(":/images/previous.png"));
-    _left_btn->setMaximumWidth(150);
+    _left_btn->setMaximumWidth(32);
 	connect(_left_btn, &QAbstractButton::pressed, this, &ImageStackControlWidget::onPrevFilePressed);
 
     _image_name_cb = new QComboBox();
@@ -77,7 +80,7 @@ void ImageStackControlWidget::createLayout()
 
     _right_btn =  new QPushButton();
     _right_btn->setIcon(QIcon(":/images/next.png"));
-    _right_btn->setMaximumWidth(150);
+    _right_btn->setMaximumWidth(32);
 	connect(_right_btn, &QAbstractButton::pressed, this, &ImageStackControlWidget::onNextFilePressed);
 
     hlayout1->addWidget(_left_btn);
@@ -91,23 +94,31 @@ void ImageStackControlWidget::createLayout()
 	connect(_imageGrid, &MapsElementsWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 	connect(_mapsFilsWidget, &MapsWorkspaceFilesWidget::loaded_perc, this, &ImageStackControlWidget::update_progress_bar);
 
-	QWidget *navWidget = new QWidget();
-	navWidget->setLayout(hlayout1);
+	//QWidget *navWidget = new QWidget();
+	//navWidget->setLayout(hlayout1);
 
-	_nav_dock = new QDockWidget("Files", this);
-    _nav_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-	_nav_dock->setWidget(navWidget);
+	//_nav_dock = new QDockWidget("Files", this);
+    //_nav_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	//_nav_dock->setWidget(navWidget);
+    //vlayout->addWidget(_nav_dock);
 
-    vlayout->addWidget(_nav_dock);
+	vlayout->addItem(hlayout1);
 	vlayout->addWidget(_imageGrid);
 	vlayout->addWidget(_vlm_widget);
 	vlayout->addWidget(_mda_widget);
 	vlayout->setSpacing(0);
 	vlayout->setContentsMargins(0, 0, 0, 0);
 
+	//files_vlayout->addWidget(_mapsFilsWidget);
+	//files_vlayout->addItem(hlayout1);
+	//QWidget *filenavWidget = new QWidget();
+	//filenavWidget->setLayout(files_vlayout);
+
+
 	_files_dock = new QDockWidget("Files", this);
     _files_dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	_files_dock->setWidget(_mapsFilsWidget);
+	//_files_dock->setWidget(filenavWidget);
 	connect(_files_dock, &QDockWidget::topLevelChanged, this, &ImageStackControlWidget::onDockFloatChanged);
 
 	//hlayout2->addWidget(_files_dock);
@@ -133,15 +144,14 @@ void ImageStackControlWidget::createLayout()
 
 	_load_progress = new QProgressBar();
 	
-	QTabWidget* data_tab = new QTabWidget();
-	data_tab->addTab(single_data_splitter, "Single Dataset");
-	//data_tab->setProperty("padding", QVariant("1px"));
-	//data_tab->setSpacing(0);
-	data_tab->setContentsMargins(0, 0, 0, 0);
+	//QTabWidget* data_tab = new QTabWidget();
+	//data_tab->addTab(single_data_splitter, "Single Dataset");
+	//data_tab->setContentsMargins(0, 0, 0, 0);
 	//data_tab->addTab(single_data_splitter, "Multiple Datasets");
 
 	QVBoxLayout *mainLayout = new QVBoxLayout();
-	mainLayout->addWidget(data_tab);
+	//mainLayout->addWidget(data_tab);
+	mainLayout->addWidget(single_data_splitter);
 	mainLayout->addWidget(_load_progress);
 	mainLayout->setSpacing(0);
 	mainLayout->setContentsMargins(0, 0, 0, 0);

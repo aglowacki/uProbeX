@@ -101,6 +101,12 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    _ck_use_opengl = new QCheckBox();
    _ck_use_opengl->setChecked(Preferences::inst()->getValue(STR_PFR_USE_OPENGL).toBool());
 
+   QLabel* lblCompactCountsView = new QLabel("Compact Counts View");
+   lblCompactCountsView->setFont(font);
+   _ck_use_compact_view = new QCheckBox();
+   _ck_use_compact_view->setChecked(Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool());
+
+
    QFormLayout* mainLayout = new QFormLayout();
    mainLayout->addRow(lblFont, m_font);
    mainLayout->addRow(lblTitle, m_windowTitle);
@@ -114,6 +120,7 @@ PreferencesDisplay::PreferencesDisplay(QWidget* parent) : QWidget(parent)
    mainLayout->addRow(lblStrictRegex, _ck_strict_regex);
    mainLayout->addRow(lblShowScanQueueHeader, _ck_show_scan_queue_header);
    mainLayout->addRow(lblUseOpenGL, _ck_use_opengl);
+   mainLayout->addRow(lblCompactCountsView, _ck_use_compact_view);
 
    connect(_cb_themes, &QComboBox::currentTextChanged, this, &PreferencesDisplay::themeChanged);
 
@@ -181,6 +188,7 @@ void PreferencesDisplay::acceptChanges()
     Preferences::inst()->setValue(STR_PRF_STRICT_REGEX, _ck_strict_regex->isChecked());
     Preferences::inst()->setValue(STR_PRF_FILE_SIZE, _cb_file_size->currentIndex());
     Preferences::inst()->setValue(STR_PFR_USE_OPENGL, _ck_use_opengl->isChecked());
+    Preferences::inst()->setValue(STR_PRF_COMPACT_COUNTS_VIEW, _ck_use_compact_view->isChecked());
     
      
 }
