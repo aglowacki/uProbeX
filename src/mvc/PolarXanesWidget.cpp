@@ -159,34 +159,55 @@ bool PolarXanesWidget::_generate_plot_axis(QString analysis_name, QString elemen
                     out_energy.resize(arr_size);
                     out_element_avg.resize(arr_size);
 
-                    for (int c = 0, idx = 0; c < element_arr.cols(); c+=2, idx++)
+                    int incr = _model->get_polarity_pattern().length();
+                    // test LRRL
+                    //[0,] LL
+                    //[1,] RR
+                    // test LRRLLRRL
+                    // [0,] LLLL
+                    // [1,] RRRR
+                    
+                    if(incr > 0)
                     {
-                        if(c+1 < element_arr.cols())
+                        incr /= 2;
+                        for (int c = 0, idx = 0; c < element_arr.cols(); c+=incr, idx++)
                         {
-                            double pe0 = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) );
-                            double pe1 = (static_cast<double>(element_arr(0,c+1)) / static_cast<double>(us_ic_map(0,c+1)) );
-                            double sum_p = ( pe0 + pe1 );
-
-                            double ne0 = (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)) );
-                            double ne1 = (static_cast<double>(element_arr(1,c+1)) / static_cast<double>(us_ic_map(1,c+1)) );
-                            double sum_n = ( ne0 + ne1 );
-
-                            out_element_diff[idx] = sum_p - sum_n;
-                            out_element_avg[idx] = (sum_p + sum_n)/ 2.0;                        
-
-                            out_energy[idx] = static_cast<double>(energy_map(0,c));
-                        }
-                        else
-                        {
-                            if(idx > 0)
+                            if(c+incr <= element_arr.cols())
                             {
-                                out_element_diff[idx] = out_element_diff[idx - 1]; 
-                                out_element_avg[idx] = out_element_avg[idx - 1];
-                                out_energy[idx] = out_energy[idx - 1];
+                                double sum_p = (static_cast<double>(element_arr(0,c)) / static_cast<double>(us_ic_map(0,c)) );
+                                for(int i = 1; i < incr; i++)
+                                {
+                                    sum_p += (static_cast<double>(element_arr(0,c+i)) / static_cast<double>(us_ic_map(0,c+i)) );
+                                }
+
+                                double sum_n = (static_cast<double>(element_arr(1,c)) / static_cast<double>(us_ic_map(1,c)) );
+                                for(int i = 1; i < incr; i++)
+                                {
+                                    sum_n += (static_cast<double>(element_arr(1,c+1)) / static_cast<double>(us_ic_map(1,c+1)) );
+                                }
+
+                                out_element_diff[idx] = sum_p - sum_n;
+                                out_element_avg[idx] = (sum_p + sum_n)/ 2.0;                        
+
+                                out_energy[idx] = static_cast<double>(energy_map(0,c));
                             }
+                            else
+                            {
+                                if(idx > 0)
+                                {
+                                    out_element_diff[idx] = out_element_diff[idx - 1]; 
+                                    out_element_avg[idx] = out_element_avg[idx - 1];
+                                    out_energy[idx] = out_energy[idx - 1];
+                                }
+                            }
+        
                         }
+                        return true;
                     }
-                    return true;
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
         }
