@@ -304,7 +304,11 @@ void ImageViewWidgetSubWin::addLabel(QString lbl)
 {
     for(auto &itr : _sub_windows)
     {
+        disconnect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidgetSubWin::onComboBoxChange);
+
         itr.cb_image_label->addItem(lbl);
+
+        connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidgetSubWin::onComboBoxChange);
     }
 }
 

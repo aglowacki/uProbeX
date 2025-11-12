@@ -10,6 +10,7 @@
 
 #include "gstar/ImageViewWidget.h"
 #include <QGraphicsPixmapItem>
+#include "gstar/ClipperItem.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -197,9 +198,11 @@ private:
    SubImageWindow _sub_window;
 
    std::vector<QGraphicsPixmapItem*> _pixmaps;
+   std::vector<gstar::ClipperItem*> _clip_pixmaps;
    std::vector<QGraphicsTextItem*> _el_textitems;
    std::vector<QGraphicsTextItem*> _min_textitems;
    std::vector<QGraphicsTextItem*> _max_textitems;
+   std::vector<QGraphicsTextItem*> _unit_textitems;
 
    std::unordered_map<int, ArrayXXr<float> > _raw_data_items;
 

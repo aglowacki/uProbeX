@@ -140,46 +140,33 @@ void ImageViewWidgetCompact::createLayout()
     QPixmap pmap(90, 90);
     pmap.fill(Qt::blue);
    
-
-    for(auto itr : _pixmaps)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
     _pixmaps.clear();
-
-    for(auto itr : _el_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
-    for(auto itr : _min_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
-    for(auto itr : _max_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
+    _clip_pixmaps.clear();
     _el_textitems.clear();
     _min_textitems.clear();
     _max_textitems.clear();
+    _unit_textitems.clear();
     _raw_data_items.clear();
+    _sub_window.scene->clear();
 
     for (int i = 0; i < _grid_rows; i++)
     {
         for (int j = 0; j < _grid_cols; j++)
         {
-            _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
+            _clip_pixmaps.emplace_back(new ClipperItem(90,90));
+            _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap, _clip_pixmaps.back()));
+    
+            //_pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
             _el_textitems.emplace_back(new QGraphicsTextItem("E"));
             _min_textitems.emplace_back(new QGraphicsTextItem("m"));
             _max_textitems.emplace_back(new QGraphicsTextItem("M"));
+            _unit_textitems.emplace_back(new QGraphicsTextItem("cts/s"));
             QRectF bbox = _pixmaps.back()->boundingRect();
             float width = bbox.width() + 10.0;
             float height = bbox.height() + 10.0;
-            _pixmaps.back()->setPos(j * width, i * height);
+            //_pixmaps.back()->setPos(j * width, i * height);
+            _clip_pixmaps.back()->setPos(j * width, i * height);
+
             _el_textitems.back()->setPos(j * width, i * height);
             _el_textitems.back()->setDefaultTextColor(Qt::white);
             _el_textitems.back()->setFont(_element_font);
@@ -192,11 +179,16 @@ void ImageViewWidgetCompact::createLayout()
             _max_textitems.back()->setDefaultTextColor(Qt::white);
             _max_textitems.back()->setFont(_min_max_font);
 
+            _unit_textitems.back()->setPos(j * width + 48, i * height + 8);
+            _unit_textitems.back()->setDefaultTextColor(Qt::white);
+            _unit_textitems.back()->setFont(_min_max_font);
 
-            _sub_window.scene->addItem(_pixmaps.back());
+            //_sub_window.scene->addItem(_pixmaps.back());
+            _sub_window.scene->addItem(_clip_pixmaps.back());
             _sub_window.scene->addItem(_el_textitems.back());
             _sub_window.scene->addItem(_min_textitems.back());
             _sub_window.scene->addItem(_max_textitems.back());
+            _sub_window.scene->addItem(_unit_textitems.back());
         }
     }
 
@@ -225,6 +217,65 @@ void ImageViewWidgetCompact::createLayout()
 
 //---------------------------------------------------------------------------
 
+void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
+{
+    if(false == p.isNull())
+    {   
+        if(idx > -1 && idx < _pixmaps.size())
+        {
+            _pixmaps[idx]->setPixmap(p);
+            _clip_pixmaps[idx]->updateSize(p.width(), p.height());
+            _clip_pixmaps[idx]->update();
+        
+            float width = p.width() + 4.0;
+            float height = p.height() + _height_offset;
+            //_element_font.setPointSize(4); // TODO: calc from size of map
+            int n = 0;
+            for (int i = 0; i < _grid_rows; i++)
+            {
+                for (int j = 0; j < _grid_cols; j++)
+                {
+                    //_pixmaps[n]->setPos(j * width, (i * height) + _height_offset);
+                    _clip_pixmaps[n]->setPos(j * width, (i * height) + _height_offset);
+                    _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
+                    _el_textitems[n]->adjustSize();
+                    
+                    if(p.width() < 40)
+                    {
+                        _el_textitems[n]->setScale(.3);
+                        _min_textitems[n]->setScale(.3);
+                        _max_textitems[n]->setScale(.3);
+                        _unit_textitems[n]->setScale(.3);
+
+                        _el_textitems[n]->setPos(j * width, (i * height) );
+                        _min_textitems[n]->setPos(j * width + 8, i * height);
+                        _max_textitems[n]->setPos(j * width + 8, i * height + 2);
+                        _unit_textitems[n]->setPos(j * width + 28, i * height + 2);
+                    }
+                    else
+                    {
+                        _el_textitems[n]->setScale(1.0);
+                        _min_textitems[n]->setScale(1.0);
+                        _max_textitems[n]->setScale(1.0);
+                        _unit_textitems[n]->setScale(1.0);
+
+                        _el_textitems[n]->setPos(j * width, (i * height) );
+                        _min_textitems[n]->setPos(j * width + 28, i * height);
+                        _max_textitems[n]->setPos(j * width + 28, i * height + 8);
+                        _unit_textitems[n]->setPos(j * width + 88, i * height + 8);
+                    }
+                    n++;
+                }
+            }
+            _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
+            _sub_window.scene->update();
+        }
+    }
+    
+}
+
+//---------------------------------------------------------------------------
+
 void ImageViewWidgetCompact::createSceneAndView(int rows, int cols)
 {
 	_grid_rows = rows;
@@ -248,8 +299,13 @@ void ImageViewWidgetCompact::createSceneAndView(int rows, int cols)
 void ImageViewWidgetCompact::setUnitLabel(int idx, QString label)
 {
     
-    _sub_window.counts_coord_widget->setUnitsLabel(label);
-    _sub_window.counts_stats_widget->setUnitsLabel(label);
+    for (int i = 0; i < _grid_rows * _grid_cols; i++)
+    {
+        _unit_textitems[i]->setPlainText(label);
+        _unit_textitems[i]->adjustSize();
+    }
+    //_sub_window.counts_coord_widget->setUnitsLabel(label);
+    //_sub_window.counts_stats_widget->setUnitsLabel(label);
 
 }
 
@@ -258,8 +314,13 @@ void ImageViewWidgetCompact::setUnitLabel(int idx, QString label)
 void ImageViewWidgetCompact::setUnitLabels(QString label)
 {
 
-    _sub_window.counts_coord_widget->setUnitsLabel(label);
-    _sub_window.counts_stats_widget->setUnitsLabel(label);
+    for (int i = 0; i < _grid_rows * _grid_cols; i++)
+    {
+        _unit_textitems[i]->setPlainText(label);
+        _unit_textitems[i]->adjustSize();
+    }
+    //_sub_window.counts_coord_widget->setUnitsLabel(label);
+    //_sub_window.counts_stats_widget->setUnitsLabel(label);
 
 }
 
@@ -469,7 +530,7 @@ void ImageViewWidgetCompact::setSceneUnitsPerPixelY(double val)
 
 void ImageViewWidgetCompact::sceneUpdateModel()
 {
-    
+
     _sub_window.scene->updateModel();
     
 }
@@ -479,44 +540,6 @@ void ImageViewWidgetCompact::sceneUpdateModel()
 void ImageViewWidgetCompact::setScenePixmap(const QPixmap& p)
 {
  //   _sub_window.scene->setPixmap(p);
-}
-
-//---------------------------------------------------------------------------
-
-void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
-{
-    if(false == p.isNull())
-    {
-        if(idx > -1 && idx < _pixmaps.size())
-        {
-          _pixmaps[idx]->setPixmap(p);
-        }
-        // re position them
-        if(_pixmaps.size() > 0)
-        {
-            QRectF bbox = _pixmaps[0]->boundingRect();
-            float width = bbox.width() + 4.0;
-            float height = bbox.height() + _height_offset;
-            //_element_font.setPointSize(4); // TODO: calc from size of map
-            int n = 0;
-            for (int i = 0; i < _grid_rows; i++)
-            {
-                for (int j = 0; j < _grid_cols; j++)
-                {
-                    _pixmaps[n]->setPos(j * width, (i * height) + _height_offset);
-                    _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
-                    _el_textitems[n]->adjustSize();
-                    _el_textitems[n]->setPos(j * width, (i * height) );
-                    _min_textitems[n]->setPos(j * width + 28, i * height);
-                    _max_textitems[n]->setPos(j * width + 28, i * height + 8);
-                    n++;
-                }
-            }
-        }
-        _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
-        //_sub_window.scene->update();
-    }
-    
 }
 
 //---------------------------------------------------------------------------
@@ -625,15 +648,14 @@ void ImageViewWidgetCompact::zoomOut()
 void ImageViewWidgetCompact::zoomValueChanged(int val)
 {
 
-   bool isOK = false;
-   float value = m_zoomPercent->currentText().toFloat(&isOK);
-   if (!isOK || value < 12.5 || value > 800) {
-      m_zoomPercent->removeItem(m_zoomPercent->currentIndex());
-      updateZoomPercentage();
-      return;
-   }
+    bool isOK = false;
+    float value = m_zoomPercent->currentText().toFloat(&isOK);
+    if (!isOK || value < 12.5 || value > 800) {
+        m_zoomPercent->removeItem(m_zoomPercent->currentIndex());
+        updateZoomPercentage();
+        return;
+    }
 
-   
     QTransform t = _sub_window.view->transform();
     QRectF image = _sub_window.scene->pixRect();
     QRectF tImage = t.mapRect(image);
@@ -643,9 +665,14 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
 
     qreal s = sx;
     if (sy < sx) s = sy;
-    
-    _sub_window.view->scale(s, s);
 
+    for(auto itr : _pixmaps)
+    {
+        itr->setScale(s);
+
+    }
+    //_sub_window.view->scale(s, s);
+    
 }
 
 //---------------------------------------------------------------------------
@@ -735,8 +762,8 @@ void ImageViewWidgetCompact::restoreLabels(const std::vector<QString>& labels)
 void ImageViewWidgetCompact::resetCoordsToZero()
 {
 
-    _sub_window.counts_coord_widget->setCoordinate(0, 0, 0);
-    _sub_window.counts_stats_widget->setCoordinate(0, 0, 0);
+    //_sub_window.counts_coord_widget->setCoordinate(0, 0, 0);
+    //_sub_window.counts_stats_widget->setCoordinate(0, 0, 0);
 
 }
 

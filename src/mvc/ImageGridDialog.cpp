@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QGridLayout>
+#include "preferences/Preferences.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -38,16 +39,18 @@ void ImageGridDialog::createLayout()
 	sbCol = new QSpinBox();
 	//findButton->setDefault(true);
 
+	int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
+    int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
 
 	sbRow->setMinimum(1);
 	sbRow->setMaximum(10);
 	sbRow->setSingleStep(1);
-	sbRow->setValue(1);
+	sbRow->setValue(rows);
 
 	sbCol->setMinimum(1);
 	sbCol->setMaximum(10);
 	sbCol->setSingleStep(1);
-	sbCol->setValue(1);
+	sbCol->setValue(cols);
 
 	updateBtn = new QPushButton("Update");
 	cancelBtn = new QPushButton("Cancel");

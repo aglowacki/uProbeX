@@ -154,8 +154,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
         _cb_colormap->addItem(itr.first);
     }
 
-    connect(_cb_colormap, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onColormapSelect);
-
     _color_map_ledgend_lbl = new QLabel();
     _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
     _color_maps_ledgend->setColorTable(_gray_colormap);
@@ -216,6 +214,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     if(isCompactView())
     {
         _element_select_button = new QPushButton("Select Elements");
+        _element_select_button->setMaximumWidth(200);
         connect(_element_select_button, &QPushButton::pressed, this, &MapsElementsWidget::onSelectElements);
         optionsHboxM->addWidget(_element_select_button);
     }
@@ -246,6 +245,21 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _cb_contrast->addItem(STR_CENTER_1_3_IMAGE);
     _cb_contrast->addItem(STR_CENTER_1_4_IMAGE);
     _cb_contrast->addItem(STR_CENTER_1_6_IMAGE);
+    //_cb_contrast->setMaximumWidth(200);
+// load pref and set
+    QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
+    if(saved_contrast == STR_CENTER_2_3_IMAGE
+    || saved_contrast == STR_CENTER_1_3_IMAGE
+    || saved_contrast == STR_CENTER_1_4_IMAGE
+    || saved_contrast == STR_CENTER_1_6_IMAGE)
+    {
+        _cb_contrast->setCurrentText(saved_contrast);
+    }
+    else
+    {
+        saved_contrast = STR_FULL_IMAGE;
+    }
+    set_contrast_changed(saved_contrast);
     connect(_cb_contrast, &QComboBox::currentTextChanged, this, &MapsElementsWidget::on_contrast_changed);
 
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
@@ -280,7 +294,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _tw_image_controls->addTab(w_normalize, "Normalize");
     _tw_image_controls->addTab(w_contrast, "Contrast");
     _tw_image_controls->setProperty("padding", QVariant("1px"));
-    //_tw_image_controls->setMaximumHeight(70);
+    _tw_image_controls->setMaximumHeight(110);
     _tw_image_controls->setContentsMargins(0, 0, 0, 0);
 
     counts_layout->addWidget(_tw_image_controls);
@@ -432,8 +446,9 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     {
         _cb_colormap->setCurrentText(colormap);
     }
-    //onColormapSelect(colormap);
+    checkColormapSelect(colormap);
 
+    connect(_cb_colormap, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onColormapSelect);
     connect(m_treeModel, &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
     connect(m_treeModel, &gstar::AnnotationTreeModel::deleteAll, this, &MapsElementsWidget::on_delete_all_annotations);
 
@@ -674,9 +689,10 @@ void MapsElementsWidget::on_invert_y_axis(int state)
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::on_contrast_changed(QString val)
+void MapsElementsWidget::set_contrast_changed(QString val)
 {
-
+    Preferences::inst()->setValue(STR_PREF_SAVED_CONTRAST, val);
+    Preferences::inst()->save();
     if(val == STR_FULL_IMAGE)
     {
          _global_contrast_chk->setVisible(true);
@@ -687,6 +703,14 @@ void MapsElementsWidget::on_contrast_changed(QString val)
          _global_contrast_chk->setVisible(false);
         _contrast_widget->setVisible(false);
     }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::on_contrast_changed(QString val)
+{
+
+    set_contrast_changed(val);
     redrawCounts();
 
 }
@@ -928,7 +952,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::onColormapSelect(QString colormap)
+void MapsElementsWidget::checkColormapSelect(QString colormap)
 {
 	if(colormap == STR_COLORMAP_GRAY)
 	{
@@ -955,6 +979,13 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
     }
     _color_maps_ledgend->setColorTable(*_selected_colormap);
     _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::onColormapSelect(QString colormap)
+{
+    checkColormapSelect(colormap);
 
 	redrawCounts();
     
@@ -1312,6 +1343,7 @@ void MapsElementsWidget::model_updated()
     }
 
     disconnect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
+    disconnect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
@@ -1482,6 +1514,7 @@ void MapsElementsWidget::model_updated()
     }
     redrawCounts();
 
+    connect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
     connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 }
 
@@ -1506,23 +1539,23 @@ void MapsElementsWidget::redrawCounts()
     int view_cnt = m_imageViewWidget->getViewCount();
     std::string analysis_text = _cb_analysis->currentText().toStdString();
 
-    if (view_cnt == 1)
+    bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+    if(compact_view)
     {
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
             QString element = m_imageViewWidget->getLabelAt(vidx);
-            displayCounts(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx);
+            m_imageViewWidget->setSubScenePixmap(vidx, generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx));
         }
     }
     else
     {
-        bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
-        if(compact_view)
+        if (view_cnt == 1)
         {
             for (int vidx = 0; vidx < view_cnt; vidx++)
             {
                 QString element = m_imageViewWidget->getLabelAt(vidx);
-                m_imageViewWidget->setSubScenePixmap(vidx, generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx));
+                displayCounts(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx);
             }
         }
         else
@@ -1558,15 +1591,16 @@ void MapsElementsWidget::redrawCounts()
                 }
             }
         }
-        if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
-        {
-            QRectF scene_dims = m_imageViewWidget->getSceneRect();
-            m_imageHeightDim->setCurrentText(QString::number(scene_dims.height()));
-            m_imageWidthDim->setCurrentText(QString::number(scene_dims.width()));
-        }
-        m_imageViewWidget->resetCoordsToZero();
     }
-    //redraw annotations
+    if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
+    {
+        //m_imageViewWidget->getMapDims();
+        //m_imageHeightDim->setText(QString::number(normalized.rows()));
+        //m_imageWidthDim->setText(QString::number(normalized.cols()));
+    }
+     m_imageViewWidget->resetCoordsToZero();
+
+    // redraw annotations
     m_selectionModel->clear();
     m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
 
@@ -1653,37 +1687,46 @@ void MapsElementsWidget::_get_min_max_vals(float &min_val, float &max_val, const
 */
 //---------------------------------------------------------------------------
 
+GenerateImageProp MapsElementsWidget::generate_image_props(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
+{
+    GenerateImageProp props;
+    props.analysis_type = analysis_type;
+    props.element = element;
+    props.log_color = log_color;
+    props.selected_colormap = _selected_colormap;
+    props.normalizer = _normalizer;
+    props.calib_curve = _calib_curve;
+    props.contrast_limits = _cb_contrast->currentText();
+    props.show_legend = _chk_disp_color_ledgend->isChecked();
+    props.invert_y = _chk_invert_y->isChecked();
+    props.global_contrast = _global_contrast_chk->isChecked();
+    if (props.global_contrast)
+    {
+        props.contrast_max = _max_contrast_perc;
+        props.contrast_min =  _min_contrast_perc;
+    }
+    else
+    {
+        if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
+        {
+            props.contrast_max = _max_contrast_perc;
+            props.contrast_min = _min_contrast_perc;
+            props.global_contrast = true;
+        }
+    }
+    return props;
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::displayCounts(const std::string analysis_type, const std::string element, bool log_color, int grid_idx)
 {    
 	if (_model != nullptr)
 	{
         
         ArrayXXr<float> normalized;
+        GenerateImageProp props = generate_image_props(analysis_type, element, log_color, grid_idx);
         
-        GenerateImageProp props;
-        props.analysis_type = analysis_type;
-        props.element = element;
-        props.log_color = log_color;
-        props.selected_colormap = _selected_colormap;
-        props.normalizer = _normalizer;
-        props.calib_curve = _calib_curve;
-        props.show_legend = _chk_disp_color_ledgend->isChecked();
-        props.invert_y = _chk_invert_y->isChecked();
-        props.global_contrast = _global_contrast_chk->isChecked();
-        if (props.global_contrast)
-        {
-            props.contrast_max = _max_contrast_perc;
-            props.contrast_min =  _min_contrast_perc;
-        }
-        else
-        {
-            if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
-            {
-                props.contrast_max = _max_contrast_perc;
-                props.contrast_min = _min_contrast_perc;
-                props.global_contrast = true;
-            }
-        }
         QPixmap p = _model->gen_pixmap(props, normalized);
         m_imageViewWidget->setSubScenePixmap(grid_idx, p);
         if(normalized.rows() > 0 && normalized.cols() > 0)
@@ -1692,8 +1735,8 @@ void MapsElementsWidget::displayCounts(const std::string analysis_type, const st
             {
                 if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
                 {
-                    m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
-                    m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
+                    m_imageHeightDim->setText(QString::number(normalized.rows()));
+                    m_imageWidthDim->setText(QString::number(normalized.cols()));
                 }
                 m_imageViewWidget->resetCoordsToZero();
             }
@@ -1715,32 +1758,7 @@ QPixmap MapsElementsWidget::generate_pixmap(const std::string analysis_type, con
     if (_model != nullptr)
     {
         ArrayXXr<float> normalized;
-            
-        GenerateImageProp props;
-        props.analysis_type = analysis_type;
-        props.element = element;
-        props.log_color = log_color;
-        props.selected_colormap = _selected_colormap;
-        props.normalizer = _normalizer;
-        props.calib_curve = _calib_curve;
-        props.show_legend = _chk_disp_color_ledgend->isChecked();
-        props.invert_y = _chk_invert_y->isChecked();
-        props.contrast_limits = _cb_contrast->currentText();
-        props.global_contrast = _global_contrast_chk->isChecked();
-        if (props.global_contrast)
-        {
-            props.contrast_max = _max_contrast_perc;
-            props.contrast_min = _min_contrast_perc;
-        }
-        else
-        {
-            if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
-            {
-                props.contrast_max = _max_contrast_perc;
-                props.contrast_min = _min_contrast_perc;
-                props.global_contrast = true;
-            }
-        }
+        GenerateImageProp props = generate_image_props(analysis_type, element, log_color, grid_idx);
         QPixmap pm = _model->gen_pixmap(props, normalized);
         if(normalized.rows() > 0 && normalized.cols() > 0)
         {
