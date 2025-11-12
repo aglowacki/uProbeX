@@ -133,7 +133,7 @@ public:
 
    virtual void restoreLabels(const std::vector<QString>& labels) = 0;
 
-   virtual virtual void clearLabels() = 0;
+   virtual void clearLabels() = 0;
 
    virtual void addLabel(QString lbl) = 0;
 

@@ -46,6 +46,10 @@ public:
 	void clear() {_img_list_model->clear();}
 	
 public slots:
+   void onSelectAll();
+
+   void onUnselectAll();
+
 	void onAccept();
 
 	void onClose();
@@ -56,6 +60,10 @@ protected:
 
 private:
 
+   QPushButton* _selectAllBtn;
+   
+   QPushButton* _unSelectAllBtn;
+
 	QPushButton* _acceptBtn;
 
 	QPushButton* _cancelBtn;
@@ -63,6 +71,7 @@ private:
 	QListView* _img_names_view;
 
 	QStandardItemModel* _img_list_model;
+
 
 };
 

@@ -64,6 +64,11 @@ public:
 
    void setTabVisible(int idx, bool val) { _tab_widget->setTabVisible(idx, val);}
 
+   GenerateImageProp generate_image_props(const std::string analysis_type, const std::string element, bool log_color, int grid_idx);
+   
+   void checkColormapSelect(QString colormap);
+   
+   void set_contrast_changed(QString val);
 signals:
    void loaded_perc(int, int);
 

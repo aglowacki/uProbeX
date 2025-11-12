@@ -245,6 +245,7 @@ public:
 
     const data_struct::Spectra<double>* get_rhcp_spectra() {return & _rhcp_integrated_spectra; }
 
+    const std::string& get_polarity_pattern() { return _polarity_pattern_str; }
 signals:
     void model_data_updated();
 
@@ -321,6 +322,8 @@ private:
     QDir _dir;
 
     std::string _scan_type_as_str;
+
+    std::string _polarity_pattern_str;
 
     std::unordered_map<std::string, Calibration_curve<double> > _quant_map_matrix;
 

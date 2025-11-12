@@ -1893,7 +1893,7 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id;
+    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id, polarity_pattern_id;
     std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
     std::string extra_pvs_name = "Scan/Extra_PVs/Names";
     std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
@@ -1901,10 +1901,12 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     std::string x_axis_loc = "Scan/x_axis";
     std::string y_axis_loc = "Scan/y_axis";
     std::string scan_type_loc = "Scan/scan_type";
+    std::string scan_polarity_pattern_loc = "Scan/"+STR_POLARITY_PATTERN;
     hsize_t offset[1] = { 0, };
     hsize_t count[1] = { 1 };
     hid_t   filetype, memtype, status;
     char tmp_name[255] = {0};
+    char tmp_name2[255] = {0};
 
     desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
     name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
@@ -1913,6 +1915,8 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
     y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
     scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
+    polarity_pattern_id = H5Dopen(maps_grp_id, scan_polarity_pattern_loc.c_str(), H5P_DEFAULT);
+    
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -1929,6 +1933,18 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
             H5Sclose(dataspace_id);
         }
         H5Dclose(scan_type_id);
+    }
+
+    if(polarity_pattern_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(polarity_pattern_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(polarity_pattern_id, memtype, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&tmp_name2[0]);
+            _polarity_pattern_str = std::string(tmp_name2);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(polarity_pattern_id);
     }
 
     if (desc_id > -1 && name_id > -1 && unit_id > -1 && val_id > -1)
