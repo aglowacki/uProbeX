@@ -340,12 +340,12 @@ protected:
    /**
     * Pick dimension for image height.
     */
-   QComboBox* m_imageHeightDim;
+   QLabel* m_imageHeightDim;
 
    /**
     * Pick dimension for image width.
     */
-   QComboBox* m_imageWidthDim;
+   QLabel* m_imageWidthDim;
 
    /**
     * Toolbar contains action for manipulating image settings such as zoom.
