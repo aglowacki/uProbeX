@@ -12,6 +12,7 @@
 #include <QGraphicsView>
 #include <typeinfo>
 #include "gstar/ClipperItem.h"
+#include "gstar/ClickablePixmapItem.h"
 #include<QDebug>
 
 using namespace gstar;
@@ -406,6 +407,7 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
       // Store the size of rubber band rectangle in a QRectF object.
       m_zoomRect = QRectF(m_zoomOrigin, m_zoomOrigin);
+      QGraphicsScene::mousePressEvent(event);
    }
 
    // Left click and mode is ZoomOut
@@ -517,6 +519,10 @@ void ImageViewScene::removeAllAnnotationItems()
    foreach(QGraphicsItem* item, allItems)
    {
       if(qgraphicsitem_cast<QGraphicsPixmapItem*>(item))
+      {
+         continue;
+      }
+      else if (qgraphicsitem_cast<ClickablePixmapItem*>(item))
       {
          continue;
       }
