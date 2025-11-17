@@ -490,9 +490,12 @@ void FileTabWidget::onCustomButton()
         {
             QModelIndex idx = list.at(i);
             QString val;
-            if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
+            //if(false == _file_list_view->isRowHidden(i))
             {
-                sl.append(val);
+                if(_file_list_model->getNameAtRow(idx.row(), val))
+                {
+                    sl.append(val);
+                }
             }
         }
     }
