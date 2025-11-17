@@ -2622,8 +2622,8 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                   {
                      if (m_imageHeightDim != nullptr && m_imageWidthDim != nullptr)
                      {
-                           m_imageHeightDim->setCurrentText(QString::number(normalized.rows()));
-                           m_imageWidthDim->setCurrentText(QString::number(normalized.cols()));
+                           m_imageHeightDim->setText(QString::number(normalized.rows()));
+                           m_imageWidthDim->setText(QString::number(normalized.cols()));
                      }
                   }
                   m_imageViewWidget->resetCoordsToZero();

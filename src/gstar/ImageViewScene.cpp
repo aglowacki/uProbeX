@@ -11,7 +11,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <typeinfo>
-
+#include "gstar/ClipperItem.h"
+#include "gstar/ClickablePixmapItem.h"
 #include<QDebug>
 
 using namespace gstar;
@@ -406,6 +407,7 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
       // Store the size of rubber band rectangle in a QRectF object.
       m_zoomRect = QRectF(m_zoomOrigin, m_zoomOrigin);
+      QGraphicsScene::mousePressEvent(event);
    }
 
    // Left click and mode is ZoomOut
@@ -520,7 +522,15 @@ void ImageViewScene::removeAllAnnotationItems()
       {
          continue;
       }
+      else if (qgraphicsitem_cast<ClickablePixmapItem*>(item))
+      {
+         continue;
+      }
       else if (qgraphicsitem_cast<QGraphicsTextItem*>(item))
+      {
+         continue;
+      }
+      else if (qgraphicsitem_cast<ClipperItem*>(item))
       {
          continue;
       }
@@ -755,10 +765,13 @@ void ImageViewScene::setZoomModeToZoomOut()
 void ImageViewScene::updateModel()
 {
 
-   if (typeid(*m_model) == typeid(AnnotationTreeModel))
+   if(m_model != nullptr)
    {
-      AnnotationTreeModel* aModel = dynamic_cast<AnnotationTreeModel*>(m_model);
-      aModel->calculate();
+      if (typeid(*m_model) == typeid(AnnotationTreeModel))
+      {
+         AnnotationTreeModel* aModel = dynamic_cast<AnnotationTreeModel*>(m_model);
+         aModel->calculate();
+      }
    }
 
 }

@@ -225,14 +225,13 @@ void AbstractImageWidget::createRangeWidget()
    m_range->setMinimum(0);
    connect(m_range, &RangeWidget::valueChanged, this, &AbstractImageWidget::rangeChanged);
 
-   m_imageHeightDim = new QComboBox();
-   m_imageHeightDim->setEditable(true);
+   m_imageHeightDim = new QLabel();
+   //m_imageHeightDim->setEditable(true);
+   //connect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
 
-   connect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
-
-   m_imageWidthDim = new QComboBox();
-   m_imageWidthDim->setEditable(true);
-   connect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
+   m_imageWidthDim = new QLabel();
+   //m_imageWidthDim->setEditable(true);
+   //connect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
 
 }
 
@@ -535,7 +534,7 @@ void AbstractImageWidget::setCoordinateModel(CoordinateModel *model)
 
 void AbstractImageWidget::setHeightDims(int h)
 {
-
+/*
     if (m_imageHeightDim != nullptr)
     {
         if (h > (m_imageHeightDim->count() - 1)) return;
@@ -546,6 +545,7 @@ void AbstractImageWidget::setHeightDims(int h)
 
         connect(m_imageHeightDim, &QComboBox::activated, this, &AbstractImageWidget::imageHeightDimChanged);
     }
+        */
 }
 
 //---------------------------------------------------------------------------
@@ -574,6 +574,7 @@ void AbstractImageWidget::setAnnotationsEnabled(bool value)
 
 void AbstractImageWidget::setRank(int m_rankDim)
 {
+   /*
     if (m_imageWidthDim != nullptr && m_imageHeightDim != nullptr)
     {
         m_imageWidthDim->clear();
@@ -586,6 +587,7 @@ void AbstractImageWidget::setRank(int m_rankDim)
             m_imageHeightDim->addItem(tr("dim %1").arg(i));
         }
     }
+   */
 }
 
 //---------------------------------------------------------------------------
@@ -632,6 +634,7 @@ void AbstractImageWidget::setToolBarVisible(bool visible)
 
 void AbstractImageWidget::setWidthDims(int w)
 {
+   /*
     if (m_imageWidthDim != nullptr)
     {
         if (w > (m_imageWidthDim->count() - 1)) return;
@@ -640,6 +643,7 @@ void AbstractImageWidget::setWidthDims(int w)
         m_imageWidthDim->setCurrentIndex(w);
         connect(m_imageWidthDim, &QComboBox::activated, this, &AbstractImageWidget::imageWidthDimChanged);
     }
+      */
 }
 
 //---------------------------------------------------------------------------

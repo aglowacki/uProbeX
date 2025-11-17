@@ -183,6 +183,11 @@ QStringList ElementSelectDialog::getSelection()
 
 void ElementSelectDialog::createLayout()
 {
+	_selectAllBtn = new QPushButton("Select All");
+	_unSelectAllBtn = new QPushButton("Unselect All");
+	connect(_selectAllBtn, &QPushButton::pressed, this, &ElementSelectDialog::onSelectAll);
+	connect(_unSelectAllBtn, &QPushButton::pressed, this, &ElementSelectDialog::onUnselectAll);
+
 	_acceptBtn = new QPushButton("Accept");
 	_cancelBtn = new QPushButton("Cancel");
 	connect(_acceptBtn, &QPushButton::pressed, this, &ElementSelectDialog::onAccept);
@@ -194,21 +199,47 @@ void ElementSelectDialog::createLayout()
 	_img_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_img_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-
 	QVBoxLayout* mainLayout = new QVBoxLayout;
 	QVBoxLayout *leftLayout = new QVBoxLayout;
+	QHBoxLayout* selectBtnLayout = new QHBoxLayout;
 	QHBoxLayout* buttonLayout = new QHBoxLayout;
+
+	selectBtnLayout->addWidget(_selectAllBtn);
+	selectBtnLayout->addWidget(_unSelectAllBtn);
 
 	buttonLayout->addWidget(_acceptBtn);
 	buttonLayout->addWidget(_cancelBtn);
 	
 	leftLayout->addWidget(_img_names_view);
+	leftLayout->addItem(selectBtnLayout);
 	leftLayout->addItem(buttonLayout);
 	
 	mainLayout->addItem(leftLayout);
 	setLayout(mainLayout);
 
 	setWindowTitle("Select Elements To View");
+}
+
+//---------------------------------------------------------------------------
+
+void ElementSelectDialog::onSelectAll()
+{
+	for (int i = 0; i < _img_list_model->rowCount(); i++)
+	{
+		QStandardItem* item0 = _img_list_model->item(i);
+		item0->setCheckState(Qt::Checked);
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void ElementSelectDialog::onUnselectAll()
+{
+	for (int i = 0; i < _img_list_model->rowCount(); i++)
+	{
+		QStandardItem* item0 = _img_list_model->item(i);
+		item0->setCheckState(Qt::Unchecked);
+	}
 }
 
 //---------------------------------------------------------------------------

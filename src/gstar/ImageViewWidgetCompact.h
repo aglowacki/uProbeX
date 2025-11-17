@@ -10,6 +10,8 @@
 
 #include "gstar/ImageViewWidget.h"
 #include <QGraphicsPixmapItem>
+#include "gstar/ClipperItem.h"
+#include "gstar/ClickablePixmapItem.h"
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -192,20 +194,26 @@ private:
     */
    void createRangewidget();
 
+   void updateMinMaxLabels();
+
 private:
 
    SubImageWindow _sub_window;
 
-   std::vector<QGraphicsPixmapItem*> _pixmaps;
+   std::vector<ClickablePixmapItem*> _pixmaps;
+   std::vector<gstar::ClipperItem*> _clip_pixmaps;
    std::vector<QGraphicsTextItem*> _el_textitems;
    std::vector<QGraphicsTextItem*> _min_textitems;
    std::vector<QGraphicsTextItem*> _max_textitems;
+   std::vector<QGraphicsTextItem*> _unit_textitems;
 
    std::unordered_map<int, ArrayXXr<float> > _raw_data_items;
 
    QFont _element_font;
    QFont _min_max_font;
 
+   float _spacer_width;
+   float _spacer_height;
    float _height_offset;
 };
 

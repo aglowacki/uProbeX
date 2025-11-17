@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "gstar/ImageViewWidgetCompact.h"
+#include <QPainterPath>
 
 using namespace gstar;
 
@@ -140,63 +141,53 @@ void ImageViewWidgetCompact::createLayout()
     QPixmap pmap(90, 90);
     pmap.fill(Qt::blue);
    
-
-    for(auto itr : _pixmaps)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
     _pixmaps.clear();
-
-    for(auto itr : _el_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
-    for(auto itr : _min_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
-    for(auto itr : _max_textitems)
-    {
-        _sub_window.scene->removeItem(itr);
-        delete itr;
-    }
+    _clip_pixmaps.clear();
     _el_textitems.clear();
     _min_textitems.clear();
     _max_textitems.clear();
+    _unit_textitems.clear();
     _raw_data_items.clear();
+    _sub_window.scene->clear();
 
     for (int i = 0; i < _grid_rows; i++)
     {
         for (int j = 0; j < _grid_cols; j++)
         {
-            _pixmaps.emplace_back(new QGraphicsPixmapItem(pmap));
+            _clip_pixmaps.emplace_back(new ClipperItem(90,90));
+            _pixmaps.emplace_back(new ClickablePixmapItem(pmap, _clip_pixmaps.back()));
             _el_textitems.emplace_back(new QGraphicsTextItem("E"));
             _min_textitems.emplace_back(new QGraphicsTextItem("m"));
             _max_textitems.emplace_back(new QGraphicsTextItem("M"));
+            _unit_textitems.emplace_back(new QGraphicsTextItem("cts/s"));
             QRectF bbox = _pixmaps.back()->boundingRect();
-            float width = bbox.width() + 10.0;
-            float height = bbox.height() + 10.0;
-            _pixmaps.back()->setPos(j * width, i * height);
-            _el_textitems.back()->setPos(j * width, i * height);
+            _spacer_width = bbox.width() + 10.0;
+            _spacer_height = bbox.height() + 10.0;
+            //_pixmaps.back()->setPos(j * _spacer_width, i * _spacer_height);
+            _clip_pixmaps.back()->setPos(j * _spacer_width, i * _spacer_height);
+
+            _el_textitems.back()->setPos(j * _spacer_width, i * _spacer_height);
             _el_textitems.back()->setDefaultTextColor(Qt::white);
             _el_textitems.back()->setFont(_element_font);
 
-            _min_textitems.back()->setPos(j * width + 28, i * height);
+            _min_textitems.back()->setPos(j * _spacer_width + 28, i * _spacer_height);
             _min_textitems.back()->setDefaultTextColor(Qt::white);
             _min_textitems.back()->setFont(_min_max_font);
 
-            _max_textitems.back()->setPos(j * width + 28, i * height + 8);
+            _max_textitems.back()->setPos(j * _spacer_width + 28, i * _spacer_height + 8);
             _max_textitems.back()->setDefaultTextColor(Qt::white);
             _max_textitems.back()->setFont(_min_max_font);
 
+            _unit_textitems.back()->setPos(j * _spacer_width + 48, i * _spacer_height + 8);
+            _unit_textitems.back()->setDefaultTextColor(Qt::white);
+            _unit_textitems.back()->setFont(_min_max_font);
 
-            _sub_window.scene->addItem(_pixmaps.back());
+            //_sub_window.scene->addItem(_pixmaps.back());
+            _sub_window.scene->addItem(_clip_pixmaps.back());
             _sub_window.scene->addItem(_el_textitems.back());
             _sub_window.scene->addItem(_min_textitems.back());
             _sub_window.scene->addItem(_max_textitems.back());
+            _sub_window.scene->addItem(_unit_textitems.back());
         }
     }
 
@@ -225,6 +216,65 @@ void ImageViewWidgetCompact::createLayout()
 
 //---------------------------------------------------------------------------
 
+void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
+{
+    if(false == p.isNull())
+    {   
+        if(idx > -1 && idx < _pixmaps.size())
+        {
+            _pixmaps[idx]->setPixmap(p);
+            _clip_pixmaps[idx]->updateSize(p.width(), p.height());
+            _clip_pixmaps[idx]->update();
+        
+            _spacer_width = p.width() + 4.0;
+            _spacer_height = p.height() + _height_offset;
+            //_element_font.setPointSize(4); // TODO: calc from size of map
+            int n = 0;
+            for (int i = 0; i < _grid_rows; i++)
+            {
+                for (int j = 0; j < _grid_cols; j++)
+                {
+                    //_pixmaps[n]->setPos(j * _spacer_width, (i * _spacer_height) + _height_offset);
+                    _clip_pixmaps[n]->setPos(j * _spacer_width, (i * _spacer_height) + _height_offset);
+                    _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
+                    _el_textitems[n]->adjustSize();
+                    
+                    if(p.width() < 40)
+                    {
+                        _el_textitems[n]->setScale(.3);
+                        _min_textitems[n]->setScale(.3);
+                        _max_textitems[n]->setScale(.3);
+                        _unit_textitems[n]->setScale(.3);
+
+                        _el_textitems[n]->setPos(j * _spacer_width, (i * _spacer_height) );
+                        _min_textitems[n]->setPos(j * _spacer_width + 8, i * _spacer_height);
+                        _max_textitems[n]->setPos(j * _spacer_width + 8, i * _spacer_height + 2);
+                        _unit_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height + 2);
+                    }
+                    else
+                    {
+                        _el_textitems[n]->setScale(1.0);
+                        _min_textitems[n]->setScale(1.0);
+                        _max_textitems[n]->setScale(1.0);
+                        _unit_textitems[n]->setScale(1.0);
+
+                        _el_textitems[n]->setPos(j * _spacer_width, (i * _spacer_height) );
+                        _min_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height);
+                        _max_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height + 8);
+                        _unit_textitems[n]->setPos(j * _spacer_width + 88, i * _spacer_height + 8);
+                    }
+                    n++;
+                }
+            }
+            _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
+            _sub_window.scene->update();
+        }
+    }
+    
+}
+
+//---------------------------------------------------------------------------
+
 void ImageViewWidgetCompact::createSceneAndView(int rows, int cols)
 {
 	_grid_rows = rows;
@@ -248,8 +298,13 @@ void ImageViewWidgetCompact::createSceneAndView(int rows, int cols)
 void ImageViewWidgetCompact::setUnitLabel(int idx, QString label)
 {
     
-    _sub_window.counts_coord_widget->setUnitsLabel(label);
-    _sub_window.counts_stats_widget->setUnitsLabel(label);
+    for (int i = 0; i < _grid_rows * _grid_cols; i++)
+    {
+        _unit_textitems[i]->setPlainText(label);
+        _unit_textitems[i]->adjustSize();
+    }
+    //_sub_window.counts_coord_widget->setUnitsLabel(label);
+    //_sub_window.counts_stats_widget->setUnitsLabel(label);
 
 }
 
@@ -258,8 +313,13 @@ void ImageViewWidgetCompact::setUnitLabel(int idx, QString label)
 void ImageViewWidgetCompact::setUnitLabels(QString label)
 {
 
-    _sub_window.counts_coord_widget->setUnitsLabel(label);
-    _sub_window.counts_stats_widget->setUnitsLabel(label);
+    for (int i = 0; i < _grid_rows * _grid_cols; i++)
+    {
+        _unit_textitems[i]->setPlainText(label);
+        _unit_textitems[i]->adjustSize();
+    }
+    //_sub_window.counts_coord_widget->setUnitsLabel(label);
+    //_sub_window.counts_stats_widget->setUnitsLabel(label);
 
 }
 
@@ -333,12 +393,11 @@ void ImageViewWidgetCompact::setLabel(QString lbl)
 qreal ImageViewWidgetCompact::getCurrentZoomPercent()
 {
     qreal wp = 0;
-    
-    QTransform t = _sub_window.view->transform();
-    QRectF tImage = t.mapRect(_sub_window.scene->pixRect());
-
-    wp = tImage.width() / _sub_window.scene->pixRect().width() * 100.0;
-    
+    if(_pixmaps.size() > 0)
+    {
+        wp = _pixmaps[0]->scale();
+        wp *= 100;
+    }
     return wp;
 }
 
@@ -469,7 +528,7 @@ void ImageViewWidgetCompact::setSceneUnitsPerPixelY(double val)
 
 void ImageViewWidgetCompact::sceneUpdateModel()
 {
-    
+
     _sub_window.scene->updateModel();
     
 }
@@ -479,44 +538,6 @@ void ImageViewWidgetCompact::sceneUpdateModel()
 void ImageViewWidgetCompact::setScenePixmap(const QPixmap& p)
 {
  //   _sub_window.scene->setPixmap(p);
-}
-
-//---------------------------------------------------------------------------
-
-void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
-{
-    if(false == p.isNull())
-    {
-        if(idx > -1 && idx < _pixmaps.size())
-        {
-          _pixmaps[idx]->setPixmap(p);
-        }
-        // re position them
-        if(_pixmaps.size() > 0)
-        {
-            QRectF bbox = _pixmaps[0]->boundingRect();
-            float width = bbox.width() + 4.0;
-            float height = bbox.height() + _height_offset;
-            //_element_font.setPointSize(4); // TODO: calc from size of map
-            int n = 0;
-            for (int i = 0; i < _grid_rows; i++)
-            {
-                for (int j = 0; j < _grid_cols; j++)
-                {
-                    _pixmaps[n]->setPos(j * width, (i * height) + _height_offset);
-                    _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
-                    _el_textitems[n]->adjustSize();
-                    _el_textitems[n]->setPos(j * width, (i * height) );
-                    _min_textitems[n]->setPos(j * width + 28, i * height);
-                    _max_textitems[n]->setPos(j * width + 28, i * height + 8);
-                    n++;
-                }
-            }
-        }
-        _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
-        //_sub_window.scene->update();
-    }
-    
 }
 
 //---------------------------------------------------------------------------
@@ -561,10 +582,22 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
     
     if ((!zoomRect.isEmpty() || !zoomRect.normalized().isEmpty()) && (zoomWidth > 10 && zoomHeight > 10))
     {
-        
-        //_sub_window.view->fitInView(QRectF(_sub_window.view->mapToScene(zoomRect.topLeft().toPoint()), _sub_window.view->mapToScene(zoomRect.bottomRight().toPoint())), Qt::KeepAspectRatio);
-        
         /*
+        qreal scale = 1.0;
+        if(_pixmaps.size() > 0)
+        {
+            scale = _pixmaps[0]->scale();
+        }
+        scale *= 2.0;
+        for(auto itr : _pixmaps)
+        {
+            itr->setScale(scale);
+
+        }
+        */
+        //_sub_window.view->fitInView(QRectF(_sub_window.view->mapToScene(zoomRect.topLeft().toPoint()), _sub_window.view->mapToScene(zoomRect.bottomRight().toPoint())), Qt::KeepAspectRatio);
+        /*
+        
         QRect viewport = m_view -> rect();
 
         float xscale = viewport.width()  / zoomRect.normalized().width();
@@ -587,17 +620,56 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
 
     else
     {
-        //TODO : crop each maps and redraw
-
-        //_sub_window.view->scale(1.50, 1.50);
-        //_sub_window.view->centerOn(event->lastScenePos());
         
+        qreal scale = 1.0;
+        if(_pixmaps.size() > 0)
+        {
+            scale = _pixmaps[0]->scale();
+            scale *= 2.0;
+            if(scale > 8.0)
+            {
+                scale = 8.0;
+            }
+
+
+            QGraphicsItem *item = _sub_window.scene->itemAt(event->scenePos(), QTransform());
+            ClickablePixmapItem* selectedItem = qgraphicsitem_cast<ClickablePixmapItem*>(item);
+            if (selectedItem) 
+            {
+                QPointF seletionPoint = selectedItem->last_local_intersection_point();
+               // qDebug() << "Item clicked in the view, scene pos:" << selectionPoint<<"\n";
+            
+                QRectF bbox = _pixmaps[0]->boundingRect();
+                qreal transX = ( (bbox.width() * 0.5) - seletionPoint.x() );
+                qreal transY = ( (bbox.height() * 0.5) - seletionPoint.y() );
+                
+                if(transX > 0 && transX < (bbox.width() * 0.5))
+                {
+                    transX = 0;
+                }
+                if(transY > 0 && transY < (bbox.height() * 0.5))
+                {
+                    transY = 0;
+                }
+                 qDebug() << "box: " << bbox<<" : "<< seletionPoint << " :: "<<transX<<" "<<transY<<"\n";
+                    _pixmaps[0]->setPos(transX, transY);
+                    _pixmaps[0]->setScale(scale);
+                
+                /*
+                for(auto itr : _pixmaps)
+                {
+                    itr->setPos(transX, transY);
+                    itr->setScale(scale);
+                }
+                    */
+            }
+        }   
     }
     
     // Force update scroll bars
     //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    
+    updateMinMaxLabels();
     updateZoomPercentage();
 }
 
@@ -606,16 +678,40 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
 void ImageViewWidgetCompact::zoomOut()
 {
 
-   qreal wp = getCurrentZoomPercent();
+    qreal wp = getCurrentZoomPercent();
 
-   if (wp <= 12.5) return;
-   
-    _sub_window.view->scale(1.0, 1.0);
+    if (wp <= 12.5) return;
+
+    qreal scale = 1.0;
+    QPointF npos;
+    if(_pixmaps.size() > 0)
+    {
+        npos = _pixmaps[0]->pos();
+        scale = _pixmaps[0]->scale();
+    }
+    scale *= 0.5;
+    if(scale < 1.0)
+    {
+        scale = 1.0;
+    }
+    
+    if(scale == 1.0)
+    {
+        npos = QPointF(0,0);
+    }
+
+    for(auto itr : _pixmaps)
+    {
+        itr->setPos(npos);
+        itr->setScale(scale);
+
+    }
+    //_sub_window.view->scale(1.0, 1.0);
 
     // Force update scroll bars
     //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-   
+    updateMinMaxLabels();
     updateZoomPercentage();
 
 }
@@ -625,15 +721,17 @@ void ImageViewWidgetCompact::zoomOut()
 void ImageViewWidgetCompact::zoomValueChanged(int val)
 {
 
-   bool isOK = false;
-   float value = m_zoomPercent->currentText().toFloat(&isOK);
-   if (!isOK || value < 12.5 || value > 800) {
-      m_zoomPercent->removeItem(m_zoomPercent->currentIndex());
-      updateZoomPercentage();
-      return;
-   }
+    bool isOK = false;
+    qreal value = m_zoomPercent->currentText().toFloat(&isOK);
+    if (!isOK || value < 100 || value > 800) {
+        m_zoomPercent->removeItem(m_zoomPercent->currentIndex());
+        updateZoomPercentage();
+        return;
+    }
 
-   
+    value *= .01;
+    
+    /*
     QTransform t = _sub_window.view->transform();
     QRectF image = _sub_window.scene->pixRect();
     QRectF tImage = t.mapRect(image);
@@ -643,9 +741,89 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
 
     qreal s = sx;
     if (sy < sx) s = sy;
+    */
     
-    _sub_window.view->scale(s, s);
 
+    for(auto itr : _pixmaps)
+    {
+        if(value == 1.0)
+        {
+            itr->setPos(QPointF(0, 0));
+        }
+        else
+        {
+            QRectF bbox = _pixmaps[0]->boundingRect();
+            // 100 x 100 
+            qreal nx = -(bbox.width() / value) / 2.0;
+            qreal ny = -(bbox.height() / value) / 2.0;
+            QPointF npos = QPointF(nx, ny);
+            
+            itr->setPos(npos);
+        }
+        itr->setScale(value);
+
+    }
+    updateMinMaxLabels();
+    //_sub_window.view->scale(s, s);
+    
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::updateMinMaxLabels()
+{
+    if(_pixmaps.size() > 0 && _raw_data_items.count(0) > 0)
+    {
+        QPainterPath parentClipPath = _clip_pixmaps[0]->shape();
+
+        // 2. Map the parent's clip path from parent coordinates to the child's local coordinates
+        QPainterPath mappedClipPath = _pixmaps[0]->mapFromItem(_clip_pixmaps[0], parentClipPath);
+
+        // 3. Get the child's bounding rectangle in child coordinates
+        QRectF childRect = _pixmaps[0]->boundingRect();
+
+        QPainterPath childPath;
+        childPath.addRect(childRect); // or QPainterPath(childRect)
+
+        QPainterPath intersectionPath = mappedClipPath.intersected(childPath);
+        // 4. Calculate the intersection of the child's bounding rect and the mapped clip path
+        //QPainterPath intersectionPath = mappedClipPath.intersected(QPainterPath(childRect));
+
+        // The bounding rect of the intersection path is the visible/unclipped area
+        QRectF bbox = intersectionPath.boundingRect();
+        //logI<<bbox.x()<<" : "<<bbox.y()<<" : "<<bbox.width()<<" : "<<bbox.height()<<"\n";
+
+
+        unsigned int start_row = std::max((unsigned int)bbox.y(), (unsigned int)0);
+        unsigned int end_row = std::min((unsigned int)bbox.height(), (unsigned int)_raw_data_items[0].rows());
+        unsigned int start_col = std::max((unsigned int)bbox.x(), (unsigned int)0);
+        unsigned int end_rcol = std::min((unsigned int)bbox.width(), (unsigned int)_raw_data_items[0].cols());
+
+        for(unsigned int idx = 0; idx < _pixmaps.size(); idx++)
+        {
+            if(_raw_data_items.count(idx) > 0)
+            {
+                float counts_max = std::numeric_limits<float>::min();
+                float counts_min = std::numeric_limits<float>::max();
+                for(unsigned int r = start_row; r < end_row; r++)
+                {
+                    for(unsigned int c = start_col; c < end_rcol; c++)
+                    {
+                        float val =_raw_data_items[idx](r,c);
+                        counts_max = std::max(val, counts_max);
+                        counts_min = std::min(val, counts_min);
+                    }
+                }
+                
+                QString minStr = "min: "+ QString::number(counts_min);
+                QString maxStr = "max: "+ QString::number(counts_max);
+                _min_textitems[idx]->setPlainText(minStr);
+                _max_textitems[idx]->setPlainText(maxStr);
+                _min_textitems[idx]->adjustSize();
+                _max_textitems[idx]->adjustSize();
+            }
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -674,7 +852,6 @@ QString ImageViewWidgetCompact::getLabelAt(int idx)
 
 void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayXXr<float>& normalized)
 {
-
     if(idx < _min_textitems.size())
     {
         _raw_data_items[idx] = ArrayXXr<float>(normalized);
@@ -685,9 +862,6 @@ void ImageViewWidgetCompact::setCountsTrasnformAt(unsigned int idx, const ArrayX
         _min_textitems[idx]->adjustSize();
         _max_textitems[idx]->adjustSize();
     }
-    
-//TODO save to array
-
 }
 
 //---------------------------------------------------------------------------
@@ -735,8 +909,8 @@ void ImageViewWidgetCompact::restoreLabels(const std::vector<QString>& labels)
 void ImageViewWidgetCompact::resetCoordsToZero()
 {
 
-    _sub_window.counts_coord_widget->setCoordinate(0, 0, 0);
-    _sub_window.counts_stats_widget->setCoordinate(0, 0, 0);
+    //_sub_window.counts_coord_widget->setCoordinate(0, 0, 0);
+    //_sub_window.counts_stats_widget->setCoordinate(0, 0, 0);
 
 }
 
