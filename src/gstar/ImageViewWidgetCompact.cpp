@@ -18,6 +18,7 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
     _cur_scale = 1.0;
     _sub_window.scene->removeDefaultPixmap();
     _sub_window.scene->setItemOffset(QPointF(0.0f,_height_offset)); 
+    connect(_sub_window.scene, &ImageViewScene::onMousePressEvent, this, &ImageViewWidgetCompact::onMousePressEvent);
     _sub_window.setImageLabelVisible(false);
     _sub_window.setCountsVisible(false);
     
@@ -422,10 +423,32 @@ QRectF ImageViewWidgetCompact::getSceneRect()
 
 void ImageViewWidgetCompact::onMouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-    int x = event->scenePos().x();
-    int y = event->scenePos().y();
-    m_coordWidget -> setCoordinate(x,y);
-    _sub_window.counts_coord_widget->setCoordinate(x, y, 0);
+
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::onMousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem *item = _sub_window.scene->itemAt(event->scenePos(), QTransform());
+    ClickablePixmapItem* selectedItem = qgraphicsitem_cast<ClickablePixmapItem*>(item);
+    if (selectedItem) 
+    {
+        QPointF seletionPoint = selectedItem->last_local_intersection_point();
+        unsigned int r = (unsigned int)seletionPoint.y();
+        unsigned int c = (unsigned int)seletionPoint.x();
+        logI<<"X: "<<c<<" , Y: "<<r<<"\r\n";
+        int i = 0;
+        for(auto itr : _raw_data_items)
+        {
+            if(c >= 0 && r >= 0 && c < itr.second.cols() && r < itr.second.rows())
+            {   
+                logI<<_sub_window.cb_image_label->itemText(i).toStdString()<<": ";
+                logit_s<<itr.second(r,c)<<"\r\n";
+            }
+            i++;
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

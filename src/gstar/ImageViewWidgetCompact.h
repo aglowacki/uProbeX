@@ -138,6 +138,8 @@ public slots:
 protected slots:
 
    virtual void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
+   
+   void onMousePressEvent(QGraphicsSceneMouseEvent* event);
 
    virtual void subwindow_redraw(SubImageWindow*);
 
