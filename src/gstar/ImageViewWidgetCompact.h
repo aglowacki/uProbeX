@@ -162,7 +162,7 @@ private slots:
    /**
     * Zoom out
     */
-   virtual void zoomOut();
+   virtual void zoomOut(QGraphicsSceneMouseEvent* event);
 
    /**
     * Called when zoom percentage is updated by the user.
@@ -215,6 +215,8 @@ private:
    float _spacer_width;
    float _spacer_height;
    float _height_offset;
+
+   qreal _cur_scale;
 };
 
 }

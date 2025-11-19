@@ -15,6 +15,7 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
 
     _main_layout = nullptr;
     _height_offset = 20.0;
+    _cur_scale = 1.0;
     _sub_window.scene->removeDefaultPixmap();
     _sub_window.scene->setItemOffset(QPointF(0.0f,_height_offset)); 
     _sub_window.setImageLabelVisible(false);
@@ -113,13 +114,8 @@ void ImageViewWidgetCompact::clickZoomIn()
 void ImageViewWidgetCompact::clickZoomOriginal()
 {
 
-    
-    _sub_window.view->resetTransform();
-    _sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    _sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	
-
-   updateZoomPercentage();
+    m_zoomPercent->setCurrentText("100");
+    zoomValueChanged(0);
 
 }
 
@@ -392,6 +388,7 @@ void ImageViewWidgetCompact::setLabel(QString lbl)
 
 qreal ImageViewWidgetCompact::getCurrentZoomPercent()
 {
+    /*
     qreal wp = 0;
     if(_pixmaps.size() > 0)
     {
@@ -399,6 +396,8 @@ qreal ImageViewWidgetCompact::getCurrentZoomPercent()
         wp *= 100;
     }
     return wp;
+    */
+   return _cur_scale * 100.0;
 }
 
 //---------------------------------------------------------------------------
@@ -570,10 +569,6 @@ void ImageViewWidgetCompact::zoomIn(QGraphicsItem* zoomObject)
 
 void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent* event)
 {
-
-    qreal wp = getCurrentZoomPercent();
-    if (wp >= 800) return;
-
     //int zoomRecPer = 500 - wp;
     int zoomWidth = zoomRect.normalized().width();
     int zoomHeight = zoomRect.normalized().height();
@@ -620,100 +615,74 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
 
     else
     {
-        
-        qreal scale = 1.0;
         if(_pixmaps.size() > 0)
         {
-            scale = _pixmaps[0]->scale();
-            scale *= 2.0;
-            if(scale > 8.0)
+            _cur_scale *= 2.0;
+            if(_cur_scale > 8.0)
             {
-                scale = 8.0;
+                _cur_scale = 8.0;
+                return;
             }
-
 
             QGraphicsItem *item = _sub_window.scene->itemAt(event->scenePos(), QTransform());
             ClickablePixmapItem* selectedItem = qgraphicsitem_cast<ClickablePixmapItem*>(item);
             if (selectedItem) 
             {
                 QPointF seletionPoint = selectedItem->last_local_intersection_point();
-               // qDebug() << "Item clicked in the view, scene pos:" << selectionPoint<<"\n";
             
-                QRectF bbox = _pixmaps[0]->boundingRect();
-                qreal transX = ( (bbox.width() * 0.5) - seletionPoint.x() );
-                qreal transY = ( (bbox.height() * 0.5) - seletionPoint.y() );
-                
-                if(transX > 0 && transX < (bbox.width() * 0.5))
-                {
-                    transX = 0;
-                }
-                if(transY > 0 && transY < (bbox.height() * 0.5))
-                {
-                    transY = 0;
-                }
-                 qDebug() << "box: " << bbox<<" : "<< seletionPoint << " :: "<<transX<<" "<<transY<<"\n";
-                    _pixmaps[0]->setPos(transX, transY);
-                    _pixmaps[0]->setScale(scale);
-                
-                /*
+                QPointF anchorItemPos = _pixmaps[0]->mapFromScene(seletionPoint);
+                QTransform transform;
+                transform.translate(anchorItemPos.x(), anchorItemPos.y());
+                transform.scale(2.0, 2.0);
+                transform.translate(-anchorItemPos.x(), -anchorItemPos.y());
+            
                 for(auto itr : _pixmaps)
                 {
-                    itr->setPos(transX, transY);
-                    itr->setScale(scale);
+                    itr->setTransform(itr->transform() * transform);
                 }
-                    */
             }
         }   
     }
-    
-    // Force update scroll bars
-    //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
     updateMinMaxLabels();
     updateZoomPercentage();
 }
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetCompact::zoomOut()
+void ImageViewWidgetCompact::zoomOut(QGraphicsSceneMouseEvent* event)
 {
-
-    qreal wp = getCurrentZoomPercent();
-
-    if (wp <= 12.5) return;
-
-    qreal scale = 1.0;
-    QPointF npos;
+    _cur_scale *= 0.5;
+    if(_cur_scale < 1.0)
+    {
+        _cur_scale = 1.0;
+        return;
+    }
     if(_pixmaps.size() > 0)
-    {
-        npos = _pixmaps[0]->pos();
-        scale = _pixmaps[0]->scale();
+    {   
+        QGraphicsItem *item = _sub_window.scene->itemAt(event->scenePos(), QTransform());
+        ClickablePixmapItem* selectedItem = qgraphicsitem_cast<ClickablePixmapItem*>(item);
+        if (selectedItem) 
+        {
+                
+            QPointF seletionPoint = selectedItem->last_local_intersection_point();
+                    
+            QPointF anchorItemPos = _pixmaps[0]->mapFromScene(seletionPoint);
+            QTransform transform;
+            transform.translate(anchorItemPos.x(), anchorItemPos.y());
+            transform.scale(0.5, 0.5);
+            transform.translate(-anchorItemPos.x(), -anchorItemPos.y());
+            for(auto itr : _pixmaps)
+            {
+                itr->setTransform(itr->transform() * transform);
+            }
+        }
+        // Force update scroll bars
+        //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        updateMinMaxLabels();
+        updateZoomPercentage();
     }
-    scale *= 0.5;
-    if(scale < 1.0)
-    {
-        scale = 1.0;
-    }
-    
-    if(scale == 1.0)
-    {
-        npos = QPointF(0,0);
-    }
-
-    for(auto itr : _pixmaps)
-    {
-        itr->setPos(npos);
-        itr->setScale(scale);
-
-    }
-    //_sub_window.view->scale(1.0, 1.0);
-
-    // Force update scroll bars
-    //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    updateMinMaxLabels();
-    updateZoomPercentage();
-
 }
 
 //---------------------------------------------------------------------------
@@ -728,21 +697,14 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
         updateZoomPercentage();
         return;
     }
-
-    value *= .01;
+    if(_cur_scale == value *.01)
+    {
+        return;
+    }
+    _cur_scale = value * .01;
     
+ 
     /*
-    QTransform t = _sub_window.view->transform();
-    QRectF image = _sub_window.scene->pixRect();
-    QRectF tImage = t.mapRect(image);
-
-    qreal sx = (value / 100 * image.width()) / tImage.width();
-    qreal sy = (value / 100 * image.height()) / tImage.height();
-
-    qreal s = sx;
-    if (sy < sx) s = sy;
-    */
-    
 
     for(auto itr : _pixmaps)
     {
@@ -763,9 +725,20 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
         itr->setScale(value);
 
     }
-    updateMinMaxLabels();
-    //_sub_window.view->scale(s, s);
-    
+    */
+    if(_pixmaps.size() > 0)
+    {   
+        QPointF anchorItemPos = QPointF(0,0);
+        QTransform transform;
+        transform.translate(anchorItemPos.x(), anchorItemPos.y());
+        transform.scale(_cur_scale, _cur_scale);
+        transform.translate(-anchorItemPos.x(), -anchorItemPos.y());
+        for(auto itr : _pixmaps)
+        {
+            itr->setTransform(transform);
+        }
+        updateMinMaxLabels();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -774,19 +747,29 @@ void ImageViewWidgetCompact::updateMinMaxLabels()
 {
     if(_pixmaps.size() > 0 && _raw_data_items.count(0) > 0)
     {
+        QRectF maskRect = rect();
+        const QPixmap& pixmap = _pixmaps[0]->pixmap();
+        
+        QTransform maskToPixmap = _pixmaps[0]->sceneTransform().inverted();
+        QRectF visibleRectInPixmap = maskToPixmap.mapRect(_clip_pixmaps[0]->mapRectToScene(maskRect));
+        QRectF pixmapBounds(0, 0, pixmap.width(), pixmap.height());
+        visibleRectInPixmap = visibleRectInPixmap.intersected(pixmapBounds);
+        
+        unsigned int start_row = qMax(0, (int)qFloor(visibleRectInPixmap.top()));
+        unsigned int end_row = qMin(pixmap.height() - 1, (int)qCeil(visibleRectInPixmap.bottom()));
+        unsigned int start_col = qMax(0, (int)qFloor(visibleRectInPixmap.left()));
+        unsigned int end_rcol = qMin(pixmap.width() - 1, (int)qCeil(visibleRectInPixmap.right()));
+        
+/*
         QPainterPath parentClipPath = _clip_pixmaps[0]->shape();
-
-        // 2. Map the parent's clip path from parent coordinates to the child's local coordinates
         QPainterPath mappedClipPath = _pixmaps[0]->mapFromItem(_clip_pixmaps[0], parentClipPath);
+        QRectF childRect = _pixmaps[0]->sceneBoundingRect();
 
-        // 3. Get the child's bounding rectangle in child coordinates
-        QRectF childRect = _pixmaps[0]->boundingRect();
 
         QPainterPath childPath;
         childPath.addRect(childRect); // or QPainterPath(childRect)
 
         QPainterPath intersectionPath = mappedClipPath.intersected(childPath);
-        // 4. Calculate the intersection of the child's bounding rect and the mapped clip path
         //QPainterPath intersectionPath = mappedClipPath.intersected(QPainterPath(childRect));
 
         // The bounding rect of the intersection path is the visible/unclipped area
@@ -798,7 +781,7 @@ void ImageViewWidgetCompact::updateMinMaxLabels()
         unsigned int end_row = std::min((unsigned int)bbox.height(), (unsigned int)_raw_data_items[0].rows());
         unsigned int start_col = std::max((unsigned int)bbox.x(), (unsigned int)0);
         unsigned int end_rcol = std::min((unsigned int)bbox.width(), (unsigned int)_raw_data_items[0].cols());
-
+*/
         for(unsigned int idx = 0; idx < _pixmaps.size(); idx++)
         {
             if(_raw_data_items.count(idx) > 0)

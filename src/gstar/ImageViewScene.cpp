@@ -414,7 +414,7 @@ void ImageViewScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
    else if ((event -> button() == Qt::LeftButton) && (m_mode == ZoomOut))
    {
       // Emit zoomOut signal
-      emit zoomOut();
+      emit zoomOut(event);
    }
 
    // Propagate event

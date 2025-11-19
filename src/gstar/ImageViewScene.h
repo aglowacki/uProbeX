@@ -208,7 +208,7 @@ signals:
     * Signal that a zoom out event took place. The view onto the scene should
     * handle it.
     */
-   void zoomOut();
+   void zoomOut(QGraphicsSceneMouseEvent*);
 
    void onMousePressEvent(QGraphicsSceneMouseEvent*);
 
