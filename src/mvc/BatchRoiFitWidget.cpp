@@ -93,7 +93,8 @@ void BatchRoiFitWidget::createLayout()
 void BatchRoiFitWidget::onClose()
 {
     _canceled = true;
-    if (_btn_run->isEnabled())
+    
+    if (_file_list.size() ==0 || _btn_run->isEnabled())
     {
         close();
     }
