@@ -179,12 +179,12 @@ void ImageViewWidgetCompact::createLayout()
             _unit_textitems.back()->setDefaultTextColor(Qt::white);
             _unit_textitems.back()->setFont(_min_max_font);
 
-            //_sub_window.scene->addItem(_pixmaps.back());
-            _sub_window.scene->addItem(_clip_pixmaps.back());
-            _sub_window.scene->addItem(_el_textitems.back());
-            _sub_window.scene->addItem(_min_textitems.back());
-            _sub_window.scene->addItem(_max_textitems.back());
-            _sub_window.scene->addItem(_unit_textitems.back());
+            _sub_window.scene->storeStaticItem(_pixmaps.back());
+            _sub_window.scene->addStaticItem(_clip_pixmaps.back());
+            _sub_window.scene->addStaticItem(_el_textitems.back());
+            _sub_window.scene->addStaticItem(_min_textitems.back());
+            _sub_window.scene->addStaticItem(_max_textitems.back());
+            _sub_window.scene->addStaticItem(_unit_textitems.back());
         }
     }
 
@@ -225,7 +225,6 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
         
             _spacer_width = p.width() + 4.0;
             _spacer_height = p.height() + _height_offset;
-            //_element_font.setPointSize(4); // TODO: calc from size of map
             int n = 0;
             for (int i = 0; i < _grid_rows; i++)
             {
@@ -233,33 +232,43 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
                 {
                     //_pixmaps[n]->setPos(j * _spacer_width, (i * _spacer_height) + _height_offset);
                     _clip_pixmaps[n]->setPos(j * _spacer_width, (i * _spacer_height) + _height_offset);
+                    /*
+                    if(p.width() < 30)
+                    {
+                        _element_font.setPointSize(2); 
+                        _min_max_font.setPointSize(1); 
+                    }
+                        */
                     _el_textitems[n]->setPlainText(_sub_window.cb_image_label->itemText(n));
-                    _el_textitems[n]->adjustSize();
-                    
+                /*
+                    qreal text_scale = 200.0 / (float)p.width();
                     if(p.width() < 40)
                     {
-                        _el_textitems[n]->setScale(.3);
-                        _min_textitems[n]->setScale(.3);
-                        _max_textitems[n]->setScale(.3);
-                        _unit_textitems[n]->setScale(.3);
+                        _el_textitems[n]->setScale(text_scale);
+                        _min_textitems[n]->setScale(text_scale);
+                        _max_textitems[n]->setScale(text_scale);
+                        _unit_textitems[n]->setScale(text_scale);
 
                         _el_textitems[n]->setPos(j * _spacer_width, (i * _spacer_height) );
                         _min_textitems[n]->setPos(j * _spacer_width + 8, i * _spacer_height);
                         _max_textitems[n]->setPos(j * _spacer_width + 8, i * _spacer_height + 2);
                         _unit_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height + 2);
                     }
-                    else
+                    
+                    else*/
                     {
-                        _el_textitems[n]->setScale(1.0);
-                        _min_textitems[n]->setScale(1.0);
-                        _max_textitems[n]->setScale(1.0);
-                        _unit_textitems[n]->setScale(1.0);
+                        //_el_textitems[n]->setScale(1.0);
+                        //_min_textitems[n]->setScale(1.0);
+                        //_max_textitems[n]->setScale(1.0);
+                        //_unit_textitems[n]->setScale(1.0);
 
                         _el_textitems[n]->setPos(j * _spacer_width, (i * _spacer_height) );
                         _min_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height);
                         _max_textitems[n]->setPos(j * _spacer_width + 28, i * _spacer_height + 8);
                         _unit_textitems[n]->setPos(j * _spacer_width + 88, i * _spacer_height + 8);
                     }
+
+                    _el_textitems[n]->adjustSize();
                     n++;
                 }
             }

@@ -44,6 +44,7 @@ ImageViewScene::ImageViewScene(QWidget* parent) : QGraphicsScene(parent)
    QPixmap p(1024, 1024);
    p.fill(Qt::gray);
    m_pixItem = addPixmap(p);
+   _static_item_list.append(m_pixItem);
    setSceneRect(m_pixItem -> boundingRect());
    
    // Connect selectionChanged signal to annotation slot
@@ -516,25 +517,17 @@ void ImageViewScene::removeAllAnnotationItems()
 {
 
    QList<QGraphicsItem*> allItems = QGraphicsScene::items();
-   foreach(QGraphicsItem* item, allItems)
+   for(QGraphicsItem* item: allItems)
    {
-      if(qgraphicsitem_cast<QGraphicsPixmapItem*>(item))
+      bool found = false;
+      for(auto itr: _static_item_list)
       {
-         continue;
+         if (itr == item)
+         {
+            found = true;
+         }
       }
-      else if (qgraphicsitem_cast<ClickablePixmapItem*>(item))
-      {
-         continue;
-      }
-      else if (qgraphicsitem_cast<QGraphicsTextItem*>(item))
-      {
-         continue;
-      }
-      else if (qgraphicsitem_cast<ClipperItem*>(item))
-      {
-         continue;
-      }
-      else if(item != m_pixItem)
+      if(found == false)
       {
          removeItem(item);
       }
@@ -633,8 +626,31 @@ void ImageViewScene::setPixmap(const QPixmap& p)
     else
     {
         m_pixItem = addPixmap(p);
+        _static_item_list.append(m_pixItem);
         //updateROIs();
     }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewScene::clearStaticItems()
+{
+   _static_item_list.clear();
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewScene::addStaticItem(QGraphicsItem* item)
+{
+   _static_item_list.append(item);
+   addItem(item);
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewScene::storeStaticItem(QGraphicsItem* item)
+{
+   _static_item_list.append(item);
 }
 
 //---------------------------------------------------------------------------
