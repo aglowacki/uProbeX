@@ -293,9 +293,13 @@ IF (MSVC)
   ENDIF() 
 
 ELSEIF (UNIX)
-  #IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  #  set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
-  #ENDIF()
+  IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    #set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
+    set_target_properties(uProbeX PROPERTIES 
+      XCODE_EMBED_FRAMEWORKS ${Qt6Core_LIBRARIES}
+      XCODE_EMBED_FRAMEWORKS ${Qt6Charts_LIBRARIES}
+      XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
+  ENDIF()
   set_target_properties(uProbeX PROPERTIES COMPILE_FLAGS "-O2")
   IF (BUILD_WITH_OPENCV_SUPPORT)
     target_link_libraries (uProbeX PRIVATE
