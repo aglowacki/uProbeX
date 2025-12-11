@@ -349,6 +349,10 @@ private:
 
     data_struct::ArrayXXr<float> _interferometer_arr;
 
+    unsigned int _requested_rows;
+
+    unsigned int _requested_cols;
+
     //  proc_type          quantifier            element    quant_prop
     std::map<std::string, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>> _all_element_quants;
 

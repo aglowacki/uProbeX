@@ -25,6 +25,8 @@ MapsH5Model::MapsH5Model() : QObject()
     _loaded_counts = false;
     _params_override = nullptr;
     _initialized_by_stream_block = false;
+    _requested_rows = 0;
+    _requested_cols = 0;
 
 }
 
@@ -1901,13 +1903,14 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id, polarity_pattern_id;
     std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
     std::string extra_pvs_name = "Scan/Extra_PVs/Names";
     std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
     std::string extra_pvs_val = "Scan/Extra_PVs/Values";
     std::string x_axis_loc = "Scan/x_axis";
     std::string y_axis_loc = "Scan/y_axis";
+    std::string req_cols_loc = STR_SCAN+"/"+STR_REQUESTED_COLS;
+    std::string req_rows_loc = STR_SCAN+"/"+STR_REQUESTED_ROWS;
     std::string scan_type_loc = "Scan/scan_type";
     std::string scan_polarity_pattern_loc = "Scan/"+STR_POLARITY_PATTERN;
     hsize_t offset[1] = { 0, };
@@ -1916,15 +1919,16 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     char tmp_name[255] = {0};
     char tmp_name2[255] = {0};
 
-    desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
-    name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
-    unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
-    val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
-    x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
-    y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
-    scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
-    polarity_pattern_id = H5Dopen(maps_grp_id, scan_polarity_pattern_loc.c_str(), H5P_DEFAULT);
-    
+    hid_t desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
+    hid_t name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
+    hid_t unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
+    hid_t val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
+    hid_t x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
+    hid_t y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
+    hid_t scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
+    hid_t polarity_pattern_id = H5Dopen(maps_grp_id, scan_polarity_pattern_loc.c_str(), H5P_DEFAULT);
+    hid_t req_rows_id = H5Dopen(maps_grp_id, req_rows_loc.c_str(), H5P_DEFAULT);
+    hid_t req_cols_id = H5Dopen(maps_grp_id, req_cols_loc.c_str(), H5P_DEFAULT);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -1941,6 +1945,26 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
             H5Sclose(dataspace_id);
         }
         H5Dclose(scan_type_id);
+    }
+    if(req_rows_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(req_rows_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(req_rows_id, H5T_NATIVE_INT32, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&_requested_rows);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(req_rows_id);
+    }
+    if(req_cols_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(req_cols_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(req_cols_id, H5T_NATIVE_INT32, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&_requested_cols);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(req_cols_id);
     }
 
     if(polarity_pattern_id > -1)
@@ -2580,6 +2604,14 @@ void MapsH5Model::_genreate_maps_from_interferometer()
 {
     unsigned int disc_x = 100;
     unsigned int disc_y = 100;
+    if(_requested_cols > 0)
+    {
+        disc_x = _requested_cols-7;
+    }
+    if(_requested_rows > 0)
+    {
+        disc_y = _requested_rows-6;
+    }
     // ISN currently saved 24 points
     if(_interferometer_arr.cols() > 6)
     {
@@ -2594,7 +2626,7 @@ void MapsH5Model::_genreate_maps_from_interferometer()
         float max_y = std::numeric_limits<float>::min();
         // last row is all 0's , need to fix in xrf_maps
         
-        for(Eigen::Index r = 0; r <_interferometer_arr.rows()-1; r++)
+        for(Eigen::Index r = 0; r <_interferometer_arr.rows(); r++)
         {
             min_x = std::min(min_x, _interferometer_arr(r,x_axis_idx));
             max_x = std::max(max_x, _interferometer_arr(r,x_axis_idx));
@@ -2629,7 +2661,7 @@ void MapsH5Model::_genreate_maps_from_interferometer()
             itr.second.Zero(disc_y, disc_x);
         }
 
-        for(Eigen::Index r = 0; r <_interferometer_arr.rows()-1; r++)
+        for(Eigen::Index r = 0; r <_interferometer_arr.rows(); r++)
         {
             float x_per = (_interferometer_arr(r,x_axis_idx) - min_x) / (max_x - min_x);
             
