@@ -612,7 +612,7 @@ void ImageViewWidgetSubWin::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEvent
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetSubWin::zoomOut()
+void ImageViewWidgetSubWin::zoomOut(QGraphicsSceneMouseEvent* event)
 {
 
    qreal wp = getCurrentZoomPercent();

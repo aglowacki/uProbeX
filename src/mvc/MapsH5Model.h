@@ -294,6 +294,10 @@ protected:
 
     bool _load_fit_parameters_10(hid_t maps_grp_id);
 
+    bool _load_interferometer_10(hid_t maps_grp_id);
+
+    void _genreate_maps_from_interferometer();
+    
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
     std::map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
@@ -342,6 +346,12 @@ private:
     std::vector<float> _y_axis;
 
     std::vector<data_struct::Quantification_Standard<double> > _quant_standards;
+
+    data_struct::ArrayXXr<float> _interferometer_arr;
+
+    unsigned int _requested_rows;
+
+    unsigned int _requested_cols;
 
     //  proc_type          quantifier            element    quant_prop
     std::map<std::string, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>> _all_element_quants;

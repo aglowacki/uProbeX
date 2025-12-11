@@ -160,7 +160,7 @@ private slots:
    /**
     * Zoom out
     */
-   virtual void zoomOut();
+   virtual void zoomOut(QGraphicsSceneMouseEvent* event);
 
    /**
     * Called when zoom percentage is updated by the user.
