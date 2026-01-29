@@ -113,6 +113,12 @@ public:
    
    void setItemOffset(QPointF off) {_item_offset = off;}
    
+   void addStaticItem(QGraphicsItem* item);
+
+   void storeStaticItem(QGraphicsItem* item);
+
+   void clearStaticItems();
+
 public slots:
 
    /**
@@ -208,7 +214,7 @@ signals:
     * Signal that a zoom out event took place. The view onto the scene should
     * handle it.
     */
-   void zoomOut();
+   void zoomOut(QGraphicsSceneMouseEvent*);
 
    void onMousePressEvent(QGraphicsSceneMouseEvent*);
 
@@ -345,6 +351,8 @@ private:
    bool _is_multi_scene;
 
    QPointF _item_offset;
+
+   QList<QGraphicsItem*> _static_item_list;
 };
 
 }

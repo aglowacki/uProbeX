@@ -305,7 +305,7 @@ void SolverProfileWidget::openPythonFile()
 /*
    m_fileName = QFileDialog::getOpenFileName(this,
       "Open python script", ".",
-         tr("py (*.py *.PY)"));
+         tr("py (*.py *.PY)"), nullptr, FILE_DIALOG_OPTIONS);
 
    // Dialog returns a nullptr string if user press cancel.
    if (m_fileName.isNull() || m_fileName.isEmpty()) return;

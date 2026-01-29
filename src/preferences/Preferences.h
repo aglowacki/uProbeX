@@ -13,6 +13,14 @@
 #include <unordered_map>
 #include <mutex>
 
+// Fix open dialog not working for MacOS when building bundle. 
+// Tried entitlements but still didn't work with native dialog
+#ifdef __APPLE__
+    #define FILE_DIALOG_OPTIONS QFileDialog::DontUseNativeDialog
+#else
+    #define FILE_DIALOG_OPTIONS 0
+#endif
+
 //---------------------------------------------------------------------------
 #define STR_SCAN_TYPE "Scan Type"
 #define STR_Region_Box_Top_Y "Region Box Top Y"

@@ -140,24 +140,31 @@ int main(int argc, char** argv)
 
     // get location of where we are running from and use it to find ref files
     std::string exe_loc = std::string(argv[0]);
-    int prog_idx = exe_loc.find("bin/uProbeX");
+	int prog_idx = exe_loc.find("MacOS/uProbeX"); //  MacOS
     if (prog_idx > 0)
     {
         exe_loc = exe_loc.substr(0, prog_idx);
     }
-	else // windows
+	else // Linux
 	{
-		int prog_idx = exe_loc.find("bin\\uProbeX.exe");
+		prog_idx = exe_loc.find("bin/uProbeX");
 		if (prog_idx > 0)
 		{
 			exe_loc = exe_loc.substr(0, prog_idx);
 		}
-		else
+		else // windows
 		{
-			exe_loc = ".";
+			prog_idx = exe_loc.find("bin\\uProbeX.exe");
+			if (prog_idx > 0)
+			{
+				exe_loc = exe_loc.substr(0, prog_idx);
+			}
+			else
+			{
+				exe_loc = ".";
+			}
 		}
 	}
-
     //////// HENKE and ELEMENT INFO /////////////
     const std::string element_csv_filename = exe_loc + "./reference/xrf_library.csv";
     const std::string element_henke_filename = exe_loc + "./reference/henke.xdr";

@@ -8,7 +8,7 @@
 #include <gstar/ImageViewWidget.h>
 
 #include <gstar/Annotation/RoiMaskGraphicsItem.h>
-
+#include <preferences/Preferences.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -167,17 +167,18 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     
     _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
 
+    _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
+    _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool());
+    connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
+
     QWidget* color_maps_widgets = new QWidget();
     QHBoxLayout* colormapsHBox = new QHBoxLayout();
     colormapsHBox->setContentsMargins(0, 0, 0, 0);
     colormapsHBox->addWidget(new QLabel(" ColorMap :"));
     colormapsHBox->addWidget(_cb_colormap);
     colormapsHBox->addWidget(_color_map_ledgend_lbl);
+    colormapsHBox->addWidget(_chk_disp_color_ledgend);
     color_maps_widgets->setLayout(colormapsHBox);
-
-    _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
-    _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool());
-    connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     _chk_log_color = new QCheckBox("Log scale");
     _chk_log_color->setChecked(Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool());
@@ -203,8 +204,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     optionsHboxS->setContentsMargins(0, 0, 0, 0);
     QHBoxLayout* optionsHboxM = new QHBoxLayout();
     optionsHboxM->setContentsMargins(0, 0, 0, 0);
-    optionsHBox->addWidget(_chk_log_color);
-    optionsHBox->addWidget(_chk_disp_color_ledgend);
     optionsHBox->addWidget(_chk_invert_y);
     optionsHboxS->addWidget(new QLabel("Layout:"));
     optionsHboxS->addWidget(_grid_button);
@@ -282,6 +281,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     QWidget* w_contrast = new QWidget();
     QHBoxLayout* hbox_contrast = new QHBoxLayout();
     hbox_contrast->addWidget(_cb_contrast);
+    hbox_contrast->addWidget(_chk_log_color);
     hbox_contrast->addWidget(_global_contrast_chk);
     hbox_contrast->addWidget(_contrast_widget);
     w_contrast->setLayout(hbox_contrast);
@@ -1225,7 +1225,7 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr
 
     if (false == found)
     {
-        QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
+        QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
 
         // Dialog returns a nullptr string if user press cancel.
         if (dirName.isNull() || dirName.isEmpty()) return;
@@ -1302,7 +1302,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
         if (param_overrides != nullptr)
         {
 
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"));
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"), nullptr, FILE_DIALOG_OPTIONS);
             if (fileName.length() > 0)
             {
                 data_struct::Fit_Parameters<double>* nfit_params = &(param_overrides->fit_params);

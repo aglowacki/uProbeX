@@ -25,6 +25,8 @@ MapsH5Model::MapsH5Model() : QObject()
     _loaded_counts = false;
     _params_override = nullptr;
     _initialized_by_stream_block = false;
+    _requested_rows = 0;
+    _requested_cols = 0;
 
 }
 
@@ -1372,12 +1374,20 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
     _loaded_counts = _load_counts_10(maps_grp_id);
 
-    _load_fit_parameters_10(maps_grp_id);
-
     end = std::chrono::system_clock::now();
     elapsed_seconds = end - start;
     logI << "load counts elapsed time: " << elapsed_seconds.count() << "s\n";
-    
+
+    _load_fit_parameters_10(maps_grp_id);
+
+    if(_scan_type_as_str == STR_SCAN_TYPE_TIME_BASED_2D_MAP)
+    {
+        if(_load_interferometer_10(maps_grp_id))
+        {
+            // generate elemental maps from interferometer positions.
+            _genreate_maps_from_interferometer();
+        }
+    }
 
     return (_loaded_quantification && _loaded_scalers && _loaded_scan && _loaded_integrated_spectra &&_loaded_counts);
 
@@ -1893,13 +1903,14 @@ bool MapsH5Model::_load_scalers_10(hid_t maps_grp_id)
 
 bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
 {
-    hid_t desc_id, name_id, unit_id, val_id, x_id, y_id, scan_type_id, polarity_pattern_id;
     std::string extra_pvs_desc = "Scan/Extra_PVs/Description";
     std::string extra_pvs_name = "Scan/Extra_PVs/Names";
     std::string extra_pvs_unit = "Scan/Extra_PVs/Unit";
     std::string extra_pvs_val = "Scan/Extra_PVs/Values";
     std::string x_axis_loc = "Scan/x_axis";
     std::string y_axis_loc = "Scan/y_axis";
+    std::string req_cols_loc = STR_SCAN+"/"+STR_REQUESTED_COLS;
+    std::string req_rows_loc = STR_SCAN+"/"+STR_REQUESTED_ROWS;
     std::string scan_type_loc = "Scan/scan_type";
     std::string scan_polarity_pattern_loc = "Scan/"+STR_POLARITY_PATTERN;
     hsize_t offset[1] = { 0, };
@@ -1908,15 +1919,16 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
     char tmp_name[255] = {0};
     char tmp_name2[255] = {0};
 
-    desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
-    name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
-    unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
-    val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
-    x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
-    y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
-    scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
-    polarity_pattern_id = H5Dopen(maps_grp_id, scan_polarity_pattern_loc.c_str(), H5P_DEFAULT);
-    
+    hid_t desc_id = H5Dopen(maps_grp_id, extra_pvs_desc.c_str(), H5P_DEFAULT);
+    hid_t name_id = H5Dopen(maps_grp_id, extra_pvs_name.c_str(), H5P_DEFAULT);
+    hid_t unit_id = H5Dopen(maps_grp_id, extra_pvs_unit.c_str(), H5P_DEFAULT);
+    hid_t val_id = H5Dopen(maps_grp_id, extra_pvs_val.c_str(), H5P_DEFAULT);
+    hid_t x_id = H5Dopen(maps_grp_id, x_axis_loc.c_str(), H5P_DEFAULT);
+    hid_t y_id = H5Dopen(maps_grp_id, y_axis_loc.c_str(), H5P_DEFAULT);
+    hid_t scan_type_id = H5Dopen(maps_grp_id, scan_type_loc.c_str(), H5P_DEFAULT);
+    hid_t polarity_pattern_id = H5Dopen(maps_grp_id, scan_polarity_pattern_loc.c_str(), H5P_DEFAULT);
+    hid_t req_rows_id = H5Dopen(maps_grp_id, req_rows_loc.c_str(), H5P_DEFAULT);
+    hid_t req_cols_id = H5Dopen(maps_grp_id, req_cols_loc.c_str(), H5P_DEFAULT);
 
     filetype = H5Tcopy(H5T_C_S1);
     H5Tset_size(filetype, 256);
@@ -1933,6 +1945,26 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
             H5Sclose(dataspace_id);
         }
         H5Dclose(scan_type_id);
+    }
+    if(req_rows_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(req_rows_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(req_rows_id, H5T_NATIVE_INT32, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&_requested_rows);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(req_rows_id);
+    }
+    if(req_cols_id > -1)
+    {
+        hid_t dataspace_id = H5Dget_space(req_cols_id);
+        if(dataspace_id > -1)
+        {
+            hid_t error = H5Dread(req_cols_id, H5T_NATIVE_INT32, dataspace_id, dataspace_id, H5P_DEFAULT, (void*)&_requested_cols);
+            H5Sclose(dataspace_id);
+        }
+        H5Dclose(req_cols_id);
     }
 
     if(polarity_pattern_id > -1)
@@ -2535,6 +2567,139 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
     return true;
 }
 
+
+//---------------------------------------------------------------------------
+
+bool MapsH5Model::_load_interferometer_10(hid_t maps_grp_id)
+{
+    bool retval = false;
+    std::string vals_str = "/"+STR_MAPS+"/"+STR_SCAN+"/"+STR_INTERFEROMETER+"/"+STR_VALUES;
+    hid_t dset_val_id = H5Dopen(maps_grp_id, vals_str.c_str(), H5P_DEFAULT);
+    if(dset_val_id > -1)
+    {
+        hid_t dspace_vals = H5Dget_space(dset_val_id);
+        int rank_val = H5Sget_simple_extent_ndims(dspace_vals);
+        if (rank_val == 2 )
+        {
+            hsize_t dims_in[2] = { 0, 0 };
+            H5Sget_simple_extent_dims(dspace_vals, &dims_in[0], nullptr);
+            _interferometer_arr.resize(dims_in[0], dims_in[1]);
+            herr_t status = H5Dread(dset_val_id, H5T_NATIVE_FLOAT, dspace_vals, dspace_vals, H5P_DEFAULT, _interferometer_arr.data());
+            if(status > -1)
+            {
+                retval = true;
+            }
+        }
+        H5Sclose(dspace_vals);
+        H5Dclose(dset_val_id);
+        return retval;
+    }
+
+    return retval;
+}
+
+//---------------------------------------------------------------------------
+
+void MapsH5Model::_genreate_maps_from_interferometer()
+{
+    unsigned int disc_x = 100;
+    unsigned int disc_y = 100;
+    if(_requested_cols > 0)
+    {
+        disc_x = _requested_cols-7;
+    }
+    if(_requested_rows > 0)
+    {
+        disc_y = _requested_rows-6;
+    }
+    // ISN currently saved 24 points
+    if(_interferometer_arr.cols() > 6)
+    {
+        Eigen::Index x_axis_idx = 7;
+        Eigen::Index y_axis_idx = 3;
+
+        logI<<"Generating maps using interferometer cols: x axis = interferometer[7], y axis = interferometer[3]\n";
+        float min_x = std::numeric_limits<float>::max();
+        float max_x = std::numeric_limits<float>::min();
+
+        float min_y = std::numeric_limits<float>::max();
+        float max_y = std::numeric_limits<float>::min();
+        // last row is all 0's , need to fix in xrf_maps
+        
+        for(Eigen::Index r = 0; r <_interferometer_arr.rows(); r++)
+        {
+            min_x = std::min(min_x, _interferometer_arr(r,x_axis_idx));
+            max_x = std::max(max_x, _interferometer_arr(r,x_axis_idx));
+
+            min_y = std::min(min_y, _interferometer_arr(r,y_axis_idx));
+            max_y = std::max(max_y, _interferometer_arr(r,y_axis_idx));
+        }
+        logI<<min_x<<" "<<max_x<<" : "<<min_y<<" "<<max_y<<"\n";
+        //unsigned int x_inc = (max_x - min_x) / disc_x;
+        //unsigned int y_inc = (max_y - min_y) / disc_y;
+
+        _x_axis.resize(disc_x);
+        _y_axis.resize(disc_y);
+
+        std::map<std::string, data_struct::Fit_Count_Dict<float>> tmp_analyzed_counts;
+        std::map<std::string, data_struct::ArrayXXr<float>> tmp_scalers = _scalers;
+        // copy _analyzed_counts to tmp_analyzed_counts and resize _analyzed_counts to discretized size
+        for(auto& itr: _analyzed_counts)
+        {
+            tmp_analyzed_counts.emplace(itr.first, data_struct::Fit_Count_Dict<float>());
+            for(auto& itr2: *(itr.second))
+            {
+                tmp_analyzed_counts[itr.first][itr2.first].resize(itr2.second.rows(), itr2.second.cols());
+                memcpy(tmp_analyzed_counts[itr.first][itr2.first].data(), itr2.second.data(), itr2.second.rows()*itr2.second.cols()*sizeof(float));
+                itr2.second.resize(disc_y, disc_x);
+                itr2.second.Zero(disc_y, disc_x);
+            }
+        }
+        for(auto& itr: _scalers)
+        {
+            itr.second.resize(disc_y, disc_x);
+            itr.second.Zero(disc_y, disc_x);
+        }
+
+        for(Eigen::Index r = 0; r <_interferometer_arr.rows(); r++)
+        {
+            float x_per = (_interferometer_arr(r,x_axis_idx) - min_x) / (max_x - min_x);
+            
+            unsigned int x_idx = x_per * disc_x;
+
+            float y_per = (_interferometer_arr(r,y_axis_idx) - min_y) / (max_y - min_y); 
+            
+            unsigned int y_idx = y_per * disc_y;
+            //unsigned int x_idx = _interferometer_arr(r,x_axis_idx) - min_x / x_inc;
+            //unsigned int y_idx = _interferometer_arr(r,y_axis_idx) - min_y / y_inc;
+            x_idx = std::min(x_idx, (disc_x-1));
+            y_idx = std::min(y_idx, (disc_y-1));
+
+            _x_axis[x_idx] = _interferometer_arr(r,x_axis_idx);
+            _y_axis[y_idx] = _interferometer_arr(r,y_axis_idx);
+
+            logI<<x_idx << " : "<< y_idx << "\n";
+            for(auto& itr: _analyzed_counts)
+            {
+                tmp_analyzed_counts.emplace(itr.first, data_struct::Fit_Count_Dict<float>());
+                for(auto& itr2: *(itr.second))
+                {
+                    itr2.second(y_idx, x_idx) = tmp_analyzed_counts[itr.first][itr2.first](0,r);
+                }
+            }
+            for(auto& itr: _scalers)
+            {
+                itr.second(y_idx, x_idx) =  tmp_scalers[itr.first](0, r);
+            }
+        }
+            
+    }
+    else
+    {
+        logW<<"Unknown interferometer layput. Can not generate maps\n";
+    }
+}
+
 //---------------------------------------------------------------------------
 
 bool MapsH5Model::_load_fit_parameters_10(hid_t maps_grp_id)
@@ -2558,9 +2723,9 @@ bool MapsH5Model::_load_fit_parameters_10(hid_t maps_grp_id)
             hsize_t count[1] = { 1 };
             hsize_t dims_in[1] = { 0 };
 
-            hsize_t offset2[3] = { 0, 0};
-            hsize_t count2[3] = { 1, 4 };
-            hsize_t dims_in2[3] = { 0, 0 };
+            hsize_t offset2[2] = { 0, 0};
+            hsize_t count2[2] = { 1, 4 };
+            hsize_t dims_in2[2] = { 0, 0 };
             H5Sget_simple_extent_dims(dspace_names, &dims_in[0], nullptr);
             H5Sget_simple_extent_dims(dspace_vals, &dims_in2[0], nullptr);
 

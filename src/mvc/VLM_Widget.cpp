@@ -46,6 +46,7 @@
 #include "core/ColorMap.h"
 
 #include "mvc/H5ImageModel.h"
+#include <preferences/Preferences.h>
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -2270,7 +2271,7 @@ void VLM_Widget::saveScreenShot()
    QString fileName = QFileDialog::getSaveFileName(this,
              tr("Export Frame"),
              filePath + "/" + QFileInfo(m_pathFile).baseName()+".jpg",
-             tr("Image Files (*.jpg *.png *.bmp)"));
+             tr("Image Files (*.jpg *.png *.bmp)"), nullptr, FILE_DIALOG_OPTIONS);
 
    QGraphicsView* view = m_imageViewWidget->view();
 
@@ -2566,7 +2567,7 @@ void VLM_Widget::setEnableChangeBackground(bool val)
 
 void VLM_Widget::onUpdateBackgroundImage()
 {
-   QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *.h5 *.h50)");
+   QString fileName = QFileDialog::getOpenFileName(this, "Background Image", "", "Image Files (*.jpg *.png *.bmp *.tiff *.tif *.h5 *.h50)", nullptr, FILE_DIALOG_OPTIONS);
    if (fileName.length() > 0)
    {
       loadLiveBackground(fileName);

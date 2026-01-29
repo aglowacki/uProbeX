@@ -439,7 +439,8 @@ void FileTabWidget::onCustomContext()
         QModelIndex idx = list.at(i);
         QString val;
         
-        if(false == _file_list_view->isRowHidden(i) &&  _file_list_model->getNameAtRow(idx.row(), val) )
+        //if(false == _file_list_view->isRowHidden(i) &&  
+        if(_file_list_model->getNameAtRow(idx.row(), val) )
         {
             sl.append(val);
         }
