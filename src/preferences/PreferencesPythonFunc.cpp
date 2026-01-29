@@ -7,6 +7,7 @@
 
 #include <gstar/CheckBoxDelegate.h>
 #include <mvc/DeselectableTreeView.h>
+#include <preferences/Preferences.h>
 #include <preferences/Attribute.h>
 #include <preferences/AttributeGroup.h>
 #include <preferences/AttributeGroupModel.h>
@@ -61,7 +62,7 @@ void PreferencesPythonFunc::addGroupItem()
 
    QString fileName = QFileDialog::getOpenFileName(this,
       "Open exec file", ".",
-         "Python (*.py);; Shell (*.sh);; Batch (*.bat)");
+         "Python (*.py);; Shell (*.sh);; Batch (*.bat)", nullptr, FILE_DIALOG_OPTIONS);
 
    // Dialog returns a nullptr string if user press cancel.
    if (fileName.isNull() || fileName.isEmpty()) return;

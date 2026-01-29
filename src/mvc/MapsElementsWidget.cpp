@@ -8,7 +8,7 @@
 #include <gstar/ImageViewWidget.h>
 
 #include <gstar/Annotation/RoiMaskGraphicsItem.h>
-
+#include <preferences/Preferences.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -1225,7 +1225,7 @@ void MapsElementsWidget::on_export_csv_and_png(QPixmap png, ArrayDr* ev, ArrayDr
 
     if (false == found)
     {
-        QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
+        QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
 
         // Dialog returns a nullptr string if user press cancel.
         if (dirName.isNull() || dirName.isEmpty()) return;
@@ -1302,7 +1302,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
         if (param_overrides != nullptr)
         {
 
-            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"));
+            QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", dataset_path, tr("All Files(*.*)"), nullptr, FILE_DIALOG_OPTIONS);
             if (fileName.length() > 0)
             {
                 data_struct::Fit_Parameters<double>* nfit_params = &(param_overrides->fit_params);

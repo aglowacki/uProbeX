@@ -6,7 +6,7 @@
 #include <mvc/MDA_Widget.h>
 
 #include <gstar/ImageViewWidget.h>
-
+#include <preferences/Preferences.h>
 #include <QSplitter>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -168,7 +168,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_pa
             save_path += "maps_fit_parameters_override.txt" + _cb_detector->currentText();
             ext += _cb_detector->currentText();
         }
-        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, ext + " (*."+ext+");;All Files (*.*)");
+        QString fileName = QFileDialog::getSaveFileName(this, "Save parameters override", save_path, ext + " (*."+ext+");;All Files (*.*)", nullptr, FILE_DIALOG_OPTIONS);
         if (!fileName.isEmpty() && !fileName.isNull())
         {
             if (po == nullptr)
@@ -202,7 +202,7 @@ void MDA_Widget::on_export_csv(QPixmap png, ArrayDr* ev, ArrayDr* int_spec, Arra
 
     //QString path = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");
 
-    QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".");
+    QString dirName = QFileDialog::getExistingDirectory(this, "Export directory", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
 
     // Dialog returns a nullptr string if user press cancel.
     if (dirName.isNull() || dirName.isEmpty() || _model == nullptr) return;

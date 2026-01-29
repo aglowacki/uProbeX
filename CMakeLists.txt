@@ -294,7 +294,13 @@ IF (MSVC)
 
 ELSEIF (UNIX)
   IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    #set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
+    set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
+    #add_macos_entitlements( ${target_name}
+    #ENTITLEMENTS com.apple.security.cs.allow-jit=true com.apple.security.cs.allow-unsigned-executable-memory=true)
+    #code_sign_macos(${target_name}
+    #IDENTITY "Mac Developer: Arthur Glowacki (X8A4DQ24YL)"
+    #ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/entitlements.plist # Path to the generated plist file
+    #)
     set_target_properties(uProbeX PROPERTIES 
       XCODE_EMBED_FRAMEWORKS ${Qt6Core_LIBRARIES}
       XCODE_EMBED_FRAMEWORKS ${Qt6Charts_LIBRARIES}

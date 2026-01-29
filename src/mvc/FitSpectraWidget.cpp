@@ -464,7 +464,7 @@ void FitSpectraWidget::show_load_fit_params_dialog(bool val)
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Fit Parameters", _dataset_dir.absolutePath(),
-        "Fit Parameters (*.csv);;All Files (*.*)");
+        "Fit Parameters (*.csv);;All Files (*.*)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;

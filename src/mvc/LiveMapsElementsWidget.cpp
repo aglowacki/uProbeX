@@ -4,7 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/LiveMapsElementsWidget.h>
-
+#include <preferences/Preferences.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -365,7 +365,7 @@ void LiveMapsElementsWidget::setHistoryLocation()
 
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Scan History", apath,
-                                                    tr("CSV (*.csv)"));
+                                                    tr("CSV (*.csv)"), nullptr, FILE_DIALOG_OPTIONS);
                                                     //tr("JSON (*.json);;CSV (*.csv)"));
                                                     
 

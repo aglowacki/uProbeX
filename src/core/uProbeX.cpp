@@ -563,7 +563,7 @@ void uProbeX::open_spectra_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)");
+        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -580,7 +580,7 @@ void uProbeX::open_spectra_and_override_file()
 
     QString fileName = QFileDialog::getOpenFileName(this,
         "Open Spectra", ".",
-        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)");
+        "RAW Spectra (*.csv *.mda *.mca *.hdf5 *.emd);;All Files (*.*)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -589,7 +589,7 @@ void uProbeX::open_spectra_and_override_file()
 
     QString po_fileName = QFileDialog::getOpenFileName(this,
         "Override Params", ".",
-        "TXT (*.txt *.txt0 *.txt1 *.txt2 *.txt3)");
+        "TXT (*.txt *.txt0 *.txt1 *.txt2 *.txt3)", nullptr, FILE_DIALOG_OPTIONS);
 
     data_struct::Params_Override<double>* po = nullptr;
     if (false == (fileName.isNull() || fileName.isEmpty()))
@@ -754,7 +754,7 @@ void uProbeX::open_VLM_File()
 
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open Visible Light Microscope Workspace", ".",
-                                                    "VLM (*.tiff *.tif *.sws)");
+                                                    "VLM (*.tiff *.tif *.sws)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -790,7 +790,7 @@ void uProbeX::updateRecentMapsWorkspaces()
 void uProbeX::openMapsWorkspaceA()
 {
 
-    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
+    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
 
     openMapsWorkspace(dirName);
 
@@ -851,7 +851,7 @@ void uProbeX::open_HDF_File()
 
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open HDF5", ".",
-                                                    tr("H5 (*.h5 *.h5*)"));
+                                                    tr("H5 (*.h5 *.h5*)", nullptr, FILE_DIALOG_OPTIONS));
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
@@ -1031,7 +1031,7 @@ bool uProbeX::saveActivatedXmlRequired()
 
 void uProbeX::upgradeV9Rois()
 {
-    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".");
+    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
     _upgradeRoiDialog.setDirectory(QDir(dirName));
     _upgradeRoiDialog.show();    
 }
@@ -1042,7 +1042,7 @@ void uProbeX::savePreferencesXMLData()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Save XML Preferences", ".",
-                                                    tr("XML (*.xml *.XML)"));
+                                                    tr("XML (*.xml *.XML)"), nullptr, FILE_DIALOG_OPTIONS);
 
     if (!fileName.endsWith(".xml") || fileName.endsWith(".XML")) {
         fileName += ".xml";
@@ -1072,7 +1072,7 @@ void uProbeX::loadPreferencesXMLData()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open XML Preferences", ".",
-                                                    tr("XML (*.xml *.XML)"));
+                                                    tr("XML (*.xml *.XML)"), nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
