@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/ExportMapsDialog.h>
+#include <preferences/Preferences.h>
 #include <QFileDialog>
 #include <QDesktopServices>
 
@@ -103,7 +104,7 @@ void ExportMapsDialog::setRunEnabled(bool val)
 
 void ExportMapsDialog::on_browse()
 {
-    _directory = QFileDialog::getExistingDirectory(this, "Export Directory", _directory.absolutePath());
+    _directory = QFileDialog::getExistingDirectory(this, "Export Directory", _directory.absolutePath(), FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
 }
 
 //---------------------------------------------------------------------------

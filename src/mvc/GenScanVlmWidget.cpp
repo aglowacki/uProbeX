@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <mvc/GenScanVlmWidget.h>
+#include <preferences/Preferences.h>
 #include <gstar/GStarResource.h>
 #include <QFileDialog>
 #include "mvc/TIFF_Model.h"
@@ -121,7 +122,7 @@ void GenScanVlmWidget::on_browse()
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open Background image", 
                                                     _directory_name,
-                                                    "VLM (*.tiff *.tif *.sws)");
+                                                    "VLM (*.tiff *.tif *.sws)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
