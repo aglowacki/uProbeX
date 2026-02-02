@@ -425,7 +425,15 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
         QFileInfo fileInfo = _raw_fileinfo_list[name];
         if(io::file::File_Scan::inst()->get_total_count() == 0)
 		{
-			io::file::File_Scan::inst()->populate_netcdf_hdf5_files(fileInfo.absolutePath().toStdString());
+            QString search_path = fileInfo.absolutePath();
+            
+            if(search_path.endsWith("mda"))
+            {
+                QDir directory(fileInfo.absolutePath());
+                directory.cd("..");
+                search_path = directory.absolutePath();
+            }
+			io::file::File_Scan::inst()->populate_netcdf_hdf5_files(search_path.toStdString());
 		}
         if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {
