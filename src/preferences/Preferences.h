@@ -18,7 +18,7 @@
 #ifdef __APPLE__
     #define FILE_DIALOG_OPTIONS QFileDialog::DontUseNativeDialog
 #else
-    #define FILE_DIALOG_OPTIONS 0
+    #define FILE_DIALOG_OPTIONS QFileDialog::Option(0)
 #endif
 
 //---------------------------------------------------------------------------
