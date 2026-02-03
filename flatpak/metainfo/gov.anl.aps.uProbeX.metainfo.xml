@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>gov.anl.aps.uProbeX</id>
+  <name>uProbeX</name>
+  <metadata_license>FSFAP</metadata_license>
+  <summary>A GUI for analyzing and visualizing X-Ray fluorescent datasets</summary>
+  <releases>
+    <release version="2.0.1" date="2026-02-02">
+      <description>
+        <p>Fixed bug when opening raw datasets.</p>
+      </description>
+    </release>
+  </releases>
+  <developer id="gov.anl.aps.sdm">
+	  <name>Arthur Glowacki</name>
+  </developer>
+  <project_license>GPL-2.0-or-later</project_license>
+  <url type="homepage">https://www.github.com/AdvancedPhotonSource/uProbeX</url>
+  <description>
+	  <p>
+X-ray fluorescence (XRF) imaging typically involves the creation and analysis of 3D data sets, where at each scan position a full energy dispersive x-ray spectrum is recorded. This allows one to later process the data in a variety of different approaches, e.g., by spectral region of interest (ROI) summation with or without background subtraction, principal component analysis, or fitting. XRF-Maps is a C++ open source software package that implements these functions to provide a tool set for the analysis of XRF data sets
+    </p>
+  </description>
+  <launchable type="desktop-id">gov.anl.aps.uProbeX.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-26.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/aglowacki/uProbeX/blob/master/docs/images/uProbeX-32.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.0" />
+</component>
+

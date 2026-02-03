@@ -1,20 +1,22 @@
-app-id: org.UChicagoLLC.ANL.APS.uProbeX
+app-id: gov.anl.aps.uProbeX
 runtime: org.kde.Platform
-runtime-version: '6.8' 
+runtime-version: '6.10' 
 sdk: org.kde.Sdk
 command: uProbeX
 finish-args:
   - --env=LD_LIBRARY_PATH=/app/lib
   - --socket=x11 # Grants access to the X11 socket
+  - --share=ipc
   - --command=/app/bin/uProbeX
 modules:
   - name: krb5
     buildsystem: simple
     builddir: true
     sources:
-      - type: archive
-        url: https://web.mit.edu/kerberos/dist/krb5/1.21/krb5-1.21.2.tar.gz
-        sha256: 9560941a9d843c0243a71b17a7ac6fe31c7cebb5bce3983db79e52ae7e850491
+      - type: archive 
+        archive-type: tar-gzip
+        url: https://web.mit.edu/kerberos/dist/krb5/1.22/krb5-1.22.2.tar.gz
+        sha256: 3243ffbc8ea4d4ac22ddc7dd2a1dc54c57874c40648b60ff97009763554eaf13
     build-commands:
       - echo "Building krb5"
       - ls
@@ -58,4 +60,20 @@ modules:
         path: ../uProbeX/bin/uProbeX
     build-commands:
       - install -D uProbeX /app/bin/uProbeX
+  - name: VersionInfo
+    buildsystem: simple
+    sources:
+      - type: file
+        path: metainfo/gov.anl.aps.uProbeX.metainfo.xml
+      - type: file
+        path: metainfo/gov.anl.aps.uProbeX.desktop
+      - type: file
+        path: metainfo/mu512.png
+      - type: file
+        path: metainfo/mu48.png
+    build-commands:
+      - install -Dm644 gov.anl.aps.uProbeX.metainfo.xml /app/share/metainfo/gov.anl.aps.uProbeX.metainfo.xml
+      - install -Dm644 gov.anl.aps.uProbeX.desktop /app/share/applications/gov.anl.aps.uProbeX.desktop
+      - install -Dm644 mu512.png /app/share/icons/hicolor/512x512/apps/gov.anl.aps.uProbeX.png
+      - install -Dm644 mu48.png /app/share/icons/hicolor/48x48/apps/gov.anl.aps.uProbeX.png
 
