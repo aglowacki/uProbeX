@@ -193,6 +193,21 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
                 _nodes[idx]->set_root(element);
                 _row_indicies.push_back(idx);
             }
+            else // custom roi sum
+            {
+                if(element->full_name() == STR_COMPTON_AMPLITUDE || element->full_name() == STR_COHERENT_SCT_AMPLITUDE)
+                {
+                    continue;
+                }
+                int idx = 99999;
+                while(_nodes.count(idx) > 0)
+                {
+                    idx ++;
+                }
+                _nodes[idx] = new TreeItem();
+                _nodes[idx]->set_root(element);
+                _row_indicies.push_back(idx);
+            }
         }
 
         std::sort(_row_indicies.begin(), _row_indicies.end());
