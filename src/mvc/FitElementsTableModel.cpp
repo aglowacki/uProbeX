@@ -199,7 +199,7 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
                 {
                     continue;
                 }
-                int idx = 99999;
+                int idx = 90000;
                 while(_nodes.count(idx) > 0)
                 {
                     idx ++;
@@ -264,15 +264,29 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* 
 			_nodes[idx] = new TreeItem();
 			_nodes[idx]->set_root(element);
 			_row_indicies.push_back(idx);
-
-			std::sort(_row_indicies.begin(), _row_indicies.end());
-
-			QModelIndex topLeft = index(0, 0);
-			QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
-			emit dataChanged(topLeft, bottomRight);
-			emit layoutChanged();
 		}
     }
+    else // custom peak
+    {
+        if(element->full_name() == STR_COMPTON_AMPLITUDE || element->full_name() == STR_COHERENT_SCT_AMPLITUDE)
+        {
+            return;
+        }
+        int idx = 90000;
+        while(_nodes.count(idx) > 0)
+        {
+            idx ++;
+        }
+        _nodes[idx] = new TreeItem();
+        _nodes[idx]->set_root(element);
+        _row_indicies.push_back(idx);
+    }
+    std::sort(_row_indicies.begin(), _row_indicies.end());
+
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(_row_indicies.size() - 1, NUM_PROPS - 1);
+    emit dataChanged(topLeft, bottomRight);
+    emit layoutChanged();
 }
 
 //---------------------------------------------------------------------------

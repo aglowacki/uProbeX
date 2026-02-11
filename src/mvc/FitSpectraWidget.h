@@ -28,6 +28,7 @@
 #include "mvc/SpectraWidgetSettingsDialog.h"
 #include "mvc/PeriodicTableWidget.h"
 #include "mvc/ElementInfoDialog.h"
+#include "mvc/CustomPeakDialog.h"
 
 //---------------------------------------------------------------------------
 
@@ -126,6 +127,8 @@ public slots:
 
    void del_element();
 
+   void add_custom_peak_pressed();
+
    void onSettingsDialog();
 
    void on_export_csv();
@@ -211,6 +214,8 @@ private:
 
    QPushButton* _btn_del_element;
 
+   QPushButton* _btn_add_custom_peak;
+
    ArrayDr* _int_spec;
 
    ArrayDr _spectra_background;
@@ -266,6 +271,8 @@ private:
    PeriodicTableWidget* _periodic_table_widget;
 
    ElementInfoDialog _element_info_dialog;
+
+   CustomPeakDialog _custon_peak_dialog;
 };
 
 

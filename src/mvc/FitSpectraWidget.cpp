@@ -26,7 +26,6 @@
 #include <preferences/Preferences.h>
 #include "io/file/aps/aps_roi.h"
 
-
 using namespace data_struct;
 
 //---------------------------------------------------------------------------
@@ -199,6 +198,9 @@ void FitSpectraWidget::createLayout()
     _btn_del_element = new QPushButton("Delete Element");
     connect(_btn_del_element, &QPushButton::released, this, &FitSpectraWidget::del_element);
 
+    _btn_add_custom_peak = new QPushButton("Add Custom Peak");
+    connect(_btn_add_custom_peak, &QPushButton::released, this, &FitSpectraWidget::add_custom_peak_pressed);
+
     _btn_periodic_table = new QPushButton();
     _btn_periodic_table->setIcon(QIcon(":/images/grid.png"));
     _btn_periodic_table->setFixedSize(32,32);
@@ -224,6 +226,7 @@ void FitSpectraWidget::createLayout()
     add_element_grid_layout->addWidget(_cb_pileup_elements, 2, 1);
     add_element_grid_layout->addWidget(_btn_add_element, 3, 0);
     add_element_grid_layout->addWidget(_btn_del_element, 3, 1);
+    add_element_grid_layout->addWidget(_btn_add_custom_peak, 4, 0);
 
     QLayout* elements_layout;
     if(Preferences::inst()->getValue(STR_PREF_SPRECTRA_CONTROLS_HORIZONTAL_OPTION).toInt() == 1)
@@ -929,6 +932,20 @@ void FitSpectraWidget::del_element()
     if(_chk_auto_model->isChecked())
     {
         Model_Spectra_Click();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void FitSpectraWidget::add_custom_peak_pressed()
+{
+    // bring up dialog asing for energy of where to put 
+    if (_custon_peak_dialog.exec() == QDialog::Accepted)
+    {
+        QString name = _custon_peak_dialog.get_name();
+        double center = _custon_peak_dialog.get_energy();
+        data_struct::Fit_Element_Map<double>* fit_element = new data_struct::Fit_Element_Map<double>(name.toStdString(), center, 1.0);
+        _fit_elements_table_model->appendElement(fit_element);
     }
 }
 
