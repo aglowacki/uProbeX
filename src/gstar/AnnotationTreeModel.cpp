@@ -387,8 +387,12 @@ QModelIndex AnnotationTreeModel::index(int row,
    //if (!hasIndex(row, column, parent))
    //   return QModelIndex();
 
-   AbstractGraphicsItem* parentItem;
+   AbstractGraphicsItem* parentItem = nullptr;
 
+   if (!hasIndex(row, column, parent))
+   {
+       return QModelIndex();
+   }
    if (m_root->childCount() < 1)
    {
       return QModelIndex();

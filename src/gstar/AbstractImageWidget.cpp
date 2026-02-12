@@ -445,7 +445,7 @@ void AbstractImageWidget::insertAndSelectAnnotation(AnnotationTreeModel* treeMod
          QModelIndex index = treeModel->index(annotation->row(), i, pIndex);
          if (index.isValid())
          {
-            selectionModel->select(index,QItemSelectionModel::Select);
+            selectionModel->select(index, QItemSelectionModel::Select); 
          }
       }
    }
