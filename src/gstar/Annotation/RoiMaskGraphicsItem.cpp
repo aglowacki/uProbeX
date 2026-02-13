@@ -7,6 +7,7 @@
 
 #include "gstar/AnnotationProperty.h"
 #include "gstar/ImageViewScene.h"
+#include "core/str_defines.h"
 
 #include <math.h>
 #include <QLineF>
@@ -14,8 +15,6 @@
 using namespace gstar;
 
 //-----------------------------------------------------------------------------
-
-static const QString CONST_STATIC_ROI_NAME = QString("ROI");
 
 #ifdef _BUILD_WITH_OPENCV
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)

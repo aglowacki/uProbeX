@@ -11,14 +11,12 @@
 #include <QIcon>
 #include <QGridLayout>
 #include "preferences/Preferences.h"
+#include "core/str_defines.h"
+
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/core/eigen.hpp>
 #endif
 //---------------------------------------------------------------------------
-static const QString STR_KMEANS = QString("KMeans");
-static const QString STR_DBSCAN = QString("DBSCAN");
-static const QString STR_MANUAL = QString("Manual");
-static const QString STR_PLOT_OPTIONS = QString("Plot Options");
 
 const int TAB_KMEANS = 0;
 const int TAB_MANUAL = 2;

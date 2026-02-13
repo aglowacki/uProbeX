@@ -14,13 +14,7 @@
 #include <QMessageBox>
 #include <preferences/Preferences.h>
 #include "core/GlobalThreadPool.h"
-
-const static QString STR_PROCESS("Per Pixel Process");
-const static QString STR_PROCESS_ANALYZED("Per Pixel ReProcess");
-const static QString STR_PROCESS_ANALYZED_ALL("Per Pixel ReProcess All");
-const static QString STR_BATCH_ROI("Process ROI's");
-const static QString STR_H5_EXPORT("hdf5_export");
-const static QString STR_GEN_SCAN_AREA("Generate Scan Area");
+#include "core/str_defines.h"
 
 //---------------------------------------------------------------------------
 

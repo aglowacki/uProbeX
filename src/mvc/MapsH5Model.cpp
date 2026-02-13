@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include "core/str_defines.h"
 
 /*----------------src/mvc/MapsH5Model.cpp \-----------------------------------------------------------*/
 

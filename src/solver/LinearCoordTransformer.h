@@ -13,17 +13,7 @@
 #include <QMap>
 #include "preferences/Attribute.h"
 #include <unordered_map>
-
-const QString QSTR_SlopeX = "SlopeX";
-const QString QSTR_SlopeY = "SlopeY";
-const QString QSTR_InterceptX = "InterceptX";
-const QString QSTR_InterceptY = "InterceptY";
-const QString QSTR_SlopeXY = "SlopeXY";
-const QString QSTR_InterceptXY = "InterceptXY";
-const QString QSTR_SlopeYX = "SlopeYX";
-const QString QSTR_InterceptYX = "InterceptYX";
-
-
+#include "core/str_defines.h"
 
 //---------------------------------------------------------------------------
 /**

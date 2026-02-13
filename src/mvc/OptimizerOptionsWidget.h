@@ -22,11 +22,10 @@
 #include "fitting//optimizers/optimizer.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/routines/hybrid_param_nnls_fit_routine.h"
+#include "core/str_defines.h"
 
 //---------------------------------------------------------------------------
 
-const static QString STR_GENERAL_FIT = "General";
-const static QString STR_HYBRID_FIT = "Hybrid";
 
 //---------------------------------------------------------------------------
 

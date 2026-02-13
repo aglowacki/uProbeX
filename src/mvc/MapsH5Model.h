@@ -27,32 +27,6 @@
 
 #define MAX_DETECTORS 30
 
-const std::string QUANT_V9_LOC_MATRIX_STR = "XRF_fits_quant";
-const std::string QUANT_V9_LOC_NNLS_STR = "XRF_roi_plus_quant";
-const std::string QUANT_V9_LOC_ROI_STR = "XRF_roi_quant";
-
-const std::string QUANT_V10_LOC_MATRIX_STR = "Quantification/Calibration/Fitted";
-const std::string QUANT_V10_LOC_NNLS_STR = "Quantification/Calibration/NNLS";
-const std::string QUANT_V10_LOC_ROI_STR = "Quantification/Calibration/ROI";
-const std::string QUANT_V10_NUM_STANDARDS_STR = "Quantification/Number_Of_Standards";
-const std::string QUANT_V10_STANDARD_STR = "Quantification/Standard";
-
-const std::string STR_SR_CURRENT_V9 = "SRcurrent";
-const std::string STR_US_IC_V9 = "us_ic";
-const std::string STR_DS_IC_V9 = "ds_ic";
-
-const std::string STR_ROI_V9 = "XRF_roi";
-const std::string STR_ROI_PLUS_V9 = "XRF_roi_plus";
-const std::string STR_FITS_V9 = "XRF_fits";
-
-const std::string STR_MAPS_ROIS_DIR_NAME = "rois";
-
-const QString STR_FULL_IMAGE = "Full Image";
-const QString STR_CENTER_2_3_IMAGE = "Center 2/3";
-const QString STR_CENTER_1_3_IMAGE = "Center 1/3";
-const QString STR_CENTER_1_4_IMAGE = "Center 1/4";
-const QString STR_CENTER_1_6_IMAGE = "Center 1/6";
-
 template <typename T_real>
 struct Calibration_curve
 {
