@@ -43,6 +43,9 @@ void CoLocalizationWidget::_createLayout()
     m_imageViewWidget->setSelectorVisible(false);
     m_imageViewWidget->setCountsVisible(false);
     
+    //connect(_contrast_widget, &ContrastWidget::global_contrast_change, this, &CoLocalizationWidget::on_global_contrast_changed);
+    connect(_contrast_widget, &ContrastWidget::call_redraw, this, &CoLocalizationWidget::redraw);
+
     _cb_red_element = new QComboBox();
     connect(_cb_red_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
     _cb_green_element = new QComboBox();
@@ -92,6 +95,13 @@ void CoLocalizationWidget::_createLayout()
 
 //---------------------------------------------------------------------------
 
+void CoLocalizationWidget::redraw()
+{
+    onColorSelected(" ");
+}
+
+//---------------------------------------------------------------------------
+
 void CoLocalizationWidget::onQuadViewChanged(int value)
 {
     if (value == 0)
@@ -115,70 +125,95 @@ void CoLocalizationWidget::onColorSelected(QString name)
     QImage blue_img;
     QImage sum_img;
 
+    QPixmap red_pixmap;
+    QPixmap green_pixmap;
+    QPixmap blue_pixmap;
+    QPixmap sum_pixmap;
+
     bool first = true;
 
     ArrayXXr<float> int_img;
+
+    ArrayXXr<float> normalized;
+    GenerateImageProp props;
+    props.analysis_type = _curAnalysis.toStdString();
+    props.log_color = false;
+    props.normalizer = nullptr;
+    props.calib_curve = nullptr;
+    props.contrast_limits = _contrast_widget->get_contrast_limits();
+    props.show_legend = false;
+    props.invert_y = Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool();
+    props.global_contrast = _contrast_widget->is_global_contrast_checked();
+    if (props.global_contrast)
+    {
+        props.contrast_max = _contrast_widget->max_contrast_perc();
+        props.contrast_min =  _contrast_widget->min_contrast_perc();
+    }
+    else
+    {
+        if(!m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max))
+        {
+            props.contrast_max = _contrast_widget->max_contrast_perc();
+            props.contrast_min = _contrast_widget->min_contrast_perc();
+            props.global_contrast = true;
+        }
+    }
     
     if (_fit_counts.count(_cb_red_element->currentText().toStdString()) > 0)
     {
-        red_img = m_imageViewWidget->generate_img(_fit_counts.at(_cb_red_element->currentText().toStdString()), _red_colormap);
-        sum_img = red_img.convertToFormat(QImage::Format_RGB32);
+        props.element = _cb_red_element->currentText().toStdString();
+        props.selected_colormap = &_red_colormap;
+        red_pixmap = _model->gen_pixmap(props, normalized);
+        sum_pixmap = red_pixmap;
         first = false;
     }
     if (_fit_counts.count(_cb_green_element->currentText().toStdString()) > 0)
     {
-        green_img = m_imageViewWidget->generate_img(_fit_counts.at(_cb_green_element->currentText().toStdString()), _green_colormap);
+        props.element = _cb_green_element->currentText().toStdString();
+        props.selected_colormap = &_green_colormap;
+        green_pixmap = _model->gen_pixmap(props, normalized);
         if (first)
         {
-            sum_img = green_img.convertToFormat(QImage::Format_RGB32);
+            sum_pixmap = green_pixmap;
             first = false;
         }
         else
         {
-            QPainter p(&sum_img);
+            QPainter p(&sum_pixmap);
             p.setCompositionMode(QPainter::CompositionMode_Plus);
-            p.drawImage(0, 0, green_img.convertToFormat(QImage::Format_RGB32));
+            p.drawPixmap(0, 0, green_pixmap);
             p.end();
         }
     }
     if (_fit_counts.count(_cb_blue_element->currentText().toStdString()) > 0)
     {
-        blue_img = m_imageViewWidget->generate_img(_fit_counts.at(_cb_blue_element->currentText().toStdString()), _blue_colormap);
+        props.element = _cb_blue_element->currentText().toStdString();
+        props.selected_colormap = &_blue_colormap;
+        blue_pixmap = _model->gen_pixmap(props, normalized);
         if (first)
         {
-            sum_img = blue_img.convertToFormat(QImage::Format_RGB32);;
+            sum_pixmap = blue_pixmap;
             first = false;
         }
         else
         {
-            QPainter p(&sum_img);
+            QPainter p(&sum_pixmap);
             p.setCompositionMode(QPainter::CompositionMode_Plus);
-            p.drawImage(0, 0, blue_img.convertToFormat(QImage::Format_RGB32));
+            p.drawPixmap(0, 0, blue_pixmap);
             p.end();
         }
     }
 
     if (_ck_quad_view->isChecked())
     {
-        if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
-        {
-            red_img = red_img.mirrored(false, true);
-            green_img = green_img.mirrored(false, true);
-            blue_img = blue_img.mirrored(false, true);
-            sum_img = sum_img.mirrored(false, true);
-        }
-        m_imageViewWidget->setSubScenePixmap(0, QPixmap::fromImage(red_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->setSubScenePixmap(1, QPixmap::fromImage(green_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->setSubScenePixmap(2, QPixmap::fromImage(blue_img.convertToFormat(QImage::Format_RGB32)));
-        m_imageViewWidget->setSubScenePixmap(3, QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setSubScenePixmap(0, red_pixmap);
+        m_imageViewWidget->setSubScenePixmap(1, green_pixmap);
+        m_imageViewWidget->setSubScenePixmap(2, blue_pixmap);
+        m_imageViewWidget->setSubScenePixmap(3, sum_pixmap);
     }
     else
     {
-        if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
-        {
-            sum_img = sum_img.mirrored(false, true);
-        }
-        m_imageViewWidget->setScenePixmap(QPixmap::fromImage(sum_img.convertToFormat(QImage::Format_RGB32)));
+        m_imageViewWidget->setScenePixmap(sum_pixmap);
     }
     if (_first_pixmap_set)
     {

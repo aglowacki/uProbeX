@@ -28,6 +28,7 @@
 #include "gstar/RulerUnitsDialog.h"
 #include "mvc/AnnimateSlideWidget.h"
 #include "gstar/ImageViewWidget.h"
+#include "mvc/ContrastWidget.h"
 
 //---------------------------------------------------------------------------
 
@@ -420,6 +421,8 @@ protected:
    AnnimateSlideWidget* _anim_widget;
 
    bool _compact_view;
+
+   ContrastWidget* _contrast_widget;
 
 };
 

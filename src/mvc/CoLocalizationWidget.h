@@ -56,6 +56,8 @@ public slots:
 
     void onExportPng();
 
+    void redraw();
+
 protected:
 
    /**

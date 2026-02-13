@@ -38,6 +38,7 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
    m_imageWidthDim = nullptr;
    m_imageHeightDim = nullptr;
    m_tabWidget = new QTabWidget(this);
+   _contrast_widget = new ContrastWidget();
 
    createActions();
 
@@ -189,15 +190,15 @@ void AbstractImageWidget::createToolBar(ImageViewWidget* imageViewWidget, bool c
    m_toolbar->addSeparator();
    if (create_image_nav)
    {
-
       createRangeWidget();
       m_toolbar->addWidget(m_range);
-
+   
       m_labelWidthAction = m_toolbar->addWidget(new QLabel(" Width :"));
       m_imageWidthDimAction = m_toolbar->addWidget(m_imageWidthDim);
       m_labelHeightAction = m_toolbar->addWidget(new QLabel(" Height :"));
       m_imageHeightDimAction = m_toolbar->addWidget(m_imageHeightDim);
    }
+   m_toolbar->addWidget(_contrast_widget);
    m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
 }
 
@@ -379,7 +380,7 @@ QLayout* AbstractImageWidget::generateDefaultLayout(bool add_tab_widget)
       splitter->setStretchFactor(1, 1);
    }
    createToolBar(m_imageViewWidget);
-
+   
    mainLayout->addWidget(m_toolbar);
    mainLayout->addWidget(splitter);
    mainLayout->setContentsMargins(QMargins(0, 0, 0, 0));

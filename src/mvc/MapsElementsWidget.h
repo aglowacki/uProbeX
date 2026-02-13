@@ -21,7 +21,6 @@
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
 #include "mvc/ImageGridDialog.h"
 #include "preferences/Preferences.h"
-#include "gstar/MinMaxSlider.h"
 #include <mvc/ExportMapsDialog.h>
 #include <mvc/CoLocalizationWidget.h>
 #include <mvc/ImageSegROIDialog.h>
@@ -68,7 +67,6 @@ public:
    
    void checkColormapSelect(QString colormap);
    
-   void set_contrast_changed(QString val);
 signals:
    void loaded_perc(int, int);
 
@@ -110,12 +108,6 @@ public slots:
 
    void on_export_csv_and_png(QPixmap, ArrayDr*, ArrayDr*, ArrayDr*, ArrayDr*, std::unordered_map<std::string, ArrayDr>*);
 
-   void on_contrast_changed(QString val);
-
-   void on_min_max_contrast_changed();
-
-   void on_global_contrast_changed(int);
-
    void on_log_color_changed(int);
 
    void on_invert_y_axis(int);
@@ -146,6 +138,7 @@ public slots:
 
    void onSelectElements();
 
+   void on_global_contrast_changed(bool val);
 protected:
 
    /**
@@ -204,12 +197,6 @@ protected:
    data_struct::Spectra<double> _int_spec;
    //QTableWidget* _scaler_table_widget;
 
-   gstar::MinMaxSlider* _contrast_widget;
-
-   QComboBox* _cb_contrast;
-
-   QCheckBox* _global_contrast_chk;
-
    QCheckBox* _chk_log_color;
 
    QCheckBox* _chk_disp_color_ledgend;
@@ -235,10 +222,6 @@ protected:
    ImageSegRoiDialog _img_seg_diag;
 
    RoiStatisticsWidget* _roi_stats_diag;
-
-   float _min_contrast_perc;
-
-   float _max_contrast_perc;
 
    QTreeView* m_roiTreeView;
 
@@ -277,7 +260,7 @@ protected:
    QPushButton* _element_select_button;
 
    ElementSelectDialog _element_select_dialog;
-	
+
 };
 
 

@@ -38,9 +38,7 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bo
     _roi_stats_diag = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
-	_min_contrast_perc = 0;
-	_max_contrast_perc = 1.0;
-    _export_maps_dialog = nullptr;
+	_export_maps_dialog = nullptr;
 
 	int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -228,39 +226,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _cb_normalize->addItem("1");
     connect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
 
-    _global_contrast_chk = new QCheckBox("Global Contrast");
-    _global_contrast_chk->setChecked(true);
-    connect(_global_contrast_chk, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_global_contrast_changed);
-    
-    _contrast_widget = new gstar::MinMaxSlider();
-    _contrast_widget->setMinimumWidth(100);
-    _contrast_widget->setMaximumHeight(70);
-    _contrast_widget->setContentsMargins(0, 0, 0, 0);
-    connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &MapsElementsWidget::on_min_max_contrast_changed);
-
-    _cb_contrast = new QComboBox();
-    _cb_contrast->addItem(STR_FULL_IMAGE);
-    _cb_contrast->addItem(STR_CENTER_2_3_IMAGE);
-    _cb_contrast->addItem(STR_CENTER_1_3_IMAGE);
-    _cb_contrast->addItem(STR_CENTER_1_4_IMAGE);
-    _cb_contrast->addItem(STR_CENTER_1_6_IMAGE);
-    //_cb_contrast->setMaximumWidth(200);
-// load pref and set
-    QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
-    if(saved_contrast == STR_CENTER_2_3_IMAGE
-    || saved_contrast == STR_CENTER_1_3_IMAGE
-    || saved_contrast == STR_CENTER_1_4_IMAGE
-    || saved_contrast == STR_CENTER_1_6_IMAGE)
-    {
-        _cb_contrast->setCurrentText(saved_contrast);
-    }
-    else
-    {
-        saved_contrast = STR_FULL_IMAGE;
-    }
-    set_contrast_changed(saved_contrast);
-    connect(_cb_contrast, &QComboBox::currentTextChanged, this, &MapsElementsWidget::on_contrast_changed);
-
     //_pb_perpixel_fitting = new QPushButton("Per Pixel Fitting");
     //counts_layout->addWidget(_pb_perpixel_fitting);
 
@@ -278,21 +243,13 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     w_normalize->setLayout(hbox_normalize);
     w_normalize->setContentsMargins(0, 0, 0, 0);
     
-    QWidget* w_contrast = new QWidget();
-    QHBoxLayout* hbox_contrast = new QHBoxLayout();
-    hbox_contrast->addWidget(_cb_contrast);
-    hbox_contrast->addWidget(_chk_log_color);
-    hbox_contrast->addWidget(_global_contrast_chk);
-    hbox_contrast->addWidget(_contrast_widget);
-    w_contrast->setLayout(hbox_contrast);
-    //w_contrast->setMaximumHeight(70);
-    w_contrast->setContentsMargins(0, 0, 0, 0);
+    connect(_contrast_widget, &ContrastWidget::global_contrast_change, this, &MapsElementsWidget::on_global_contrast_changed);
+    connect(_contrast_widget, &ContrastWidget::call_redraw, this, &MapsElementsWidget::redrawCounts);
 
     _tw_image_controls->addTab(m_toolbar, "Zoom");
     _tw_image_controls->addTab(color_maps_widgets, "Color Map");
     _tw_image_controls->addTab(options_widgets, "Options");
     _tw_image_controls->addTab(w_normalize, "Normalize");
-    _tw_image_controls->addTab(w_contrast, "Contrast");
     _tw_image_controls->setProperty("padding", QVariant("1px"));
     _tw_image_controls->setMaximumHeight(110);
     _tw_image_controls->setContentsMargins(0, 0, 0, 0);
@@ -563,6 +520,22 @@ void MapsElementsWidget::_appendRoiTab()
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::on_global_contrast_changed(bool val)
+{
+    if (val)
+    {
+        m_imageViewWidget->setGlobalContrast(false);
+    }
+    else
+    {
+        m_imageViewWidget->setGlobalContrast(true);
+    }
+    
+    redrawCounts();
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::plotPixelSpectra(const QPoint& pos)
 {
     /*
@@ -652,23 +625,6 @@ void MapsElementsWidget::onGridDialog()
 	iDiag.show();
 
 }
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::on_global_contrast_changed(int state)
-{
-    if (state == Qt::CheckState::Checked)
-    {
-        _contrast_widget->setEnabled(true);
-        m_imageViewWidget->setGlobalContrast(false);
-    }
-    else
-    {
-        _contrast_widget->setEnabled(false);
-        m_imageViewWidget->setGlobalContrast(true);
-    }
-    
-    redrawCounts();
-}
 
 //---------------------------------------------------------------------------
 
@@ -685,45 +641,6 @@ void MapsElementsWidget::on_invert_y_axis(int state)
 {
     Preferences::inst()->setValue(STR_INVERT_Y_AXIS, _chk_invert_y->isChecked());
     redrawCounts();
-}
-
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::set_contrast_changed(QString val)
-{
-    Preferences::inst()->setValue(STR_PREF_SAVED_CONTRAST, val);
-    Preferences::inst()->save();
-    if(val == STR_FULL_IMAGE)
-    {
-         _global_contrast_chk->setVisible(true);
-        _contrast_widget->setVisible(true);
-    }
-    else
-    {
-         _global_contrast_chk->setVisible(false);
-        _contrast_widget->setVisible(false);
-    }
-}
-
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::on_contrast_changed(QString val)
-{
-
-    set_contrast_changed(val);
-    redrawCounts();
-
-}
-
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::on_min_max_contrast_changed()
-{
-
-	_min_contrast_perc = _contrast_widget->getUserMin() / 100.0;
-    _max_contrast_perc = _contrast_widget->getUserMax() / 100.0;
-	redrawCounts();
-
 }
 
 //---------------------------------------------------------------------------
@@ -1696,21 +1613,21 @@ GenerateImageProp MapsElementsWidget::generate_image_props(const std::string ana
     props.selected_colormap = _selected_colormap;
     props.normalizer = _normalizer;
     props.calib_curve = _calib_curve;
-    props.contrast_limits = _cb_contrast->currentText();
+    props.contrast_limits = _contrast_widget->get_contrast_limits();
     props.show_legend = _chk_disp_color_ledgend->isChecked();
     props.invert_y = _chk_invert_y->isChecked();
-    props.global_contrast = _global_contrast_chk->isChecked();
+    props.global_contrast = _contrast_widget->is_global_contrast_checked();
     if (props.global_contrast)
     {
-        props.contrast_max = _max_contrast_perc;
-        props.contrast_min =  _min_contrast_perc;
+        props.contrast_max = _contrast_widget->max_contrast_perc();
+        props.contrast_min =  _contrast_widget->min_contrast_perc();
     }
     else
     {
         if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
         {
-            props.contrast_max = _max_contrast_perc;
-            props.contrast_min = _min_contrast_perc;
+            props.contrast_max = _contrast_widget->max_contrast_perc();
+            props.contrast_min = _contrast_widget->min_contrast_perc();
             props.global_contrast = true;
         }
     }
