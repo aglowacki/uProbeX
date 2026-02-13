@@ -18,13 +18,13 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
     m_headers[HEADERS::RATIO] = tr("Ratio");
     m_headers[HEADERS::WIDTH_MULTI] = tr("Width Multiplier");
     _detector_element = detector_element;
+    _is_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
 }
 
 //---------------------------------------------------------------------------
 
 FitElementsTableModel::~FitElementsTableModel()
 {
-    _is_log10 = Preferences::inst()->getValue(STR_PFR_LOG_10).toBool();
     for(auto& itr : _nodes)
     {
         delete itr.second;
