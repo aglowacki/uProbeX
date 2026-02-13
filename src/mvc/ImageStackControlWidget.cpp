@@ -57,7 +57,7 @@ void ImageStackControlWidget::createLayout()
 
 	// check preferences if we want compact view for counts
 	bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
-	_imageGrid = new MapsElementsWidget(1,1, compact_view, true);
+	_imageGrid = new MapsElementsWidget(1,1, compact_view, false);
 	_vlm_widget = new VLM_Widget();
 	connect(_vlm_widget, &VLM_Widget::onLinkRegionToDataset, this, &ImageStackControlWidget::onLinkRegionToDataset);
 
