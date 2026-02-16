@@ -10,15 +10,42 @@
 #include <QFile>
 #include <QMessageBox>
 
-#define INI_FILENAME "uProbeX"
-#define INI_DIR "UChicagoArgonneLLC"
-
 Preferences* Preferences::_this_inst(nullptr);
 std::mutex Preferences::_mutex;
+
+QString Preferences::default_dir = "UChicagoArgonneLLC";
+QString Preferences::default_file = "uProbeX";
 
 //---------------------------------------------------------------------------
 
 Preferences::Preferences()
+{
+    load(true);
+}
+
+//---------------------------------------------------------------------------
+
+Preferences::~Preferences()
+{
+    save();
+}
+
+//---------------------------------------------------------------------------
+
+Preferences* Preferences::inst()
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if (_this_inst == nullptr)
+    {
+        _this_inst = new Preferences();
+    }
+    return _this_inst;
+}
+
+//---------------------------------------------------------------------------
+
+void Preferences::_clear_map()
 {
     _pref_map = {
         {STR_PRF_NMCoefficient, QVariant()},
@@ -105,29 +132,7 @@ Preferences::Preferences()
         {STR_PREF_SAVED_CONTRAST, QVariant()},
         {STR_SAVE_QSERVER_HISTORY_LOCATION, QVariant()}
     };
-   load();
 }
-
-//---------------------------------------------------------------------------
-
-Preferences::~Preferences()
-{
-    save();
-}
-
-//---------------------------------------------------------------------------
-
-Preferences* Preferences::inst()
-{
-    std::lock_guard<std::mutex> lock(_mutex);
-
-    if (_this_inst == nullptr)
-    {
-        _this_inst = new Preferences();
-    }
-    return _this_inst;
-}
-
 //---------------------------------------------------------------------------
 
 QVariant Preferences::getValue(QString key) const
@@ -171,12 +176,17 @@ void Preferences::setValue(QString key, QVariant value)
 
 //---------------------------------------------------------------------------
 
-void Preferences::load()
+void Preferences::load(bool clear)
 {
     QSettings s(QSettings::IniFormat,
         QSettings::UserScope,
-        INI_DIR,
-        INI_FILENAME);
+        default_dir,
+        default_file);
+
+    if(clear)
+    {
+        _clear_map();
+    }
 
     // Write value
     s.beginGroup("Values");
@@ -193,8 +203,8 @@ void Preferences::save()
 {
     QSettings s(QSettings::IniFormat,
         QSettings::UserScope,
-        INI_DIR,
-        INI_FILENAME);
+        default_dir,
+        default_file);
 
     // Write value
     s.beginGroup("Values");
@@ -203,6 +213,20 @@ void Preferences::save()
         s.setValue(QString(itr.first.c_str()), itr.second);
     }
     s.endGroup();
+}
+
+//---------------------------------------------------------------------------
+
+void Preferences::set_default_dir(QString new_dir)
+{
+    default_dir = new_dir;
+}
+
+//---------------------------------------------------------------------------
+
+void Preferences::set_default_file(QString new_file)
+{
+    default_file = new_file;
 }
 
 //---------------------------------------------------------------------------

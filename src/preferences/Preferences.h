@@ -183,15 +183,20 @@ public:
    /**
    * load from file
    */
-   void load();
+   void load(bool clear);
 
    /**
    * save to file
    */
    void save();
 
+    void set_default_dir(QString new_dir);
+
+    void set_default_file(QString new_file);
 
 private:
+
+    void _clear_map();
 
     /**
      * Constructor
@@ -203,6 +208,11 @@ private:
     static std::mutex _mutex;
 
     std::unordered_map<std::string, QVariant> _pref_map;
+
+    static QString default_dir;
+    static QString default_file;
+
+
 };
 
 //---------------------------------------------------------------------------

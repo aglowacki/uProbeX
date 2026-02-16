@@ -95,6 +95,23 @@ void readSTDOUT()
 int main(int argc, char** argv)
 {
 
+	// check env vars for preferences file
+	bool pref_changed = false;
+	if (const char* env_pref_dir = std::getenv("UPROBEX_PREF_DIR"))
+	{
+		Preferences::inst()->set_default_dir(QString(env_pref_dir));
+		pref_changed = true;
+	}
+	if (const char* env_pref_file = std::getenv("UPROBEX_PREF_FILE"))
+	{
+		Preferences::inst()->set_default_file(QString(env_pref_file));
+		pref_changed = true;
+	}
+	if(pref_changed)
+	{
+		Preferences::inst()->load(true);
+	}
+
 	QApplication app(argc, argv);
 	//dark style
 	
@@ -210,6 +227,12 @@ int main(int argc, char** argv)
 	if (widget != nullptr)
 	{
 		delete widget;
+	}
+
+
+	if(pref_changed)
+	{
+		Preferences::inst()->save();
 	}
 
 	return ret;
