@@ -117,6 +117,7 @@ void PolarXanesWidget::_plot_new_element(QString analysis_name, QString element_
 
         double main_min = std::min (element_diff.minCoeff() , element_avg.minCoeff());
         double main_max = std::max (element_diff.maxCoeff() , element_avg.maxCoeff());
+        //need to check min max for nan
 
         _spectra_widget->setDisplayRange(energy.minCoeff(), energy.maxCoeff(), main_min, main_max);
     }
@@ -153,12 +154,6 @@ bool PolarXanesWidget::_generate_plot_axis(QString analysis_name, QString elemen
                     
                     data_struct::ArrayXXr<float> element_arr = element_counts.at(element_name.toStdString());
 
-                    int arr_size = element_arr.cols() / 2; 
-
-                    out_element_diff.resize(arr_size);
-                    out_energy.resize(arr_size);
-                    out_element_avg.resize(arr_size);
-
                     int incr = _model->get_polarity_pattern().length();
                     // test LRRL
                     //[0,] LL
@@ -170,6 +165,11 @@ bool PolarXanesWidget::_generate_plot_axis(QString analysis_name, QString elemen
                     if(incr > 0)
                     {
                         incr /= 2;
+                        int arr_size = element_arr.cols() / incr; 
+                        out_element_diff.resize(arr_size);
+                        out_energy.resize(arr_size);
+                        out_element_avg.resize(arr_size);
+                        
                         for (int c = 0, idx = 0; c < element_arr.cols(); c+=incr, idx++)
                         {
                             if(c+incr <= element_arr.cols())
