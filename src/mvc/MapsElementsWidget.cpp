@@ -1407,6 +1407,7 @@ void MapsElementsWidget::model_updated()
     {
         if (save_normal_val == _cb_normalize->itemText(cntr))
         {
+            onSelectNormalizer(save_normal_val);
             _cb_normalize->setCurrentText(save_normal_val);
         }
     }
