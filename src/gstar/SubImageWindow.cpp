@@ -11,7 +11,7 @@ using namespace gstar;
 
 SubImageWindow::SubImageWindow() : QObject()
 {
-	_contrast_updated = false;
+    _contrast_updated = false;
     _contrast_min = 0.;
     _contrast_max = 1.;
     // Initialize scene
@@ -45,7 +45,7 @@ SubImageWindow::SubImageWindow() : QObject()
     connect(btn_contrast, &QPushButton::pressed, this, &SubImageWindow::on_contrast_show);
     btn_contrast->setVisible(false);
 
-    QHBoxLayout* hbox = new QHBoxLayout();
+    QHBoxLayout *hbox = new QHBoxLayout();
     hbox->addWidget(counts_coord_widget);
     hbox->addWidget(counts_stats_widget);
     hbox->addWidget(btn_contrast);
@@ -60,7 +60,7 @@ SubImageWindow::SubImageWindow() : QObject()
 
 //---------------------------------------------------------------------------
 
-SubImageWindow::SubImageWindow(const SubImageWindow& win)
+SubImageWindow::SubImageWindow(const SubImageWindow &win)
 {
 
     scene = win.scene;
@@ -93,7 +93,7 @@ SubImageWindow::~SubImageWindow()
 
 void SubImageWindow::setCountsVisible(bool val)
 {
-    counts_coord_widget->setVisible(val, val, val); 
+    counts_coord_widget->setVisible(val, val, val);
     counts_stats_widget->setVisible(val, val, val);
 }
 
@@ -101,9 +101,9 @@ void SubImageWindow::setCountsVisible(bool val)
 
 void SubImageWindow::on_contrast_show()
 {
-    
+
     _contrast_updated = true;
-    
+
     _contrast_dialog.setWindowTitle("Contrast");
     _contrast_dialog.set_array(counts_lookup->get_count_array());
     connect(&_contrast_dialog, &ContrastDialog::on_min_max_update, this, &SubImageWindow::on_update_min_max);
@@ -111,20 +111,20 @@ void SubImageWindow::on_contrast_show()
     connect(&_contrast_dialog, &ContrastDialog::rejected, this, &SubImageWindow::on_cancel_contrast);
     _contrast_dialog.min_max_updated();
 
-	_contrast_dialog.show();
-	_contrast_dialog.raise();
-	_contrast_dialog.activateWindow();
+    _contrast_dialog.show();
+    _contrast_dialog.raise();
+    _contrast_dialog.activateWindow();
 }
 
 //---------------------------------------------------------------------------
 
-void SubImageWindow::on_update_min_max(float minCoef, float maxCoef, bool send_draw_event)
+void SubImageWindow::on_update_min_max(float minCoef, float maxCoef, float min_perc, float max_perc, bool send_draw_event)
 {
-	_contrast_min = minCoef;
-	_contrast_max = maxCoef;
-    if(send_draw_event)
+    _contrast_min = minCoef;
+    _contrast_max = maxCoef;
+    if (send_draw_event)
     {
-	    emit redraw_event(this);
+        emit redraw_event(this);
     }
 }
 
@@ -132,15 +132,15 @@ void SubImageWindow::on_update_min_max(float minCoef, float maxCoef, bool send_d
 
 void SubImageWindow::on_accept_contrast()
 {
-	_contrast_updated = true;
+    _contrast_updated = true;
 }
 
 //---------------------------------------------------------------------------
 
 void SubImageWindow::on_cancel_contrast()
 {
-	_contrast_updated = false;
-	emit redraw_event(this);
+    _contrast_updated = false;
+    emit redraw_event(this);
 }
 
 //---------------------------------------------------------------------------

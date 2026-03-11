@@ -34,9 +34,7 @@ public:
 
    void setMinMax(float min, float max);
 
-   float getUserMin();
-
-   float getUserMax();
+   bool getUserMinMax(float &minCoef, float &maxCoef, float &minPerc, float &maxPerc);
 
 signals:
     void min_max_val_changed();
@@ -68,6 +66,7 @@ private:
 
     qreal _max_val;
 
+    float _diff_over_128;
    };
 
 }

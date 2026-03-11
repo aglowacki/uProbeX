@@ -97,9 +97,9 @@ void ContrastWidget::on_contrast_changed(QString val)
 
 void ContrastWidget::on_min_max_contrast_changed()
 {
-
-	_min_contrast_perc = _contrast_widget->getUserMin() / 100.0;
-    _max_contrast_perc = _contrast_widget->getUserMax() / 100.0;
+	float minCoef = 0;
+	float maxCoef = 100;
+	_contrast_widget->getUserMinMax(minCoef, maxCoef, _min_contrast_perc, _max_contrast_perc);
 	emit call_redraw();
 
 }
