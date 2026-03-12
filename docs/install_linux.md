@@ -15,7 +15,7 @@ Select 'Y' for downloading aditional kde images.
 ### Run 
 
 ```bash
-flatpak run org.UChicagoLLC.ANL.APS.uProbeX
+flatpak run gov.anl.aps.uProbeX
 ```
 
 You can set an alias in .bashrc
