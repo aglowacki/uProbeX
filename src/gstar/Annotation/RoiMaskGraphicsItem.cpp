@@ -8,7 +8,7 @@
 #include "gstar/AnnotationProperty.h"
 #include "gstar/ImageViewScene.h"
 #include "core/str_defines.h"
-
+#include "preferences/Preferences.h"
 #include <math.h>
 #include <QLineF>
 
@@ -452,7 +452,14 @@ void RoiMaskGraphicsItem::paint(QPainter* painter,
 
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    ////setPos(0, 0);
+    // hack to fix roi display bug
+    bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
+    int rows = Preferences::inst()->getValue(STR_GRID_ROWS).toInt();
+    int cols = Preferences::inst()->getValue(STR_GRID_COLS).toInt();
+    if(false == compact_view && rows == 1 && cols == 1)
+    {
+        setPos(0, 0); //uncomment for fix single window offset bug
+    }
     painter->drawPixmap(0, 0, QPixmap::fromImage(*_mask));
     if (_roi_polygon.size() > 0)
     {
