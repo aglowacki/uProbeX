@@ -612,7 +612,8 @@ void ImageSegRoiDialog::onPlot()
 			std::vector<std::pair<int, int>> pixel_list;
 			itr->to_roi_vec(pixel_list);
 			data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
-			if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), int_spectra, pixel_list))
+			std::map<std::string, double> scaler_sum_map;
+			if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, int_spectra, scaler_sum_map))
 			{
 				if(ev.size() == 0)
 				{
@@ -623,7 +624,7 @@ void ImageSegRoiDialog::onPlot()
 					ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, 2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
 				}
 
-				struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra);
+				struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra, scaler_sum_map);
 
 				_model->appendMapRoi(itr->getName().toStdString(), roi);
 				QColor color = itr->getColor();

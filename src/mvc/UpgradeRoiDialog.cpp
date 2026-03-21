@@ -271,11 +271,13 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
                         {
                             _progressBarBlocks->setValue(clr_idx);
                             Spectra<double>* int_spectra = new Spectra<double>();
+                            std::map<std::string, double> scaler_sum_map;
                             QString hdf_file_path = _directory.absolutePath() + QDir::separator() + "img.dat" + QDir::separator() + itr.first;
-                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(hdf_file_path.toStdString(), int_spectra, roi_itr.second))
+                            
+                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(hdf_file_path.toStdString(), roi_itr.second, int_spectra, scaler_sum_map))
                             {
                                 //                                        color,   alpha
-                                struct Map_ROI map_roi(roi_itr.first, _color_map.at(clr_idx), 50, roi_itr.second, itr.first.toStdString(), *int_spectra);
+                                struct Map_ROI map_roi(roi_itr.first, _color_map.at(clr_idx), 50, roi_itr.second, itr.first.toStdString(), *int_spectra, scaler_sum_map);
                                 clr_idx++;
                                 model->appendMapRoi(roi_itr.first, map_roi);
                             }
