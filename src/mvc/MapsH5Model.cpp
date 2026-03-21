@@ -414,6 +414,20 @@ void MapsH5Model::loadAllRoiMaps()
                 ppair.second = pixelPair[1].toInt();
                 mroi.pixel_list.push_back(ppair);
             }
+
+            QJsonArray jsonScalers = jsonRoi[STR_SCALERS.c_str()].toArray();
+            for (int j = 0; j < jsonScalers.size(); ++j)
+            {
+                QJsonObject scalerObj = jsonScalers[j].toObject();
+                QString key;
+                for (auto sitr : scalerObj.keys())
+                {
+                    key = sitr;
+                    break;
+                }
+                mroi.scaler_sum_map[key.toStdString()] = scalerObj.value(key).toDouble();
+            }
+
             // load array of int spectras
             if (jsonRoi.contains(STR_MAP_ROI_INT_SPEC.c_str()) && jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].isArray()) // if we have the int spec for this file
             {
