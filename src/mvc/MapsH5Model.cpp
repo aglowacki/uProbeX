@@ -280,6 +280,16 @@ void MapsH5Model::saveAllRoiMaps(QString savename)
         json_roi_object[STR_MAP_ROI_COLOR.c_str()] = icolor;
         json_roi_object[STR_MAP_ROI_COLOR_ALPHA.c_str()] = itr.second.color_alpha;
 
+        QJsonArray json_scalers;
+        for(auto sitr : itr.second.scaler_sum_map)
+        {
+            QJsonObject json_scaler;
+            json_scaler[sitr.first.c_str()] = sitr.second;
+            json_scalers.append(json_scaler);
+        }
+
+        json_roi_object[STR_SCALERS.c_str()] = json_scalers;
+
         // save pixel locations
         QJsonArray json_roi_pixels;
         for (auto& pItr : itr.second.pixel_list)
@@ -441,8 +451,9 @@ void MapsH5Model::loadAllRoiMaps()
             if (false == int_spec_loaded)
             {
                 std::string stdFileName = finfo.fileName().toStdString();
+                std::map<std::string, double> scaler_sum_map;
                 // load it 
-                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), &(mroi.int_spec[stdFileName]), mroi.pixel_list))
+                if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), mroi.pixel_list, &(mroi.int_spec[stdFileName]), scaler_sum_map))
                 {
                     QJsonArray jsonIntSpecArr = jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].toArray();
 
@@ -462,6 +473,18 @@ void MapsH5Model::loadAllRoiMaps()
 
                     jsonIntSpecArr.append(json_int_spec);
                     jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()] = jsonIntSpecArr;
+
+                    QJsonArray json_scalers;
+                    for(auto sitr : scaler_sum_map)
+                    {
+                        QJsonObject json_scaler;
+                        json_scaler[sitr.first.c_str()] = sitr.second;
+                        json_scalers.append(json_scaler);
+                    }
+
+                    jsonRoi[STR_SCALERS.c_str()] = json_scalers;
+
+
                     rois[i] = jsonRoi;
                     resave = true;
                 }
