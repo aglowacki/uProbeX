@@ -42,7 +42,7 @@ public:
 
    void setPixMap(const QPixmap& pix);
 
-   void setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap);
+   void setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap, bool clickFill);
 
    void clearAllRoiMasks();
 

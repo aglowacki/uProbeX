@@ -14,6 +14,7 @@ ImageSegWidget::ImageSegWidget(QWidget* parent)
     _draw_action_mode = gstar::DRAW_ACTION_MODES::OFF;
     _selected_roi = nullptr;
     _mouse_down = false;
+    _roi_brush_size = QSize(1, 1);
 
     createLayout();
     createActions();
@@ -46,7 +47,7 @@ void ImageSegWidget::createLayout()
 
 //---------------------------------------------------------------------------
 
-void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap)
+void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& colormap, bool clickFill)
 {
     QImage image = m_imageViewWidget->generate_img(img_arr, colormap);
     if (Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool())
@@ -54,6 +55,10 @@ void ImageSegWidget::setImageFromArray(ArrayXXr<float>& img_arr, QVector<QRgb>& 
         image = image.mirrored(false, true);
     }
     setPixMap(QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32)));
+    if(clickFill)
+    {
+        m_imageViewWidget->clickFill();
+    }
 }
 
 //---------------------------------------------------------------------------
