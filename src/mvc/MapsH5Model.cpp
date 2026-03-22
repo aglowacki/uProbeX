@@ -367,8 +367,6 @@ void MapsH5Model::saveAllRoiMaps()
 
 void MapsH5Model::loadAllRoiMaps()
 {
-
-    bool resave = false;
     QDir model_dir = _dir;
     model_dir.cdUp();
     model_dir.cdUp();
@@ -380,7 +378,14 @@ void MapsH5Model::loadAllRoiMaps()
 
     QFileInfo finfo(_dir.absolutePath());
     QString roi_file_name = model_dir.absolutePath() + QDir::separator() + finfo.baseName() + ".r0i";
+    load_roi_map(roi_file_name, finfo.fileName());
+}
 
+//---------------------------------------------------------------------------
+
+void MapsH5Model::load_roi_map(QString roi_file_name, QString base_filename)
+{
+    bool resave = false;
     QFile roiFile(roi_file_name);
     if (!roiFile.open(QIODevice::ReadOnly))
     {
@@ -440,7 +445,7 @@ void MapsH5Model::loadAllRoiMaps()
                         QString filename = json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()].toString();
                         std::string stdFilename = filename.toStdString();
                         // if we found our int spectra then load it
-                        if (filename == finfo.fileName())
+                        if (filename == base_filename)
                         {
                             QJsonArray json_spec_arr = json_int_spec[STR_SPECTRA.c_str()].toArray();
                             mroi.int_spec[stdFilename].resize(json_spec_arr.size());
@@ -464,15 +469,15 @@ void MapsH5Model::loadAllRoiMaps()
 
             if (false == int_spec_loaded)
             {
-                std::string stdFileName = finfo.fileName().toStdString();
-                std::map<std::string, double> scaler_sum_map;
+                std::string stdFileName = base_filename.toStdString();
+                std::unordered_map<std::string, double> scaler_sum_map;
                 // load it 
                 if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_dir.absolutePath().toStdString(), mroi.pixel_list, &(mroi.int_spec[stdFileName]), scaler_sum_map))
                 {
                     QJsonArray jsonIntSpecArr = jsonRoi[STR_MAP_ROI_INT_SPEC.c_str()].toArray();
 
                     QJsonObject json_int_spec;
-                    json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = finfo.fileName();
+                    json_int_spec[STR_MAP_ROI_INT_SPEC_FILENAME.c_str()] = base_filename;
 
                     QJsonArray json_spec;
                     for (auto& iItr : mroi.int_spec[stdFileName])
@@ -817,9 +822,6 @@ bool MapsH5Model::load(QString filepath)
        
     return _is_fully_loaded;
 }
-
-//---------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------Version 10---------------------------------------------------------

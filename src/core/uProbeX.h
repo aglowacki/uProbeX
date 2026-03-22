@@ -211,6 +211,8 @@ private slots:
 
    void upgradeV9Rois();
 
+   void convertRoisToMca();
+
    void batchPerPixel();
 
    void BatchExportImages();

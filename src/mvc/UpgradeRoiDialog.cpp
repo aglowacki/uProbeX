@@ -10,17 +10,24 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QDir>
+#include "io/file/mca_io.h"
 
 //---------------------------------------------------------------------------
 
 UpgradeRoiDialog::UpgradeRoiDialog() : QDialog()
 {
-    _all_roi_suffex.append("roi");
+    _conv_func = ConverFuncs::v9_V10;
+
+    _all_v9_roi_suffex.append("roi");
+    _all_v10_roi_suffex.append("r0i");
     _all_h5_suffex.append("h5");
     _all_h5_suffex.append("h50");
     _all_h5_suffex.append("h51");
     _all_h5_suffex.append("h52");
     _all_h5_suffex.append("h53");
+    _all_h5_suffex.append("h54");
+    _all_h5_suffex.append("h55");
+    _all_h5_suffex.append("h56");
 
     _color_map.insert({ 0, QColor(Qt::red) });
     _color_map.insert({ 1, QColor(Qt::green) });
@@ -109,7 +116,14 @@ void UpgradeRoiDialog::setDirectory(QDir directory)
     _total_itr = 0;
     _running = false;
     _get_filesnames_in_directory(_directory, "img.dat", _all_h5_suffex, &_h5_fileinfo_list);
-    _get_filesnames_in_directory(_directory, "rois", _all_roi_suffex, &_roi_fileinfo_list);
+    if(_conv_func == ConverFuncs::v9_V10)
+    {
+        _get_filesnames_in_directory(_directory, "rois", _all_v9_roi_suffex, &_roi_fileinfo_list);
+    }
+    else if(_conv_func == ConverFuncs::V10_MCA)
+    {
+        _get_filesnames_in_directory(_directory, "rois", _all_v10_roi_suffex, &_roi_fileinfo_list);
+    }
     _file_list_model->clear();
     for (auto& itr : _roi_fileinfo_list)
     {
@@ -155,20 +169,45 @@ void UpgradeRoiDialog::runProcessing()
         QCoreApplication::processEvents();
         MapsH5Model model;
         QString hdf_filename;
-        if (_load_v9_rois(itr.first, &model, hdf_filename))
+        if (_conv_func == ConverFuncs::v9_V10)
         {
-            QFileInfo fileinfo(hdf_filename);
-            QString hdf_path = _directory.absolutePath() + QDir::separator() + "rois" + QDir::separator() + fileinfo.baseName() + ".r0i";
-            model.saveAllRoiMaps(hdf_path);
-
-            // move old roi from rois to rois_v9 
-            QString oldName = _directory.absolutePath() + QDir::separator() + "rois" + QDir::separator() + itr.first;
-            QString newName = _directory.absolutePath() + QDir::separator() + STR_V9_ROIS_DIR + QDir::separator() + itr.first;
-            _directory.rename(oldName, newName);
-
-            if (false == _running)
+            if (_load_v9_rois(itr.first, &model, hdf_filename))
             {
-                break;
+                QFileInfo fileinfo(hdf_filename);
+                QString hdf_path = _directory.absolutePath() + QDir::separator() + "rois" + QDir::separator() + fileinfo.baseName() + ".r0i";
+                model.saveAllRoiMaps(hdf_path);
+
+                // move old roi from rois to rois_v9 
+                QString oldName = _directory.absolutePath() + QDir::separator() + "rois" + QDir::separator() + itr.first;
+                QString newName = _directory.absolutePath() + QDir::separator() + STR_V9_ROIS_DIR + QDir::separator() + itr.first;
+                _directory.rename(oldName, newName);
+
+                if (false == _running)
+                {
+                    break;
+                }
+            }
+        }
+        else if(_conv_func == ConverFuncs::V10_MCA)
+        {
+            for (auto& hitr : _h5_fileinfo_list)
+            {
+                if(hitr.second.baseName() == itr.second.baseName())
+                {
+                    model.load_roi_map(itr.second.absoluteFilePath(), hitr.second.fileName());
+                    QDir export_dir = itr.second.absoluteDir();
+                    QString filename = hitr.second.fileName();
+                    export_dir.cdUp();
+                    export_dir.cd("output");
+                    for (auto& itr : model.get_map_rois())
+                    {
+                        QString export_path = export_dir.absolutePath() + QDir::separator() + filename;
+                        export_path += "_" + itr.first + ".mca";
+                        logI<<"Exporting  "<<itr.first<<" to "<< export_path.toStdString()<<"\n";
+                        const Spectra<double> *spec = &(itr.second.int_spec.at(filename.toStdString()));
+                        io::file::mca::save_integrated_spectra(export_path.toStdString(), spec, itr.second.scaler_sum_map);
+                    }    
+                }
             }
         }
         i++;
@@ -271,7 +310,7 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
                         {
                             _progressBarBlocks->setValue(clr_idx);
                             Spectra<double>* int_spectra = new Spectra<double>();
-                            std::map<std::string, double> scaler_sum_map;
+                            std::unordered_map<std::string, double> scaler_sum_map;
                             QString hdf_file_path = _directory.absolutePath() + QDir::separator() + "img.dat" + QDir::separator() + itr.first;
                             
                             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(hdf_file_path.toStdString(), roi_itr.second, int_spectra, scaler_sum_map))

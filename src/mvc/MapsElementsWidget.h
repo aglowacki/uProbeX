@@ -94,6 +94,8 @@ public slots:
 
    void openImageSegDialog();
 
+   void convertRoiToMca();
+
    void openRoiStatsWidget();
 
    void roiUpdated(gstar::RoiMaskGraphicsItem* ano, bool reload);
@@ -179,6 +181,8 @@ protected:
    QAction *_addRoiMaskAction;
 
    QAction* _addKMeansRoiAction;
+   
+   QAction* _convertToMcaAction;
    
    QPushButton * _grid_button;
 

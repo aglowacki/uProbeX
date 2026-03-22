@@ -236,6 +236,8 @@ void uProbeX::createMenuBar()
     _menu_file->addSeparator();
     action = _menu_file->addAction("Convert v9 ROI's to V10");
     connect(action, &QAction::triggered, this, &uProbeX::upgradeV9Rois);
+    action = _menu_file->addAction("Convert v10 ROI's to mca");
+    connect(action, &QAction::triggered, this, &uProbeX::convertRoisToMca);
 
     _menu_file->addSeparator();
     action = _menu_file->addAction("Preferences");
@@ -1032,6 +1034,17 @@ bool uProbeX::saveActivatedXmlRequired()
 void uProbeX::upgradeV9Rois()
 {
     QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
+    _upgradeRoiDialog.setConvertFunc(ConverFuncs::v9_V10);
+    _upgradeRoiDialog.setDirectory(QDir(dirName));
+    _upgradeRoiDialog.show();    
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::convertRoisToMca()
+{
+    QString dirName = QFileDialog::getExistingDirectory(this, "Open Maps workspace", ".", FILE_DIALOG_OPTIONS | QFileDialog::ShowDirsOnly);
+    _upgradeRoiDialog.setConvertFunc(ConverFuncs::V10_MCA);
     _upgradeRoiDialog.setDirectory(QDir(dirName));
     _upgradeRoiDialog.show();    
 }

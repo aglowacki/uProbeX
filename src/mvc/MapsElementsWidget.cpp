@@ -21,6 +21,7 @@
 #include "core/GlobalThreadPool.h"
 #include "io/file/csv_io.h"
 #include "core/ColorMap.h"
+#include "io/file/mca_io.h"
 
 using gstar::AbstractImageWidget;
 using gstar::ImageViewWidget;
@@ -569,6 +570,7 @@ void MapsElementsWidget::displayRoiContextMenu(QWidget* parent, const QPoint& po
 
     QMenu menu(parent);
     menu.addAction(_addKMeansRoiAction);
+    menu.addAction(_convertToMcaAction);
     /*
     if (m_roiTreeModel != nullptr && m_roiTreeModel->rowCount() > 0)
     {
@@ -702,6 +704,41 @@ void MapsElementsWidget::openImageSegDialog()
 
 //---------------------------------------------------------------------------
 
+void MapsElementsWidget::convertRoiToMca()
+{
+    if (m_roiSelectionModel->hasSelection())
+    {
+        QModelIndexList selectedIndexes = m_roiSelectionModel->selectedRows();
+
+        for (int i = selectedIndexes.count() - 1; i >= 0; i--)
+        {
+            QModelIndex index = selectedIndexes[i];
+            gstar::RoiMaskGraphicsItem* item = static_cast<gstar::RoiMaskGraphicsItem*>(index.internalPointer());
+            if(item != nullptr)
+            {
+                QDir export_dir = _model->getDir();
+                QString filename = _model->getDatasetName();
+                export_dir.cdUp();
+                export_dir.cdUp();
+                export_dir.cd("output");
+                for (auto& itr : _model->get_map_rois())
+                {
+                    if(itr.first == item->getName().toStdString() && itr.second.int_spec.count(filename.toStdString()) > 0)
+                    {
+                        QString export_path = export_dir.absolutePath() + QDir::separator() + filename;
+                        export_path += "_" + itr.first + ".mca";
+                        logI<<"Exporting  "<<itr.first<<" to "<< export_path.toStdString()<<"\n";
+                        const Spectra<double> *spec = &(itr.second.int_spec.at(filename.toStdString()));
+                        io::file::mca::save_integrated_spectra(export_path.toStdString(), spec, itr.second.scaler_sum_map);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
 void MapsElementsWidget::openRoiStatsWidget()
 {
     if (_model != nullptr)
@@ -774,8 +811,10 @@ void MapsElementsWidget::createActions()
             addRoiMask);
             */
     _addKMeansRoiAction = new QAction("ROI Image Seg Dialog", this);
-
     connect(_addKMeansRoiAction,&QAction::triggered,this,&MapsElementsWidget::openImageSegDialog);
+
+    _convertToMcaAction = new QAction("Convert to MCA", this);
+    connect(_convertToMcaAction,&QAction::triggered,this,&MapsElementsWidget::convertRoiToMca);
             
 }
 
@@ -1718,7 +1757,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
             std::vector<std::pair<int, int>> pixel_list;
             itr->to_roi_vec(pixel_list);
             data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
-            std::map<std::string, double> scaler_maps;
+            std::unordered_map<std::string, double> scaler_maps;
             if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, int_spectra, scaler_maps))
             {
                 struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(), *int_spectra, scaler_maps);

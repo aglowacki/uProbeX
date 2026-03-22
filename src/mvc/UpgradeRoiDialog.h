@@ -30,6 +30,8 @@
 //---------------------------------------------------------------------------
 const QString STR_V9_ROIS_DIR = "rois_v9";
 
+enum class ConverFuncs {v9_V10, V10_MCA };
+
 class UpgradeRoiDialog : public QDialog
 {
 
@@ -49,6 +51,8 @@ public:
 
     void setDirectory(QDir directory);
 
+    void setConvertFunc(ConverFuncs option) { _conv_func = option; }
+
 public slots:
  
     void runProcessing();
@@ -56,47 +60,50 @@ public slots:
     void onCancelClose();
 
 protected:
-
-   /**
+    /**
     * @brief Create layout
     */
-   void _createLayout();
+    void _createLayout();
 
-   bool _load_v9_rois(QString fname, MapsH5Model* model, QString& out_hdf_file);
+    bool _load_v9_rois(QString fname, MapsH5Model* model, QString& out_hdf_file);
 
-   bool _get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list);
+    bool _get_filesnames_in_directory(QDir dir, QString sub_dir_name, QList <QString> suffex, std::map<QString, QFileInfo>* fileinfo_list);
 
-   QStringList _file_list;
-   
-   QProgressBar *_progressBarFiles;
+    QStringList _file_list;
 
-   QProgressBar* _progressBarBlocks;
+    QProgressBar *_progressBarFiles;
 
-   QPushButton *_btn_run;
+    QProgressBar* _progressBarBlocks;
 
-   QPushButton *_btn_cancel;
+    QPushButton *_btn_run;
 
-   QListView* _file_list_view;
+    QPushButton *_btn_cancel;
 
-   QStandardItemModel* _file_list_model;
+    QListView* _file_list_view;
 
-   QDir _directory;
+    QStandardItemModel* _file_list_model;
 
-   QLineEdit* _le_detectors;
+    QDir _directory;
 
-   std::map<QString, QFileInfo> _h5_fileinfo_list;
+    QLineEdit* _le_detectors;
 
-   std::map<QString, QFileInfo> _roi_fileinfo_list;
+    std::map<QString, QFileInfo> _h5_fileinfo_list;
 
-   QList <QString> _all_h5_suffex;
+    std::map<QString, QFileInfo> _roi_fileinfo_list;
 
-   QList <QString> _all_roi_suffex;
+    QList <QString> _all_h5_suffex;
 
-   size_t _total_itr;
+    QList <QString> _all_v9_roi_suffex;
+    
+    QList <QString> _all_v10_roi_suffex;
 
-   std::map<int, QColor> _color_map;
+    size_t _total_itr;
 
-   bool _running;
+    std::map<int, QColor> _color_map;
+
+    ConverFuncs _conv_func;
+
+    bool _running;
 };
 
 
