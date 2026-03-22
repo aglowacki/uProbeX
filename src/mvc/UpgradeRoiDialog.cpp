@@ -73,7 +73,7 @@ void UpgradeRoiDialog::_createLayout()
     _btn_cancel = new QPushButton("Cancel");
     connect(_btn_cancel, &QPushButton::released, this, &UpgradeRoiDialog::onCancelClose);
 
-    _le_detectors = new QLineEdit("0,1,2,3");
+    _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
     
     _file_list_model = new QStandardItemModel();
     _file_list_view = new QListView();
