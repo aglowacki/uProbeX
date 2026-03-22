@@ -31,6 +31,7 @@ const int ACTION_ERASE_POLY = 3;
 ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 {
 
+	onFirst = true;
 	_model = nullptr;
 
 	_color_map.insert({ 0, QColor(Qt::red) });
@@ -425,6 +426,8 @@ void ImageSegRoiDialog::createLayout()
 	connect(_img_list_model, &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
 
 	_int_img_widget = new ImageSegWidget();
+	_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::OFF);
+
 
 	_spectra_widget = new SpectraWidget();
 	_spectra_widget->setSettingsBtnVisible(false);
@@ -458,8 +461,6 @@ void ImageSegRoiDialog::createLayout()
 	_tab_widget->addTab(_spectra_widget, QIcon(), "Spectra");
 
 	subLayout->addWidget(_tab_widget);
-
-
 	
 	_pb_pixels = new QProgressBar();
 	_pb_rois = new QProgressBar();
@@ -685,6 +686,7 @@ void ImageSegRoiDialog::onClose()
 	clear_all_rois();
 	clear_image();
 	_techTabs->setEnabled(false);
+	onFirst = true;
 	close();
 }
 
@@ -715,31 +717,33 @@ void ImageSegRoiDialog::updateCustomCursor(int val)
 {
 	
 	QPixmap pmap(val, val);
-	if (_manual_cb_action->currentIndex() == ACTION_ADD)
+	if (_techTabs->currentIndex() == TAB_MANUAL)
 	{
-		_int_img_widget->setRoiBrushSize(val);
-		pmap.fill(QColor(Qt::green));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_DRAW);
+		if (_manual_cb_action->currentIndex() == ACTION_ADD)
+		{
+			_int_img_widget->setRoiBrushSize(val);
+			pmap.fill(QColor(Qt::green));
+			_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_DRAW);
+		}
+		else if (_manual_cb_action->currentIndex() == ACTION_ERASE)
+		{
+			_int_img_widget->setRoiBrushSize(val);
+			pmap.fill(QColor(Qt::red));
+			_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_DRAW);
+		}
+		else if (_manual_cb_action->currentIndex() == ACTION_ADD_POLY)
+		{
+			_int_img_widget->setRoiBrushSize(0);
+			pmap.fill(QColor(Qt::green));
+			_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_POLY);
+		}
+		else if (_manual_cb_action->currentIndex() == ACTION_ERASE_POLY)
+		{
+			_int_img_widget->setRoiBrushSize(0);
+			pmap.fill(QColor(Qt::red));
+			_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_POLY);
+		}
 	}
-	else if (_manual_cb_action->currentIndex() == ACTION_ERASE)
-	{
-		_int_img_widget->setRoiBrushSize(val);
-		pmap.fill(QColor(Qt::red));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_DRAW);
-	}
-	else if (_manual_cb_action->currentIndex() == ACTION_ADD_POLY)
-	{
-		_int_img_widget->setRoiBrushSize(0);
-		pmap.fill(QColor(Qt::green));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ADD_POLY);
-	}
-	else if (_manual_cb_action->currentIndex() == ACTION_ERASE_POLY)
-	{
-		_int_img_widget->setRoiBrushSize(0);
-		pmap.fill(QColor(Qt::red));
-		_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::ERASE_POLY);
-	}
-	
 	//_int_img_widget->imageViewWidget()->customCursor(QCursor(pmap));
 }
 
@@ -933,7 +937,8 @@ void ImageSegRoiDialog::onImgSelection(QStandardItem* item)
 
 	if (is_checked)
 	{
-		_int_img_widget->setImageFromArray(int_img, *_selected_colormap);
+		_int_img_widget->setImageFromArray(int_img, *_selected_colormap, onFirst);
+		onFirst = false;
 	}
 	else if (false == _image_size.isEmpty())
 	{

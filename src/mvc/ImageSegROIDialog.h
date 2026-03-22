@@ -166,6 +166,8 @@ private:
 	 QProgressBar* _pb_pixels;
 
 	 QProgressBar* _pb_rois;
+
+	 bool onFirst;
 };
 
 
