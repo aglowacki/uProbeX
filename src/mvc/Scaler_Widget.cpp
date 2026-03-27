@@ -67,7 +67,7 @@ void Scaler_Widget::setModel(RAW_Model* model)
         {
             for (const auto& itr : scan_info->scaler_maps)
             {
-                _cb_scaler->addItem(QString::fromLatin1(itr.name.c_str(), itr.name.length()));
+                _cb_scaler->addItem(QString::fromLatin1(itr.first.c_str(), itr.first.length()));
             }
             onScalerSelect(_cb_scaler->itemText(0));
         }
@@ -78,31 +78,23 @@ void Scaler_Widget::setModel(RAW_Model* model)
 
 void Scaler_Widget::onScalerSelect(const QString& det)
 {
-    const data_struct::ArrayXXr<double>* scaler = nullptr;
+    //const data_struct::ArrayXXr<double>* scaler = nullptr;
     Eigen::Index rows, cols;
     _model->getDims(rows, cols);
     std::string name = det.toStdString();
     data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
     if (scan_info != nullptr)
     {
-        for (const auto& itr : scan_info->scaler_maps)
+        if(scan_info->scaler_maps.count(name) > 0)
         {
-            if (itr.name == name)
-            {
-                scaler = &(itr.values);
-                break;
-            }
-        }
-
-        if (scaler != nullptr)
-        {
-            int minrows = std::min(rows, scaler->rows());
-            int mincols = std::min(cols, scaler->cols());
+            // /Eigen::Index
+            int minrows = std::min(rows, scan_info->scaler_maps.at(name).values.rows());
+            int mincols = std::min(cols, scan_info->scaler_maps.at(name).values.cols());
             for (int i = 0; i < minrows; i++)
             {
                 for (int j = 0; j < mincols; j++)
                 {
-                    _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number((*scaler)(i, j))));
+                    _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number(scan_info->scaler_maps.at(name).values(i, j))));
                 }
             }
         }
