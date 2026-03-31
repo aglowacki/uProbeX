@@ -292,6 +292,15 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
     {
         _int_spec_max_x = energy->maxCoeff();
         _int_spec_max_y = spectra->maxCoeff();
+
+        if(false == std::isfinite(_int_spec_max_x) )
+        {
+            _int_spec_max_x = 1;
+        }
+        if(false == std::isfinite(_int_spec_max_y) )
+        {
+            _int_spec_max_y = 1;
+        }
         if(series != nullptr)
         {
             disconnect(series, &QLineSeries::hovered, this, &SpectraWidget::showIntSpecTooltip);

@@ -1180,6 +1180,8 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
     H5Sselect_hyperslab (counts_dspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
     error = H5Dread (counts_dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, counts_dspace_id, H5P_DEFAULT, (void*)(_integrated_spectra.data()));
 
+    _integrated_spectra.set_nan_to_near_zero();
+
     delete []dims_out;
     H5Sclose(memoryspace_id);
 
@@ -1205,6 +1207,7 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
+            *fit_int_spec = fit_int_spec->unaryExpr([](double v) { return std::isfinite(v)? v : 0.0000001f; });
             _max_chan_spec_dict.insert({ "Max_Channels", fit_int_spec });
             
         }
@@ -2217,6 +2220,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
                     error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(_lhcp_integrated_spectra)[0]);
+                    _lhcp_integrated_spectra.set_nan_to_near_zero();
                     H5Sclose(memoryspace_id);
                 }
             }
@@ -2251,6 +2255,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, nullptr, count, nullptr);
 
                     error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(_rhcp_integrated_spectra)[0]);
+                    _rhcp_integrated_spectra.set_nan_to_near_zero();
                     H5Sclose(memoryspace_id);
                 }
             }
@@ -2288,6 +2293,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 error = H5Dread(dset_id, H5T_NATIVE_DOUBLE, memoryspace_id, dataspace_id, H5P_DEFAULT, (void*)&(*spectra)[0]);
                 if (error > -1)
                 {
+                    *spectra = spectra->unaryExpr([](double v) { return std::isfinite(v)? v : 0.0000001f; });
                     _max_chan_spec_dict.insert({ "Max_Channels", spectra });
 
                 }
