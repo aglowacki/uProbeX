@@ -295,6 +295,10 @@ IF (MSVC)
 ELSEIF (UNIX)
   IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(uProbeX PROPERTIES MACOSX_BUNDLE TRUE)
+    set(MACOSX_BUNDLE_ICON_FILE mu512.icns)
+    set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/resources/mu512.icns")
+    set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    #qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE ../src/main.cpp ${app_icon_macos})
     #add_macos_entitlements( ${target_name}
     #ENTITLEMENTS com.apple.security.cs.allow-jit=true com.apple.security.cs.allow-unsigned-executable-memory=true)
     #code_sign_macos(${target_name}
