@@ -2694,15 +2694,18 @@ void MapsH5Model::_genreate_maps_from_interferometer()
     unsigned int disc_x = 200;
     unsigned int disc_y = 200;
     
-    if(_requested_cols > 0)
-    {
-        disc_x = _requested_cols - 10;
-    }
     if(_requested_rows > 0)
     {
-        disc_y = _requested_rows - 10;
+        disc_y = _requested_rows;
+        if( (_interferometer_arr.rows()-1) > disc_y)
+        {
+            disc_x = (unsigned int)((_interferometer_arr.rows()-1) / disc_y);
+        }
+        else if(_requested_cols > 0)
+        {
+            disc_x = _requested_cols - 10;
+        }
     }
-        
     // ISN currently saved 24 points
     if(_interferometer_arr.cols() > 22)
     {
@@ -2788,7 +2791,7 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
         float total_x = (max_x - min_x);
         float total_y = (max_y - min_y);
 
-        for(Eigen::Index r = 0; r <_interferometer_arr.rows(); r++)
+        for(Eigen::Index r = 0; r <_interferometer_arr.rows()-1; r++)
         {
             // basic
             //float x_val = _interferometer_arr(r,x_axis_idx);
@@ -2811,33 +2814,17 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
             unsigned int x_idx = x_per * disc_x;
             float y_per = (y_val - min_y) / (total_y); 
             unsigned int y_idx = y_per * disc_y;
-            x_idx = std::min(x_idx, (disc_x-1));
-            y_idx = std::min(y_idx, (disc_y-1));
+            x_idx = std::clamp(x_idx, (unsigned int)0, (disc_x-1));
+            y_idx = std::clamp(y_idx, (unsigned int)0, (disc_y-1));
 
             _x_axis[x_idx] = x_val;
             _y_axis[y_idx] = y_val;
             
-            //logI<<"  ["<<x_idx << "] : "<<"  ["<< y_idx << "]\n";
+            logI<<"  ["<<x_idx << "] : "<<"  ["<< y_idx << "]\n";
             for(auto& itr: _analyzed_counts)
             {
-                //tmp_analyzed_counts.emplace(itr.first, data_struct::Fit_Count_Dict<float>());
                 for(auto& itr2: *(itr.second))
                 {
-                    /*
-                    int z = 0;
-                    for(size_t r = 0; r < _requested_rows; r++)
-                    {
-                        for(size_t c = 0; c < _requested_cols; c++)
-                        {
-                            if(z >= tmp_analyzed_counts[itr.first][itr2.first].cols())
-                            {
-                                break;
-                            }
-                            itr2.second(r, c) = tmp_analyzed_counts[itr.first][itr2.first](0,z);
-                            z++;
-                        }
-                    }
-                    */
                     itr2.second(y_idx, x_idx) += tmp_analyzed_counts[itr.first][itr2.first](0,r);
                 }
             }
