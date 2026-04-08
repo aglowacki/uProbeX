@@ -597,7 +597,7 @@ void uProbeX::open_spectra_and_override_file()
     if (false == (fileName.isNull() || fileName.isEmpty()))
     {
         po = new data_struct::Params_Override<double>();
-        if (false == io::file::load_override_params(po_fileName.toStdString(), -1, po, false))
+        if (false == io::file::load_override_params(po_fileName.toStdString(), -1, *po, false))
         {
             delete po;
             po = nullptr;
