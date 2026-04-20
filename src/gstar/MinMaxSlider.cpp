@@ -11,7 +11,7 @@
 using namespace gstar;
 //---------------------------------------------------------------------------
 
-MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
+MinMaxSlider::MinMaxSlider(bool round_val, QWidget* parent)
 : QWidget(parent)
 {
 	QHBoxLayout* layout = new QHBoxLayout();
@@ -21,6 +21,8 @@ MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 	_min_label = nullptr;
 	_max_label = nullptr;
 
+	_round_val = round_val;
+	
 	_min_val = 0;
 	_max_val = 128;
 	_diff_over_128 = 1.0;
@@ -30,14 +32,14 @@ MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 	_min_slider->setMinimum(0);
 	_min_slider->setMaximum(127);
 	_min_slider->setValue(0);
-	connect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_changed);
+	connect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
 
 	_max_slider = new QSlider(Qt::Horizontal);
 	_max_slider->setTickInterval(1);
 	_max_slider->setMinimum(1);
 	_max_slider->setMaximum(128);
 	_max_slider->setValue(128);
-	connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
+	connect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
 
 	_min_lineedit = new QLineEdit();
 	_min_lineedit->setMaximumWidth(65);
@@ -46,13 +48,13 @@ MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 
 	_max_lineedit = new QLineEdit();
 	_max_lineedit->setMaximumWidth(65);
-	_max_lineedit->setText("100");
+	_max_lineedit->setText("999999999999999999999999999999");
 	connect(_max_lineedit, &QLineEdit::returnPressed, this, &MinMaxSlider::max_lineedit_changed);
 
 	vlay->addWidget(_min_slider);
 	vlay->addWidget(_max_slider);
 
-	if(is_glob)
+	if(_round_val)
 	{ 
 		layout->addWidget(_min_lineedit);
 		layout->addWidget(new QLabel("%"));
@@ -69,7 +71,7 @@ MinMaxSlider::MinMaxSlider(bool is_glob, QWidget* parent)
 	
 	layout->addItem(vlay);
 
-	if (is_glob)
+	if (_round_val)
 	{
 		layout->addWidget(_max_lineedit);
 		layout->addWidget(new QLabel("%"));
@@ -104,13 +106,21 @@ void MinMaxSlider::setMinMax(float min, float max)
 
 	disconnect(_min_lineedit, &QLineEdit::returnPressed, this, &MinMaxSlider::min_lineedit_changed);
 	disconnect(_max_lineedit, &QLineEdit::returnPressed, this, &MinMaxSlider::max_lineedit_changed);
-	disconnect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_changed);
-	disconnect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
+	disconnect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
+	disconnect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
+	disconnect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_value_changed);
+	disconnect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_value_changed);
 
 	_diff_over_128 = (_max_val - _min_val) / 128.0f;
 
-	_min_lineedit->setText(QString::number(_min_val));
-	_max_lineedit->setText(QString::number(_max_val));
+	if(_min_lineedit->text().toFloat() < _min_val)
+	{
+		_min_lineedit->setText(QString::number(_min_val));
+	}
+	if(_max_lineedit->text().toFloat() > _max_val)
+	{
+		_max_lineedit->setText(QString::number(_max_val));
+	}
 
 	if (_min_label != nullptr)
 	{
@@ -122,24 +132,82 @@ void MinMaxSlider::setMinMax(float min, float max)
 	}
 	connect(_min_lineedit, &QLineEdit::returnPressed, this, &MinMaxSlider::min_lineedit_changed);
 	connect(_max_lineedit, &QLineEdit::returnPressed, this, &MinMaxSlider::max_lineedit_changed);
-	connect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_changed);
-	connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
+	connect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
+	connect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
+	connect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_value_changed);
+	connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_value_changed);
 }
 
 //---------------------------------------------------------------------------
 
-void MinMaxSlider::min_slider_changed(int val)
+void MinMaxSlider::min_slider_value_changed(int val)
 {
-	QString tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	QString tval;
+	if(_round_val)
+	{
+		int nval  = _min_val + ((float)val * _diff_over_128);
+		tval = QString::number(nval);
+	}
+	else
+	{
+ 		tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	}
+	_min_lineedit->setText(tval);
+	emit min_max_val_changed(false);
+}
+
+//---------------------------------------------------------------------------
+
+void MinMaxSlider::max_slider_value_changed(int val)
+{
+	QString tval;
+	if(_round_val)
+	{
+		int nval = _min_val + ((float)val * _diff_over_128);
+		tval = QString::number(nval);
+	}
+	else
+	{
+		tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	}
+	_max_lineedit->setText(tval);
+	emit min_max_val_changed(false);
+}
+
+//---------------------------------------------------------------------------
+
+void MinMaxSlider::min_slider_changed()
+{
+	int val = _min_slider->value();
+	QString tval;
+	if(_round_val)
+	{
+		int nval  = _min_val + ((float)val * _diff_over_128);
+		tval = QString::number(nval);
+	}
+	else
+	{
+ 		tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	}
 	_min_lineedit->setText(tval);
 	min_lineedit_changed();
 }
 
 //---------------------------------------------------------------------------
 
-void MinMaxSlider::max_slider_changed(int val)
+void MinMaxSlider::max_slider_changed()
 {
-	QString tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	int val = _max_slider->value();
+	QString tval;
+	if(_round_val)
+	{
+		int nval = _min_val + ((float)val * _diff_over_128);
+		tval = QString::number(nval);
+	}
+	else
+	{
+		tval = QString::number(_min_val + ((float)val * _diff_over_128));
+	}
 	_max_lineedit->setText(tval);
 	max_lineedit_changed();
 }
@@ -157,10 +225,10 @@ void MinMaxSlider::min_lineedit_changed()
 		_min_lineedit->setText(QString::number(nval));
 
 		int slider_val = (int)((nval - _min_val) / _diff_over_128);
-		disconnect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_changed);
+		disconnect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
 		_min_slider->setValue(slider_val);
-		connect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_changed);
-		emit min_max_val_changed();
+		connect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
+		emit min_max_val_changed(true);
 	}
 	catch (...)
 	{
@@ -181,10 +249,10 @@ void MinMaxSlider::max_lineedit_changed()
 		_max_lineedit->setText(QString::number(nval));
 
 		int slider_val = (int)((nval - _min_val) / _diff_over_128);
-		disconnect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
+		disconnect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
 		_max_slider->setValue(slider_val);
-		connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_changed);
-		emit min_max_val_changed();
+		connect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
+		emit min_max_val_changed(true);
 		
 	}
 	catch (...)

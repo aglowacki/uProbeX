@@ -109,7 +109,7 @@ void SubImageWindow::on_contrast_show()
     connect(&_contrast_dialog, &ContrastDialog::on_min_max_update, this, &SubImageWindow::on_update_min_max);
     connect(&_contrast_dialog, &ContrastDialog::accepted, this, &SubImageWindow::on_accept_contrast);
     connect(&_contrast_dialog, &ContrastDialog::rejected, this, &SubImageWindow::on_cancel_contrast);
-    _contrast_dialog.min_max_updated();
+    _contrast_dialog.min_max_updated(false);
 
     _contrast_dialog.show();
     _contrast_dialog.raise();

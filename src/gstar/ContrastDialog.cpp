@@ -75,7 +75,7 @@ void ContrastDialog::set_array(const data_struct::ArrayXXr<float>* arr)
 
 //---------------------------------------------------------------------------
 
-void ContrastDialog::min_max_updated()
+void ContrastDialog::min_max_updated(bool redraw)
 {
 	float minPerc = 0;
 	float maxPerc = 1.0;
@@ -84,14 +84,14 @@ void ContrastDialog::min_max_updated()
 	_min_max_slider->getUserMinMax(minCoef, maxCoef, minPerc, maxPerc);
 	_historgram->set_min_max_lines(minCoef, maxCoef);
 	_historgram_widget->update();
-	emit on_min_max_update(minCoef, maxCoef, minPerc, maxPerc, true);
+	emit on_min_max_update(minCoef, maxCoef, minPerc, maxPerc, redraw);
 }
 
 //---------------------------------------------------------------------------
 
 void ContrastDialog::on_accepted()
 {
-	min_max_updated();
+	min_max_updated(true);
 	emit accepted();
 	accept();
 }

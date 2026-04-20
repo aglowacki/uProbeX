@@ -23,6 +23,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent)
     _contrast_widget->setMinimumWidth(100);
     _contrast_widget->setMaximumHeight(70);
     _contrast_widget->setContentsMargins(0, 0, 0, 0);
+    _contrast_widget->setMinMax(0.0,100.0);
     connect(_contrast_widget, &gstar::MinMaxSlider::min_max_val_changed, this, &ContrastWidget::on_min_max_contrast_changed);
 
     _cb_contrast = new QComboBox();
@@ -75,11 +76,20 @@ void ContrastWidget::set_contrast_changed(QString val)
     {
          _global_contrast_chk->setVisible(true);
         _contrast_widget->setVisible(true);
+        if(_global_contrast_chk->isChecked())
+        {
+            emit global_contrast_change(true);
+        }
+        else
+        {
+            emit global_contrast_change(false);
+        }
     }
     else
     {
          _global_contrast_chk->setVisible(false);
         _contrast_widget->setVisible(false);
+        emit global_contrast_change(true);
     }
 }
 
@@ -95,7 +105,7 @@ void ContrastWidget::on_contrast_changed(QString val)
 
 //---------------------------------------------------------------------------
 
-void ContrastWidget::on_min_max_contrast_changed()
+void ContrastWidget::on_min_max_contrast_changed(bool redraw)
 {
 	float minCoef = 0;
 	float maxCoef = 100;

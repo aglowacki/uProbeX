@@ -37,13 +37,17 @@ public:
    bool getUserMinMax(float &minCoef, float &maxCoef, float &minPerc, float &maxPerc);
 
 signals:
-    void min_max_val_changed();
+    void min_max_val_changed(bool);
 
 public slots:
 
-   void min_slider_changed(int);
+   void min_slider_changed();
 
-   void max_slider_changed(int);
+   void max_slider_changed();
+
+   void min_slider_value_changed(int);
+
+   void max_slider_value_changed(int);
 
    void min_lineedit_changed();
 
@@ -67,6 +71,8 @@ private:
     qreal _max_val;
 
     float _diff_over_128;
+
+    bool _round_val;
    };
 
 }

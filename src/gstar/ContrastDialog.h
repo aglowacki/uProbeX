@@ -36,7 +36,7 @@ signals:
 	void on_min_max_update(float min_coef, float max_coef, float min_perc, float max_perc, bool send_draw_event);
 
 public slots:
-	void min_max_updated();
+	void min_max_updated(bool);
 
 	void on_accepted();
 
