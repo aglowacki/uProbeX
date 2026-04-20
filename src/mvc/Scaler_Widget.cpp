@@ -88,13 +88,13 @@ void Scaler_Widget::onScalerSelect(const QString& det)
         if(scan_info->scaler_maps.count(name) > 0)
         {
             // /Eigen::Index
-            int minrows = std::min(rows, scan_info->scaler_maps.at(name).values.rows());
-            int mincols = std::min(cols, scan_info->scaler_maps.at(name).values.cols());
+            int minrows = std::min(rows, scan_info->scaler_maps.at(name)->values.rows());
+            int mincols = std::min(cols, scan_info->scaler_maps.at(name)->values.cols());
             for (int i = 0; i < minrows; i++)
             {
                 for (int j = 0; j < mincols; j++)
                 {
-                    _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number(scan_info->scaler_maps.at(name).values(i, j))));
+                    _scaler_table_widget->setItem(i, j, new QTableWidgetItem(QString::number(scan_info->scaler_maps.at(name)->values(i, j))));
                 }
             }
         }

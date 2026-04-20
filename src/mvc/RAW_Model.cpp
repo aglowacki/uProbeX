@@ -94,7 +94,7 @@ bool RAW_Model::load(QString filename)
 				filename = finfo.fileName();
 			}
 			
-			if (io::file::get_scalers_and_metadata_h5(_path.toStdString(), filename.toStdString(), &_scan_info))
+			if (io::file::get_scalers_and_metadata_h5(_path.toStdString(), filename.toStdString(), _scan_info))
 			{
 				// todo: update scaler names from override file
 
