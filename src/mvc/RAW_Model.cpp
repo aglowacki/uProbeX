@@ -65,7 +65,7 @@ bool RAW_Model::load(QString filename)
 
 				for (int i = 0; i < DEFAULT_NUM_DETECTORXS; i++)
 				{
-					if (false == io::file::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i)))
+					if (false == io::file::load_and_integrate_spectra_volume(_path.toStdString(), finfo.fileName().toStdString(), i, _integrated_spectra_map[i], getParamOverrideOrAvg(i)))
 					{
 						_integrated_spectra_map.erase(i);
 					}
@@ -100,7 +100,7 @@ bool RAW_Model::load(QString filename)
 
 				for (auto& i : _scan_info.meta_info.detectors)
 				{
-					io::file::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, &(_integrated_spectra_map[i]), getParamOverrideOrAvg(i));
+					io::file::load_and_integrate_spectra_volume(_path.toStdString(), filename.toStdString(), i, _integrated_spectra_map[i], getParamOverrideOrAvg(i));
 				}
 			}
 		
@@ -121,7 +121,7 @@ bool RAW_Model::load(QString filename)
 			int det = filename[filename.length() - 1].digitValue();
 			_integrated_spectra_map[det] = data_struct::Spectra<double>();
 			std::unordered_map<std::string, double> pv_map;
-			io::file::mca::load_integrated_spectra(filename.toStdString(), &_integrated_spectra_map[det], pv_map);
+			io::file::mca::load_integrated_spectra(filename.toStdString(), _integrated_spectra_map[det], pv_map);
 			// add fit params
 			data_struct::Params_Override<double>* po = nullptr;
 			if (_fit_params_override_dict.count(det) > 0)

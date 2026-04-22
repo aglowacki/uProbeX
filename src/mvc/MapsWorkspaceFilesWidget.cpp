@@ -526,7 +526,11 @@ void MapsWorkspaceFilesWidget::onPerPixelProcessListAnalyzed(const QStringList& 
     // for each files replace .mda.h5[0-n] to .mda and remove duplicates
     for(QString &str : nfile_list)
     {
-        if(str.endsWith(".h5"))
+        if(str.endsWith(".mda.h5"))
+        {
+            str = str.replace(".mda.h5", ".mda");
+        }
+        else if(str.endsWith(".h5"))
         {
             str = str.replace(".h5", ".mda");
         }
