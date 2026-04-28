@@ -2709,8 +2709,8 @@ void MapsH5Model::_genreate_maps_from_interferometer()
     // ISN currently saved 24 points
     if(_interferometer_arr.cols() > 22)
     {
-        Eigen::Index x_axis_idx = 7;
-        Eigen::Index y_axis_idx = 3;
+        //Eigen::Index x_axis_idx = 7;
+        //Eigen::Index y_axis_idx = 3;
     
 /*
  
@@ -2744,8 +2744,8 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
         for(Eigen::Index r = 0; r <_interferometer_arr.rows()-1; r++)
         {   
             //basic 
-            //float xval = _interferometer_arr(r,x_axis_idx);
-            //float yval = _interferometer_arr(r,y_axis_idx);
+//            float xval = _interferometer_arr(r,x_axis_idx);
+//            float yval = _interferometer_arr(r,y_axis_idx);
 
             float x1 = _interferometer_arr(r, I15_X);
             float x2 = _interferometer_arr(r, I10_X_us);
@@ -2765,7 +2765,7 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
             min_y = std::min(min_y, yval);
             max_y = std::max(max_y, yval);
         }
-        logI<<min_x<<" "<<max_x<<" : "<<min_y<<" "<<max_y<<"\n";
+        //logI<<min_x<<" "<<max_x<<" : "<<min_y<<" "<<max_y<<"\n";
         
         _x_axis.resize(disc_x);
         _y_axis.resize(disc_y);
@@ -2820,7 +2820,7 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
             _x_axis[x_idx] = x_val;
             _y_axis[y_idx] = y_val;
             
-            logI<<"  ["<<x_idx << "] : "<<"  ["<< y_idx << "]\n";
+           // logI<<"  ["<<x_idx << "] : "<<"  ["<< y_idx << "]\n";
             for(auto& itr: _analyzed_counts)
             {
                 for(auto& itr2: *(itr.second))
