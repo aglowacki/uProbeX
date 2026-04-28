@@ -3,8 +3,8 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#ifndef MAPS_WORKSPACE_WIDGET_H
-#define MAPS_WORKSPACE_WIDGET_H
+#ifndef MAPS_WORKSPACE_FILES_WIDGET_H
+#define MAPS_WORKSPACE_FILES_WIDGET_H
 
 //---------------------------------------------------------------------------
 

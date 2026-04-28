@@ -32,7 +32,15 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 
 MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 {
-    
+    if(_per_pixel_fit_widget != nullptr)
+    {
+        delete _per_pixel_fit_widget;
+    }
+
+    if(_batch_roi_fit_widget != nullptr)
+    {
+        delete _batch_roi_fit_widget;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -93,6 +101,9 @@ void MapsWorkspaceFilesWidget::createLayout()
     _vlm_tab_widget->addCustomButtonRow(STR_GEN_SCAN_AREA);
 
 
+    _per_pixel_fit_widget = new PerPixelFitWidget();
+    connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+
     connect(&_gen_scan_vlm_widget, &GenScanVlmWidget::new_scan_area, this, &MapsWorkspaceFilesWidget::newScanArea);
 
     QLayout* vlayout = new QVBoxLayout();
@@ -123,13 +134,6 @@ void MapsWorkspaceFilesWidget::setModel(MapsWorkspaceModel *model)
 	_model = model;
 	if (_model != nullptr)
 	{
-         //create per pixel process widget and pass workspace
-        if(_per_pixel_fit_widget == nullptr)
-        {
-            _per_pixel_fit_widget = new PerPixelFitWidget();
-            connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
-        }
-
 		QString path = _model->get_directory_name();
 		if (path.length() > 0)
 		{
@@ -322,7 +326,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                 {
                     load_status = FAILED_LOADING;
                 }
-                emit _mda_tab_widget->loaded_file_status_changed(load_status, name);
+                _mda_tab_widget->loaded_file_status_changed(load_status, name);
             }
             else if (mt == MODEL_TYPE::VLM)
             {
@@ -460,7 +464,7 @@ void MapsWorkspaceFilesWidget::onCustomContext(const QString& context_label, con
     {
         onPerPixelProcessList(file_list);
     }
-    if (context_label == STR_PROCESS_ANALYZED)
+    else if (context_label == STR_PROCESS_ANALYZED)
     {
         onPerPixelProcessListAnalyzed(file_list);
     }
