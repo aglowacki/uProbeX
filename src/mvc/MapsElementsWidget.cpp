@@ -78,6 +78,10 @@ MapsElementsWidget::~MapsElementsWidget()
 
     _co_loc_widget->setModel(nullptr);
     _scatter_plot_widget->setModel(nullptr);
+    if(_roi_stats_diag != nullptr)
+    {
+        delete _roi_stats_diag;
+    }
 /* //this is done elsewhere . should refactor it to be smart pointer
     if(_model != nullptr)
     {
@@ -167,7 +171,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
 
     _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
-    _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool());
+    _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool());
     connect(_chk_disp_color_ledgend, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     QWidget* color_maps_widgets = new QWidget();
@@ -180,7 +184,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     color_maps_widgets->setLayout(colormapsHBox);
 
     _chk_log_color = new QCheckBox("Log scale");
-    _chk_log_color->setChecked(Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool());
+    _chk_log_color->setChecked(Preferences::inst()->getValue(STR_LOG_SCALE_COLOR).toBool());
     connect(_chk_log_color, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_log_color_changed);
 
     _chk_invert_y = new QCheckBox("Invert Y Axis");
@@ -962,7 +966,7 @@ void MapsElementsWidget::onSelectElements()
     const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
 
     _element_select_dialog.setListData(element_counts, scalers);
-    if (_element_select_dialog.exec() != QDialog::Accepted)
+    if (_element_select_dialog.exec() == QDialog::Accepted)
     {
         QStringList itemList = _element_select_dialog.getSelection();
         m_imageViewWidget->clearLabels();
@@ -1043,9 +1047,9 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 {
     if (_model != model)
     {
-        _model = model;
         _normalizer = nullptr;
         _calib_curve = nullptr;
+        _model = model;
         model_updated();
         if (_model != nullptr)
         {
@@ -1104,6 +1108,9 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
 
             if (scan_info != nullptr)
             {
+                _extra_pvs_table_widget->hide();
+                _extra_pvs_table_widget->setUpdatesEnabled(false);
+                _extra_pvs_table_widget->clear();
                 _extra_pvs_table_widget->setRowCount(scan_info->extra_pvs.size());
                 int i = 0;
                 for (const auto& itr : scan_info->extra_pvs)
@@ -1114,6 +1121,9 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                     _extra_pvs_table_widget->setItem(i, 3, new QTableWidgetItem(QString::fromLatin1(itr.description.c_str(), itr.description.length())));
                     i++;
                 }
+             
+                _extra_pvs_table_widget->setUpdatesEnabled(true);
+                _extra_pvs_table_widget->show();
             }
             // add map_roi's 
             // clear old roi's 
@@ -1734,7 +1744,7 @@ void MapsElementsWidget::windowChanged(Qt::WindowStates oldState,
 {
     Q_UNUSED(oldState);
 
-    if(Qt::WindowMaximized || Qt::WindowActive == newState)
+    if(Qt::WindowMaximized == newState || Qt::WindowActive == newState)
     {
         m_imageViewWidget->resizeEvent(nullptr);
     }
@@ -1802,6 +1812,10 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
                     }
                 }
                 */
+            }
+            else
+            {
+                delete int_spectra;
             }
         }
     
