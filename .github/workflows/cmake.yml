@@ -54,7 +54,7 @@ jobs:
     - name: Run vcpkg
       if: ${{ steps.cache-vcpkg-restore.outputs.cache-hit != 'true' }}
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
-      run: ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq jsoncpp opencv tiff
+      run: ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq cppzmq jsoncpp opencv tiff nlopt 
     - name: Save vcpkg cache
       id: cache-vcpkg-save
       uses: actions/cache/save@v3
