@@ -39,8 +39,8 @@ jobs:
         if [ "$RUNNER_OS" == "macOS" ]; then  
           python -m aqt install-qt --outputdir ${{github.workspace}}/Qt mac desktop 6.10.3 clang_64 -m qtcharts --archives qtcharts qtbase
         else
-          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.10.3 gcc_64 --archives qtcharts qtbase icu qtimageformats 
-          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.10.3 gcc_64 -m qtcharts
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.10.3 linux_gcc_64 --archives qtcharts qtbase icu qtimageformats 
+          python -m aqt install-qt --outputdir ${{github.workspace}}/Qt linux desktop 6.10.3 linux_gcc_64 -m qtcharts
         fi
     - name: Gen vcpkg
       working-directory: ${{github.workspace}}/XRF-Maps/vcpkg
