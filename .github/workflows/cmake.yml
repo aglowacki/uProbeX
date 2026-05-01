@@ -47,7 +47,7 @@ jobs:
       run: ./bootstrap-vcpkg.sh
     - name: Restore cached vcpkg
       id: cache-vcpkg-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v3
       with:
         path: ${{github.workspace}}/XRF-Maps/vcpkg/installed
         key: ${{ runner.os }}-vcpkg
@@ -57,7 +57,7 @@ jobs:
       run: ./vcpkg install hdf5 netcdf-c yaml-cpp zeromq cppzmq jsoncpp opencv tiff nlopt 
     - name: Save vcpkg cache
       id: cache-vcpkg-save
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v3
       with:
         path: ${{github.workspace}}/XRF-Maps/vcpkg/installed
         key: ${{ runner.os }}-vcpkg
