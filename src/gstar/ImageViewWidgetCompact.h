@@ -201,6 +201,8 @@ private:
 
    void updateScaleBar();
 
+   void layoutCellLabels(int n, int row, int col);
+
 private:
 
    SubImageWindow _sub_window;
