@@ -14,6 +14,8 @@ ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* par
 {
 
     _main_layout = nullptr;
+    _scale_bar_line = nullptr;
+    _scale_bar_text = nullptr;
     _height_offset = 20.0;
     _cur_scale = 1.0;
     _sub_window.scene->removeDefaultPixmap();
@@ -146,6 +148,8 @@ void ImageViewWidgetCompact::createLayout()
     _unit_textitems.clear();
     _raw_data_items.clear();
     _sub_window.scene->clear();
+    _scale_bar_line = nullptr;
+    _scale_bar_text = nullptr;
 
     for (int i = 0; i < _grid_rows; i++)
     {
@@ -187,6 +191,16 @@ void ImageViewWidgetCompact::createLayout()
             _sub_window.scene->addStaticItem(_unit_textitems.back());
         }
     }
+
+    _scale_bar_line = new QGraphicsLineItem();
+    _scale_bar_line->setPen(QPen(Qt::white, 2));
+    _scale_bar_line->setVisible(false);
+    _scale_bar_text = new QGraphicsTextItem();
+    _scale_bar_text->setDefaultTextColor(Qt::white);
+    _scale_bar_text->setFont(_min_max_font);
+    _scale_bar_text->setVisible(false);
+    _sub_window.scene->addStaticItem(_scale_bar_line);
+    _sub_window.scene->addStaticItem(_scale_bar_text);
 
     _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
 
@@ -272,11 +286,12 @@ void ImageViewWidgetCompact::setSubScenePixmap(int idx, const QPixmap& p)
                     n++;
                 }
             }
+            updateScaleBar();
             _sub_window.scene->setSceneRect(_sub_window.scene->itemsBoundingRect());
             _sub_window.scene->update();
         }
     }
-    
+
 }
 
 //---------------------------------------------------------------------------
@@ -677,6 +692,7 @@ void ImageViewWidgetCompact::zoomInRect(QRectF zoomRect, QGraphicsSceneMouseEven
     }
 
     updateMinMaxLabels();
+    updateScaleBar();
     updateZoomPercentage();
 }
 
@@ -713,6 +729,7 @@ void ImageViewWidgetCompact::zoomOut(QGraphicsSceneMouseEvent* event)
         //_sub_window.view->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         //_sub_window.view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         updateMinMaxLabels();
+        updateScaleBar();
         updateZoomPercentage();
     }
 }
@@ -770,6 +787,7 @@ void ImageViewWidgetCompact::zoomValueChanged(int val)
             itr->setTransform(transform);
         }
         updateMinMaxLabels();
+        updateScaleBar();
     }
 }
 
@@ -839,6 +857,41 @@ void ImageViewWidgetCompact::updateMinMaxLabels()
             }
         }
     }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::updateScaleBar()
+{
+    if(_scale_bar_line == nullptr || _scale_bar_text == nullptr)
+    {
+        return;
+    }
+    if(_pixmaps.empty())
+    {
+        return;
+    }
+    const QPixmap& pixmap = _pixmaps[0]->pixmap();
+    if(pixmap.isNull() || pixmap.width() <= 0)
+    {
+        return;
+    }
+
+    int target = std::max(1, pixmap.width() / 5);
+    int magnitude = (int)std::pow(10.0, std::floor(std::log10((double)target)));
+    if(magnitude < 1) magnitude = 1;
+    int nice_pixels = (target / magnitude) * magnitude;
+    if(nice_pixels < 1) nice_pixels = 1;
+
+    qreal bar_length = (qreal)nice_pixels * _cur_scale;
+    qreal bar_x = 2.0;
+    qreal bar_y = (qreal)_grid_rows * _spacer_height + 4.0;
+
+    _scale_bar_line->setLine(bar_x, bar_y, bar_x + bar_length, bar_y);
+    _scale_bar_text->setPlainText(QString("%1 px").arg(nice_pixels));
+    _scale_bar_text->setPos(bar_x, bar_y + 1.0);
+    _scale_bar_line->setVisible(true);
+    _scale_bar_text->setVisible(true);
 }
 
 //---------------------------------------------------------------------------

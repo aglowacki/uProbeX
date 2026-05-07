@@ -10,6 +10,7 @@
 
 #include "gstar/ImageViewWidget.h"
 #include <QGraphicsPixmapItem>
+#include <QGraphicsLineItem>
 #include "gstar/ClipperItem.h"
 #include "gstar/ClickablePixmapItem.h"
 
@@ -198,6 +199,8 @@ private:
 
    void updateMinMaxLabels();
 
+   void updateScaleBar();
+
 private:
 
    SubImageWindow _sub_window;
@@ -208,6 +211,9 @@ private:
    std::vector<QGraphicsTextItem*> _min_textitems;
    std::vector<QGraphicsTextItem*> _max_textitems;
    std::vector<QGraphicsTextItem*> _unit_textitems;
+
+   QGraphicsLineItem* _scale_bar_line;
+   QGraphicsTextItem* _scale_bar_text;
 
    std::unordered_map<int, ArrayXXr<float> > _raw_data_items;
 
