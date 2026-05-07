@@ -203,6 +203,8 @@ private:
 
    void layoutCellLabels(int n, int row, int col);
 
+   qreal computeLabelAreaHeight();
+
 private:
 
    SubImageWindow _sub_window;
