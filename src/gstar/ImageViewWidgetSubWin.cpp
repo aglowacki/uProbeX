@@ -5,12 +5,14 @@
 
 #include "gstar/ImageViewWidgetSubWin.h"
 #include <QSpacerItem>
+#include <cmath>
 using namespace gstar;
 
 //---------------------------------------------------------------------------
 
 ImageViewWidgetSubWin::ImageViewWidgetSubWin(int rows, int cols , QWidget* parent) : ImageViewWidget(rows, cols, parent)
 {
+   _scale_bar_visible = true;
    // Create main layout and add widgets
     createSceneAndView(rows,cols);
     createLayout();
@@ -23,6 +25,8 @@ ImageViewWidgetSubWin::~ImageViewWidgetSubWin()
 {
 
     _sub_windows.clear();
+    _scale_bar_lines.clear();
+    _scale_bar_texts.clear();
 
 }
 
@@ -197,6 +201,10 @@ void ImageViewWidgetSubWin::createSceneAndView(int rows, int cols)
 	_grid_cols = cols;
 
     _sub_windows.resize(_grid_rows * _grid_cols);
+    _scale_bar_lines.clear();
+    _scale_bar_texts.clear();
+    _scale_bar_lines.reserve(_sub_windows.size());
+    _scale_bar_texts.reserve(_sub_windows.size());
 
 	for (auto &itr : _sub_windows)
 	{
@@ -205,10 +213,22 @@ void ImageViewWidgetSubWin::createSceneAndView(int rows, int cols)
 		connect(itr.scene, &ImageViewScene::zoomOut, this, &ImageViewWidgetSubWin::zoomOut);
 		//connect(itr.scene, &ImageViewScene::sceneRectChanged, this, &ImageViewWidgetSubWin::sceneRectUpdated);
         connect(itr.scene, &ImageViewScene::onMouseMoveEvent, this, &ImageViewWidgetSubWin::onMouseMoveEvent);
-       
+
         connect(itr.cb_image_label, &QComboBox::currentTextChanged, this, &ImageViewWidgetSubWin::onComboBoxChange);
 
 		connect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidgetSubWin::subwindow_redraw);
+
+        QGraphicsLineItem* bar = new QGraphicsLineItem();
+        bar->setPen(QPen(Qt::white, 0));
+        bar->setVisible(_scale_bar_visible);
+        QGraphicsTextItem* label = new QGraphicsTextItem();
+        label->setDefaultTextColor(Qt::white);
+        label->setFont(QFont("Ariel", 6));
+        label->setVisible(_scale_bar_visible);
+        itr.scene->addStaticItem(bar);
+        itr.scene->addStaticItem(label);
+        _scale_bar_lines.push_back(bar);
+        _scale_bar_texts.push_back(label);
 	}
 }
 
@@ -250,6 +270,8 @@ void ImageViewWidgetSubWin::newGridLayout(int rows, int cols)
 		disconnect(&itr, &SubImageWindow::redraw_event, this, &ImageViewWidgetSubWin::subwindow_redraw);
 	}
     _sub_windows.clear();
+    _scale_bar_lines.clear();
+    _scale_bar_texts.clear();
 
     delete _main_layout;
     //create new layout
@@ -467,6 +489,7 @@ void ImageViewWidgetSubWin::setSceneUnitsLabel(QString label)
     {
         itr.scene->setUnitsLabel(label);
     }
+    updateScaleBars();
 }
 
 //---------------------------------------------------------------------------
@@ -477,6 +500,7 @@ void ImageViewWidgetSubWin::setSceneUnitsPerPixelX(double val)
     {
         itr.scene->setUnitsPerPixelX(val);
     }
+    updateScaleBars();
 }
 
 //---------------------------------------------------------------------------
@@ -487,6 +511,7 @@ void ImageViewWidgetSubWin::setSceneUnitsPerPixelY(double val)
     {
         itr.scene->setUnitsPerPixelY(val);
     }
+    updateScaleBars();
 }
 
 //---------------------------------------------------------------------------
@@ -507,6 +532,7 @@ void ImageViewWidgetSubWin::setScenePixmap(const QPixmap& p)
     {
         itr.scene->setPixmap(p);
     }
+    updateScaleBars();
 }
 
 //---------------------------------------------------------------------------
@@ -516,6 +542,7 @@ void ImageViewWidgetSubWin::setSubScenePixmap(int idx, const QPixmap& p)
     if(idx > -1 && idx < _sub_windows.size())
     {
         _sub_windows[idx].scene->setPixmap(p);
+        updateScaleBars();
     }
 }
 
@@ -774,6 +801,98 @@ bool ImageViewWidgetSubWin::getMinMaxAt(int grid_idx, float &counts_min, float &
 		}
 	}
     return false;
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetSubWin::setScaleBarVisible(bool val)
+{
+    _scale_bar_visible = val;
+    for (auto* line : _scale_bar_lines)
+    {
+        if (line) line->setVisible(val);
+    }
+    for (auto* text : _scale_bar_texts)
+    {
+        if (text) text->setVisible(val);
+    }
+    if (val)
+    {
+        updateScaleBars();
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetSubWin::updateScaleBars()
+{
+    if (!_scale_bar_visible)
+    {
+        return;
+    }
+    if (_scale_bar_lines.size() != _sub_windows.size() ||
+        _scale_bar_texts.size() != _sub_windows.size())
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < _sub_windows.size(); ++i)
+    {
+        ImageViewScene* scene = _sub_windows[i].scene;
+        QGraphicsLineItem* line = _scale_bar_lines[i];
+        QGraphicsTextItem* text = _scale_bar_texts[i];
+        if (scene == nullptr || line == nullptr || text == nullptr)
+        {
+            continue;
+        }
+
+        QRectF pix = scene->pixRect();
+        if (pix.width() <= 0 || pix.height() <= 0)
+        {
+            line->setVisible(false);
+            text->setVisible(false);
+            continue;
+        }
+
+        double units_per_pixel = scene->getUnitsPerPixelX();
+        if (units_per_pixel <= 0.0) units_per_pixel = 1.0;
+        QString unit_label = scene->getUnitsLabel();
+
+        double target_pixels = pix.width() / 5.0;
+        double target_units = target_pixels * units_per_pixel;
+        if (target_units <= 0.0)
+        {
+            line->setVisible(false);
+            text->setVisible(false);
+            continue;
+        }
+
+        double mag = std::pow(10.0, std::floor(std::log10(target_units)));
+        double frac = target_units / mag;
+        double nice;
+        if (frac < 1.5)      nice = 1.0;
+        else if (frac < 3.5) nice = 2.0;
+        else if (frac < 7.5) nice = 5.0;
+        else                 nice = 10.0;
+        double nice_units = nice * mag;
+        double nice_pixels = nice_units / units_per_pixel;
+
+        qreal margin = pix.width() * 0.02;
+        qreal bar_x = pix.left() + margin;
+        qreal bar_y = pix.bottom() - margin;
+
+        line->setLine(bar_x, bar_y, bar_x + nice_pixels, bar_y);
+
+        QString label_str = unit_label.isEmpty()
+            ? QString("%1 px").arg(nice_pixels)
+            : QString("%1 %2").arg(nice_units).arg(unit_label);
+        text->setPlainText(label_str);
+        qreal text_h = text->boundingRect().height();
+        text->setPos(bar_x, bar_y - text_h);
+
+        line->setVisible(true);
+        text->setVisible(true);
+    }
 }
 
 //---------------------------------------------------------------------------

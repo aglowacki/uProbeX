@@ -9,6 +9,8 @@
 //---------------------------------------------------------------------------
 
 #include "gstar/ImageViewWidget.h"
+#include <QGraphicsLineItem>
+#include <QGraphicsTextItem>
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -98,6 +100,8 @@ public:
    virtual void setGlobalContrast(bool val);
 
    virtual bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
+
+   virtual void setScaleBarVisible(bool val);
 
 public slots:
 
@@ -192,11 +196,18 @@ private:
     */
    void createRangewidget();
 
+   void updateScaleBars();
+
 private:
 
    QGridLayout *_image_view_grid_layout;
 
    std::vector<SubImageWindow> _sub_windows;
+
+   std::vector<QGraphicsLineItem*> _scale_bar_lines;
+   std::vector<QGraphicsTextItem*> _scale_bar_texts;
+
+   bool _scale_bar_visible;
 
 };
 
