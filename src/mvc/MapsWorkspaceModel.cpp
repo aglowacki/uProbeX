@@ -9,6 +9,10 @@
 #include <QRegularExpression>
 #include "io/file/hdf5_io.h"
 #include "preferences/Preferences.h"
+#include "TIFF_Model.h"
+#include "PNG_Model.h"
+#include "SWSModel.h"
+
 //#include "io/file/aps/aps_roi.h"
 //                                          confocal,  emd,          gsecars   gsecars
 std::vector<std::string> raw_h5_groups = {"2D Scan", "/Data/Image", "xrmmap", "xrfmap" };
@@ -129,6 +133,7 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _vlm_suffex.append("sws");
     _vlm_suffex.append("tif");
     _vlm_suffex.append("tiff");
+    _vlm_suffex.append("png");
 
     _all_roi_suffex.append("r0i");
 
@@ -469,6 +474,10 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
         else if (ext == "sws")
         {
             model = new SWSModel();
+        }
+        else if (ext == "png")
+        {
+            model = new PNG_Model();
         }
         if (model != nullptr)
         {

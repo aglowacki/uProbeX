@@ -89,6 +89,8 @@ void MapsWorkspaceFilesWidget::createLayout()
     connect(tiff_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tiff"); });
     QAction* tif_file = new QAction("TIF | *.tif", this);
     connect(tif_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.tif"); });
+    QAction* png_file = new QAction("PNG | *.png", this);
+    connect(png_file, &QAction::triggered, [this](bool val) { _vlm_tab_widget->filterTextChanged("*.png"); });
     connect(_vlm_tab_widget, &FileTabWidget::loadList, [this](const QStringList& sl) { this->onOpenModel(sl, MODEL_TYPE::VLM); });
     connect(_vlm_tab_widget, &FileTabWidget::unloadList, [this](const QStringList& sl) { this->onCloseModel(sl, MODEL_TYPE::VLM); });
     connect(_vlm_tab_widget, &FileTabWidget::customContext, this, &MapsWorkspaceFilesWidget::onCustomContext);
@@ -97,6 +99,7 @@ void MapsWorkspaceFilesWidget::createLayout()
     _vlm_tab_widget->appendFilterHelpAction(sws_file);
     _vlm_tab_widget->appendFilterHelpAction(tiff_file);
     _vlm_tab_widget->appendFilterHelpAction(tif_file);
+    _vlm_tab_widget->appendFilterHelpAction(png_file);
     _vlm_tab_widget->addCustomContext(STR_GEN_SCAN_AREA);
     _vlm_tab_widget->addCustomButtonRow(STR_GEN_SCAN_AREA);
 

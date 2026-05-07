@@ -11,9 +11,8 @@
 #include <QString>
 #include "RawH5Model.h"
 #include "MapsH5Model.h"
-#include "TIFF_Model.h"
-#include "SWSModel.h"
 #include "RAW_Model.h"
+#include "VLM_Model.h"
 #include "io/file/hl_file_io.h"
 #include <map>
 #include <QDir>
