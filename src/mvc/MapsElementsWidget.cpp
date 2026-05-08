@@ -1050,7 +1050,6 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         _normalizer = nullptr;
         _calib_curve = nullptr;
         _model = model;
-        model_updated();
         if (_model != nullptr)
         {
             data_struct::Params_Override<double>* po = _model->getParamOverride();
@@ -1160,7 +1159,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
             
             annoTabChanged(m_tabWidget->currentIndex());
         }
-        m_imageWidgetToolBar->clickFill();
+        model_updated();
     }
 }
 
@@ -1479,8 +1478,9 @@ void MapsElementsWidget::model_updated()
             m_imageViewWidget->addLabel(val);
         }
     }
-    redrawCounts();
+    m_imageWidgetToolBar->clickFill();
 
+    redrawCounts();
     connect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
     connect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
 }

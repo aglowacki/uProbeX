@@ -836,22 +836,47 @@ void ImageViewWidgetSubWin::updateScaleBars()
         return;
     }
 
-    for (size_t i = 0; i < _sub_windows.size(); ++i)
+    //for (size_t i = 0; i < _sub_windows.size(); ++i)
+    if(_sub_windows.size() > 0)
     {
-        ImageViewScene* scene = _sub_windows[i].scene;
-        QGraphicsLineItem* line = _scale_bar_lines[i];
-        QGraphicsTextItem* text = _scale_bar_texts[i];
+        ImageViewScene* scene = _sub_windows[0].scene;
+        QGraphicsLineItem* line = _scale_bar_lines[0];
+        QGraphicsTextItem* text = _scale_bar_texts[0];
         if (scene == nullptr || line == nullptr || text == nullptr)
         {
-            continue;
+            //continue;
+            return;
         }
 
-        QRectF pix = scene->pixRect();
+        QColor fg;
+        QColor bg = _sub_windows[0].scene->backgroundBrush().color();
+        // If brush is NoBrush (the default — see ImageViewScene.cpp:41), fall back to the view's palette:
+        if (_sub_windows[0].scene->backgroundBrush().style() == Qt::NoBrush)
+        {
+            bg = _sub_windows[0].view->palette().color(QPalette::Base);
+        }
+            // Rec. 601 luma, 0..255
+        double luma = 0.299 * bg.redF() + 0.587 * bg.greenF() + 0.114 * bg.blueF();
+        if(luma > 0.5)
+        { 
+            fg = Qt::black;
+        }
+        else
+        {
+            fg = Qt::white;
+        }
+
+
+        text->setFont(QFont("Ariel", 6));
+        text->setDefaultTextColor(fg);
+        // QRectF pix = scene->pixRect();
+        QRectF pix = scene->getPixmapItem()->boundingRect();
         if (pix.width() <= 0 || pix.height() <= 0)
         {
             line->setVisible(false);
             text->setVisible(false);
-            continue;
+            return;
+            //continue;
         }
 
         double units_per_pixel = scene->getUnitsPerPixelX();
@@ -864,7 +889,8 @@ void ImageViewWidgetSubWin::updateScaleBars()
         {
             line->setVisible(false);
             text->setVisible(false);
-            continue;
+            return;
+            //continue;
         }
 
         double mag = std::pow(10.0, std::floor(std::log10(target_units)));
@@ -883,13 +909,35 @@ void ImageViewWidgetSubWin::updateScaleBars()
 
         line->setLine(bar_x, bar_y, bar_x + nice_pixels, bar_y);
 
-        QString label_str = unit_label.isEmpty()
-            ? QString("%1 px").arg(nice_pixels)
-            : QString("%1 %2").arg(nice_units).arg(unit_label);
-        text->setPlainText(label_str);
-        qreal text_h = text->boundingRect().height();
-        text->setPos(bar_x, bar_y - text_h);
-
+        if(m_coordWidget->model() != nullptr)
+        {
+            
+            double outX0, outX1, outY, outZ;
+            m_coordWidget->model()->runTransformer(0.0, 0.0, 0.0, &outX0, &outY, &outZ);
+            m_coordWidget->model()->runTransformer(nice_pixels, 0.0, 0.0, &outX1, &outY, &outZ);
+            // reuse outY since outY and outZ not needed.
+            outY = std::abs(outX1 - outX0);
+            text->setPlainText(QString("%1 um").arg(outY));
+        }
+        else
+        {
+            text->setPlainText(QString("%1 px").arg(nice_pixels));
+        }
+  
+        if(pix.width() < 40)
+        {   
+            text->setScale(.3);
+            qreal text_h = text->boundingRect().height() * .2;
+            text->setPos(bar_x + nice_pixels, bar_y - text_h);
+        }
+        else
+        {
+            text->setScale(1.);
+            qreal text_h = text->boundingRect().height() * .5;
+            text->setPos(bar_x + nice_pixels, bar_y - text_h);
+        }
+        //text->setPos(bar_x, bar_y - text_h);
+        
         line->setVisible(true);
         text->setVisible(true);
     }

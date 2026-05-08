@@ -211,10 +211,10 @@ void ImageViewWidgetCompact::createLayout()
     }
 
     _scale_bar_line = new QGraphicsLineItem();
-    _scale_bar_line->setPen(QPen(Qt::white, 2));
+    _scale_bar_line->setPen(QPen(fg, 2));
     _scale_bar_line->setVisible(false);
     _scale_bar_text = new QGraphicsTextItem();
-    _scale_bar_text->setDefaultTextColor(Qt::white);
+    _scale_bar_text->setDefaultTextColor(fg);
     _scale_bar_text->setFont(_min_max_font);
     _scale_bar_text->setVisible(false);
     _sub_window.scene->addStaticItem(_scale_bar_line);
@@ -450,7 +450,16 @@ void ImageViewWidgetCompact::onMousePressEvent(QGraphicsSceneMouseEvent* event)
         QPointF seletionPoint = selectedItem->last_local_intersection_point();
         unsigned int r = (unsigned int)seletionPoint.y();
         unsigned int c = (unsigned int)seletionPoint.x();
-        logI<<"X: "<<c<<" , Y: "<<r<<"\r\n";
+        if(m_coordWidget->model() != nullptr)
+        {
+            double outX, outY, outZ;
+            m_coordWidget->model()->runTransformer(c,r,0, &outX, &outY, &outZ);
+            logI<<"motor X["<<c<<"]: "<< outX <<" , Y[ "<<r<<"]: "<< outY <<"\r\n";
+        }
+        else
+        {
+            logI<<"motor X["<<c<<"]: N/A , Y[ "<<r<<"]: N/A\r\n";
+        }
         int i = 0;
         for(auto itr : _raw_data_items)
         {
@@ -888,18 +897,68 @@ void ImageViewWidgetCompact::updateScaleBar()
         return;
     }
 
-    int target = std::max(1, pixmap.width() / 5);
-    int magnitude = (int)std::pow(10.0, std::floor(std::log10((double)target)));
+    // The rendered pixmap may be wider than the underlying data array — MapsH5Model::gen_pixmap
+    // appends a colormap legend strip on the right. The scale bar describes data pixels (what the
+    // user counts on the image), so use the raw data column count when available and convert back
+    // to scene units via the pixmap-to-data ratio.
+    int data_cols = pixmap.width();
+    if(_raw_data_items.count(0) > 0 && _raw_data_items.at(0).cols() > 0)
+    {
+        data_cols = (int)_raw_data_items.at(0).cols();
+    }
+
+    /*
+    int target = std::max(1, data_cols / 5);
+    int magnitude = (int)std::pow(10.0, std::floor(std::log10((double)data_cols / 5.0)));
     if(magnitude < 1) magnitude = 1;
     int nice_pixels = (target / magnitude) * magnitude;
     if(nice_pixels < 1) nice_pixels = 1;
+  */
+ 
+    double target_pixels = (double)data_cols / 5.0;
+    double mag = std::pow(10.0, std::floor(std::log10(target_pixels)));
+    double frac = target_pixels / mag;
+    double nice;
+    if (frac < 1.5)      nice = 1.0;
+    else if (frac < 3.5) nice = 2.0;
+    else if (frac < 7.5) nice = 5.0;
+    else                 nice = 10.0;
+    double nice_units = nice * mag;
+    double nice_pixels = nice_units;
+/*
+    qreal margin = pix.width() * 0.02;
+    qreal bar_x = pix.left() + margin;
+    qreal bar_y = pix.bottom() - margin;
+*/
 
-    qreal bar_length = (qreal)nice_pixels * _cur_scale;
+    // scene_per_data_px = (qreal)pixmap.width() / (qreal)data_cols;
+    // if(nice_pixels <= 4)
+    // {
+    //     scene_per_data_px = 0.4;
+    // }
+    //qreal bar_length = (qreal)nice_pixels * scene_per_data_px * _cur_scale;
     qreal bar_x = 2.0;
     qreal bar_y = (qreal)_grid_rows * _spacer_height + 4.0;
 
-    _scale_bar_line->setLine(bar_x, bar_y, bar_x + bar_length, bar_y);
-    _scale_bar_text->setPlainText(QString("%1 px").arg(nice_pixels));
+    if(m_coordWidget->model() != nullptr)
+    {
+        double outX0, outX1, outY, outZ;
+        m_coordWidget->model()->runTransformer(0.0, 0.0, 0.0, &outX0, &outY, &outZ);
+        m_coordWidget->model()->runTransformer(nice_pixels, 0.0, 0.0, &outX1, &outY, &outZ);
+        // reuse outY since outY and outZ not needed.
+        outY = std::abs(outX1 - outX0);
+        _scale_bar_text->setPlainText(QString("%1 um").arg(outY));
+    }
+    else
+    {
+        _scale_bar_text->setPlainText(QString("%1 px").arg(nice_pixels));
+    }
+
+    _scale_bar_line->setLine(bar_x, bar_y, bar_x + nice_pixels, bar_y);
+
+    //_scale_bar_line->setLine(bar_x, bar_y, bar_x + bar_length, bar_y);
+
+
     _scale_bar_text->setPos(bar_x, bar_y + 1.0);
     _scale_bar_line->setVisible(true);
     _scale_bar_text->setVisible(true);
