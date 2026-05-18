@@ -624,7 +624,7 @@ void MapsH5Model::getIntegratedSpectra(data_struct::Spectra<double>& out_spectra
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr)
+bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayXXr<float> &x_arr, data_struct::ArrayXXr<float> &y_arr)
 {
     std::string x_axis_loc_9 = "/MAPS/x_axis";
     std::string x_axis_loc_10 = "/MAPS/Scan/x_axis";
@@ -658,6 +658,7 @@ bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayTr<fl
         y_id = H5Dopen(file_id, y_axis_loc_9.c_str(), H5P_DEFAULT);
         if(y_id < 0)
         {
+            H5Dclose(x_id);
             H5Fclose(file_id);
             logW<<"Error opening"<<y_axis_loc_9.c_str()<<"\n";
             return false;
@@ -669,19 +670,49 @@ bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayTr<fl
         hid_t x_space_id = H5Dget_space(x_id);
         hid_t y_space_id = H5Dget_space(y_id);
         
-        hsize_t x_dims_in[1] = { 0 };
-        hsize_t y_dims_in[1] = { 0 };
+        hsize_t x_dims_in[2] = { 0,0 };
+        hsize_t y_dims_in[2] = { 0,0 };
+        int dims = H5Sget_simple_extent_ndims(x_space_id);
         int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
         int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
         if (xstatus_n > -1 && ystatus_n > -1)
         {
-            x_arr.resize(x_dims_in[0]);
+            if(dims == 1)
+            {
+                x_arr.resize(1, x_dims_in[0]);
+                y_arr.resize(y_dims_in[0],1);
+            }
+            else if(dims == 2)
+            {
+                x_arr.resize(x_dims_in[0], x_dims_in[1]);
+                y_arr.resize(y_dims_in[0], y_dims_in[1]);
+            }
+            else
+            {
+                logE<<"Can not load dims size "<<dims<<"\n";
+                if (x_space_id > -1)
+                {
+                    H5Sclose(x_space_id);
+                }
+                if (y_space_id > -1)
+                {
+                    H5Sclose(y_space_id);
+                }
+                if (x_id > -1)
+                {
+                    H5Dclose(x_id);
+                }
+                if(y_id > -1)
+                {
+                    H5Dclose(y_id);
+                }
+                return false;
+            }
             hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, x_arr.data());
             if (error > 0)
             {
                 logW << "Could not load x_axis\n";
             }
-            y_arr.resize(y_dims_in[0]);
             error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, y_arr.data());
             if (error > 0)
             {
@@ -1023,6 +1054,7 @@ bool MapsH5Model::_load_scalers_9(hid_t maps_grp_id)
         logW << "Error getting rank for /MAPS/scalers\n";
         H5Sclose(counts_dspace_id);
         H5Dclose(counts_dset_id);
+        return false;
     }
     hsize_t* dims_out = new hsize_t[rank];
     unsigned int status_n = H5Sget_simple_extent_dims(counts_dspace_id, &dims_out[0], nullptr);
@@ -1109,20 +1141,51 @@ bool MapsH5Model::_load_scan_9(hid_t maps_grp_id)
         hid_t x_space_id = H5Dget_space(x_id);
         hid_t y_space_id = H5Dget_space(y_id);
 
-        hsize_t x_dims_in[1] = { 0 };
-        hsize_t y_dims_in[1] = { 0 };
+        hsize_t x_dims_in[2] = { 0,0 };
+        hsize_t y_dims_in[2] = { 0,0 };
+        int dims = H5Sget_simple_extent_ndims(x_space_id);
         int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
         int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
         if (xstatus_n > -1 && ystatus_n > -1)
         {
-            _x_axis.resize(x_dims_in[0]);
-            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, &_x_axis[0]);
+            if(dims == 1)
+            {
+                _x_axis.resize(1, x_dims_in[0]);
+                _y_axis.resize(y_dims_in[0],1);
+            }
+            else if(dims == 2)
+            {
+                _x_axis.resize(x_dims_in[0], x_dims_in[1]);
+                _y_axis.resize(y_dims_in[0],y_dims_in[1]);
+            }
+            else
+            {
+                logE<<"Can not load dims size "<<dims<<"\n";
+                if (x_space_id > -1)
+                {
+                    H5Sclose(x_space_id);
+                }
+                if (y_space_id > -1)
+                {
+                    H5Sclose(y_space_id);
+                }
+                if (x_id > -1)
+                {
+                    H5Dclose(x_id);
+                }
+                if(y_id > -1)
+                {
+                    H5Dclose(y_id);
+                }
+                return false;
+            }
+            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, _x_axis.data());
             if (error > 0)
             {
                 logW << "Could not load x_axis\n";
             }
-            _y_axis.resize(y_dims_in[0]);
-            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, &_y_axis[0]);
+            
+            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, _y_axis.data());
             if (error > 0)
             {
                 logW << "Could not load y_axis\n";
@@ -2157,20 +2220,51 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
         hid_t x_space_id = H5Dget_space(x_id);
         hid_t y_space_id = H5Dget_space(y_id);
         
-        hsize_t x_dims_in[1] = { 0 };
-        hsize_t y_dims_in[1] = { 0 };
+        hsize_t x_dims_in[2] = { 0,0 };
+        hsize_t y_dims_in[2] = { 0,0 };
+        int dims = H5Sget_simple_extent_ndims(x_space_id);
         int xstatus_n = H5Sget_simple_extent_dims(x_space_id, &x_dims_in[0], nullptr);
         int ystatus_n = H5Sget_simple_extent_dims(y_space_id, &y_dims_in[0], nullptr);
         if (xstatus_n > -1 && ystatus_n > -1)
         {
-            _x_axis.resize(x_dims_in[0]);
-            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, &_x_axis[0]);
+            if(dims == 1)
+            {
+                _x_axis.resize(1, x_dims_in[0]);
+                _y_axis.resize(y_dims_in[0],1);
+            }
+            else if(dims == 2)
+            {
+                _x_axis.resize(x_dims_in[0], x_dims_in[1]);
+                _y_axis.resize(y_dims_in[0],y_dims_in[1]);
+            }
+            else
+            {
+                logE<<"Can not load dims size "<<dims<<"\n";
+                if (x_space_id > -1)
+                {
+                    H5Sclose(x_space_id);
+                }
+                if (y_space_id > -1)
+                {
+                    H5Sclose(y_space_id);
+                }
+                if (x_id > -1)
+                {
+                    H5Dclose(x_id);
+                }
+                if(y_id > -1)
+                {
+                    H5Dclose(y_id);
+                }
+                return false;
+            }
+            
+            hid_t error = H5Dread(x_id, H5T_NATIVE_FLOAT, x_space_id, x_space_id, H5P_DEFAULT, _x_axis.data());
             if (error > 0)
             {
                 logW << "Could not load x_axis\n";
             }
-            _y_axis.resize(y_dims_in[0]);
-            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, &_y_axis[0]);
+            error = H5Dread(y_id, H5T_NATIVE_FLOAT, y_space_id, y_space_id, H5P_DEFAULT, _y_axis.data());
             if (error > 0)
             {
                 logW << "Could not load y_axis\n";
@@ -2186,11 +2280,17 @@ bool MapsH5Model::_load_scan_10(hid_t maps_grp_id)
             H5Sclose(y_space_id);
         }
 
-        H5Dclose(x_id);
-        H5Dclose(y_id);
 
     }
 
+    if (x_id > -1)
+    {
+        H5Dclose(x_id);
+    }
+    if(y_id > -1)
+    {
+        H5Dclose(y_id);
+    }
 
     return true;
 }
@@ -2555,7 +2655,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 			}
 		}
         H5Sclose(dataspace_id);
-        H5Gclose(fit_int_spec_dset_id);
+        H5Dclose(fit_int_spec_dset_id);
 	}
 	
     fit_int_spec_dset_id = H5Dopen(sub_grp_id, STR_FIT_INT_BACKGROUND.c_str(), H5P_DEFAULT);
@@ -2594,7 +2694,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 			}
 		}
         H5Sclose(dataspace_id);
-        H5Gclose(fit_int_spec_dset_id);
+        H5Dclose(fit_int_spec_dset_id);
 	}
 
     int rank = H5Sget_simple_extent_ndims(counts_dspace_id);
@@ -2793,8 +2893,8 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
         }
         //logI<<min_x<<" "<<max_x<<" : "<<min_y<<" "<<max_y<<"\n";
         
-        _x_axis.resize(disc_x);
-        _y_axis.resize(disc_y);
+        _x_axis.resize(disc_y, disc_x);
+        _y_axis.resize(disc_y, disc_x);
 
         std::map<std::string, data_struct::Fit_Count_Dict<float>> tmp_analyzed_counts;
         std::map<std::string, data_struct::ArrayXXr<float>> tmp_scalers = _scalers;
@@ -2852,8 +2952,8 @@ avg_interf = interf_data.groupby('Counter3').mean()[1:]
             x_idx = std::clamp(x_idx, (unsigned int)0, (disc_x-1));
             y_idx = std::clamp(y_idx, (unsigned int)0, (disc_y-1));
 
-            _x_axis[x_idx] = x_val;
-            _y_axis[y_idx] = y_val;
+            _x_axis(y_idx, x_idx) = x_val;
+            _y_axis(y_idx, x_idx) = y_val;
             
            // logI<<"  ["<<x_idx << "] : "<<"  ["<< y_idx << "]\n";
             for(auto& itr: _analyzed_counts)

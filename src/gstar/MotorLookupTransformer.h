@@ -65,7 +65,7 @@ public:
     */
    virtual bool setVariable(QString name, double val);
 
-   void setMotors(const std::vector<float>& motor_x, const std::vector<float>& motor_y);
+   void setMotors(const data_struct::ArrayXXr<float>& motor_x, const data_struct::ArrayXXr<float>& motor_y);
 
    /**
     * @brief transformCommand
@@ -94,9 +94,9 @@ protected:
 
    int _cols;
 
-   std::vector<float> _motor_x_arr;
+   data_struct::ArrayXXr<float> _motor_x_arr;
 
-   std::vector<float> _motor_y_arr;
+   data_struct::ArrayXXr<float> _motor_y_arr;
 };
 
 }

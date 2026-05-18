@@ -199,8 +199,8 @@ void GenScanVlmWidget::runProcessing()
     int yidx = 0;
     for (int i = 0; i < _file_list_model->rowCount(); ++i)
     {
-        data_struct::ArrayTr<float> x_arr;
-        data_struct::ArrayTr<float> y_arr;
+        data_struct::ArrayXXr<float> x_arr;
+        data_struct::ArrayXXr<float> y_arr;
         if(false == _processing)
         {
             break;
@@ -212,14 +212,14 @@ void GenScanVlmWidget::runProcessing()
         if(MapsH5Model::load_x_y_motors_only(finfo.absoluteFilePath(), x_arr, y_arr))
         {
             // only load rect greater than 9x9
-            if (x_arr.size() > 9 && y_arr.size() > 9)
+            if (x_arr.cols() > 9 && y_arr.rows() > 9)
             {
-                xidx = x_arr.size() / 2;
-                avg_x_diff += std::abs(x_arr[xidx + 1] - x_arr[xidx]);
+                xidx = x_arr.cols() / 2;
+                avg_x_diff += std::abs(x_arr(0,xidx + 1) - x_arr(0,xidx));
                 x_amt++;
 
-                yidx = y_arr.size() / 2;
-                avg_y_diff += std::abs(y_arr[yidx + 1] - y_arr[yidx]);
+                yidx = y_arr.rows() / 2;
+                avg_y_diff += std::abs(y_arr(yidx + 1, 0) - y_arr(yidx,0));
                 y_amt++;
 
                 min_x_val = std::min(min_x_val, x_arr.minCoeff());
@@ -229,14 +229,14 @@ void GenScanVlmWidget::runProcessing()
                 max_y_val = std::max(max_y_val, y_arr.maxCoeff());
 
                 QMap<QString, QString> region_map;
-                region_map[gstar::UPROBE_CENTER_POS_X] = QString::number(x_arr[xidx]);
-                region_map[gstar::UPROBE_CENTER_POS_Y] = QString::number(y_arr[yidx]);
-                region_map[gstar::UPROBE_WIDTH] = QString::number(x_arr.size());
-                region_map[gstar::UPROBE_RECT_W] = QString::number(x_arr.size());
-                region_map[gstar::UPROBE_HEIGHT] = QString::number(y_arr.size());
-                region_map[gstar::UPROBE_RECT_H] = QString::number(y_arr.size());
-                region_map[gstar::UPROBE_MICRO_POS_X] = QString::number(x_arr[xidx]);
-                region_map[gstar::UPROBE_MICRO_POS_Y] = QString::number(y_arr[yidx]);
+                region_map[gstar::UPROBE_CENTER_POS_X] = QString::number(x_arr(0,xidx));
+                region_map[gstar::UPROBE_CENTER_POS_Y] = QString::number(y_arr(yidx,0));
+                region_map[gstar::UPROBE_WIDTH] = QString::number(x_arr.cols());
+                region_map[gstar::UPROBE_RECT_W] = QString::number(x_arr.cols());
+                region_map[gstar::UPROBE_HEIGHT] = QString::number(y_arr.rows());
+                region_map[gstar::UPROBE_RECT_H] = QString::number(y_arr.rows());
+                region_map[gstar::UPROBE_MICRO_POS_X] = QString::number(x_arr(0,xidx));
+                region_map[gstar::UPROBE_MICRO_POS_Y] = QString::number(y_arr(yidx,0));
                 region_map[gstar::UPROBE_NAME] = fname;
                 _dataset_region_map[fname] = region_map;
 

@@ -192,8 +192,8 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
         const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
         data_struct::ArrayXXr<float> x_map;
         data_struct::ArrayXXr<float> y_map;
-        std::vector<float> x_motor = _model->get_x_axis();
-        std::vector<float> y_motor = _model->get_y_axis();
+        data_struct::ArrayXXr<float> x_motor = _model->get_x_axis();
+        data_struct::ArrayXXr<float> y_motor = _model->get_y_axis();
         QString roi_name = _cb_roi->currentText(); 
         if (_getXY_Maps(x_map, y_map))
         {
@@ -218,7 +218,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                     
                     for (auto& itr : map_roi.pixel_list)
                     {
-                        out_stream << itr.first << "," << itr.second << "," << x_map(itr.second, itr.first) << "," << y_map(itr.second, itr.first) << "," << x_motor[itr.first] << ","<< y_motor[itr.second]<< "\n";
+                        out_stream << itr.first << "," << itr.second << "," << x_map(itr.second, itr.first) << "," << y_map(itr.second, itr.first) << "," << x_motor(0,itr.first) << ","<< y_motor(itr.second,0)<< "\n";
                     }
                 }
                 else
@@ -231,7 +231,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
                     {
                         for (int x = 0; x < x_map.cols(); x++)
                         {
-                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "," << x_motor[x] << ","<< y_motor[y]<< "\n";
+                            out_stream << x << "," << y << "," << x_map(y, x) << "," << y_map(y, x) << "," << x_motor(0,x) << ","<< y_motor(y,0)<< "\n";
                         }
                     }
                 }

@@ -178,9 +178,9 @@ public:
 
     const data_struct::Scan_Info<double>* getScanInfo() { return &_scan_info; }
 
-    const std::vector<float>& get_x_axis() { return _x_axis; }
+    data_struct::ArrayXXr<float>& get_x_axis() { return _x_axis; }
 
-    const std::vector<float>& get_y_axis() { return _y_axis; }
+    data_struct::ArrayXXr<float>& get_y_axis() { return _y_axis; }
 
     void addRegionLink(QString name, QImage image) { _region_links[name] = image; }
 
@@ -206,7 +206,7 @@ public:
 
     const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
 
-    static bool load_x_y_motors_only(QString filepath, data_struct::ArrayTr<float> &x_arr, data_struct::ArrayTr<float> &y_arr);
+    static bool load_x_y_motors_only(QString filepath, data_struct::ArrayXXr<float> &x_arr, data_struct::ArrayXXr<float> &y_arr);
 
     //bool gen_image(const std::string analysis_type, const std::string element, bool log_color, bool show_legend, QImage& image, gstar::CountsLookupTransformer* counts_lookup, gstar::CountsStatsTransformer* counts_stats);
     //QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
@@ -319,9 +319,9 @@ private:
 
     data_struct::Scan_Info<double> _scan_info;
 
-    std::vector<float> _x_axis;
+    data_struct::ArrayXXr<float> _x_axis;
 
-    std::vector<float> _y_axis;
+    data_struct::ArrayXXr<float> _y_axis;
 
     std::vector<data_struct::Quantification_Standard<double> > _quant_standards;
 

@@ -57,12 +57,12 @@ QMap<QString, double> MotorLookupTransformer::getAllCoef()
 
 //---------------------------------------------------------------------------
 
-void MotorLookupTransformer::setMotors(const std::vector<float>& motor_x, const std::vector<float>& motor_y)
+void MotorLookupTransformer::setMotors(const data_struct::ArrayXXr<float>& motor_x, const data_struct::ArrayXXr<float>& motor_y)
 {
     _motor_x_arr = motor_x;
     _motor_y_arr = motor_y;
-    _rows = motor_y.size();
-    _cols = motor_x.size();
+    _rows = motor_y.rows();
+    _cols = motor_x.cols();
 }
 
 //---------------------------------------------------------------------------
@@ -134,17 +134,17 @@ void MotorLookupTransformer::transformCommand(double inX,
       col = _cols - 1;
     }
    
-   if(_motor_x_arr.size() > 0)
+   if(_motor_x_arr.cols() > 0)
    {
-      *outX = _motor_x_arr[col];
+      *outX = _motor_x_arr(0,col);
    }
    else
    {
       *outX = 0.0;
    }
-   if(_motor_y_arr.size() > 0)
+   if(_motor_y_arr.rows() > 0)
    {
-      *outY = _motor_y_arr[row]; 
+      *outY = _motor_y_arr(row,0); 
    }
    else
    {

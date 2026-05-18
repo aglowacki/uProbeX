@@ -775,13 +775,13 @@ void MapsElementsWidget::openRoiStatsWidget()
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
 
-        const std::vector<float> x_axis = _model->get_x_axis();
-        const std::vector<float> y_axis = _model->get_y_axis();
+        const data_struct::ArrayXXr<float> x_axis = _model->get_x_axis();
+        const data_struct::ArrayXXr<float> y_axis = _model->get_y_axis();
 
-        int xidx = x_axis.size() / 2;
-        int yidx = y_axis.size() / 2;
+        int xidx = x_axis.cols() / 2;
+        int yidx = y_axis.rows() / 2;
 
-        float sq_area = ((x_axis[xidx+1] - x_axis[xidx]) * (y_axis[yidx+1] - y_axis[yidx]));
+        float sq_area = ((x_axis(0,xidx+1) - x_axis(0,xidx)) * (y_axis(yidx+1,0) - y_axis(yidx,0)));
 
         _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), sq_area, fit_counts, roi_list, _normalizer, _calib_curve);
 
@@ -2129,13 +2129,13 @@ void MapsElementsWidget::on_export_images()
 
         std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
 
-        const std::vector<float> x_axis = _model->get_x_axis();
-        const std::vector<float> y_axis = _model->get_y_axis();
+        const data_struct::ArrayXXr<float> x_axis = _model->get_x_axis();
+        const data_struct::ArrayXXr<float> y_axis = _model->get_y_axis();
 
         std::vector<std::string> analysis_types = _model->getAnalyzedTypes();
 
         size_t cur = 0;
-        size_t total = analysis_types.size() * x_axis.size() * y_axis.size() * normalizers.size();
+        size_t total = analysis_types.size() * x_axis.cols() * y_axis.rows() * normalizers.size();
         _export_maps_dialog->status_callback(cur, total);
 
 
@@ -2208,12 +2208,12 @@ void MapsElementsWidget::on_export_images()
                     }
                     out_stream << "\n";
 
-                    for (int yidx = 0; yidx < y_axis.size(); yidx++)
+                    for (int yidx = 0; yidx < y_axis.rows(); yidx++)
                     {
-                        for (int xidx = 0; xidx < x_axis.size(); xidx++)
+                        for (int xidx = 0; xidx < x_axis.cols(); xidx++)
                         {
 
-                            out_stream << yidx << " , " << xidx << " , " << y_axis.at(yidx) << " , " << x_axis.at(xidx) << " , ";
+                            out_stream << yidx << " , " << xidx << " , " << y_axis(yidx,0) << " , " << x_axis(0,xidx) << " , ";
 
                             for (auto& e_itr : element_counts)
                             {
@@ -2269,7 +2269,7 @@ void MapsElementsWidget::on_export_images()
                         {
                             int yidx = p_itr.second;
                             int xidx = p_itr.first;
-                            out_stream << yidx << " , " << xidx << " , " << y_axis.at(yidx) << " , " << x_axis.at(xidx) << " , ";
+                            out_stream << yidx << " , " << xidx << " , " << y_axis(yidx,0) << " , " << x_axis(0,xidx) << " , ";
 
                             for (auto& e_itr : element_counts)
                             {

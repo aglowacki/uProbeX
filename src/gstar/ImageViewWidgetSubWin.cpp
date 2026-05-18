@@ -921,7 +921,7 @@ void ImageViewWidgetSubWin::updateScaleBars()
         }
         else
         {
-            text->setPlainText(QString("%1 px").arg(nice_pixels));
+            //text->setPlainText(QString("%1 px").arg(nice_pixels));
         }
   
         if(pix.width() < 40)
