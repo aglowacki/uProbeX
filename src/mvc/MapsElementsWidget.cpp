@@ -879,22 +879,28 @@ void MapsElementsWidget::onAnalysisSelect(QString name)
 void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
 {
     // update label on element select since it could be scaler
-    if (_normalizer != nullptr && _calib_curve != nullptr)
+
+    int cnt = m_imageViewWidget->getViewCount();
+    for (int i = 0; i < cnt; i++)
     {
-        int cnt = m_imageViewWidget->getViewCount();
-        for (int i = 0; i < cnt; i++)
+        QString label = m_imageViewWidget->getLabelAt(i);
+        if (_normalizer != nullptr && _calib_curve != nullptr)
         {
-            QString label = m_imageViewWidget->getLabelAt(i);
             if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
             {
                 m_imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
-            else
-            {
-                m_imageViewWidget->setUnitLabel(i, "cts/s");
-            }
+        }
+        if(label == STR_ELT || label == STR_ERT)
+        {
+            m_imageViewWidget->setUnitLabel(i, "secs");
+        }
+        else
+        {
+            m_imageViewWidget->setUnitLabel(i, "cts/s");
         }
     }
+    
 
     if (_model != nullptr && _model->regionLinks().count(name) > 0)
     {
@@ -999,7 +1005,20 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
     {
         _normalizer = nullptr;
         _calib_curve = nullptr;
-        m_imageViewWidget->setUnitLabels("cts/s");
+        
+        int cnt = m_imageViewWidget->getViewCount();
+        for (int i = 0; i < cnt; i++)
+        {
+            QString label = m_imageViewWidget->getLabelAt(i);
+            if (label == STR_ELT || label == STR_ERT)
+            {
+                m_imageViewWidget->setUnitLabel(i,"secs");
+            }
+            else
+            {
+                m_imageViewWidget->setUnitLabel(i,"cts/s");
+            }
+        }
     }
     else
     {
@@ -1024,6 +1043,10 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
             {
                 m_imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
+            else if (label == STR_ELT || label == STR_ERT)
+            {
+                m_imageViewWidget->setUnitLabels("secs");
+            }
         }
     }
     else if(_normalizer != nullptr)
@@ -1032,7 +1055,15 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         int cnt = m_imageViewWidget->getViewCount();
         for (int i = 0; i < cnt; i++)
         {
-            m_imageViewWidget->setUnitLabel(i, " ");
+            QString label = m_imageViewWidget->getLabelAt(i);
+            if (label == STR_ELT || label == STR_ERT)
+            {
+                m_imageViewWidget->setUnitLabel(i,"secs");
+            }
+            else
+            {
+                m_imageViewWidget->setUnitLabel(i, " ");
+            }
         }
     }
 
