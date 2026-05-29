@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <tiffio.h>
 #include "core/str_defines.h"
 
 
@@ -3518,3 +3519,387 @@ void gen_insert_order_lists(std::vector<std::string> &element_lines, std::vector
 
 }
 
+//---------------------------------------------------------------------------
+
+void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap)
+{
+    int cur = 0;
+    
+    QFileInfo finfo = QFileInfo(_filepath);
+    QDir temp_dir = finfo.absolutePath();
+    temp_dir.mkdir(finfo.baseName());
+    temp_dir.cd(finfo.baseName());
+    
+    QDir png_dir = temp_dir;
+    QDir tif8_dir = png_dir;
+    QDir tiff_dir = png_dir;
+    QDir ascii_dir = png_dir;
+
+    if (savePNG)
+    {
+        png_dir.mkdir("PNG");
+        png_dir.cd("PNG");
+    }
+    if (saveTIFF)
+    {
+        tif8_dir.mkdir("TIF_8bit");
+        tif8_dir.cd("TIF_8bit");
+        tiff_dir.mkdir("TIF_32FP");
+        tiff_dir.cd("TIF_32FP");
+    }
+
+
+    if (savePNG || saveTIFF)
+    {
+        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
+
+        std::vector<std::string> analysis_types = getAnalyzedTypes();
+        for (auto& a_itr : _analyzed_counts)
+        {   
+            if (savePNG)
+            {
+                png_dir.mkdir(QString(a_itr.first.c_str()));
+                png_dir.cd(QString(a_itr.first.c_str()));
+            }
+            if (saveTIFF)
+            {
+                tif8_dir.mkdir(QString(a_itr.first.c_str()));
+                tif8_dir.cd(QString(a_itr.first.c_str()));
+                tiff_dir.mkdir(QString(a_itr.first.c_str()));
+                tiff_dir.cd(QString(a_itr.first.c_str()));
+            }
+            const data_struct::ArrayXXr<float>* normalizer = nullptr;
+            for (auto n_itr : normalizers)
+            {
+                tiff_dir.mkdir(QString(n_itr.c_str()));
+                tiff_dir.cd(QString(n_itr.c_str()));
+
+                const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
+                if (scalers->count(n_itr) > 0)
+                {
+                    normalizer = &(scalers->at(n_itr));
+                }
+                else
+                {
+                    continue;
+                }
+                Calibration_curve<double>* calib_curve = get_calibration_curve(a_itr.first, n_itr);
+
+                
+                // Save 8 bit png and/or tiff
+                for (auto& e_itr : *a_itr.second)
+                {
+                    ArrayXXr<float> normalized;
+                    GenerateImageProp props;
+                    props.analysis_type = a_itr.first;
+                    props.element = e_itr.first;
+                    props.log_color = false;
+                    props.selected_colormap = selected_colormap;
+                    props.normalizer = normalizer;
+                    props.calib_curve = calib_curve;
+                    props.contrast_limits = contrast_limits;
+                    props.show_legend = false;
+                    props.invert_y = false;
+                    props.global_contrast = true;
+                    if (props.global_contrast)
+                    {
+                        props.contrast_max = 1.0;
+                        props.contrast_min =  0.0;
+                    }
+                    QPixmap pixmap = gen_pixmap(props, normalized);
+                    if (savePNG)
+                    {
+                        std::string save_file_name = a_itr.first + "-" + e_itr.first + ".png";
+                        if (false == pixmap.save(QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
+                        {
+                            logE << "Could not save PNG for " << QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
+                        }
+                    }
+                    if (saveTIFF)
+                    {
+                        std::string save_file_name = a_itr.first + "-" + e_itr.first + "_8bit.tif";
+                        if (false == pixmap.save(QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "TIFF"))
+                        {
+                            logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
+                        }
+                    }
+                }
+                tiff_dir.cdUp();
+            }
+            // save normalized 32 bit float tiff
+            if (saveTIFF)
+            {
+                const data_struct::ArrayXXr<float>* normalizer = nullptr;
+                for (auto n_itr : normalizers)
+                {
+                    tiff_dir.mkdir(QString(n_itr.c_str()));
+                    tiff_dir.cd(QString(n_itr.c_str()));
+
+                    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
+                    if (scalers->count(n_itr) > 0)
+                    {
+                        normalizer = &(scalers->at(n_itr));
+                    }
+                    Calibration_curve<double>* calib_curve = get_calibration_curve(a_itr.first, n_itr);
+
+                    for (auto& e_itr : *a_itr.second)
+                    {
+                        std::string save_file_name_fp = a_itr.first + "-" + e_itr.first + "-";
+                        TIFF* tif = nullptr;
+
+                        data_struct::ArrayXXr<float> counts = e_itr.second;
+
+                        //out_stream << e_itr.first;
+                        if (calib_curve != nullptr && normalizer != nullptr)
+                        {
+                            if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                            {
+                                save_file_name_fp += n_itr;
+
+                                float calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+
+                                counts /= (*normalizer);
+                                counts /= calib_val;
+                            }
+                            else
+                            {
+                                save_file_name_fp += "cts_s";
+                            }
+                        }
+                        else
+                        {
+                            save_file_name_fp += "cts_s";
+                        }
+
+                        save_file_name_fp += ".tif";
+
+                        QString save_path = QDir::cleanPath(tiff_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str()));
+                        if ((tif = TIFFOpen(save_path.toStdString().c_str(), "w")) == NULL)
+                        {
+                            logE << "Could not open " << save_path.toStdString() << " for writing\n";
+                            continue;
+                        }
+
+                        TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, e_itr.second.cols());
+                        TIFFSetField(tif, TIFFTAG_IMAGELENGTH, e_itr.second.rows());
+                        TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+                        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
+                        TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, e_itr.second.rows());
+                        TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+                        //TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
+                        TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+                        TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                        //TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
+
+                        // Write the information to the file
+                        // need to normaize the data by IC also 
+                        TIFFWriteEncodedStrip(tif, 0, counts.data(), 4 * counts.cols() * counts.rows());
+                        TIFFClose(tif);
+                    }
+
+                    tiff_dir.cdUp();
+                }
+            }
+
+            if (savePNG)
+            {
+                png_dir.cdUp();
+            }
+            if (saveTIFF)
+            {
+                tif8_dir.cdUp();
+                tiff_dir.cdUp();
+            }
+        }
+    }
+    if (saveASCII)
+    {
+        ascii_dir.mkdir("CSV");
+        ascii_dir.cd("CSV");
+
+        std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
+
+        std::vector<std::string> analysis_types = getAnalyzedTypes();
+
+        //size_t cur = 0;
+        //size_t total = analysis_types.size() * x_axis.cols() * y_axis.rows() * normalizers.size();
+
+        for (auto& a_itr : _analyzed_counts)
+        {
+            const data_struct::ArrayXXr<float>* normalizer = nullptr;
+            QString analysis_name = QString(a_itr.first.c_str());
+            ascii_dir.mkdir(analysis_name);
+            ascii_dir.cd(analysis_name);
+
+            for (auto n_itr : normalizers)
+            {
+
+                ascii_dir.mkdir(QString(n_itr.c_str()));
+                ascii_dir.cd(QString(n_itr.c_str()));
+
+                const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
+                if (scalers->count(n_itr) > 0)
+                {
+                    normalizer = &(scalers->at(n_itr));
+                }
+                Calibration_curve<double>* calib_curve = get_calibration_curve(a_itr.first, n_itr);
+
+                std::string save_file_name = ascii_dir.absolutePath().toStdString() + QDir::separator().toLatin1() + getDatasetName().toStdString();
+
+                std::string sub_save_file = save_file_name + "-" + a_itr.first + "-" + n_itr + ".csv";
+                std::ofstream out_stream(sub_save_file);
+
+                logI << save_file_name << "\n";
+
+                if (out_stream.is_open())
+                {
+
+                    out_stream << "ascii information for file: " << getDatasetName().toStdString() << "\n";
+
+
+
+                    if (a_itr.first == STR_FIT_ROI || n_itr == "Counts")
+                    {
+                        out_stream << "Analysis " << a_itr.first << " in cts/s \n";
+                    }
+                    else
+                    {
+                        out_stream << "Analysis " << a_itr.first << " Normalized by " << n_itr << " ug/cm2 \n";
+                    }
+
+                    out_stream << "Y Pixel, X Pixel, Y Position, X Position, ";
+                    for (auto& e_itr : *a_itr.second)
+                    {
+                        out_stream << e_itr.first;
+                        if (calib_curve != nullptr && normalizer != nullptr)
+                        {
+                            if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                            {
+                                out_stream << " (ug/cm2) ";
+                            }
+                            else
+                            {
+                                out_stream << " (cts/s) ";
+                            }
+                        }
+                        else
+                        {
+                            out_stream << " (cts/s) ";
+                        }
+                        out_stream << " , ";
+                    }
+                    out_stream << "\n";
+
+                    for (int yidx = 0; yidx < _y_axis.rows(); yidx++)
+                    {
+                        for (int xidx = 0; xidx < _x_axis.cols(); xidx++)
+                        {
+
+                            out_stream << yidx << " , " << xidx << " , " << _y_axis(yidx,0) << " , " << _x_axis(0,xidx) << " , ";
+
+                            for (auto& e_itr : *a_itr.second)
+                            {
+                                float calib_val = 1.0;
+                                double val = 1.0;
+                                float e_val = (e_itr.second)(yidx, xidx);
+                                if (a_itr.first == STR_FIT_ROI || n_itr == "Counts")
+                                {
+                                    val = e_val;
+                                }
+                                else
+                                {
+                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    {
+                                        if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                        {
+                                            calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+                                            float n_val = (*normalizer)(yidx, xidx);
+                                            val = e_val / n_val / calib_val;
+                                        }
+                                        else
+                                        {
+                                            val = e_val;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val = e_val;
+                                    }
+                                }
+                                out_stream << val << " , ";
+                            }
+                            cur++;
+                            
+                            out_stream << "\n";
+                        }
+                        out_stream << "\n";
+                    }
+
+                    out_stream << "\n";
+                    // check if there are any ROI's and export them
+                    const std::unordered_map<std::string, Map_ROI> rois = get_map_rois();
+                    for (auto itr_roi : rois)
+                    {
+                        out_stream << "ROI: "<<itr_roi.first<<"\n";
+                        for (auto& p_itr : itr_roi.second.pixel_list)
+                        {
+                            int yidx = p_itr.second;
+                            int xidx = p_itr.first;
+                            if (yidx >= _y_axis.rows() || xidx >= _x_axis.cols()) continue;
+
+                            out_stream << yidx << " , " << xidx << " , " << _y_axis(yidx,0) << " , " << _x_axis(0,xidx) << " , ";
+
+                            for (auto& e_itr : *a_itr.second)
+                            {
+                                float calib_val = 1.0;
+                                double val = 1.0;
+                                float e_val = (e_itr.second)(yidx, xidx);
+                                if (a_itr.first == STR_FIT_ROI || n_itr == "Counts")
+                                {
+                                    val = e_val;
+                                }
+                                else
+                                {
+                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    {
+                                        if (calib_curve->calib_curve.count(e_itr.first) > 0)
+                                        {
+                                            calib_val = static_cast<float>(calib_curve->calib_curve.at(e_itr.first));
+                                            float n_val = (*normalizer)(yidx, xidx);
+                                            if(calib_val > 0.0 && n_val > 0.0)
+                                            {
+                                                val = e_val / n_val / calib_val;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            val = e_val;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        val = e_val;
+                                    }
+                                }
+                                out_stream << val << " , ";
+                            }
+                            out_stream << "\n";
+                        }    
+                        out_stream << "\n";                
+                    }
+                    out_stream.close();
+                }
+                else
+                {
+                    logE << "Could not save file for " << save_file_name << "\n";
+                }
+
+                ascii_dir.cdUp();
+            }
+            ascii_dir.cdUp();
+        }
+    }
+ 
+}
+
+//---------------------------------------------------------------------------

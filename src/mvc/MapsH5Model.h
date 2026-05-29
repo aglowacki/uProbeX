@@ -224,6 +224,8 @@ public:
     const data_struct::Spectra<double>* get_rhcp_spectra() {return & _rhcp_integrated_spectra; }
 
     const std::string& get_polarity_pattern() { return _polarity_pattern_str; }
+
+    void export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap);
 signals:
     void model_data_updated();
 

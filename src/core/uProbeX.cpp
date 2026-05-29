@@ -260,16 +260,16 @@ void uProbeX::createMenuBar()
 
     // Batch menu
     _menu_batch = new QMenu("Batch Processing");
-    _action_per_pixel = _menu_batch->addAction("Per Pixel Processing");
-    connect(_action_per_pixel, &QAction::triggered, this, &uProbeX::batchPerPixel);
+    //_action_per_pixel = _menu_batch->addAction("Per Pixel Processing");
+    //connect(_action_per_pixel, &QAction::triggered, this, &uProbeX::batchPerPixel);
     _action_export_images = _menu_batch->addAction("Export Images");
     connect(_action_export_images, &QAction::triggered, this, &uProbeX::BatchExportImages);
     _action_roi_stats = _menu_batch->addAction("Roi Stats");
     connect(_action_roi_stats, &QAction::triggered, this, &uProbeX::BatchRoiStats);
     _action_gen_scan_vlm = _menu_batch->addAction("Generate Scan VLM");
     connect(_action_gen_scan_vlm, &QAction::triggered, this, &uProbeX::BatcGenScanVlm);
-    //TODO: Finish implementing and then add
-    ////m_menu->addMenu(_menu_batch);
+
+    m_menu->addMenu(_menu_batch);
 
     setBatchActionsEnabled(false);
 
@@ -335,7 +335,47 @@ void uProbeX::batchPerPixel()
 
 void uProbeX::BatchExportImages()
 {
-
+if(_mapsWorkspaceControllers.size() > 0)
+    {
+        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
+        if(controller != nullptr)
+        {
+            MapsWorkspaceModel* model =  controller->get_model();
+            if(model != nullptr)
+            {
+                model->unload_all_H5_Model();
+                model->unload_all_RAW_Model();
+                ExportMapsDialog dialog(model->get_directory());
+                dialog.exec();
+                
+                QString str_colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
+                if (str_colormap.length() == 0)
+                {
+                    str_colormap = STR_COLORMAP_HEAT;
+                }
+                
+                QVector<QRgb>* colormap = ColorMap::inst()->get_color_map(str_colormap);
+                QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
+                for (auto &itr : model->get_hdf5_file_list())
+                {
+                    MapsH5Model * h5model = new MapsH5Model();
+                    if (h5model->load(itr.second.absoluteFilePath()))
+                    {
+                        h5model->export_images(dialog.get_save_png(), dialog.get_save_tiff(), dialog.get_save_ascii(), saved_contrast, colormap);
+                    }
+                    delete h5model;
+                }
+            }
+            else
+            {
+                logW<<"Model is nullptr\n";
+            }
+        }
+        else
+        {
+            logW<<"Controller is nullptr\n";
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

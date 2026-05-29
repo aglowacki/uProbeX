@@ -32,7 +32,7 @@
 //---------------------------------------------------------------------------
 
 
-class ExportMapsDialog : public QWidget
+class ExportMapsDialog : public QDialog
 {
 
    Q_OBJECT

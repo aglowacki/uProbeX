@@ -10,7 +10,7 @@
 
 //---------------------------------------------------------------------------
 
-ExportMapsDialog::ExportMapsDialog(QDir directory, QWidget *parent) : QWidget(parent)
+ExportMapsDialog::ExportMapsDialog(QDir directory, QWidget *parent) : QDialog(parent)
 {
     
     _directory = directory;
