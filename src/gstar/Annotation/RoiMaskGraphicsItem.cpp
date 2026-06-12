@@ -17,14 +17,15 @@ using namespace gstar;
 //-----------------------------------------------------------------------------
 
 #ifdef _BUILD_WITH_OPENCV
-RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(const cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
     : AbstractGraphicsItem(parent)
 {
     _mask = new QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
+
     for (int w = 0; w < mat.cols; w++)
     {
         for (int h = 0; h < mat.rows; h++)
-        {
+        {        
             int color_idx = mat.at<int>(h, w);
             if (color_idx == idx)
             {
@@ -42,6 +43,34 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, Abst
 
 }
 #endif
+
+//-----------------------------------------------------------------------------
+
+RoiMaskGraphicsItem::RoiMaskGraphicsItem(const Eigen::Array<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& mask, int idx, QColor col, AbstractGraphicsItem* parent)
+ : AbstractGraphicsItem(parent)
+{
+    _mask = new QImage(mask.cols(), mask.rows(), QImage::Format_ARGB32);
+
+    for (int w = 0; w < mask.cols(); w++)
+    {
+        for (int h = 0; h < mask.rows(); h++)
+        {        
+            int color_idx = mask(h, w);
+            if (color_idx == idx)
+            {
+                col.setAlpha(178);
+                _mask->setPixelColor(w, h, col);
+            }
+            else
+            {
+                _mask->setPixelColor(w, h, QColor(0, 0, 0, 0));
+            }
+        }
+    }
+
+    _init(col, 70);
+
+}
 
 //-----------------------------------------------------------------------------
 

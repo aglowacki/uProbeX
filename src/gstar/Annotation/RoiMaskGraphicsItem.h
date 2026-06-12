@@ -13,6 +13,7 @@
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/opencv.hpp>
 #endif
+#include <Eigen/Core>
 //---------------------------------------------------------------------------
 
 namespace gstar
@@ -36,15 +37,17 @@ public:
     */
     // blank constructor for classid
 #ifdef _BUILD_WITH_OPENCV
-   RoiMaskGraphicsItem(cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
+    RoiMaskGraphicsItem(const cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent = 0);
 #endif
-   RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent = 0);
+    RoiMaskGraphicsItem(const Eigen::Array<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& mask, int idx, QColor col, AbstractGraphicsItem* parent = 0);
 
-   RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
+    RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent = 0);
 
-   RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent = 0);
+    RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent = 0);
 
-   ~RoiMaskGraphicsItem();
+    RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent = 0);
+
+    ~RoiMaskGraphicsItem();
 
    /**
     * @brief className
