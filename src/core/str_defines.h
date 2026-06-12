@@ -48,6 +48,7 @@ const static QString QSTR_InterceptYX = "InterceptYX";
 
 const static QString STR_KMEANS = QString("KMeans");
 const static QString STR_DBSCAN = QString("DBSCAN");
+const static QString STR_RATIO = QString("Ratio");
 const static QString STR_MANUAL = QString("Manual");
 const static QString STR_PLOT_OPTIONS = QString("Plot Options");
 
