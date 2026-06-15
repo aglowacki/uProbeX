@@ -39,6 +39,7 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
    m_imageHeightDim = nullptr;
    m_tabWidget = new QTabWidget(this);
    _contrast_widget = new ContrastWidget();
+   connect(_contrast_widget, &ContrastWidget::global_contrast_change, this, &AbstractImageWidget::onGlobalContrastChanged);
 
    createActions();
 
@@ -738,6 +739,23 @@ void AbstractImageWidget::viewContextMenu(const QPoint& pos)
 
    displayContextMenu(m_imageViewWidget, m_imageViewWidget->mapToGlobal(pos));
 
+}
+
+
+//---------------------------------------------------------------------------
+
+void AbstractImageWidget::onGlobalContrastChanged(bool val)
+{
+   if (val)
+   {
+      m_imageViewWidget->setGlobalContrast(false);
+   }
+   else
+   {
+      m_imageViewWidget->setGlobalContrast(true);
+   }
+
+   emit _contrast_widget->call_redraw();
 }
 
 //---------------------------------------------------------------------------

@@ -178,7 +178,7 @@ signals:
    void rulerUnitsChanged(QString, double, double);
 
    void deletedAnnotation(AbstractGraphicsItem*);
-
+   
 protected slots:
 
    /**
@@ -240,6 +240,8 @@ protected slots:
     * @param pos
     */
    void viewContextMenu(const QPoint& pos);
+
+   void onGlobalContrastChanged(bool val);
 
 protected:
 
