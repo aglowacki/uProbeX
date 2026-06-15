@@ -61,24 +61,27 @@ QMap<QString, double> CountsStatsTransformer::getAllCoef()
 
 void CountsStatsTransformer::setCounts(const data_struct::ArrayXXr<float>& counts)
 {
-    _avg = counts.mean();
-    _stdev = 0.0;
-    std::vector<float> cnts(counts.size());
-    int i = 0;
-    for (int y = 0; y < counts.rows(); y++)
-    {
-        for (int x = 0; x < counts.cols(); x++)
-        {
+   if(counts.size() > 0)
+   {
+      _avg = counts.mean();
+      _stdev = 0.0;
+      std::vector<float> cnts(counts.size());
+      int i = 0;
+      for (int y = 0; y < counts.rows(); y++)
+      {
+         for (int x = 0; x < counts.cols(); x++)
+         {
             cnts[i] = counts(y,x);
             i++;
             _stdev += pow((counts(y,x) - _avg), 2);
-        }
-    }
-    _stdev = sqrtf(_stdev / (float)cnts.size());
+         }
+      }
+      _stdev = sqrtf(_stdev / (float)cnts.size());
 
-    std::sort(cnts.begin(), cnts.end(), std::greater<float>());
-    int idx = cnts.size() / 2;
-    _median = cnts[idx];
+      std::sort(cnts.begin(), cnts.end(), std::greater<float>());
+      int idx = cnts.size() / 2;
+      _median = cnts[idx];
+   }
 }
 
 //---------------------------------------------------------------------------
