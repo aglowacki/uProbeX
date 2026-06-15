@@ -140,7 +140,6 @@ public slots:
 
    void onSelectElements();
 
-   void on_global_contrast_changed(bool val);
 protected:
 
    /**

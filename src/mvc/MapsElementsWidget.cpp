@@ -248,7 +248,6 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     w_normalize->setLayout(hbox_normalize);
     w_normalize->setContentsMargins(0, 0, 0, 0);
     
-    connect(_contrast_widget, &ContrastWidget::global_contrast_change, this, &MapsElementsWidget::on_global_contrast_changed);
     connect(_contrast_widget, &ContrastWidget::call_redraw, this, &MapsElementsWidget::redrawCounts);
 
     _tw_image_controls->addTab(m_toolbar, "Zoom");
@@ -521,22 +520,6 @@ void MapsElementsWidget::_appendRoiTab()
     m_roiTreeTabWidget->setLayout(roiVbox);
 
     m_tabWidget->addTab(m_roiTreeTabWidget, QIcon(), "ROI's");
-}
-
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::on_global_contrast_changed(bool val)
-{
-    if (val)
-    {
-        m_imageViewWidget->setGlobalContrast(false);
-    }
-    else
-    {
-        m_imageViewWidget->setGlobalContrast(true);
-    }
-    
-    redrawCounts();
 }
 
 //---------------------------------------------------------------------------
@@ -1081,6 +1064,7 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
         _normalizer = nullptr;
         _calib_curve = nullptr;
         _model = model;
+        model_updated();
         if (_model != nullptr)
         {
             data_struct::Params_Override<double>* po = _model->getParamOverride();
@@ -1175,10 +1159,6 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 }
             }
 
-            _co_loc_widget->setModel(_model);
-            _scatter_plot_widget->setModel(_model);
-            _quant_widget->setModel(_model);
-
             QString analysis_text = _cb_analysis->currentText();
             if (analysis_text.length() > 0)
             {
@@ -1186,11 +1166,14 @@ void MapsElementsWidget::setModel(MapsH5Model* model)
                 _scatter_plot_widget->setAnalysisType(analysis_text);
             }
 
+            _co_loc_widget->setModel(_model);
+            _scatter_plot_widget->setModel(_model);
+            _quant_widget->setModel(_model);
+
             _motor_trans.setMotors(_model->get_x_axis(), _model->get_y_axis());
             
             annoTabChanged(m_tabWidget->currentIndex());
         }
-        model_updated();
     }
 }
 
@@ -1705,7 +1688,7 @@ GenerateImageProp MapsElementsWidget::generate_image_props(const std::string ana
     }
     else
     {
-        if(!m_imageViewWidget->getMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
+        if(!m_imageViewWidget->getUpdatedMinMaxAt(grid_idx, props.contrast_min, props.contrast_max))
         {
             props.contrast_max = _contrast_widget->max_contrast_perc();
             props.contrast_min = _contrast_widget->min_contrast_perc();
