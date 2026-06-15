@@ -42,6 +42,8 @@ public:
 
    MapsH5Model *getModel(){return _model;}
 
+   void displayCounts(bool update_Min_MAx);
+   
 public slots:
 
     void windowChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
@@ -50,13 +52,21 @@ public slots:
 
     void onSetAnalysisType(QString name);
 
-    void onColorSelected(QString);
+    void onRedColorSelected(QString);
+
+    void onGreenColorSelected(QString);
+
+    void onBlueColorSelected(QString);
 
     void onQuadViewChanged(int);
 
     void onExportPng();
 
+    void singleRedrawCounts(int);
+    
     void redraw();
+
+    void globalContrastChanged(bool);
 
 protected:
 
@@ -93,6 +103,12 @@ protected:
 
    QVector<QRgb> _blue_colormap;
    
+   bool _firstRed;
+
+   bool _firstGreen;
+
+   bool _firstBlue;
+
    bool _first_pixmap_set;
 };
 

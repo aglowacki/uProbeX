@@ -5,11 +5,18 @@
 
 #include <mvc/CoLocalizationWidget.h>
 
+
+constexpr unsigned int RED_WINDOW = 0;
+constexpr unsigned int BLUE_WINDOW = 1;
+constexpr unsigned int GREEN_WINDOW = 2;
 //---------------------------------------------------------------------------
 
 CoLocalizationWidget::CoLocalizationWidget(QWidget* parent) : gstar::AbstractImageWidget(1, 1, parent)
 {
     _model = nullptr;
+    _firstRed = true;
+    _firstGreen = true;
+    _firstBlue = true;
     _first_pixmap_set = true;
     int r = 0;
     for (int i = 0; i < 256; ++i)
@@ -43,15 +50,16 @@ void CoLocalizationWidget::_createLayout()
     m_imageViewWidget->setSelectorVisible(false);
     m_imageViewWidget->setCountsVisible(false);
     
-    //connect(_contrast_widget, &ContrastWidget::global_contrast_change, this, &CoLocalizationWidget::on_global_contrast_changed);
     connect(_contrast_widget, &ContrastWidget::call_redraw, this, &CoLocalizationWidget::redraw);
+    connect(_contrast_widget, &ContrastWidget::on_global_contrast_changed, this, &CoLocalizationWidget::globalContrastChanged);
+    connect(m_imageViewWidget, &gstar::ImageViewWidget::parent_redraw, this, &CoLocalizationWidget::singleRedrawCounts);
 
     _cb_red_element = new QComboBox();
-    connect(_cb_red_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
+    connect(_cb_red_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onRedColorSelected);
     _cb_green_element = new QComboBox();
-    connect(_cb_green_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
+    connect(_cb_green_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onGreenColorSelected);
     _cb_blue_element = new QComboBox();
-    connect(_cb_blue_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onColorSelected);
+    connect(_cb_blue_element, &QComboBox::currentTextChanged, this, &CoLocalizationWidget::onBlueColorSelected);
 
     _btn_export_as_image = new QPushButton("Export as PNG");
     connect(_btn_export_as_image, &QPushButton::released, this, &CoLocalizationWidget::onExportPng);
@@ -95,9 +103,16 @@ void CoLocalizationWidget::_createLayout()
 
 //---------------------------------------------------------------------------
 
+void CoLocalizationWidget::globalContrastChanged(bool value)
+{
+    displayCounts(!value);
+}
+
+//---------------------------------------------------------------------------
+
 void CoLocalizationWidget::redraw()
 {
-    onColorSelected(" ");
+    displayCounts(false);
 }
 
 //---------------------------------------------------------------------------
@@ -112,12 +127,53 @@ void CoLocalizationWidget::onQuadViewChanged(int value)
     {
         onNewGridLayout(2, 2);
     }
-    onColorSelected(" ");
+    
+    displayCounts(false);
 }
 
 //---------------------------------------------------------------------------
 
-void CoLocalizationWidget::onColorSelected(QString name)
+void CoLocalizationWidget::singleRedrawCounts(int window)
+{
+    displayCounts(false);
+}
+
+//---------------------------------------------------------------------------
+
+void CoLocalizationWidget::onRedColorSelected(QString name)
+{
+    displayCounts(_firstRed);
+    if( _firstRed && false == _contrast_widget->is_global_contrast_checked())
+    {
+        _firstRed = false;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void CoLocalizationWidget::onGreenColorSelected(QString name)
+{
+    displayCounts(_firstGreen);
+    if( _firstGreen && false == _contrast_widget->is_global_contrast_checked())
+    {
+        _firstGreen = false;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void CoLocalizationWidget::onBlueColorSelected(QString name)
+{
+    displayCounts(_firstBlue);
+    if( _firstBlue && false == _contrast_widget->is_global_contrast_checked())
+    {
+        _firstBlue = false;
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void CoLocalizationWidget::displayCounts(bool update_Min_MAx)
 {
 
     QImage red_img;
@@ -134,7 +190,10 @@ void CoLocalizationWidget::onColorSelected(QString name)
 
     ArrayXXr<float> int_img;
 
-    ArrayXXr<float> normalized;
+    ArrayXXr<float> red_normalized;
+    ArrayXXr<float> green_normalized;
+    ArrayXXr<float> blue_normalized;
+    ArrayXXr<float> sum_normalized;
     GenerateImageProp props;
     props.analysis_type = _curAnalysis.toStdString();
     props.log_color = false;
@@ -144,6 +203,7 @@ void CoLocalizationWidget::onColorSelected(QString name)
     props.show_legend = false;
     props.invert_y = Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool();
     props.global_contrast = _contrast_widget->is_global_contrast_checked();
+    /*
     if (props.global_contrast)
     {
         props.contrast_max = _contrast_widget->max_contrast_perc();
@@ -151,34 +211,65 @@ void CoLocalizationWidget::onColorSelected(QString name)
     }
     else
     {
-        if(!m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max))
-        {
-            props.contrast_max = _contrast_widget->max_contrast_perc();
-            props.contrast_min = _contrast_widget->min_contrast_perc();
-            props.global_contrast = true;
-        }
-    }
+        m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max);        
+    }*/
     
     if (_fit_counts.count(_cb_red_element->currentText().toStdString()) > 0)
     {
+        if (props.global_contrast)
+        {
+            props.contrast_max = _contrast_widget->max_contrast_perc();
+            props.contrast_min =  _contrast_widget->min_contrast_perc();
+        }
+        else
+        {
+            if(!_ck_quad_view->isChecked())
+            {
+                m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max);
+            }
+            else
+            {
+                m_imageViewWidget->getMinMaxAt(RED_WINDOW, props.contrast_min, props.contrast_max);
+            }
+        }
+
         props.element = _cb_red_element->currentText().toStdString();
         props.selected_colormap = &_red_colormap;
-        red_pixmap = _model->gen_pixmap(props, normalized);
+        red_pixmap = _model->gen_pixmap(props, red_normalized);
         sum_pixmap = red_pixmap;
+        sum_normalized = red_normalized;
         first = false;
     }
     if (_fit_counts.count(_cb_green_element->currentText().toStdString()) > 0)
     {
+        if (props.global_contrast)
+        {
+            props.contrast_max = _contrast_widget->max_contrast_perc();
+            props.contrast_min =  _contrast_widget->min_contrast_perc();
+        }
+        else 
+        {
+            if(!_ck_quad_view->isChecked())
+            {
+                m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max);
+            }
+            else 
+            {
+                m_imageViewWidget->getMinMaxAt(GREEN_WINDOW, props.contrast_min, props.contrast_max);
+            }
+        }
         props.element = _cb_green_element->currentText().toStdString();
         props.selected_colormap = &_green_colormap;
-        green_pixmap = _model->gen_pixmap(props, normalized);
+        green_pixmap = _model->gen_pixmap(props, green_normalized);
         if (first)
         {
             sum_pixmap = green_pixmap;
+            sum_normalized = green_normalized;
             first = false;
         }
         else
         {
+            sum_normalized += green_normalized;
             QPainter p(&sum_pixmap);
             p.setCompositionMode(QPainter::CompositionMode_Plus);
             p.drawPixmap(0, 0, green_pixmap);
@@ -187,16 +278,34 @@ void CoLocalizationWidget::onColorSelected(QString name)
     }
     if (_fit_counts.count(_cb_blue_element->currentText().toStdString()) > 0)
     {
+        if (props.global_contrast)
+        {
+            props.contrast_max = _contrast_widget->max_contrast_perc();
+            props.contrast_min =  _contrast_widget->min_contrast_perc();
+        }
+        else
+        {
+            if(!_ck_quad_view->isChecked())
+            {
+                m_imageViewWidget->getMinMaxAt(0, props.contrast_min, props.contrast_max);
+            }
+            else
+            {
+                m_imageViewWidget->getMinMaxAt(BLUE_WINDOW, props.contrast_min, props.contrast_max);
+            }
+        }
         props.element = _cb_blue_element->currentText().toStdString();
         props.selected_colormap = &_blue_colormap;
-        blue_pixmap = _model->gen_pixmap(props, normalized);
+        blue_pixmap = _model->gen_pixmap(props, blue_normalized);
         if (first)
         {
             sum_pixmap = blue_pixmap;
+            sum_normalized = blue_normalized;
             first = false;
         }
         else
         {
+            sum_normalized += blue_normalized;
             QPainter p(&sum_pixmap);
             p.setCompositionMode(QPainter::CompositionMode_Plus);
             p.drawPixmap(0, 0, blue_pixmap);
@@ -206,14 +315,55 @@ void CoLocalizationWidget::onColorSelected(QString name)
 
     if (_ck_quad_view->isChecked())
     {
-        m_imageViewWidget->setSubScenePixmap(0, red_pixmap);
-        m_imageViewWidget->setSubScenePixmap(1, green_pixmap);
-        m_imageViewWidget->setSubScenePixmap(2, blue_pixmap);
+        m_imageViewWidget->setSubScenePixmap(RED_WINDOW, red_pixmap);
+        m_imageViewWidget->setSubScenePixmap(GREEN_WINDOW, green_pixmap);
+        m_imageViewWidget->setSubScenePixmap(BLUE_WINDOW, blue_pixmap);
         m_imageViewWidget->setSubScenePixmap(3, sum_pixmap);
+        
+        if(red_normalized.size() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(RED_WINDOW, red_normalized);
+            if (update_Min_MAx)
+            {
+                m_imageViewWidget->updateMinMax(RED_WINDOW, red_normalized);
+            }
+        }
+        if(green_normalized.size() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(GREEN_WINDOW, green_normalized);
+            if (update_Min_MAx)
+            {
+                m_imageViewWidget->updateMinMax(GREEN_WINDOW, green_normalized);
+            }
+        }
+        if(blue_normalized.size() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(BLUE_WINDOW, blue_normalized);
+            if (update_Min_MAx)
+            {
+                m_imageViewWidget->updateMinMax(BLUE_WINDOW, blue_normalized);
+            }
+        }
+        if(sum_normalized.size() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(3, sum_normalized);
+            if (update_Min_MAx)
+            {
+                m_imageViewWidget->updateMinMax(3, sum_normalized);
+            }
+        }
     }
     else
     {
         m_imageViewWidget->setScenePixmap(sum_pixmap);
+        if(sum_normalized.size() > 0)
+        {
+            m_imageViewWidget->setCountsTrasnformAt(0, sum_normalized);
+            if (update_Min_MAx)
+            {
+                m_imageViewWidget->updateMinMax(0, sum_normalized);
+            }
+        }
     }
     if (_first_pixmap_set)
     {
@@ -241,6 +391,10 @@ void CoLocalizationWidget::onNewGridLayout(int rows, int cols)
 void CoLocalizationWidget::onSetAnalysisType(QString name)
 {
     _curAnalysis = name;
+
+    QString saved_red = _cb_red_element->currentText();
+    QString saved_green = _cb_green_element->currentText();
+    QString saved_blue = _cb_blue_element->currentText();
 
     _cb_red_element->clear();
     _cb_green_element->clear();
@@ -316,6 +470,20 @@ void CoLocalizationWidget::onSetAnalysisType(QString name)
             _cb_blue_element->addItem(QString(itr.first.c_str()));
         }
     }
+
+    if(_cb_red_element->findText(saved_red) > -1)
+    {
+        _cb_red_element->setCurrentText(saved_red);
+    }
+    if(_cb_green_element->findText(saved_green) > -1)
+    {
+        _cb_green_element->setCurrentText(saved_green);
+    }
+    if(_cb_blue_element->findText(saved_blue) > -1)
+    {
+        _cb_blue_element->setCurrentText(saved_blue);
+    }
+
 }
 
 //---------------------------------------------------------------------------
