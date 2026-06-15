@@ -50,7 +50,7 @@ ContrastDialog::~ContrastDialog()
 
 void ContrastDialog::set_array(const data_struct::ArrayXXr<float>* arr)
 {
-	if (arr != nullptr)
+	if (arr != nullptr && arr->rows() > 0 && arr->cols() > 0)
 	{
 		_arr = arr;
 		_min_max_slider->setMinMax(_arr->minCoeff(), _arr->maxCoeff());
