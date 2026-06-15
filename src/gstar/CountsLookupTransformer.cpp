@@ -62,11 +62,14 @@ QMap<QString, double> CountsLookupTransformer::getAllCoef()
 
 void CountsLookupTransformer::setCounts(const data_struct::ArrayXXr<float>& counts)
 {
-    _counts_arr = counts;
-    _min_counts = _counts_arr.minCoeff();
-    _max_counts = _counts_arr.maxCoeff();
-    _rows = _counts_arr.rows();
-    _cols = _counts_arr.cols();
+   if(counts.size() > 0)
+   {
+      _counts_arr = counts;
+      _min_counts = _counts_arr.minCoeff();
+      _max_counts = _counts_arr.maxCoeff();
+      _rows = _counts_arr.rows();
+      _cols = _counts_arr.cols();
+   }
 }
 
 //---------------------------------------------------------------------------
