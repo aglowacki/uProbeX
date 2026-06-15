@@ -143,6 +143,10 @@ public:
 
    virtual bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max) = 0;
 
+   virtual bool getUpdatedMinMaxAt(int grid_idx, float &counts_min, float &counts_max) = 0;
+
+   virtual void updateMinMax(unsigned int idx, const ArrayXXr<float>& normalized) = 0;
+
    bool set_null_mouse_pos;
 
 public slots:

@@ -102,6 +102,9 @@ public:
 
    virtual bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
 
+   virtual bool getUpdatedMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
+   
+   virtual void updateMinMax(unsigned int idx, const ArrayXXr<float>& normalized);
 public slots:
 
    /**

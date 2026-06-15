@@ -1155,7 +1155,7 @@ void ImageViewWidgetCompact::resetCoordsToZero()
 
 //---------------------------------------------------------------------------
 
-bool ImageViewWidgetCompact::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
+bool ImageViewWidgetCompact::getUpdatedMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
 {
 	
     if (_sub_window.contrast_updated())
@@ -1166,6 +1166,22 @@ bool ImageViewWidgetCompact::getMinMaxAt(int grid_idx, float &counts_min, float 
     }
 	
     return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool ImageViewWidgetCompact::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
+{
+    counts_min = _sub_window.contrast_min();
+    counts_max = _sub_window.contrast_max();
+    return true;
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::updateMinMax(unsigned int idx, const ArrayXXr<float>& normalized)
+{
+    _sub_window.on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), 0.0, 1.0, false);
 }
 
 //---------------------------------------------------------------------------

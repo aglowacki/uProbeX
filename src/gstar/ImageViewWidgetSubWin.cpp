@@ -725,7 +725,16 @@ void ImageViewWidgetSubWin::setCountsTrasnformAt(unsigned int idx, const ArrayXX
         {
             _sub_windows[idx].counts_stats->setCounts(normalized);
         }
-        //_sub_windows[idx].on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), false);
+    }
+}
+
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetSubWin::updateMinMax(unsigned int idx, const ArrayXXr<float>& normalized)
+{
+    if(idx < _sub_windows.size())
+    {
+        _sub_windows[idx].on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), 0.0, 1.0, false);
     }
 }
 
@@ -790,6 +799,19 @@ void ImageViewWidgetSubWin::resetCoordsToZero()
 //---------------------------------------------------------------------------
 
 bool ImageViewWidgetSubWin::getMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
+{
+	if (grid_idx > -1 && grid_idx < _sub_windows.size())
+	{
+        counts_min = _sub_windows[grid_idx].contrast_min();
+        counts_max = _sub_windows[grid_idx].contrast_max();
+        return true;
+	}
+    return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool ImageViewWidgetSubWin::getUpdatedMinMaxAt(int grid_idx, float &counts_min, float &counts_max)
 {
 	if (grid_idx > -1 && grid_idx < _sub_windows.size())
 	{
