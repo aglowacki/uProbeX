@@ -103,16 +103,22 @@ protected:
 
 	QWidget* _createKMeansLayout();
 
-	QWidget* _createDBScanLayout();
+	QWidget* _createRatioLayout();
 
 	QWidget* _createManualLayout();
 
 	QWidget* _createPlotOptionsLayout();
 
+	void _run_kmeans();
+
+	void _run_ratios();
+
 private:
 	QTabWidget* _techTabs;
 
 	QPushButton* _runBtn;
+	QPushButton* _runBtn2;
+	QPushButton* _runBtn3;
 	QPushButton* _acceptBtn;
 	QPushButton* _cancelBtn;
   
@@ -141,6 +147,10 @@ private:
 	QLineEdit* _km_le_epsilon;
 	QLineEdit* _km_nfeatures;
 	QLineEdit* _km_attempts;
+
+	// ratio controls
+	QLineEdit* _rat_percent;
+	QLabel* _rat_measurement;
 
 	QSize _image_size;
 

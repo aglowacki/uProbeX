@@ -16,15 +16,19 @@
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/core/eigen.hpp>
 #endif
+
 //---------------------------------------------------------------------------
 
-const int TAB_KMEANS = 0;
-const int TAB_MANUAL = 2;
+constexpr int TAB_KMEANS = 0;
+constexpr int TAB_MANUAL = 2;
 
-const int ACTION_ADD = 0;
-const int ACTION_ERASE = 1;
-const int ACTION_ADD_POLY = 2;
-const int ACTION_ERASE_POLY = 3;
+constexpr int ACTION_ADD = 0;
+constexpr int ACTION_ERASE = 1;
+constexpr int ACTION_ADD_POLY = 2;
+constexpr int ACTION_ERASE_POLY = 3;
+
+constexpr int IDX_KMEANS = 0;
+constexpr int IDX_RATIO = 1;
 
 //---------------------------------------------------------------------------
 
@@ -52,7 +56,7 @@ ImageSegRoiDialog::ImageSegRoiDialog() : QDialog()
 	_color_map.insert({ 15, QColor(Qt::black) });
 	
 	_layout_map[STR_KMEANS] = _createKMeansLayout();
-	_layout_map[STR_DBSCAN] = _createDBScanLayout();
+	_layout_map[STR_RATIO] = _createRatioLayout();
 	_layout_map[STR_MANUAL] = _createManualLayout();
 	_layout_map[STR_PLOT_OPTIONS] = _createPlotOptionsLayout();
 	_next_color = 0;
@@ -250,77 +254,32 @@ QWidget* ImageSegRoiDialog::_createKMeansLayout()
 
 //---------------------------------------------------------------------------
 
-QWidget* ImageSegRoiDialog::_createDBScanLayout()
+QWidget* ImageSegRoiDialog::_createRatioLayout()
 {
 	QVBoxLayout* layout = new QVBoxLayout();
-/*
-	QLabel* label = new QLabel("Number of Features:");
-	_km_nfeatures = new QLineEdit();
-	_km_nfeatures->setValidator(new QIntValidator(0, 10, this));
-	_km_nfeatures->setText("2");
+	
+	QLabel* label = new QLabel("Grid Ratio%:");
+	_rat_percent = new QLineEdit();
+	_rat_percent->setText("30");
 
 	QHBoxLayout* hlayout = new QHBoxLayout();
 	hlayout->addWidget(label);
-	hlayout->addWidget(_km_nfeatures);
+	hlayout->addWidget(_rat_percent);
 	layout->addItem(hlayout);
 
-	label = new QLabel("Term Criteria:");
-	_km_TermCriteria = new QComboBox();
-	_km_TermCriteria->addItem("COUNT");
-	_km_TermCriteria->addItem("EPS"); 
-	_km_TermCriteria->addItem("COUNT + EPS");
-	_km_TermCriteria->setCurrentIndex(2); // default to EPS
+	label = new QLabel("Ratio to measurement:");
+	_rat_measurement = new QLabel();
+	_rat_measurement->setText("0.0");
 
 	hlayout = new QHBoxLayout();
 	hlayout->addWidget(label);
-	hlayout->addWidget(_km_TermCriteria);
+	hlayout->addWidget(_rat_measurement);
 	layout->addItem(hlayout);
 
-	label = new QLabel("Centers:");
-	_km_Centers = new QComboBox();
-	_km_Centers->addItem("Random");
-	_km_Centers->addItem("PP");
-	_km_Centers->setCurrentIndex(0); // default to Random
+	_runBtn3 = new QPushButton("Run");
+	connect(_runBtn3, &QPushButton::pressed, this, &ImageSegRoiDialog::onRun);
+	layout->addWidget(_runBtn3);
 
-	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label);
-	hlayout->addWidget(_km_Centers);
-	layout->addItem(hlayout);
-	
-	label = new QLabel("Attempts:");
-	_km_attempts = new QLineEdit();
-	_km_attempts->setValidator(new QIntValidator(0, 100, this));
-	_km_attempts->setText("3");
-
-	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label);
-	hlayout->addWidget(_km_attempts);
-	layout->addItem(hlayout);
-
-	label = new QLabel("MAX_Iter");
-	_km_le_MAX_ITER = new QLineEdit();
-	_km_le_MAX_ITER->setValidator(new QIntValidator(0, 10000, this));
-	_km_le_MAX_ITER->setText("10");
-
-	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label);
-	hlayout->addWidget(_km_le_MAX_ITER);
-	layout->addItem(hlayout);
-
-	label = new QLabel("Epsilon");
-	_km_le_epsilon = new QLineEdit();
-	_km_le_epsilon->setValidator(new QDoubleValidator());
-	_km_le_epsilon->setText("1.0");
-
-	hlayout = new QHBoxLayout();
-	hlayout->addWidget(label);
-	hlayout->addWidget(_km_le_epsilon);
-	layout->addItem(hlayout);
-	
-	_runBtn = new QPushButton("Run");
-	connect(_runBtn, pressed, this, onRun);
-	layout->addWidget(_runBtn);
-*/
 	QWidget* widget = new QWidget();
 	widget->setLayout(layout);
 	return widget;
@@ -403,7 +362,7 @@ void ImageSegRoiDialog::createLayout()
 {
 	_techTabs = new QTabWidget();
 	_techTabs->addTab(_layout_map[STR_KMEANS], STR_KMEANS);
-	_techTabs->addTab(_layout_map[STR_DBSCAN], STR_DBSCAN);
+	_techTabs->addTab(_layout_map[STR_RATIO], STR_RATIO);
 	_techTabs->addTab(_layout_map[STR_MANUAL], STR_MANUAL);
 	_techTabs->addTab(_layout_map[STR_PLOT_OPTIONS], STR_PLOT_OPTIONS);
 	_techTabs->setEnabled(false);
@@ -485,6 +444,168 @@ void ImageSegRoiDialog::setModel(MapsH5Model* model)
 
 //---------------------------------------------------------------------------
 
+void ImageSegRoiDialog::_run_kmeans()
+{
+	ArrayXXr<float> int_img;
+	_get_img(int_img, _chk_normalize_sum->isChecked());
+	
+	cv::KmeansFlags flags;
+	cv::TermCriteria crit;
+	if (_km_TermCriteria->currentIndex() == 0)
+	{
+		crit.type = cv::TermCriteria::COUNT;
+	}
+	else if (_km_TermCriteria->currentIndex() == 1)
+	{
+		crit.type = cv::TermCriteria::EPS;
+	}
+	else if (_km_TermCriteria->currentIndex() == 2)
+	{
+		crit.type = cv::TermCriteria::COUNT | cv::TermCriteria::EPS;
+	}
+	crit.maxCount = _km_le_MAX_ITER->text().toInt();
+	crit.epsilon = _km_le_epsilon->text().toDouble();
+	int clusterCount = _km_nfeatures->text().toInt();
+	int attempts = _km_attempts->text().toInt();
+
+	if (_km_Centers->currentIndex() == 0)
+	{
+		flags = cv::KMEANS_RANDOM_CENTERS;
+	}
+	else if (_km_Centers->currentIndex() == 1)
+	{
+		flags = cv::KMEANS_PP_CENTERS;
+	}
+
+	cv::Mat labels, centers;
+	
+	cv::Mat data(int_img.rows() * int_img.cols(), 1, CV_32FC1, int_img.data());
+	try
+	{
+		double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
+	}
+	catch (std::exception& e)
+	{
+		QMessageBox::critical(nullptr, "ImageSegROIDialog Error", e.what());
+		_acceptBtn->setEnabled(true);
+		return;
+	}
+	cv::Mat new_labels = labels.reshape(1, int_img.rows());
+	
+
+	for (int i = 0; i < clusterCount; i++)
+	{
+		int color_idx = i;
+		if (color_idx > _color_map.size())
+		{
+			color_idx = color_idx % _color_map.size();
+		}
+		QColor color_data = _color_map[color_idx];
+		_next_color++;
+		gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
+		_int_img_widget->addRoiMask(roi);
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::_run_ratios()
+{
+	try
+	{
+
+		ArrayXXr<float> int_img;
+		_get_img(int_img, _chk_normalize_sum->isChecked());
+		float perc = _rat_percent->text().toFloat();
+		logI<<" height :"<<int_img.rows()<< "pheight: " <<int_img.rows() * perc <<" width : "<<int_img.cols()<<" pwidth : "<<int_img.cols() * perc<<"\n";
+
+
+		if (perc <= 10.0f || perc > 50.0f)
+		{
+			throw std::invalid_argument("Percentage must be between 10 and 50.");
+		}
+
+		int max_idx = 0;
+		// Get dimensions of the input array
+		const int rows = static_cast<int>(int_img.rows());
+		const int cols = static_cast<int>(int_img.cols());
+
+		// Calculate the number of divisions along each axis using floor
+		// e.g., 20% -> floor(100/20) = 5 divisions per axis
+		// e.g., 30% -> floor(100/30) = 3 divisions per axis
+		const int numDivisions = static_cast<int>(std::floor(100.0f / perc));
+
+		if (numDivisions < 1)
+		{
+			throw std::invalid_argument("Percentage too large, results in less than 1 division.");
+		}
+
+		// Calculate the pixel size of each block along rows and cols
+		// Using integer division to get block boundaries
+		const int rowBlockSize = rows / numDivisions;
+		const int colBlockSize = cols / numDivisions;
+
+		if (rowBlockSize < 1 || colBlockSize < 1)
+		{
+			throw std::invalid_argument(
+				"Image too small for the given percentage. "
+				"Block size would be less than 1 pixel.");
+		}
+
+		// Create output cv::Mat with integer type to hold mask indices
+		// Initialize to the last valid mask index to handle remainder pixels
+		// (pixels that fall outside the even grid due to integer division)
+		const int totalMasks = numDivisions * numDivisions;
+		cv::Mat maskMat(rows, cols, CV_32S, cv::Scalar(totalMasks - 1));
+
+		// Iterate over each block and assign the appropriate mask index
+		for (int rowBlock = 0; rowBlock < numDivisions; ++rowBlock)
+		{
+			// Calculate pixel boundaries for this row block
+			const int rowStart = rowBlock * rowBlockSize;
+			const int rowEnd   = (rowBlock == numDivisions - 1) ? rows : rowStart + rowBlockSize;
+
+			for (int colBlock = 0; colBlock < numDivisions; ++colBlock)
+			{
+				// Calculate pixel boundaries for this col block
+				const int colStart = colBlock * colBlockSize;
+				const int colEnd   = (colBlock == numDivisions - 1) ? cols : colStart + colBlockSize;
+
+				// Calculate the mask index for this block (row-major ordering)
+				const int maskIndex = rowBlock * numDivisions + colBlock;
+
+				// Create a region of interest (ROI) for this block and fill with mask index
+				cv::Mat roi = maskMat(cv::Range(rowStart, rowEnd), cv::Range(colStart, colEnd));
+				roi.setTo(cv::Scalar(maskIndex));
+				max_idx = std::max(max_idx, maskIndex);
+			}
+		}
+	
+
+
+		int totalROIs= max_idx +1;
+		for (int i = 0; i < totalROIs; i++)
+		{
+			int color_idx = i;
+			if (color_idx > _color_map.size())
+			{
+				color_idx = color_idx % _color_map.size();
+			}
+			QColor color_data = _color_map[color_idx];
+			_next_color++;
+			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(maskMat, i, color_data);
+			_int_img_widget->addRoiMask(roi);
+		}
+		
+	}
+	catch(const std::exception& e)
+	{
+		logE << e.what() << '\n';
+	}	
+}
+
+//---------------------------------------------------------------------------
+
 void ImageSegRoiDialog::onRun()
 {
 	if (_int_img_widget->getROIsCount() > 0)
@@ -504,76 +625,15 @@ void ImageSegRoiDialog::onRun()
 		}
 	}
 
-	ArrayXXr<float> int_img;
-	_get_img(int_img, _chk_normalize_sum->isChecked());
-
 	#ifdef _BUILD_WITH_OPENCV
-	if(_techTabs->currentIndex() == 0) // KMEANS
+	if(_techTabs->currentIndex() == IDX_KMEANS) // KMEANS
 	{
-		cv::KmeansFlags flags;
-		cv::TermCriteria crit;
-		if (_km_TermCriteria->currentIndex() == 0)
-		{
-			crit.type = cv::TermCriteria::COUNT;
-		}
-		else if (_km_TermCriteria->currentIndex() == 1)
-		{
-			crit.type = cv::TermCriteria::EPS;
-		}
-		else if (_km_TermCriteria->currentIndex() == 2)
-		{
-			crit.type = cv::TermCriteria::COUNT | cv::TermCriteria::EPS;
-		}
-		crit.maxCount = _km_le_MAX_ITER->text().toInt();
-		crit.epsilon = _km_le_epsilon->text().toDouble();
-		int clusterCount = _km_nfeatures->text().toInt();
-		int attempts = _km_attempts->text().toInt();
-
-		if (_km_Centers->currentIndex() == 0)
-		{
-			flags = cv::KMEANS_RANDOM_CENTERS;
-		}
-		else if (_km_Centers->currentIndex() == 1)
-		{
-			flags = cv::KMEANS_PP_CENTERS;
-		}
-
-		cv::Mat labels, centers;
-		
-		cv::Mat data(int_img.rows() * int_img.cols(), 1, CV_32FC1, int_img.data());
-		try
-		{
-			double compactness = cv::kmeans(data, clusterCount, labels, crit, attempts, flags, centers);
-		}
-		catch (std::exception& e)
-		{
-			QMessageBox::critical(nullptr, "ImageSegROIDialog Error", e.what());
-			_acceptBtn->setEnabled(true);
-			return;
-		}
-		cv::Mat new_labels = labels.reshape(1, int_img.rows());
-		
-
-		for (int i = 0; i < clusterCount; i++)
-		{
-			int color_idx = i;
-			if (color_idx > _color_map.size())
-			{
-				color_idx = color_idx % _color_map.size();
-			}
-			QColor color_data = _color_map[color_idx];
-			_next_color++;
-			gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(new_labels, i, color_data);
-			_int_img_widget->addRoiMask(roi);
-		}
+		_run_kmeans();	
 	}
-	else if(_techTabs->currentIndex() == 1) // DBSCAN
+	else if(_techTabs->currentIndex() == IDX_RATIO) // Ratio
 	{
-		/*
-		int slices=8;
-		bool merge_small=true;
-		cv::Ptr< cv::ximgproc::ScanSegment > scanSeg = cv::ximgproc::createScanSegment(int_img.cols(), int_img.rows(), 1, slices=8, merge_small);
-		*/
+		_run_ratios();
+	
 	}
 	#endif
 	_acceptBtn->setEnabled(true);
