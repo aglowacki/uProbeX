@@ -246,9 +246,7 @@ void ElementSelectDialog::onUnselectAll()
 
 void ElementSelectDialog::onAccept()
 {
-	// emit list of roi's
-	//emit onNewROIs(_int_img_widget->getAllROIs());
-	close();
+	accept();
 }
 
 //---------------------------------------------------------------------------
