@@ -20,5 +20,7 @@ flatpak run gov.anl.aps.uProbeX
 
 You can set an alias in .bashrc
 ```bash
-alias uProbeX="flatpak run org.UChicagoLLC.ANL.APS.uProbeX"
+alias xrf_maps="flatpak --share=network --filesystem=host --command=/app/bin/xrf_maps run gov.anl.aps.uProbeX"
+alias uProbeX="flatpak --share=network --filesystem=host run gov.anl.aps.uProbeX"
+
 ```
