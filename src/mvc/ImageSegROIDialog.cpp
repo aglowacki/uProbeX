@@ -12,6 +12,7 @@
 #include <QGridLayout>
 #include "preferences/Preferences.h"
 #include "core/str_defines.h"
+#include "mvc/SpectraWidgetSettingsDialog.h"
 
 #ifdef _BUILD_WITH_OPENCV
 #include <opencv2/core/eigen.hpp>
@@ -389,8 +390,9 @@ void ImageSegRoiDialog::createLayout()
 
 
 	_spectra_widget = new SpectraWidget();
-	_spectra_widget->setSettingsBtnVisible(false);
+	_spectra_widget->setSettingsBtnVisible(true);
 	_spectra_widget->setResetBtnVisible(false);
+	connect(_spectra_widget, &SpectraWidget::onSettingsDialog, this, &ImageSegRoiDialog::onPlotSettings);
 
 
 	QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -656,6 +658,9 @@ void ImageSegRoiDialog::onPlot()
 	if (_model != nullptr)
     {
 		_tab_widget->setCurrentIndex(1);
+		// Honor the current Y-axis preference (linear vs log10) rather than
+		// whatever it was when this dialog was first constructed.
+		_spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
 		_spectra_widget->clearAllSpectra();
 		data_struct::Params_Override<double>* po = _model->getParamOverride();
         if(po == nullptr)
@@ -737,6 +742,20 @@ void ImageSegRoiDialog::onPlot()
 		_pb_rois->setValue(rois.size()*2);
 		QCoreApplication::processEvents();
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void ImageSegRoiDialog::onPlotSettings()
+{
+	SpectraWidgetSettingsDialog* settings_dialog = new SpectraWidgetSettingsDialog();
+	settings_dialog->exec();
+	if (settings_dialog->isAccepted())
+	{
+		_spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
+		_spectra_widget->setBackgroundBlack(Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool());
+	}
+	delete settings_dialog;
 }
 
 //---------------------------------------------------------------------------

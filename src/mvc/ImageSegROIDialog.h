@@ -93,6 +93,8 @@ private slots:
 
 	void onPlot();
 
+	void onPlotSettings();
+
 protected:
 
    void createLayout();
