@@ -41,25 +41,34 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bo
     _calib_curve = nullptr;
 	_export_maps_dialog = nullptr;
 
-	int r = 0;
+    // Heat colormap stops: black -> dark red -> red -> light red -> yellow -> white
+    static const int heat_stops[][3] = {
+        {0, 0, 0},          // black
+        {128, 0, 0},        // dark red
+        {255, 0, 0},        // red
+        {255, 128, 128},    // light red
+        {255, 255, 0},      // yellow
+        {255, 255, 255}     // white
+    };
+    const int num_segs = (int)(sizeof(heat_stops) / sizeof(heat_stops[0])) - 1;
+
     for (int i = 0; i < 256; ++i)
     {
         _gray_colormap.append(qRgb(i, i, i));
-		if (i < 128)
-		{
-			_heat_colormap.append(qRgb(r, 0, 0));
-			r += 2;
-		}
-		else if (i == 128)
-		{
-			r = 1;
-			_heat_colormap.append(qRgb(255, r, 0));
-		}
-		else
-		{
-			_heat_colormap.append(qRgb(255, r, 0));
-			r += 2;
-		}
+
+        // Map i in [0,255] to a position along the stop list and linearly
+        // interpolate between the two surrounding stops.
+        float pos = (float)i / 255.0f * num_segs;
+        int seg = (int)pos;
+        if (seg >= num_segs)
+        {
+            seg = num_segs - 1;
+        }
+        float t = pos - seg;
+        int r = (int)(heat_stops[seg][0] + t * (heat_stops[seg + 1][0] - heat_stops[seg][0]) + 0.5f);
+        int g = (int)(heat_stops[seg][1] + t * (heat_stops[seg + 1][1] - heat_stops[seg][1]) + 0.5f);
+        int b = (int)(heat_stops[seg][2] + t * (heat_stops[seg + 1][2] - heat_stops[seg][2]) + 0.5f);
+        _heat_colormap.append(qRgb(r, g, b));
     }
 	_selected_colormap = &_gray_colormap;
 
