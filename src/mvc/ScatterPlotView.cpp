@@ -189,7 +189,7 @@ void ScatterPlotView::_exportScatterPlotCSV(QString filePath)
 {
     if (_model != nullptr)
     {
-        const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+        const std::unordered_map<std::string, Map_ROI>& rois = _model->get_map_rois();
         data_struct::ArrayXXr<float> x_map;
         data_struct::ArrayXXr<float> y_map;
         data_struct::ArrayXXr<float> x_motor = _model->get_x_axis();
@@ -350,7 +350,15 @@ void ScatterPlotView::_updateNames()
 {
     if (_model != nullptr)
     {
-        const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+        const std::unordered_map<std::string, Map_ROI>& rois = _model->get_map_rois();
+
+        // Block the combo box signals while we repopulate them. Otherwise each
+        // clear()/addItem()/setCurrentIndex() emits currentTextChanged, and every
+        // one of those triggers onNameChange() -> _updatePlot(), redrawing the
+        // chart many times. We redraw once at the end instead.
+        const QSignalBlocker block_roi(_cb_roi);
+        const QSignalBlocker block_x(_cb_x_axis_element);
+        const QSignalBlocker block_y(_cb_y_axis_element);
 
         _cb_roi->clear();
         _cb_roi->addItem(" ");
@@ -495,23 +503,21 @@ void ScatterPlotView::_updatePlot()
 
         if (_getXY_Maps(x_map, y_map))
         {
-            _chart->removeSeries(_scatter_series);
-
             if (_display_log10)
             {
                 x_map = x_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : log10(v); });
                 y_map = y_map.unaryExpr([](float v) { return (v <= 0.0f) ? 0.0000001f : log10(v); });
             }
 
-            const std::unordered_map<std::string, Map_ROI> rois = _model->get_map_rois();
+            const std::unordered_map<std::string, Map_ROI>& rois = _model->get_map_rois();
 
-            QString roi_name = _cb_roi->currentText(); 
+            QString roi_name = _cb_roi->currentText();
 
             if (rois.count(roi_name.toStdString()) > 0)
             {
                 data_struct::ArrayXXr<float> x_map_roi;
                 data_struct::ArrayXXr<float> y_map_roi;
-                Map_ROI map_roi = rois.at(roi_name.toStdString());
+                const Map_ROI& map_roi = rois.at(roi_name.toStdString());
                 x_map_roi.resize(1, map_roi.pixel_list.size());
                 y_map_roi.resize(1, map_roi.pixel_list.size());
                 int i = 0;
@@ -530,37 +536,32 @@ void ScatterPlotView::_updatePlot()
             float xMaxVal = x_map.maxCoeff();
             float yMaxVal = y_map.maxCoeff();
 
+            const int num_points = (int)x_map.size();
             Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> x_arr;
             Eigen::Array<double, Eigen::Dynamic, Eigen::RowMajor> y_arr;
-            x_arr.resize(x_map.cols() * x_map.rows());
-            y_arr.resize(x_map.cols() * x_map.rows());
+            x_arr.resize(num_points);
+            y_arr.resize(num_points);
             int n = 0;
             QList<QPointF> plist;
+            plist.reserve(num_points);
             for (int y = 0; y < x_map.rows(); y++)
             {
                 for (int x = 0; x < x_map.cols(); x++)
                 {
                     x_arr(n) = (double)x_map(y, x);
                     y_arr(n) = (double)y_map(y, x);
-                    plist.append(QPointF(x_map(y,x),y_map(y,x))); 
+                    plist.append(QPointF(x_map(y,x),y_map(y,x)));
                     n++;
                 }
             }
-            int namt = x_map.size() * y_map.size();
-            int oamt = _scatter_series->points().size();
-            if(namt != oamt)
-            {
-                _scatter_series->clear();
-                _scatter_series->append(plist);
-            }
-            else
-            {
-                _scatter_series->replace(plist);
-            }
+            // replace() swaps all points in a single pass while reusing the
+            // existing series and its graphics items - far faster than
+            // clear()+append(). Leaving the series attached to the chart (no
+            // remove/addSeries) avoids a full chart relayout on every element
+            // change.
+            _scatter_series->replace(plist);
             double corr_coef = find_coefficient(x_arr, y_arr);
             _lb_corr_coef->setText(QString::number(corr_coef));
-            _scatter_series->setBorderColor(Qt::transparent);
-            _chart->addSeries(_scatter_series);
 
             _axisX->setTitleText(_cb_x_axis_element->currentText());
             _axisY->setTitleText(_cb_y_axis_element->currentText());
