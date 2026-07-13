@@ -140,6 +140,8 @@ private:
            element_data = nullptr;
            parentItem = parent;
            props_editable = editable;
+           is_line_row = false;
+           ptype = data_struct::Element_Param_Type::Ka1_Line;
        }
        ~TreeItem()
        {
@@ -193,6 +195,8 @@ private:
             for(auto& itr : element->energy_ratios())
             {
                 child = new TreeItem(this, true);
+                child->ptype = itr.ptype;
+                child->is_line_row = true;
                 child->itemData.push_back(QVariant(QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str())));
                 child->itemData.push_back(QVariant(itr.energy));
                 child->itemData.push_back(QVariant(multi_vec[i]));
@@ -292,6 +296,10 @@ private:
        QVector<QVariant> itemData;
        TreeItem *parentItem;
        bool props_editable;
+       // Line family (K/L/M sub-line) this row represents; only meaningful when
+       // is_line_row is true (i.e. a child/energy-ratio row, not an element row).
+       data_struct::Element_Param_Type ptype;
+       bool is_line_row;
    };
 
 

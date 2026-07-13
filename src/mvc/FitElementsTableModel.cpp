@@ -5,7 +5,11 @@
 
 #include "FitElementsTableModel.h"
 #include <QMessageBox>
+#include <QBrush>
+#include <QColor>
 #include "preferences/Preferences.h"
+// Reuse the element line-family colors so the table matches the spectra plot.
+#include "mvc/SpectraWidget.h"
 
 //---------------------------------------------------------------------------
 
@@ -356,12 +360,45 @@ QVariant FitElementsTableModel::data(const QModelIndex &index, int role) const
                 return node->itemData.at(index.column());
         }
     }
-    /*
     else if (role == Qt::BackgroundRole)
     {
-
+        // Color the line-family (K/L/M sub-line) rows using the same colors the
+        // SpectraWidget uses to draw those element lines, grouped by line family.
+        TreeItem* node = static_cast<TreeItem*>(index.internalPointer());
+        if (node != nullptr && node->is_line_row)
+        {
+            switch (node->ptype)
+            {
+            case data_struct::Element_Param_Type::Kb1_Line:
+            case data_struct::Element_Param_Type::Kb2_Line:
+                return QBrush(QColor::fromRgb(LINE_KB_R, LINE_KB_G, LINE_KB_B));
+            case data_struct::Element_Param_Type::Ka1_Line:
+            case data_struct::Element_Param_Type::Ka2_Line:
+                return QBrush(QColor::fromRgb(LINE_KA_R, LINE_KA_G, LINE_KA_B));
+            // L1
+            case data_struct::Element_Param_Type::Lb3_Line:
+            case data_struct::Element_Param_Type::Lb4_Line:
+            case data_struct::Element_Param_Type::Lg2_Line:
+            case data_struct::Element_Param_Type::Lg3_Line:
+            case data_struct::Element_Param_Type::Lg4_Line:
+                return QBrush(QColor::fromRgb(LINE_L1_R, LINE_L1_G, LINE_L1_B));
+            // L2
+            case data_struct::Element_Param_Type::Lb1_Line:
+            case data_struct::Element_Param_Type::Lg1_Line:
+            case data_struct::Element_Param_Type::Ln_Line:
+                return QBrush(QColor::fromRgb(LINE_L2_R, LINE_L2_G, LINE_L2_B));
+            // L3
+            case data_struct::Element_Param_Type::La1_Line:
+            case data_struct::Element_Param_Type::La2_Line:
+            case data_struct::Element_Param_Type::Lb2_Line:
+            case data_struct::Element_Param_Type::Ll_Line:
+                return QBrush(QColor::fromRgb(LINE_L3_R, LINE_L3_G, LINE_L3_B));
+            // M
+            default:
+                return QBrush(QColor::fromRgb(LINE_M_R, LINE_M_G, LINE_M_B));
+            }
+        }
     }
-    */
     /*
     // Check valid index
     if (index.row() >= _row_indicies.size() || index.row() < 0)
