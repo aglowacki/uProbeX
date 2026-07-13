@@ -41,12 +41,11 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bo
     _calib_curve = nullptr;
 	_export_maps_dialog = nullptr;
 
-    // Heat colormap stops: black -> dark red -> red -> light red -> yellow -> white
+    // Heat colormap stops: black -> red -> orange -> yellow -> white
     static const int heat_stops[][3] = {
         {0, 0, 0},          // black
-        {128, 0, 0},        // dark red
         {255, 0, 0},        // red
-        {255, 128, 128},    // light red
+        {255, 165, 0},      // orange
         {255, 255, 0},      // yellow
         {255, 255, 255}     // white
     };
