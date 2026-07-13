@@ -19,10 +19,12 @@ RulerUnitsDialog::RulerUnitsDialog(QWidget* parent, Qt::WindowFlags f)
 
    QLabel* labelEndValue = new QLabel(tr("Units Per Pixel X"));
    m_unitsPerPixelX = new QDoubleSpinBox();
+   m_unitsPerPixelX->setDecimals(6);
    m_unitsPerPixelX -> setMinimum(-9999999);
    m_unitsPerPixelX -> setMaximum(9999999);
 
    QLabel* labelStepValue = new QLabel(tr("Units Per Pixel Y"));
+   m_unitsPerPixelY->setDecimals(6);
    m_unitsPerPixelY = new QDoubleSpinBox();
    m_unitsPerPixelY -> setMinimum(-9999999);
    m_unitsPerPixelY -> setMaximum(9999999);
