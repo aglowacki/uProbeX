@@ -55,7 +55,7 @@ public:
 
    void setImageData(std::unordered_map<std::string, data_struct::ArrayXXr<float>>& img_data);
 
-   void setModel(MapsH5Model* model);
+   void setModel(std::shared_ptr<MapsH5Model> model);
 
    void setColorMap(QVector<QRgb>* selected_colormap);
 
@@ -171,7 +171,7 @@ private:
 
 	QPushButton* _plotBtn;
 
-	 MapsH5Model* _model;
+	 std::shared_ptr<MapsH5Model> _model;
 
 	 QProgressBar* _pb_pixels;
 

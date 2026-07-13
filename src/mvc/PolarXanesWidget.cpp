@@ -62,7 +62,7 @@ void PolarXanesWidget::onSelecAnalysisOrElement(QString val)
 
 //---------------------------------------------------------------------------
 
-void PolarXanesWidget::setModel(MapsH5Model* model)
+void PolarXanesWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     _model = model;
     if(model != nullptr)

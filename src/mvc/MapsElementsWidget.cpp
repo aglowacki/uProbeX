@@ -1057,7 +1057,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
 
  //---------------------------------------------------------------------------
 
-void MapsElementsWidget::setModel(MapsH5Model* model)
+void MapsElementsWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     if (_model != model)
     {
@@ -1391,7 +1391,7 @@ void MapsElementsWidget::model_updated()
     {
         _spectra_widget->setParamOverride(po);
     }
-    disconnect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+    disconnect(_model.get(), &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
     _spectra_widget->clearFitIntSpectra();
     _spectra_widget->clearROISpectra();
     for (auto& itr : _model->_fit_int_spec_dict)
@@ -1435,7 +1435,7 @@ void MapsElementsWidget::model_updated()
 
     _spectra_widget->setDatasetDir(_model->getDir());
 
-    connect(_model, &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+    connect(_model.get(), &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
 
     const data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
 

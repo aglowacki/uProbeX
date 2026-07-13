@@ -115,7 +115,7 @@ private slots:
     * @brief makeHDFWindow
     * @param model
     */
-   void make_HDF_Window(MapsH5Model* model);
+   void make_HDF_Window(std::shared_ptr<MapsH5Model> model);
 
    /**
     * @brief makeMDAWindow

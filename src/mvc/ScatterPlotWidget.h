@@ -43,7 +43,7 @@ public:
     */
     ~ScatterPlotWidget();
 
-    void setModel(MapsH5Model* model);
+    void setModel(std::shared_ptr<MapsH5Model> model);
 
     void setAnalysisType(QString name);
 

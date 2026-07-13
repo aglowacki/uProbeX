@@ -37,9 +37,9 @@ public:
 
     ~ScatterPlotView();
 
-    void setModel(MapsH5Model* model);
+    void setModel(std::shared_ptr<MapsH5Model> model);
 
-    MapsH5Model* getModel() { return _model;}
+    std::shared_ptr<MapsH5Model> getModel() { return _model;}
 
     void setAnalysisType(QString curAnalysis);
 
@@ -104,7 +104,7 @@ private:
     
     bool _display_log10;
 
-    MapsH5Model* _model;
+    std::shared_ptr<MapsH5Model> _model;
 };
 
 //---------------------------------------------------------------------------

@@ -54,7 +54,7 @@ public:
 
     void setRunEnabled(bool val);
 
-    void setModel(std::string analysis_type, MapsH5Model* model);
+    void setModel(std::string analysis_type, std::shared_ptr<MapsH5Model> model);
 
 public slots:
 
@@ -85,7 +85,7 @@ protected:
 
     QCheckBox* _ck_use_rois;
 
-    MapsH5Model* _model;
+    std::shared_ptr<MapsH5Model> _model;
 
     size_t _total_blocks;
 

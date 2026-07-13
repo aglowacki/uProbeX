@@ -238,7 +238,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
 
             if (mt == MODEL_TYPE::MAPS_H5)
             {
-                std::future< MapsH5Model*> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
+                std::future< std::shared_ptr<MapsH5Model>> ret = Global_Thread_Pool::inst()->enqueue([this, name] { return _model->get_MapsH5_Model(name); });
                 std::future_status status;
                 do
                 {
@@ -246,7 +246,7 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     QCoreApplication::processEvents();
                 } while (status != std::future_status::ready);
 
-                MapsH5Model* h5Model = ret.get();
+                std::shared_ptr<MapsH5Model> h5Model = ret.get();
                 if (h5Model != nullptr)
                 {
                     // have to call from main thread because ifstream.open locks up in threadpool

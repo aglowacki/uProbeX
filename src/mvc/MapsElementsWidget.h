@@ -57,9 +57,9 @@ public:
     */
    virtual ~MapsElementsWidget();
 
-   void setModel(MapsH5Model* h5_model);
+   void setModel(std::shared_ptr<MapsH5Model> h5_model);
 
-   MapsH5Model *getModel(){return _model;}
+   std::shared_ptr<MapsH5Model> getModel(){return _model;}
 
    void setTabVisible(int idx, bool val) { _tab_widget->setTabVisible(idx, val);}
 
@@ -153,7 +153,7 @@ protected:
 
    void _appendRoiTab();
 
-   MapsH5Model *_model;
+   std::shared_ptr<MapsH5Model> _model;
 
    FitSpectraWidget* _spectra_widget;
 

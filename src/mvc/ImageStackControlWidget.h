@@ -97,7 +97,7 @@ protected:
 
    QPushButton *_right_btn;
 
-   std::map<QString, MapsH5Model*> _h5_model_map;
+   std::map<QString, std::shared_ptr<MapsH5Model>> _h5_model_map;
 
    std::map<QString, RAW_Model*> _raw_model_map;
 

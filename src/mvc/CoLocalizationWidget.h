@@ -38,9 +38,9 @@ public:
     */
    virtual ~CoLocalizationWidget();
 
-   void setModel(MapsH5Model* h5_model);
+   void setModel(std::shared_ptr<MapsH5Model> h5_model);
 
-   MapsH5Model *getModel(){return _model;}
+   std::shared_ptr<MapsH5Model> getModel(){return _model;}
 
    void displayCounts(bool update_Min_MAx);
    
@@ -75,7 +75,7 @@ protected:
     */
    void _createLayout();
 
-   MapsH5Model *_model;
+   std::shared_ptr<MapsH5Model> _model;
 
    QLabel *_dataset_directory;
 

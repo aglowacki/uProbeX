@@ -39,7 +39,7 @@ public:
 
     void createLayout();
 
-    void setModel(MapsH5Model* model);
+    void setModel(std::shared_ptr<MapsH5Model> model);
 
 protected:
 
@@ -63,7 +63,7 @@ private:
 
     ArrayDr* _rhcp_int_spec;
 
-    MapsH5Model* _model;
+    std::shared_ptr<MapsH5Model> _model;
 
     QComboBox* _cb_analysis;
 

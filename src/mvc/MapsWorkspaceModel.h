@@ -62,7 +62,7 @@ public:
 
     QString get_directory_name();
 
-    MapsH5Model* get_MapsH5_Model(QString name);
+    std::shared_ptr<MapsH5Model> get_MapsH5_Model(QString name);
 
     RAW_Model* get_RAW_Model(QString name);
 
@@ -145,11 +145,11 @@ protected:
 
     bool _load_fit_params();
 
-    void _load_region_links(QString name, MapsH5Model* model);
+    void _load_region_links(QString name, std::shared_ptr<MapsH5Model> model);
 
     //bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
-    std::map<QString, MapsH5Model*> _h5_models;
+    std::map<QString, std::shared_ptr<MapsH5Model>> _h5_models;
     std::map<QString, RAW_Model*> _raw_models;
     std::map<QString, VLM_Model*> _vlm_models;
 

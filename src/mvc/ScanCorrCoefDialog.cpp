@@ -102,7 +102,7 @@ void ScanCorrCoefDialog::setViewProps(bool blog10, bool bdark, bool bgrid)
 
 //---------------------------------------------------------------------------
 
-void ScanCorrCoefDialog::setModel(std::string analysis_type, MapsH5Model* model)
+void ScanCorrCoefDialog::setModel(std::string analysis_type, std::shared_ptr<MapsH5Model> model)
 {
     _model = model; 
     _analysis_type = analysis_type;
@@ -265,7 +265,7 @@ void ScanCorrCoefDialog::onRun()
         */
             for (int i = 0; i < el_pair_names.size(); i++)
             {
-                double val = proc_corr_coef(_model, _analysis_type, restrict_coef, el_pair_names[i]);
+                double val = proc_corr_coef(_model.get(), _analysis_type, restrict_coef, el_pair_names[i]);
                 if (val > restrict_coef || val < -restrict_coef)
                 {
                     //logI << key << " : " << val << "\n";

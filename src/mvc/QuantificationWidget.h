@@ -38,9 +38,9 @@ public:
     */
    virtual ~QuantificationWidget();
 
-   void setModel(MapsH5Model* h5_model);
+   void setModel(std::shared_ptr<MapsH5Model> h5_model);
 
-   MapsH5Model *getModel(){return _model;}
+   std::shared_ptr<MapsH5Model> getModel(){return _model;}
 
 public slots:
     void update(const QString&);
@@ -76,7 +76,7 @@ protected:
 
    QComboBox* _cb_scalers;
 
-   MapsH5Model *_model;
+   std::shared_ptr<MapsH5Model> _model;
 
    Calibration_curve<double>* _calib_curve;
 

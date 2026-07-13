@@ -962,6 +962,24 @@ void ImageViewWidgetSubWin::updateScaleBars()
         
         line->setVisible(true);
         text->setVisible(true);
+
+
+        ///
+        QLineF localLine = line->line();
+
+        // 2. Map the endpoints from item coordinates to scene coordinates
+        QPointF sceneP1 = line->mapToScene(localLine.p1());
+        QPointF sceneP2 = line->mapToScene(localLine.p2());
+
+        // 3. Map the scene coordinates to your QGraphicsView's viewport pixels
+        QPoint viewP1 = _sub_windows[0].view->mapFromScene(sceneP1);
+        QPoint viewP2 = _sub_windows[0].view->mapFromScene(sceneP2);
+
+        // 4. Calculate the size (width and height in screen pixels)
+        int pixelWidth = qAbs(viewP2.x() - viewP1.x());
+        int pixelHeight = qAbs(viewP2.y() - viewP1.y());
+        //logI<<target_pixels<<"::\n";
+        ///
     }
 }
 

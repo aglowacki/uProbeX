@@ -323,7 +323,7 @@ void ScatterPlotView::onNameChange(QString name)
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotView::setModel(MapsH5Model* model)
+void ScatterPlotView::setModel(std::shared_ptr<MapsH5Model> model)
 {
     _model = model;
     _updateNames();

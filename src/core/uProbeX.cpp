@@ -695,7 +695,7 @@ void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 void uProbeX::make_HDF_Window(QString path)
 {
 
-    MapsH5Model* model = new MapsH5Model();
+    std::shared_ptr<MapsH5Model> model = std::make_shared<MapsH5Model>();
     try
     {
         model->load(path);
@@ -717,7 +717,7 @@ void uProbeX::make_HDF_Window(QString path)
 
 //---------------------------------------------------------------------------
 
-void uProbeX::make_HDF_Window(MapsH5Model* model)
+void uProbeX::make_HDF_Window(std::shared_ptr<MapsH5Model> model)
 {
     MapsElementsWidget* widget = new MapsElementsWidget();
     widget->setModel(model);

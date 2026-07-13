@@ -488,7 +488,7 @@ void CoLocalizationWidget::onSetAnalysisType(QString name)
 
 //---------------------------------------------------------------------------
 
-void CoLocalizationWidget::setModel(MapsH5Model* model)
+void CoLocalizationWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     if (_model != model)
     {

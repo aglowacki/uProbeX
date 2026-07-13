@@ -40,6 +40,8 @@ class ContrastWidget : public QWidget
 
     void call_redraw();
 
+    void log_color_changed(Qt::CheckState);
+
     public slots:
 
     void on_contrast_changed(QString val);
@@ -56,6 +58,8 @@ class ContrastWidget : public QWidget
     QComboBox* _cb_contrast;
 
     QCheckBox* _global_contrast_chk;
+
+    QCheckBox* _chk_log_color;
 
    float _min_contrast_perc;
 

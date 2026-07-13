@@ -62,13 +62,9 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 
     if(_currentModel != nullptr)
 	{
-         disconnect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
+         disconnect(_currentModel.get(),&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
 	}
 
-    if(_currentModel != nullptr)
-    {
-        delete _currentModel;
-    }
     _currentModel = nullptr;
 
     if(_qserverComm != nullptr)
@@ -138,7 +134,7 @@ void LiveMapsElementsWidget::createLayout()
 
 	if(_currentModel != nullptr)
 	{
-	    connect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
+	    connect(_currentModel.get(),&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
 	}
 
 
@@ -263,9 +259,9 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         _prev_dataset_name = *new_packet->dataset_name;
         if (_currentModel != nullptr)
         {
-            disconnect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
+            disconnect(_currentModel.get(),&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
         }
-        _currentModel = new MapsH5Model();
+        _currentModel = std::make_shared<MapsH5Model>();
         _currentModel->initialize_from_stream_block(new_packet);
         _progressBar->setRange(0, new_packet->height() - 1);
         _maps_h5_models.push_back(_currentModel);
@@ -277,7 +273,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         if (cur == _num_images - 1)
         {
             _mapsElementsWidget->setModel(_currentModel);
-            connect(_currentModel,&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
+            connect(_currentModel.get(),&MapsH5Model::model_data_updated,_mapsElementsWidget,&MapsElementsWidget::model_updated);
             _mapsElementsWidget->setRangeWidgetStartIndex(_num_images);
         }
     }

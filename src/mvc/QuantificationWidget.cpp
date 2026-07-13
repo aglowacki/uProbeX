@@ -109,7 +109,7 @@ void QuantificationWidget::_createLayout()
 
 //---------------------------------------------------------------------------
 
-void QuantificationWidget::setModel(MapsH5Model* model)
+void QuantificationWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     if (_model != model)
     {

@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <vector>
 #include <mutex>
+#include <memory>
 #include "core/defines.h"
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"

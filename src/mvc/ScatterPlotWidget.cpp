@@ -234,7 +234,7 @@ void ScatterPlotWidget::setQuantType(QString name)
 
 //---------------------------------------------------------------------------
 
-void ScatterPlotWidget::setModel(MapsH5Model* model)
+void ScatterPlotWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     if (model != nullptr)
     {
@@ -278,7 +278,7 @@ void ScatterPlotWidget::onSavePng()
     {
         itr->exportPngCsv();
     }
-    MapsH5Model* model = _plot_view_list.front()->getModel();
+    std::shared_ptr<MapsH5Model> model = _plot_view_list.front()->getModel();
     if(model != nullptr)
     {
         QDir dir = model->getDir();
