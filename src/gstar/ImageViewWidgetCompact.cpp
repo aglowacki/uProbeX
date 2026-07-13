@@ -608,6 +608,7 @@ void ImageViewWidgetCompact::zoomIn(QGraphicsItem* zoomObject)
 
    //clickCursor();
    //emit resetZoomToolBar();
+   updateScaleBar();
 }
 
 //---------------------------------------------------------------------------

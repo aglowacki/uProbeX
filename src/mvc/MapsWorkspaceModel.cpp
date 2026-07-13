@@ -657,7 +657,7 @@ bool MapsWorkspaceModel::_load_fit_params()
     for(size_t detector_num = 0; detector_num <= MAX_DETECTORS; detector_num++)
     {
         data_struct::Params_Override<double> params_override(dataset_dir, detector_num);
-        if( io::file::load_override_params(dataset_dir, detector_num, params_override) )
+        if( io::file::load_override_params(dataset_dir, detector_num, params_override, true, false) )
         {
             _fit_params_override_dict[detector_num] = params_override;
             emit newFitParamsFileLoaded(detector_num);
