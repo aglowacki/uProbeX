@@ -53,6 +53,10 @@ project(uProbeX)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${PROJECT_SOURCE_DIR}/cmake ${PROJECT_SOURCE_DIR}/../XRF-Maps/build)
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/../XRF-Maps/build )
 
+# Add the XRF-Maps build directory to the default library search path
+list(APPEND CMAKE_LIBRARY_PATH "${PROJECT_SOURCE_DIR}/../XRF-Maps/build")
+link_directories("${PROJECT_SOURCE_DIR}/../XRF-Maps/build")
+
 option(BUILD_WITH_TIRPC "Build tripc library for libxrpc (RedHat 8)" OFF)
 
 IF(UNIX)
