@@ -54,6 +54,12 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
 
     connect(_filter_line, &QLineEdit::returnPressed, this, &FileTabWidget::onUpdateFilter);
 
+    // Re-apply the active filter whenever the model is reset (e.g. after sorting
+    // by a column, or after ROI-count updates). A model reset clears the view's
+    // per-row hidden state and reorders the rows, so the row-based filter must be
+    // recomputed or every file becomes visible again.
+    connect(_file_list_model, &QAbstractItemModel::modelReset, this, &FileTabWidget::onUpdateFilter);
+
 	_filter_suggest_btn = new QPushButton();
 	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));
 	_filter_suggest_btn->setIconSize(QSize(15, 15));
