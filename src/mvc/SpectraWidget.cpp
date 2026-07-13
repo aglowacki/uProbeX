@@ -526,15 +526,11 @@ void SpectraWidget::set_element_lines(data_struct::Fit_Element_Map<double>* elem
 			}
 			else
 			{
-                float line_height = 1.0;
-                if (_display_log10)
-                {
-                    line_height = pow(10.0, (log10(line_max) * line_ratio) );                    
-                }
-                else
-                {
-                    line_height = line_max * line_ratio;
-                }
+                // Line height is the branching-ratio fraction of the current
+                // display max. When the log10 axis is active it naturally
+                // compresses this value so the line follows the log scale; on
+                // the linear axis it stays linear (the previous behavior).
+                float line_height = line_max * line_ratio;
 				line->append(itr.energy, line_height);
 			}
 		
@@ -661,6 +657,12 @@ void SpectraWidget::set_log10(bool val)
         }
         _chart->removeAxis(_currentYAxis);
 
+        for (QLineSeries* itr : _element_lines)
+        {
+            itr->detachAxis(_currentYAxis);
+        }
+	
+
         _display_log10 = val;
 
         if(_display_log10) //if current one is log10, set to normal
@@ -677,6 +679,11 @@ void SpectraWidget::set_log10(bool val)
         for(QAbstractSeries* ser : series)
         {
             ser->attachAxis(_currentYAxis);
+        }
+
+        for (QLineSeries* itr : _element_lines)
+        {
+            itr->attachAxis(_currentYAxis);
         }
 
         emit(y_axis_changed(_display_log10));
