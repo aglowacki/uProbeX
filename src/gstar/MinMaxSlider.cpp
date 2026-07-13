@@ -219,15 +219,17 @@ void MinMaxSlider::min_lineedit_changed()
 	try
 	{
 		float nval = _min_lineedit->text().toFloat();
-		
-		nval = std::max(_min_val, (qreal)nval);
-		nval = std::min(_max_val - _diff_over_128, (qreal)nval);
-		_min_lineedit->setText(QString::number(nval));
+		float cval = std::max(_min_val, (qreal)nval);
+		_min_lineedit->setText(QString::number(cval));
 
-		int slider_val = (int)((nval - _min_val) / _diff_over_128);
+		// Move the slider to the closest tick corresponding to the value.
+		int slider_val = (int)std::round((cval - _min_val) / _diff_over_128);
 		disconnect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
+		disconnect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_value_changed);
 		_min_slider->setValue(slider_val);
 		connect(_min_slider, &QSlider::sliderReleased, this, &MinMaxSlider::min_slider_changed);
+		connect(_min_slider, &QSlider::valueChanged, this, &MinMaxSlider::min_slider_value_changed);
+		
 		emit min_max_val_changed(true);
 	}
 	catch (...)
@@ -243,15 +245,17 @@ void MinMaxSlider::max_lineedit_changed()
 	try
 	{
 		float nval = _max_lineedit->text().toFloat();
-		
-		nval = std::min(_max_val, (qreal)nval);
-		nval = std::max(_min_val + _diff_over_128, (qreal)nval);
-		_max_lineedit->setText(QString::number(nval));
 
-		int slider_val = (int)((nval - _min_val) / _diff_over_128);
+		float cval = std::min(_max_val, (qreal)nval);
+		_max_lineedit->setText(QString::number(cval));
+
+		// Move the slider to the closest tick corresponding to the value.
+		int slider_val = (int)std::round((cval - _min_val) / _diff_over_128);
 		disconnect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
+		disconnect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_value_changed);
 		_max_slider->setValue(slider_val);
 		connect(_max_slider, &QSlider::sliderReleased, this, &MinMaxSlider::max_slider_changed);
+		connect(_max_slider, &QSlider::valueChanged, this, &MinMaxSlider::max_slider_value_changed);
 		emit min_max_val_changed(true);
 		
 	}
