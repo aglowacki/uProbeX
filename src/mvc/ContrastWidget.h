@@ -48,7 +48,7 @@ class ContrastWidget : public QWidget
 
     void on_min_max_contrast_changed(bool);
 
-    void on_global_contrast_changed(Qt::CheckState);
+    void on_global_contrast_changed(int);
 
     private:
 

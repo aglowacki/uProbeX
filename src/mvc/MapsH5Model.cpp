@@ -743,6 +743,7 @@ bool MapsH5Model::load_x_y_motors_only(QString filepath, data_struct::ArrayXXr<f
 
 bool MapsH5Model::load(QString filepath)
 {
+    H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
     try

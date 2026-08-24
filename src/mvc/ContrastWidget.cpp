@@ -121,7 +121,7 @@ void ContrastWidget::on_min_max_contrast_changed(bool redraw)
 
 //---------------------------------------------------------------------------
 
-void ContrastWidget::on_global_contrast_changed(Qt::CheckState state)
+void ContrastWidget::on_global_contrast_changed(int state)
 {
     if (state == Qt::CheckState::Checked)
     {

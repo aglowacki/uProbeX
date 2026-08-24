@@ -882,7 +882,7 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
                 m_imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
         }
-        if(label == STR_ELT || label == STR_ERT)
+        if(label.toStdString() == STR_ELT || label.toStdString() == STR_ERT)
         {
             m_imageViewWidget->setUnitLabel(i, "secs");
         }
@@ -1001,7 +1001,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         for (int i = 0; i < cnt; i++)
         {
             QString label = m_imageViewWidget->getLabelAt(i);
-            if (label == STR_ELT || label == STR_ERT)
+            if (label.toStdString() == STR_ELT || label.toStdString() == STR_ERT)
             {
                 m_imageViewWidget->setUnitLabel(i,"secs");
             }
@@ -1034,7 +1034,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
             {
                 m_imageViewWidget->setUnitLabel(i, "ug/cm2");
             }
-            else if (label == STR_ELT || label == STR_ERT)
+            else if (label.toStdString() == STR_ELT || label.toStdString() == STR_ERT)
             {
                 m_imageViewWidget->setUnitLabels("secs");
             }
@@ -1047,7 +1047,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         for (int i = 0; i < cnt; i++)
         {
             QString label = m_imageViewWidget->getLabelAt(i);
-            if (label == STR_ELT || label == STR_ERT)
+            if (label.toStdString() == STR_ELT || label.toStdString() == STR_ERT)
             {
                 m_imageViewWidget->setUnitLabel(i,"secs");
             }
