@@ -893,7 +893,7 @@ void uProbeX::open_HDF_File()
 
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Open HDF5", ".",
-                                                    tr("H5 (*.h5 *.h5*)", nullptr, FILE_DIALOG_OPTIONS));
+                                                    "H5 (*.h5 *.h5*)", nullptr, FILE_DIALOG_OPTIONS);
 
     // Dialog returns a nullptr string if user press cancel.
     if (fileName.isNull() || fileName.isEmpty()) return;
