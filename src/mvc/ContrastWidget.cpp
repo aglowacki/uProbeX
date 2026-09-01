@@ -18,11 +18,11 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent)
      _global_contrast_chk = new QCheckBox("Global Contrast");
     _global_contrast_chk->setChecked(true);
 
-    _chk_log_color = new QCheckBox("Log");
-    _chk_log_color->setChecked(true);
+    //_chk_log_color = new QCheckBox("Log");
+    //_chk_log_color->setChecked(true);
 
     connect(_global_contrast_chk, &QCheckBox::checkStateChanged, this, &ContrastWidget::on_global_contrast_changed);
-    connect(_chk_log_color, &QCheckBox::checkStateChanged, this, &ContrastWidget::log_color_changed);
+    //connect(_chk_log_color, &QCheckBox::checkStateChanged, this, &ContrastWidget::on_log_contrast_changed);
 
     _contrast_widget = new gstar::MinMaxSlider();
     _contrast_widget->setMinimumWidth(100);
@@ -57,7 +57,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent)
 
     QHBoxLayout* hbox_contrast = new QHBoxLayout();
     hbox_contrast->addWidget(_cb_contrast);
-    hbox_contrast->addWidget(_chk_log_color);
+    //hbox_contrast->addWidget(_chk_log_color);
     hbox_contrast->addWidget(_global_contrast_chk);
     hbox_contrast->addWidget(_contrast_widget);
 
@@ -117,6 +117,14 @@ void ContrastWidget::on_min_max_contrast_changed(bool redraw)
 	_contrast_widget->getUserMinMax(minCoef, maxCoef, _min_contrast_perc, _max_contrast_perc);
 	emit call_redraw();
 
+}
+
+
+//---------------------------------------------------------------------------
+
+void ContrastWidget::on_log_contrast_changed(int state)
+{
+	emit call_redraw();
 }
 
 //---------------------------------------------------------------------------

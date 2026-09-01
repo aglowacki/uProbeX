@@ -40,8 +40,6 @@ class ContrastWidget : public QWidget
 
     void call_redraw();
 
-    void log_color_changed(Qt::CheckState);
-
     public slots:
 
     void on_contrast_changed(QString val);
@@ -49,6 +47,8 @@ class ContrastWidget : public QWidget
     void on_min_max_contrast_changed(bool);
 
     void on_global_contrast_changed(int);
+
+    void on_log_contrast_changed(int);
 
     private:
 
