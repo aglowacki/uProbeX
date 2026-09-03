@@ -139,6 +139,8 @@ public slots:
 
    virtual void newGridLayout(int rows, int cols);
 
+   virtual void setScaleBarVisible(int val);
+   
 protected slots:
 
    virtual void onMouseMoveEvent(QGraphicsSceneMouseEvent* event);
@@ -202,7 +204,7 @@ private:
 
    void updateMinMaxLabels();
 
-   void updateScaleBar();
+   virtual void updateScaleBar();
 
    void layoutCellLabels(int n, int row, int col);
 

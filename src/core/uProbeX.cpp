@@ -153,6 +153,7 @@ void uProbeX::check_and_set_default_pref()
     Preferences::inst()->checkAndSet(STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant(true));
     Preferences::inst()->checkAndSet(STR_PFR_LOG_10, QVariant(true));
     Preferences::inst()->checkAndSet(STR_PFR_SHOW_SCAN_QUEUE_HEADER, QVariant(true));
+    Preferences::inst()->checkAndSet(STR_PRF_ScaleBarVisible, QVariant(true));
     
 }
 

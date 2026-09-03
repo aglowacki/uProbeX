@@ -12,7 +12,7 @@ using namespace gstar;
 
 ImageViewWidgetSubWin::ImageViewWidgetSubWin(int rows, int cols , QWidget* parent) : ImageViewWidget(rows, cols, parent)
 {
-   _scale_bar_visible = true;
+
    // Create main layout and add widgets
     createSceneAndView(rows,cols);
     createLayout();
@@ -489,7 +489,7 @@ void ImageViewWidgetSubWin::setSceneUnitsLabel(QString label)
     {
         itr.scene->setUnitsLabel(label);
     }
-    updateScaleBars();
+    updateScaleBar();
 }
 
 //---------------------------------------------------------------------------
@@ -500,7 +500,7 @@ void ImageViewWidgetSubWin::setSceneUnitsPerPixelX(double val)
     {
         itr.scene->setUnitsPerPixelX(val);
     }
-    updateScaleBars();
+    updateScaleBar();
 }
 
 //---------------------------------------------------------------------------
@@ -511,7 +511,7 @@ void ImageViewWidgetSubWin::setSceneUnitsPerPixelY(double val)
     {
         itr.scene->setUnitsPerPixelY(val);
     }
-    updateScaleBars();
+    updateScaleBar();
 }
 
 //---------------------------------------------------------------------------
@@ -532,7 +532,7 @@ void ImageViewWidgetSubWin::setScenePixmap(const QPixmap& p)
     {
         itr.scene->setPixmap(p);
     }
-    updateScaleBars();
+    updateScaleBar();
 }
 
 //---------------------------------------------------------------------------
@@ -542,7 +542,7 @@ void ImageViewWidgetSubWin::setSubScenePixmap(int idx, const QPixmap& p)
     if(idx > -1 && idx < _sub_windows.size())
     {
         _sub_windows[idx].scene->setPixmap(p);
-        updateScaleBars();
+        updateScaleBar();
     }
 }
 
@@ -827,26 +827,33 @@ bool ImageViewWidgetSubWin::getUpdatedMinMaxAt(int grid_idx, float &counts_min, 
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetSubWin::setScaleBarVisible(bool val)
+void ImageViewWidgetSubWin::setScaleBarVisible(int val)
 {
-    _scale_bar_visible = val;
+    if(val == 2)
+    {
+        _scale_bar_visible = true;
+    }
+    else
+    {
+        _scale_bar_visible = false;
+    }
+    Preferences::inst()->setValue(STR_PRF_ScaleBarVisible, _scale_bar_visible);
     for (auto* line : _scale_bar_lines)
     {
-        if (line) line->setVisible(val);
+        if (line) line->setVisible(_scale_bar_visible);
     }
     for (auto* text : _scale_bar_texts)
     {
-        if (text) text->setVisible(val);
+        if (text) text->setVisible(_scale_bar_visible);
     }
-    if (val)
-    {
-        updateScaleBars();
-    }
+    
+    updateScaleBar();
+
 }
 
 //---------------------------------------------------------------------------
 
-void ImageViewWidgetSubWin::updateScaleBars()
+void ImageViewWidgetSubWin::updateScaleBar()
 {
     if (!_scale_bar_visible)
     {

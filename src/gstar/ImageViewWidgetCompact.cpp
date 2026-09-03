@@ -12,7 +12,7 @@ using namespace gstar;
 
 ImageViewWidgetCompact::ImageViewWidgetCompact(int rows, int cols , QWidget* parent) : ImageViewWidget(rows, cols, parent)
 {
-
+    
     _main_layout = nullptr;
     _scale_bar_line = nullptr;
     _scale_bar_text = nullptr;
@@ -961,8 +961,8 @@ void ImageViewWidgetCompact::updateScaleBar()
 
 
     _scale_bar_text->setPos(bar_x, bar_y + 1.0);
-    _scale_bar_line->setVisible(true);
-    _scale_bar_text->setVisible(true);
+    _scale_bar_line->setVisible(_scale_bar_visible);
+    _scale_bar_text->setVisible(_scale_bar_visible);
 }
 
 //---------------------------------------------------------------------------
@@ -1185,4 +1185,22 @@ void ImageViewWidgetCompact::updateMinMax(unsigned int idx, const ArrayXXr<float
     _sub_window.on_update_min_max(normalized.minCoeff(), normalized.maxCoeff(), 0.0, 1.0, false);
 }
 
+//---------------------------------------------------------------------------
+
+void ImageViewWidgetCompact::setScaleBarVisible(int val)
+{
+    if (val == 2 )
+    {
+        _scale_bar_visible = true;
+    }
+    else
+    {
+        _scale_bar_visible = false;
+    }
+    Preferences::inst()->setValue(STR_PRF_ScaleBarVisible, _scale_bar_visible);
+    updateScaleBar();
+    _sub_window.scene->update();
+}
+
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

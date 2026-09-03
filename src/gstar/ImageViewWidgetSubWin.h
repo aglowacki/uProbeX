@@ -102,8 +102,6 @@ public:
    virtual bool getMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
 
    virtual bool getUpdatedMinMaxAt(int grid_idx, float &counts_min, float &counts_max);
-   
-   virtual void setScaleBarVisible(bool val);
 
    virtual void updateMinMax(unsigned int idx, const ArrayXXr<float>& normalized);
 public slots:
@@ -139,6 +137,8 @@ public slots:
    virtual void resizeEvent(QResizeEvent* event);
 
    virtual void newGridLayout(int rows, int cols);
+
+   virtual void setScaleBarVisible(int val);
 
 protected slots:
 
@@ -199,7 +199,7 @@ private:
     */
    void createRangewidget();
 
-   void updateScaleBars();
+   virtual void updateScaleBar();
 
 private:
 
@@ -209,8 +209,6 @@ private:
 
    std::vector<QGraphicsLineItem*> _scale_bar_lines;
    std::vector<QGraphicsTextItem*> _scale_bar_texts;
-
-   bool _scale_bar_visible;
 
 };
 

@@ -29,6 +29,7 @@
 #include <gstar/CountsLookupTransformer.h>
 #include "gstar/SubImageWindow.h"
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
+#include "preferences/Preferences.h"
 
 
 //---------------------------------------------------------------------------
@@ -183,6 +184,8 @@ public slots:
 
    virtual void newGridLayout(int rows, int cols) = 0;
 
+   virtual void setScaleBarVisible(int val) = 0;
+
 signals:
 
    /**
@@ -278,6 +281,8 @@ private:
     */
    virtual void createSceneAndView(int rows, int cols) = 0;
 
+   virtual void updateScaleBar() = 0;
+
 protected:
 
    CoordinateWidget* m_coordWidget;
@@ -295,6 +300,8 @@ protected:
    int _grid_cols;
 
    QVBoxLayout* _main_layout;
+
+   bool _scale_bar_visible;
 };
 
 }

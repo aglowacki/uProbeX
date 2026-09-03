@@ -144,6 +144,7 @@
 #define STR_PRF_COMPACT_COUNTS_VIEW "Counts_Compact_View"
 #define STR_PFR_SELECTED_ELEMENTS "Selected_Elements"
 #define STR_PREF_SAVED_CONTRAST "Saved_Contrast"
+#define STR_PRF_ScaleBarVisible "ScaleBarVisible"
 
 
 /**

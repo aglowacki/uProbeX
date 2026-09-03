@@ -13,15 +13,16 @@ ImageViewWidget::ImageViewWidget(int rows, int cols , QWidget* parent)
 : QWidget(parent)
 {
 
-   m_coordWidget = nullptr;
+    _scale_bar_visible = Preferences::inst()->getValue(STR_PRF_ScaleBarVisible).toBool();
+    m_coordWidget = nullptr;
 
-   // Zoom in/out cursors
-   m_zoomInCursor = QCursor(QPixmap(":/images/zoomin.png"));
-   m_zoomOutCursor = QCursor(QPixmap(":/images/zoomout.png"));
+    // Zoom in/out cursors
+    m_zoomInCursor = QCursor(QPixmap(":/images/zoomin.png"));
+    m_zoomOutCursor = QCursor(QPixmap(":/images/zoomout.png"));
 
-   m_zoomPercent = nullptr;
-   
-   set_null_mouse_pos = true;
+    m_zoomPercent = nullptr;
+
+    set_null_mouse_pos = true;
 
 }
 

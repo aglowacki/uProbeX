@@ -199,6 +199,12 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     _chk_invert_y->setChecked(Preferences::inst()->getValue(STR_INVERT_Y_AXIS).toBool());
     connect(_chk_invert_y, &QCheckBox::stateChanged, this, &MapsElementsWidget::on_invert_y_axis);
 
+
+    _chk_show_scalebar = new QCheckBox("Show Scalebar");
+    _chk_show_scalebar->setChecked(Preferences::inst()->getValue(STR_PRF_ScaleBarVisible).toBool());
+    connect(_chk_show_scalebar, &QCheckBox::stateChanged, m_imageViewWidget, &ImageViewWidget::setScaleBarVisible);
+
+    
     _grid_button = new QPushButton();
 	_grid_button->setIcon(QIcon(":/images/grid.png"));
 	_grid_button->setIconSize(QSize(15, 15)); 
@@ -216,6 +222,7 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     QHBoxLayout* optionsHboxM = new QHBoxLayout();
     optionsHboxM->setContentsMargins(0, 0, 0, 0);
     optionsHBox->addWidget(_chk_invert_y);
+    optionsHBox->addWidget(_chk_show_scalebar);
     optionsHboxS->addWidget(new QLabel("Layout:"));
     optionsHboxS->addWidget(_grid_button);
     optionsHboxS->addWidget(_btn_export_as_image);

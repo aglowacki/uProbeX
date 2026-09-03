@@ -206,6 +206,8 @@ protected:
 
    QCheckBox* _chk_invert_y;
 
+   QCheckBox* _chk_show_scalebar;
+
    QPushButton *_btn_export_as_image;
 
    ExportMapsDialog* _export_maps_dialog;
