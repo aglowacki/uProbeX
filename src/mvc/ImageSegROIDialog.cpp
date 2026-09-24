@@ -387,7 +387,8 @@ void ImageSegRoiDialog::createLayout()
 
 	_int_img_widget = new ImageSegWidget();
 	_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::OFF);
-
+	// connect redraw for contrast
+	connect(_int_img_widget, &ImageSegWidget::callRedraw, this, &ImageSegRoiDialog::onRedraw);
 
 	_spectra_widget = new SpectraWidget();
 	_spectra_widget->setSettingsBtnVisible(true);
@@ -998,6 +999,14 @@ QImage ImageSegRoiDialog::_generate_sum_image(cv::Mat& mat, ArrayXXr<float>& bg_
 	
 }
 */
+//---------------------------------------------------------------------------
+
+
+void ImageSegRoiDialog::onRedraw()
+{
+	onImgSelection(nullptr);
+}
+
 //---------------------------------------------------------------------------
 
 void ImageSegRoiDialog::onNormalizeChanged(int a)

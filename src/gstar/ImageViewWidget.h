@@ -74,7 +74,7 @@ public:
 
    void setCoordinateModel(CoordinateModel* model);
 
-   QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap);
+   QImage generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap, GenerateImageProp &props);
 
    int getViewCount(){return _grid_rows * _grid_cols;}
 

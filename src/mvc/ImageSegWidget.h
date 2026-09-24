@@ -58,6 +58,9 @@ public:
 
    void invertSelectedRoiMask();
 
+signals:
+   void callRedraw();
+
 public slots:
 
    /**

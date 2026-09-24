@@ -4,6 +4,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <gstar/ImageViewWidget.h>
+#include "core/str_defines.h"
 
 using namespace gstar;
 
@@ -42,10 +43,70 @@ void ImageViewWidget::setCoordsVisible(bool val)
 
 //---------------------------------------------------------------------------
 
-QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap)
+QImage ImageViewWidget::generate_img(ArrayXXr<float>& int_img, QVector<QRgb>& colormap, GenerateImageProp &props)
 {
     float counts_max = int_img.maxCoeff();
     float counts_min = int_img.minCoeff();
+    if(props.contrast_limits == STR_FULL_IMAGE)
+    {
+        if (props.global_contrast)
+        {
+            // normalize contrast
+            counts_max = counts_min + ((counts_max - counts_min) * props.contrast_max);
+            counts_min = counts_min + ((counts_max - counts_min) * props.contrast_min);
+        }
+        else
+        {
+            //get user min max from contrast control
+            counts_max = props.contrast_max;
+            counts_min = props.contrast_min;
+        }
+    }
+    else if (props.contrast_limits == STR_CENTER_2_3_IMAGE 
+        || props.contrast_limits == STR_CENTER_1_3_IMAGE
+        || props.contrast_limits == STR_CENTER_1_4_IMAGE
+        || props.contrast_limits == STR_CENTER_1_6_IMAGE)
+    {
+        int sub_height = 0;
+        int sub_width = 0;
+        int center_x = int_img.cols() / 2;
+        int center_y = int_img.rows() / 2;
+
+        counts_max = std::numeric_limits<float>::min();
+        counts_min = std::numeric_limits<float>::max();
+        
+
+        if (props.contrast_limits == STR_CENTER_2_3_IMAGE )
+        {
+            sub_height = (int_img.rows() / 3 );
+            sub_width = (int_img.cols() / 3 );
+        }
+        else if (props.contrast_limits == STR_CENTER_1_3_IMAGE)
+        {
+            sub_height = (int_img.rows() / 3 ) / 2;
+            sub_width = (int_img.cols() / 3 ) / 2;
+        }
+        else if (props.contrast_limits == STR_CENTER_1_4_IMAGE)
+        {
+            sub_height = (int_img.rows() / 4 ) / 2;
+            sub_width = (int_img.cols() / 4 ) / 2;
+        }
+        else if (props.contrast_limits == STR_CENTER_1_6_IMAGE)
+        {
+            sub_height = (int_img.rows() / 5 ) / 2;
+            sub_width = (int_img.cols() / 5 ) / 2;
+        }
+        for(int r = center_y - sub_height; r < center_y + sub_height; r++)
+        {
+            for(int c = center_x - sub_width; c < center_x + sub_width; c++)
+            {
+                float val = int_img(r,c);
+                counts_max = std::max(val, counts_max);
+                counts_min = std::min(val, counts_min);
+            }
+        }
+    }
+
     int width = static_cast<unsigned int>(int_img.cols());
     int height = static_cast<unsigned int>(int_img.rows());
     QImage image(width, height, QImage::Format_Indexed8);

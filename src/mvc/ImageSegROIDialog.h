@@ -95,6 +95,8 @@ private slots:
 
 	void onPlotSettings();
 
+	void onRedraw();
+	
 protected:
 
    void createLayout();
