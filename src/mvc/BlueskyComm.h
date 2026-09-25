@@ -15,6 +15,7 @@
 #include <zmq.hpp>
 #include "mvc/BlueskyPlan.h"
 #include <string>
+#include <memory>
 
 
 #include "core/defines.h"
@@ -29,34 +30,18 @@ public:
    /**
     * Constructor.
     */
-   BlueskyComm(zmq::context_t *context, QString str_ip) 
+   BlueskyComm(zmq::context_t &context, QString str_ip)
    {
-        _zmq_comm_socket = nullptr;
         if(str_ip.length() > 0)
         {
             std::string conn_str = "tcp://"+str_ip.toStdString()+":60615";
-            _zmq_comm_socket = new zmq::socket_t(*context, ZMQ_REQ);
+            _zmq_comm_socket = std::make_unique<zmq::socket_t>(context, ZMQ_REQ);
             _zmq_comm_socket->connect(conn_str);
         }
         else
         {
             logW<<"QServer ip address is blank, Can not connect!\n";
         }
-   }
-
-    //---------------------------------------------------------------------------
-
-   /**
-    * Destructor.
-    */
-   ~BlueskyComm()
-   {
-       if(_zmq_comm_socket != nullptr)
-       {
-           _zmq_comm_socket->close();
-           delete _zmq_comm_socket;
-       }
-       _zmq_comm_socket = nullptr;
    }
 
     //---------------------------------------------------------------------------
@@ -986,7 +971,7 @@ logI<<message.to_string()<<"\n";
 
 protected:
 
-    zmq::socket_t *_zmq_comm_socket;
+    std::unique_ptr<zmq::socket_t> _zmq_comm_socket;
 
 };
 

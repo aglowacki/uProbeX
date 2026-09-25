@@ -8,6 +8,7 @@
 
 //---------------------------------------------------------------------------
 
+#include <memory>
 #include <QMainWindow>
 #include <QApplication>
 #include <QMap>
@@ -315,7 +316,7 @@ private:
    /**
     * @brief _liveMapsViewer
     */
-   LiveMapsElementsWidget*  _liveMapsViewer;
+   std::unique_ptr<LiveMapsElementsWidget> _liveMapsViewer;
 
    // log dock
    QDockWidget *_log_dock;

@@ -17,16 +17,13 @@ LiveMapsElementsWidget::LiveMapsElementsWidget(QWidget* parent) : QWidget(parent
 {
 
     _streamWorker = nullptr;
-    _qserverComm = nullptr;
     _mapsElementsWidget = nullptr;
-    _last_packet = nullptr;
-    _qserverComm = nullptr;
     //_currentModel = new MapsH5Model();
     _currentModel = nullptr;
-    _scan_dialog = new ScanRegionDialog();
+    _scan_dialog = std::make_unique<ScanRegionDialog>();
     _num_images = 0;
     _prev_dataset_name = " ";
-    _context = new zmq::context_t(1);
+    _context = std::make_unique<zmq::context_t>(1);
 
     QString strQServerIp = Preferences::inst()->getValue(STR_PRF_LastQServerIP).toString();
     QString strIp = Preferences::inst()->getValue(STR_PRF_LastIP).toString();
@@ -67,10 +64,7 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
 
     _currentModel = nullptr;
 
-    if(_qserverComm != nullptr)
-    {
-        delete _qserverComm;
-    }
+    _qserverComm.reset();
 
     if(_streamWorker != nullptr)
     {
@@ -87,12 +81,11 @@ LiveMapsElementsWidget::~LiveMapsElementsWidget()
         _mapsElementsWidget = nullptr;
     }
 
-    if (_context != nullptr)
+    if (_context)
     {
         _context->close();
-        delete _context;
     }
-    _context = nullptr;
+    _context.reset();
 
 }
 
@@ -138,7 +131,7 @@ void LiveMapsElementsWidget::createLayout()
 	}
 
 
-    _vlm_widget = new VLM_Widget(_scan_dialog);
+    _vlm_widget = new VLM_Widget(_scan_dialog.get());
     _vlm_widget->setAvailScans(&_avail_scans);
     gstar::CoordinateModel *coord_model = new gstar::CoordinateModel(&_linear_trans);
     _vlm_widget->setCoordinateModel(coord_model);
@@ -148,7 +141,7 @@ void LiveMapsElementsWidget::createLayout()
     connect(_vlm_widget, &VLM_Widget::onScanUpdated, this, &LiveMapsElementsWidget::callUpdateScanRegion);
     connect(_vlm_widget, &VLM_Widget::onScanRemoved, this, &LiveMapsElementsWidget::callRemoveScan);
 
-    _scan_queue_widget = new ScanQueueWidget(_scan_dialog);
+    _scan_queue_widget = new ScanQueueWidget(_scan_dialog.get());
     connect(_scan_queue_widget, &ScanQueueWidget::queueNeedsToBeUpdated, this, &LiveMapsElementsWidget::getQueuedScans);
     connect(_scan_queue_widget, &ScanQueueWidget::onOpenEnv, this, &LiveMapsElementsWidget::callOpenEnv);
     connect(_scan_queue_widget, &ScanQueueWidget::onCloseEnv, this, &LiveMapsElementsWidget::callCloseEnv);
@@ -186,11 +179,7 @@ void LiveMapsElementsWidget::createLayout()
 void LiveMapsElementsWidget::updateIp()
 {
     
-    if(_qserverComm != nullptr)
-    {
-        delete _qserverComm;
-    }
-    _qserverComm = new BlueskyComm(_context, _qserver_ip_addr->text());
+    _qserverComm = std::make_unique<BlueskyComm>(*_context, _qserver_ip_addr->text());
 
     updateScansAvailable();
     getQueuedScans();
@@ -204,13 +193,11 @@ void LiveMapsElementsWidget::updateIp()
         _streamWorker->wait();
         delete _streamWorker;
     }
-    _streamWorker = new NetStreamWorker(_context, _qline_ip_addr->text(), _qline_port->text(), _qserver_ip_addr->text(), this);
+    _streamWorker = new NetStreamWorker(_context.get(), _qline_ip_addr->text(), _qline_port->text(), _qserver_ip_addr->text(), this);
     connect(_streamWorker, &NetStreamWorker::newData, this, &LiveMapsElementsWidget::newDataArrived, Qt::QueuedConnection);
     connect(_streamWorker, &NetStreamWorker::newStringData, _scan_queue_widget, &ScanQueueWidget::newDataArrived, Qt::QueuedConnection);
     _streamWorker->start();
-    if(_last_packet != nullptr)
-        delete _last_packet;
-    _last_packet = nullptr;
+    _last_packet.reset();
 }
 
 //---------------------------------------------------------------------------
@@ -291,11 +278,7 @@ void LiveMapsElementsWidget::newDataArrived(data_struct::Stream_Block<float>* ne
         _progressBar->update();
         //cntr = 0;
     }
-    if(_last_packet != nullptr)
-    {
-        delete _last_packet;
-    }
-    _last_packet = new_packet;
+    _last_packet.reset(new_packet);
 }
 
 //---------------------------------------------------------------------------

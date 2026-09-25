@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QTabWidget>
+#include <memory>
 #include "NetStreamWorker.h"
 #include "mvc/MapsElementsWidget.h"
 #include "mvc/VLM_Widget.h"
@@ -122,7 +123,7 @@ protected:
 
    NetStreamWorker* _streamWorker;
 
-   BlueskyComm* _qserverComm;
+   std::unique_ptr<BlueskyComm> _qserverComm;
 
    QLineEdit *_qserver_ip_addr;
 
@@ -144,17 +145,17 @@ protected:
 
    BlueskyPlan _running_scan;
 
-   data_struct::Stream_Block<float>* _last_packet;
+   std::unique_ptr<data_struct::Stream_Block<float>> _last_packet;
 
    std::string _prev_dataset_name;
 
-   zmq::context_t *_context;
+   std::unique_ptr<zmq::context_t> _context;
 
    LinearCoordTransformer _linear_trans;
 
    int _num_images;
 
-   ScanRegionDialog* _scan_dialog;
+   std::unique_ptr<ScanRegionDialog> _scan_dialog;
 };
 
 

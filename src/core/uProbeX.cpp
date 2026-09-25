@@ -102,7 +102,6 @@ uProbeX::~uProbeX()
         QString strPort = _liveMapsViewer->getPort();
         Preferences::inst()->setValue(STR_PRF_LastIP, strIp);
         Preferences::inst()->setValue(STR_PRF_LastPort, strPort);
-        delete _liveMapsViewer;
         _liveMapsViewer = nullptr;
     }
 
@@ -359,12 +358,11 @@ if(_mapsWorkspaceControllers.size() > 0)
                 QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
                 for (auto &itr : model->get_hdf5_file_list())
                 {
-                    MapsH5Model * h5model = new MapsH5Model();
-                    if (h5model->load(itr.second.absoluteFilePath()))
+                    MapsH5Model h5model;
+                    if (h5model.load(itr.second.absoluteFilePath()))
                     {
-                        h5model->export_images(dialog.get_save_png(), dialog.get_save_tiff(), dialog.get_save_ascii(), saved_contrast, colormap);
+                        h5model.export_images(dialog.get_save_png(), dialog.get_save_tiff(), dialog.get_save_ascii(), saved_contrast, colormap);
                     }
-                    delete h5model;
                 }
             }
             else
@@ -421,7 +419,7 @@ void uProbeX::openLiveStreamViewer()
 {
     if (_liveMapsViewer == nullptr)
     {
-        _liveMapsViewer = new LiveMapsElementsWidget();
+        _liveMapsViewer = std::make_unique<LiveMapsElementsWidget>();
     }
     _liveMapsViewer->show();
 }
@@ -435,7 +433,6 @@ void uProbeX::exitApplication()
         Preferences::inst()->setValue(STR_PRF_LastQServerIP, _liveMapsViewer->getQServerIpAddress());
         Preferences::inst()->setValue(STR_PRF_LastIP, _liveMapsViewer->getIpAddress());
         Preferences::inst()->setValue(STR_PRF_LastPort, _liveMapsViewer->getPort());
-        delete _liveMapsViewer;
         _liveMapsViewer = nullptr;
     }
     // Quit
@@ -1197,24 +1194,24 @@ void uProbeX::cleanUpAutoSafeData() {
 
 void uProbeX::showAbout()
 {
-    gstar::Splash* splashAbout = new gstar::Splash(this, Qt::Popup, "uProbeX", true);
+    gstar::Splash splashAbout(this, Qt::Popup, "uProbeX", true);
     // Show and add message
-    splashAbout->setWindowModality(Qt::ApplicationModal);
-    splashAbout->clear();
-    splashAbout->appendMessage(tr("Created by"));
-    splashAbout->appendMessage(tr("Software Services Group"));
-    splashAbout->appendMessage(tr("Advanced Photon Source"));
-    splashAbout->appendMessage(tr("Argonne National Laboratory"));
-    splashAbout->appendMessage(tr(""));
-    splashAbout->appendMessage(tr("Copyright (c) 2014"));
-    splashAbout->appendMessage(tr("UChicago Argonne, LLC"));
-    splashAbout->appendMessage(tr(""));
-    splashAbout->appendMessage(tr("Credits"));
-    splashAbout->appendMessage(tr("Arthur Glowacki"));
-    splashAbout->appendMessage(tr("Dariusz Jarosz"));
-    splashAbout->appendMessage(tr("Nicholas Schwarz"));
-    splashAbout->appendMessage(tr("Ke Yue"));
-    splashAbout->exec();
+    splashAbout.setWindowModality(Qt::ApplicationModal);
+    splashAbout.clear();
+    splashAbout.appendMessage(tr("Created by"));
+    splashAbout.appendMessage(tr("Software Services Group"));
+    splashAbout.appendMessage(tr("Advanced Photon Source"));
+    splashAbout.appendMessage(tr("Argonne National Laboratory"));
+    splashAbout.appendMessage(tr(""));
+    splashAbout.appendMessage(tr("Copyright (c) 2014"));
+    splashAbout.appendMessage(tr("UChicago Argonne, LLC"));
+    splashAbout.appendMessage(tr(""));
+    splashAbout.appendMessage(tr("Credits"));
+    splashAbout.appendMessage(tr("Arthur Glowacki"));
+    splashAbout.appendMessage(tr("Dariusz Jarosz"));
+    splashAbout.appendMessage(tr("Nicholas Schwarz"));
+    splashAbout.appendMessage(tr("Ke Yue"));
+    splashAbout.exec();
 }
 
 //---------------------------------------------------------------------------
@@ -1233,18 +1230,13 @@ void uProbeX::showPreferences()
     }
 
     // Show preferences dialog with current settings
-    PreferencesDialog* dialog = new PreferencesDialog(widgetList,
-                                                      this,
-                                                      Qt::Dialog);
+    PreferencesDialog dialog(widgetList, this, Qt::Dialog);
 
     // Update with current settings
-    if (dialog->exec() == QDialog::Accepted)
+    if (dialog.exec() == QDialog::Accepted)
     {
         processPreferencesUpdate();
     }
-
-    // Delete dialog
-    delete dialog;
 
 }
 
