@@ -55,20 +55,20 @@ void VLM_Model::add_region_marker(const QMap<QString, QString>& marker)
 void VLM_Model::_load_xml_markers_and_regions()
 {
 
-	QFile* file = new QFile(_datasetPath + ".xml");
+	QFile file(_datasetPath + ".xml");
 
-	if (!file->exists())
+	if (!file.exists())
 	{
 		return;
 	}
 
-	if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		QMessageBox::critical(nullptr,	"VLM_Model", "Couldn't open maker xml", QMessageBox::Ok);
 		return;
 	}
 
-	QXmlStreamReader xml(file);
+	QXmlStreamReader xml(&file);
 
 	while (!xml.atEnd() && !xml.hasError())
 	{

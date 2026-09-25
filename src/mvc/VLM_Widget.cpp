@@ -169,7 +169,7 @@ void VLM_Widget::addCalibration()
 
    UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_calTreeModel,
                              m_calAnnoTreeView,
@@ -204,7 +204,7 @@ void VLM_Widget::addTopWindowPoints()
    //Add A
    UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_calTreeModel,
                              m_calAnnoTreeView,
@@ -217,7 +217,7 @@ void VLM_Widget::addTopWindowPoints()
    //Add B
    annotation = new UProbeMarkerGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_calTreeModel,
                              m_calAnnoTreeView,
@@ -230,7 +230,7 @@ void VLM_Widget::addTopWindowPoints()
    //Add C
    annotation = new UProbeMarkerGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_calTreeModel,
                              m_calAnnoTreeView,
@@ -243,7 +243,7 @@ void VLM_Widget::addTopWindowPoints()
    //Add D
    annotation = new UProbeMarkerGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_calTreeModel,
                              m_calAnnoTreeView,
@@ -282,7 +282,7 @@ void VLM_Widget::onAddMicroProbeRegion()
    connect(annotation, &ScanRegionGraphicsItem::planRemoved, this, &VLM_Widget::onScanRemoved);
    //UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem();
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,
@@ -298,7 +298,7 @@ void VLM_Widget::onAddMicroProbeRegion()
 void VLM_Widget::addMicroProbeRegion(gstar::UProbeRegionGraphicsItem* annotation)
 {
    annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+   annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
    insertAndSelectAnnotation(m_mpTreeModel,
                              m_mpAnnoTreeView,
@@ -390,7 +390,7 @@ void VLM_Widget::_createLightToMicroCoords(int id)
       }
       else
       {
-         m_lightToMicroCoordModel = new gstar::CoordinateModel(lightTransformer);
+         m_lightToMicroCoordModel = std::make_unique<gstar::CoordinateModel>(lightTransformer);
       }
    }
    else
@@ -399,7 +399,7 @@ void VLM_Widget::_createLightToMicroCoords(int id)
       logW << "Could not init Transformer\n";
    }
 
-   m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel);
+   m_lightToMicroCoordWidget->setModel(m_lightToMicroCoordModel.get());
 
 }
 
@@ -412,7 +412,7 @@ void VLM_Widget::_createSolver()
 
     if (m_solver == nullptr)
     {
-        m_solver = new Solver();
+        m_solver = std::make_unique<Solver>();
     }
 
     int id = Preferences::inst()->getValue(STR_PRF_SolverCheckedID).toInt();
@@ -1164,7 +1164,7 @@ void VLM_Widget::CallPythonFunc()
 {
 
    QAction *action = (QAction *)sender();
-   RegionCaller *prc = m_actionMap[action];
+   std::shared_ptr<RegionCaller> prc = m_actionMap[action];
 
    if(prc)
    {
@@ -1218,36 +1218,34 @@ void VLM_Widget::createMicroProbeMenu()
                QAction *action = new QAction(attr->getName(), this);
 
                QString execType = attr->getDescription();
-               RegionCaller *prc = nullptr;
+               std::shared_ptr<RegionCaller> prc;
 
                if(execType == "shell")
                {
-                  prc = new ShellRegionCaller();
+                  prc = std::make_shared<ShellRegionCaller>();
                   if(prc->init(grp.getGroupName(), "", ""))
                   {
                      m_actionMap.insert(action, prc);
                   }
                   else
                   {
-                     delete prc;
                      prc = nullptr;
                      logW<<"Error initializing shell call: "<<attr->getName().toStdString() << "\n";
                   }
-               }               
+               }
                if(execType == "python")
                {
-                  prc = new PythonRegionCaller();
+                  prc = std::make_shared<PythonRegionCaller>();
                   if(prc->init(fInfo.path(), fInfo.baseName(), attr->getValue()))
                   {
                      m_actionMap.insert(action, prc);
                   }
                   else
                   {
-                     delete prc;
                      prc = nullptr;
                      logW<<"Error initializing python call: "<<attr->getName().toStdString() << "\n";
                   }
-               }               
+               }
 
                if(prc != nullptr)
                {
@@ -1918,7 +1916,7 @@ void VLM_Widget::restoreMarkerLoaded()
 
       UProbeRegionGraphicsItem* annotation = new UProbeRegionGraphicsItem(marker);
       annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-      annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+      annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
       reloadAndSelectAnnotation(m_mpTreeModel,
                                 m_mpAnnoTreeView,
@@ -1949,7 +1947,7 @@ void VLM_Widget::restoreMarkerLoaded()
 
        UProbeMarkerGraphicsItem* annotation = new UProbeMarkerGraphicsItem(marker);
        annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-       annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+       annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
        reloadAndSelectAnnotation(m_calTreeModel,
            m_calAnnoTreeView,
@@ -2157,7 +2155,7 @@ void PreferencesSolverOption::runSolver()
 void VLM_Widget::setLightToMicroCoordModel(gstar::CoordinateModel *model)
 {
 
-   m_lightToMicroCoordModel = model;
+   m_lightToMicroCoordModel.reset(model);
    m_lightToMicroCoordModel->setTransformerPrecision(
          Preferences::inst()->getValue(STR_PRF_DecimalPrecision).toInt());
 
@@ -2529,10 +2527,6 @@ void VLM_Widget::updateTreeView()
 void VLM_Widget::updateContextMenus()
 {
 
-   for(RegionCaller *prc : m_actionMap.values())
-   {
-      delete prc;
-   }
    m_actionMap.clear();
    createMicroProbeMenu();
 
@@ -2606,9 +2600,8 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                if(_live_h5model != nullptr)
                {
                   disconnect(m_imageViewWidget, &ImageViewWidget::cbLabelChanged, this, &VLM_Widget::onElementSelect);
-                  delete _live_h5model;
-               } 
-               _live_h5model = new MapsH5Model();
+               }
+               _live_h5model = std::make_unique<MapsH5Model>();
                H5ImageModel h5image_model;
                if(_live_h5model->load(fileName))
                {
@@ -2656,7 +2649,6 @@ void VLM_Widget::loadLiveBackground(QString fileName)
                }
                else
                {
-                  delete _live_h5model;
                   _live_h5model = nullptr;
                   if (h5image_model.load(fileName))
                   {
@@ -3204,7 +3196,7 @@ void VLM_Widget::loadScanRegionLinks(QString dir)
          annotation->setSameRect(load_rect);
          annotation->setGripSize();
          annotation->setMouseOverPixelCoordModel(m_coordinateModel);
-         annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel);
+         annotation->setLightToMicroCoordModel(m_lightToMicroCoordModel.get());
 
          reloadAndSelectAnnotation(m_mpTreeModel,
                                  m_mpAnnoTreeView,

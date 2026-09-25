@@ -8,6 +8,7 @@
 
 //---------------------------------------------------------------------------
 
+#include <memory>
 #include <gstar/AbstractImageWidget.h>
 #include <QApplication>
 #include <gstar/AnnotationTreeModel.h>
@@ -630,7 +631,7 @@ private:
    /**
     * @brief m_coordTransformer
     */
-   Solver* m_solver;
+   std::unique_ptr<Solver> m_solver;
 
    /**
     * @brief m_solverParameterParse
@@ -640,7 +641,7 @@ private:
    /**
     * @brief m_lightToMicroCoordModel
     */
-   gstar::CoordinateModel* m_lightToMicroCoordModel;
+   std::unique_ptr<gstar::CoordinateModel> m_lightToMicroCoordModel;
 
    /**
     * @brief m_lightToMicroCoordWidget
@@ -685,7 +686,7 @@ private:
    /**
     * @brief m_actionMap
     */
-   QMap<QAction*, RegionCaller*> m_actionMap;
+   QMap<QAction*, std::shared_ptr<RegionCaller>> m_actionMap;
 
    std::map<QString, BlueskyPlan> *_avail_scans;
 
@@ -693,7 +694,7 @@ private:
 
    ScanRegionDialog* _scan_dialog;
 
-   MapsH5Model *_live_h5model;
+   std::unique_ptr<MapsH5Model> _live_h5model;
 
 };
 
