@@ -272,7 +272,7 @@ void QuantificationWidget::update(const QString& val)
 
     const std::vector<data_struct::Quantification_Standard<double> > quant_standards = _model->quant_standards();
 
-    std::unordered_map<std::string, Element_Quant<double>*> e_quant_map = _model->get_quant_fit_info(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
+    std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>> e_quant_map = _model->get_quant_fit_info(_cb_analysis_types->currentText().toStdString(), _cb_scalers->currentText().toStdString());
     int max_z = 0;
 
     for (const auto& sitr : quant_standards)

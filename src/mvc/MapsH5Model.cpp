@@ -52,7 +52,6 @@ MapsH5Model::MapsH5Model() : QObject()
     _loaded_scan = false;
     _loaded_integrated_spectra = false;
     _loaded_counts = false;
-    _params_override = nullptr;
     _initialized_by_stream_block = false;
     _requested_rows = 0;
     _requested_cols = 0;
@@ -72,13 +71,7 @@ MapsH5Model::~MapsH5Model()
 
 void MapsH5Model::clear_analyzed_counts()
 {
-
-    for (auto itr : _analyzed_counts)
-    {
-        delete itr.second;
-    }
     _analyzed_counts.clear();
-
 }
 
 //---------------------------------------------------------------------------
@@ -236,7 +229,7 @@ std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val
 
 //---------------------------------------------------------------------------
 
-void MapsH5Model::set_fit_parameters_override(data_struct::Params_Override<double>* override)
+void MapsH5Model::set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> override)
 {
     _params_override = override;
 }
@@ -263,8 +256,9 @@ void MapsH5Model::initialize_from_stream_block(data_struct::Stream_Block<float>*
     {
         std::string group_name = _analysis_enum_to_str(itr.first);
 
-        data_struct::Fit_Count_Dict<float>* xrf_counts = new data_struct::Fit_Count_Dict<float>();
-        _analyzed_counts.insert( {group_name, xrf_counts} );
+        auto xrf_counts_owner = std::make_unique<data_struct::Fit_Count_Dict<float>>();
+        data_struct::Fit_Count_Dict<float>* xrf_counts = xrf_counts_owner.get();
+        _analyzed_counts.insert( {group_name, std::move(xrf_counts_owner)} );
 
         for(auto& itr2 : itr.second.fit_counts)
         {
@@ -581,7 +575,7 @@ void MapsH5Model::update_from_stream_block(data_struct::Stream_Block<float>* blo
             std::string group_name = _analysis_enum_to_str(itr.first);
             if(_analyzed_counts.count(group_name) > 0)
             {
-                data_struct::Fit_Count_Dict<float>* xrf_counts = _analyzed_counts[group_name];
+                data_struct::Fit_Count_Dict<float>* xrf_counts = _analyzed_counts[group_name].get();
                 if(xrf_counts != nullptr)
                 {
                     for(auto& itr2 : itr.second.fit_counts)
@@ -1278,71 +1272,51 @@ bool MapsH5Model::_load_integrated_spectra_9(hid_t maps_grp_id)
 
         memoryspace_id = H5Screate_simple(1, &count2[1], nullptr);
 
-        ArrayDr* fit_int_spec = new ArrayDr(dims_out[1]);
+        auto fit_int_spec = std::make_shared<ArrayDr>(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             *fit_int_spec = fit_int_spec->unaryExpr([](double v) { return std::isfinite(v)? v : 0.0000001f; });
             _max_chan_spec_dict.insert({ "Max_Channels", fit_int_spec });
-            
-        }
-        else
-        {
-            delete fit_int_spec;
+
         }
 
         offset2[0] = 1;
-        fit_int_spec = new ArrayDr(dims_out[1]);
+        fit_int_spec = std::make_shared<ArrayDr>(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _max_chan_spec_dict.insert({ "Max_10_Channels", fit_int_spec });
-            
-        }
-        else
-        {
-            delete fit_int_spec;
+
         }
 
         offset2[0] = 2;
-        fit_int_spec = new ArrayDr(dims_out[1]);
+        fit_int_spec = std::make_shared<ArrayDr>(dims_out[1]);
         H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
         error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
         if (error > -1)
         {
             _fit_int_spec_dict.insert({ STR_FIT_GAUSS_MATRIX, fit_int_spec });
         }
-        else
-        {
-            delete fit_int_spec;
-        }
 
 		offset2[0] = 3;
-		fit_int_spec = new ArrayDr(dims_out[1]);
+		fit_int_spec = std::make_shared<ArrayDr>(dims_out[1]);
 		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
 		error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
 		if (error > -1)
 		{
 			_fit_int_spec_dict.insert({ "SVD", fit_int_spec });
 		}
-		else
-		{
-			delete fit_int_spec;
-		}
 
 		offset2[0] = 4;
-		fit_int_spec = new ArrayDr(dims_out[1]);
+		fit_int_spec = std::make_shared<ArrayDr>(dims_out[1]);
 		H5Sselect_hyperslab(max_chan_dspace_id, H5S_SELECT_SET, offset2, nullptr, count2, nullptr);
 		error = H5Dread(max_chan_spec_id, H5T_NATIVE_DOUBLE, memoryspace_id, max_chan_dspace_id, H5P_DEFAULT, (void*)(fit_int_spec->data()));
 		if (error > -1)
 		{
 			_fit_int_spec_dict.insert({ "Background", fit_int_spec });
-		}
-		else
-		{
-			delete fit_int_spec;
 		}
 
         delete[]dims_out;
@@ -1430,7 +1404,8 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
 
     count[0] = 1;
 
-    data_struct::Fit_Count_Dict<float>* xrf_counts = new data_struct::Fit_Count_Dict<float>();
+    auto xrf_counts_owner = std::make_unique<data_struct::Fit_Count_Dict<float>>();
+    data_struct::Fit_Count_Dict<float>* xrf_counts = xrf_counts_owner.get();
     // convert v9 to v10
     if (group_name == STR_FITS_V9)
     {
@@ -1444,7 +1419,7 @@ bool MapsH5Model::_load_analyzed_counts_9(hid_t analyzed_grp_id, std::string gro
     {
         group_name = STR_FIT_ROI;
     }
-    _analyzed_counts.insert( {group_name, xrf_counts} );
+    _analyzed_counts.insert( {group_name, std::move(xrf_counts_owner)} );
 
     memoryspace_id = H5Screate_simple(3, count, nullptr);
     memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
@@ -1545,7 +1520,7 @@ bool MapsH5Model::_load_version_10(hid_t file_id, hid_t maps_grp_id)
 
 //---------------------------------------------------------------------------
 
-bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
+bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>>>& e_quants)
 {
 
     std::string calib_curve_str = STR_CALIB_CURVE + str_quantifier;
@@ -1676,7 +1651,7 @@ bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std
             
             if (Z < 100)
             {
-                data_struct::Element_Quant<double>* e_quant = new data_struct::Element_Quant<double>(Z);
+                auto e_quant = std::make_shared<data_struct::Element_Quant<double>>(Z);
                 
                 offset[1] = 0;
                 H5Sselect_hyperslab(qv_dspace, H5S_SELECT_SET, offset, nullptr, count, nullptr);
@@ -1741,7 +1716,7 @@ bool MapsH5Model::_load_quantifier(hid_t grp_id, std::string str_quantifier, std
 //---------------------------------------------------------------------------
 
 
-bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants)
+bool MapsH5Model::_load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>>>& e_quants)
 {
     hid_t grp_id = -1;
     
@@ -2400,7 +2375,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     count[i] = dims_in[i];
                 }
 
-                ArrayDr* spectra = new ArrayDr(dims_in[0]);
+                auto spectra = std::make_shared<ArrayDr>(dims_in[0]);
 
                 count[0] = dims_in[0];
 
@@ -2414,10 +2389,6 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     *spectra = spectra->unaryExpr([](double v) { return std::isfinite(v)? v : 0.0000001f; });
                     _max_chan_spec_dict.insert({ "Max_Channels", spectra });
 
-                }
-                else
-                {
-                    delete spectra;
                 }
                 H5Sclose(memoryspace_id);
             }
@@ -2443,7 +2414,7 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                     count[i] = dims_in[i];
                 }
 
-                ArrayDr* spectra = new ArrayDr(dims_in[0]);
+                auto spectra = std::make_shared<ArrayDr>(dims_in[0]);
 
                 count[0] = dims_in[0];
 
@@ -2456,10 +2427,6 @@ bool MapsH5Model::_load_integrated_spectra_10(hid_t file_id)
                 {
                     _max_chan_spec_dict.insert({ "Max_10_Channels", spectra });
 
-                }
-                else
-                {
-                    delete spectra;
                 }
                 H5Sclose(memoryspace_id);
             }
@@ -2638,7 +2605,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 					count[i] = dims_in[i];
 				}
 
-				ArrayDr* spectra = new ArrayDr(dims_in[0]);
+				auto spectra = std::make_shared<ArrayDr>(dims_in[0]);
 
 				count[0] = dims_in[0];
 
@@ -2677,7 +2644,7 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 					count[i] = dims_in[i];
 				}
 
-				ArrayDr* spectra = new ArrayDr(dims_in[0]);
+				auto spectra = std::make_shared<ArrayDr>(dims_in[0]);
 
 				count[0] = dims_in[0];
 
@@ -2724,8 +2691,9 @@ bool MapsH5Model::_load_analyzed_counts_10(hid_t analyzed_grp_id, std::string gr
 
     //count[0] = 1;
 
-    data_struct::Fit_Count_Dict<float> *xrf_counts = new data_struct::Fit_Count_Dict<float>();
-    _analyzed_counts.insert( {group_name, xrf_counts} );
+    auto xrf_counts_owner = std::make_unique<data_struct::Fit_Count_Dict<float>>();
+    data_struct::Fit_Count_Dict<float> *xrf_counts = xrf_counts_owner.get();
+    _analyzed_counts.insert( {group_name, std::move(xrf_counts_owner)} );
 
     memoryspace_id = H5Screate_simple(3, count, nullptr);
     memoryspace_name_id = H5Screate_simple(1, count_name, nullptr);
@@ -3146,7 +3114,7 @@ Calibration_curve<double>* MapsH5Model::get_calibration_curve(std::string analys
     return nullptr;
 }
 
-const std::unordered_map < std::string, Element_Quant<double>*>& MapsH5Model::get_quant_fit_info(std::string analysis_type, std::string scaler_name)
+const std::unordered_map < std::string, std::shared_ptr<Element_Quant<double>>>& MapsH5Model::get_quant_fit_info(std::string analysis_type, std::string scaler_name)
 {
     return _all_element_quants[analysis_type][scaler_name];
 }

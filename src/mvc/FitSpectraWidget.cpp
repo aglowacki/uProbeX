@@ -411,13 +411,13 @@ void FitSpectraWidget::onSettingsDialog()
             if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
-                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX).get(), (data_struct::Spectra<double>*) & _ev);
             }
 
             if (_fit_int_spec_map.count("Background") > 0)
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_INT_BACKGROUND.c_str());
-                _spectra_widget->append_spectra(name, _fit_int_spec_map.at("Background"), (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at("Background").get(), (data_struct::Spectra<double>*) & _ev);
             }
 		}
 		else
@@ -434,7 +434,7 @@ void FitSpectraWidget::onSettingsDialog()
             if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
-                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS).get(), (data_struct::Spectra<double>*) & _ev);
             }
         }
         else
@@ -448,7 +448,7 @@ void FitSpectraWidget::onSettingsDialog()
         {
             for (auto& itr : _max_chan_spec_map)
             {
-                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second.get(), (data_struct::Spectra<double>*) & _ev);
             }
         }
         else
@@ -678,7 +678,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             if (_fit_int_spec_map.count(STR_FIT_GAUSS_MATRIX) > 0)
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_GAUSS_MATRIX.c_str());
-                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX), (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_GAUSS_MATRIX).get(), (data_struct::Spectra<double>*) & _ev);
             }
         }
         else
@@ -693,7 +693,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             if (_fit_int_spec_map.count(STR_FIT_NNLS) > 0)
             {
                 QString name = "Fitted_Int_" + QString(STR_FIT_NNLS.c_str());
-                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS), (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(name, _fit_int_spec_map.at(STR_FIT_NNLS).get(), (data_struct::Spectra<double>*) & _ev);
             }
         }
         else
@@ -707,7 +707,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
         {
             for (auto& itr : _max_chan_spec_map)
             {
-                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev);
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second.get(), (data_struct::Spectra<double>*) & _ev);
             }
         }
 
@@ -724,14 +724,14 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
 
 //---------------------------------------------------------------------------
 
-void FitSpectraWidget::appendFitIntSpectra(std::string name, ArrayDr* spec)
+void FitSpectraWidget::appendFitIntSpectra(std::string name, std::shared_ptr<ArrayDr> spec)
 {
     _fit_int_spec_map[name] = spec;
 }
 
 //---------------------------------------------------------------------------
 
-void FitSpectraWidget::appendMaxChanSpectra(std::string name, const ArrayDr* spec)
+void FitSpectraWidget::appendMaxChanSpectra(std::string name, std::shared_ptr<const ArrayDr> spec)
 {
     _max_chan_spec_map[name] = spec;
 }

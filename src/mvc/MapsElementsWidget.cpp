@@ -1416,8 +1416,9 @@ void MapsElementsWidget::model_updated()
 
         _polar_xanes_widget->setModel(_model);                
 
-        _spectra_widget->appendMaxChanSpectra(STR_LHCP_SPECTRA, _model->get_lhcp_spectra());
-        _spectra_widget->appendMaxChanSpectra(STR_RHCP_SPECTRA, _model->get_rhcp_spectra());
+        // non-owning: these point at _model's own Spectra members, not separately heap-allocated
+        _spectra_widget->appendMaxChanSpectra(STR_LHCP_SPECTRA, std::shared_ptr<const ArrayDr>(_model->get_lhcp_spectra(), [](const ArrayDr*) {}));
+        _spectra_widget->appendMaxChanSpectra(STR_RHCP_SPECTRA, std::shared_ptr<const ArrayDr>(_model->get_rhcp_spectra(), [](const ArrayDr*) {}));
 
         _model->getIntegratedSpectra(_int_spec);
         _int_spec /= 2.0;

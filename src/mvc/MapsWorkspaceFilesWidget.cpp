@@ -268,12 +268,18 @@ void MapsWorkspaceFilesWidget::onOpenModel(const QStringList& names_list, MODEL_
                     {
                         param_override = _model->getParamOverride(-1);
                     }
-                     if (param_override == nullptr)
+                    std::shared_ptr<data_struct::Params_Override<double>> param_override_ptr;
+                    if (param_override == nullptr)
                     {
-                        // generate param file
-                        param_override = new data_struct::Params_Override<double>();
+                        // generate param file; MapsH5Model becomes sole owner
+                        param_override_ptr = std::make_shared<data_struct::Params_Override<double>>();
                     }
-                    h5Model->set_fit_parameters_override(param_override);
+                    else
+                    {
+                        // non-owning: param_override points into MapsWorkspaceModel's storage
+                        param_override_ptr = std::shared_ptr<data_struct::Params_Override<double>>(param_override, [](data_struct::Params_Override<double>*) {});
+                    }
+                    h5Model->set_fit_parameters_override(param_override_ptr);
                     emit loaded_model(name, mt);
                     load_status = LOADED;
                 }

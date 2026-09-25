@@ -66,9 +66,9 @@ public:
 
    void clearAllSpectra() { _spectra_widget->clearAllSpectra(); }
 
-   void appendFitIntSpectra(std::string, ArrayDr*);
+   void appendFitIntSpectra(std::string, std::shared_ptr<ArrayDr>);
 
-   void appendMaxChanSpectra(std::string name, const ArrayDr* spec);
+   void appendMaxChanSpectra(std::string name, std::shared_ptr<const ArrayDr> spec);
 
    void appendROISpectra(std::string name, std::shared_ptr<ArrayDr> spec, QColor color);
 
@@ -226,9 +226,9 @@ private:
 
    data_struct::Params_Override<double>* _param_override;
 
-   std::unordered_map<std::string, ArrayDr*> _fit_int_spec_map;
+   std::unordered_map<std::string, std::shared_ptr<ArrayDr>> _fit_int_spec_map;
 
-   std::unordered_map<std::string, const ArrayDr*> _max_chan_spec_map;
+   std::unordered_map<std::string, std::shared_ptr<const ArrayDr>> _max_chan_spec_map;
 
    std::map<std::string, std::shared_ptr<ArrayDr>> _roi_spec_map;
 

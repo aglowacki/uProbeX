@@ -165,17 +165,17 @@ public:
 
     std::vector<std::string> getAnalyzedTypes();
 
-    void set_fit_parameters_override(data_struct::Params_Override<double>* override);
+    void set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> override);
 
     Calibration_curve<double>* get_calibration_curve(std::string analysis_type, std::string scaler_name);
 
-    data_struct::Params_Override<double>* getParamOverride() { return _params_override; }
+    data_struct::Params_Override<double>* getParamOverride() { return _params_override.get(); }
 
     const data_struct::Fit_Parameters<double>& getFileFitParams() { return _file_fit_params; }
 
-    std::unordered_map<std::string, ArrayDr*> _fit_int_spec_dict;
+    std::unordered_map<std::string, std::shared_ptr<ArrayDr>> _fit_int_spec_dict;
 
-    std::unordered_map<std::string, ArrayDr*> _max_chan_spec_dict;
+    std::unordered_map<std::string, std::shared_ptr<ArrayDr>> _max_chan_spec_dict;
 
     const data_struct::Scan_Info<double>* getScanInfo() { return &_scan_info; }
 
@@ -205,7 +205,7 @@ public:
 
     const std::vector<data_struct::Quantification_Standard<double> >& quant_standards() { return _quant_standards; }
 
-    const std::unordered_map < std::string, Element_Quant<double>*>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
+    const std::unordered_map < std::string, std::shared_ptr<Element_Quant<double>>>& get_quant_fit_info(std::string analysis_type, std::string scaler_name);
 
     static bool load_x_y_motors_only(QString filepath, data_struct::ArrayXXr<float> &x_arr, data_struct::ArrayXXr<float> &y_arr);
 
@@ -255,9 +255,9 @@ protected:
 
     bool _load_version_10(hid_t file_id, hid_t maps_grp_id);
 
-    bool _load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>& e_quants);
-    
-    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>> &e_quants);
+    bool _load_quantifier(hid_t grp_id, std::string str_quantifier, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>>>& e_quants);
+
+    bool _load_quantification_10_single(hid_t maps_grp_id, std::string path, std::unordered_map<std::string, Calibration_curve<double> >& quant, std::map<std::string, std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>>> &e_quants);
 
     bool _load_quantification_standard_10(hid_t maps_grp_id);
 
@@ -281,7 +281,7 @@ protected:
     
     std::string _analysis_enum_to_str(data_struct::Fitting_Routines val);
 
-    std::map<std::string, data_struct::Fit_Count_Dict<float>*> _analyzed_counts;
+    std::map<std::string, std::unique_ptr<data_struct::Fit_Count_Dict<float>>> _analyzed_counts;
 
     data_struct::Spectra<double> _integrated_spectra;
 
@@ -291,7 +291,7 @@ protected:
 
     data_struct::ArrayTr<double> _energy_array;
 
-    data_struct::Params_Override<double>* _params_override;
+    std::shared_ptr<data_struct::Params_Override<double>> _params_override;
 
     std::map<std::string, data_struct::ArrayXXr<float>> _scalers;
 
@@ -335,7 +335,7 @@ private:
     unsigned int _requested_cols;
 
     //  proc_type          quantifier            element    quant_prop
-    std::map<std::string, std::map<std::string, std::unordered_map<std::string, Element_Quant<double>*>>> _all_element_quants;
+    std::map<std::string, std::map<std::string, std::unordered_map<std::string, std::shared_ptr<Element_Quant<double>>>>> _all_element_quants;
 
     float _version;
 
