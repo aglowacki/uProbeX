@@ -70,7 +70,7 @@ public:
 
    void appendMaxChanSpectra(std::string name, const ArrayDr* spec);
 
-   void appendROISpectra(std::string name, ArrayDr* spec, QColor color);
+   void appendROISpectra(std::string name, std::shared_ptr<ArrayDr> spec, QColor color);
 
    void deleteROISpectra(std::string name);
 
@@ -230,7 +230,7 @@ private:
 
    std::unordered_map<std::string, const ArrayDr*> _max_chan_spec_map;
 
-   std::map<std::string, ArrayDr*> _roi_spec_map;
+   std::map<std::string, std::shared_ptr<ArrayDr>> _roi_spec_map;
 
    std::unordered_map<std::string, QColor> _roi_spec_colors;
 

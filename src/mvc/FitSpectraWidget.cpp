@@ -716,7 +716,7 @@ void FitSpectraWidget::replot_integrated_spectra(bool snipback)
             for (auto& itr : _roi_spec_map)
             {
                 QColor* color = &(_roi_spec_colors.at(itr.first));
-                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second, (data_struct::Spectra<double>*) & _ev, color);
+                _spectra_widget->append_spectra(QString(itr.first.c_str()), itr.second.get(), (data_struct::Spectra<double>*) & _ev, color);
             }
         }
     }
@@ -738,7 +738,7 @@ void FitSpectraWidget::appendMaxChanSpectra(std::string name, const ArrayDr* spe
 
 //---------------------------------------------------------------------------
 
-void FitSpectraWidget::appendROISpectra(std::string name, ArrayDr* spec, QColor color)
+void FitSpectraWidget::appendROISpectra(std::string name, std::shared_ptr<ArrayDr> spec, QColor color)
 {
     _roi_spec_map[name] = spec;
     _roi_spec_colors[name] = color;
@@ -750,11 +750,10 @@ void FitSpectraWidget::deleteROISpectra(std::string name)
 {
     if (_roi_spec_map.count(name) > 0)
     {
-        ArrayDr* spec = _roi_spec_map.at(name);
+        auto spec = _roi_spec_map.at(name);
         if (spec != nullptr)
         {
             spec->resize(1);
-            // delete spec; throws exception , need to investigate TODO
         }
         _roi_spec_map.erase(name);
         _spectra_widget->remove_spectra(QString(name.c_str()));
@@ -768,12 +767,11 @@ void FitSpectraWidget::deleteAllROISpectra()
 {
     for (auto &itr : _roi_spec_map)
     {
-        ArrayDr* spec = itr.second;
+        auto spec = itr.second;
         _spectra_widget->remove_spectra(QString(itr.first.c_str()));
         if (spec != nullptr)
         {
             spec->resize(1);
-            // delete spec; throws exception , need to investigate TODO
         }
     }
     _roi_spec_map.clear();
@@ -1102,7 +1100,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
     
     if (_roi_spec_map.count(roi_name.toStdString()) > 0)
     {
-        roi_spec = _roi_spec_map.at(roi_name.toStdString());
+        roi_spec = _roi_spec_map.at(roi_name.toStdString()).get();
     }
     else
     {
@@ -1117,7 +1115,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
     {
         if (_roi_spec_map.count(back_name.toStdString()) > 0)
         {
-            back_spec = _roi_spec_map.at(back_name.toStdString());
+            back_spec = _roi_spec_map.at(back_name.toStdString()).get();
         }
         else
         {

@@ -210,11 +210,11 @@ protected:
 
    QPushButton *_btn_export_as_image;
 
-   ExportMapsDialog* _export_maps_dialog;
+   std::unique_ptr<ExportMapsDialog> _export_maps_dialog;
 
    QWidget* _counts_window;
 
-   QImage* _color_maps_ledgend;
+   QImage _color_maps_ledgend;
 
    QLabel *_color_map_ledgend_lbl;
 
@@ -226,7 +226,7 @@ protected:
 
    ImageSegRoiDialog _img_seg_diag;
 
-   RoiStatisticsWidget* _roi_stats_diag;
+   std::unique_ptr<RoiStatisticsWidget> _roi_stats_diag;
 
    QTreeView* m_roiTreeView;
 

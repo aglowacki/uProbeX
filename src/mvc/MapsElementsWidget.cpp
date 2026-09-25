@@ -36,10 +36,8 @@ MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bo
 {
     
     _model = nullptr;
-    _roi_stats_diag = nullptr;
     _normalizer = nullptr;
     _calib_curve = nullptr;
-	_export_maps_dialog = nullptr;
 
     // Heat colormap stops: black -> red -> orange -> yellow -> white
     static const int heat_stops[][3] = {
@@ -86,17 +84,6 @@ MapsElementsWidget::~MapsElementsWidget()
 
     _co_loc_widget->setModel(nullptr);
     _scatter_plot_widget->setModel(nullptr);
-    if(_roi_stats_diag != nullptr)
-    {
-        delete _roi_stats_diag;
-    }
-/* //this is done elsewhere . should refactor it to be smart pointer
-    if(_model != nullptr)
-    {
-        delete _model;
-    }
-    _model = nullptr;
-*/
 }
 
 //---------------------------------------------------------------------------
@@ -166,17 +153,17 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     }
 
     _color_map_ledgend_lbl = new QLabel();
-    _color_maps_ledgend = new QImage(256, 10, QImage::Format_Indexed8);
-    _color_maps_ledgend->setColorTable(_gray_colormap);
+    _color_maps_ledgend = QImage(256, 10, QImage::Format_Indexed8);
+    _color_maps_ledgend.setColorTable(_gray_colormap);
     for (uint c = 0; c < 256; c++)
     {
         for (int r = 0; r < 10; r++)
         {
-            _color_maps_ledgend->setPixel(c, r, c);
+            _color_maps_ledgend.setPixel(c, r, c);
         }
     }
-    
-    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend.convertToFormat(QImage::Format_RGB32)));
 
     _chk_disp_color_ledgend = new QCheckBox("Display Color Ledgend");
     _chk_disp_color_ledgend->setChecked(Preferences::inst()->getValue(STR_DISPLAY_COLOR_LEDGEND).toBool());
@@ -747,7 +734,7 @@ void MapsElementsWidget::openRoiStatsWidget()
     {
         if (_roi_stats_diag == nullptr)
         {
-            _roi_stats_diag = new RoiStatisticsWidget();
+            _roi_stats_diag = std::make_unique<RoiStatisticsWidget>();
         }
         _roi_stats_diag->clear_all();
 
@@ -941,8 +928,8 @@ void MapsElementsWidget::checkColormapSelect(QString colormap)
             Preferences::inst()->setValue(STR_COLORMAP, colormap);
         }
     }
-    _color_maps_ledgend->setColorTable(*_selected_colormap);
-    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend->convertToFormat(QImage::Format_RGB32)));
+    _color_maps_ledgend.setColorTable(*_selected_colormap);
+    _color_map_ledgend_lbl->setPixmap(QPixmap::fromImage(_color_maps_ledgend.convertToFormat(QImage::Format_RGB32)));
 }
 
 //---------------------------------------------------------------------------
@@ -1489,7 +1476,9 @@ void MapsElementsWidget::model_updated()
         if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
         {
             // plot roi int spec
-            _spectra_widget->appendROISpectra(itr.first, (ArrayDr*)&(itr.second.int_spec.at(_model->getDatasetName().toStdString())), itr.second.color);
+            // non-owning: this Spectra lives inside _model's Map_ROI storage, not on our heap
+            ArrayDr* model_owned_spec = (ArrayDr*)&(itr.second.int_spec.at(_model->getDatasetName().toStdString()));
+            _spectra_widget->appendROISpectra(itr.first, std::shared_ptr<ArrayDr>(model_owned_spec, [](ArrayDr*) {}), itr.second.color);
         }
     }
 
@@ -1794,9 +1783,9 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
             insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
             std::vector<std::pair<int, int>> pixel_list;
             itr->to_roi_vec(pixel_list);
-            data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
+            auto int_spectra = std::make_shared<data_struct::Spectra<double>>();
             std::unordered_map<std::string, double> scaler_maps;
-            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, int_spectra, scaler_maps))
+            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, int_spectra.get(), scaler_maps))
             {
                 struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(), *int_spectra, scaler_maps);
 
@@ -1841,10 +1830,6 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
                 }
                 */
             }
-            else
-            {
-                delete int_spectra;
-            }
         }
     
         _model->saveAllRoiMaps();
@@ -1875,8 +1860,8 @@ void MapsElementsWidget::on_export_image_pressed()
         export_model_dir.mkdir(_model->getDatasetName());
         export_model_dir.cd(_model->getDatasetName());
 
-        _export_maps_dialog = new ExportMapsDialog(export_model_dir.absolutePath());
-        connect(_export_maps_dialog, &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
+        _export_maps_dialog = std::make_unique<ExportMapsDialog>(export_model_dir.absolutePath());
+        connect(_export_maps_dialog.get(), &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
     }
     _export_maps_dialog->show();
 
