@@ -3,13 +3,14 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <core/PythonRegionCaller.h>
+// core/PythonLoader.h (pybind11/Python.h) must be included before any Qt header in
+// this translation unit -- see the comment in PythonSolver.h for why.
 #include <core/PythonLoader.h>
+#include <core/PythonRegionCaller.h>
+#include <QMessageBox>
 
 #include "core/defines.h"
 //---------------------------------------------------------------------------
-
-const static int num_args = 7;
 
 PythonRegionCaller::PythonRegionCaller()
 {
@@ -41,19 +42,10 @@ bool PythonRegionCaller::init(QString path,
       m_module = module;
       m_funcName = functionnName;
 
-      if(false == PythonLoader::inst()->loadFunction(path, module, functionnName))
-      {
-         logW<<"Failed to load function: "<<module.toStdString()<<" "<<functionnName.toStdString() << "\n";
-         return false;
-      }
-
-      if(false == PythonLoader::inst()->setNumArgs(m_module, m_funcName, num_args))
-      {
-         logW<<"Failed to set argument count";
-         return false;
-      }
+      m_func = std::make_unique<pybind11::function>(
+               PythonLoader::inst()->loadFunction(path, module, functionnName));
    }
-   catch(PythonLoader::pyException px)
+   catch(const PythonLoader::pyException& px)
    {
       QMessageBox::critical(nullptr, "PythonRegionCaller Error", px.what());
       return false;
@@ -76,26 +68,10 @@ bool PythonRegionCaller::CallFunc(QString name,
 
    try
    {
-      if( false == PythonLoader::inst()->setArgString(m_module, m_funcName, 0, name))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 1, cX))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 2, cY))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 3, width))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 4, height))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 5, factorX))
-         return false;
-      if( false == PythonLoader::inst()->setArgDouble(m_module, m_funcName, 6, factorY))
-         return false;
-
-      PythonLoader::inst()->callFunc(m_module, m_funcName, PythonLoader::RET_NONE);
+      (*m_func)(name.toStdString(), cX, cY, width, height, factorX, factorY);
    }
-   catch(PythonLoader::pyException ex)
+   catch(const pybind11::error_already_set& ex)
    {
-      //QMessageBox::critical(0, "Error", ex.what());
       logE<<ex.what();
       return false;
    }

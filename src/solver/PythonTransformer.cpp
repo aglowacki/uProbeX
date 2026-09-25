@@ -3,10 +3,11 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
-#include <solver/PythonTransformer.h>
-//#include <QLibrary>
-
+// core/PythonLoader.h (pybind11/Python.h) must be included before any Qt header in
+// this translation unit -- see the comment in PythonSolver.h for why.
 #include <core/PythonLoader.h>
+#include <solver/PythonTransformer.h>
+#include <QMessageBox>
 
 #include "core/defines.h"
 //---------------------------------------------------------------------------
@@ -27,25 +28,10 @@ PythonTransformer::PythonTransformer(QString path,
       m_module = filename;
       m_funcName = functionnName;
 
-      if(false == PythonLoader::inst()->loadFunction(path, filename, functionnName))
-      {
-         logW<<"Failed to load function: "<<filename.toStdString()<<" "<<functionnName.toStdString() << "\n";
-         return;
-      }
-
-      if(false == PythonLoader::inst()->setNumArgs(m_module, m_funcName, 4))
-      {
-         logW<<"Failed to set argument count";
-         return;
-      }
-
-      if(false == PythonLoader::inst()->setRetCnt(m_module, m_funcName, 3))
-      {
-         logW<<"Failed to set argument count";
-         return;
-      }
+      m_func = std::make_unique<pybind11::function>(
+               PythonLoader::inst()->loadFunction(path, filename, functionnName));
    }
-   catch(PythonLoader::pyException px)
+   catch(const PythonLoader::pyException& px)
    {
       logE<<px.what();
       QString er = QString(px.what());
@@ -118,7 +104,7 @@ bool PythonTransformer::Init(QMap<QString, double> globalVars)
         i++;
     }
 
-   return PythonLoader::inst()->setArgDict(m_module, m_funcName, 0, globalVars);
+   return true;
 
 }
 
@@ -130,16 +116,6 @@ bool PythonTransformer::setVariable(QString name, double val)
     if(m_globalVars.contains(name))
     {
         m_globalVars[name] = val;
-
-        if(false == PythonLoader::inst()->setArgDict(m_module,
-                                                     m_funcName,
-                                                     0,
-                                                     m_globalVars))
-        {
-           QMessageBox::critical(0, "Python Transformer",
-                                "Argument failed to set.");
-           return false;
-        }
         return true;
     }
     else
@@ -165,19 +141,20 @@ void PythonTransformer::transformCommand(double inX,
 
    try
    {
-      PythonLoader::inst()->setArgDouble(m_module, m_funcName, 1, inX);
-      PythonLoader::inst()->setArgDouble(m_module, m_funcName, 2, inY);
-      PythonLoader::inst()->setArgDouble(m_module, m_funcName, 3, inZ);
-
-
-      PythonLoader::inst()->callFunc(m_module,
-                                     m_funcName,
-                                     PythonLoader::RET_LIST);
-      PythonLoader::inst()->getRetDouble(m_module, m_funcName, 0, outX);
-      PythonLoader::inst()->getRetDouble(m_module, m_funcName, 1, outY);
-      PythonLoader::inst()->getRetDouble(m_module, m_funcName, 2, outZ);
+      pybind11::list result = (*m_func)(PythonLoader::toPyDict(m_globalVars), inX, inY, inZ).cast<pybind11::list>();
+      if (result.size() != 3)
+      {
+         throw PythonLoader::pyException("my_transform must return a 3 element list [x, y, z]");
+      }
+      *outX = result[0].cast<double>();
+      *outY = result[1].cast<double>();
+      *outZ = result[2].cast<double>();
    }
-   catch(PythonLoader::pyException ex)
+   catch(const pybind11::error_already_set& ex)
+   {
+      logE<<ex.what();
+   }
+   catch(const PythonLoader::pyException& ex)
    {
       logE<<ex.what();
    }

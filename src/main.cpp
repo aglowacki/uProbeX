@@ -10,7 +10,6 @@
 #include <QString>
 #include <QFile>
 #include <QTextStream>
-#include "core/PythonLoader.h"
 #include "mvc/LiveMapsElementsWidget.h"
 
 static std::ostringstream strCout;
@@ -134,18 +133,6 @@ int main(int argc, char** argv)
 	if(argc > 1)
 	{
 		QString arg1 = QString(argv[1]);
-		if(arg1 == "--testPython")
-		{
-			try
-			{
-				PythonLoader::inst()->init();
-			}
-			catch(PythonLoader::pyException ex)
-			{
-				logE<<"error main "<<ex.what();
-			}
-			exit(0);
-		}
 		if(arg1 == "--live")
 		{
 			LiveMapsElementsWidget *liveMapsViewer = new LiveMapsElementsWidget();

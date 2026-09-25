@@ -7,7 +7,15 @@
 #define PYTHONSOLVER_H_
 
 #include <solver/AbstractSolver.h>
-#include <core/PythonLoader.h>
+#include <memory>
+
+// Deliberately not including <core/PythonLoader.h> (and therefore pybind11) here:
+// pybind11/Python.h must be the first thing included in any translation unit that
+// touches it, because Qt headers (even <QString>) define `slots`/`signals`/`emit`
+// as macros that corrupt CPython's own headers if already active. Keeping pybind11
+// types out of this header (used transitively by VLM_Widget.h/uProbeX.h) avoids
+// poisoning every translation unit that includes this class. See PythonSolver.cpp.
+namespace pybind11 { class function; }
 
 //---------------------------------------------------------------------------
 
@@ -107,6 +115,11 @@ private:
     * @brief m_funcName.
     */
    QString m_funcName;
+
+   /**
+    * @brief m_func: the loaded python callable (my_solver).
+    */
+   std::unique_ptr<pybind11::function> m_func;
 
    /**
     * @brief m_dict_transform_coef.

@@ -10,8 +10,6 @@
 Solver::Solver()
 {
 
-   m_impl = nullptr;
-
 }
 
 //---------------------------------------------------------------------------
@@ -39,7 +37,7 @@ QMap<QString, double> Solver::getAllCoef()
 AbstractSolver* Solver::getImpl()
 {
 
-   return m_impl;
+   return m_impl.get();
 
 }
 
@@ -117,7 +115,7 @@ void Solver::setCoordPoints(QList < QMap<QString,double> > vars)
 void Solver::setImpl(AbstractSolver* impl)
 {
 
-   m_impl = impl;
+   m_impl.reset(impl);
 
 }
 

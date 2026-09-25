@@ -7,6 +7,7 @@
 #define Solver_H
 
 #include <solver/AbstractSolver.h>
+#include <memory>
 
 //---------------------------------------------------------------------------
 
@@ -114,7 +115,7 @@ private:
    /**
     * @brief m_impl
     */
-   AbstractSolver* m_impl;
+   std::unique_ptr<AbstractSolver> m_impl;
 
 };
 

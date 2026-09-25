@@ -118,6 +118,13 @@ find_package(TIFF REQUIRED)
 find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(NLopt CONFIG REQUIRED)
 
+# Python embedding via pybind11 (vendored copy from the sibling XRF-Maps checkout).
+set(PYBIND11_FINDPYTHON ON)
+add_subdirectory(
+    "${PROJECT_SOURCE_DIR}/../XRF-Maps/src/support/pybind11"
+    "${CMAKE_CURRENT_BINARY_DIR}/pybind11"
+)
+
 IF (BUILD_WITH_OPENCV_SUPPORT)
   add_definitions(-D_BUILD_WITH_OPENCV)
   find_package(OpenCV CONFIG REQUIRED)
@@ -276,6 +283,7 @@ IF (MSVC)
                         NLopt::nlopt
                         libxrf_fit
 						            libxrf_io
+                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT}
                         ws2_32.lib )
   ELSE()
@@ -294,9 +302,10 @@ IF (MSVC)
                           NLopt::nlopt
                           libxrf_fit
                           libxrf_io
+                          pybind11::embed
                           ${CMAKE_THREAD_LIBS_INIT}
                           ws2_32.lib )
-  ENDIF() 
+  ENDIF()
 
 ELSEIF (UNIX)
   IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -334,6 +343,7 @@ ELSEIF (UNIX)
                         NLopt::nlopt
                         libxrf_fit
                         libxrf_io
+                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT} )
   ELSE()
     target_link_libraries (uProbeX PRIVATE
@@ -347,6 +357,7 @@ ELSEIF (UNIX)
                         NLopt::nlopt
                         libxrf_fit
                         libxrf_io
+                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT} )
   ENDIF()
 ENDIF()

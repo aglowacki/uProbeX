@@ -3,6 +3,10 @@
  * See LICENSE file.
  *---------------------------------------------------------------------------*/
 
+// core/PythonLoader.h (pybind11/Python.h) must be included before any Qt header in
+// this translation unit -- see the comment in PythonSolver.h for why.
+#include <core/PythonLoader.h>
+
 #include <preferences/PreferencesPythonFunc.h>
 
 #include <gstar/CheckBoxDelegate.h>
@@ -13,7 +17,6 @@
 #include <preferences/AttributeGroupModel.h>
 #include <QFileDialog>
 #include <QLabel>
-#include <core/PythonLoader.h>
 //#include <preferences/MotorLinksDialog.h>
 
 #include <QItemSelectionModel>
@@ -83,7 +86,7 @@ void PreferencesPythonFunc::addGroupItem()
          functionList = PythonLoader::inst()->getFunctionList(filePath,
                                                               moduleName);
       }
-      catch(PythonLoader::pyException ex)
+      catch(const PythonLoader::pyException& ex)
       {
          logW<<"Error PreferencesPythonFunc::addGroupItem "<<ex.what();
       }
@@ -276,23 +279,21 @@ void PreferencesPythonFunc::createComponents()
    {
       try
       {
-         bool checkPy = PythonLoader::inst()->safeCheck();
-
-         if(checkPy && PythonLoader::inst()->init())
+         if(PythonLoader::inst()->init())
          {
             foundPyLabel->setText("Found Python library on system.");
             m_foundPython = true;
          }
          else
          {
-            foundPyLabel->setText("Could not find Python library on system. Current supported versions are 2.6 or 2.7 for Linux environment.");
+            foundPyLabel->setText("Could not find Python library on system.");
             m_foundPython = false;
          }
       }
-      catch(PythonLoader::pyException ex)
+      catch(const PythonLoader::pyException& ex)
       {
          m_foundPython = false;
-		 foundPyLabel->setText("Could not find Python library on system. Current supported versions are 2.6 or 2.7 for Linux environment.");
+		 foundPyLabel->setText("Could not find Python library on system.");
          logW<<"Error PreferencesPythonFunc::createComponents "<<ex.what();
       }
    }

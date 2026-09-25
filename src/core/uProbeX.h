@@ -291,7 +291,7 @@ private:
 
    QMenu* _menu_batch;
 
-   QMenu* _menu_view;
+   std::unique_ptr<QMenu> _menu_view;
    QMenu* _menu_view_file_top;
    QMenu* _menu_view_file_side;
    QMenu* _menu_view_marker;

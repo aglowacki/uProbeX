@@ -9,8 +9,14 @@
 //---------------------------------------------------------------------------
 
 #include <gstar/ITransformer.h>
+#include <memory>
 
 #include <QString>
+
+// Deliberately not including <core/PythonLoader.h> (and therefore pybind11) here --
+// see the comment in PythonSolver.h for why pybind11 must stay out of headers that
+// Qt-heavy code (VLM_Widget.h/uProbeX.h) also includes. See PythonTransformer.cpp.
+namespace pybind11 { class function; }
 
 //---------------------------------------------------------------------------
 
@@ -104,6 +110,11 @@ private:
     * @brief m_globalVars
     */
    QMap<QString, double> m_globalVars;
+
+   /**
+    * @brief m_func: the loaded python callable (my_transform).
+    */
+   std::unique_ptr<pybind11::function> m_func;
 };
 
 //---------------------------------------------------------------------------

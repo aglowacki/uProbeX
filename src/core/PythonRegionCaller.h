@@ -9,8 +9,13 @@
 //---------------------------------------------------------------------------
 
 #include <core/RegionCaller.h>
-#include <core/PythonLoader.h>
+#include <memory>
 #include <QString>
+
+// Deliberately not including <core/PythonLoader.h> (and therefore pybind11) here --
+// see the comment in PythonSolver.h for why pybind11 must stay out of headers that
+// Qt-heavy code also includes. See PythonRegionCaller.cpp.
+namespace pybind11 { class function; }
 
 //---------------------------------------------------------------------------
 
@@ -62,6 +67,8 @@ public:
 private:
 
    QString m_module;
+
+   std::unique_ptr<pybind11::function> m_func;
 
 };
 

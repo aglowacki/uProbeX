@@ -46,8 +46,6 @@ uProbeX::uProbeX(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, f
     //m_autosaveTimer = nullptr;
     _liveMapsViewer = nullptr;
 
-    PythonLoader::inst()->safeCheck();
-
     initialize();
 
 	_log_dock = new QDockWidget("Log", this);
@@ -250,7 +248,7 @@ void uProbeX::createMenuBar()
     connect(_menu_file, &QMenu::aboutToShow, this, &uProbeX::menuBarEnable);
 
     // TODO: finish view options
-    _menu_view = new QMenu("View");
+    _menu_view = std::make_unique<QMenu>("View");
     _menu_view_file_top = _menu_view->addMenu("File Nav Top");
     _menu_view_file_side = _menu_view->addMenu("File Nav Side");
     _menu_view_marker = _menu_view->addMenu("Annotation : ROI");
