@@ -8,6 +8,7 @@
 
 //---------------------------------------------------------------------------
 #include <future>
+#include <memory>
 #include <QObject>
 #include <QMainWindow>
 #include <QDockWidget>
@@ -36,7 +37,7 @@ public:
 
    void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
 
-   MapsWorkspaceModel* get_model(){ return _mapsWorkspaceModel;}
+   MapsWorkspaceModel* get_model(){ return _mapsWorkspaceModel.get();}
    
 signals:
 
@@ -50,7 +51,7 @@ protected:
 
 	ImageStackControlWidget* _imgStackControllWidget;
 
-	MapsWorkspaceModel* _mapsWorkspaceModel;
+	std::unique_ptr<MapsWorkspaceModel> _mapsWorkspaceModel;
 
 	//QDockWidget *_maps_workspace_dock;
 

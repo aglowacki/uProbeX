@@ -22,7 +22,6 @@ SolverProfileWidget::SolverProfileWidget(QWidget* parent) : QDialog(parent)
     m_currentProfileIndex = 0;
     m_coordPoints = nullptr;
     m_solverWidget = nullptr;
-    _solver = nullptr;
     _transformer = nullptr;
     createCompontent();
     createLayOut();
@@ -591,8 +590,7 @@ void SolverProfileWidget::runSolver()
    
     if(_solver == nullptr)
     {
-         
-        _solver = new NelderMeadSolver();
+        _solver = std::make_unique<NelderMeadSolver>();
     }
 
    _solver->setTransformer(_transformer);

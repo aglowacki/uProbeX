@@ -377,13 +377,13 @@ void ImageSegRoiDialog::createLayout()
 	connect(_plotBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onPlot);
 	connect(_cancelBtn, &QPushButton::pressed, this, &ImageSegRoiDialog::onClose);
 
-	_img_list_model = new QStandardItemModel();
+	_img_list_model = std::make_unique<QStandardItemModel>();
 	_img_names_view = new QListView();
-	_img_names_view->setModel(_img_list_model);
+	_img_names_view->setModel(_img_list_model.get());
 	_img_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_img_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	connect(_img_list_model, &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
+	connect(_img_list_model.get(), &QStandardItemModel::itemChanged, this, &ImageSegRoiDialog::onImgSelection);
 
 	_int_img_widget = new ImageSegWidget();
 	_int_img_widget->setActionMode(gstar::DRAW_ACTION_MODES::OFF);
@@ -678,24 +678,24 @@ void ImageSegRoiDialog::onPlot()
 		{
 			std::vector<std::pair<int, int>> pixel_list;
 			itr->to_roi_vec(pixel_list);
-			data_struct::Spectra<double>* int_spectra = new data_struct::Spectra<double>();
+			data_struct::Spectra<double> int_spectra;
 			std::unordered_map<std::string, double> scaler_sum_map;
-			if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, int_spectra, scaler_sum_map))
+			if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(_model->getFilePath().toStdString(), pixel_list, &int_spectra, scaler_sum_map))
 			{
 				if(ev.size() == 0)
 				{
 					data_struct::Range energy_range;
 					energy_range.min = 0;
-					energy_range.max = int_spectra->size() - 1;
+					energy_range.max = int_spectra.size() - 1;
 					energy = ArrayDr::LinSpaced(energy_range.count(), energy_range.min, energy_range.max);
 					ev = fit_params[STR_ENERGY_OFFSET].value + energy * fit_params[STR_ENERGY_SLOPE].value + pow(energy, 2.0) * fit_params[STR_ENERGY_QUADRATIC].value;
 				}
 
-				struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  *int_spectra, scaler_sum_map);
+				struct Map_ROI roi(itr->getName().toStdString(), itr->getColor(), itr->alphaValue(), pixel_list, _model->getDatasetName().toStdString(),  int_spectra, scaler_sum_map);
 
 				_model->appendMapRoi(itr->getName().toStdString(), roi);
 				QColor color = itr->getColor();
-				_spectra_widget->append_spectra(itr->getName(), int_spectra, &ev, &color);
+				_spectra_widget->append_spectra(itr->getName(), &int_spectra, &ev, &color);
 
 				QStringList fittings;				
 				if( _plot_ck_model_matrix->isChecked() )
@@ -721,14 +721,14 @@ void ImageSegRoiDialog::onPlot()
 					{
 						color = Qt::magenta;
 					}
-					// create per pixel fitted spec for this roi and add it to spec widget 
-					ArrayDr* roi_fitted_int_spec = new ArrayDr(int_spectra->size());
-					roi_fitted_int_spec->setZero();
-					_model_custom_spectra(f_itr.toStdString(), roi.pixel_list, roi_fitted_int_spec);
-					if(roi_fitted_int_spec->maxCoeff() > 0)
-					{					
+					// create per pixel fitted spec for this roi and add it to spec widget
+					ArrayDr roi_fitted_int_spec(int_spectra.size());
+					roi_fitted_int_spec.setZero();
+					_model_custom_spectra(f_itr.toStdString(), roi.pixel_list, &roi_fitted_int_spec);
+					if(roi_fitted_int_spec.maxCoeff() > 0)
+					{
 						QString fitted_name = QString(roi.name.c_str())+"_"+f_itr;
-						_spectra_widget->append_spectra(fitted_name, roi_fitted_int_spec, &ev, &color);
+						_spectra_widget->append_spectra(fitted_name, &roi_fitted_int_spec, &ev, &color);
 					}
 					else
 					{
@@ -749,14 +749,13 @@ void ImageSegRoiDialog::onPlot()
 
 void ImageSegRoiDialog::onPlotSettings()
 {
-	SpectraWidgetSettingsDialog* settings_dialog = new SpectraWidgetSettingsDialog();
-	settings_dialog->exec();
-	if (settings_dialog->isAccepted())
+	SpectraWidgetSettingsDialog settings_dialog;
+	settings_dialog.exec();
+	if (settings_dialog.isAccepted())
 	{
 		_spectra_widget->set_log10(Preferences::inst()->getValue(STR_PFR_LOG_10).toBool());
 		_spectra_widget->setBackgroundBlack(Preferences::inst()->getValue(STR_PFR_SPECTRA_BLACK_BG).toBool());
 	}
-	delete settings_dialog;
 }
 
 //---------------------------------------------------------------------------

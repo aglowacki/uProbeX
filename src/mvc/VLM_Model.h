@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QString>
+#include <memory>
 
 #include <mvc/AbstractWindowModel.h>
 #include <gstar/CoordinateModel.h>
@@ -74,7 +75,7 @@ protected:
 
 	QMap<QString, QString> _parseRegionMarker(QXmlStreamReader& xml);
     
-    gstar::CoordinateModel* _coord_model;
+    std::unique_ptr<gstar::CoordinateModel> _coord_model;
     
     QString _datasetPath;
     

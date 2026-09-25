@@ -363,7 +363,7 @@ void ImageStackControlWidget::onLinkRegionToDataset(QString item_name, QString v
 		QStringList raw_file_list;
 		for (auto& itr : raw_file_map)
 		{
-			menu.addAction(new QAction(itr.second.baseName()));
+			menu.addAction(new QAction(itr.second.baseName(), &menu));
 		}
 		QPoint globalCursorPos = QCursor::pos();
 		QAction* result = menu.exec(globalCursorPos);

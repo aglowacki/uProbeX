@@ -636,7 +636,7 @@ private:
    /**
     * @brief m_solverParameterParse
     */
-   SolverParameterParse* m_solverParameterParse;
+   std::unique_ptr<SolverParameterParse> m_solverParameterParse;
 
    /**
     * @brief m_lightToMicroCoordModel
@@ -671,7 +671,7 @@ private:
    /**
     * @brief m_solverWidget
     */
-   SolverWidget* m_solverWidget;
+   std::unique_ptr<SolverWidget> m_solverWidget;
 
    /**
     * @brief m_pathFile
@@ -690,7 +690,7 @@ private:
 
    std::map<QString, BlueskyPlan> *_avail_scans;
 
-   ScanRegionLinkDialog* _scan_region_link_dialog;
+   std::unique_ptr<ScanRegionLinkDialog> _scan_region_link_dialog;
 
    ScanRegionDialog* _scan_dialog;
 

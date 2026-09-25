@@ -29,10 +29,6 @@ FitElementsTableModel::FitElementsTableModel(std::string detector_element, QObje
 
 FitElementsTableModel::~FitElementsTableModel()
 {
-    for(auto& itr : _nodes)
-    {
-        delete itr.second;
-    }
     _nodes.clear();
     _row_indicies.clear();
 
@@ -77,8 +73,8 @@ void FitElementsTableModel::update_counts_log10(bool is_log10)
         _is_log10 = is_log10;
         for (auto& itr : _nodes)
         {
-            TreeItem* node = itr.second;
-            
+            TreeItem* node = itr.second.get();
+
             if (is_log10)
             {
                 double val = node->itemData[COUNTS].toDouble();
@@ -109,7 +105,7 @@ data_struct::Fit_Element_Map_Dict<double> FitElementsTableModel::getElementsToFi
 	data_struct::Fit_Element_Map_Dict<double> elements_to_fit;
 	for (auto& itr : _nodes)
 	{
-		TreeItem* node = itr.second;
+		TreeItem* node = itr.second.get();
 		data_struct::Fit_Element_Map<double>*element = node->element_data;
 		elements_to_fit[element->full_name()] = element;
 	}
@@ -123,7 +119,7 @@ data_struct::Fit_Parameters<double> FitElementsTableModel::getAsFitParams()
     data_struct::Fit_Parameters<double> fit_params;
     for(auto& itr : _nodes)
     {
-        TreeItem* node = itr.second;
+        TreeItem* node = itr.second.get();
         data_struct::Fit_Element_Map<double>* element = node->element_data;
         fit_params.add_parameter(data_struct::Fit_Param<double>(element->full_name(), 1.0e-10, 20.0, node->itemData[1].toDouble(), 0.0005, data_struct::E_Bound_Type::LIMITED_LO_HI));
     }
@@ -137,7 +133,7 @@ void FitElementsTableModel::updateElementValues(data_struct::Fit_Parameters<doub
 
     for(auto& itr : _nodes)
     {
-        TreeItem* node = itr.second;
+        TreeItem* node = itr.second.get();
         data_struct::Fit_Element_Map<double>* element = node->element_data;
         if(fit_params->contains(element->full_name()))
         {
@@ -166,10 +162,6 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
     if(elements_to_fit != nullptr)
     {
         _row_indicies.clear();
-        for(auto &itr : _nodes)
-        {
-            delete itr.second;
-        }
         _nodes.clear();
         for(auto& itr : *elements_to_fit)
         {
@@ -193,7 +185,7 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
                 {
                     idx += 3000 + pileup->number;
                 }
-                _nodes[idx] = new TreeItem();
+                _nodes[idx] = std::make_unique<TreeItem>();
                 _nodes[idx]->set_root(element);
                 _row_indicies.push_back(idx);
             }
@@ -208,7 +200,7 @@ void FitElementsTableModel::updateFitElements(data_struct::Fit_Element_Map_Dict<
                 {
                     idx ++;
                 }
-                _nodes[idx] = new TreeItem();
+                _nodes[idx] = std::make_unique<TreeItem>();
                 _nodes[idx]->set_root(element);
                 _row_indicies.push_back(idx);
             }
@@ -231,7 +223,7 @@ QString FitElementsTableModel::element_at_row(int row)
 	if (row > 0 && row < _row_indicies.size())
 	{
 		int nidx = _row_indicies[row];
-		TreeItem* node = _nodes[nidx];
+		TreeItem* node = _nodes[nidx].get();
 		if (node != nullptr && node->element_data != nullptr)
 		{
 			return QString::fromStdString(node->element_data->full_name());
@@ -265,7 +257,7 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* 
         }
 		if (_nodes.find(idx) == _nodes.end())
 		{
-			_nodes[idx] = new TreeItem();
+			_nodes[idx] = std::make_unique<TreeItem>();
 			_nodes[idx]->set_root(element);
 			_row_indicies.push_back(idx);
 		}
@@ -281,7 +273,7 @@ void FitElementsTableModel::appendElement(data_struct::Fit_Element_Map<double>* 
         {
             idx ++;
         }
-        _nodes[idx] = new TreeItem();
+        _nodes[idx] = std::make_unique<TreeItem>();
         _nodes[idx]->set_root(element);
         _row_indicies.push_back(idx);
     }
@@ -308,10 +300,8 @@ bool FitElementsTableModel::removeRows(int row, int count, const QModelIndex &pa
     {
         beginRemoveRows(QModelIndex(), row, row);
         int z = _row_indicies[row];
-        TreeItem* node = _nodes[z];
         _row_indicies.erase(_row_indicies.begin()+row);
         _nodes.erase(z);
-        delete node;
         endRemoveRows();
 		return true;
     }
@@ -521,7 +511,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
         int Z = _row_indicies[row];
 		if (_nodes.find(Z) != _nodes.end())
 		{
-			TreeItem *childItem = _nodes.at(Z);
+			TreeItem *childItem = _nodes.at(Z).get();
 			return createIndex(row, column, childItem);
 		}
 		else
@@ -534,7 +524,7 @@ QModelIndex FitElementsTableModel::index(int row, int column, const QModelIndex 
         TreeItem* node = static_cast<TreeItem*>(parent.internalPointer());
         if(node && node->childItems.size() > row)
         {
-            TreeItem* childNode = node->childItems.at(row);
+            TreeItem* childNode = node->childItems.at(row).get();
             if(childNode)
             {
                 return createIndex(row, column, childNode);
@@ -586,7 +576,7 @@ QModelIndex FitElementsTableModel::parent(const QModelIndex &index) const
 	int row = -1;
 	for (auto& itr : _nodes)
 	{
-		if (itr.second == parentItem)
+		if (itr.second.get() == parentItem)
 		{
 			for (int j=0; j< _row_indicies.size(); j++)
 			{
@@ -690,7 +680,7 @@ bool FitElementsTableModel::setData(const QModelIndex &index,
                     if (node->parentItem != nullptr)
                     {
                         // set all Shell lines to same width
-                        for (auto itr: node->parentItem->childItems)
+                        for (auto& itr: node->parentItem->childItems)
                         {
                             if(itr != nullptr)
                             {

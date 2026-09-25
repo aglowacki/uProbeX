@@ -53,15 +53,6 @@ void FittingDialog::setOptimizer(QString opt)
 
 FittingDialog::~FittingDialog()
 {
-    if (_fit_params_table_model != nullptr)
-    {
-        delete _fit_params_table_model;
-    }
- 
-    if (_new_fit_params_table_model != nullptr)
-    {
-        delete _new_fit_params_table_model;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -78,17 +69,17 @@ void FittingDialog::_createLayout()
     ComboBoxDelegate* cbDelegate = new ComboBoxDelegate(bound_types);
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
-    _fit_params_table_model = new FitParamsTableModel();
+    _fit_params_table_model = std::make_unique<FitParamsTableModel>();
     _fit_params_table_model->setOptimizerSupportsMinMax(true);
 
-    _new_fit_params_table_model = new FitParamsTableModel();
+    _new_fit_params_table_model = std::make_unique<FitParamsTableModel>();
     _new_fit_params_table_model->setEditable(false);
 
-    _diff_fit_params_table_model = new FitParamsTableModel();
+    _diff_fit_params_table_model = std::make_unique<FitParamsTableModel>();
     _diff_fit_params_table_model->setEditable(false);
 
     _fit_params_table = new QTableView();
-    _fit_params_table->setModel(_fit_params_table_model);
+    _fit_params_table->setModel(_fit_params_table_model.get());
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
@@ -100,14 +91,14 @@ void FittingDialog::_createLayout()
     _fit_params_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
             
     _new_fit_params_table = new QTableView();
-    _new_fit_params_table->setModel(_new_fit_params_table_model);
+    _new_fit_params_table->setModel(_new_fit_params_table_model.get());
     _new_fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _new_fit_params_table->setItemDelegateForColumn(2, cbDelegate);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _new_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     _diff_fit_params_table = new QTableView();
-    _diff_fit_params_table->setModel(_diff_fit_params_table_model);
+    _diff_fit_params_table->setModel(_diff_fit_params_table_model.get());
     _diff_fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     _diff_fit_params_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

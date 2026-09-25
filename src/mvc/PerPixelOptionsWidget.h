@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QMessageBox>
+#include <memory>
 #include <data_struct/analysis_job.h>
 
 //---------------------------------------------------------------------------
@@ -216,7 +217,7 @@ protected:
 
    QListView* _file_list_view;
 
-   QStandardItemModel* _file_list_model;
+   std::unique_ptr<QStandardItemModel> _file_list_model;
 
    QCheckBox* _proc_roi;
 

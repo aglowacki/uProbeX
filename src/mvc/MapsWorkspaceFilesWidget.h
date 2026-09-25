@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QWidget>
 #include <QLabel>
+#include <memory>
 #include <mvc/MapsWorkspaceModel.h>
 #include <QListView>
 #include <QTableView>
@@ -125,9 +126,9 @@ private:
 
    MapsWorkspaceModel* _model;
 
-   PerPixelFitWidget* _per_pixel_fit_widget;
+   std::unique_ptr<PerPixelFitWidget> _per_pixel_fit_widget;
 
-   BatchRoiFitWidget* _batch_roi_fit_widget;
+   std::unique_ptr<BatchRoiFitWidget> _batch_roi_fit_widget;
 
    GenScanVlmWidget _gen_scan_vlm_widget;
 };

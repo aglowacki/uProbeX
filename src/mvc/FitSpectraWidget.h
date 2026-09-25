@@ -10,6 +10,7 @@
 
 
 #include <QWidget>
+#include <memory>
 #include <QTableView>
 #include <QComboBox>
 #include <QTreeView>
@@ -143,9 +144,9 @@ protected:
 
    QDockWidget* _spectra_dock;
    
-   FitParamsTableModel* _fit_params_table_model;
+   std::unique_ptr<FitParamsTableModel> _fit_params_table_model;
 
-   FitElementsTableModel* _fit_elements_table_model;
+   std::unique_ptr<FitElementsTableModel> _fit_elements_table_model;
 
    data_struct::Fit_Element_Map_Dict<double>* _elements_to_fit;
 
@@ -155,7 +156,7 @@ protected:
 
    QTreeView* _fit_elements_table;
 
-   FittingDialog* _fitting_dialog;
+   std::unique_ptr<FittingDialog> _fitting_dialog;
 
    /**
     * @brief Create layout
@@ -268,7 +269,7 @@ private:
 
    QPushButton* _btn_element_info;
 
-   PeriodicTableWidget* _periodic_table_widget;
+   std::unique_ptr<PeriodicTableWidget> _periodic_table_widget;
 
    ElementInfoDialog _element_info_dialog;
 

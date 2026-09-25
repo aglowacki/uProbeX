@@ -17,6 +17,7 @@
 #include <QDialogButtonBox>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
+#include <memory>
 #include "data_struct/fit_parameters.h"
 
 //---------------------------------------------------------------------------
@@ -70,7 +71,7 @@ private:
   
 	QListView* _img_names_view;
 
-	QStandardItemModel* _img_list_model;
+	std::unique_ptr<QStandardItemModel> _img_list_model;
 
 
 };

@@ -29,10 +29,10 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     _action_refresh = _contextMenu->addAction("Refresh");
     connect(_action_refresh, &QAction::triggered, this, &FileTabWidget::onRefresh);
 
-    _file_list_model = new FileTableModel();
+    _file_list_model = std::make_unique<FileTableModel>();
     _file_list_view = new QTableView();
    // _file_list_view->setViewMode(QListView::IconMode);
-    _file_list_view->setModel(_file_list_model);
+    _file_list_view->setModel(_file_list_model.get());
     _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _file_list_view->setContextMenuPolicy(Qt::CustomContextMenu);
     _file_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection); //MultiSelection
@@ -58,7 +58,7 @@ FileTabWidget::FileTabWidget(QWidget* parent) : QWidget(parent)
     // by a column, or after ROI-count updates). A model reset clears the view's
     // per-row hidden state and reorders the rows, so the row-based filter must be
     // recomputed or every file becomes visible again.
-    connect(_file_list_model, &QAbstractItemModel::modelReset, this, &FileTabWidget::onUpdateFilter);
+    connect(_file_list_model.get(), &QAbstractItemModel::modelReset, this, &FileTabWidget::onUpdateFilter);
 
 	_filter_suggest_btn = new QPushButton();
 	_filter_suggest_btn->setIcon(QIcon(":/images/question.png"));

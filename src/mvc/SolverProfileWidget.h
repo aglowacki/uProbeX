@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QList>
+#include <memory>
 
 
 #include <preferences/SolverTable.h>
@@ -232,7 +233,7 @@ private:
 
    SolverParameterWidget* _solverParamWidget;
 
-   AbstractSolver* _solver;
+   std::unique_ptr<AbstractSolver> _solver;
 
    gstar::ITransformer* _transformer;
 

@@ -18,7 +18,6 @@ const QString STR_SOLVER = "solver";
 
 VLM_Model::VLM_Model() : AbstractWindowModel()
 {
-    _coord_model = nullptr;
 
 }
 
@@ -26,13 +25,6 @@ VLM_Model::VLM_Model() : AbstractWindowModel()
 
 VLM_Model::~VLM_Model()
 {
-
- 
-   if(_coord_model != nullptr)
-   {
-      delete _coord_model;
-      _coord_model = nullptr;
-   }
 
 }
 
@@ -369,7 +361,7 @@ QMap<QString, QString> VLM_Model::_parseRegionMarker(QXmlStreamReader& xml)
 gstar::CoordinateModel* VLM_Model::getCoordModel()
 {
 
-   return _coord_model;
+   return _coord_model.get();
 
 }
 

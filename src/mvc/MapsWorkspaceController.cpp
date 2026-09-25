@@ -8,10 +8,10 @@
 
 MapsWorkspaceController::MapsWorkspaceController(QObject* parent) : QObject(parent)
 {
-	_mapsWorkspaceModel = new MapsWorkspaceModel();
+	_mapsWorkspaceModel = std::make_unique<MapsWorkspaceModel>();
 	_imgStackControllWidget = new ImageStackControlWidget();
-	
-	_imgStackControllWidget->setModel(_mapsWorkspaceModel);
+
+	_imgStackControllWidget->setModel(_mapsWorkspaceModel.get());
 
 	_imgStackControllWidget->setAttribute(Qt::WA_DeleteOnClose);
 	connect(_imgStackControllWidget, &ImageStackControlWidget::widgetClosed, this, &MapsWorkspaceController::imgWidgetClosed);
@@ -36,11 +36,6 @@ MapsWorkspaceController::~MapsWorkspaceController()
 		_imgStackControllWidget->setModel(nullptr);
 		delete _imgStackControllWidget;
 	}
-
-	if (_mapsWorkspaceModel != nullptr)
-	{
-		delete _mapsWorkspaceModel;
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -51,7 +46,6 @@ void MapsWorkspaceController::imgWidgetClosed()
 	if (_imgStackControllWidget != nullptr)
 	{
 		_imgStackControllWidget->savePref();
-		delete _imgStackControllWidget;
 	}
 	_imgStackControllWidget = nullptr;
 	emit controllerClosed(this);

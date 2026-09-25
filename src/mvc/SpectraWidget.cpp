@@ -28,6 +28,7 @@ SpectraWidget::SpectraWidget(QWidget* parent) : QWidget(parent)
     _currentYAxis = nullptr;
     _int_spec_max_x = 1;
     _int_spec_max_y = 1;
+    _contextMenu = new QMenu(this);
     createLayout();
     
     connect(this, &SpectraWidget::trigger_connect_markers, this, &SpectraWidget::connectMarkers);

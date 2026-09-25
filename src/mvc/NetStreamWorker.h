@@ -12,6 +12,7 @@
 #include <zmq.hpp>
 #include "io/net/basic_serializer.h"
 #include <string>
+#include <memory>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QString>
@@ -31,10 +32,8 @@ public:
     */
    NetStreamWorker(zmq::context_t *context, QString str_ip, QString port, QString qserv_addr, QObject* parent = nullptr) : QThread(parent)
    {
-        _zmq_qserv_socket = nullptr;
-
        std::string conn_str = "tcp://"+str_ip.toStdString()+":"+port.toStdString();
-       _zmq_socket = new zmq::socket_t(*context, ZMQ_SUB);
+       _zmq_socket = std::make_unique<zmq::socket_t>(*context, ZMQ_SUB);
        _zmq_socket->connect(conn_str);
        _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Counts");
        _zmq_socket->set(zmq::sockopt::subscribe, "XRF-Spectra");
@@ -43,7 +42,7 @@ public:
         if(qserv_addr.length() > 0)
         {
             std::string conn_str2 = "tcp://"+qserv_addr.toStdString()+":60625";
-            _zmq_qserv_socket = new zmq::socket_t(*context, ZMQ_SUB);
+            _zmq_qserv_socket = std::make_unique<zmq::socket_t>(*context, ZMQ_SUB);
             _zmq_qserv_socket->connect(conn_str2);
             _zmq_qserv_socket->set(zmq::sockopt::subscribe, "QS_Console");
             _zmq_qserv_socket->set(zmq::sockopt::rcvtimeo, 1000); //set timeout to 1000ms
@@ -60,19 +59,6 @@ public:
     */
    ~NetStreamWorker()
    {
-       if(_zmq_socket != nullptr)
-       {
-           _zmq_socket->close();
-           delete _zmq_socket;
-       }
-       _zmq_socket = nullptr;
-
-       if(_zmq_qserv_socket != nullptr)
-       {
-           _zmq_qserv_socket->close();
-           delete _zmq_qserv_socket;
-       }
-       _zmq_qserv_socket = nullptr;
    }
 
 public slots:
@@ -181,9 +167,9 @@ protected:
 
     bool _running;
 
-    zmq::socket_t *_zmq_socket;
+    std::unique_ptr<zmq::socket_t> _zmq_socket;
 
-    zmq::socket_t *_zmq_qserv_socket;
+    std::unique_ptr<zmq::socket_t> _zmq_qserv_socket;
 
     io::net::Basic_Serializer<float> _serializer;
 

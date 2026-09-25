@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
+#include <memory>
 #include <QTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -111,11 +112,11 @@ protected:
 
    QTableView* _diff_fit_params_table;
 
-   FitParamsTableModel* _fit_params_table_model;
+   std::unique_ptr<FitParamsTableModel> _fit_params_table_model;
 
-   FitParamsTableModel* _new_fit_params_table_model;
+   std::unique_ptr<FitParamsTableModel> _new_fit_params_table_model;
 
-   FitParamsTableModel* _diff_fit_params_table_model;
+   std::unique_ptr<FitParamsTableModel> _diff_fit_params_table_model;
 
    SpectraWidget* _spectra_widget;
 

@@ -13,6 +13,7 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QCoreApplication>
+#include <memory>
 
 //---------------------------------------------------------------------------
 
@@ -91,8 +92,8 @@ private slots:
 private:
    QPushButton *_btn_toggle;
    QWidget* _anim_widget;
-   QPropertyAnimation *_anim_hide;
-   QPropertyAnimation *_anim_show;
+   std::unique_ptr<QPropertyAnimation> _anim_hide;
+   std::unique_ptr<QPropertyAnimation> _anim_show;
    bool _anim_enabled;
    SlideState _cur_state;
    int _saved_width;

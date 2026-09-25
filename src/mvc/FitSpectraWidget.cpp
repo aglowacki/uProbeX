@@ -42,7 +42,6 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
     _int_spec = nullptr;
     _displayROIs = true;
     _elements_to_fit = nullptr;
-    _fitting_dialog = nullptr;
 	_param_override = nullptr;
     _fit_spec.setZero(2048);
     _showDetailedFitSpec = Preferences::inst()->getValue(STR_PFR_DETAILED_FIT_SPEC).toBool();
@@ -108,16 +107,6 @@ FitSpectraWidget::FitSpectraWidget(QWidget* parent) : QWidget(parent)
 
 FitSpectraWidget::~FitSpectraWidget()
 {
-    if(_periodic_table_widget != nullptr)
-    {
-        delete _periodic_table_widget;
-    }
-
-    if (_fitting_dialog != nullptr)
-    {
-        delete _fitting_dialog;
-        _fitting_dialog = nullptr;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -136,18 +125,18 @@ void FitSpectraWidget::createLayout()
 
     fitting::models::Gaussian_Model<double> g_model;
 
-    _fit_params_table_model = new FitParamsTableModel();
+    _fit_params_table_model = std::make_unique<FitParamsTableModel>();
     _fit_params_table_model->setFitParams(g_model.fit_parameters());
     _fit_params_table_model->setOptimizerSupportsMinMax(true);
-    connect(_fit_params_table_model, &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra_with_background);
+    connect(_fit_params_table_model.get(), &FitParamsTableModel::onEnergyChange, this, &FitSpectraWidget::replot_integrated_spectra_with_background);
     ComboBoxDelegate *cbDelegate = new ComboBoxDelegate(bound_types);
     NumericPrecDelegate* npDelegate = new NumericPrecDelegate();
 
-    _periodic_table_widget = new PeriodicTableWidget();
-    connect(_periodic_table_widget, &PeriodicTableWidget::onSelect, this, &FitSpectraWidget::update_selected_element_to_add);
+    _periodic_table_widget = std::make_unique<PeriodicTableWidget>();
+    connect(_periodic_table_widget.get(), &PeriodicTableWidget::onSelect, this, &FitSpectraWidget::update_selected_element_to_add);
 
     _fit_params_table = new QTableView();
-    _fit_params_table->setModel(_fit_params_table_model);
+    _fit_params_table->setModel(_fit_params_table_model.get());
     _fit_params_table->sortByColumn(0, Qt::AscendingOrder);
     _fit_params_table->setItemDelegateForColumn(1, npDelegate);
     _fit_params_table->setItemDelegateForColumn(2, cbDelegate);
@@ -158,15 +147,15 @@ void FitSpectraWidget::createLayout()
     _fit_params_table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_fit_params_table, &QTableView::customContextMenuRequested,this,&FitSpectraWidget::fit_params_customMenuRequested);
 
-    _fit_elements_table_model = new FitElementsTableModel(_detector_element);
+    _fit_elements_table_model = std::make_unique<FitElementsTableModel>(_detector_element);
     //_fit_elements_table_model->setDisplayHeaderMinMax(true);
 
-    connect(_spectra_widget, &SpectraWidget::y_axis_changed, _fit_elements_table_model, &FitElementsTableModel::update_counts_log10);
-    connect(_fit_elements_table_model, &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
-    connect(_fit_elements_table_model, &FitElementsTableModel::width_multi_changed, this, &FitSpectraWidget::on_width_multi_changed);
+    connect(_spectra_widget, &SpectraWidget::y_axis_changed, _fit_elements_table_model.get(), &FitElementsTableModel::update_counts_log10);
+    connect(_fit_elements_table_model.get(), &FitElementsTableModel::braching_ratio_changed, this, &FitSpectraWidget::on_braching_ratio_update);
+    connect(_fit_elements_table_model.get(), &FitElementsTableModel::width_multi_changed, this, &FitSpectraWidget::on_width_multi_changed);
 
     _fit_elements_table = new QTreeView();
-    _fit_elements_table->setModel(_fit_elements_table_model);
+    _fit_elements_table->setModel(_fit_elements_table_model.get());
     _fit_elements_table->setItemDelegateForColumn(1, npDelegate);
     _fit_elements_table->sortByColumn(0, Qt::AscendingOrder);
     //_fit_elements_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -982,7 +971,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
         if (_fitting_dialog == nullptr)
         {
-            _fitting_dialog = new FittingDialog();
+            _fitting_dialog = std::make_unique<FittingDialog>();
         }
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
        // _fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
@@ -1001,9 +990,9 @@ void FitSpectraWidget::Fit_Spectra_Click()
         if (_fitting_dialog->accepted_fit())
         {
 
-            disconnect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+            disconnect(_fit_params_table_model.get(),&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
-            disconnect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+            disconnect(_fit_elements_table_model.get(),&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
             //_fit_params_table_model->updateFitParams(&out_fit_params);
 
@@ -1016,8 +1005,8 @@ void FitSpectraWidget::Fit_Spectra_Click()
 
             if (_chk_auto_model->checkState() == Qt::Checked)
             {
-                connect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
-                connect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+                connect(_fit_params_table_model.get(),&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+                connect(_fit_elements_table_model.get(),&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
 
                 Model_Spectra_Click();
             }
@@ -1060,8 +1049,7 @@ void FitSpectraWidget::Fit_Spectra_Click()
         }
 
         _fitting_dialog->waitToFinishRunning();
-        delete _fitting_dialog;
-        _fitting_dialog = nullptr;
+        _fitting_dialog.reset();
     }
 
 }
@@ -1133,7 +1121,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
 
         if (_fitting_dialog == nullptr)
         {
-            _fitting_dialog = new FittingDialog();
+            _fitting_dialog = std::make_unique<FittingDialog>();
         }
         _fitting_dialog->updateFitParams(out_fit_params, element_fit_params);
         //_fitting_dialog->setOptimizer(_cb_opttimizer->currentText());
@@ -1189,8 +1177,7 @@ void FitSpectraWidget::Fit_ROI_Spectra_Click()
             }
         }
 
-        delete _fitting_dialog;
-        _fitting_dialog = nullptr;
+        _fitting_dialog.reset();
     }
 }
 
@@ -1279,14 +1266,14 @@ void FitSpectraWidget::check_auto_model(int state)
     {
         _btn_model_spectra->setEnabled(false);
         Model_Spectra_Click();
-        connect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
-        connect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        connect(_fit_params_table_model.get(),&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        connect(_fit_elements_table_model.get(),&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
     }
     else
     {
         _btn_model_spectra->setEnabled(true);
-        disconnect(_fit_params_table_model,&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
-        disconnect(_fit_elements_table_model,&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        disconnect(_fit_params_table_model.get(),&FitParamsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
+        disconnect(_fit_elements_table_model.get(),&FitElementsTableModel::dataChanged,this,&FitSpectraWidget::Model_Spectra_Val_Change);
     }
 }
 

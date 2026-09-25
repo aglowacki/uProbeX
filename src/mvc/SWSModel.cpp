@@ -23,7 +23,6 @@ const char XYZ_FILE_HEADER[] = {"    No,       X,           Y,           Z,  \r\
 SWSModel::SWSModel() : VLM_Model()
 {
 
-    m_samples = nullptr;
     m_numSamples = 0;
     m_numXSamples = 0;
     m_numYSamples = 0;
@@ -37,12 +36,6 @@ SWSModel::SWSModel() : VLM_Model()
 
 SWSModel::~SWSModel()
 {
-
-   if(m_samples != nullptr)
-   {
-      delete [] m_samples;
-      m_samples = nullptr;
-   }
 
 }
 
@@ -144,7 +137,7 @@ void SWSModel::check_and_load_autosave()
 gstar::CoordinateModel* SWSModel::getCoordModel()
 {
 
-   return _coord_model;
+   return _coord_model.get();
 
 }
 
@@ -223,7 +216,7 @@ void SWSModel::_initializeCoordModel()
         lt->setTopLeft(0, 0);
         lt->setScale(xScale, yScale, 1.0);
         lt->setDivider(1000.0, 1000.0, 1.0);
-        _coord_model = new gstar::CoordinateModel(lt);
+        _coord_model = std::make_unique<gstar::CoordinateModel>(lt);
        
    }
    if(m_numSamples == 2)
@@ -240,7 +233,7 @@ void SWSModel::_initializeCoordModel()
         lt->setTopLeft(topLeft.x, topLeft.y);
         lt->setScale(xScale, yScale, 1.0);
         lt->setDivider(1000.0, 1000.0, 1.0);
-        _coord_model = new gstar::CoordinateModel(lt);
+        _coord_model = std::make_unique<gstar::CoordinateModel>(lt);
        
    }
    if(m_numSamples > 1)
@@ -371,7 +364,7 @@ void SWSModel::_initializeCoordModel()
         lt->setTopLeft(topLeft.x, topLeft.y);
         lt->setScale(xScale, yScale, 1.0);
         lt->setDivider(1000.0, 1000.0, 1.0);
-        _coord_model = new gstar::CoordinateModel(lt);
+        _coord_model = std::make_unique<gstar::CoordinateModel>(lt);
    }
 }
 
@@ -719,8 +712,8 @@ bool SWSModel::loadTiles()
 
       //m_samples[i]._tif_img = new TIFFModel(fileName);
 
-      QImage *tiffImage = new QImage();
-      if (tiffImage->load(fileName, "tif"))
+      QImage tiffImage;
+      if (tiffImage.load(fileName, "tif"))
       {
          double sx, sy;
 
@@ -729,14 +722,13 @@ bool SWSModel::loadTiles()
          sy = m_samples[i].cornerTopLeft.y / m_samples[i].scale;
          sy /= m_pmgImageReduction;
          QPointF p(sx, sy);
-         painter.drawImage(p, *tiffImage);
+         painter.drawImage(p, tiffImage);
          loaded = true;
       }
       else
       {
          logW<<"Failed to load image "<<fileName.toStdString() << "\n";
       }
-      delete tiffImage;
    }
 
    QApplication::restoreOverrideCursor();
@@ -758,7 +750,7 @@ bool SWSModel::loadXYZ()
    {
      if (xyzFile.open(QIODevice::ReadOnly))
      {
-         m_samples = new SubSample[m_numSamples];
+         m_samples = std::make_unique<SubSample[]>(m_numSamples);
 
          QString line = xyzFile.readLine();
          if(line != XYZ_FILE_HEADER)
@@ -779,7 +771,7 @@ bool SWSModel::loadXYZ()
             }
             else
             {
-               delete m_samples;
+               m_samples.reset();
                loaded = false;
                break;
             }

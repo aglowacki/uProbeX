@@ -17,6 +17,7 @@
 #include <QStringListModel>
 #include <QListWidgetItem>
 #include <QTableView>
+#include <memory>
 #include "gstar/AnnotationProperty.h"
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanTableModel.h"
@@ -92,13 +93,13 @@ private:
 
    QCheckBox* _chk_batch_scan;
 
-   ScanTableModel *_scan_table_model;
+   std::unique_ptr<ScanTableModel> _scan_table_model;
    
    QLabel* _lbl_region_name;
    
    std::map<QString, BlueskyPlan> *_avail_scans;
 
-   ComboBoxBoolDelegate *_cbDelegate;
+   std::unique_ptr<ComboBoxBoolDelegate> _cbDelegate;
 
    bool _emit_on_accept;
 

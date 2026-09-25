@@ -193,9 +193,9 @@ void ElementSelectDialog::createLayout()
 	connect(_acceptBtn, &QPushButton::pressed, this, &ElementSelectDialog::onAccept);
 	connect(_cancelBtn, &QPushButton::pressed, this, &ElementSelectDialog::onClose);
 
-	_img_list_model = new QStandardItemModel();
+	_img_list_model = std::make_unique<QStandardItemModel>();
 	_img_names_view = new QListView();
-	_img_names_view->setModel(_img_list_model);
+	_img_names_view->setModel(_img_list_model.get());
 	_img_names_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_img_names_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 

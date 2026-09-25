@@ -52,9 +52,9 @@ void BatchRoiFitWidget::createLayout()
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
 
-    _file_list_model = new QStandardItemModel();
+    _file_list_model = std::make_unique<QStandardItemModel>();
     _file_list_view = new QListView();
-    _file_list_view->setModel(_file_list_model);
+    _file_list_view->setModel(_file_list_model.get());
     _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     
     QHBoxLayout* buttonlayout = new QHBoxLayout();

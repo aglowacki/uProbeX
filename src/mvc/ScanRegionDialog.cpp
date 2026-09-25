@@ -24,17 +24,13 @@ ScanRegionDialog::ScanRegionDialog() : QDialog()
 
 ScanRegionDialog::~ScanRegionDialog()
 {
-	if (_cbDelegate != nullptr)
-	{
-		delete _cbDelegate;
-	}
 }
 
 //---------------------------------------------------------------------------
 
 void ScanRegionDialog::_createLayout()
 {
-	_cbDelegate = new ComboBoxBoolDelegate();
+	_cbDelegate = std::make_unique<ComboBoxBoolDelegate>();
 	_cbDelegate->setCustomCol(1);
 	_avail_scans = nullptr;
 
@@ -43,9 +39,9 @@ void ScanRegionDialog::_createLayout()
 	_scan_type = new QComboBox();
 	connect(_scan_type, &QComboBox::currentTextChanged, this, &ScanRegionDialog::scanChanged);
 
-	_scan_table_model = new ScanTableModel();
+	_scan_table_model = std::make_unique<ScanTableModel>();
 	_scan_options = new QTableView();
-	_scan_options->setModel(_scan_table_model);
+	_scan_options->setModel(_scan_table_model.get());
 	_scan_options->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	_scan_options->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	_scan_options->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -210,7 +206,7 @@ void ScanRegionDialog::scanChanged(const QString &scan_name)
 			{
 				if(itr.default_val == "True" || itr.default_val == "False")
 				{
-					_scan_options->setItemDelegateForRow(idx, _cbDelegate);
+					_scan_options->setItemDelegateForRow(idx, _cbDelegate.get());
 				}
 				else
 				{

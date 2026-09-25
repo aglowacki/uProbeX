@@ -5,6 +5,7 @@
 
 #include <mvc/ElementInfoDialog.h>
 
+#include <memory>
 #include <QLabel>
 #include <QGridLayout>
 #include "data_struct/element_info.h"
@@ -69,7 +70,7 @@ void ElementInfoDialog::set_selected_element(const QString& el_name)
 	std::string _detector_element = "Si";
 	
 	//data_struct::Element_Info_Map<T_real>* element_map = data_struct::Element_Info_Map<T_real>::inst();
-	data_struct::Fit_Element_Map<double>* fit_element = data_struct::gen_element_map<double>(el_name.toStdString());
+	std::unique_ptr<data_struct::Fit_Element_Map<double>> fit_element(data_struct::gen_element_map<double>(el_name.toStdString()));
     if(fit_element != nullptr)
     {
 		

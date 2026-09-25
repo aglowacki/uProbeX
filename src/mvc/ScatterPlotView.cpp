@@ -135,6 +135,19 @@ ScatterPlotView::ScatterPlotView(bool display_log10, bool black_background, QWid
 
 ScatterPlotView::~ScatterPlotView()
 {
+    // Only one axis pair is ever owned by _chart (addAxis()/removeAxis()
+    // transfer ownership as setLog10() toggles between them) - delete
+    // whichever pair is currently detached so it isn't leaked.
+    if (_display_log10)
+    {
+        delete _axisX;
+        delete _axisY;
+    }
+    else
+    {
+        delete _axisXLog10;
+        delete _axisYLog10;
+    }
     _model = nullptr;
 }
 

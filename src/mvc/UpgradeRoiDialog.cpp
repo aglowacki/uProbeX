@@ -75,9 +75,9 @@ void UpgradeRoiDialog::_createLayout()
 
     _le_detectors = new QLineEdit("0,1,2,3,4,5,6");
     
-    _file_list_model = new QStandardItemModel();
+    _file_list_model = std::make_unique<QStandardItemModel>();
     _file_list_view = new QListView();
-    _file_list_view->setModel(_file_list_model);
+    _file_list_view->setModel(_file_list_model.get());
     _file_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     
     QHBoxLayout* buttonlayout = new QHBoxLayout();
@@ -309,14 +309,14 @@ bool UpgradeRoiDialog::_load_v9_rois(QString fname, MapsH5Model* model, QString 
                         for (auto& roi_itr : rois)
                         {
                             _progressBarBlocks->setValue(clr_idx);
-                            Spectra<double>* int_spectra = new Spectra<double>();
+                            Spectra<double> int_spectra;
                             std::unordered_map<std::string, double> scaler_sum_map;
                             QString hdf_file_path = _directory.absolutePath() + QDir::separator() + "img.dat" + QDir::separator() + itr.first;
-                            
-                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(hdf_file_path.toStdString(), roi_itr.second, int_spectra, scaler_sum_map))
+
+                            if (io::file::HDF5_IO::inst()->load_integrated_spectra_analyzed_h5_roi(hdf_file_path.toStdString(), roi_itr.second, &int_spectra, scaler_sum_map))
                             {
                                 //                                        color,   alpha
-                                struct Map_ROI map_roi(roi_itr.first, _color_map.at(clr_idx), 50, roi_itr.second, itr.first.toStdString(), *int_spectra, scaler_sum_map);
+                                struct Map_ROI map_roi(roi_itr.first, _color_map.at(clr_idx), 50, roi_itr.second, itr.first.toStdString(), int_spectra, scaler_sum_map);
                                 clr_idx++;
                                 model->appendMapRoi(roi_itr.first, map_roi);
                             }

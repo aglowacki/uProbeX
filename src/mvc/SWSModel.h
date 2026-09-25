@@ -12,6 +12,7 @@
 
 #include <QSettings>
 #include <QString>
+#include <memory>
 
 #include <gstar/CoordinateModel.h>
 
@@ -219,7 +220,7 @@ private:
     /**
     * @brief xyzArray
     */
-    SubSample *m_samples;
+    std::unique_ptr<SubSample[]> m_samples;
 
 };
 

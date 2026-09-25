@@ -21,6 +21,7 @@
 #include <QStandardItemModel>
 #include <QEventLoop>
 #include <QFileInfo>
+#include <memory>
 #include <mvc/MapsH5Model.h>
 
 //---------------------------------------------------------------------------
@@ -104,7 +105,7 @@ protected:
 
    QPushButton* _btn_cancel;
 
-   QStandardItemModel* _file_list_model;
+   std::unique_ptr<QStandardItemModel> _file_list_model;
 
    QListView* _file_list_view;
 

@@ -40,12 +40,12 @@ void ScanQueueWidget::_createLayout()
 
     QVBoxLayout* layout = new QVBoxLayout();
 
-    _scan_queue_table_model = new ScanQueueTableModel();
-    connect(_scan_queue_table_model, &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
-    connect(_scan_queue_table_model, &ScanQueueTableModel::planChanged, this, &ScanQueueWidget::onPlanChanged);
-    connect(_scan_queue_table_model, &ScanQueueTableModel::scanFileNameChanged, this, &ScanQueueWidget::planFilenameChanged);
+    _scan_queue_table_model = std::make_unique<ScanQueueTableModel>();
+    connect(_scan_queue_table_model.get(), &ScanQueueTableModel::moveScanRow, this, &ScanQueueWidget::onMoveScanRow);
+    connect(_scan_queue_table_model.get(), &ScanQueueTableModel::planChanged, this, &ScanQueueWidget::onPlanChanged);
+    connect(_scan_queue_table_model.get(), &ScanQueueTableModel::scanFileNameChanged, this, &ScanQueueWidget::planFilenameChanged);
     _scan_queue_table_view = new QTableView();
-    _scan_queue_table_view->setModel(_scan_queue_table_model);
+    _scan_queue_table_view->setModel(_scan_queue_table_model.get());
     _scan_queue_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
     _scan_queue_table_view->setSelectionMode(QAbstractItemView::ContiguousSelection);
     _scan_queue_table_view->setDragEnabled(true);

@@ -101,22 +101,6 @@ VLM_Widget::~VLM_Widget()
 
    saveScanRegionLinksDefault();
 
-    if (_scan_region_link_dialog != nullptr)
-    {
-        delete _scan_region_link_dialog;
-    }
-
-   if(m_solverParameterParse != nullptr)
-   {
-      delete m_solverParameterParse;
-   }
-   m_solverParameterParse = nullptr;
-
-   if(m_solverWidget != nullptr)
-   {
-      delete m_solverWidget;
-   }
-   m_solverWidget = nullptr;
 /*
    if (m_pvXHandler != nullptr)
       delete m_pvXHandler;
@@ -142,14 +126,11 @@ void VLM_Widget::_init()
    m_microProbePvSet = false;
 //   m_pvXHandler = nullptr;
 //   m_pvYHandler = nullptr;
-   m_solverWidget = nullptr;
    m_calSelectionModel = nullptr;
-   m_lightToMicroCoordModel = nullptr;
    m_coordinateModel = nullptr;
-   m_solver = nullptr;
    _btnSetBackground = nullptr;
-   _scan_region_link_dialog = new ScanRegionLinkDialog();
-   m_solverParameterParse = new SolverParameterParse();
+   _scan_region_link_dialog = std::make_unique<ScanRegionLinkDialog>();
+   m_solverParameterParse = std::make_unique<SolverParameterParse>();
 
    checkMicroProbePVs();
    createLayout();
@@ -1085,7 +1066,7 @@ void VLM_Widget::cancelUpdatedSolverVariables()
 void VLM_Widget::createCalibrationTab()
 {
 
-   m_calTreeModel = new gstar::AnnotationTreeModel();
+   m_calTreeModel = new gstar::AnnotationTreeModel(this);
 
    connect(m_calTreeModel, &gstar::AnnotationTreeModel::dataChanged, this, &VLM_Widget::calModelDataChanged);
 
@@ -1268,7 +1249,7 @@ void VLM_Widget::createMicroProbeMenu()
 void VLM_Widget::createMicroProbeTab()
 {
 
-   m_mpTreeModel = new gstar::AnnotationTreeModel();
+   m_mpTreeModel = new gstar::AnnotationTreeModel(this);
 
    connect(m_mpTreeModel, &gstar::AnnotationTreeModel::dataChanged, this, &VLM_Widget::microModelDataChanged);
 
@@ -2021,13 +2002,9 @@ void VLM_Widget::openSolver()
    bool retVal = m_solver->run();
    QApplication::restoreOverrideCursor();
 
-   if(m_solverWidget != nullptr)
-      delete m_solverWidget;
-   m_solverWidget = nullptr;
-
-   m_solverWidget = new SolverWidget();
-   connect(m_solverWidget, &SolverWidget::useUpdatedVariables, this, &VLM_Widget::useUpdatedSolverVariables );
-   connect(m_solverWidget, &SolverWidget::cancelUpdatedVariables, this, &VLM_Widget::cancelUpdatedSolverVariables );
+   m_solverWidget = std::make_unique<SolverWidget>();
+   connect(m_solverWidget.get(), &SolverWidget::useUpdatedVariables, this, &VLM_Widget::useUpdatedSolverVariables );
+   connect(m_solverWidget.get(), &SolverWidget::cancelUpdatedVariables, this, &VLM_Widget::cancelUpdatedSolverVariables );
 
    newMinCoefs = m_solver->getMinCoef();
    m_solverWidget->setCoefs(minCoefs, newMinCoefs);
@@ -2323,9 +2300,9 @@ bool VLM_Widget::verifySaveIsRequired()
 
       // Generate current save data
       QByteArray currentByteArray;
-      QBuffer* currentStatusBuffer = new QBuffer(&currentByteArray);
-      currentStatusBuffer->open(QIODevice::ReadWrite);
-      writeXMLSaveData(currentStatusBuffer);
+      QBuffer currentStatusBuffer(&currentByteArray);
+      currentStatusBuffer.open(QIODevice::ReadWrite);
+      writeXMLSaveData(&currentStatusBuffer);
 
       // Compare save data to saved data
       if (savedByteArray.size() == currentByteArray.size()) {
@@ -2341,7 +2318,6 @@ bool VLM_Widget::verifySaveIsRequired()
          }
       }
 
-      delete currentStatusBuffer;
    }
 
    return saveRequired;
@@ -2387,21 +2363,19 @@ void VLM_Widget::saveXMLCoordinateInfo(QString path)
 
 void VLM_Widget::writeXMLSaveData(QIODevice* device)
 {
-   QXmlStreamWriter* xmlWriter = new QXmlStreamWriter();
-   xmlWriter->setDevice(device);
+   QXmlStreamWriter xmlWriter;
+   xmlWriter.setDevice(device);
 
-   xmlWriter->writeStartDocument();
-   xmlWriter->writeStartElement("markers");
+   xmlWriter.writeStartDocument();
+   xmlWriter.writeStartElement("markers");
 
    // Get the crossing marker information
-   getMarkerInfo(xmlWriter);
+   getMarkerInfo(&xmlWriter);
    // Get the region marker information
-   getRegionMarkerInfo(xmlWriter);
+   getRegionMarkerInfo(&xmlWriter);
 
-   xmlWriter->writeEndElement();
-   xmlWriter->writeEndDocument();
-
-   delete xmlWriter;
+   xmlWriter.writeEndElement();
+   xmlWriter.writeEndDocument();
 }
 
 //---------------------------------------------------------------------------

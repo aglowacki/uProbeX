@@ -27,6 +27,7 @@
 #include <qfileinfo.h>
 #include <thread>
 #include <unordered_map>
+#include <memory>
 #include <data_struct/analysis_job.h>
 #include "mvc/OptimizerOptionsWidget.h"
 
@@ -78,7 +79,7 @@ protected:
 
    QListView* _file_list_view;
 
-   QStandardItemModel* _file_list_model;
+   std::unique_ptr<QStandardItemModel> _file_list_model;
 
    std::string _directory;
 

@@ -21,6 +21,7 @@
 #include <QDialogButtonBox>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
+#include <memory>
 #include "data_struct/fit_parameters.h"
 #include <mvc/ImageSegWidget.h>
 #include "gstar/Annotation/RoiMaskGraphicsItem.h"
@@ -127,7 +128,7 @@ private:
 	QPushButton* _cancelBtn;
   
 	QListView* _img_names_view;
-	QStandardItemModel* _img_list_model;
+	std::unique_ptr<QStandardItemModel> _img_list_model;
 	QCheckBox* _chk_normalize_sum;
 	
 	ImageSegWidget* _int_img_widget;

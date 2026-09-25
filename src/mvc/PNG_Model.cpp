@@ -95,7 +95,7 @@ void PNG_Model::_initializeCoordModel()
     lt->setTopLeft(0, 0);
     lt->setScale(xScale, yScale, 1.0);
     lt->setDivider(1.0, 1.0, 1.0);
-    _coord_model = new gstar::CoordinateModel(lt);
+    _coord_model = std::make_unique<gstar::CoordinateModel>(lt);
 
 }
 

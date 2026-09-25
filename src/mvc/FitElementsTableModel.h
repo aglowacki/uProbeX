@@ -7,6 +7,7 @@
 #define FitElementsTableModel_H_
 
 #include <algorithm>
+#include <memory>
 #include <QAbstractTableModel>
 #include <QList>
 #include <QModelIndex>
@@ -145,15 +146,6 @@ private:
        }
        ~TreeItem()
        {
-           for(TreeItem* t : childItems)
-           {
-                t->parentItem = nullptr;
-                delete t;
-           }
-           childItems.clear();
-           parentItem = nullptr;
-           element_data = nullptr;
-           props_editable = false;
        }
 
        void set_root(data_struct::Fit_Element_Map<double>* element)
@@ -172,7 +164,6 @@ private:
            itemData.push_back(QVariant(" "));
            itemData.push_back(QVariant(" "));
 
-           TreeItem* child;
            /*
            child = new TreeItem(this);
            child->itemData.push_back(QVariant("Center"));
@@ -194,7 +185,7 @@ private:
            int i =0;
             for(auto& itr : element->energy_ratios())
             {
-                child = new TreeItem(this, true);
+                auto child = std::make_unique<TreeItem>(this, true);
                 child->ptype = itr.ptype;
                 child->is_line_row = true;
                 child->itemData.push_back(QVariant(QString(data_struct::Element_Param_Str_Map.at(itr.ptype).c_str())));
@@ -202,7 +193,7 @@ private:
                 child->itemData.push_back(QVariant(multi_vec[i]));
                 child->itemData.push_back(QVariant(itr.ratio));
                 child->itemData.push_back(QVariant(element->width_multi()));
-                childItems.push_back(child);
+                childItems.push_back(std::move(child));
                 i++;
             }
        }
@@ -264,7 +255,7 @@ private:
        {
             for(int i=0; i< childItems.size(); i++)
             {
-                if(childItems[i] == t)
+                if(childItems[i].get() == t)
                     return i;
             }
             return -1;
@@ -292,7 +283,7 @@ private:
        }
 
        data_struct::Fit_Element_Map<double>* element_data;
-       std::vector<TreeItem*> childItems;
+       std::vector<std::unique_ptr<TreeItem>> childItems;
        QVector<QVariant> itemData;
        TreeItem *parentItem;
        bool props_editable;
@@ -312,7 +303,7 @@ private:
    //used to sort by Z
    std::vector<int> _row_indicies;
    //indexed by Z
-   std::map<int, TreeItem*> _nodes;
+   std::map<int, std::unique_ptr<TreeItem>> _nodes;
 
    std::string _detector_element;
 

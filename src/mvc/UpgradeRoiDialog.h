@@ -25,6 +25,7 @@
 #include <QGroupBox>
 #include <qfileinfo.h>
 #include <unordered_map>
+#include <memory>
 #include "MapsH5Model.h"
 
 //---------------------------------------------------------------------------
@@ -81,7 +82,7 @@ protected:
 
     QListView* _file_list_view;
 
-    QStandardItemModel* _file_list_model;
+    std::unique_ptr<QStandardItemModel> _file_list_model;
 
     QDir _directory;
 

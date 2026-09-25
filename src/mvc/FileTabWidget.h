@@ -22,6 +22,7 @@
 #include "FitParamsTableModel.h"
 #include "mvc/ComboBoxDelegate.h"
 #include <mvc/FileTableModel.h>
+#include <memory>
 
 //---------------------------------------------------------------------------
 
@@ -113,7 +114,7 @@ protected:
 
     QTableView* _file_list_view;
 
-    FileTableModel* _file_list_model;
+    std::unique_ptr<FileTableModel> _file_list_model;
 
     QLayout* _custom_btn_box;
 

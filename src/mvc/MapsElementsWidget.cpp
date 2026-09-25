@@ -478,17 +478,17 @@ void MapsElementsWidget::savePref()
 
 void MapsElementsWidget::_appendRoiTab()
 {   
-    m_roiTreeModel = new gstar::AnnotationTreeModel();
-    connect(m_roiTreeModel,&gstar::AnnotationTreeModel::dataChanged,this,&MapsElementsWidget::roiModelDataChanged);
+    m_roiTreeModel = std::make_unique<gstar::AnnotationTreeModel>();
+    connect(m_roiTreeModel.get(),&gstar::AnnotationTreeModel::dataChanged,this,&MapsElementsWidget::roiModelDataChanged);
 
-    m_roiSelectionModel = new QItemSelectionModel(m_roiTreeModel);
+    m_roiSelectionModel = new QItemSelectionModel(m_roiTreeModel.get());
 
     m_roiTreeView = new QTreeView();
     //m_roiTreeView->setPalette(pal);
     //m_roiTreeView->setAutoFillBackground(true);
     m_roiTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_roiTreeView->setAnimated(true);
-    m_roiTreeView->setModel(m_roiTreeModel);
+    m_roiTreeView->setModel(m_roiTreeModel.get());
     m_roiTreeView->setHeaderHidden(true);
     m_roiTreeView->setSelectionModel(m_roiSelectionModel);
     m_roiTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -602,7 +602,7 @@ void MapsElementsWidget::annoTabChanged(int idx)
     }
     else if (idx == ROI_TAB) //ROI's
     {
-        m_imageViewWidget->setSceneModel(m_roiTreeModel);
+        m_imageViewWidget->setSceneModel(m_roiTreeModel.get());
         _spectra_widget->displayROIs(true);
     }
 
@@ -1473,7 +1473,7 @@ void MapsElementsWidget::model_updated()
         int height = (int)scene_dims.height();
         logI<< "Loading roi: "<< itr.first<<"\n";
         gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
-        insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, roi);
+        insertAndSelectAnnotation(m_roiTreeModel.get(), m_roiTreeView, m_roiSelectionModel, roi);
         if (itr.second.int_spec.count(_model->getDatasetName().toStdString()) > 0)
         {
             // plot roi int spec
@@ -1781,7 +1781,7 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 
         for (auto& itr : roi_list)
         {
-            insertAndSelectAnnotation(m_roiTreeModel, m_roiTreeView, m_roiSelectionModel, itr->duplicate());
+            insertAndSelectAnnotation(m_roiTreeModel.get(), m_roiTreeView, m_roiSelectionModel, itr->duplicate());
             std::vector<std::pair<int, int>> pixel_list;
             itr->to_roi_vec(pixel_list);
             auto int_spectra = std::make_shared<data_struct::Spectra<double>>();

@@ -12,6 +12,7 @@
 #include <QTextEdit>
 #include <QTableView>
 #include <QPushButton>
+#include <memory>
 #include "mvc/BlueskyPlan.h"
 #include "mvc/ScanQueueTableModel.h"
 #include "mvc/ScanRegionDialog.h"
@@ -98,7 +99,7 @@ protected:
 
    QTableView* _scan_queue_table_view;
 
-   ScanQueueTableModel* _scan_queue_table_model;
+   std::unique_ptr<ScanQueueTableModel> _scan_queue_table_model;
 
    QPushButton* _btn_play;
    

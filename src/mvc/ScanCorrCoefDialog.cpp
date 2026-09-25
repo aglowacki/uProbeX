@@ -230,7 +230,7 @@ void ScanCorrCoefDialog::onRun()
         */
         status_callback(0, total);
 
-        ScatterPlotView* view = new ScatterPlotView(_blog10, _bdark, nullptr);
+        auto view = std::make_unique<ScatterPlotView>(_blog10, _bdark, nullptr);
         view->setGridLinesVisible(_bgrid);
         view->setModel(_model);
         view->setAnalysisType(QString(_analysis_type.c_str()));
@@ -282,7 +282,6 @@ void ScanCorrCoefDialog::onRun()
                 }
             }
         //}
-        delete view;
 
         QDir dir = _model->getDir();
         dir.cdUp();

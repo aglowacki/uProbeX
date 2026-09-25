@@ -21,8 +21,6 @@
 MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(parent)
 {
 
-    _per_pixel_fit_widget = nullptr;
-    _batch_roi_fit_widget = nullptr;
 	_model = nullptr;
     createLayout();
 
@@ -32,15 +30,6 @@ MapsWorkspaceFilesWidget::MapsWorkspaceFilesWidget(QWidget* parent) : QWidget(pa
 
 MapsWorkspaceFilesWidget::~MapsWorkspaceFilesWidget()
 {
-    if(_per_pixel_fit_widget != nullptr)
-    {
-        delete _per_pixel_fit_widget;
-    }
-
-    if(_batch_roi_fit_widget != nullptr)
-    {
-        delete _batch_roi_fit_widget;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -104,8 +93,8 @@ void MapsWorkspaceFilesWidget::createLayout()
     _vlm_tab_widget->addCustomButtonRow(STR_GEN_SCAN_AREA);
 
 
-    _per_pixel_fit_widget = new PerPixelFitWidget();
-    connect(_per_pixel_fit_widget, &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
+    _per_pixel_fit_widget = std::make_unique<PerPixelFitWidget>();
+    connect(_per_pixel_fit_widget.get(), &PerPixelFitWidget::processed_list_update, this, &MapsWorkspaceFilesWidget::onProcessed_list_update);
 
     connect(&_gen_scan_vlm_widget, &GenScanVlmWidget::new_scan_area, this, &MapsWorkspaceFilesWidget::newScanArea);
 
@@ -601,7 +590,7 @@ void MapsWorkspaceFilesWidget::onBatchRoiList(const QStringList& file_list)
     //create batch roi process widget and pass workspace
     if (_batch_roi_fit_widget == nullptr)
     {
-        _batch_roi_fit_widget = new BatchRoiFitWidget(_model->get_directory_name().toStdString());
+        _batch_roi_fit_widget = std::make_unique<BatchRoiFitWidget>(_model->get_directory_name().toStdString());
     }
     _batch_roi_fit_widget->updateFileList(roi_map);
     _batch_roi_fit_widget->show();

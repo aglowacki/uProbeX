@@ -230,7 +230,7 @@ protected:
 
    QTreeView* m_roiTreeView;
 
-   gstar::AnnotationTreeModel* m_roiTreeModel;
+   std::unique_ptr<gstar::AnnotationTreeModel> m_roiTreeModel;
 
    QItemSelectionModel* m_roiSelectionModel;
 

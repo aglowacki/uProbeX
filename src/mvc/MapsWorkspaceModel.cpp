@@ -111,7 +111,6 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
     _is_rois_loaded = false;
     _is_vlm_loaded = false;
     _is_raw_loaded = false;
-    _dir = nullptr;
 
     _all_h5_suffex.append("h5");
     _all_h5_suffex.append("hdf5");
@@ -145,23 +144,8 @@ MapsWorkspaceModel::MapsWorkspaceModel() : QObject()
 MapsWorkspaceModel::~MapsWorkspaceModel()
 {
 	_h5_models.clear();
-
-	for (auto & itr : _raw_models)
-	{
-		delete itr.second;
-	}
 	_raw_models.clear();
-
-	for (auto & itr : _vlm_models)
-	{
-		delete itr.second;
-	}
 	_vlm_models.clear();
-
-    if(_dir != nullptr)
-    {
-        delete _dir;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -172,7 +156,7 @@ void MapsWorkspaceModel::load(QString filepath)
     {
         std::vector<std::regex> ignore_dir_list = { std::regex("img.dat.*"), std::regex("mda.*"), std::regex("output.*"), std::regex("rois"), std::regex("flyXRF"), std::regex("XRF"), std::regex("[vV][lL][mM]") };
 
-        _dir = new QDir(filepath);
+        _dir = std::make_unique<QDir>(filepath);
         if (!_dir->exists())
         {
             qWarning("Cannot find the example directory");
@@ -315,17 +299,7 @@ void MapsWorkspaceModel::unload()
 {
 
     _h5_models.clear();
-
-    for(auto &itr : _raw_models)
-    {
-        delete itr.second;
-    }
     _raw_models.clear();
-
-    for(auto &itr : _vlm_models)
-    {
-        delete itr.second;
-    }
     _vlm_models.clear();
 
     _fit_params_override_dict.clear();
@@ -410,11 +384,11 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 	
     if(_raw_models.count(name) > 0)
     {
-        return _raw_models[name];
+        return _raw_models[name].get();
     }
     if(_raw_fileinfo_list.count(name) > 0)
     {
-        RAW_Model * model = new RAW_Model();
+        auto model = std::make_unique<RAW_Model>();
         for(auto &itr : _fit_params_override_dict)
         {
             model->setParamOverride(itr.first, &(itr.second));
@@ -423,7 +397,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
         if(io::file::File_Scan::inst()->get_total_count() == 0)
 		{
             QString search_path = fileInfo.absolutePath();
-            
+
             if(search_path.endsWith("mda"))
             {
                 QDir directory(fileInfo.absolutePath());
@@ -434,15 +408,12 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
 		}
         if(model->load(fileInfo.absolutePath(), fileInfo.fileName()))
         {
-            _raw_models.insert( {fileInfo.fileName(), model} );
-            return model;
-        }
-        else
-        {
-            delete model;
+            RAW_Model* raw_ptr = model.get();
+            _raw_models.insert( {fileInfo.fileName(), std::move(model)} );
+            return raw_ptr;
         }
     }
-	
+
     return nullptr;
 }
 
@@ -452,35 +423,32 @@ VLM_Model* MapsWorkspaceModel::get_VLM_Model(QString name)
 {
     if(_vlm_models.count(name) > 0)
     {
-        return _vlm_models[name];
+        return _vlm_models[name].get();
     }
     if(_vlm_fileinfo_list.count(name) > 0)
     {
-        VLM_Model * model = nullptr;
+        std::unique_ptr<VLM_Model> model;
         QFileInfo fileInfo = _vlm_fileinfo_list[name];
         QString ext = fileInfo.suffix().toLower();
         if (ext == "tif" || ext == "tiff")
         {
-            model = new TIFF_Model();
+            model = std::make_unique<TIFF_Model>();
         }
         else if (ext == "sws")
         {
-            model = new SWSModel();
+            model = std::make_unique<SWSModel>();
         }
         else if (ext == "png")
         {
-            model = new PNG_Model();
+            model = std::make_unique<PNG_Model>();
         }
         if (model != nullptr)
         {
             if (model->load(fileInfo.absoluteFilePath()))
             {
-                _vlm_models.insert({ fileInfo.fileName(), model });
-                return model;
-            }
-            else
-            {
-                delete model;
+                VLM_Model* raw_ptr = model.get();
+                _vlm_models.insert({ fileInfo.fileName(), std::move(model) });
+                return raw_ptr;
             }
         }
     }
@@ -583,9 +551,7 @@ void MapsWorkspaceModel::unload_RAW_Model(QString name)
 {
     if(_raw_models.count(name) > 0)
     {
-        RAW_Model* model = _raw_models[name];
         _raw_models.erase(name);
-        delete model;
     }
 }
 
@@ -593,10 +559,6 @@ void MapsWorkspaceModel::unload_RAW_Model(QString name)
 
 void MapsWorkspaceModel::unload_all_RAW_Model()
 {
-    for(auto &itr : _raw_models)
-    {
-        delete itr.second;
-    }
     _raw_models.clear();
 }
 
@@ -606,9 +568,7 @@ void MapsWorkspaceModel::unload_VLM_Model(QString name)
 {
     if(_vlm_models.count(name) > 0)
     {
-        VLM_Model* model = _vlm_models[name];
         _vlm_models.erase(name);
-        delete model;
     }
 }
 
@@ -616,10 +576,6 @@ void MapsWorkspaceModel::unload_VLM_Model(QString name)
 
 void MapsWorkspaceModel::unload_all_VLM_Model()
 {
-    for(auto &itr : _vlm_models)
-    {
-        delete itr.second;
-    }
     _vlm_models.clear();
 }
 

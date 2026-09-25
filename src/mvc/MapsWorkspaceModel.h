@@ -15,6 +15,7 @@
 #include "VLM_Model.h"
 #include "io/file/hl_file_io.h"
 #include <map>
+#include <memory>
 #include <QDir>
 
 //---------------------------------------------------------------------------
@@ -150,8 +151,8 @@ protected:
     //bool _get_filesnames_in_directory(QString sub_dir_name, QList <QString> suffex, map<QString, QFileInfo> *fileinfo_list, Check_Func_Def chk_func);
 
     std::map<QString, std::shared_ptr<MapsH5Model>> _h5_models;
-    std::map<QString, RAW_Model*> _raw_models;
-    std::map<QString, VLM_Model*> _vlm_models;
+    std::map<QString, std::unique_ptr<RAW_Model>> _raw_models;
+    std::map<QString, std::unique_ptr<VLM_Model>> _vlm_models;
 
     std::map<int, data_struct::Params_Override<double>> _fit_params_override_dict;
 
@@ -172,7 +173,7 @@ private:
 
     std::map<QString, int> _roi_count_map;
 
-    QDir* _dir;
+    std::unique_ptr<QDir> _dir;
 
     bool _is_vlm_loaded;
     bool _is_raw_loaded;
