@@ -23,7 +23,7 @@ HotSpotMaskGraphicsItem::HotSpotMaskGraphicsItem(int width, int height, Abstract
 
     _mouse_down = false;
 
-    _mask = new QImage(width, height, QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(width, height, QImage::Format_ARGB32);
     for(int w=0; w<width; w++)
     {
         for(int h=0; h<height; h++)

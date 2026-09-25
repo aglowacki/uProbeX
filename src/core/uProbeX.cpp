@@ -631,14 +631,13 @@ void uProbeX::open_spectra_and_override_file()
         "Override Params", ".",
         "TXT (*.txt *.txt0 *.txt1 *.txt2 *.txt3)", nullptr, FILE_DIALOG_OPTIONS);
 
-    data_struct::Params_Override<double>* po = nullptr;
+    std::shared_ptr<data_struct::Params_Override<double>> po;
     if (false == (fileName.isNull() || fileName.isEmpty()))
     {
-        po = new data_struct::Params_Override<double>();
+        po = std::make_shared<data_struct::Params_Override<double>>();
         if (false == io::file::load_override_params(po_fileName.toStdString(), -1, *po, false))
         {
-            delete po;
-            po = nullptr;
+            po.reset();
         }
     }
     make_spectra_window(filePath, po);
@@ -646,12 +645,12 @@ void uProbeX::open_spectra_and_override_file()
 
 //---------------------------------------------------------------------------
 
-void uProbeX::make_spectra_window(QString path, data_struct::Params_Override<double>* po)
+void uProbeX::make_spectra_window(QString path, std::shared_ptr<data_struct::Params_Override<double>> po)
 {
     RAW_Model* model = new RAW_Model();
     if (model->load(path))
     {
-        if (po != nullptr)
+        if (po)
         {
             model->setParamOverride(-1, po);
         }

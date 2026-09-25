@@ -412,8 +412,8 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
     checkColormapSelect(colormap);
 
     connect(_cb_colormap, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onColormapSelect);
-    connect(m_treeModel, &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
-    connect(m_treeModel, &gstar::AnnotationTreeModel::deleteAll, this, &MapsElementsWidget::on_delete_all_annotations);
+    connect(m_treeModel.get(), &gstar::AnnotationTreeModel::deletedNode, this, &MapsElementsWidget::on_delete_annotation);
+    connect(m_treeModel.get(), &gstar::AnnotationTreeModel::deleteAll, this, &MapsElementsWidget::on_delete_all_annotations);
 
     connect(m_tabWidget, &QTabWidget::currentChanged, this, &MapsElementsWidget::annoTabChanged);
 
@@ -597,7 +597,7 @@ void MapsElementsWidget::annoTabChanged(int idx)
 {
     if (idx == ANNO_TAB) // Annotations
     {
-        m_imageViewWidget->setSceneModel(m_treeModel);
+        m_imageViewWidget->setSceneModel(m_treeModel.get());
         _spectra_widget->displayROIs(false);
     }
     else if (idx == ROI_TAB) //ROI's
@@ -1587,7 +1587,7 @@ void MapsElementsWidget::redrawCounts()
 
     // redraw annotations
     m_selectionModel->clear();
-    m_imageViewWidget->setSceneModelAndSelection(m_treeModel, m_selectionModel);
+    m_imageViewWidget->setSceneModelAndSelection(m_treeModel.get(), m_selectionModel);
 
     annoTabChanged(m_tabWidget->currentIndex());
 }

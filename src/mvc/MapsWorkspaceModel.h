@@ -154,7 +154,7 @@ protected:
     std::map<QString, std::unique_ptr<RAW_Model>> _raw_models;
     std::map<QString, std::unique_ptr<VLM_Model>> _vlm_models;
 
-    std::map<int, data_struct::Params_Override<double>> _fit_params_override_dict;
+    std::map<int, std::shared_ptr<data_struct::Params_Override<double>>> _fit_params_override_dict;
 
 private:
 

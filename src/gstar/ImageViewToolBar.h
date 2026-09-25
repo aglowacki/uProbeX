@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include <memory>
 #include <QObject>
 #include <QToolBar>
 #include <QAction>
@@ -77,7 +78,7 @@ private:
    /**
     * Cursor
     */
-   QAction* m_cursorAction;
+   std::unique_ptr<QAction> m_cursorAction;
 
    /**
     * Zoom in

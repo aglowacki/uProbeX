@@ -39,7 +39,7 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(AbstractGraphicsItem* parent)
    m_measuredXProp = new AnnotationProperty(UPROBE_MICRO_POS_X, "0.0");
    m_measuredYProp = new AnnotationProperty(UPROBE_MICRO_POS_Y, "0.0");
 
-   m_sizeProp = new AnnotationProperty(UPROBE_SIZE, 20.0);   
+   m_sizeProp = std::make_unique<AnnotationProperty>(UPROBE_SIZE, 20.0);   
 
    m_data.push_back(m_outlineColorProp);
 
@@ -106,7 +106,7 @@ UProbeRegionGraphicsItem::UProbeRegionGraphicsItem(QMap<QString, QString>& marke
    
    m_widthProp = new AnnotationProperty(UPROBE_WIDTH, 0.0);
    m_heightProp = new AnnotationProperty(UPROBE_HEIGHT, 0.0);
-   m_sizeProp = new AnnotationProperty(UPROBE_SIZE, 20.0);    
+   m_sizeProp = std::make_unique<AnnotationProperty>(UPROBE_SIZE, 20.0);    
 
    m_data.push_back(m_outlineColorProp);
    m_data.push_back(m_predictXProp);

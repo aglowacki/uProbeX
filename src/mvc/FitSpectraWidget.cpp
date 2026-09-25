@@ -824,7 +824,8 @@ void FitSpectraWidget::add_element()
 {
     if(_elements_to_fit == nullptr)
     {
-        _elements_to_fit = new data_struct::Fit_Element_Map_Dict<double>();
+        _owned_elements_to_fit = std::make_unique<data_struct::Fit_Element_Map_Dict<double>>();
+        _elements_to_fit = _owned_elements_to_fit.get();
     }
 
     QString el_name = _cb_add_elements->currentText();
@@ -893,13 +894,28 @@ void FitSpectraWidget::del_element()
             bool is_parent = false;
             _fit_elements_table_model->getElementByIndex(i, &fit_element, out_name, is_parent);
 
-            if( fit_element != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
+            if( fit_element != nullptr )
             {
-                Fit_Element_Map<double>* el = (*_elements_to_fit)[fit_element->full_name()];
-				_elements_to_fit->erase(fit_element->full_name());
-                if(el != nullptr)
+                bool freed = false;
+                if( _elements_to_fit != nullptr && _elements_to_fit->find(fit_element->full_name()) != _elements_to_fit->end() )
                 {
-                    delete el;
+                    Fit_Element_Map<double>* el = (*_elements_to_fit)[fit_element->full_name()];
+                    _elements_to_fit->erase(fit_element->full_name());
+                    if(el != nullptr)
+                    {
+                        delete el;
+                        freed = true;
+                    }
+                }
+                if(!freed)
+                {
+                    // not in _elements_to_fit -- may be a custom peak we own directly
+                    auto it = std::find_if(_custom_peaks.begin(), _custom_peaks.end(),
+                        [fit_element](const std::unique_ptr<data_struct::Fit_Element_Map<double>>& p) { return p.get() == fit_element; });
+                    if(it != _custom_peaks.end())
+                    {
+                        _custom_peaks.erase(it);
+                    }
                 }
             }
 			_spectra_widget->set_element_lines(nullptr);
@@ -931,8 +947,9 @@ void FitSpectraWidget::add_custom_peak_pressed()
     {
         QString name = _custon_peak_dialog.get_name();
         double center = _custon_peak_dialog.get_energy();
-        data_struct::Fit_Element_Map<double>* fit_element = new data_struct::Fit_Element_Map<double>(name.toStdString(), center, 1.0);
-        _fit_elements_table_model->appendElement(fit_element);
+        auto fit_element = std::make_unique<data_struct::Fit_Element_Map<double>>(name.toStdString(), center, 1.0);
+        _fit_elements_table_model->appendElement(fit_element.get());
+        _custom_peaks.push_back(std::move(fit_element));
     }
 }
 
@@ -1386,6 +1403,7 @@ void FitSpectraWidget::setFitParams(data_struct::Fit_Parameters<double>* fit_par
 
 void FitSpectraWidget::setElementsToFit(data_struct::Fit_Element_Map_Dict<double>* elements_to_fit)
 {
+    _owned_elements_to_fit.reset();
     _fit_elements_table_model->updateFitElements(elements_to_fit);
 	_elements_to_fit = elements_to_fit;
     update_spectra_top_axis();

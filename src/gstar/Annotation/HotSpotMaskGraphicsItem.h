@@ -10,6 +10,8 @@
 
 #include "LineGraphicsItem.h"
 
+#include <memory>
+
 //---------------------------------------------------------------------------
 
 namespace gstar
@@ -62,7 +64,7 @@ public:
 
    int alphaValue() { return _alpha_value->getValue().toInt(); }
 
-   QImage* image_mask() { return _mask; }
+   QImage* image_mask() { return _mask.get(); }
 
    std::vector<QPoint> get_mask_list();
 
@@ -119,7 +121,7 @@ protected:
 
    AnnotationProperty* _alpha_value;
 
-   QImage* _mask;
+   std::unique_ptr<QImage> _mask;
 
    bool _mouse_down;
 };

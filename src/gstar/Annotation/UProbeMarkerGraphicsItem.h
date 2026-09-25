@@ -12,6 +12,7 @@
 
 #include <QPolygon>
 #include <QFont>
+#include <memory>
 
 
 //---------------------------------------------------------------------------
@@ -259,7 +260,7 @@ private:
    /**
     * @brief m_sizeProp
     */
-   AnnotationProperty* m_sizeProp;
+   std::unique_ptr<AnnotationProperty> m_sizeProp;
 
    /**
     * @brief m_lastStringWidth

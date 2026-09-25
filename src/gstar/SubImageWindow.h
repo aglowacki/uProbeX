@@ -34,7 +34,13 @@ namespace gstar
 
         SubImageWindow();
 
-        SubImageWindow(const SubImageWindow&);
+        // Owns several heap-allocated Qt/gstar objects (see destructor) — copying would
+        // shallow-copy those pointers and double-free them. Movable only, so it can live
+        // in a std::vector without that hazard on reallocation.
+        SubImageWindow(const SubImageWindow&) = delete;
+        SubImageWindow& operator=(const SubImageWindow&) = delete;
+
+        SubImageWindow(SubImageWindow&& other) noexcept;
 
         virtual ~SubImageWindow();
 

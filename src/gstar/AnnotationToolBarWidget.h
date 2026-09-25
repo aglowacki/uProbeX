@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QToolBar>
 #include <QCheckBox>
+#include <memory>
 
 //---------------------------------------------------------------------------
 
@@ -97,27 +98,27 @@ private:
    /**
     * @brief m_crossHairAction
     */
-   QAction* m_crossHairAction;
+   std::unique_ptr<QAction> m_crossHairAction;
 
    /**
     * @brief m_intensityLineAction
     */
-   QAction* m_intensityLineAction;
+   std::unique_ptr<QAction> m_intensityLineAction;
 
    /**
     * @brief m_intensityPieAction
     */
-   QAction* m_intensityPieAction;
+   std::unique_ptr<QAction> m_intensityPieAction;
 
    /**
     * @brief m_markerAction
     */
-   QAction* m_markerAction;
+   std::unique_ptr<QAction> m_markerAction;
 
    /**
     * @brief m_rulerAction
     */
-   QAction* m_rulerAction;
+   std::unique_ptr<QAction> m_rulerAction;
 
    /**
     * @brief m_uProbeMarkerAction

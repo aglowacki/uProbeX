@@ -154,7 +154,7 @@ void ImageSegWidget::addRoiMask(gstar::RoiMaskGraphicsItem* roi)
         m_imageViewWidget->disconnectRoiGraphicsItemToMouseEvents(_selected_roi);
     }
 
-    insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, roi, false);
+    insertAndSelectAnnotation(m_treeModel.get(), m_annoTreeView, m_selectionModel, roi, false);
     // auto select the new roi
     _selected_roi = roi;
     if (_selected_roi != nullptr)

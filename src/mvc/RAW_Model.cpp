@@ -126,13 +126,14 @@ bool RAW_Model::load(QString filename)
 			data_struct::Params_Override<double>* po = nullptr;
 			if (_fit_params_override_dict.count(det) > 0)
 			{
-				po = _fit_params_override_dict.at(det);
+				po = _fit_params_override_dict.at(det).get();
 			}
 
 			if (po == nullptr)
 			{
-				po = new data_struct::Params_Override<double>();
-				_fit_params_override_dict[det] = po;
+				auto new_po = std::make_shared<data_struct::Params_Override<double>>();
+				po = new_po.get();
+				_fit_params_override_dict[det] = new_po;
 			}
 			
 			for (const auto& itr : pv_map)
@@ -176,12 +177,13 @@ data_struct::Params_Override<double>* RAW_Model::getParamOverride(int idx)
 {
     if (_fit_params_override_dict.count(idx) > 0)
     {
-        return _fit_params_override_dict.at(idx);
+        return _fit_params_override_dict.at(idx).get();
     }
 	else
 	{
-		_fit_params_override_dict[idx] = new data_struct::Params_Override<double>();
-		return _fit_params_override_dict.at(idx);
+		auto po = std::make_shared<data_struct::Params_Override<double>>();
+		_fit_params_override_dict[idx] = po;
+		return po.get();
 	}
 }
 
@@ -191,13 +193,13 @@ data_struct::Params_Override<double>* RAW_Model::getParamOverrideOrAvg(int idx)
 {
 	if (_fit_params_override_dict.count(idx) > 0)
 	{
-		return _fit_params_override_dict.at(idx);
+		return _fit_params_override_dict.at(idx).get();
 	}
 	else
 	{
 		if (_fit_params_override_dict.count(-1) > 0)
 		{
-			return _fit_params_override_dict.at(-1);
+			return _fit_params_override_dict.at(-1).get();
 		}
 	}
 	return nullptr;

@@ -60,20 +60,34 @@ SubImageWindow::SubImageWindow() : QObject()
 
 //---------------------------------------------------------------------------
 
-SubImageWindow::SubImageWindow(const SubImageWindow &win)
+SubImageWindow::SubImageWindow(SubImageWindow &&other) noexcept : QObject()
 {
+    scene = other.scene;
+    view = other.view;
+    cb_image_label = other.cb_image_label;
+    counts_coord_model = other.counts_coord_model;
+    counts_coord_widget = other.counts_coord_widget;
+    counts_stats_model = other.counts_stats_model;
+    counts_stats_widget = other.counts_stats_widget;
+    btn_contrast = other.btn_contrast;
+    counts_lookup = other.counts_lookup;
+    counts_stats = other.counts_stats;
+    layout = other.layout;
+    _contrast_updated = other._contrast_updated;
+    _contrast_min = other._contrast_min;
+    _contrast_max = other._contrast_max;
 
-    scene = win.scene;
-    view = win.view;
-    cb_image_label = win.cb_image_label;
-    counts_coord_model = win.counts_coord_model;
-    counts_coord_widget = win.counts_coord_widget;
-    counts_stats_model = win.counts_stats_model;
-    counts_stats_widget = win.counts_stats_widget;
-    btn_contrast = win.btn_contrast;
-    counts_lookup = win.counts_lookup;
-    counts_stats = win.counts_stats;
-    layout = win.layout;
+    other.scene = nullptr;
+    other.view = nullptr;
+    other.cb_image_label = nullptr;
+    other.counts_coord_model = nullptr;
+    other.counts_coord_widget = nullptr;
+    other.counts_stats_model = nullptr;
+    other.counts_stats_widget = nullptr;
+    other.btn_contrast = nullptr;
+    other.counts_lookup = nullptr;
+    other.counts_stats = nullptr;
+    other.layout = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -87,6 +101,7 @@ SubImageWindow::~SubImageWindow()
     delete counts_stats_model;
     delete counts_stats_widget;
     delete btn_contrast;
+    delete scene;
 }
 
 //---------------------------------------------------------------------------

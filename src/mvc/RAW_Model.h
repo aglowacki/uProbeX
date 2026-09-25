@@ -12,6 +12,7 @@
 #include <QObject>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 #include "io/file/mda_io.h"
 
 //---------------------------------------------------------------------------
@@ -52,7 +53,7 @@ public:
 
 	data_struct::Scan_Info<double>* getScanInfo();
 
-    void setParamOverride(int idx, data_struct::Params_Override<double>* params) { if (params != nullptr) { _fit_params_override_dict[idx] = params; } }
+    void setParamOverride(int idx, std::shared_ptr<data_struct::Params_Override<double>> params) { if (params) { _fit_params_override_dict[idx] = params; } }
 
     data_struct::Params_Override<double>* getParamOverride(int idx);
 
@@ -64,7 +65,7 @@ private:
 
     data_struct::Scan_Info<double> _scan_info;
 
-    std::map<int, data_struct::Params_Override<double>*> _fit_params_override_dict;
+    std::map<int, std::shared_ptr<data_struct::Params_Override<double>>> _fit_params_override_dict;
 
     std::unordered_map<unsigned int, data_struct::Spectra<double>> _integrated_spectra_map;
 

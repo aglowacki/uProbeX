@@ -418,10 +418,15 @@ void SpectraWidget::append_spectra(QString name, const data_struct::ArrayTr<doub
 
 void SpectraWidget::clearAllSpectra()
 {
-    for (auto& itr : _chart->series())
+    const QList<QAbstractSeries*> series = _chart->series();
+    for (auto* itr : series)
     {
         _chart->removeSeries(itr);
+        delete itr;
     }
+    // _line_series and every entry in _element_lines live in _chart too and were just deleted above.
+    _line_series = nullptr;
+    _element_lines.clear();
 }
 
 //---------------------------------------------------------------------------

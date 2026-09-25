@@ -391,7 +391,7 @@ RAW_Model* MapsWorkspaceModel::get_RAW_Model(QString name)
         auto model = std::make_unique<RAW_Model>();
         for(auto &itr : _fit_params_override_dict)
         {
-            model->setParamOverride(itr.first, &(itr.second));
+            model->setParamOverride(itr.first, itr.second);
         }
         QFileInfo fileInfo = _raw_fileinfo_list[name];
         if(io::file::File_Scan::inst()->get_total_count() == 0)
@@ -598,15 +598,15 @@ bool MapsWorkspaceModel::_load_fit_params()
     std::string dataset_dir = _dir->absolutePath().toStdString() + "/";
     for(size_t detector_num = 0; detector_num <= MAX_DETECTORS; detector_num++)
     {
-        data_struct::Params_Override<double> params_override(dataset_dir, detector_num);
-        if( io::file::load_override_params(dataset_dir, detector_num, params_override, true, false) )
+        auto params_override = std::make_shared<data_struct::Params_Override<double>>(dataset_dir, detector_num);
+        if( io::file::load_override_params(dataset_dir, detector_num, *params_override, true, false) )
         {
             _fit_params_override_dict[detector_num] = params_override;
             emit newFitParamsFileLoaded(detector_num);
         }
     }
-    data_struct::Params_Override<double> params(dataset_dir, -1);
-    if( io::file::load_override_params(dataset_dir, -1, params) )
+    auto params = std::make_shared<data_struct::Params_Override<double>>(dataset_dir, -1);
+    if( io::file::load_override_params(dataset_dir, -1, *params) )
     {
         _fit_params_override_dict[-1] = params;
         emit newFitParamsFileLoaded(-1);
@@ -667,7 +667,7 @@ data_struct::Fit_Parameters<double>* MapsWorkspaceModel::getFitParameters(int id
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {
-        return &(_fit_params_override_dict[idx].fit_params);
+        return &(_fit_params_override_dict[idx]->fit_params);
     }
     return nullptr;
 }
@@ -678,7 +678,7 @@ data_struct::Params_Override<double>* MapsWorkspaceModel::getParamOverride(int i
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {
-        return &(_fit_params_override_dict[idx]);
+        return _fit_params_override_dict[idx].get();
     }
     return nullptr;
 }
@@ -689,7 +689,7 @@ data_struct::Fit_Element_Map_Dict<double>* MapsWorkspaceModel::getElementToFit(i
 {
     if(_is_fit_params_loaded && _fit_params_override_dict.count(idx) > 0)
     {
-        return &(_fit_params_override_dict[idx].elements_to_fit);
+        return &(_fit_params_override_dict[idx]->elements_to_fit);
     }
     return nullptr;
 }

@@ -23,6 +23,7 @@
 #include "gstar/AnnotationProperty.h"
 #include "gstar/CoordinateModel.h"
 #include "gstar/Annotation/UProbeMarkerGraphicsItem.h"
+#include <memory>
 //---------------------------------------------------------------------------
 
 namespace gstar
@@ -396,7 +397,7 @@ protected:
    /**
     * @brief m_sizeProp
     */
-   AnnotationProperty* m_sizeProp;
+   std::unique_ptr<AnnotationProperty> m_sizeProp;
 
    /**
     * @brief m_lastStringWidth

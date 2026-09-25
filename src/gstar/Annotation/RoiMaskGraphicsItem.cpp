@@ -20,7 +20,7 @@ using namespace gstar;
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(const cv::Mat& mat, int idx, QColor col, AbstractGraphicsItem* parent)
     : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage(mat.cols, mat.rows, QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(mat.cols, mat.rows, QImage::Format_ARGB32);
 
     for (int w = 0; w < mat.cols; w++)
     {
@@ -49,7 +49,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(const cv::Mat& mat, int idx, QColor col
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(const Eigen::Array<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& mask, int idx, QColor col, AbstractGraphicsItem* parent)
  : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage(mask.cols(), mask.rows(), QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(mask.cols(), mask.rows(), QImage::Format_ARGB32);
 
     for (int w = 0; w < mask.cols(); w++)
     {
@@ -77,7 +77,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(const Eigen::Array<int, Eigen::Dynamic,
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, AbstractGraphicsItem* parent)
     : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage(cols, rows, QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(cols, rows, QImage::Format_ARGB32);
 
     for (int w = 0; w < cols; w++)
     {
@@ -94,7 +94,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(int rows, int cols, QColor col, Abstrac
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage(mask.width(), mask.height(), QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(mask.width(), mask.height(), QImage::Format_ARGB32);
     QColor black_col = QColor(0, 0, 0, 0);
     for (int i = 0; i < _mask->width(); i++)
     {
@@ -117,7 +117,7 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QImage mask, QColor color, int alpha, A
 
 RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, int width, int height, std::vector<std::pair<int, int>> pixel_list, AbstractGraphicsItem* parent) : AbstractGraphicsItem(parent)
 {
-    _mask = new QImage(width, height, QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(width, height, QImage::Format_ARGB32);
     // clear the image
     for (int w = 0; w < width; w++)
     {
@@ -152,11 +152,6 @@ RoiMaskGraphicsItem::RoiMaskGraphicsItem(QString name, QColor color, int alpha, 
 
 RoiMaskGraphicsItem::~RoiMaskGraphicsItem()
 {
-    if (_mask != nullptr)
-    {
-        delete _mask;
-        _mask = nullptr;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -202,7 +197,7 @@ void RoiMaskGraphicsItem::setMaskSize(QRectF size)
     _polygon.push_back(QPoint(size.width(), size.height()));
     _polygon.push_back(QPoint(size.width(), 0));
 
-    _mask = new QImage(size.width(), size.height(), QImage::Format_ARGB32);
+    _mask = std::make_unique<QImage>(size.width(), size.height(), QImage::Format_ARGB32);
     for (int w = 0; w < size.width(); w++)
     {
         for (int h = 0; h < size.height(); h++)

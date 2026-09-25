@@ -9,6 +9,7 @@
 //---------------------------------------------------------------------------
 
 #include <QWidget>
+#include <memory>
 
 #include <QAbstractTableModel>
 #include <QComboBox>
@@ -413,7 +414,7 @@ protected:
    /**
     * @brief m_treeModel
     */
-   AnnotationTreeModel* m_treeModel;
+   std::unique_ptr<AnnotationTreeModel> m_treeModel;
 
    /**
     * @brief m_treeTabWidget

@@ -30,7 +30,6 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
 : QWidget(parent)
 {
    // Background
-   m_treeModel = nullptr;
    m_annotationToolbar = nullptr;
    m_coordinateModel = nullptr;
    m_imageWidgetToolBar = nullptr;
@@ -45,15 +44,15 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
 
    //Setup a QTreeView and AnnotationTreeModel for Annotations
 
-   m_treeModel = new AnnotationTreeModel();
-   connect(m_treeModel, &AnnotationTreeModel::dataChanged, this, &AbstractImageWidget::modelDataChanged);
+   m_treeModel = std::make_unique<AnnotationTreeModel>();
+   connect(m_treeModel.get(), &AnnotationTreeModel::dataChanged, this, &AbstractImageWidget::modelDataChanged);
 
-   m_selectionModel = new QItemSelectionModel(m_treeModel);
+   m_selectionModel = new QItemSelectionModel(m_treeModel.get());
 
    m_annoTreeView = new QTreeView();
    m_annoTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
    m_annoTreeView->setAnimated(true);
-   m_annoTreeView->setModel(m_treeModel);
+   m_annoTreeView->setModel(m_treeModel.get());
    m_annoTreeView->setHeaderHidden(true);
    m_annoTreeView->setSelectionModel(m_selectionModel);
    m_annoTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -70,7 +69,7 @@ AbstractImageWidget::AbstractImageWidget(int rows, int cols, bool compact_view, 
       m_imageViewWidget = new ImageViewWidgetSubWin(rows, cols);
    }
    
-   m_imageViewWidget->setSceneModel(m_treeModel);
+   m_imageViewWidget->setSceneModel(m_treeModel.get());
    m_imageViewWidget->setSceneSelectionModel(m_selectionModel);
    m_imageViewWidget->setContextMenuPolicy(Qt::CustomContextMenu);
    connect(m_imageViewWidget, &ImageViewWidget::customContextMenuRequested, this, &AbstractImageWidget::viewContextMenu);
@@ -88,12 +87,6 @@ AbstractImageWidget::~AbstractImageWidget()
 {
 
     m_imageViewWidget->setSceneSelectionModel(nullptr);
-   
-    if(m_treeModel != nullptr)
-    {
-        delete m_treeModel;
-        m_treeModel = nullptr;
-    }
 
    /*
    if(m_annotationToolbar != nullptr)
@@ -116,7 +109,7 @@ void AbstractImageWidget::addMarker()
 {
 
    MarkerGraphicsItem* annotation = new MarkerGraphicsItem();
-   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
+   insertAndSelectAnnotation(m_treeModel.get(), m_annoTreeView, m_selectionModel, annotation);
 
 }
 
@@ -126,7 +119,7 @@ void AbstractImageWidget::addRuler()
 {
 
    RulerGraphicsItem* annotation = new RulerGraphicsItem();
-   insertAndSelectAnnotation(m_treeModel, m_annoTreeView, m_selectionModel, annotation);
+   insertAndSelectAnnotation(m_treeModel.get(), m_annoTreeView, m_selectionModel, annotation);
 
 }
 
@@ -404,7 +397,7 @@ QLayout* AbstractImageWidget::getImageViewLayout()
 AnnotationTreeModel* AbstractImageWidget::getAnnotationModel()
 {
 
-   return m_treeModel;
+   return m_treeModel.get();
 
 }
 
@@ -514,9 +507,9 @@ void AbstractImageWidget::modelDataChanged(const QModelIndex& topLeft,
 void AbstractImageWidget::setAnnotationModel(AnnotationTreeModel *model)
 {
 
-   m_treeModel = model;
-   m_annoTreeView->setModel(m_treeModel);
-   m_imageViewWidget->setSceneModel(m_treeModel);
+   m_treeModel.reset(model);
+   m_annoTreeView->setModel(m_treeModel.get());
+   m_imageViewWidget->setSceneModel(m_treeModel.get());
 
 }
 

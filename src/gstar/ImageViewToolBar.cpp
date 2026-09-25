@@ -20,12 +20,12 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    connect(widget, &ImageViewWidget::resetZoomToolBar, this, &ImageViewToolBar::resetZoomToolBar);
 
    m_toolbar = new QToolBar();
-   m_cursorAction = new QAction(QIcon(":images/cursor.png"),
-                                tr("Cursor"), 
+   m_cursorAction = std::make_unique<QAction>(QIcon(":images/cursor.png"),
+                                tr("Cursor"),
                                 nullptr);
    m_cursorAction->setCheckable(true);
    m_cursorAction->setChecked(true);
-   connect(m_cursorAction, &QAction::triggered, this, &ImageViewToolBar::clickCursor);
+   connect(m_cursorAction.get(), &QAction::triggered, this, &ImageViewToolBar::clickCursor);
 
    m_zoomInAction = new QAction(QIcon(":/images/zoomin.png"),
                                 tr("Zoom In"), this);
@@ -75,12 +75,12 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
    m_zoomPercent->setMinimumSize(80, 10);
 
    m_zoomGroup = new QActionGroup(this);
-   m_zoomGroup->addAction(m_cursorAction);
+   m_zoomGroup->addAction(m_cursorAction.get());
    m_zoomGroup->addAction(m_zoomInAction);
    m_zoomGroup->addAction(m_zoomOutAction);
    m_zoomGroup->addAction(m_zoomOriginalAction);
    
-   m_toolbar->addAction(m_cursorAction);
+   m_toolbar->addAction(m_cursorAction.get());
    m_toolbar->addAction(m_zoomInAction);
    m_toolbar->addAction(m_zoomOutAction);
    m_toolbar->addAction(m_zoomOriginalAction);
@@ -103,12 +103,6 @@ ImageViewToolBar::ImageViewToolBar(ImageViewWidget* widget)
 
 ImageViewToolBar::~ImageViewToolBar()
 {
-
-   if(m_cursorAction != nullptr)
-   {  
-      delete m_cursorAction;
-      m_cursorAction = nullptr;
-   }
 
 }
 

@@ -14,6 +14,7 @@
 #include <opencv2/opencv.hpp>
 #endif
 #include <Eigen/Core>
+#include <memory>
 //---------------------------------------------------------------------------
 
 namespace gstar
@@ -81,7 +82,7 @@ public:
 
    int alphaValue() { return _alpha_value->getValue().toInt(); }
 
-   QImage* image_mask() { return _mask; }
+   QImage* image_mask() { return _mask.get(); }
 
    QString getName();
 
@@ -148,7 +149,7 @@ protected:
 
     AnnotationProperty* _alpha_value;
 
-    QImage* _mask;
+    std::unique_ptr<QImage> _mask;
 
     QSize _brush_size;
 

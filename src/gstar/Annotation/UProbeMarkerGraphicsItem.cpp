@@ -42,7 +42,7 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(AbstractGraphicsItem* parent)
    m_measuredXProp = new AnnotationProperty(UPROBE_MICRO_POS_X, "0.0");
    m_measuredYProp = new AnnotationProperty(UPROBE_MICRO_POS_Y, "0.0");
 
-   m_sizeProp = new AnnotationProperty(UPROBE_SIZE, m_size);
+   m_sizeProp = std::make_unique<AnnotationProperty>(UPROBE_SIZE, m_size);
 
 
    m_data.push_back(m_outlineColorProp);
@@ -89,7 +89,7 @@ UProbeMarkerGraphicsItem::UProbeMarkerGraphicsItem(QMap<QString, QString>& marke
    m_measuredXProp = new AnnotationProperty(UPROBE_MICRO_POS_X, marker["MX"]);
    m_measuredYProp = new AnnotationProperty(UPROBE_MICRO_POS_Y, marker["MY"]);
 
-   m_sizeProp = new AnnotationProperty(UPROBE_SIZE, m_size);
+   m_sizeProp = std::make_unique<AnnotationProperty>(UPROBE_SIZE, m_size);
 
 
    m_data.push_back(m_outlineColorProp);

@@ -27,36 +27,36 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
    m_toolbar = new QToolBar();
    //m_toolbar->setPalette(pal);
 
-   m_rulerAction = new QAction(QIcon(":images/ruler.png"),
+   m_rulerAction = std::make_unique<QAction>(QIcon(":images/ruler.png"),
                                "Ruler",
                                nullptr);
 
-   m_intensityLineAction = new QAction(QIcon(":images/intensity.png"),
+   m_intensityLineAction = std::make_unique<QAction>(QIcon(":images/intensity.png"),
                                "Line Out Intensity",
                                nullptr);
 
-   m_intensityPieAction = new QAction(QIcon(":images/arc.png"),
+   m_intensityPieAction = std::make_unique<QAction>(QIcon(":images/arc.png"),
                                "Arc Intensity",
                                nullptr);
 
-   m_markerAction = new QAction(QIcon(":images/marker.png"),
+   m_markerAction = std::make_unique<QAction>(QIcon(":images/marker.png"),
                                "Marker",
                                nullptr);
 
-   m_crossHairAction = new QAction(QIcon(":images/crosshair.png"),
+   m_crossHairAction = std::make_unique<QAction>(QIcon(":images/crosshair.png"),
                                   "Cross Hair",
                                   nullptr);
 
 
-   connect(m_rulerAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickRuler);
+   connect(m_rulerAction.get(), &QAction::triggered, this, &AnnotationToolBarWidget::clickRuler);
 
-   connect(m_intensityLineAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityLine);
+   connect(m_intensityLineAction.get(), &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityLine);
 
-   connect(m_intensityPieAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityPie);
+   connect(m_intensityPieAction.get(), &QAction::triggered, this, &AnnotationToolBarWidget::clickIntensityPie);
 
-   connect(m_markerAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickMarker);
+   connect(m_markerAction.get(), &QAction::triggered, this, &AnnotationToolBarWidget::clickMarker);
 
-   connect(m_crossHairAction, &QAction::triggered, this, &AnnotationToolBarWidget::clickCrossHair);
+   connect(m_crossHairAction.get(), &QAction::triggered, this, &AnnotationToolBarWidget::clickCrossHair);
 
    QLabel* enableLable = new QLabel("Visible:");
    m_chkSetVisible = new QCheckBox();
@@ -65,11 +65,11 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
 
    m_toolbar->addWidget(enableLable);
    m_toolbar->addWidget(m_chkSetVisible);
-   m_toolbar->addAction(m_rulerAction);
-//   m_toolbar->addAction(m_intensityLineAction);
-//   m_toolbar->addAction(m_intensityPieAction);
-   m_toolbar->addAction(m_markerAction);
-//   m_toolbar->addAction(m_crossHairAction);
+   m_toolbar->addAction(m_rulerAction.get());
+//   m_toolbar->addAction(m_intensityLineAction.get());
+//   m_toolbar->addAction(m_intensityPieAction.get());
+   m_toolbar->addAction(m_markerAction.get());
+//   m_toolbar->addAction(m_crossHairAction.get());
 
    m_toolbar->setContentsMargins(QMargins(0, 0, 0, 0));
 
@@ -77,36 +77,6 @@ AnnotationToolBarWidget::AnnotationToolBarWidget(QWidget* parent) :
 
 AnnotationToolBarWidget::~AnnotationToolBarWidget()
 {
-
-   if(m_rulerAction != nullptr)
-   {
-      delete m_rulerAction;
-      m_rulerAction = nullptr;
-   }
-
-   if(m_intensityLineAction != nullptr)
-   {
-      delete m_intensityLineAction;
-      m_intensityLineAction = nullptr;
-   }
-
-   if(m_intensityPieAction != nullptr)
-   {
-      delete m_intensityPieAction;
-      m_intensityPieAction = nullptr;
-   }
-
-   if(m_markerAction != nullptr)
-   {
-      delete m_markerAction;
-      m_markerAction = nullptr;
-   }
-
-   if(m_crossHairAction != nullptr)
-   {
-      delete m_crossHairAction;
-      m_crossHairAction = nullptr;
-   }
 
 }
 
