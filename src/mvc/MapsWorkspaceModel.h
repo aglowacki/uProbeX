@@ -141,10 +141,10 @@ public slots:
 
     void reload_region_link();
 
+    bool load_fit_params();
+    
 protected:
     void _roi_files_to_num();
-
-    bool _load_fit_params();
 
     void _load_region_links(QString name, std::shared_ptr<MapsH5Model> model);
 

@@ -38,6 +38,10 @@ public:
 
    RAW_Model *getModel(){return _model;}
 
+signals:
+
+   void fit_params_updated();
+
 public slots:
 
    void model_updated();

@@ -229,9 +229,9 @@ std::string MapsH5Model::_analysis_enum_to_str(data_struct::Fitting_Routines val
 
 //---------------------------------------------------------------------------
 
-void MapsH5Model::set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> override)
+void MapsH5Model::set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> po)
 {
-    _params_override = override;
+    _params_override = po;
 }
 
 //---------------------------------------------------------------------------

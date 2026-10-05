@@ -248,11 +248,19 @@ void ImageStackControlWidget::onNextFilePressed()
 
 void ImageStackControlWidget::setModel(MapsWorkspaceModel *model)
 {
+	if(_model != nullptr)
+	{
+		disconnect(_imageGrid, &MapsElementsWidget::fit_params_updated, _model, &MapsWorkspaceModel::load_fit_params);
+		disconnect(_mda_widget, &MDA_Widget::fit_params_updated, _model, &MapsWorkspaceModel::load_fit_params);
+	}
 	_model = model;
 	_mapsFilsWidget->clearLists();
 	_mapsFilsWidget->setModel(_model);
 	if (_model != nullptr)
 	{
+		connect(_imageGrid, &MapsElementsWidget::fit_params_updated, _model, &MapsWorkspaceModel::load_fit_params);
+		connect(_mda_widget, &MDA_Widget::fit_params_updated, _model, &MapsWorkspaceModel::load_fit_params);
+	
 		_mapsFilsWidget->setLabelWorkspacePath(_model->get_directory_name());
 		this->setWindowTitle(_model->get_directory_name());
 	}

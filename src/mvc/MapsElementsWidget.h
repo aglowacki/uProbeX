@@ -72,6 +72,8 @@ signals:
 
    void new_rois(QString, int);
 
+   void fit_params_updated();
+   
 public slots:
 
 	void redrawCounts();

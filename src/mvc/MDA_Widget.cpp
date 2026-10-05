@@ -186,6 +186,7 @@ void MDA_Widget::on_export_fit_params(data_struct::Fit_Parameters<double> fit_pa
             if (io::file::aps::save_parameters_override(fileName.toStdString(), po))
             {
                 QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+                emit fit_params_updated();
             }
             else
             {

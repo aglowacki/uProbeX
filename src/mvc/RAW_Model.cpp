@@ -55,7 +55,7 @@ bool RAW_Model::load(QString filename)
 			if (mda_io.load_scalers(_filepath.toStdString()) == false)
 			{
 				return false;
-			}
+      }
 			if (mda_io.get_num_integreated_spectra() == 0) // probably fly scan
 			{
 				if (_path.endsWith("\\mda") || _path.endsWith("/mda"))

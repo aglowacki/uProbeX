@@ -1187,6 +1187,7 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
                 if (io::file::aps::save_parameters_override(fileName.toStdString(), param_overrides))
                 {
                     QMessageBox::information(nullptr, "Export Fit Parameters", "Saved");
+                    emit fit_params_updated();
                 }
                 else
                 {

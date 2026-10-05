@@ -165,7 +165,7 @@ public:
 
     std::vector<std::string> getAnalyzedTypes();
 
-    void set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> override);
+    void set_fit_parameters_override(std::shared_ptr<data_struct::Params_Override<double>> po);
 
     Calibration_curve<double>* get_calibration_curve(std::string analysis_type, std::string scaler_name);
 

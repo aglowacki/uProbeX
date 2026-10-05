@@ -185,7 +185,7 @@ void MapsWorkspaceModel::load(QString filepath)
             job_queue[4] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "rois", _all_roi_suffex, &_roi_fileinfo_list, check_roi, false);
             job_queue[5] = Global_Thread_Pool::inst()->enqueue(get_filesnames_in_directory, *_dir, "VLM/region_links", _all_region_links_suffex, &_region_links_fileinfo_list, check_region_link, false);
 
-            _is_fit_params_loaded = _load_fit_params();
+            _is_fit_params_loaded = load_fit_params();
             
 
             while (job_queue.size() > 0)
@@ -592,7 +592,7 @@ QString MapsWorkspaceModel::get_directory_name()
 
 //---------------------------------------------------------------------------
 
-bool MapsWorkspaceModel::_load_fit_params()
+bool MapsWorkspaceModel::load_fit_params()
 {
 
     std::string dataset_dir = _dir->absolutePath().toStdString() + "/";
