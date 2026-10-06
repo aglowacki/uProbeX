@@ -21,7 +21,9 @@
 #include <preferences/SolverParameterWidget.h>
 #include <preferences/SolverParameterParse.h>
 //#include <preferences/PythonSolverProfileWidget.h>
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
 #include <solver/PythonSolver.h>
+#endif
 #include <solver/NelderMeadSolver.h>
 #include <mvc/VLM_Widget.h>
 #include <mvc/SolverWidget.h>

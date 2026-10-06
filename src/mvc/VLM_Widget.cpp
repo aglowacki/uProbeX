@@ -36,7 +36,9 @@
 #include <preferences/AttributeGroup.h>
 #include <solver/Solver.h>
 
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
 #include <core/PythonRegionCaller.h>
+#endif
 #include <core/ShellRegionCaller.h>
 //#include <core/CAEmitDataChangeHandler.h>
 
@@ -334,6 +336,7 @@ void VLM_Widget::_createLightToMicroCoords(int id)
    }
    else
    {
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
       QStringList coefList = Preferences::inst()->getValue(STR_PRF_PythonCoefficient).toStringList();
 
       if (false == m_solverParameterParse->parseSolverCoefList(coefList))
@@ -361,6 +364,13 @@ void VLM_Widget::_createLightToMicroCoords(int id)
                fileInfo.baseName(),
                QString("my_transform"));
       }
+#else
+      QMessageBox::critical(nullptr, "Error",
+         "Python support was not built into this application, using default transformer instead.");
+      Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+      _createSolver();
+      return;
+#endif
    }
 
    if (lightTransformer->Init(allCoefs))
@@ -429,6 +439,7 @@ if (id == ID_LINEAR)
    }
    else
    {
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
       PythonSolver* ps = new PythonSolver();
 
       QString pythonFileName = Preferences::inst()->getValue(STR_PRF_PythonSolverName).toString();
@@ -450,7 +461,13 @@ if (id == ID_LINEAR)
       }
       m_solverParameterParse->getOptions(dict_options);
       m_solver->setImpl(ps);
-
+#else
+      logE << "Python support was not built into this application, reverting to NelderMeadSolver\n";
+      QMessageBox::critical(nullptr, "uProbeX", "Python support was not built into this application, reverting to NelderMeadSolver");
+      Preferences::inst()->setValue(STR_PRF_SolverCheckedID, 0);
+      _createSolver();
+      return;
+#endif
    }
    ITransformer* trans = m_lightToMicroCoordModel->getTransformer();
    m_solver->setAllCoef(trans->getAllCoef());
@@ -1216,6 +1233,7 @@ void VLM_Widget::createMicroProbeMenu()
                }
                if(execType == "python")
                {
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
                   prc = std::make_shared<PythonRegionCaller>();
                   if(prc->init(fInfo.path(), fInfo.baseName(), attr->getValue()))
                   {
@@ -1226,6 +1244,9 @@ void VLM_Widget::createMicroProbeMenu()
                      prc = nullptr;
                      logW<<"Error initializing python call: "<<attr->getName().toStdString() << "\n";
                   }
+#else
+                  logW<<"Python support not built into this application, skipping entry: "<<attr->getName().toStdString() << "\n";
+#endif
                }
 
                if(prc != nullptr)

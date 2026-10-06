@@ -27,11 +27,15 @@
 #include <preferences/SolverParameterParse.h>
 #include <solver/Solver.h>
 #include <solver/NelderMeadSolver.h>
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
 #include <solver/PythonSolver.h>
+#endif
 #include <solver/SV_CoordTransformer.h>
 #include <solver/LinearCoordTransformer.h>
 #include <gstar/MotorLookupTransformer.h>
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
 #include <solver/PythonTransformer.h>
+#endif
 #include <solver/LinearSolver.h>
 #include "mvc/BlueskyPlan.h"
 #include <mvc/ScanRegionLinkDialog.h>

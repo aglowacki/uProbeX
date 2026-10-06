@@ -81,6 +81,7 @@ option(AVX "Compule with arch AVX on MSVC" OFF)
 option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
 option(MSVC_DEBUG_INFO_REL "Compule with debug info in Release build for MSVC" OFF)
 option(BUILD_WITH_OPENCV_SUPPORT "Compule with opencv support for image segmentation" ON)
+option(BUILD_WITH_PYTHON_SUPPORT "Build with Python/pybind11 embedding support (OFF produces a build with no Python runtime dependency)" ON)
 
 # Get the Git commit hash
 execute_process(
@@ -119,11 +120,14 @@ find_package(XRF_Maps CONFIG REQUIRED COMPONENTS libxrf_io libxrf_fit)
 find_package(NLopt CONFIG REQUIRED)
 
 # Python embedding via pybind11 (vendored copy from the sibling XRF-Maps checkout).
-set(PYBIND11_FINDPYTHON ON)
-add_subdirectory(
-    "${PROJECT_SOURCE_DIR}/../XRF-Maps/src/support/pybind11"
-    "${CMAKE_CURRENT_BINARY_DIR}/pybind11"
-)
+IF (BUILD_WITH_PYTHON_SUPPORT)
+  add_definitions(-D_BUILD_WITH_PYTHON_SUPPORT)
+  set(PYBIND11_FINDPYTHON ON)
+  add_subdirectory(
+      "${PROJECT_SOURCE_DIR}/../XRF-Maps/src/support/pybind11"
+      "${CMAKE_CURRENT_BINARY_DIR}/pybind11"
+  )
+ENDIF()
 
 IF (BUILD_WITH_OPENCV_SUPPORT)
   add_definitions(-D_BUILD_WITH_OPENCV)
@@ -238,6 +242,15 @@ include_directories(src)
 
 file(GLOB_RECURSE PROJ_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
+IF (NOT BUILD_WITH_PYTHON_SUPPORT)
+  list(REMOVE_ITEM PROJ_SRC
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/PythonLoader.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/PythonRegionCaller.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/solver/PythonSolver.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/solver/PythonTransformer.cpp"
+  )
+ENDIF()
+
 add_executable( ${PROJECT_NAME} ${PROJ_SRC} uProbeX.qrc )
 
 set(CompilerFlags
@@ -283,7 +296,6 @@ IF (MSVC)
                         NLopt::nlopt
                         libxrf_fit
 						            libxrf_io
-                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT}
                         ws2_32.lib )
   ELSE()
@@ -302,7 +314,6 @@ IF (MSVC)
                           NLopt::nlopt
                           libxrf_fit
                           libxrf_io
-                          pybind11::embed
                           ${CMAKE_THREAD_LIBS_INIT}
                           ws2_32.lib )
   ENDIF()
@@ -343,7 +354,6 @@ ELSEIF (UNIX)
                         NLopt::nlopt
                         libxrf_fit
                         libxrf_io
-                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT} )
   ELSE()
     target_link_libraries (uProbeX PRIVATE
@@ -357,7 +367,10 @@ ELSEIF (UNIX)
                         NLopt::nlopt
                         libxrf_fit
                         libxrf_io
-                        pybind11::embed
                         ${CMAKE_THREAD_LIBS_INIT} )
   ENDIF()
+ENDIF()
+
+IF (BUILD_WITH_PYTHON_SUPPORT)
+  target_link_libraries (uProbeX PRIVATE pybind11::embed)
 ENDIF()

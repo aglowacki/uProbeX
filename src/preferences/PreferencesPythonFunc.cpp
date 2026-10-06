@@ -5,7 +5,9 @@
 
 // core/PythonLoader.h (pybind11/Python.h) must be included before any Qt header in
 // this translation unit -- see the comment in PythonSolver.h for why.
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
 #include <core/PythonLoader.h>
+#endif
 
 #include <preferences/PreferencesPythonFunc.h>
 
@@ -78,6 +80,7 @@ void PreferencesPythonFunc::addGroupItem()
    {
 
       QStringList functionList;
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
       try
       {
          if(false == PythonLoader::inst()->isLoaded())
@@ -90,6 +93,7 @@ void PreferencesPythonFunc::addGroupItem()
       {
          logW<<"Error PreferencesPythonFunc::addGroupItem "<<ex.what();
       }
+#endif
 
       if(functionList.count() > 0)
       {
@@ -270,6 +274,7 @@ void PreferencesPythonFunc::createComponents()
    connect(m_tree,&DeselectableTreeView::customContextMenuRequested,this, &PreferencesPythonFunc::contextMenuRequest);
 
    QLabel *foundPyLabel = new QLabel();
+#ifdef _BUILD_WITH_PYTHON_SUPPORT
    if(PythonLoader::inst()->isLoaded())
    {
       foundPyLabel->setText("Found Python library on system.");
@@ -297,6 +302,10 @@ void PreferencesPythonFunc::createComponents()
          logW<<"Error PreferencesPythonFunc::createComponents "<<ex.what();
       }
    }
+#else
+   m_foundPython = false;
+   foundPyLabel->setText("Could not find Python library on system.");
+#endif
 
    // Check box delegate
    CheckBoxDelegate* m_delegate = new CheckBoxDelegate();
