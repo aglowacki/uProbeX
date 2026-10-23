@@ -38,6 +38,9 @@ public:
    void update_file_list() {if(_imgStackControllWidget!= nullptr){_imgStackControllWidget->update_file_list();}}
 
    MapsWorkspaceModel* get_model(){ return _mapsWorkspaceModel.get();}
+
+   // Top level window for this workspace. Null once the user has closed it.
+   QWidget* get_widget(){ return _imgStackControllWidget;}
    
 signals:
 

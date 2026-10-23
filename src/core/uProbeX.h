@@ -218,6 +218,17 @@ private slots:
 
    void BatchExportImages();
 
+   /**
+    * @brief Does the actual batch export once the user presses Export in the dialog.
+    */
+   void onBatchExportImages();
+
+   /**
+    * @brief Remember which workspace window the user was last in. The batch menu lives on the
+    * main window, so by the time the action fires the workspace has already lost focus.
+    */
+   void onFocusChanged(QWidget* old, QWidget* now);
+
    void BatchRoiStats();
 
    void BatcGenScanVlm();
@@ -334,6 +345,20 @@ private:
    PerPixelFitWidget _per_pixel_fit_widget;
 
    QList<MapsWorkspaceController*> _mapsWorkspaceControllers;
+
+   /**
+    * @brief The workspace the batch actions run against. Returns the last focused one, or the
+    * only one if nothing has been focused yet. Null when no workspace is open.
+    */
+   MapsWorkspaceController* focusedWorkspaceController();
+
+   MapsWorkspaceController* _focused_workspace;
+
+   std::unique_ptr<ExportMapsDialog> _batch_export_dialog;
+
+   // Pinned when the dialog is raised. Focus can move to another workspace while the dialog is
+   // up, and the export has to stay on the one the title names.
+   MapsWorkspaceController* _batch_export_workspace;
 
    GenScanVlmWidget _gen_scan_vlm_widget;
 

@@ -3499,15 +3499,46 @@ void gen_insert_order_lists(std::vector<std::string> &element_lines, std::vector
 
 //---------------------------------------------------------------------------
 
-void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap)
+void MapsH5Model::on_export_image_pressed()
+{
+    QDir export_model_dir = _dir;
+    export_model_dir.cdUp();
+    export_model_dir.mkdir("export");
+    export_model_dir.cd("export");
+    export_model_dir.mkdir(_datset_name);
+    export_model_dir.cd(_datset_name);
+
+    //bring up dialog
+    if (_export_maps_dialog == nullptr)
+    {
+        _export_maps_dialog = std::make_unique<ExportMapsDialog>(export_model_dir.absolutePath());
+        connect(_export_maps_dialog.get(), &ExportMapsDialog::export_released, this, &MapsH5Model::export_requested);
+    }
+    else
+    {
+        // The dialog outlives the dataset, so it has to be re pointed or the export lands in the
+        // folder of whichever dataset was open first.
+        _export_maps_dialog->set_dir(export_model_dir.absolutePath());
+    }
+    _export_maps_dialog->show();
+}
+
+//---------------------------------------------------------------------------
+
+void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap, QDir out_dir)
 {
     int cur = 0;
-    
+
     QFileInfo finfo = QFileInfo(_filepath);
-    QDir temp_dir = finfo.absolutePath();
+    // A batch export points everything at one folder, a single export drops it next to the h5.
+    QDir temp_dir = out_dir.exists() ? out_dir : QDir(finfo.absolutePath());
     temp_dir.mkdir(finfo.baseName());
-    temp_dir.cd(finfo.baseName());
-    
+    if (false == temp_dir.cd(finfo.baseName()))
+    {
+        logE << "Could not create export dir " << temp_dir.absolutePath().toStdString() << QDir::separator().toLatin1() << finfo.baseName().toStdString() << "\n";
+        return;
+    }
+
     QDir png_dir = temp_dir;
     QDir tif8_dir = png_dir;
     QDir tiff_dir = png_dir;
@@ -3546,19 +3577,22 @@ void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, con
                 tiff_dir.mkdir(QString(a_itr.first.c_str()));
                 tiff_dir.cd(QString(a_itr.first.c_str()));
             }
-            const data_struct::ArrayXXr<float>* normalizer = nullptr;
             for (auto n_itr : normalizers)
             {
                 tiff_dir.mkdir(QString(n_itr.c_str()));
                 tiff_dir.cd(QString(n_itr.c_str()));
 
+                // Has to be reset per scaler, otherwise a scaler that is missing from the
+                // dataset would be normalized by whichever one came before it.
+                const data_struct::ArrayXXr<float>* normalizer = nullptr;
                 const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
-                if (scalers->count(n_itr) > 0)
+                if (scalers != nullptr && scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));
                 }
                 else
                 {
+                    tiff_dir.cdUp();
                     continue;
                 }
                 Calibration_curve<double>* calib_curve = get_calibration_curve(a_itr.first, n_itr);
@@ -3607,14 +3641,14 @@ void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, con
             // save normalized 32 bit float tiff
             if (saveTIFF)
             {
-                const data_struct::ArrayXXr<float>* normalizer = nullptr;
                 for (auto n_itr : normalizers)
                 {
                     tiff_dir.mkdir(QString(n_itr.c_str()));
                     tiff_dir.cd(QString(n_itr.c_str()));
 
+                    const data_struct::ArrayXXr<float>* normalizer = nullptr;
                     const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
-                    if (scalers->count(n_itr) > 0)
+                    if (scalers != nullptr && scalers->count(n_itr) > 0)
                     {
                         normalizer = &(scalers->at(n_itr));
                     }
@@ -3704,7 +3738,6 @@ void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, con
 
         for (auto& a_itr : _analyzed_counts)
         {
-            const data_struct::ArrayXXr<float>* normalizer = nullptr;
             QString analysis_name = QString(a_itr.first.c_str());
             ascii_dir.mkdir(analysis_name);
             ascii_dir.cd(analysis_name);
@@ -3715,8 +3748,9 @@ void MapsH5Model::export_images(bool savePNG, bool saveTIFF, bool saveASCII, con
                 ascii_dir.mkdir(QString(n_itr.c_str()));
                 ascii_dir.cd(QString(n_itr.c_str()));
 
+                const data_struct::ArrayXXr<float>* normalizer = nullptr;
                 const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = getScalers();
-                if (scalers->count(n_itr) > 0)
+                if (scalers != nullptr && scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));
                 }

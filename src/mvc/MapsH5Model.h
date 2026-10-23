@@ -19,6 +19,7 @@
 #include <mutex>
 #include <memory>
 #include "core/defines.h"
+#include <mvc/ExportMapsDialog.h>
 #include "io/file/hdf5_io.h"
 #include "fitting/routines/param_optimized_fit_routine.h"
 #include "fitting/models/gaussian_model.h"
@@ -229,11 +230,32 @@ public:
 
     const std::string& get_polarity_pattern() { return _polarity_pattern_str; }
 
-    void export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap);
+    /**
+     * @brief Write every analyzed element of this dataset to disk. Everything lands in a folder
+     * named after the dataset, created under out_dir. An invalid out_dir puts that folder next to
+     * the source h5 instead.
+     */
+    void export_images(bool savePNG, bool saveTIFF, bool saveASCII, const QString &contrast_limits, QVector<QRgb> *selected_colormap, QDir out_dir = QDir());
+
+    // Null until on_export_image_pressed() has been called at least once.
+    ExportMapsDialog* get_export_dialog() { return _export_maps_dialog.get(); }
+
+public slots:
+
+    /**
+     * @brief Point the export dialog at this dataset's export folder and show it. Creating it
+     * lazily keeps the dialog's settings between exports of the same dataset.
+     */
+    void on_export_image_pressed();
+
 signals:
     void model_data_updated();
 
     void model_int_spec_updated(bool snip_background);
+
+    // Raised when the user presses Export in the dialog. The view does the actual writing since
+    // it is the one that knows which elements are on screen.
+    void export_requested();
 
 protected:
 
@@ -308,6 +330,8 @@ private:
     QString _datset_name;
 
     QDir _dir;
+
+    std::unique_ptr<ExportMapsDialog> _export_maps_dialog;
 
     std::string _scan_type_as_str;
 

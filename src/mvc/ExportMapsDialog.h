@@ -67,6 +67,12 @@ public:
 
     void set_dir(QDir directory);
 
+    /**
+     * @brief Hide the options that only make sense for a single dataset that is on screen.
+     * A batch run has no view to screenshot and always exports every element.
+     */
+    void set_batch_mode(bool val);
+
 signals:
 
     void export_released();

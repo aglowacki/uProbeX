@@ -116,8 +116,6 @@ public slots:
 
    void on_invert_y_axis(int);
 
-   void on_export_image_pressed();
-
    void on_export_images();
 
    void on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*> roi_list);
@@ -217,8 +215,6 @@ protected:
    QCheckBox* _chk_show_scalebar;
 
    QPushButton *_btn_export_as_image;
-
-   std::unique_ptr<ExportMapsDialog> _export_maps_dialog;
 
    QWidget* _counts_window;
 

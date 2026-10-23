@@ -333,45 +333,122 @@ void uProbeX::batchPerPixel()
 
 void uProbeX::BatchExportImages()
 {
-if(_mapsWorkspaceControllers.size() > 0)
+    MapsWorkspaceController* controller = focusedWorkspaceController();
+    if (controller == nullptr)
     {
-        MapsWorkspaceController *controller = _mapsWorkspaceControllers.first();
-        if(controller != nullptr)
+        QMessageBox::information(this, "Batch Export Images",
+            "Click on the workspace window you want to export, then try again.");
+        return;
+    }
+
+    MapsWorkspaceModel* model = controller->get_model();
+    if (model == nullptr)
+    {
+        logW << "Model is nullptr\n";
+        return;
+    }
+
+    if (model->get_hdf5_file_list().size() == 0)
+    {
+        QMessageBox::information(this, "Batch Export Images",
+            "This workspace has no analyzed h5 datasets to export.");
+        return;
+    }
+
+    // Each dataset is reloaded one at a time below, holding them all open would run us out of
+    // memory on a large workspace.
+    model->unload_all_H5_Model();
+    model->unload_all_RAW_Model();
+
+    QDir export_dir = model->get_directory();
+    export_dir.mkdir("export");
+    export_dir.cd("export");
+
+    if (_batch_export_dialog == nullptr)
+    {
+        _batch_export_dialog = std::make_unique<ExportMapsDialog>(export_dir);
+        _batch_export_dialog->set_batch_mode(true);
+        connect(_batch_export_dialog.get(), &ExportMapsDialog::export_released, this, &uProbeX::onBatchExportImages);
+    }
+    else
+    {
+        // The dialog outlives the workspace, so it has to be re pointed or the export lands in
+        // the folder of whichever workspace was open first.
+        _batch_export_dialog->set_dir(export_dir);
+    }
+    _batch_export_workspace = controller;
+    _batch_export_dialog->setWindowTitle("Batch Export Images : " + model->get_directory_name());
+    _batch_export_dialog->show();
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::onBatchExportImages()
+{
+    if (_batch_export_dialog == nullptr)
+    {
+        return;
+    }
+
+    // Deliberately not focusedWorkspaceController() here, the user may have clicked on a
+    // different workspace while the dialog was up.
+    MapsWorkspaceController* controller = _batch_export_workspace;
+    if (controller == nullptr || false == _mapsWorkspaceControllers.contains(controller) || controller->get_model() == nullptr)
+    {
+        logW << "Workspace went away before the export started\n";
+        _batch_export_dialog->close();
+        return;
+    }
+    MapsWorkspaceModel* model = controller->get_model();
+
+    QString str_colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
+    if (str_colormap.length() == 0)
+    {
+        str_colormap = STR_COLORMAP_HEAT;
+    }
+    QVector<QRgb>* colormap = ColorMap::inst()->get_color_map(str_colormap);
+    QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
+
+    const std::map<QString, QFileInfo> h5_list = model->get_hdf5_file_list();
+    QDir out_dir = _batch_export_dialog->get_dir();
+    bool save_png = _batch_export_dialog->get_save_png();
+    bool save_tiff = _batch_export_dialog->get_save_tiff();
+    bool save_ascii = _batch_export_dialog->get_save_ascii();
+
+    _batch_export_dialog->setRunEnabled(false);
+
+    size_t cur = 0;
+    size_t total = h5_list.size();
+    _batch_export_dialog->status_callback(cur, total);
+
+    for (const auto& itr : h5_list)
+    {
+        // status_callback pumps the event loop, so the user can still close the dialog to stop.
+        if (false == _batch_export_dialog->isVisible())
         {
-            MapsWorkspaceModel* model =  controller->get_model();
-            if(model != nullptr)
-            {
-                model->unload_all_H5_Model();
-                model->unload_all_RAW_Model();
-                ExportMapsDialog dialog(model->get_directory());
-                dialog.exec();
-                
-                QString str_colormap = Preferences::inst()->getValue(STR_COLORMAP).toString();
-                if (str_colormap.length() == 0)
-                {
-                    str_colormap = STR_COLORMAP_HEAT;
-                }
-                
-                QVector<QRgb>* colormap = ColorMap::inst()->get_color_map(str_colormap);
-                QString saved_contrast = Preferences::inst()->getValue(STR_PREF_SAVED_CONTRAST).toString();
-                for (auto &itr : model->get_hdf5_file_list())
-                {
-                    MapsH5Model h5model;
-                    if (h5model.load(itr.second.absoluteFilePath()))
-                    {
-                        h5model.export_images(dialog.get_save_png(), dialog.get_save_tiff(), dialog.get_save_ascii(), saved_contrast, colormap);
-                    }
-                }
-            }
-            else
-            {
-                logW<<"Model is nullptr\n";
-            }
+            logI << "Batch export cancelled after " << cur << " of " << total << " datasets\n";
+            break;
+        }
+
+        MapsH5Model h5model;
+        if (h5model.load(itr.second.absoluteFilePath()))
+        {
+            h5model.export_images(save_png, save_tiff, save_ascii, saved_contrast, colormap, out_dir);
         }
         else
         {
-            logW<<"Controller is nullptr\n";
+            logE << "Could not load " << itr.second.absoluteFilePath().toStdString() << ", skipping\n";
         }
+
+        cur++;
+        _batch_export_dialog->status_callback(cur, total);
+    }
+
+    _batch_export_dialog->setRunEnabled(true);
+    if (_batch_export_dialog->isVisible())
+    {
+        _batch_export_dialog->on_open();
+        _batch_export_dialog->close();
     }
 }
 
@@ -445,7 +522,54 @@ void uProbeX::initialize()
 {
 
     m_mdiArea = nullptr;
+    _focused_workspace = nullptr;
+    _batch_export_workspace = nullptr;
 
+    // Each workspace is its own top level window, so this is the only way to know which one the
+    // user means when they reach up to the main window's Batch menu.
+    connect(qApp, &QApplication::focusChanged, this, &uProbeX::onFocusChanged);
+
+}
+
+//---------------------------------------------------------------------------
+
+void uProbeX::onFocusChanged(QWidget* old, QWidget* now)
+{
+    Q_UNUSED(old);
+
+    if (now == nullptr)
+    {
+        return;
+    }
+
+    QWidget* win = now->window();
+    for (MapsWorkspaceController* controller : _mapsWorkspaceControllers)
+    {
+        if (controller != nullptr && controller->get_widget() == win)
+        {
+            _focused_workspace = controller;
+            return;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+
+MapsWorkspaceController* uProbeX::focusedWorkspaceController()
+{
+    if (_focused_workspace != nullptr && _mapsWorkspaceControllers.contains(_focused_workspace))
+    {
+        return _focused_workspace;
+    }
+
+    // Nothing focused yet, or the focused one was closed. With a single workspace open there is
+    // no ambiguity, with several we cannot guess so the user has to click one first.
+    if (_mapsWorkspaceControllers.size() == 1)
+    {
+        return _mapsWorkspaceControllers.first();
+    }
+
+    return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -675,9 +799,20 @@ void uProbeX::mapsControllerClosed(MapsWorkspaceController* controller)
 {
     if (controller != nullptr)
     {
-        delete controller;
+        if (_focused_workspace == controller)
+        {
+            _focused_workspace = nullptr;
+        }
+        if (_batch_export_workspace == controller)
+        {
+            _batch_export_workspace = nullptr;
+        }
         int i = _mapsWorkspaceControllers.indexOf(controller);
-        _mapsWorkspaceControllers.removeAt(i);
+        if (i >= 0)
+        {
+            _mapsWorkspaceControllers.removeAt(i);
+        }
+        delete controller;
     }
     if(_mapsWorkspaceControllers.size() == 0)
     {

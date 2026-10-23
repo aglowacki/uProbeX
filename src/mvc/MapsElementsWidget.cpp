@@ -216,7 +216,14 @@ void MapsElementsWidget::_createLayout(bool create_image_nav, bool restore_float
 	connect(_grid_button, &QPushButton::pressed, this, &MapsElementsWidget::onGridDialog);
 
     _btn_export_as_image = new QPushButton("Export Images");
-    connect(_btn_export_as_image, &QPushButton::pressed, this, &MapsElementsWidget::on_export_image_pressed);
+    // The dialog belongs to the model, so the press has to be forwarded to whichever one is loaded.
+    connect(_btn_export_as_image, &QPushButton::pressed, this, [this]()
+        {
+            if (_model != nullptr)
+            {
+                _model->on_export_image_pressed();
+            }
+        });
 
     QWidget* options_widgets = new QWidget();
     QHBoxLayout* optionsHBox = new QHBoxLayout();
@@ -1108,6 +1115,7 @@ void MapsElementsWidget::setModel(std::shared_ptr<MapsH5Model> model)
             // Has to happen while we can still name the old sender, model_updated() only ever
             // sees the new one.
             disconnect(_model.get(), &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+            disconnect(_model.get(), &MapsH5Model::export_requested, this, &MapsElementsWidget::on_export_images);
         }
         _normalizer = nullptr;
         _calib_curve = nullptr;
@@ -1534,6 +1542,8 @@ void MapsElementsWidget::model_updated()
     _spectra_widget->setDatasetDir(_model->getDir());
 
     connect(_model.get(), &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+    // The model owns the export dialog, this widget does the writing since it knows what is on screen.
+    connect(_model.get(), &MapsH5Model::export_requested, this, &MapsElementsWidget::on_export_images, Qt::UniqueConnection);
 
     const data_struct::Scan_Info<double>* scan_info = _model->getScanInfo();
 
@@ -1966,47 +1976,21 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 
 //---------------------------------------------------------------------------
 
-void MapsElementsWidget::on_export_image_pressed()
+void MapsElementsWidget::on_export_images()
 {
-
     if (_model == nullptr)
     {
         return;
     }
 
-    QDir export_model_dir = _model->getDir();
-    export_model_dir.cdUp();
-    export_model_dir.mkdir("export");
-    export_model_dir.cd("export");
-    export_model_dir.mkdir(_model->getDatasetName());
-    export_model_dir.cd(_model->getDatasetName());
-
-    //bring up dialog
-    if (_export_maps_dialog == nullptr)
-    {
-        _export_maps_dialog = std::make_unique<ExportMapsDialog>(export_model_dir.absolutePath());
-        connect(_export_maps_dialog.get(), &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
-    }
-    else
-    {
-        // The dialog outlives the dataset, so it has to be re pointed or the export lands in the
-        // folder of whichever dataset was open first.
-        _export_maps_dialog->set_dir(export_model_dir.absolutePath());
-    }
-    _export_maps_dialog->show();
-
-}
-
-//---------------------------------------------------------------------------
-
-void MapsElementsWidget::on_export_images()
-{
-    if (_model == nullptr || _export_maps_dialog == nullptr)
+    // The dialog is owned by the model and is what raised export_requested, so it exists by now.
+    ExportMapsDialog* export_dialog = _model->get_export_dialog();
+    if (export_dialog == nullptr)
     {
         return;
     }
 
-    _export_maps_dialog->setRunEnabled(false);
+    export_dialog->setRunEnabled(false);
 
     //get all maps
     int view_cnt = m_imageViewWidget->getViewCount();
@@ -2014,7 +1998,7 @@ void MapsElementsWidget::on_export_images()
     std::map<std::string, std::future<QImage> > job_queue;
 
 
-    QDir export_model_dir = _export_maps_dialog->get_dir();
+    QDir export_model_dir = export_dialog->get_dir();
     int cur = 0;
 
     QDir png_dir = export_model_dir;
@@ -2022,12 +2006,12 @@ void MapsElementsWidget::on_export_images()
     QDir tiff_dir = export_model_dir;
     QDir ascii_dir = export_model_dir;
 
-    if (_export_maps_dialog->get_save_png())
+    if (export_dialog->get_save_png())
     {
         png_dir.mkdir("PNG");
         png_dir.cd("PNG");
     }
-    if (_export_maps_dialog->get_save_tiff())
+    if (export_dialog->get_save_tiff())
     {
         tif8_dir.mkdir("TIF_8bit");
         tif8_dir.cd("TIF_8bit");
@@ -2036,9 +2020,9 @@ void MapsElementsWidget::on_export_images()
     }
 
 
-    if (_export_maps_dialog->get_save_png() || _export_maps_dialog->get_save_tiff())
+    if (export_dialog->get_save_png() || export_dialog->get_save_tiff())
     {
-        if (_export_maps_dialog->get_export_all())
+        if (export_dialog->get_export_all())
         {
             std::vector<std::string> normalizers = { STR_DS_IC , STR_US_IC, STR_US_FM, STR_SR_CURRENT, "Counts" };
 
@@ -2048,12 +2032,12 @@ void MapsElementsWidget::on_export_images()
                 data_struct::Fit_Count_Dict<float> element_counts;
                 _model->getAnalyzedCounts(a_itr, element_counts);
              
-                if (_export_maps_dialog->get_save_png())
+                if (export_dialog->get_save_png())
                 {
                     png_dir.mkdir(QString(a_itr.c_str()));
                     png_dir.cd(QString(a_itr.c_str()));
                 }
-                if (_export_maps_dialog->get_save_tiff())
+                if (export_dialog->get_save_tiff())
                 {
                     tif8_dir.mkdir(QString(a_itr.c_str()));
                     tif8_dir.cd(QString(a_itr.c_str()));
@@ -2065,7 +2049,7 @@ void MapsElementsWidget::on_export_images()
                 for (auto& e_itr : element_counts)
                 {
                     QPixmap pixmap = generate_pixmap(a_itr, e_itr.first, false, -1);
-                    if (_export_maps_dialog->get_save_png())
+                    if (export_dialog->get_save_png())
                     {
                         std::string save_file_name = a_itr + "-" + e_itr.first + ".png";
                         if (false == pixmap.save(QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "PNG"))
@@ -2073,7 +2057,7 @@ void MapsElementsWidget::on_export_images()
                             logE << "Could not save PNG for " << QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())).toStdString() << "\n";
                         }
                     }
-                    if (_export_maps_dialog->get_save_tiff())
+                    if (export_dialog->get_save_tiff())
                     {
                         std::string save_file_name = a_itr + "-" + e_itr.first + "_8bit.tif";
                         if (false == pixmap.save(QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(save_file_name.c_str())), "TIFF"))
@@ -2084,7 +2068,7 @@ void MapsElementsWidget::on_export_images()
                 }
 
                 // save normalized 32 bit float tiff
-                if (_export_maps_dialog->get_save_tiff())
+                if (export_dialog->get_save_tiff())
                 {
                     for (auto n_itr : normalizers)
                     {
@@ -2163,11 +2147,11 @@ void MapsElementsWidget::on_export_images()
                     }
                 }
 
-                if (_export_maps_dialog->get_save_png())
+                if (export_dialog->get_save_png())
                 {
                     png_dir.cdUp();
                 }
-                if (_export_maps_dialog->get_save_tiff())
+                if (export_dialog->get_save_tiff())
                 {
                     tif8_dir.cdUp();
                     tiff_dir.cdUp();
@@ -2176,7 +2160,7 @@ void MapsElementsWidget::on_export_images()
         }
         else
         {
-            _export_maps_dialog->status_callback(cur, view_cnt);
+            export_dialog->status_callback(cur, view_cnt);
             for (int vidx = 0; vidx < view_cnt; vidx++)
             {
                 QString element = m_imageViewWidget->getLabelAt(vidx);
@@ -2265,14 +2249,14 @@ void MapsElementsWidget::on_export_images()
                 {
                     QPixmap pixmap = QPixmap::fromImage(itr.second.get());
 
-                    if (_export_maps_dialog->get_save_png())
+                    if (export_dialog->get_save_png())
                     {
                         if (false == pixmap.save(QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png"), "PNG"))
                         {
                             logE << "Could not save PNG for " << QDir::cleanPath(png_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".png").toStdString() << "\n";
                         }
                     }
-                    if (_export_maps_dialog->get_save_tiff())
+                    if (export_dialog->get_save_tiff())
                     {
                         //save 8 bit tiff
                         if (false == pixmap.save(QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif"), "TIFF"))
@@ -2281,13 +2265,13 @@ void MapsElementsWidget::on_export_images()
                         }
                     }
                     cur++;
-                    _export_maps_dialog->status_callback(cur, view_cnt);
+                    export_dialog->status_callback(cur, view_cnt);
                 }
                 job_queue.clear();
             }
         }
     }
-    if (_export_maps_dialog->get_save_ascii())
+    if (export_dialog->get_save_ascii())
     {
         ascii_dir.mkdir("CSV");
         ascii_dir.cd("CSV");
@@ -2301,7 +2285,7 @@ void MapsElementsWidget::on_export_images()
 
         size_t cur = 0;
         size_t total = analysis_types.size() * x_axis.cols() * y_axis.rows() * normalizers.size();
-        _export_maps_dialog->status_callback(cur, total);
+        export_dialog->status_callback(cur, total);
 
 
         for (auto& a_itr : analysis_types)
@@ -2422,13 +2406,13 @@ void MapsElementsWidget::on_export_images()
                                 out_stream << val << " , ";
                             }
                             cur++;
-                            _export_maps_dialog->status_callback(cur, total);
+                            export_dialog->status_callback(cur, total);
                             out_stream << "\n";
                         }
-                        if (false == _export_maps_dialog->isActiveWindow())
+                        if (false == export_dialog->isActiveWindow())
                         {
                             out_stream.close();
-                            _export_maps_dialog->setRunEnabled(true);
+                            export_dialog->setRunEnabled(true);
                             return;
                         }
                         out_stream << "\n";
@@ -2502,7 +2486,7 @@ void MapsElementsWidget::on_export_images()
             ascii_dir.cdUp();
         }
     }
-    if (_export_maps_dialog->get_save_screen())
+    if (export_dialog->get_save_screen())
     {
 
         QPixmap pixmap(_counts_window->rect().size());
@@ -2519,9 +2503,9 @@ void MapsElementsWidget::on_export_images()
         }
     }
 
-    _export_maps_dialog->setRunEnabled(true);
-    _export_maps_dialog->on_open();
-    _export_maps_dialog->close();
+    export_dialog->setRunEnabled(true);
+    export_dialog->on_open();
+    export_dialog->close();
 }
 
 //---------------------------------------------------------------------------
