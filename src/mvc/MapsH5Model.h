@@ -210,8 +210,11 @@ public:
     static bool load_x_y_motors_only(QString filepath, data_struct::ArrayXXr<float> &x_arr, data_struct::ArrayXXr<float> &y_arr);
 
     //bool gen_image(const std::string analysis_type, const std::string element, bool log_color, bool show_legend, QImage& image, gstar::CountsLookupTransformer* counts_lookup, gstar::CountsStatsTransformer* counts_stats);
-    //QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized);
 
+    // Does all of the pixel work. Safe to call from a worker thread, unlike gen_pixmap.
+    QImage gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized) const;
+
+    // GUI thread only, QPixmap is not safe to use anywhere else.
     QPixmap gen_pixmap(const GenerateImageProp& props,  ArrayXXr<float>& normalized) const;
 
     bool load_pixel_spectra(const std::pair<int, int>& point, ArrayDr& spectra);

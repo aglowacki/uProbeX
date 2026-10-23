@@ -155,6 +155,12 @@ protected:
 
    void _appendRoiTab();
 
+   /**
+    * @brief Drop everything that points into the dataset we are leaving. Child widgets hold
+    * non-owning pointers into the model, so this has to run even when there is no new model.
+    */
+   void _clear_model_bindings();
+
    std::shared_ptr<MapsH5Model> _model;
 
    FitSpectraWidget* _spectra_widget;

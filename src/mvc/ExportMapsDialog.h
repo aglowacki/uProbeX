@@ -65,6 +65,8 @@ public:
 
     QDir get_dir() { return _directory; }
 
+    void set_dir(QDir directory);
+
 signals:
 
     void export_released();

@@ -31,6 +31,23 @@ using gstar::ImageViewWidget;
 
 //---------------------------------------------------------------------------
 
+// Result of one off thread image generation. The pixel work happens on the thread pool, the
+// QPixmap conversion and the scene update happen back on the gui thread.
+struct ImageJobResult
+{
+    QImage image;
+    ArrayXXr<float> normalized;
+};
+
+// Counts arrays are not guaranteed to agree with the axis dims, and roi pixel lists can come from
+// a differently sized map, so indexes have to be checked before they are used.
+static inline bool array_contains(const data_struct::ArrayXXr<float>& arr, int row, int col)
+{
+    return row >= 0 && col >= 0 && row < (int)arr.rows() && col < (int)arr.cols();
+}
+
+//---------------------------------------------------------------------------
+
 MapsElementsWidget::MapsElementsWidget(int rows, int cols, bool compact_view, bool create_image_nav, bool restore_floating, QWidget* parent)
     : AbstractImageWidget(rows, cols, compact_view, parent)
 {
@@ -677,7 +694,7 @@ void MapsElementsWidget::openImageSegDialog()
         QImage i;
         QColor q;
         gstar::RoiMaskGraphicsItem item(i, q, 0);
-        if (m_treeModel != nullptr)
+        if (m_roiTreeModel != nullptr)
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
@@ -695,6 +712,10 @@ void MapsElementsWidget::openImageSegDialog()
 
 void MapsElementsWidget::convertRoiToMca()
 {
+    if (_model == nullptr)
+    {
+        return;
+    }
     if (m_roiSelectionModel->hasSelection())
     {
         QModelIndexList selectedIndexes = m_roiSelectionModel->selectedRows();
@@ -702,7 +723,8 @@ void MapsElementsWidget::convertRoiToMca()
         for (int i = selectedIndexes.count() - 1; i >= 0; i--)
         {
             QModelIndex index = selectedIndexes[i];
-            gstar::RoiMaskGraphicsItem* item = static_cast<gstar::RoiMaskGraphicsItem*>(index.internalPointer());
+            // The tree can hold other annotation types, so this has to be a checked cast.
+            gstar::RoiMaskGraphicsItem* item = dynamic_cast<gstar::RoiMaskGraphicsItem*>(static_cast<gstar::AbstractGraphicsItem*>(index.internalPointer()));
             if(item != nullptr)
             {
                 QDir export_dir = _model->getDir();
@@ -755,7 +777,7 @@ void MapsElementsWidget::openRoiStatsWidget()
         QImage i;
         QColor c;
         gstar::RoiMaskGraphicsItem item(i, c, 0);
-        if (m_treeModel != nullptr)
+        if (m_roiTreeModel != nullptr)
         {
             m_roiTreeModel->get_all_of_type(item.classId(), roi_list);
         }
@@ -763,10 +785,19 @@ void MapsElementsWidget::openRoiStatsWidget()
         const data_struct::ArrayXXr<float> x_axis = _model->get_x_axis();
         const data_struct::ArrayXXr<float> y_axis = _model->get_y_axis();
 
-        int xidx = x_axis.cols() / 2;
-        int yidx = y_axis.rows() / 2;
-
-        float sq_area = ((x_axis(0,xidx+1) - x_axis(0,xidx)) * (y_axis(yidx+1,0) - y_axis(yidx,0)));
+        // Measuring a pixel takes two neighboring points on each axis. Line scans only have one,
+        // and a dataset saved without x/y axis has none at all.
+        float sq_area = 1.0f;
+        if (x_axis.rows() > 0 && x_axis.cols() > 1 && y_axis.cols() > 0 && y_axis.rows() > 1)
+        {
+            int xidx = std::min((int)(x_axis.cols() / 2), (int)x_axis.cols() - 2);
+            int yidx = std::min((int)(y_axis.rows() / 2), (int)y_axis.rows() - 2);
+            sq_area = ((x_axis(0,xidx+1) - x_axis(0,xidx)) * (y_axis(yidx+1,0) - y_axis(yidx,0)));
+        }
+        else
+        {
+            logW << "Dataset has no 2D x/y axis, using 1.0 for the pixel area in roi statistics\n";
+        }
 
         _roi_stats_diag->setData(_model->getDir(), _model->getDatasetName(), _cb_analysis->currentText(), _cb_normalize->currentText(), sq_area, fit_counts, roi_list, _normalizer, _calib_curve);
 
@@ -852,7 +883,11 @@ void MapsElementsWidget::displayContextMenu(QWidget* parent,
 //---------------------------------------------------------------------------
 
 void MapsElementsWidget::onAnalysisSelect(QString name)
-{	
+{
+    if (_model == nullptr)
+    {
+        return;
+    }
     _calib_curve = _model->get_calibration_curve(name.toStdString(), _cb_normalize->currentText().toStdString());
     _co_loc_widget->onSetAnalysisType(name);
     _scatter_plot_widget->setAnalysisType(name);
@@ -869,14 +904,12 @@ void MapsElementsWidget::onElementSelect(QString name, int viewIdx)
     for (int i = 0; i < cnt; i++)
     {
         QString label = m_imageViewWidget->getLabelAt(i);
-        if (_normalizer != nullptr && _calib_curve != nullptr)
+        std::string label_str = label.toStdString();
+        if (_normalizer != nullptr && _calib_curve != nullptr && _calib_curve->calib_curve.count(label_str) > 0)
         {
-            if (_calib_curve->calib_curve.count(label.toStdString()) > 0)
-            {
-                m_imageViewWidget->setUnitLabel(i, "ug/cm2");
-            }
+            m_imageViewWidget->setUnitLabel(i, "ug/cm2");
         }
-        if(label.toStdString() == STR_ELT || label.toStdString() == STR_ERT)
+        else if(label_str == STR_ELT || label_str == STR_ERT)
         {
             m_imageViewWidget->setUnitLabel(i, "secs");
         }
@@ -918,8 +951,11 @@ void MapsElementsWidget::checkColormapSelect(QString colormap)
     else
     {
         _selected_colormap = ColorMap::inst()->get_color_map(colormap);
-        if (_selected_colormap == nullptr)
+        // The ledgend and the count images are indexed 8 bit, so anything that does not cover all
+        // 256 indices would be read past the end of when converting to rgb.
+        if (_selected_colormap == nullptr || _selected_colormap->size() != 256)
         {
+            logW << "Colormap " << colormap.toStdString() << " is unusable, falling back to gray\n";
             _selected_colormap = &_gray_colormap;
             Preferences::inst()->setValue(STR_COLORMAP, STR_COLORMAP_GRAY);
         }
@@ -947,6 +983,10 @@ void MapsElementsWidget::onColormapSelect(QString colormap)
 
 void MapsElementsWidget::onSelectElements()
 {
+    if (_model == nullptr)
+    {
+        return;
+    }
 
     data_struct::Fit_Count_Dict<float> element_counts;
 
@@ -1010,7 +1050,7 @@ void MapsElementsWidget::onSelectNormalizer(QString name)
         if (_model != nullptr)
         {
             const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-            if (scalers->count(name.toStdString()) > 0)
+            if (scalers != nullptr && scalers->count(name.toStdString()) > 0)
             {
                 _normalizer = &(scalers->at(name.toStdString()));
             }
@@ -1063,11 +1103,59 @@ void MapsElementsWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
     if (_model != model)
     {
+        if (_model != nullptr)
+        {
+            // Has to happen while we can still name the old sender, model_updated() only ever
+            // sees the new one.
+            disconnect(_model.get(), &MapsH5Model::model_int_spec_updated, _spectra_widget, &FitSpectraWidget::replot_integrated_spectra);
+        }
         _normalizer = nullptr;
         _calib_curve = nullptr;
         _model = model;
         model_updated();
     }
+}
+
+//---------------------------------------------------------------------------
+
+void MapsElementsWidget::_clear_model_bindings()
+{
+    // The combo boxes stay populated after a dataset is unloaded and their slots use _model, so
+    // the signals have to come off before anything else.
+    disconnect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
+    disconnect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
+
+    // Both point into the model's own storage.
+    _normalizer = nullptr;
+    _calib_curve = nullptr;
+
+    if (_model != nullptr)
+    {
+        // model_updated() repopulates everything below from the new model.
+        return;
+    }
+
+    // No dataset anymore. Every non owning reference into the one we just let go of has to be
+    // dropped here, it will be freed as soon as the workspace unloads it.
+    _spectra_widget->setParamOverride(nullptr);
+    _spectra_widget->setIntegratedSpectra(nullptr);
+    _spectra_widget->clearFitIntSpectra();
+    _spectra_widget->clearMaxChanSpectra();
+    _spectra_widget->clearROISpectra();
+    _polar_xanes_widget->setModel(nullptr);
+    _co_loc_widget->setModel(nullptr);
+    _scatter_plot_widget->setModel(nullptr);
+    _quant_widget->setModel(nullptr);
+
+    m_roiTreeModel->clearAll();
+    _dataset_directory->clear();
+    _dataset_name->clear();
+    _cb_analysis->clear();
+    _cb_normalize->clear();
+    _cb_normalize->addItem("1");
+    _extra_pvs_table_widget->clearContents();
+    _extra_pvs_table_widget->setRowCount(0);
+    m_imageViewWidget->clearLabels();
 }
 
 //---------------------------------------------------------------------------
@@ -1210,13 +1298,14 @@ void MapsElementsWidget::on_export_fit_params(data_struct::Fit_Parameters<double
 
 void MapsElementsWidget::model_updated()
 {
+    // Runs before the early return below on purpose, the previous dataset has to be released
+    // whether or not there is a new one to show.
+    _clear_model_bindings();
+
     if(_model == nullptr)
     {
         return;
     }
-
-    disconnect(_cb_analysis, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onAnalysisSelect);
-    disconnect(_cb_normalize, &QComboBox::currentTextChanged, this, &MapsElementsWidget::onSelectNormalizer);
 
     _dataset_directory->setText(_model->getFilePath());
     _dataset_name->setText(_model->getDatasetName());
@@ -1231,7 +1320,12 @@ void MapsElementsWidget::model_updated()
     _cb_normalize->addItem("1");
 
     const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-    
+    static const std::map<std::string, data_struct::ArrayXXr<float>> empty_scalers;
+    if (scalers == nullptr)
+    {
+        scalers = &empty_scalers;
+    }
+
     if (scalers->count(STR_DS_IC) > 0)
     {
         _cb_normalize->addItem(QString(STR_DS_IC.c_str()));
@@ -1472,6 +1566,21 @@ void MapsElementsWidget::model_updated()
         QRectF scene_dims = m_imageViewWidget->getSceneRect();
         int width = (int)scene_dims.width();
         int height = (int)scene_dims.height();
+        // Nothing has been drawn for this dataset yet, so the scene can still be empty. Falling
+        // back keeps the mask from coming out 0x0, which would silently drop every roi pixel.
+        if (width < 1 || height < 1)
+        {
+            width = (int)_model->get_x_axis().cols();
+            height = (int)_model->get_y_axis().rows();
+        }
+        if (width < 1 || height < 1)
+        {
+            for (const auto& p_itr : itr.second.pixel_list)
+            {
+                width = std::max(width, p_itr.first + 1);
+                height = std::max(height, p_itr.second + 1);
+            }
+        }
         logI<< "Loading roi: "<< itr.first<<"\n";
         gstar::RoiMaskGraphicsItem* roi = new gstar::RoiMaskGraphicsItem(QString(itr.first.c_str()), itr.second.color, itr.second.color_alpha, width, height, itr.second.pixel_list);
         insertAndSelectAnnotation(m_roiTreeModel.get(), m_roiTreeView, m_roiSelectionModel, roi);
@@ -1525,8 +1634,9 @@ void MapsElementsWidget::redrawCounts()
     int view_cnt = m_imageViewWidget->getViewCount();
     std::string analysis_text = _cb_analysis->currentText().toStdString();
 
-    bool compact_view = Preferences::inst()->getValue(STR_PRF_COMPACT_COUNTS_VIEW).toBool();
-    if(compact_view)
+    // Has to come from the widget we actually built, not from the preference. The preference can
+    // be toggled while this window is open, the type of m_imageViewWidget cannot.
+    if(isCompactView())
     {
         for (int vidx = 0; vidx < view_cnt; vidx++)
         {
@@ -1546,35 +1656,42 @@ void MapsElementsWidget::redrawCounts()
         }
         else
         {
-            std::map<int, std::future<QPixmap> > job_queue;
+            std::map<int, std::future<ImageJobResult> > job_queue;
 
             for (int vidx = 0; vidx < view_cnt; vidx++)
             {
                 QString element = m_imageViewWidget->getLabelAt(vidx);
-                if (_model != nullptr && _model->regionLinks().count(element) > 0)
+                if (_model == nullptr)
+                {
+                    continue;
+                }
+                if (_model->regionLinks().count(element) > 0)
                 {
                     m_imageViewWidget->setSubScenePixmap(vidx, QPixmap::fromImage((_model->regionLinks().at(element))));
                 }
                 else
                 {
-                    job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                    // Read the widgets here, on the gui thread, and hand the worker nothing but
+                    // plain data. QPixmap and the scene are touched below, also on the gui thread.
+                    GenerateImageProp props = generate_image_props(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx);
+                    std::shared_ptr<MapsH5Model> model = _model;
+                    job_queue[vidx] = Global_Thread_Pool::inst()->enqueue([model, props]
+                        {
+                            ImageJobResult job;
+                            job.image = model->gen_image(props, job.normalized);
+                            return job;
+                        });
                 }
             }
 
-            bool set_dims = true;
-            while (job_queue.size() > 0)
+            for (auto& itr : job_queue)
             {
-                std::vector<int> to_delete;
-                for (auto& itr : job_queue)
-                {       
-                    m_imageViewWidget->setSubScenePixmap(itr.first, itr.second.get());
-                    to_delete.push_back(itr.first);
-                }
-
-                for (const auto& itr : to_delete)
+                ImageJobResult job = itr.second.get();
+                if (job.normalized.rows() > 0 && job.normalized.cols() > 0)
                 {
-                    job_queue.erase(itr);
+                    m_imageViewWidget->setCountsTrasnformAt(itr.first, job.normalized);
                 }
+                m_imageViewWidget->setSubScenePixmap(itr.first, QPixmap::fromImage(job.image));
             }
         }
     }
@@ -1852,18 +1969,29 @@ void MapsElementsWidget::on_add_new_ROIs(std::vector<gstar::RoiMaskGraphicsItem*
 void MapsElementsWidget::on_export_image_pressed()
 {
 
-    //bring up dialog 
+    if (_model == nullptr)
+    {
+        return;
+    }
+
+    QDir export_model_dir = _model->getDir();
+    export_model_dir.cdUp();
+    export_model_dir.mkdir("export");
+    export_model_dir.cd("export");
+    export_model_dir.mkdir(_model->getDatasetName());
+    export_model_dir.cd(_model->getDatasetName());
+
+    //bring up dialog
     if (_export_maps_dialog == nullptr)
     {
-        QDir export_model_dir = _model->getDir();
-        export_model_dir.cdUp();
-        export_model_dir.mkdir("export");
-        export_model_dir.cd("export");
-        export_model_dir.mkdir(_model->getDatasetName());
-        export_model_dir.cd(_model->getDatasetName());
-
         _export_maps_dialog = std::make_unique<ExportMapsDialog>(export_model_dir.absolutePath());
         connect(_export_maps_dialog.get(), &ExportMapsDialog::export_released, this, &MapsElementsWidget::on_export_images);
+    }
+    else
+    {
+        // The dialog outlives the dataset, so it has to be re pointed or the export lands in the
+        // folder of whichever dataset was open first.
+        _export_maps_dialog->set_dir(export_model_dir.absolutePath());
     }
     _export_maps_dialog->show();
 
@@ -1873,12 +2001,17 @@ void MapsElementsWidget::on_export_image_pressed()
 
 void MapsElementsWidget::on_export_images()
 {
+    if (_model == nullptr || _export_maps_dialog == nullptr)
+    {
+        return;
+    }
+
     _export_maps_dialog->setRunEnabled(false);
-    
+
     //get all maps
     int view_cnt = m_imageViewWidget->getViewCount();
     std::string analysis_text = _cb_analysis->currentText().toStdString();
-    std::map<std::string, std::future<QPixmap> > job_queue;
+    std::map<std::string, std::future<QImage> > job_queue;
 
 
     QDir export_model_dir = _export_maps_dialog->get_dir();
@@ -1953,14 +2086,16 @@ void MapsElementsWidget::on_export_images()
                 // save normalized 32 bit float tiff
                 if (_export_maps_dialog->get_save_tiff())
                 {
-                    const data_struct::ArrayXXr<float>* normalizer = nullptr;
                     for (auto n_itr : normalizers)
                     {
                         tiff_dir.mkdir(QString(n_itr.c_str()));
                         tiff_dir.cd(QString(n_itr.c_str()));
 
+                        // Has to be reset per scaler, otherwise a scaler that is missing from the
+                        // dataset would be normalized by whichever one came before it.
+                        const data_struct::ArrayXXr<float>* normalizer = nullptr;
                         const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-                        if (scalers->count(n_itr) > 0)
+                        if (scalers != nullptr && scalers->count(n_itr) > 0)
                         {
                             normalizer = &(scalers->at(n_itr));
                         }
@@ -1974,7 +2109,10 @@ void MapsElementsWidget::on_export_images()
                             data_struct::ArrayXXr<float> counts = e_itr.second;
 
                             //out_stream << e_itr.first;
-                            if (calib_curve != nullptr && normalizer != nullptr)
+                            // Eigen does not check sizes in release, so a scaler saved at a
+                            // different scan size than the counts would read off the end.
+                            if (calib_curve != nullptr && normalizer != nullptr
+                                && normalizer->rows() == counts.rows() && normalizer->cols() == counts.cols())
                             {
                                 if (calib_curve->calib_curve.count(e_itr.first) > 0)
                                 {
@@ -2044,7 +2182,15 @@ void MapsElementsWidget::on_export_images()
                 QString element = m_imageViewWidget->getLabelAt(vidx);
                 std::string el_str = element.toStdString();
 
-                job_queue[el_str] = Global_Thread_Pool::inst()->enqueue([this, vidx, analysis_text, element] { return generate_pixmap(analysis_text, element.toStdString(), _chk_log_color->isChecked(), vidx); });
+                // Widgets are read here and the QPixmap is built when the job is drained, both on
+                // the gui thread. The worker only sees plain data.
+                GenerateImageProp props = generate_image_props(analysis_text, el_str, _chk_log_color->isChecked(), vidx);
+                std::shared_ptr<MapsH5Model> model = _model;
+                job_queue[el_str] = Global_Thread_Pool::inst()->enqueue([model, props]
+                    {
+                        ArrayXXr<float> normalized;
+                        return model->gen_image(props, normalized);
+                    });
 
 
                 // save normalized 32 bit float tiff
@@ -2059,7 +2205,8 @@ void MapsElementsWidget::on_export_images()
                 {
                     counts = element_counts.at(el_str);
 
-                    if (calib_curve != nullptr && _normalizer != nullptr)
+                    if (calib_curve != nullptr && _normalizer != nullptr
+                        && _normalizer->rows() == counts.rows() && _normalizer->cols() == counts.cols())
                     {
                         if (calib_curve->calib_curve.count(el_str) > 0)
                         {
@@ -2072,11 +2219,21 @@ void MapsElementsWidget::on_export_images()
                         }
                     }
                 }
-                else if (_model->getScalers()->count(el_str) > 0)
+                else
                 {
-                    counts = _model->getScalers()->at(el_str);
+                    const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
+                    if (scalers != nullptr && scalers->count(el_str) > 0)
+                    {
+                        counts = scalers->at(el_str);
+                    }
                 }
                 save_file_name_fp += ".tif";
+
+                if (counts.rows() < 1 || counts.cols() < 1)
+                {
+                    logW << "No counts for " << el_str << ", skipping tiff\n";
+                    continue;
+                }
 
                 QString save_path = QDir::cleanPath(tiff_dir.absolutePath() + QDir::separator() + QString(save_file_name_fp.c_str()));
                 if ((tif = TIFFOpen(save_path.toStdString().c_str(), "w")) == NULL)
@@ -2103,12 +2260,10 @@ void MapsElementsWidget::on_export_images()
 
             }
 
-            while (job_queue.size() > 0)
             {
-                std::vector<std::string> to_delete;
                 for (auto& itr : job_queue)
                 {
-                    QPixmap pixmap = itr.second.get();
+                    QPixmap pixmap = QPixmap::fromImage(itr.second.get());
 
                     if (_export_maps_dialog->get_save_png())
                     {
@@ -2125,15 +2280,10 @@ void MapsElementsWidget::on_export_images()
                             logE << "Could not save 8 bit TIFF for " << QDir::cleanPath(tif8_dir.absolutePath() + QDir::separator() + QString(itr.first.c_str()) + ".tif").toStdString() << "\n";
                         }
                     }
-                    to_delete.push_back(itr.first);
                     cur++;
                     _export_maps_dialog->status_callback(cur, view_cnt);
                 }
-
-                for (const auto& itr : to_delete)
-                {
-                    job_queue.erase(itr);
-                }
+                job_queue.clear();
             }
         }
     }
@@ -2159,8 +2309,6 @@ void MapsElementsWidget::on_export_images()
             data_struct::Fit_Count_Dict<float> element_counts;
             _model->getAnalyzedCounts(a_itr, element_counts);
 
-            const data_struct::ArrayXXr<float>* normalizer = nullptr;
-
             ascii_dir.mkdir(QString(a_itr.c_str()));
             ascii_dir.cd(QString(a_itr.c_str()));
 
@@ -2170,8 +2318,11 @@ void MapsElementsWidget::on_export_images()
                 ascii_dir.mkdir(QString(n_itr.c_str()));
                 ascii_dir.cd(QString(n_itr.c_str()));
 
+                // Has to be reset per scaler, otherwise a scaler that is missing from the
+                // dataset would be normalized by whichever one came before it.
+                const data_struct::ArrayXXr<float>* normalizer = nullptr;
                 const std::map<std::string, data_struct::ArrayXXr<float>>* scalers = _model->getScalers();
-                if (scalers->count(n_itr) > 0)
+                if (scalers != nullptr && scalers->count(n_itr) > 0)
                 {
                     normalizer = &(scalers->at(n_itr));
                 }
@@ -2228,10 +2379,19 @@ void MapsElementsWidget::on_export_images()
                         for (int xidx = 0; xidx < x_axis.cols(); xidx++)
                         {
 
-                            out_stream << yidx << " , " << xidx << " , " << y_axis(yidx,0) << " , " << x_axis(0,xidx) << " , ";
+                            float y_pos = array_contains(y_axis, yidx, 0) ? y_axis(yidx, 0) : 0.0f;
+                            float x_pos = array_contains(x_axis, 0, xidx) ? x_axis(0, xidx) : 0.0f;
+                            out_stream << yidx << " , " << xidx << " , " << y_pos << " , " << x_pos << " , ";
 
                             for (auto& e_itr : element_counts)
                             {
+                                // Counts arrays are not guaranteed to be the same size as the
+                                // axis, so the index has to be checked before it is used.
+                                if (false == array_contains(e_itr.second, yidx, xidx))
+                                {
+                                    out_stream << " , ";
+                                    continue;
+                                }
                                 float calib_val = 1.0;
                                 double val = 1.0;
                                 float e_val = (e_itr.second)(yidx, xidx);
@@ -2241,7 +2401,7 @@ void MapsElementsWidget::on_export_images()
                                 }
                                 else
                                 {
-                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    if (calib_curve != nullptr && normalizer != nullptr && array_contains(*normalizer, yidx, xidx))
                                     {
                                         if (calib_curve->calib_curve.count(e_itr.first) > 0)
                                         {
@@ -2284,10 +2444,19 @@ void MapsElementsWidget::on_export_images()
                         {
                             int yidx = p_itr.second;
                             int xidx = p_itr.first;
-                            out_stream << yidx << " , " << xidx << " , " << y_axis(yidx,0) << " , " << x_axis(0,xidx) << " , ";
+                            // Roi's can be drawn against a different dataset than the one being
+                            // exported, so the pixels are not guaranteed to be on this map.
+                            float y_pos = array_contains(y_axis, yidx, 0) ? y_axis(yidx, 0) : 0.0f;
+                            float x_pos = array_contains(x_axis, 0, xidx) ? x_axis(0, xidx) : 0.0f;
+                            out_stream << yidx << " , " << xidx << " , " << y_pos << " , " << x_pos << " , ";
 
                             for (auto& e_itr : element_counts)
                             {
+                                if (false == array_contains(e_itr.second, yidx, xidx))
+                                {
+                                    out_stream << " , ";
+                                    continue;
+                                }
                                 float calib_val = 1.0;
                                 double val = 1.0;
                                 float e_val = (e_itr.second)(yidx, xidx);
@@ -2297,7 +2466,7 @@ void MapsElementsWidget::on_export_images()
                                 }
                                 else
                                 {
-                                    if (calib_curve != nullptr && normalizer != nullptr)
+                                    if (calib_curve != nullptr && normalizer != nullptr && array_contains(*normalizer, yidx, xidx))
                                     {
                                         if (calib_curve->calib_curve.count(e_itr.first) > 0)
                                         {

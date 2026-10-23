@@ -3182,12 +3182,19 @@ void MapsH5Model::generateNameLists(QString analysis_type, std::vector<std::stri
 
 QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>& normalized) const
 {
+    return QPixmap::fromImage(gen_image(props, normalized));
+}
+
+//---------------------------------------------------------------------------
+
+QImage MapsH5Model::gen_image(const GenerateImageProp& props, ArrayXXr<float>& normalized) const
+{
 
     //std::chrono::time_point<std::chrono::system_clock> start, end;
     //start = std::chrono::system_clock::now();
     if(props.analysis_type.length() < 1 || props.element.length() < 1)
     {
-        return QPixmap();
+        return QImage();
     }
 
     bool draw = getCountsOrScaler(props.analysis_type, props.element, &normalized);
@@ -3219,7 +3226,9 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
                 
         QImage image(width + cm_ledgend, height, QImage::Format_Indexed8);
         
-        if(props.selected_colormap != nullptr)
+        // Every pixel below is written as an 8 bit index, so the table has to cover all 256 of
+        // them. A short table leaves the conversion to RGB32 indexing past the end of it.
+        if(props.selected_colormap != nullptr && props.selected_colormap->size() == 256)
         {
             image.setColorTable(*props.selected_colormap);
         }
@@ -3400,10 +3409,10 @@ QPixmap MapsH5Model::gen_pixmap(const GenerateImageProp& props, ArrayXXr<float>&
         //std::chrono::duration<double> elapsed_seconds = end - start;
         //logI << "=-=-=-=-=-=- Total elapsed time: " << elapsed_seconds.count() << "s =-=-=-=-=-=-=-\n" << std::endl; //endl will flush the print.
        
-        return QPixmap::fromImage(image.convertToFormat(QImage::Format_RGB32));
+        return image.convertToFormat(QImage::Format_RGB32);
     }
 
-    return QPixmap();
+    return QImage();
 }
 
 //---------------------------------------------------------------------------

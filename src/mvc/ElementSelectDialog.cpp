@@ -107,7 +107,12 @@ void ElementSelectDialog::setListData(std::unordered_map<std::string, data_struc
 		}
 	}
 
-	std::map<std::string, data_struct::ArrayXXr<float>> left_over_scalers = *scalers;
+	// A dataset saved without scalers hands us a null map.
+	std::map<std::string, data_struct::ArrayXXr<float>> left_over_scalers;
+	if (scalers != nullptr)
+	{
+		left_over_scalers = *scalers;
+	}
 	// add scalers in certain order
 	for (auto& itr : scalers_to_add_first)
 	{

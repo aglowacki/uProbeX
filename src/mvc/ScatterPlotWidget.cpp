@@ -236,12 +236,11 @@ void ScatterPlotWidget::setQuantType(QString name)
 
 void ScatterPlotWidget::setModel(std::shared_ptr<MapsH5Model> model)
 {
-    if (model != nullptr)
+    // nullptr has to be forwarded too, otherwise the views keep the unloaded dataset alive and
+    // keep showing it.
+    for (auto& itr : _plot_view_list)
     {
-        for (auto& itr : _plot_view_list)
-        {
-            itr->setModel(model);
-        }
+        itr->setModel(model);
     }
 }
 

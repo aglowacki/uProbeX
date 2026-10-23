@@ -82,11 +82,53 @@ ColorMap* ColorMap::inst()
 
 //---------------------------------------------------------------------------
 
+bool ColorMap::_resample_to_256(QVector<QRgb>& vrgb)
+{
+    // Color maps are used as the table of a Format_Indexed8 image, so they have to have an entry
+    // for every one of the 256 indices. Linearly interpolate whatever the csv gave us up to that.
+    if (vrgb.size() == 256)
+    {
+        return true;
+    }
+    if (vrgb.size() < 2)
+    {
+        return false;
+    }
+
+    QVector<QRgb> resampled;
+    resampled.reserve(256);
+    const int num_segs = vrgb.size() - 1;
+    for (int i = 0; i < 256; ++i)
+    {
+        float pos = (float)i / 255.0f * num_segs;
+        int seg = (int)pos;
+        if (seg >= num_segs)
+        {
+            seg = num_segs - 1;
+        }
+        float t = pos - seg;
+        QRgb lo = vrgb[seg];
+        QRgb hi = vrgb[seg + 1];
+        int r = (int)(qRed(lo) + t * (qRed(hi) - qRed(lo)) + 0.5f);
+        int g = (int)(qGreen(lo) + t * (qGreen(hi) - qGreen(lo)) + 0.5f);
+        int b = (int)(qBlue(lo) + t * (qBlue(hi) - qBlue(lo)) + 0.5f);
+        resampled.append(qRgb(r, g, b));
+    }
+    vrgb = resampled;
+    return true;
+}
+
+//---------------------------------------------------------------------------
+
 QVector<QRgb>* ColorMap::get_color_map(QString name)
 {
     if (_color_maps.count(name) > 0)
     {
-        return &_color_maps[name];
+        QVector<QRgb>* cmap = &_color_maps[name];
+        if (cmap->size() == 256)
+        {
+            return cmap;
+        }
     }
     return nullptr;
 }
@@ -130,6 +172,12 @@ void ColorMap::reload_color_maps()
                     }
                 }
                 inputFile.close();
+                if (false == _resample_to_256(vrgb))
+                {
+                    QString warn_msg = "Colormap " + fileInfo.absoluteFilePath() + " has fewer than 2 colors, skipping";
+                    qWarning("%s", warn_msg.toStdString().c_str());
+                    continue;
+                }
                 _color_maps[fileInfo.baseName()] = vrgb;
             }
             else

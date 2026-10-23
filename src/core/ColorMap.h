@@ -85,6 +85,12 @@ private:
     */
     ColorMap();
 
+    /**
+     * @brief Stretch a color map to the 256 entries an indexed 8 bit image needs.
+     * @return false if there are too few colors to interpolate from.
+     */
+    static bool _resample_to_256(QVector<QRgb>& vrgb);
+
     static ColorMap* _inst;
 
     std::map<QString, QVector<QRgb> > _color_maps;
