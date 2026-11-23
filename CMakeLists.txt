@@ -75,7 +75,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# If compiled on some intel mahcines this causes crashes so let user set it for compile
+# If compiled on some intel mahcines this causes crashes so let user set it for compile.
+# On MSVC these default to whatever XRF-Maps was built with (read from its CMakeCache.txt
+# after find_package(XRF_Maps) below) so the SIMD arch matches across the library boundary.
+option(AVX512 "Compule with arch AVX512 on MSVC" OFF)
 option(AVX2 "Compule with arch AVX2 on MSVC" OFF)
 option(AVX "Compule with arch AVX on MSVC" OFF)
 option(SSE2 "Compule with arch SSE2 on MSVC" OFF)
@@ -142,6 +145,24 @@ if (libxrf_io_FOUND)
   message("Found libxrf_io")
 endif()
 
+# On Windows/MSVC the SIMD arch (/arch:AVX, /arch:AVX2, ...) must match what
+# XRF-Maps was built with, otherwise code that crosses the library boundary can
+# crash on machines that lack the wider instruction set. Rather than requiring
+# the AVX/AVX2 options to be set a second time here, read the values XRF-Maps was
+# actually configured with from its build-tree CMakeCache.txt. XRF_Maps_DIR is the
+# directory containing the exported XRF_MapsConfig.cmake, i.e. the XRF-Maps build dir.
+IF(MSVC AND XRF_Maps_DIR AND EXISTS "${XRF_Maps_DIR}/CMakeCache.txt")
+  file(STRINGS "${XRF_Maps_DIR}/CMakeCache.txt" _xrf_cache_lines)
+  foreach(_simd AVX512 AVX2 AVX SSE2)
+    foreach(_line ${_xrf_cache_lines})
+      IF("${_line}" MATCHES "^${_simd}:BOOL=(ON|TRUE|1)$")
+        set(${_simd} ON)
+        message(STATUS "Inheriting ${_simd}=ON from XRF-Maps build settings (${XRF_Maps_DIR}/CMakeCache.txt)")
+      ENDIF()
+    endforeach()
+  endforeach()
+ENDIF()
+
 add_definitions(-D_BUILD_WITH_ZMQ)
 add_definitions(-DZMQ_STATIC)
 
@@ -188,19 +209,18 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 ENDIF()
 
-  IF (AVX2)
+  IF (AVX512)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX512")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX512")
+  ELSEIF (AVX2)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
-  ELSE()
-    IF (AVX)
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
-    ELSE()
-      IF(SSE2)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
-      ENDIF()
-    ENDIF()
+  ELSEIF (AVX)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
+  ELSEIF (SSE2)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
   ENDIF()
 
   IF(MSVC_DEBUG_INFO_REL)
